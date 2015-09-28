@@ -1,0 +1,79 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+<core_rt:if test="${release != null}">
+    <table class="table info_table" id="ReleaseDetailOverview" title="Release detail overview">
+        <thead>
+        <tr>
+            <th colspan="2">Release Details: <sw360:ReleaseName release="${release}" /></th>
+        </tr>
+        </thead>
+        <tr>
+            <td>CPE ID:</td>
+            <td><sw360:out value="${release.cpeid}"/></td>
+        </tr>
+        <tr>
+            <td>Release date:</td>
+            <td><sw360:out value="${release.releaseDate}"/></td>
+        </tr>
+        <tr>
+            <td>Created on:</td>
+            <td><sw360:out value="${release.createdOn}"/></td>
+        </tr>
+        <tr>
+            <td>Created by:</td>
+            <td><sw360:DisplayUserEmail email="${release.createdBy}"/></td>
+        </tr>
+        <tr>
+            <td>Contacts:</td>
+            <td><sw360:DisplayUserEmailCollection value="${release.contacts}"/></td>
+        </tr>
+        <tr>
+            <td>Moderators:</td>
+            <td><sw360:DisplayUserEmailCollection value="${release.moderators}"/></td>
+        </tr>
+        <tr>
+            <td>Subscribers:</td>
+            <td><sw360:DisplayUserEmailCollection value="${release.subscribers}"/></td>
+        </tr>
+        <tr>
+            <td>Download URL:</td>
+            <td><sw360:out value="${release.downloadurl}"/></td>
+        </tr>
+        <core_rt:if test="${release.setRepository}">
+            <tr>
+                <td>Repository:</td>
+                <td><sw360:out value="${release.repository.url} (${release.repository.repositorytype})"/></td>
+            </tr>
+        </core_rt:if>
+
+        <tr>
+            <td>Clearing State:</td>
+            <td><sw360:DisplayEnum value="${release.clearingState}"/></td>
+        </tr>
+        <tr>
+            <td>Mainline State:</td>
+            <td><sw360:DisplayEnum value="${release.mainlineState}"/></td>
+        </tr>
+
+        <tr>
+            <td>Main Licenses:</td>
+            <td><sw360:DisplayCollection value="${release.mainLicenseNames}" /></td>
+        </tr>
+    </table>
+</core_rt:if>

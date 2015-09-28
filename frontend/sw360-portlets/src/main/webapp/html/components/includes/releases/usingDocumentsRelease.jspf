@@ -1,0 +1,57 @@
+<!--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+-->
+
+<core_rt:if test="${release != null}">
+    <core_rt:if test="${usingProjects != null  && usingProjects.size()>0}">
+        <table class="table info_table" id="ReleaseUsage" title="Release usage overview">
+            <thead>
+            <tr>
+                <th colspan="2"><sw360:ReleaseName release="${release}"/> is used by the following Projects</th>
+            </tr>
+            </thead>
+
+
+            <tr>
+                <td>
+                    <core_rt:forEach var="project" items="${usingProjects}">
+                        <sw360:DisplayProjectLink project="${project}"/>&nbsp;
+                    </core_rt:forEach>
+                </td>
+            </tr>
+
+
+        </table>
+    </core_rt:if>
+
+    <core_rt:if test="${usingComponents != null  && usingComponents.size()>0}">
+        <table class="table info_table" id="ReleaseUsageComponents" title="Release by components usage overview">
+            <thead>
+            <tr>
+                <th colspan="2"><sw360:ReleaseName release="${release}"/> is used by the following Components</th>
+            </tr>
+            </thead>
+            <tr>
+                <td>
+                    <core_rt:forEach var="component" items="${usingComponents}" varStatus="loop">
+                        <sw360:DisplayComponentLink component="${component}"/>&nbsp;
+                    </core_rt:forEach>
+                </td>
+            </tr>
+        </table>
+    </core_rt:if>
+</core_rt:if>

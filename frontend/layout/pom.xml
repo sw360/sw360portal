@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.siemens.sw360</groupId>
+        <artifactId>frontend</artifactId>
+        <version>0.1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>layout</artifactId>
+    <packaging>war</packaging>
+    <name>SW360 Layout Template</name>
+    <description>Custom Page Layout project for SW360 Portal using Liferay layout template.</description>
+    <inceptionYear>2013</inceptionYear>
+    <organization>
+        <name>Siemens AG, Corporate Technology</name>
+        <url>http://www.siemens.com/corporate-technology/</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>nunifar.ms@siemens.com</name>
+        </developer>
+        <developer>
+            <name>puspa.panda@siemens.com</name>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>GPL-2.0-with-classpath-exception.</name>
+            <url>https://spdx.org/licenses/GPL-2.0-with-classpath-exception</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+        </plugins>
+    </build>
+    
+    <!-- For deployment right to your local liferay folder -->
+    <profiles>
+		<profile>
+  			<id>deploy</id>
+  			<build>
+  				<plugins>
+					<plugin>
+						<groupId>com.liferay.maven.plugins</groupId>
+						<artifactId>liferay-maven-plugin</artifactId>
+						<version>${liferay.version}</version>
+						<executions>
+							<execution>
+            					<id>deploy-war</id>
+            					<phase>install</phase>
+            					<goals>
+              						<goal>deploy</goal>
+            					</goals>
+          					</execution>
+						</executions> 
+						<configuration>
+							<autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
+							<appServerDeployDir>${liferay.app.server.deploy.dir}</appServerDeployDir>
+							<appServerLibGlobalDir>${liferay.app.server.lib.global.dir}</appServerLibGlobalDir>
+							<appServerPortalDir>${liferay.app.server.portal.dir}</appServerPortalDir>
+							<liferayVersion>${liferay.version}</liferayVersion>
+							<pluginType>layouttpl</pluginType>
+						</configuration>
+					</plugin>
+    			</plugins>
+  			</build>
+		</profile>
+	</profiles>
+	
+</project>

@@ -1,0 +1,121 @@
+/**
+ * Copyright Siemens AG, 2013-2014. Part of the SW360 Portal Project.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License Version 2.0 as published by the
+ * Free Software Foundation with classpath exception.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program (please see the COPYING file); if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ *
+ * Description: Styles for Licenses portlet Pages
+ *
+ * Authors: nunifar.ms@siemens.com, puspa.panda@siemens.com
+ */
+ 
+
+body
+{
+    margin-bottom:50px;
+}
+
+.pg-normal {
+	color: red;
+	font-weight: normal;
+	text-decoration: none;
+	cursor: pointer;
+	font-family: arial;
+	font-size: 12px;
+}
+
+.pg-selected {
+	color: #ffffff;
+	font-weight: bold;
+	background-color: #66c1c2;
+	cursor: pointer;
+	font-size: 14px;
+	font-family: arial;
+	font-size: 12px;
+}
+
+.buttonStyle {
+	width: 25px;
+	height: 20px;
+	font-size: 14px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	color: red;
+	border-color: transparent;
+	font-weight: normal;
+}
+/*This should make them change their color when they are hovered*/
+.buttonStyle:hover {
+	background-color: #b2e0e0;
+	color: #ffffff;
+}
+
+.buttonStyleclick {
+	background-color: #b2e0e0;
+	color: #ffffff;
+}
+
+table {
+	width: 96%;
+	height: 92%;
+	margin: 2% 3%;
+	background-color: #f8f7f7;
+	border-bottom: 1px solid #66c1c2;
+}
+
+td {
+	font-size: 12px;
+	font-family: Arial;
+	/*min-width: 200px;*/
+}
+
+th {
+	font-size: 12px;
+	font-family: Arial;
+	text-align: left;
+	min-height: 20px;
+	verticalAlign: middle;
+}
+
+tr {
+	min-height: 30px;
+}
+
+.liClass {
+	display: inline;
+	color: #e95850;
+	font-size: 12px;
+	font-weight:bold;
+	list-style-type: none;
+	padding-right: 10px;
+	padding-left: 10px;
+	cursor: pointer; cursor: hand; 
+}
+
+.liClass:hover {
+	color: white;
+	background-color: #66c1c2;
+}
+
+.liViewAll{
+	
+		color:#e95850;
+		font-size:12px;		
+		font-weight:bold;
+		font-family:Arial;
+		float:right;
+		margin-right:90px;
+		cursor: pointer; cursor: hand; 
+		display:inline;
+}

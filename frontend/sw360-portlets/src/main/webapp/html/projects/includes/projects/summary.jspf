@@ -1,0 +1,135 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+<div class="up_Summary" id="up_Summary"><p><sw360:out value="${project.description}"/></p></div>
+
+<table class="table info_table" id="projectOverview" title="Project detail overview">
+    <thead>
+    <tr>
+        <th colspan="2">Project Details: <sw360:ProjectName project="${project}"/></th>
+    </tr>
+    </thead>
+    <tr>
+        <td>Name:</td>
+        <td><sw360:out value="${project.name}"/></td>
+    </tr>
+    <tr>
+        <td>Version:</td>
+        <td><sw360:out value="${project.version}"/></td>
+    </tr>
+    <tr>
+        <td>Created on:</td>
+        <td><sw360:out value="${project.createdOn}"/></td>
+    </tr>
+    <tr>
+        <td>Visibility:</td>
+        <td><sw360:DisplayEnum value="${project.visbility}"/></td>
+    </tr>
+    <tr>
+        <td>Clearing details:</td>
+        <td>
+            New Releases:
+            <span class="minWidth">
+                <sw360:out value="${project.releaseClearingStateSummary.newRelease}" default="--"/>
+            </span>,
+
+            Under clearing:
+            <span class="minWidth">
+                <sw360:out value="${project.releaseClearingStateSummary.underClearingByProjectTeam}" default="--"/>
+            </span>
+            (and <sw360:out value="${project.releaseClearingStateSummary.underClearing}" default="--"/> by other teams),
+
+            Report available:
+            <span class="minWidth">
+                <sw360:out value="${project.releaseClearingStateSummary.reportAvailable}" default="--"/>
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td>Created by:</td>
+        <td><sw360:DisplayUserEmail email="${project.createdBy}"/></td>
+    </tr>
+    <tr>
+        <td>Project responsible:</td>
+        <td><sw360:DisplayUserEmail email="${project.projectResponsible}"/></td>
+    </tr>
+
+    <tr>
+        <td>Lead architect:</td>
+        <td><sw360:DisplayUserEmail email="${project.leadArchitect}"/></td>
+    </tr>
+    <tr>
+        <td>Moderators:</td>
+        <td><sw360:DisplayUserEmailCollection value="${project.moderators}"/></td>
+    </tr>
+    <tr>
+        <td>Comoderators:</td>
+        <td><sw360:DisplayUserEmailCollection value="${project.comoderators}"/></td>
+    </tr>
+    <tr>
+        <td>Contributors:</td>
+        <td><sw360:DisplayUserEmailCollection value="${project.contributors}"/></td>
+    </tr>
+    <tr>
+        <td>Homepage:</td>
+        <td><sw360:DisplayLink target="${project.homepage}"/></td>
+    </tr>
+    <tr>
+        <td>Wiki:</td>
+        <td><sw360:DisplayLink target="${project.wiki}"/></td>
+    </tr>
+    <tr>
+        <td>Project Type:</td>
+        <td><sw360:DisplayEnum value="${project.projectType}"/></td>
+    </tr>
+</table>
+
+<table class="table info_table" id="projectAdminData" title="Project admin overview">
+    <thead>
+    <tr>
+        <th colspan="2">Project Admin Information</th>
+    </tr>
+    </thead>
+    <tr>
+        <td>Business unit:</td>
+        <td><sw360:out value="${project.businessUnit}"/></td>
+    </tr>
+    <tr>
+        <td>Clearing team:</td>
+        <td><sw360:out value="${project.clearingTeam}"/></td>
+    </tr>
+    <tr>
+        <td>Deadline for pre-evaluation:</td>
+        <td><sw360:out value="${project.preevaluationDeadline}"/></td>
+    </tr>
+    <tr>
+        <td>System test begin:</td>
+        <td><sw360:out value="${project.systemTestStart}"/></td>
+    </tr>
+    <tr>
+        <td>System test end:</td>
+        <td><sw360:out value="${project.systemTestEnd}"/></td>
+    </tr>
+    <tr>
+        <td>Delivery start:</td>
+        <td><sw360:out value="${project.deliveryStart}"/></td>
+    </tr>
+    <tr>
+        <td>Phase-out since:</td>
+        <td><sw360:out value="${project.phaseOutSince}"/></td>
+    </tr>
+</table>

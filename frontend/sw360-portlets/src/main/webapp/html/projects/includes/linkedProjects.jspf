@@ -1,0 +1,60 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+<%@include file="/html/init.jsp" %>
+
+
+<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
+
+<portlet:defineObjects/>
+<liferay-theme:defineObjects/>
+
+<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectLink" %>
+<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
+
+<table class="table info_table" id="LinkedProjectsInfo" title="Linked Projects">
+    <thead>
+    <tr>
+        <th colspan="2" class="headlabel">Linked Projects</th>
+    </tr>
+    </thead>
+    <tbody>
+    <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">
+        <tr id="projectLinkRow${loop.count}">
+            <td width="50%">
+                <input type="hidden" value="${projectLink.id}" name="<portlet:namespace/><%=ProjectLink._Fields.ID%>">
+                <label class="textlabel stackedLabel" for="projectName">project Name</label>
+                <input id="projectName" type="text" class="toplabelledInput" placeholder="Enter project"
+                       value="<sw360:out value="${projectLink.name}"/>" readonly/>
+            </td>
+            <td width="50%">
+                <label class="textlabel stackedLabel mandatory" for="projectRelation">Project relation</label>
+
+                 <input id="projectRelation" value="<sw360:DisplayEnum value="${projectLink.relation}"/>" readonly/>
+
+            </td>
+
+            <%--<td class="deletor">--%>
+                <%--<img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteProjectLink('projectLinkRow${loop.count}','${projectLink.id}')" alt="Delete">--%>
+            <%--</td>--%>
+        </tr>
+    </core_rt:forEach>
+    <core_rt:if test="${projectList.size() < 1}"> <tr> <td colspan="2"> No linked projects</td></tr> </core_rt:if>
+    </tbody>
+</table>
+

@@ -1,0 +1,176 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+<%@include file="/html/utils/includes/fossologyClearing.jspf"%>
+
+<core_rt:set var="clearingInfo" value="${release.clearingInformation}"/>
+<table class="table info_table" id="ReleaseClearingOverview" title="Release clearing overview">
+    <thead>
+    <tr>
+        <th colspan="2">Clearing Details: <sw360:ReleaseName release="${release}" /></th>
+    </tr>
+    </thead>
+    <tr>
+        <td>Clearing State:</td>
+        <td>
+            <sw360:DisplayEnum value="${release.clearingState}"/>
+
+            <span id='releaseAction${release.id}'>
+                <img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'
+                     onclick='openSelectClearingDialog("fossologySending${release.id}","${release.id}")'
+                     alt='Send to FOSSology'
+                     title='Send to FOSSology'>
+                <span id='fossologySending${release.id}'></span>
+            </span>
+        </td>
+    </tr>
+
+    <tr>
+        <td>Assessor Contact Person:</td>
+        <td><sw360:out value="${clearingInfo.assessorContactPerson}"/></td>
+    </tr>
+    <tr>
+        <td>Assessor Department:</td>
+        <td><sw360:out value="${clearingInfo.assessorDepartment}"/></td>
+    </tr>
+    <tr>
+        <td>Additional Request Information:</td>
+        <td><sw360:out value="${clearingInfo.additionalRequestInfo}"/></td>
+    </tr>
+    <tr>
+        <td>Evaluated:</td>
+        <td><sw360:out value="${clearingInfo.evaluated}"/></td>
+    </tr>
+    <tr>
+        <td>Procedure Start:</td>
+        <td><sw360:out value="${clearingInfo.procStart}"/></td>
+    </tr>
+    <tr>
+        <td>Request ID:</td>
+        <td><sw360:out value="${clearingInfo.requestID}"/></td>
+    </tr>
+    <tr>
+        <td>Binaries Original from Community:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setBinariesOriginalFromCommunity}"
+                                  value="${clearingInfo.binariesOriginalFromCommunity}"/></td>
+    </tr>
+    <tr>
+        <td>Binaries Self-Made:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setBinariesSelfMade}"
+                                  value="${clearingInfo.binariesSelfMade}"/></td>
+    </tr>
+    <tr>
+        <td>Component Licence Information:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setComponentLicenseInformation}"
+                                  value="${clearingInfo.componentLicenseInformation}"/></td>
+    </tr>
+    <tr>
+        <td>Source Code Delivery:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setSourceCodeDelivery}"
+                                  value="${clearingInfo.sourceCodeDelivery}"/></td>
+    </tr>
+    <tr>
+        <td>Source Code Original from Community:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setSourceCodeOriginalFromCommunity}"
+                                  value="${clearingInfo.sourceCodeOriginalFromCommunity}"/></td>
+    </tr>
+    <tr>
+        <td>Source Code Tool-Made:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setSourceCodeToolMade}"
+                                  value="${clearingInfo.sourceCodeToolMade}"/></td>
+    </tr>
+    <tr>
+        <td>Source Code Self-Made:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setSourceCodeSelfMade}"
+                                  value="${clearingInfo.sourceCodeSelfMade}"/></td>
+    </tr>
+    <tr>
+        <td>Screenshot of Website:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setScreenshotOfWebSite}"
+                                  value="${clearingInfo.screenshotOfWebSite}"/></td>
+    </tr>
+    <tr>
+        <td>Finalized License Scan Report:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setFinalizedLicenseScanReport}"
+                                  value="${clearingInfo.finalizedLicenseScanReport}"/></td>
+    </tr>
+    <tr>
+        <td>License Scan Report Result:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setLicenseScanReportResult}"
+                                  value="${clearingInfo.licenseScanReportResult}"/></td>
+    </tr>
+    <tr>
+        <td>Legal Evaluation:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setLegalEvaluation}"
+                                  value="${clearingInfo.legalEvaluation}"/></td>
+    </tr>
+    <tr>
+        <td>Licence Agreement:</td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setLicenseAgreement}"
+                                  value="${clearingInfo.licenseAgreement}"/></td>
+    </tr>
+    <tr>
+        <td>Scanned:</td>
+        <td><sw360:out value="${clearingInfo.scanned}"/></td>
+    </tr>
+    <tr>
+        <td>Component Clearing Report:
+        </td>
+        <td><sw360:DisplayBoolean defined="${clearingInfo.setComponentClearingReport}"
+                                  value="${clearingInfo.componentClearingReport}"/></td>
+    </tr>
+    <tr>
+        <td>Clearing Standard:</td>
+        <td><sw360:out value="${clearingInfo.clearingStandard}"/></td>
+    </tr> 
+    <tr>
+        <td>External URL:</td>
+        <td><sw360:out value="${clearingInfo.externalUrl}"/></td>
+    </tr>
+    <tr>
+        <td>Comments:</td>
+        <td><sw360:out value="${clearingInfo.comment}"/></td>
+    </tr>
+</table>
+
+
+<table class="table info_table" id="ReleaseSupplementalInfo" title="Release Supplemental Information">
+    <thead>
+    <tr>
+        <th colspan="2">Supplemental Information</th>
+    </tr>
+    </thead>
+    <tr>
+        <td>AL:</td>
+        <td><sw360:out value="${clearingInfo.AL}"/></td>
+    </tr>
+    <tr>
+        <td>ECCN:</td>
+        <td><sw360:out value="${clearingInfo.ECCN}"/></td>
+    </tr>
+    <tr>
+        <td>External Supplier ID:</td>
+        <td><sw360:out value="${clearingInfo.externalSupplierID}"/></td>
+    </tr>
+    <tr>
+        <td>Number of Security VN:</td>
+        <td><sw360:out value="${clearingInfo.countOfSecurityVn}"/></td>
+    </tr>
+</table>
+
+

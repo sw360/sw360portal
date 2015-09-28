@@ -1,0 +1,215 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+<%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectType" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectState" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.Visibility" %>
+
+<core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
+
+<table class="table info_table" id="ProjectBasicInfo" title="Project Basic Information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">Basic Information</th>
+    </tr>
+    </thead>
+    <tr>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>
+            <input id="comp_name" name="<portlet:namespace/><%=Project._Fields.NAME%>" type="text"
+                   placeholder="Enter Name" required="" class="followedByImg"
+                   value="<sw360:out value="${project.name}"/>"/>
+            <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
+                 title="Name of the project"/>
+        </td>
+
+
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="comp_version">Version</label>
+            <input id="comp_version" name="<portlet:namespace/><%=Project._Fields.VERSION%>" type="text"
+                   placeholder="Enter Version" value="<sw360:out value="${project.version}"/>"/>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="projectState">Project State</label>
+            <select class="toplabelledInput" id="projectState" name="<portlet:namespace/><%=Project._Fields.STATE%>"
+                    style="min-width: 162px; min-height: 28px;">
+                <sw360:DisplayEnumOptions type="<%=ProjectState.class%>" selected="${project.state}"/>
+            </select>
+        </td>
+
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_desc">Description</label>
+                <textarea class="toplabelledInput" id="proj_desc"
+                          name="<portlet:namespace/><%=Project._Fields.DESCRIPTION%>" rows="4" cols="30"
+                          style="width:200px; height: 25px; resize:both;"
+                          placeholder="Enter description"><sw360:out value="${project.description}"/></textarea>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="proj_projecttype">Project Type</label>
+            <select class="toplabelledInput" id="proj_projecttype"
+                    name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
+                    style="min-width: 162px; min-height: 28px;">
+
+                <sw360:DisplayEnumOptions type="<%=ProjectType.class%>" selected="${project.projectType}"/>
+            </select>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="proj_projectvisibility">Project Visibility</label>
+            <select class="toplabelledInput" id="proj_projectvisibility"
+                    name="<portlet:namespace/><%=Project._Fields.VISBILITY%>"
+                    style="min-width: 162px; min-height: 28px;">
+
+                <sw360:DisplayEnumOptions type="<%=Visibility.class%>" selected="${project.visbility}"/>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+
+
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_url">HomePage URL</label>
+            <input class="toplabelledInput" id="proj_url" name="<portlet:namespace/><%=Project._Fields.HOMEPAGE%>"
+                   type="text"
+                   value="<sw360:out value="${project.homepage}"/>" placeholder="Enter Home Url"/>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_wiki">Wiki URL</label>
+            <input class="toplabelledInput" id="proj_wiki" name="<portlet:namespace/><%=Project._Fields.WIKI%>"
+                   type="text"
+                   value="<sw360:out value="${project.wiki}"/>" placeholder="Enter Wiki Url"/>
+        </td>
+
+    </tr>
+</table>
+
+<table class="table info_table" id="ProjectUserInfo" title="User Details">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">User Information</th>
+    </tr>
+    </thead>
+    <tr>
+        <td width="33%">
+            <sw360:DisplayUserEdit email="${project.createdBy}" id="<%=Project._Fields.CREATED_BY.toString()%>"
+                                   description="Created By" multiUsers="false" readonly="true"/>
+        </td>
+        <td width="33%">
+            <sw360:DisplayUserEdit email="${project.projectResponsible}"
+                                   id="<%=Project._Fields.PROJECT_RESPONSIBLE.toString()%>"
+                                   description="Project Responsible" multiUsers="false"/>
+        </td>
+        <td width="33%">
+            <sw360:DisplayUserEdit email="${project.leadArchitect}" id="<%=Project._Fields.LEAD_ARCHITECT.toString()%>"
+                                   description="Lead Architect" multiUsers="false"/>
+        </td>
+
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${project.moderators}" id="<%=Project._Fields.MODERATORS.toString()%>"
+                                   description="Moderators" multiUsers="true"/>
+        </td>
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${project.comoderators}" id="<%=Project._Fields.COMODERATORS.toString()%>"
+                                   description="Comoderators" multiUsers="true"/>
+        </td>
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${project.contributors}" id="<%=Project._Fields.CONTRIBUTORS.toString()%>"
+                                   description="Contributors" multiUsers="true"/>
+        </td>
+    </tr>
+
+</table>
+
+<table class="table info_table" id="ProjectAdminInfo" title="Project Admin Information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">Admin Information</th>
+    </tr>
+    </thead>
+    <tr>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="business_unit">Business Unit</label>
+            <input id="business_unit" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>" type="text"
+                   placeholder="Enter Business Unit" required=""
+                   value="<sw360:out value="${project.businessUnit}"/>"/>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="clearingTeam">Clearing Team</label>
+            <select class="toplabelledInput" id="clearingTeam"
+                    name="<portlet:namespace/><%=Project._Fields.CLEARING_TEAM%>"
+                    style="min-width: 162px; min-height: 28px;">
+
+                <core_rt:forEach items="${clearingTeamsStringSet}" var="entry">
+                    <option value="${entry}" class="textlabel stackedLabel" <core_rt:if
+                            test='${project.clearingTeam == entry}'>selected="selected"</core_rt:if>> ${entry} </option>
+                </core_rt:forEach>
+            </select>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_deadline">Deadline for pre-evaluation</label>
+            <input class="toplabelledInput" id="proj_deadline"
+                   name="<portlet:namespace/><%=Project._Fields.PREEVALUATION_DEADLINE%>" type="text"
+                   value="<sw360:out value="${project.preevaluationDeadline}"/>" placeholder="Pre-evaluation date YYYY-MM-DD"/>
+        </td>
+    </tr>
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_systemTestStart">System test begin</label>
+            <input class="toplabelledInput" id="proj_systemTestStart"
+                   name="<portlet:namespace/><%=Project._Fields.SYSTEM_TEST_START%>" type="text"
+                   value="<sw360:out value="${project.systemTestStart}"/>" placeholder="System test begin date YYYY-MM-DD"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_systemTestEnd">System test end</label>
+            <input class="toplabelledInput" id="proj_systemTestEnd"
+                   name="<portlet:namespace/><%=Project._Fields.SYSTEM_TEST_END%>" type="text"
+                   value="<sw360:out value="${project.systemTestEnd}"/>" placeholder="System test end date YYYY-MM-DD"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_delivery">Delivery start date</label>
+            <input class="toplabelledInput" id="proj_delivery"
+                   name="<portlet:namespace/><%=Project._Fields.DELIVERY_START%>" type="text"
+                   value="<sw360:out value="${project.deliveryStart}"/>" placeholder="Delivery start date YYYY-MM-DD"/>
+        </td>
+    </tr>
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_phaseout">Phase-out date</label>
+            <input class="toplabelledInput" id="proj_phaseout"
+                   name="<portlet:namespace/><%=Project._Fields.PHASE_OUT_SINCE%>" type="text"
+                   value="<sw360:out value="${project.phaseOutSince}"/>" placeholder="Phase out since YYYY-MM-DD"/>
+        </td>
+    </tr>
+</table>
+
+

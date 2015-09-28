@@ -1,0 +1,54 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+<form action="<%=addLicenseTodoURL%>" method="post" id="AddTodoModal">
+  <table class="table">
+    <tr>
+      <td colspan="5">
+        <label>
+              <textarea name="<portlet:namespace/>todoText" rows="5"  style="width: 100%"
+                        placeholder="Enter the Todo-Text here..."></textarea>
+        </label>
+      </td>
+      <td colspan="1"></td>
+      <td colspan="6">
+        <span style="text-align: left" >
+          <label > <input type="checkbox" name="<portlet:namespace/>bools" value="development"/> &nbsp Applies to development</label><br/>
+          <label > <input type="checkbox" name="<portlet:namespace/>bools" value="distribution" /> &nbsp Applies to distribution </label>
+        </span>
+      </td>
+    </tr>
+  </table>
+
+
+  <table class="table info_table">
+    <thead><tr><th colspan="12">Obligations</th></tr></thead>
+    <tbody>
+    <core_rt:forEach var="ob" varStatus="status" items="${obligationList}">
+      <tr>
+        <td colspan="11">
+          <sw360:out value="${ob.name}"/>
+        </td>
+        <td colspan="1">
+          <label><input type="checkbox" name="<portlet:namespace/>obligations" value="${ob.id}" /></label>
+        </td>
+      </tr>
+    </core_rt:forEach>
+    </tbody>
+  </table>
+  <input type="submit" id="SubmitTodo" value="Submit" >
+</form>

@@ -1,0 +1,96 @@
+<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+<portlet:resourceURL var="deleteReleaseAjaxURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DELETE_RELEASE%>'/>
+</portlet:resourceURL>
+
+<core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
+
+<jsp:useBean id="releasesAndProjects" type="java.util.Map<com.siemens.sw360.datahandler.thrift.components.Release,java.lang.String>" scope="request"/>
+<core_rt:if test="${releasesAndProjects.size() == 0 }">
+    <h3>Please add linked releases or projects with linked releases to view their clearing status here.</h3>
+</core_rt:if>
+<core_rt:if test="${releasesAndProjects.size()  > 0 }">
+    <div id="releasesTableDiv">
+        <table id="releasesTable" cellpadding="0" cellspacing="0" border="0" class="display">
+            <tfoot>
+            <tr>
+                <th colspan="5"></th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</core_rt:if>
+
+<%@include file="/html/utils/includes/fossologyClearing.jspf"%>
+
+<script type="text/javascript">
+
+    var oTable;
+
+    function renderActions(releaseId) {
+        return "<img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' " +
+                "  onclick='openSelectClearingDialog(\"releaseClearingState" + releaseId + "\",\"" + releaseId +"\")' " +
+                "  alt='SelectClearing' title='send to Fossology'>";
+    }
+
+    function createClearingTable() {
+
+        var result = [];
+
+        <core_rt:forEach items="${releasesAndProjects.entrySet()}" var="releasesAndProject">
+        result.push({
+            "DT_RowId": "${releasesAndProject.key.id}",
+            "0": {
+                display: "<sw360:DisplayReleaseLink release="${releasesAndProject.key}"/>",
+                name: "<sw360:out value="${releasesAndProject.key.name}"/>",
+                version: "<sw360:out value="${releasesAndProject.key.version}"/>"
+            },
+            "1": "<sw360:out value="${releasesAndProject.value}"/>",
+            "2": "<span id='releaseClearingState${releasesAndProject.key.id}'><sw360:DisplayEnum value="${releasesAndProject.key.clearingState}"/></span>",
+            "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>"
+        });
+        </core_rt:forEach>
+
+        loadDataTableExtension();
+        oTable = $('#releasesTable').DataTable({
+            data: result,
+            columns: [
+                {title: "Release", type: "version", render: renderVersion},
+                {title: "Project Origin"},
+                {title: "Release Clearing State"},
+                {title: "Release Mainline State"},
+                {title: "Action", data: "DT_RowId", render: renderActions}
+            ],
+            paginationType: "full_numbers"
+        });
+
+        $('#releasesTable_first').hide();
+        $('#releasesTable_last').hide();
+
+    }
+
+    //This can not be document ready function as liferay definitions need to be loaded first
+    $(window).load(function () {
+        createClearingTable();
+    });
+
+</script>
+
+

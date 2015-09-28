@@ -1,0 +1,74 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+<form action="<%=editLicenseTodosURL%>" method="post">
+    <table class="table info_table" id="licenseObligations" title="Todo overview">
+        <thead>
+        <tr>
+            <th colspan="8">Todos and Obligations Details:
+                                    <span class="pull-right">
+                                        <core_rt:if test="${not empty licenseDetail.todos}">
+                                            <input id="EditWhitelist" class="addButton" type="button"
+                                                   onclick="showWhiteListOptions()" value="Edit WhiteList">
+                                            <input type="submit" id="SubmitWhitelist" value="Submit" hidden>
+                                        </core_rt:if>
+                                    </span>
+
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <core_rt:if test="${not empty licenseDetail.todos}">
+            <tr class="bold">
+                <td colspan="3">Todo</td>
+                <td>Applies to development</td>
+                <td>Applies to distribution</td>
+                <td colspan="2">
+                    Obligations
+                </td>
+                <td class="addToWhiteListCheckboxes">Add to white List</td>
+            </tr>
+            <core_rt:forEach var="todo" varStatus="status" items="${licenseDetail.todos}">
+                <tr class="dependentOnWhiteList"
+                    <core_rt:if test="${empty todo.whitelist}">hidden</core_rt:if> >
+                    <td colspan="3"><sw360:out value="${todo.text}"/></td>
+                    <td><sw360:DisplayBoolean value="${todo.developement}" defined="${todo.setDevelopement}"/></td>
+                    <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
+
+                    <core_rt:if test="${todo.obligationsSize > 0}">
+                        <td colspan="2">
+                            <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
+                                <ul>
+                                    <li style="color: red"><sw360:out value="${ob.name}"/></li>
+                                </ul>
+                            </core_rt:forEach>
+                        </td>
+                    </core_rt:if>
+
+                    <core_rt:if test="${todo.obligationsSize == 0}">
+                        <td colspan="2"> No obligations</td>
+                    </core_rt:if>
+                    <td class="addToWhiteListCheckboxes">
+                        <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
+                                      <core_rt:if test="${not empty todo.whitelist}">checked</core_rt:if> /></label>
+                    </td>
+                </tr>
+            </core_rt:forEach>
+        </core_rt:if>
+        </tbody>
+    </table>
+</form>

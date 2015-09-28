@@ -1,0 +1,163 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+
+
+<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
+<%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.Component" %>
+<%@ page import="com.siemens.sw360.datahandler.common.CommonUtils" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingState" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.MainlineState" %>
+
+<table class="table info_table" id="ComponentBasicInfo" title="Release Basic Information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">Release Information</th>
+    </tr>
+    </thead>
+    <tr>
+        <td width="33%">
+            <sw360:DisplayVendorEdit id="<%=Release._Fields.VENDOR_ID.toString()%>" vendor="${release.vendor}" onclick="showSetVendorDialog();" />
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>
+            <input id="comp_name" name="<portlet:namespace/><%=Release._Fields.NAME%>" type="text"
+                   placeholder="Enter Name" required="" class="followedByImg"
+                    <core_rt:if test="${ not empty release.name}">
+                        value="<sw360:out value="${release.name}"/>"
+                    </core_rt:if>
+                    <core_rt:if test="${ empty release.name}">
+                        value="<sw360:out value="${component.name}"/>"
+                    </core_rt:if>
+
+                    />
+            <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
+                 title="Name of the release"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="comp_version">Version</label>
+            <input id="comp_version" name="<portlet:namespace/><%=Release._Fields.VERSION%>" type="text"
+                   placeholder="Enter Version" required=""
+                   value="<sw360:out value="${release.version}"/>"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="programminglanguages">Programming Languages</label>
+            <input class="toplabelledInput" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
+                   id="programminglanguages" type="text"
+                   placeholder="e.g., Java,C++, C#,..." required=""
+                   value="<sw360:DisplayCollection value='${component.languages}' />"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="op_systems">Operating Systems</label>
+            <input class="toplabelledInput" id="op_systems"
+                   name="<portlet:namespace/><%=Component._Fields.OPERATING_SYSTEMS%>" type="text" align="middle"
+                   placeholder="e.g.,Linux,MAC,Windows,..."
+                   value="<sw360:DisplayCollection value="${component.operatingSystems}" />"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel mandatory" for="comp_id">CPE ID</label>
+            <input id="comp_id" name="<portlet:namespace/><%=Release._Fields.CPEID%>" type="text"
+            <core_rt:if test="${addMode}">
+                   class="toplabelledInput followedByImg"
+                   placeholder="Enter CPE ID" required="" />
+            <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
+                 title="The formula for CPE ID creation is &#13;'cpe:2.3:a:+vendorname+componentname'  "/>
+            </core_rt:if>
+            <core_rt:if test="${not addMode}">
+                class="toplabelledInput"
+                value="<sw360:out value="${release.cpeid}"/>" readonly/>
+            </core_rt:if>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="releaseDate">Release Date</label>
+            <input id="releaseDate" name="<portlet:namespace/><%=Release._Fields.RELEASE_DATE%>" type="date"
+                   placeholder="Enter Release Date"
+                   value="<sw360:out value="${release.releaseDate}"/>"/>
+        </td>
+
+        <td width="33%">
+            <sw360:DisplayMainLicensesEdit id="<%=Release._Fields.MAIN_LICENSE_IDS.toString()%>"
+                                           licenseIds="${release.mainLicenseIds}"
+                                           userEmail="<%=themeDisplay.getUser().getEmailAddress()%>"/>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="downloadUrl">Download URL</label>
+            <input id="downloadUrl" name="<portlet:namespace/><%=Release._Fields.DOWNLOADURL%>" type="URL"
+                   placeholder="Enter URL"
+                   value="<sw360:out value="${release.downloadurl}"/>"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="clearing_state">Clearing State</label>
+            <select class="toplabelledInput" id="clearing_state"
+                    name="<portlet:namespace/><%=Release._Fields.CLEARING_STATE%>"
+                    style="min-width: 162px; min-height: 28px;">
+
+                <sw360:DisplayEnumOptions type="<%=ClearingState.class%>" selected="${release.clearingState}"/>
+            </select>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="mainline_state">Mainline State</label>
+            <select class="toplabelledInput" id="mainline_state"
+                    name="<portlet:namespace/><%=Release._Fields.MAINLINE_STATE%>"
+                    style="min-width: 162px; min-height: 28px;">
+
+                <sw360:DisplayEnumOptions type="<%=MainlineState.class%>" selected="${release.mainlineState}"/>
+            </select>
+        </td>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="created_on">Created on</label>
+            <input id="created_on" name="<portlet:namespace/><%=Release._Fields.CREATED_ON%>" type="date"
+                   placeholder="Creation date YYYY-MM-DD" required=""
+                    <core_rt:if test="${addMode}">
+                        value="<%=SW360Utils.getCreatedOn()%>"
+                    </core_rt:if>
+                    <core_rt:if test="${not addMode}">
+                        value="<sw360:out value="${release.createdOn}"/>"
+                    </core_rt:if>
+                   readonly/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <sw360:DisplayUserEdit email="${release.createdBy}" id="<%=Release._Fields.CREATED_BY.toString()%>"
+                                   description="Created by" multiUsers="false" readonly="true"/>
+        </td>
+
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${release.contacts}" id="<%=Release._Fields.CONTACTS.toString()%>"
+                                   description="Contacts" multiUsers="true" readonly="false"/>
+        </td>
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${release.moderators}" id="<%=Release._Fields.MODERATORS.toString()%>"
+                                   description="Moderators" multiUsers="true" readonly="false"/>
+        </td>
+    </tr>
+</table>

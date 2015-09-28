@@ -1,0 +1,288 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+
+<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
+<%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.Repository" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingInformation" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
+
+<table class="table info_table" id="ReleaseClearingInformation" title="Release clearing information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">Release clearing information</th>
+    </tr>
+    </thead>
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="AL">Ausfuhrliste</label>
+            <input id="AL"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.AL%>"
+                   type="text"
+                   placeholder="Enter AL"
+                   value="<sw360:out value="${release.clearingInformation.AL}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="ECCN">ECCN</label>
+            <input id="ECCN"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECCN%>"
+                   type="text"
+                   placeholder="Enter ECCN"
+                   value="<sw360:out value="${release.clearingInformation.ECCN}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="externalSupplierId">ExternalSupplierId</label>
+            <input id="ExternalSupplierId"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_SUPPLIER_ID%>"
+                   type="text"
+                   placeholder="Enter ExternalSupplierID"
+                   value="<sw360:out value="${release.clearingInformation.externalSupplierID}"/>"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="assessorContactPerson">Assessor contact person</label>
+            <input id="assessorContactPerson"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_CONTACT_PERSON%>"
+                   type="text"
+                   placeholder="Enter assessor contact person"
+                   value="<sw360:out value="${release.clearingInformation.assessorContactPerson}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="assessorDepartment">Assessor Department</label>
+            <input id="assessorDepartment"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_DEPARTMENT%>"
+                   type="text"
+                   placeholder="Enter assessor Department"
+                   value="<sw360:out value="${release.clearingInformation.assessorDepartment}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="additionalRequestInfo">Additional request Info</label>
+            <input id="additionalRequestInfo"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ADDITIONAL_REQUEST_INFO%>"
+                   type="text"
+                   placeholder="Enter additional request Info"
+                   value="<sw360:out value="${release.clearingInformation.additionalRequestInfo}"/>"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="evaluationDate">Evaluation Date</label>
+            <input id="evaluationDate"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EVALUATED%>"
+                   type="text"
+                   placeholder="Evaluation Date YYYY-MM-DD"
+                   value="<sw360:out value="${release.clearingInformation.evaluated}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="procStart">Process start</label>
+            <input id="procStart"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.PROC_START%>"
+                   type="text"
+                   placeholder="Process Start YYYY-MM-DD"
+                   value="<sw360:out value="${release.clearingInformation.procStart}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="requestID">Request ID</label>
+            <input id="requestID"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.REQUEST_ID%>"
+                   type="text"
+                   placeholder="Enter request ID"
+                   value="<sw360:out value="${release.clearingInformation.requestID}"/>"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="binaries_original">
+            <input id="binaries_original" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.BINARIES_ORIGINAL_FROM_COMMUNITY%>"
+                   value="<sw360:out value="${release.clearingInformation.binariesOriginalFromCommunity}"/>"
+                    <core_rt:if test="${release.clearingInformation.binariesOriginalFromCommunity == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Binaries Original from Community</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="binaries_self_made">
+            <input id="binaries_self_made" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.BINARIES_SELF_MADE%>"
+                   value="<sw360:out value="${release.clearingInformation.binariesSelfMade}"/>"
+                    <core_rt:if test="${release.clearingInformation.binariesSelfMade == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Binaries Self Made</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="component_license">
+            <input id="component_license" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.COMPONENT_LICENSE_INFORMATION%>"
+                   value="<sw360:out value="${release.clearingInformation.componentLicenseInformation}"/>"
+                    <core_rt:if test="${release.clearingInformation.componentLicenseInformation == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Component License Information</label>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="source_code">
+            <input id="source_code" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.SOURCE_CODE_DELIVERY%>"
+                   value="<sw360:out value="${release.clearingInformation.sourceCodeDelivery}"/>"
+                    <core_rt:if test="${release.clearingInformation.sourceCodeDelivery == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Source Code Delivery</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="source_code_original">
+            <input id="source_code_original" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.SOURCE_CODE_ORIGINAL_FROM_COMMUNITY%>"
+                   value="<sw360:out value="${release.clearingInformation.sourceCodeOriginalFromCommunity}"/>"
+                    <core_rt:if test="${release.clearingInformation.sourceCodeOriginalFromCommunity == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Source Code Original from Community</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="source_code_toolmade">
+            <input id="source_code_toolmade" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.SOURCE_CODE_TOOL_MADE%>"
+                   value="<sw360:out value="${release.clearingInformation.sourceCodeToolMade}"/>"
+                    <core_rt:if test="${release.clearingInformation.sourceCodeToolMade == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Source Code Tool Made</label>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="source_code_selfmade">
+            <input id="source_code_selfmade" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.SOURCE_CODE_SELF_MADE%>"
+                   value="<sw360:out value="${release.clearingInformation.sourceCodeSelfMade}"/>"
+                    <core_rt:if test="${release.clearingInformation.sourceCodeSelfMade == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Source Code Selfmade</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="screenshot">
+            <input id="screenshot" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.SCREENSHOT_OF_WEB_SITE%>"
+                   value="<sw360:out value="${release.clearingInformation.screenshotOfWebSite}"/>"
+                    <core_rt:if test="${release.clearingInformation.screenshotOfWebSite == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Screenshot of Website</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="finalizedlcr">
+            <input id="finalizedlcr" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.FINALIZED_LICENSE_SCAN_REPORT%>"
+                   value="<sw360:out value="${release.clearingInformation.finalizedLicenseScanReport}"/>"
+                    <core_rt:if test="${release.clearingInformation.finalizedLicenseScanReport == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Finalized License Scan Report</label>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="lcr_scan_result">
+            <input id="lcr_scan_result" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.LICENSE_SCAN_REPORT_RESULT%>"
+                   value="<sw360:out value="${release.clearingInformation.licenseScanReportResult}"/>"
+                    <core_rt:if test="${release.clearingInformation.licenseScanReportResult == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                License Scan Report Result</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="legal_evaluation">
+            <input id="legal_evaluation" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.LEGAL_EVALUATION%>"
+                   value="<sw360:out value="${release.clearingInformation.legalEvaluation}"/>"
+                    <core_rt:if test="${release.clearingInformation.legalEvaluation == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Legal Evaluation</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="license_agreement">
+            <input id="license_agreement" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.LICENSE_AGREEMENT%>"
+                   value="<sw360:out value="${release.clearingInformation.licenseAgreement}"/>"
+                    <core_rt:if test="${release.clearingInformation.licenseAgreement == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                License Agreement</label>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="scanned">Scanned</label>
+            <input id="scanned"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.SCANNED%>"
+                   type="text"
+                   placeholder="Enter scanned"
+                   value="<sw360:out value="${release.clearingInformation.scanned}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel" for="component_clearing_report">
+            <input id="component_clearing_report" type="checkbox"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.COMPONENT_CLEARING_REPORT%>"
+                   value="<sw360:out value="${release.clearingInformation.componentClearingReport}"/>"
+                    <core_rt:if test="${release.clearingInformation.componentClearingReport == 'true'}"> checked="checked" </core_rt:if>
+                    />
+                Component Clearing Report</label>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="clearing_standard">clearing Standard</label>
+            <input id="clearing_standard"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.CLEARING_STANDARD%>"
+                   type="text"
+                   placeholder="Enter clearing standard"
+                   value="<sw360:out value="${release.clearingInformation.clearingStandard}"/>"/>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="comment">Comment</label>
+            <input id="comment"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.COMMENT%>"
+                   type="text"
+                   placeholder="Enter your comments"
+                   value="<sw360:out value="${release.clearingInformation.comment}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="count_of_security">Count of Security Vulnerabilities</label>
+            <input id="count_of_security"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.COUNT_OF_SECURITY_VN%>"
+                   type="text"
+                   placeholder="Enter Count of Security Vulnerabilities"
+                   value="<sw360:out value="${release.clearingInformation.countOfSecurityVn}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="externalUrl">External URL</label>
+            <input id="erternalUrl"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_URL%>"
+                   type="text"
+                   placeholder="Enter URL"
+                   value="<sw360:out value="${release.clearingInformation.externalUrl}"/>"/>
+        </td>
+    </tr>
+</table>
+

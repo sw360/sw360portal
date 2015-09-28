@@ -1,0 +1,55 @@
+<%--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+<div id="add-vendor-form" title="Create New Vendor" style="display: none; background-color: #ffffff;">
+
+    <table width="100%" class="table" style="padding:3px">
+      <tr>
+        <td >
+          <label class="textlabel stackedLabel mandatory" for="addVendorFullName">Full name</label>
+          <input id="addVendorFullName" type="text" placeholder="Enter Vendor full name" required="">
+        </td>
+      </tr>
+
+      <tr>
+        <td >
+          <label class="textlabel stackedLabel mandatory" for="addVendorShortName">Short name</label>
+          <input id="addVendorShortName" type="text" placeholder="Enter Vendor short name" required="">
+        </td>
+      </tr>
+
+      <tr>
+        <td >
+          <label class="textlabel stackedLabel mandatory" for="addVendorUrl">URL</label>
+          <input id="addVendorUrl" type="url" placeholder="Enter Vendor url" required="">
+        </td>
+      </tr>
+
+
+
+    </table>
+
+    <hr noshade size="1" style="background-color: #66c1c2; border-color: #59D1C4;"/>
+    <div>
+      <input type="button" value="Add Vendor"
+            class="addButton" onclick="submitAddVendor('addVendorFullName', 'addVendorShortName', 'addVendorUrl')"/>
+    </div>
+
+
+
+</div>

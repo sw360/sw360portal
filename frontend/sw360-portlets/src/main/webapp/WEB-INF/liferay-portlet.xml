@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+  -->
+
+<!DOCTYPE liferay-portlet-app PUBLIC "-//Liferay//DTD Portlet Application 6.2.0//EN"
+        "http://www.liferay.com/dtd/liferay-portlet-app_6_2_0.dtd">
+
+<liferay-portlet-app>
+    <portlet>
+        <portlet-name>licenses</portlet-name>
+        <icon>/icon.png</icon>
+        <!--<friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>-->
+        <!--<friendly-url-mapping>licenses</friendly-url-mapping>-->
+        <!--<friendly-url-routes>com/siemens/sw360/portal/portlets/licenses-friendly-url-routes.xml</friendly-url-routes>-->
+
+        <instanceable>false</instanceable>
+
+        <private-request-attributes>false</private-request-attributes>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <!--<header-portlet-css>/css/dataTable_Siemens.css</header-portlet-css>-->
+        <!--<header-portlet-css>/css/sw360.css</header-portlet-css>-->
+        <!--<header-portlet-css>/css/licenses.css</header-portlet-css>-->
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+        <!--<header-portlet-javascript>/js/jquery-1.11.1.min.js</header-portlet-javascript>-->
+        <!--<header-portlet-javascript>/js/jquery.dataTables-1.9.4.js</header-portlet-javascript>-->
+        <!--<footer-portlet-javascript>/js/licenses.js</footer-portlet-javascript>-->
+
+        <css-class-wrapper>licenses-portlet</css-class-wrapper>
+    </portlet>
+
+    <portlet>
+        <portlet-name>search</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <!--<header-portlet-javascript>/js/main.js</header-portlet-javascript>-->
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>users</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <!--<header-portlet-javascript>/js/main.js</header-portlet-javascript>-->
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>componentImport</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <!--<header-portlet-javascript>/js/main.js</header-portlet-javascript>-->
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>components</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+        <private-request-attributes>false</private-request-attributes>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>moderation</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+        <private-request-attributes>false</private-request-attributes>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>vendors</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+        <private-request-attributes>false</private-request-attributes>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>projects</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+        <private-request-attributes>false</private-request-attributes>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>welcome</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>recentcomponents</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>recentreleases</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>mysubscriptions</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>mycomponents</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+
+        <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
+        <header-portlet-css>/css/sw360.css</header-portlet-css>
+        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>myprojects</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+
+        <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
+        <header-portlet-css>/css/sw360.css</header-portlet-css>
+        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>mytaskassignments</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+
+        <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
+        <header-portlet-css>/css/sw360.css</header-portlet-css>
+        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>mytasksubmissions</portlet-name>
+        <icon>/icon.png</icon>
+
+        <instanceable>false</instanceable>
+
+        <header-portlet-css>/css/main.css</header-portlet-css>
+
+        <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
+        <header-portlet-css>/css/sw360.css</header-portlet-css>
+        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>fossologyadmin</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>attachmentVacuum</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+         <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+    </portlet>
+    
+    <portlet>
+        <portlet-name>databaseSanitation</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+    </portlet>
+    
+    <portlet>
+        <portlet-name>bulkReleaseEdit</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+    </portlet>
+
+    <role-mapper>
+        <role-name>administrator</role-name>
+        <role-link>Administrator</role-link>
+    </role-mapper>
+    <role-mapper>
+        <role-name>guest</role-name>
+        <role-link>Guest</role-link>
+    </role-mapper>
+    <role-mapper>
+        <role-name>power-user</role-name>
+        <role-link>Power User</role-link>
+    </role-mapper>
+    <role-mapper>
+        <role-name>user</role-name>
+        <role-link>User</role-link>
+    </role-mapper>
+</liferay-portlet-app>
