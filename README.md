@@ -80,7 +80,8 @@ Actually, there is a hierarchy of maven files, in general
 	-Dmaven.test.skip=true
 	
 You will find more details on the scripts and deployment in the shell
-script in the scripts folder.
+script in the scripts folder. There is the ```dirs.conf``` for the directories
+or file paths used by the scripts.
 
 Note that in general
 
