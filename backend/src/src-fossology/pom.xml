@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.siemens.sw360</groupId>
+        <artifactId>backend-src</artifactId>
+        <version>0.1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>src-fossology</artifactId>
+    <packaging>jar</packaging>
+    <name>src-fossology</name>
+
+    <developers>
+        <developer>
+            <name>cedric.bodet@tngtech.com</name>
+        </developer>
+        <developer>
+            <name>johannes.najjar@tngtech.com</name>
+        </developer>
+        <developer>
+            <name>daniele.fognini@tngtech.com</name>
+        </developer>
+    </developers>
+
+    <build>
+        <finalName>svc-fossology</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.51</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

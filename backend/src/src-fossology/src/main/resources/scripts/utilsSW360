@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License Version 2.0 as published by the
+# Free Software Foundation with classpath exception.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program (please see the COPYING file); if not, write to the Free
+# Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+FOSSUSER=sw360
+FOSSPASS=sw360
+
+# name of the FOSSology group
+FOSSY_GROUP=fossy
+
+logDir="$HOME/log"
+
+ensureDir() {
+  [[ ! -d "$1" ]] && mkdir -p "$1"
+  [[ ! -d "$1" ]] && die 2 "directory '$1' does not exist"
+}
+
+die() {
+  local retCode=$1 msg
+  shift
+  for msg in "$@"; do
+    echo "$msg"
+  done
+  log "dying with $retCode" "$@"
+  exit ${retCode}
+}
+
+checkNotEmpty() {
+  local arg
+  for arg in "$@"; do
+    [[ -z "$arg" ]] && return 1
+  done
+  return 0
+}
+
+checkNotEmpty "$FOSSUSER" "$FOSSPASS" "$FOSSY_GROUP" || die 3 "no user or password known"
+
+runWithUserAndPass() {
+   log "running" "$@"
+
+   local out="$( "$@" --username "$FOSSUSER" <<<"$FOSSPASS" 2>&1 )"
+   local rt=$?
+
+   log "output" "$out"
+
+   echo "$out"
+   return ${rt}
+}
+
+ensureDir "$logDir"
+logFile="$logDir/$(date +%Y%m%d.%H-%M-%S)"
+log() {
+  echo "$@" >> "$logFile"
+}

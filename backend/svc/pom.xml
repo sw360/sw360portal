@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.siemens.sw360</groupId>
+        <artifactId>backend</artifactId>
+        <version>0.1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>backend-svc</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>svc-licenses</module>
+        <module>svc-users</module>
+        <module>svc-vendors</module>
+        <module>svc-search</module>
+        <module>svc-components</module>
+        <module>svc-projects</module>
+        <module>svc-attachments</module>
+        <module>svc-moderation</module>
+        <module>svc-fossology</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-build-configuration-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems combine.children="append">
+                                <artifactItem>
+                                    <groupId>com.siemens.sw360</groupId>
+                                    <artifactId>src-common</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <excludes>**/*.java,**/*.class</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.siemens.sw360</groupId>
+            <artifactId>svc-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License Version 2.0 as published by the
+# Free Software Foundation with classpath exception.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program (please see the COPYING file); if not, write to the Free
+# Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+. ./utilsSW360
+
+groupname=
+sw360UploadId=
+filename=
+metadata=""
+while getopts g:f:i:c: opt; do
+  case ${opt} in
+    i) sw360UploadId="$OPTARG";;
+    g) groupname="$OPTARG";;
+    f) filename="$OPTARG";;
+    c) cpeid="$OPTARG"; metadata+="cpeId=$cpeid";;
+  esac
+done
+
+checkNotEmpty "$groupname" "$filename" "$sw360UploadId" || die 1 "bad options $@"
+
+checkNotEmpty "$FOSSY_GROUP" || die 2 "fossy group not known"
+
+# add cpeid option when metadata are implemented in fossology implemented -m "$metadata"
+cp2fossOpt=(--groupname "$groupname" -f "$groupname" -n "$filename" -s)
+
+file=$( mktemp )
+(($?==0)) && checkNotEmpty "$file" || die 1 "cannot get tempfile"
+
+trap "trap - INT KILL ABRT TERM; echo 'aborted'; rm '$file'; exit 1" INT KILL ABRT TERM
+
+cat > "$file"
+chmod g+r "$file"
+chgrp "$FOSSY_GROUP" "$file"
+
+# copy file to fossology repository
+cp2foss=$( runWithUserAndPass cp2foss "$file" "${cp2fossOpt[@]}" )
+retcode=$?
+
+rm "$file"
+
+(($retcode!=0)) && die 3 "cp2foss failed:" "$cp2foss"
+
+uploadId=""
+while read line; do
+  if [[ "$line" =~ .*UploadPk\ is:\ \'([[:digit:]]*)\' ]]; then
+    uploadId=${BASH_REMATCH[1]}
+  fi
+done <<<"$cp2foss"
+
+log "cp2foss success: '$cp2foss'"
+checkNotEmpty "$uploadId" || die 4 "cannot parse cp2foss output:" "$cp2foss"
+
+# schedule scanning with all known agents
+# to restrict agents use e.g. "-A agent_monk,agent_nomos"
+fossjobs=$( runWithUserAndPass fossjobs -U "$uploadId" )
+
+(($?!=0)) && echo "agent scheduling failed" "$fossjobs"
+
+echo "uploadId=$uploadId"

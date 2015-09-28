@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License Version 2.0 as published by the
+# Free Software Foundation with classpath exception.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program (please see the COPYING file); if not, write to the Free
+# Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+. ./utilsSW360
+
+getFolderId() {
+  local groupname="$1"
+  checkNotEmpty "$groupname" || die 1 "cannot get inbox folder of empty team"
+
+  local folderStructure="$( runWithUserAndPass fo_folder )"
+
+  (($?==0)) || checkNotEmpty "$folderStructure" || die 2 "cannot retrieve folder structure"
+
+  log "debug" "current folder structure: $folderStructure"
+
+  local folderId=""
+  while read line; do
+    if [[ "$line" =~ -*$groupname\ *\(id=([0-9]+)\) ]]; then
+      folderId="${BASH_REMATCH[1]}"
+      break
+    fi
+  done <<<"$folderStructure"
+
+  log "debug" "got $folderId for $groupname"
+
+  checkNotEmpty "$folderId" || die 3 "folder of group $groupname not found"
+  echo "$folderId"
+}
+
+linkUploadInFolder() {
+  local uploadId="$1"
+  local destFolderId="$2"
+
+  checkNotEmpty "$uploadId" "$destFolderId" || die 1 "bad parameters"
+
+  runWithUserAndPass fo_folder --linkUpload "$uploadId" --folderId "$destFolderId"
+}
