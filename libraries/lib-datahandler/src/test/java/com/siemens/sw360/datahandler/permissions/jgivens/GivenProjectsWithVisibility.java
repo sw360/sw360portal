@@ -49,14 +49,14 @@ public class GivenProjectsWithVisibility extends Stage<GivenProjectsWithVisibili
         return self();
     }
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$(@TEnumToString Visibility v1, @Quoted String b1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$(@TEnumToString Visibility v1, @Quoted String b1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
         return self();
     }
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$_created_by_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$_created_by_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
@@ -65,7 +65,7 @@ public class GivenProjectsWithVisibility extends Stage<GivenProjectsWithVisibili
         return self();
     }
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$_with_lead_architect_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$_with_lead_architect_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
@@ -74,7 +74,7 @@ public class GivenProjectsWithVisibility extends Stage<GivenProjectsWithVisibili
         return self();
     }
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$_and_moderator_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$_and_moderator_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
@@ -83,7 +83,7 @@ public class GivenProjectsWithVisibility extends Stage<GivenProjectsWithVisibili
         return self();
     }
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$_and_comoderator_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$_and_comoderator_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
@@ -92,7 +92,7 @@ public class GivenProjectsWithVisibility extends Stage<GivenProjectsWithVisibili
         return self();
     }
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$_and_contributor_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$_and_contributor_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
@@ -102,7 +102,7 @@ public class GivenProjectsWithVisibility extends Stage<GivenProjectsWithVisibili
     }
 
 
-    public GivenProjectsWithVisibility a_project_with_visibility_$_and_buisness_unit_$_and_project_responsible_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
+    public GivenProjectsWithVisibility a_project_with_visibility_$_and_business_unit_$_and_project_responsible_$(@TEnumToString Visibility v1, @Quoted String b1, @Quoted String m1) {
         a_new_project();
         Mockito.when(project.getVisbility()).thenReturn(v1);
         Mockito.when(project.getBusinessUnit()).thenReturn(b1);
