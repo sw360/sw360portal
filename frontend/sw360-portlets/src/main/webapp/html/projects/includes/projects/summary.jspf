@@ -42,7 +42,7 @@
     <tr>
         <td>Clearing details:</td>
         <td>
-            New Releases:
+            New releases:
             <span class="minWidth">
                 <sw360:out value="${project.releaseClearingStateSummary.newRelease}" default="--"/>
             </span>,
@@ -93,12 +93,12 @@
         <td><sw360:DisplayLink target="${project.wiki}"/></td>
     </tr>
     <tr>
-        <td>Project Type:</td>
+        <td>Project type:</td>
         <td><sw360:DisplayEnum value="${project.projectType}"/></td>
     </tr>
 </table>
 
-<table class="table info_table" id="projectAdminData" title="Project admin overview">
+<table class="table info_table" id="projectAdminData" title="Project Admin Overview">
     <thead>
     <tr>
         <th colspan="2">Project Admin Information</th>

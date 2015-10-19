@@ -28,7 +28,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="vendors">Vendors</label>
             <input id="vendors" name="<portlet:namespace/><%=Component._Fields.VENDOR_NAMES%>" type="text" class="toplabelledInput "
-                   placeholder="will be filled in by releases" value="<sw360:DisplayCollection value='${component.vendorNames}'/>" readonly/>
+                   placeholder="Will be filled in by releases" value="<sw360:DisplayCollection value='${component.vendorNames}'/>" readonly/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>
@@ -40,7 +40,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="programminglanguages">Programming Languages</label>
             <input class="toplabelledInput" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>ReadOnly" id="programminglanguages" type="text"
-                   placeholder="will be taken from releases" readonly="readonly" value="<sw360:DisplayCollection value='${component.languages}' />"/>
+                   placeholder="Will be taken from releases" readonly="readonly" value="<sw360:DisplayCollection value='${component.languages}' />"/>
         </td>
     </tr>
     <tr>
@@ -52,7 +52,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="op_systems">Operating Systems</label>
             <input class="toplabelledInput" id="op_systems" name="<portlet:namespace/><%=Component._Fields.OPERATING_SYSTEMS%>ReadOnly" type="text" align="middle"
-                   placeholder="will be taken from releases" readonly="readonly" value="<sw360:DisplayCollection value="${component.operatingSystems}" />" />
+                   placeholder="Will be taken from releases" readonly="readonly" value="<sw360:DisplayCollection value="${component.operatingSystems}" />" />
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="comp_platforms">Software Platforms</label>
@@ -83,7 +83,7 @@
             <label class="textlabel stackedLabel" for="comp_desc">Short Description</label>
                 <textarea class="toplabelledInput" id="comp_desc" name="<portlet:namespace/><%=Component._Fields.DESCRIPTION%>" rows="4" cols="30"
                           style="width:200px; height: 25px; resize:both;"
-                          placeholder="Enter description"><sw360:out value="${component.description}"/></textarea>
+                          placeholder="Enter Description"><sw360:out value="${component.description}"/></textarea>
         </td>
 
         <td width="33%">
