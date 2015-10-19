@@ -122,7 +122,7 @@ public class DisplayUserEdit extends NameSpaceAwareTag {
 
             if (!readonly) {
                 display.append(String.format(" onclick=\"showUserDialog(%s, '%s')\" ", multiUsers ? "true" : "false", id));
-                display.append(" placeholder=\"Click to Edit\" class=\"clickable\" ");
+                display.append(" placeholder=\"Click to edit\" class=\"clickable\" ");
             } else {
                 display.append(" placeholder=\"Will be set automatically\" ");
             }

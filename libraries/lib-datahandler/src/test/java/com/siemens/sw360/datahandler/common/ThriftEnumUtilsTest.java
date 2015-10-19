@@ -33,7 +33,7 @@ public class ThriftEnumUtilsTest {
 
     @Test
     public void testToString() {
-        assertThat(ThriftEnumUtils.enumToString(AttachmentType.DESIGN), is("Design Document"));
+        assertThat(ThriftEnumUtils.enumToString(AttachmentType.DESIGN), is("Design document"));
         assertThat(ThriftEnumUtils.enumToString(RepositoryType.GIT), is("Git"));
     }
 

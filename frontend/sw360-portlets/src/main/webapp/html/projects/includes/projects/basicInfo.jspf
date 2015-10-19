@@ -48,7 +48,7 @@
         </td>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="projectState">Project State</label>
+            <label class="textlabel stackedLabel mandatory" for="projectState">Project state</label>
             <select class="toplabelledInput" id="projectState" name="<portlet:namespace/><%=Project._Fields.STATE%>"
                     style="min-width: 162px; min-height: 28px;">
                 <sw360:DisplayEnumOptions type="<%=ProjectState.class%>" selected="${project.state}"/>
@@ -63,11 +63,11 @@
                 <textarea class="toplabelledInput" id="proj_desc"
                           name="<portlet:namespace/><%=Project._Fields.DESCRIPTION%>" rows="4" cols="30"
                           style="width:200px; height: 25px; resize:both;"
-                          placeholder="Enter description"><sw360:out value="${project.description}"/></textarea>
+                          placeholder="Enter Description"><sw360:out value="${project.description}"/></textarea>
         </td>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="proj_projecttype">Project Type</label>
+            <label class="textlabel stackedLabel mandatory" for="proj_projecttype">Project type</label>
             <select class="toplabelledInput" id="proj_projecttype"
                     name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
                     style="min-width: 162px; min-height: 28px;">
@@ -77,7 +77,7 @@
         </td>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="proj_projectvisibility">Project Visibility</label>
+            <label class="textlabel stackedLabel mandatory" for="proj_projectvisibility">Project visibility</label>
             <select class="toplabelledInput" id="proj_projectvisibility"
                     name="<portlet:namespace/><%=Project._Fields.VISBILITY%>"
                     style="min-width: 162px; min-height: 28px;">
@@ -116,16 +116,16 @@
     <tr>
         <td width="33%">
             <sw360:DisplayUserEdit email="${project.createdBy}" id="<%=Project._Fields.CREATED_BY.toString()%>"
-                                   description="Created By" multiUsers="false" readonly="true"/>
+                                   description="Created by" multiUsers="false" readonly="true"/>
         </td>
         <td width="33%">
             <sw360:DisplayUserEdit email="${project.projectResponsible}"
                                    id="<%=Project._Fields.PROJECT_RESPONSIBLE.toString()%>"
-                                   description="Project Responsible" multiUsers="false"/>
+                                   description="Project responsible" multiUsers="false"/>
         </td>
         <td width="33%">
             <sw360:DisplayUserEdit email="${project.leadArchitect}" id="<%=Project._Fields.LEAD_ARCHITECT.toString()%>"
-                                   description="Lead Architect" multiUsers="false"/>
+                                   description="Lead architect" multiUsers="false"/>
         </td>
 
     </tr>
@@ -150,20 +150,20 @@
 <table class="table info_table" id="ProjectAdminInfo" title="Project Admin Information">
     <thead>
     <tr>
-        <th colspan="3" class="headlabel">Admin Information</th>
+        <th colspan="3" class="headlabel">Admin information</th>
     </tr>
     </thead>
     <tr>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="business_unit">Business Unit</label>
+            <label class="textlabel stackedLabel mandatory" for="business_unit">Business unit</label>
             <input id="business_unit" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>" type="text"
                    placeholder="Enter Business Unit" required=""
                    value="<sw360:out value="${project.businessUnit}"/>"/>
         </td>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="clearingTeam">Clearing Team</label>
+            <label class="textlabel stackedLabel mandatory" for="clearingTeam">Clearing team</label>
             <select class="toplabelledInput" id="clearingTeam"
                     name="<portlet:namespace/><%=Project._Fields.CLEARING_TEAM%>"
                     style="min-width: 162px; min-height: 28px;">

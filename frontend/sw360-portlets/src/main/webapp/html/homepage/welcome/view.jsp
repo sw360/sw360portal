@@ -170,11 +170,11 @@
         <li/>
         <b>Name</b>: the name of the project
         <li/>
-        <b>Project State</b>: possible values are <i>Active</i>, <i>Phase out</i>, <i>Unknown</i>
+        <b>Project state</b>: possible values are <i>Active</i>, <i>Phase out</i>, <i>Unknown</i>
         <li/>
-        <b>Business Unit</b>
+        <b>Business unit</b>
         <li/>
-        <b>Clearing Tem</b><br/>
+        <b>Clearing team</b><br/>
     </ul>
     <b><i>Optional</i></b> fields are:
     <ul class="wikidpad bulletlist">
@@ -188,9 +188,9 @@
         User information
         <ul class="wikidpad bulletlist">
             <li/>
-            <b>Project Responsible</b>
+            <b>Project responsible</b>
             <li/>
-            <b>Lead Architect</b>
+            <b>Lead architect</b>
             <li/>
             <b>Moderators</b>
             <li/>
@@ -204,7 +204,7 @@
             <li/>
             <b>Deadline for pre-evaluation</b>
             <li/>
-            dates for <b>System Test</b>
+            dates for <b>System test</b>
             <li/>
             dates for <b>Delivery</b> and planned <b>Phase-out</b></ul>
     </ul>
@@ -254,7 +254,7 @@
         <li/>
         <b>Categories</b>: <i>supply a list of possible categories</i>
         <li/>
-        <b>Component Type</b>: <br/>
+        <b>Component type</b>: <br/>
     </ul>
     <b><i>Optional fields are</i></b>:
     <ul class="wikidpad bulletlist">
@@ -273,7 +273,7 @@
     </ul>
     <p><br/>
         The contents of the fields <b>Programming Languages</b> and <b>Operating Systems</b> will be taken from the
-        associated releas(s). <br/>
+        associated release(s). <br/>
         The following picture shows a minimal creation dialog for the component <i>libelf</i>.<br/>
 
     <p><br/>
@@ -283,7 +283,7 @@
     <p><br/>
 
     <p><br/>
-        After pressing the <b>Create Component</b> button you get a feedback, wether the creation was sucessful or
+        After pressing the <b>Create Component</b> button you get a feedback, whether the creation was sucessful or
         not.<br/>
 
     <p><br/>
@@ -526,7 +526,7 @@
         tbd<br/>
 
     <p><br/>
-        <i><b>Project manager/ component owner</b></i><br/>
+        <i><b>Project Manager/ component owner</b></i><br/>
         tbd<br/>
 
     <p><br/>
@@ -550,7 +550,7 @@
         tbd<br/>
 
     <p><br/>
-    <i><b>User in business unit</b></i><br/>
+    <i><b>User in Business Unit</b></i><br/>
     tbd<br/>
 
 </core_rt:if>
