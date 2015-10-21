@@ -60,21 +60,21 @@ public class ThriftEnumUtils {
 
     private static final ImmutableMap<AttachmentType, String> MAP_ATTACHMENT_TYPE_STRING = ImmutableMap.<AttachmentType, String>builder()
             .put(AttachmentType.DOCUMENT, "Document")
-            .put(AttachmentType.SOURCE, "Source File")
-            .put(AttachmentType.DESIGN, "Design Document")
-            .put(AttachmentType.REQUIREMENT, "Requirement Document")
-            .put(AttachmentType.CLEARING_REPORT, "Clearing Report")
-            .put(AttachmentType.COMPONENT_LICENSE_INFO_XML, "Component License Information (XML)")
-            .put(AttachmentType.COMPONENT_LICENSE_INFO_COMBINED, "Component License Information (Combined)")
-            .put(AttachmentType.SCAN_RESULT_REPORT, "Scan Result Report")
-            .put(AttachmentType.SCAN_RESULT_REPORT_XML, "Scan Result Report (XML)")
-            .put(AttachmentType.SOURCE_SELF, "Source File (Self-made)")
+            .put(AttachmentType.SOURCE, "Source file")
+            .put(AttachmentType.DESIGN, "Design document")
+            .put(AttachmentType.REQUIREMENT, "Requirement document")
+            .put(AttachmentType.CLEARING_REPORT, "Clearing report")
+            .put(AttachmentType.COMPONENT_LICENSE_INFO_XML, "Component license information (XML)")
+            .put(AttachmentType.COMPONENT_LICENSE_INFO_COMBINED, "Component license information (Combined)")
+            .put(AttachmentType.SCAN_RESULT_REPORT, "Scan result report")
+            .put(AttachmentType.SCAN_RESULT_REPORT_XML, "Scan result report (XML)")
+            .put(AttachmentType.SOURCE_SELF, "Source file (Self-made)")
             .put(AttachmentType.BINARY, "Binaries")
             .put(AttachmentType.BINARY_SELF, "Binaries (Self-made)")
-            .put(AttachmentType.DECISION_REPORT, "Decision Report")
-            .put(AttachmentType.LEGAL_EVALUATION, "Legal Evaluation Report")
-            .put(AttachmentType.LICENSE_AGREEMENT, "License Agreement")
-            .put(AttachmentType.SCREENSHOT, "Screenshot of WebSite")
+            .put(AttachmentType.DECISION_REPORT, "Decision report")
+            .put(AttachmentType.LEGAL_EVALUATION, "Legal evaluation report")
+            .put(AttachmentType.LICENSE_AGREEMENT, "License agreement")
+            .put(AttachmentType.SCREENSHOT, "Screenshot of website")
             .put(AttachmentType.OTHER, "Other")
             .build();
 
@@ -82,7 +82,7 @@ public class ThriftEnumUtils {
             ClearingState.NEW_CLEARING, "New",
             ClearingState.SENT_TO_FOSSOLOGY, "Sent to Fossology",
             ClearingState.UNDER_CLEARING, "Under clearing",
-            ClearingState.REPORT_AVAILABLE, "Report Available");
+            ClearingState.REPORT_AVAILABLE, "Report available");
 
     private static final ImmutableMap<FossologyStatus, String> MAP_FOSSOLOGY_STATE_STRING = ImmutableMap.<FossologyStatus, String>builder()
             .put(FossologyStatus.CONNECTION_FAILED, "Connection to FOSSology failed")
@@ -91,9 +91,9 @@ public class ThriftEnumUtils {
             .put(FossologyStatus.ERROR, "Error")
             .put(FossologyStatus.NOT_SENT, "Not yet sent")
             .put(FossologyStatus.SENT, "Sent")
-            .put(FossologyStatus.SCANNING, "Job Scanning")
+            .put(FossologyStatus.SCANNING, "Job scanning")
             .put(FossologyStatus.OPEN, "Open")
-            .put(FossologyStatus.IN_PROGRESS, "Assigned in Progress")
+            .put(FossologyStatus.IN_PROGRESS, "Assigned in progress")
             .put(FossologyStatus.CLOSED, "Closed by assignee")
             .put(FossologyStatus.REJECTED, "Rejected by assignee")
             .put(FossologyStatus.REPORT_AVAILABLE, "Clearing report is available")
@@ -103,7 +103,7 @@ public class ThriftEnumUtils {
             ModerationState.APPROVED, "Approved",
             ModerationState.PENDING, "Pending",
             ModerationState.REJECTED, "Rejected",
-            ModerationState.INPROGRESS, "In Progress");
+            ModerationState.INPROGRESS, "In progress");
 
     private static final ImmutableMap<ProjectRelationship, String> MAP_PROJECT_RELATION_STRING = ImmutableMap.of(
             ProjectRelationship.UNKNOWN, "Unknown" ,
@@ -150,7 +150,7 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<Visibility, String> MAP_VISIBILITY_STRING = ImmutableMap.of(
             Visibility.PRIVATE, "Private" ,
             Visibility.ME_AND_MODERATORS, "Me and Moderators",
-            Visibility.BUISNESSUNIT_AND_MODERATORS, "Buisness unit and Moderators",
+            Visibility.BUISNESSUNIT_AND_MODERATORS, "Business Unit and Moderators",
             Visibility.EVERYONE, "Everyone"
     );
 

@@ -55,7 +55,7 @@
         <td><sw360:DisplayCollection value="${component.softwarePlatforms}"/></td>
     </tr>
     <tr>
-        <td>Operating Systems:</td>
+        <td>Operating systems:</td>
         <td><sw360:DisplayCollection value="${component.operatingSystems}"/></td>
     </tr>
 
@@ -76,7 +76,7 @@
         <td><sw360:DisplayLink target="${component.mailinglist}"/></td>
     </tr>
     <tr>
-        <td>Main Licenses of contained releases:</td>
+        <td>Main licenses of contained releases:</td>
         <td><sw360:DisplayCollection value="${component.mainLicenseNames}" /></td>
     </tr>
 </table>
