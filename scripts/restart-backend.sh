@@ -21,7 +21,7 @@
 # provisioning script for deploying prerequisites
 # in the Vagrant machine of the SW360 project
 #
-# initial author: michael.c.jaeger@siemems.com
+# initial author: michael.c.jaeger@siemens.com
 #         author: cedric.bodet@tngtech.com
 # $Id$
 # -----------------------------------------------------------------------------
@@ -38,9 +38,9 @@ eval "$( "$srcdir"catalinaOpts.sh "${defaultOpts[@]}" "$@" )"
 echo "-[shell provisioning] using catalina options: '${CATALINA_OPTS}'"
 
 echo "-[shell provisioning] Cleaning Tomcat"
-"$opt"/apache-tomcat-7.0.54/bin/shutdown.sh
+"$opt"/apache-tomcat-8.0.*/bin/shutdown.sh
 
 sleep 10s
 
-cd "$opt"/apache-tomcat-7.0.54/bin/
+cd "$opt"/apache-tomcat-8.0.*/bin/
 CATALINA_OPTS="${CATALINA_OPTS}" ./startup.sh

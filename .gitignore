@@ -14,3 +14,7 @@ hs_err_pid*
 # Ignore private and public keys
 *id_rsa*
 *key_vagrant
+
+#ignore Idea/intelliJ files
+*.idea
+*.iml

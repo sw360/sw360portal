@@ -21,7 +21,7 @@
 # provisioning script for deploying prerequisites
 # in the Vagrant machine of the SW360 project
 #
-# initial author: michael.c.jaeger@siemems.com
+# initial author: michael.c.jaeger@siemens.com
 #         author: cedric.bodet@tngtech.com
 # $Id$
 # -----------------------------------------------------------------------------
@@ -39,14 +39,14 @@ echo "-[shell provisioning] using catalina options: '${CATALINA_OPTS}'"
 
 # -------------------------------
 echo "-[shell provisioning] shutdown liferay"
-"$opt"/liferay-portal-6.2-ce-ga2/tomcat-7.0.42/bin/shutdown.sh
+"$opt"/liferay-portal-6.2*/tomcat-7.0.*/bin/shutdown.sh
 
 echo "-[shell provisioning] moved into the sw360frontend"
 cd "$src"/frontend
 mvn clean install -Pdeploy
 
 echo "-[shell provisioning] Starting SW360 Liferay server"
-cd "$opt"/liferay-portal-6.*/tomcat-7.0.*/bin/
+cd "$opt"/liferay-portal-6.2*/tomcat-7.0.*/bin/
 CATALINA_OPTS="${CATALINA_OPTS}" ./startup.sh
 
 echo "-[shell provisioning] End of sw360 provisioning"
