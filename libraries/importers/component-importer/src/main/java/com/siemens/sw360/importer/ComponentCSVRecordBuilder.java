@@ -64,19 +64,24 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
     private String vendorName;
     private String vendorShortname;
     private String vendorUrl;
+    
     private String cIAL;
     private String cIECCN;
     private String cIExternalSupplierID;
     private String cIAssessorContactPerson;
     private String cIAssessorDepartment;
+    private String cIEccComment;
+    private String cIMaterialIndexNumber;
+
     private String cIAdditionalInfo;
     private String cIEvaluated;
     private String cIProcStart;
     private String cIRequestId;
+    private String cIClearingTeam;
+    private String cIRequestorPerson;
+    
     private String cIScanned;
-    private String cIClearingStandard;
-    private String cIComment;
-    private String cIExternalUrl;
+
     private Boolean cIBinariesOriginalFromCommunity;
     private Boolean cIBinariesSelfMade;
     private Boolean cIComponentLicenseInformation;
@@ -84,13 +89,22 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
     private Boolean cISourceCodeOriginalFromCommunity;
     private Boolean cISourceCodeToolMade;
     private Boolean cISourceCodeSelfMade;
+    private Boolean cISourceCodeCotsAvailable;
     private Boolean cIScreenshotOfWebSite;
+    
     private Boolean cIFinalizedLicenseScanReport;
     private Boolean cILicenseScanReportResult;
     private Boolean cILegalEvaluation;
     private Boolean cILicenseAgreement;
     private Boolean cIComponentClearingReport;
+    private String cIClearingStandard;
+    private Boolean cIReadmeOssAvailable;
+    
+        private String cIComment;
+
     private Integer cICountOfSecurityVn;
+    private String cIExternalUrl;
+    private Boolean cIEndOfLifeReached;
 
     @Override
     public ComponentCSVRecord build() {

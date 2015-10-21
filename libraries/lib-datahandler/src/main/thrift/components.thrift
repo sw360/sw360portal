@@ -108,14 +108,19 @@ struct ClearingInformation {
     // supplier / ec info
     1: optional string AL, // German Ausfuhrliste
     2: optional string ECCN, // European control classification number
-    3: optional string externalSupplierID, // foreign key fur SCM software
-    // clearing related metadata part 1: strings
-    10: optional string assessorContactPerson, // email of ECC person
-    11: optional string assessorDepartment, // department of ECC person
+    3: optional string externalSupplierID, // foreign key fur SCM software TODO mcj move to component
+    4: optional string assessorContactPerson, // email of ECC person
+    5: optional string assessorDepartment, // department of ECC person
+    6: optional string eccComment, // comments for ecc information
+    7: optional string materialIndexNumber, // six digit material index number, string for convenience
+
+    // clearing related metadata part 1: strings,
     12: optional string additionalRequestInfo, //
-    13: optional string evaluated, //Date - YYYY-MM-dd
-    14: optional string procStart, //Date - YYYY-MM-dd
+    13: optional string evaluated, // Date - YYYY-MM-dd
+    14: optional string procStart, // Date - YYYY-MM-dd
     15: optional string requestID, // foreign key
+    16: optional string clearingTeam, // who did the clearing in org
+    17: optional string requestorPerson, // again email who requested the clearing TODO mcj should be set automtically
 
     // clearing related data: release level - just boolean (Yes / no)
     31: optional bool binariesOriginalFromCommunity,
@@ -125,7 +130,8 @@ struct ClearingInformation {
     35: optional bool sourceCodeOriginalFromCommunity,
     36: optional bool sourceCodeToolMade,
     37: optional bool sourceCodeSelfMade,
-    38: optional bool screenshotOfWebSite,
+    38: optional bool sourceCodeCotsAvailable,
+    39: optional bool screenshotOfWebSite,
 
     40: optional bool finalizedLicenseScanReport,
     41: optional bool licenseScanReportResult,
@@ -134,6 +140,7 @@ struct ClearingInformation {
     44: optional string scanned,
     45: optional bool componentClearingReport,
     46: optional string clearingStandard,   // which generation of tool used
+    47: optional bool readmeOssAvailable,
 
     // more release base data from mainline
     50: optional string comment,
@@ -215,8 +222,9 @@ struct Component {
 
     // string details
     20: optional string createdBy, // person who created the component in sw360
-    //  22: optional set<string> developers, // developpers linked to the component
+    //  22: optional set<string> developers, // developpers linked to the component TODO mcj remove this
     24: optional set<string> subscribers, // List of subscriber information
+    25: optional set<string> moderators, // people who can modify the data
 
     // Linked objects
     32: optional list<Release> releases,
@@ -237,8 +245,8 @@ struct Component {
     51: optional string mailinglist,
     52: optional string wiki,
     53: optional string blog,
-	54: optional string wikipedia,
-	55: optional string openHub,
+    54: optional string wikipedia,
+    55: optional string openHub,
 
     // Information for ModerationRequests
     70: optional DocumentState documentState,

@@ -39,15 +39,6 @@
             </span>
         </td>
     </tr>
-
-    <tr>
-        <td>Assessor Contact Person:</td>
-        <td><sw360:out value="${clearingInfo.assessorContactPerson}"/></td>
-    </tr>
-    <tr>
-        <td>Assessor Department:</td>
-        <td><sw360:out value="${clearingInfo.assessorDepartment}"/></td>
-    </tr>
     <tr>
         <td>Additional Request Information:</td>
         <td><sw360:out value="${clearingInfo.additionalRequestInfo}"/></td>
@@ -162,6 +153,22 @@
     <tr>
         <td>ECCN:</td>
         <td><sw360:out value="${clearingInfo.ECCN}"/></td>
+    </tr>
+    <tr>
+        <td>Material Index Number:</td>
+        <td><sw360:out value="${clearingInfo.materialIndexNumber}"/></td>
+    </tr>
+    <tr>
+        <td>Assessor Contact Person:</td>
+        <td><sw360:out value="${clearingInfo.assessorContactPerson}"/></td>
+    </tr>
+    <tr>
+        <td>Assessor Department:</td>
+        <td><sw360:out value="${clearingInfo.assessorDepartment}"/></td>
+    </tr>
+    <tr>
+        <td>ECC Comment:</td>
+        <td><sw360:out value="${clearingInfo.eccComment}"/></td>
     </tr>
     <tr>
         <td>External Supplier ID:</td>

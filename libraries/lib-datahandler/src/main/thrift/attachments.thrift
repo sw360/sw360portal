@@ -52,7 +52,11 @@ struct Attachment {
     10: optional AttachmentType attachmentType,
     11: optional string comment,
     12: optional string createdOn,
-    13: optional string createdBy,
+    13: optional string createdBy, // should be e-mail
+    14: optional string createdTeam, // team name
+    15: optional string checkedBy, // should be e-mail
+    16: optional string checkedTeam, // team name
+    17: optional set<string> uploadHistory, // just for importing data by now
 }
 
 struct AttachmentContent {
@@ -67,7 +71,6 @@ struct AttachmentContent {
     21: optional string contentType,
     22: optional string partsCount,
 }
-
 
 struct FilledAttachment {
     1: required Attachment attachment,
