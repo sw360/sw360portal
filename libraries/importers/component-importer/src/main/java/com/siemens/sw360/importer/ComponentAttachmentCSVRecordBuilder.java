@@ -23,6 +23,8 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 import org.apache.commons.csv.CSVRecord;
 
 /**
+ * TODO mcj update with updates from data model
+ * 
  * @author johannes.najjar@tngtech.com
  */
 public class ComponentAttachmentCSVRecordBuilder extends CustomizedCSVRecordBuilder<ComponentAttachmentCSVRecord> {
@@ -75,7 +77,7 @@ public class ComponentAttachmentCSVRecordBuilder extends CustomizedCSVRecordBuil
         setFilename(attachment.getFilename());
 
         if(attachment.isSetAttachmentType()) setAttachmentType(attachment.getAttachmentType().name());
-        if(attachment.isSetComment()) setComment(attachment.getComment());
+        if(attachment.isSetCreatorComment()) setCreatorComment(attachment.getCreatorComment());
         if(attachment.isSetCreatedBy()) setCreatedBy(attachment.getCreatedBy());
         if(attachment.isSetCreatedOn()) setCreatedOn(attachment.getCreatedOn());
     }
@@ -116,7 +118,7 @@ public class ComponentAttachmentCSVRecordBuilder extends CustomizedCSVRecordBuil
         this.attachmentType = attachmentType;
     }
 
-    public void setComment(String comment) {
+    public void setCreatorComment(String comment) {
         this.comment = comment;
     }
 

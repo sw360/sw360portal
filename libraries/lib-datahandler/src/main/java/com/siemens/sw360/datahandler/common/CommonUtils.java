@@ -238,7 +238,7 @@ public class CommonUtils {
         Attachment attachment = new Attachment();
         attachment.setCreatedBy(user.getEmail());
         attachment.setCreatedOn(SW360Utils.getCreatedOn());
-        attachment.setComment("");
+        attachment.setCreatorComment("");
         attachment.setFilename(fileName);
         attachment.setAttachmentContentId(attachmentContentId);
         attachment.setAttachmentType(AttachmentType.DOCUMENT);

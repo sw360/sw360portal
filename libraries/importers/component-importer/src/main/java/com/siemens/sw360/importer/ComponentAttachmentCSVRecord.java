@@ -144,7 +144,7 @@ public class ComponentAttachmentCSVRecord extends ComponentAwareCSVRecord{
               attachment.setAttachmentType(attachmentTypeCandidate);
         }
 
-        attachment.setComment(nullToEmpty(comment))
+        attachment.setCreatorComment(nullToEmpty(comment))
                   .setCreatedOn(nullToEmpty(createdOn))
                   .setCreatedBy(nullToEmpty(createdBy));
 

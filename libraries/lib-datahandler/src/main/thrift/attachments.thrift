@@ -45,18 +45,28 @@ enum AttachmentType {
     OTHER = 16
 }
 
+enum CheckStatus {
+    NOTCHECKED = 0,
+    ACCEPTED = 1,
+    REJECTED = 2
+}
+
 struct Attachment {
+    // TODO mcj check for tests for added fields on 20151021
     1: required string attachmentContentId,
     5: required string filename,
 
     10: optional AttachmentType attachmentType,
-    11: optional string comment,
+    11: optional string creatorComment,
     12: optional string createdOn,
     13: optional string createdBy, // should be e-mail
     14: optional string createdTeam, // team name
     15: optional string checkedBy, // should be e-mail
     16: optional string checkedTeam, // team name
-    17: optional set<string> uploadHistory, // just for importing data by now
+    17: optional string checkedComment, // team name
+
+    20: optional set<string> uploadHistory, // just for importing data by now
+    21: optional CheckStatus checkStatus; // simple status of checks
 }
 
 struct AttachmentContent {
