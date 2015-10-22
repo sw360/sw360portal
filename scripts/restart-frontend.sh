@@ -21,7 +21,7 @@
 # provisioning script for deploying prerequisites
 # in the Vagrant machine of the SW360 project
 #
-# initial author: michael.c.jaeger@siemems.com
+# initial author: michael.c.jaeger@siemens.com
 #         author: cedric.bodet@tngtech.com
 # $Id$
 # -----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ srcdir="$(dirname "$0")/"
 eval "$( "$srcdir"catalinaOpts.sh "${defaultOpts[@]}" "$@" )"
 echo "-[shell provisioning] using catalina options: '${CATALINA_OPTS}'"
 
-"$opt"/liferay-portal-6.2-ce-ga2/tomcat-7.0.42/bin/shutdown.sh
+"$opt"/liferay-portal-6.*/tomcat-7.0.*/bin/shutdown.sh
 
 sleep 10s
 

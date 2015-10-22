@@ -40,7 +40,7 @@ echo "-[shell provisioning] Stopping SW360 Liferay server"
 
 eval "$( "$srcdir"/catalinaOpts.sh "${defaultOptsBackend[@]}" "$@" )"
 echo "-[shell provisioning] Starting Backed Tomcat, opts: '${CATALINA_OPTS}'"
-CATALINA_OPTS="${CATALINA_OPTS}" "$opt"/apache-tomcat-7.0.54/bin/startup.sh
+CATALINA_OPTS="${CATALINA_OPTS}" "$opt"/apache-tomcat-8.*/bin/startup.sh
 
 echo "-[shell provisioning] Undeploy backend"
 cd "$src"/backend

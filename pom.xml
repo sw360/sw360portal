@@ -22,10 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
         <liferay.version>6.2.1</liferay.version>
         <ektorp.version>1.4.2</ektorp.version>
-        <thrift.version>0.9.1</thrift.version>
+        <thrift.version>0.9.3</thrift.version>
         <guava.version>18.0</guava.version>
         <spring.version>4.1.5.RELEASE</spring.version>
 
@@ -48,7 +48,7 @@
             ${env.LIFERAY_PATH}/deploy
         </liferay.auto.deploy.dir>
         <liferay.app.server.dir>
-            ${env.LIFERAY_PATH}/tomcat-7.0.42
+            ${env.LIFERAY_PATH}/tomcat-8.0.26
         </liferay.app.server.dir>
         <liferay.app.server.portal.dir>
             ${liferay.app.server.dir}/webapps/ROOT
