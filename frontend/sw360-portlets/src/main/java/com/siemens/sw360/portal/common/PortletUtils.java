@@ -142,7 +142,7 @@ public class PortletUtils {
         if (attachments == null || attachments.size() == 0) return;
 
         String[] ids = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_CONTENT_ID.toString());
-        String[] comments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.COMMENT.toString());
+        String[] comments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CREATOR_COMMENT.toString());
         String[] atypes = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_TYPE.toString());
 
         if (CommonUtils.oneIsNull(atypes, comments, ids)) {
@@ -166,7 +166,7 @@ public class PortletUtils {
 
                     Attachment attachment = attachmentMap.get(id);
 
-                    attachment.setComment(comments[i]);
+                    attachment.setCheckedComment(comments[i]);
                     attachment.setAttachmentType(getAttachmentTypefromString(atypes[i]));
                 } else {
                     log.error("Unable to find attachment!" + id);
