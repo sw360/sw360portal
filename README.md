@@ -31,10 +31,10 @@ This is a multi module maven file. please consider that we have the following mo
 
 ### Required software
 
-* Java 1.7.X
+* Java 1.8.X
 * CouchDB, at least 1.5
-* Liferay Portal CE 6.2 GA3 / GA4
-* Apache Tomcat 7.0.X
+* Liferay Portal CE 6.2 GA4
+* Apache Tomcat 8.0.X
 
 In order to build you will need:
 
@@ -49,10 +49,10 @@ Then, you must install Apache Tomcat, CouchDB. And, Java of course.
 The software is tested with
 
 * Maven 3.0.4 / 3.0.5
-* Apache Tomcat 7.0.19 / 7.0.54 / 7.0.61
-* Liferay 6.2 GA3
+* Apache Tomcat 8.0.26 / 7.0.54 / 7.0.61
+* Liferay 6.2 GA4
 * CouchDB 1.5 / 1.5.1
-* OpenJDK Java and Oracle Java 1.7.0_75 (64-bit) 
+* OpenJDK Java 1.8.0_45 (64-bit) 
 * Tested with windows 7 SP1, ubuntu 14.04, macosx 10.8, 10.9 10.10
 * We run Liferay with PostgreSQL 9.3, but HSQL (as of the bundle) runs also OK.
 
@@ -60,7 +60,7 @@ Please note that there are PROBLEMS with
 
 t.b.d. (no know problems at this time)
 
-### Deplyoment
+### Deployment
 
 There is a vagrant project for one-step-deployment. See the project wiki for details.
 
