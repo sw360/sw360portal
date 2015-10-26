@@ -36,11 +36,10 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
  */
 public class ComponentExporter extends ExcelExporter<Component> {
 
-    private static final int COLUMNS = 11;
+    private static final int COLUMNS = 10;
 
     private static final List<String> HEADERS = ImmutableList.<String>builder()
             .add("Component ID")
-            .add("CPE ID")
             .add("Component Name")
             .add("Programming Languages")
             .add("Categories")
@@ -56,7 +55,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
         super(new ComponentHelper());
     }
 
-    private static class ComponentHelper implements ExporterHelper<Component> {
+    protected static class ComponentHelper implements ExporterHelper<Component> {
 
         @Override
         public int getColumns() {
