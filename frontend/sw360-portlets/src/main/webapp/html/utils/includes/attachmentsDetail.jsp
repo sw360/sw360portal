@@ -35,72 +35,62 @@
 <core_rt:if test="${not empty attachments}">
     <core_rt:forEach items="${attachments}" var="attachment" varStatus="loop">
         <tr id="componentattachmentrow${loop.count}" class="tr_clone">
-
-            <td colspan="5">
-                <label class="textlabel stackedLabel" for="comp_file${loop.count}">File name</label>
-                <input class="toplabelledInput" id="comp_file${loop.count}" style="margin-left: 10px;"
+            <td>
+                <table>
+                    <tr>
+                        <td colspan="2">
+                            <label class="textlabel stackedLabel" for="comp_file${loop.count}">File name</label>
+                            <input class="toplabelledInput" id="comp_file${loop.count}" style="margin-left: 10px;width:500px;"
                        name="<portlet:namespace/>attachmentfile" type="text"
                        value="<sw360:out value="${attachment.filename}"/>" readonly/>
-
-                <label class="textlabel stackedLabel" for="comp_file_uploader${loop.count}">Uploader</label>
-                <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;"
-                       name="<portlet:namespace/>attachmentfile" type="text"
-                       value="<sw360:out value="${attachment.createdBy}"/>" readonly/>
-
-                <label class="textlabel stackedLabel" for="comp_file_approver${loop.count}">Approver</label>
-                <input class="toplabelledInput" id="comp_file_approver${loop.count}" style="margin-left: 10px;"
-                       name="<portlet:namespace/>attachmentfile" type="text"
-                       value="<sw360:out value="${attachment.checkedBy}"/>" readonly/>
-            </td>
-
-            <td colspan="5">
-                <label class="textlabel stackedLabel" for="comp_file_uploadergroup${loop.count}">Uploader Group</label>
-                <input class="toplabelledInput" id="comp_file_uploadergroup${loop.count}"
-                       name="<portlet:namespace/>attachmentfile" type="text"
-                       value="<sw360:out value="${attachment.createdTeam}"/>" readonly/>
-
-                <label class="textlabel stackedLabel" for="comp_file_approvergroup${loop.count}">Approver Group</label>
-                <input class="toplabelledInput" id="comp_file_approvergroup${loop.count}"
-                       name="<portlet:namespace/>attachmentfile" type="text"
-                       value="<sw360:out value="${attachment.checkedTeam}"/>" readonly/>
-
-            </td>
-
-            <td colspan="5">
-
-                <label class="textlabel stackedLabel" for="comp_file_comment${loop.count}">Uploader Comment</label>
-                <input class="toplabelledInput" id="comp_file_comment${loop.count}"
-                       name="<portlet:namespace/>attachmentcomment" type="text"
-                       value="<sw360:out value="${attachment.creatorComment}"/>" readonly />
-
-                <label class="textlabel stackedLabel" for="comp_file_uplcomment${loop.count}">Approver Comment</label>
-                <input class="toplabelledInput" id="comp_file_uplcomment${loop.count}"
-                       name="<portlet:namespace/>attachmentcomment" type="text"
-                       value="<sw360:out value="${attachment.checkedComment}"/>" readonly />
-
-            </td>
-
-            <td colspan="5">
-                <table>
-                  <tr>
-                      <td colspan="2">
-                         <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment Type</label>
-                         <input id="comp_filetype${loop.count}" value="<sw360:DisplayEnum value="${attachment.attachmentType}"/>" readonly/>
-                      </td>
-                  </tr>
-                  <tr>
-                    <td class="downloader">
-                        <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}" name="${attachment.filename}"/>
-                    </td>
-                    <td class="deletor">
-                        <core_rt:if test="${not dontDisplayDeleteButton}" >
-                        <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteAttachment('componentattachmentrow${loop.count}','${attachment.attachmentContentId}')" alt="Delete">
+                        </td>
+                        <td colspan="1">
+                            <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment Type</label>
+                            <input id="comp_filetype${loop.count}" value="<sw360:DisplayEnum value="${attachment.attachmentType}"/>" readonly/>
+                        </td>
+                        <td class="downloader" colspan="1">
+                            <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}" name="${attachment.filename}"/>
+                        </td>
+                        <td class="deletor" colspan="1">
+                            <core_rt:if test="${not dontDisplayDeleteButton}" >
+                            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteAttachment('componentattachmentrow${loop.count}','${attachment.attachmentContentId}')" alt="Delete">
                         </core_rt:if>
-                    </td>
-                  </tr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            Uploader<input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;width:200px;"
+                                name="<portlet:namespace/>attachmentfile" type="text"
+                                value="<sw360:out value="${attachment.createdBy}"/>" readonly/>
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
+                                name="<portlet:namespace/>attachmentfile" type="text"
+                                value="<sw360:out value="${attachment.createdTeam}"/>" readonly/>
+                           <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
+                                name="<portlet:namespace/>attachmentcomment" type="text"
+                                value="<sw360:out value="${attachment.createdOn}"/>" readonly />
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:200px;"
+                                name="<portlet:namespace/>attachmentcomment" type="text"
+                                value="<sw360:out value="${attachment.createdComment}"/>" readonly />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            Approver <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;width:200px;"
+                                name="<portlet:namespace/>attachmentfile" type="text"
+                                value="<sw360:out value="${attachment.checkedBy}"/>" readonly/>
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
+                                name="<portlet:namespace/>attachmentfile" type="text"
+                                value="<sw360:out value="${attachment.checkedTeam}"/>" readonly/>
+                           <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
+                                name="<portlet:namespace/>attachmentcomment" type="text"
+                                value="<sw360:out value="${attachment.checkedOn}"/>" readonly />
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}"  style="width:200px;"
+                                name="<portlet:namespace/>attachmentcomment" type="text"
+                                value="<sw360:out value="${attachment.checkedComment}"/>" readonly />
+                        </td>
+                    </tr>
                 </table>
             </td>
-
         </tr>
     </core_rt:forEach>
 </core_rt:if>

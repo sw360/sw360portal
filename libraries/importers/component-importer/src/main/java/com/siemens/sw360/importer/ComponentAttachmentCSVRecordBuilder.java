@@ -77,7 +77,7 @@ public class ComponentAttachmentCSVRecordBuilder extends CustomizedCSVRecordBuil
         setFilename(attachment.getFilename());
 
         if(attachment.isSetAttachmentType()) setAttachmentType(attachment.getAttachmentType().name());
-        if(attachment.isSetCreatorComment()) setCreatorComment(attachment.getCreatorComment());
+        if(attachment.isSetCreatedComment()) setCreatorComment(attachment.getCreatedComment());
         if(attachment.isSetCreatedBy()) setCreatedBy(attachment.getCreatedBy());
         if(attachment.isSetCreatedOn()) setCreatedOn(attachment.getCreatedOn());
     }

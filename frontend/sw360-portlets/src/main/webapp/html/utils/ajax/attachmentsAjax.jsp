@@ -66,9 +66,9 @@
         <td colspan="6">
             <label class="textlabel stackedLabel" for="comp_filecomment${loop.count}">Comments</label>
             <input class="toplabelledInput" id="comp_filecomment${loop.count}"
-                   name="<portlet:namespace/><%=Release._Fields.ATTACHMENTS%><%=Attachment._Fields.CREATOR_COMMENT%>"
+                   name="<portlet:namespace/><%=Release._Fields.ATTACHMENTS%><%=Attachment._Fields.CREATED_COMMENT%>"
                    type="text" placeholder="Enter comments"
-                   value="<sw360:out value="${attachment.creatorComment}"/>"
+                   value="<sw360:out value="${attachment.createdComment}"/>"
                     />
         </td>
         <td class="downloader">

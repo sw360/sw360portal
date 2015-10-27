@@ -77,7 +77,7 @@ public class ComponentAttachmentCSVRecordBuilderTest {
         final Attachment attachment = new Attachment();
         attachment.setFilename(fileName)
                   .setAttachmentContentId(attachmentContentID)
-                .setCreatorComment(comment)
+                .setCreatedComment(comment)
                 .setAttachmentType(attachmentType)
                 .setCreatedBy(createdBy)
                 .setCreatedOn(createdOn);
