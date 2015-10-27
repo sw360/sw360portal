@@ -27,17 +27,13 @@
     projects.</p>
 <h5>Getting started<h5>
 <core_rt:if test="${themeDisplay.signedIn}">
-    <p style="font-weight: bold;">You are signed in, please go to the private pages.</p>
+    <p style="font-weight: bold;">You are signed in, please go to the private pages on the top-right corner of this site:</p>
+    <img src="<%=request.getContextPath()%>/images/welcome/select_private_pages.png" alt=""
+         border="0" width="150"/><br/>
 
     <h5>What do I see?</h5>
 
     <p>Please do not upload confidential data unless it is written here.</p>
-    <ul>With SW360, you can
-        <li>Manage your components and projects</li>
-        <li>See licenses and their obligations</li>
-        <li>Send files tot he clearing tool FossologyNG check for status</li>
-    </ul>
-
 
     With <b>SW360</b>, you can<br/>
 
@@ -73,18 +69,18 @@
                 Project</a></span>
         <li/>
             <span class="wikidpad wiki-link"><a href="#Create=20a=20new=20component" class="wikidpad">Create a new
-                component</a></span>
+                Component</a></span>
         <li/>
             <span class="wikidpad wiki-link"><a href="#Adding=20a=20release=20to=20a=20component" class="wikidpad">Adding
-                a release to a component</a></span>
+                a Release to a Component</a></span>
         <li/>
         <span class="wikidpad wiki-link"><a href="#Upload=20to=20Fossology" class="wikidpad">Upload to
             Fossology</a></span>
     </ol>
     <p><br/>
-        The visibility of objects and the permitted operations on objects within SW360 depends on specific roles of
+        The visibility of objects and the permitted operations on objects within SW360 depend on specific roles of
         the user. A detailed description for the permissions is given here: <span class="wikidpad wiki-link"><a
-                href="#User=20roles" class="wikidpad">User roles</a></span>. .<br/>
+                href="#User=20roles" class="wikidpad">User roles</a></span> <br/>
 
     <p><br/>
         <span class="wikidpad wiki-link"><a href="#Glossary" class="wikidpad">Glossary</a></span><br/>
@@ -97,37 +93,24 @@
 
     <h2 class="wikidpad heading-level2">Login to SW360</h2>
 
-    <p><br/>
-        The SW360 software tool can be reached under the following address<br/>
 
     <p><br/>
-            <span class="wikidpad url-link"><a href="http://sw360.siemens.com"
-                                               class="wikidpad">http://sw360.siemens.com</a></span><br/>
-
-    <p><br/>
-        You need a smart card PKI login and a SW360 user account to access the software. <br/>
-
-    <p><br/>
-        <i>Q: user account for SW360 - how to get one?</i><br/>
-
-    <p><br/>
-        After successful logon to the SW360 site you can the public area of your account.<br/>
+        After successful logon to the SW360 site you can view the public area of your account.<br/>
         <img src="<%=request.getContextPath()%>/images/welcome/2015-04-14%2013_54_26-Welcome%20-%20SW360.png" alt=""
              border="0" width="640"/><br/>
 
     <p><br/>
         To switch to your private working site use the drop down menu of <b>My Sites</b>. Your private area contains
         an overview of your projects, components and the tasks you have submitted or which are assigned to you. On
-        the right side of the screen you can see the latst releases which has been added to SW360. <br/>
-        <i>Q: does each user see the recent releases of all other users or does this depend on the users
-            role?</i><br/>
+        the right side of the screen you can see the latest releases which have been added to SW360. <br/>
+        
 
     <p><br/>
         <img src="<%=request.getContextPath()%>/images/welcome/Home%20-%20SW360.png" alt="" border="0"
              width="640"/><br/>
 
     <p><br/>
-        The top level menu gives acces to your projects, components, all licenses and the search functionality of
+        The top level menu gives access to your projects, components, all licenses and the search functionality of
         SW360.<br/>
     <hr/>
         <span class="wikidpad wiki-name-ref">[<a name="Create=20a=20new=20Project" class="wikidpad">Create a new
@@ -138,7 +121,7 @@
     <h2 class="wikidpad heading-level2">Create a new Project</h2>
 
     <p><br/>
-        To create a new project start with the home home screen of your private site.<br/>
+        To create a new project start with the home screen of your private site.<br/>
 
     <p><br/>
         <img src="<%=request.getContextPath()%>/images/welcome/Home%20-%20SW360.png" alt="" border="0"
@@ -254,12 +237,10 @@
         <li/>
         <b>Categories</b>: <i>supply a list of possible categories</i>
         <li/>
-        <b>Component type</b>: <br/>
+        <b>Component Type</b>: <br/>
     </ul>
     <b><i>Optional fields are</i></b>:
     <ul class="wikidpad bulletlist">
-        <li/>
-        <b>CPE ID</b>:
         <li/>
         <b>Software Platforms</b>: <i>supply a list of possible platforms</i>
         <li/>
@@ -272,12 +253,12 @@
         </ul>
     </ul>
     <p><br/>
-        The contents of the fields <b>Programming Languages</b> and <b>Operating Systems</b> will be taken from the
+        The contents of the fields <b>Vendors</b>, <b>Programming Languages</b> and <b>Operating Systems</b> will be taken from the
         associated release(s). <br/>
         The following picture shows a minimal creation dialog for the component <i>libelf</i>.<br/>
 
     <p><br/>
-        <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360CreateDialog.png" alt=""
+        <img src="<%=request.getContextPath()%>/images/welcome/Components-SW360CreateDialog.png" alt=""
              border="0" width="640"/><br/>
 
     <p><br/>
@@ -287,18 +268,9 @@
         not.<br/>
 
     <p><br/>
-        <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360CreateDialogFeedback.png"
+        <img src="<%=request.getContextPath()%>/images/welcome/Components-SW360CreateDialogFeedback.png"
              alt="" border="0" width="640"/><br/>
 
-    <p><br/>
-        <i>todos:
-            <ul class="wikidpad bulletlist">
-                <li/>
-                add a subproject
-                <li/>
-                add an existing release
-            </ul>
-        </i><br/>
     <hr/>
         <span class="wikidpad wiki-name-ref">[<a name="Adding=20a=20release=20to=20a=20component" class="wikidpad">Adding
             a release to a component</a>]<br/><br/></span><span class="wikidpad parent-nodes">parent nodes: <span
@@ -308,7 +280,7 @@
 
     <h2 class="wikidpad heading-level2">Adding a release to a component</h2>
     <br/>
-    To ad a release to a component, select the component first. <br/>
+    In order to add a release to a component, select the component first. <br/>
     This can be accomplished in two ways:
     <ul class="wikidpad bulletlist">
         <li/>
@@ -319,7 +291,7 @@
     <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360HomeList.png" alt="" border="0"
          width="640"/><br/>
     <br/>
-    In this case we choose the new created component "libelf" from the home page list. <br/>
+    In this case we choose the newly created component "libelf" from the home page list. <br/>
     The detail page for the component "libelf" contains two buttons:
     <ul class="wikidpad bulletlist">
         <li/>
@@ -328,7 +300,7 @@
         <b>Subscribe</b>: subscribe to the component to get notifications, when any changes of the component
         occur<br/>
     </ul>
-    On the left side the detail page contains a menu for
+    On the left-hand side the detail page contains a menu for
     <ul class="wikidpad bulletlist">
         <li/>
         <b>Summary</b>: show this page
@@ -338,15 +310,15 @@
         <b>Attachments</b>: show the attachments of the component; attachments can be source code, documents,
         clearing reports, ...
         <li/>
-        Wiki: a link to the component wiki<br/>
+        <b>Wiki</b>: a link to the component wiki<br/>
     </ul>
-    <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360ComponentDetails.png" alt=""
+    <img src="<%=request.getContextPath()%>/images/welcome/Components-SW360ComponentDetails.png" alt=""
          border="0" width="640"/><br/>
     <br/>
     Press the button "Edit" for the component "libelf". A detail page for the component is shown where you can find
     a button "Add Release". <br/>
     <br/>
-    <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360CreateRelease.png" alt=""
+    <img src="<%=request.getContextPath()%>/images/welcome/Components-SW360CreateRelease.png" alt=""
          border="0" width="640"/><br/>
     <br/>
     A detail page for the release is opened. Mandatory fields are
@@ -377,7 +349,7 @@
     After entering the information press the button "Add Release" to add the new release to the component. <br/>
     A new page is shown with a feedback about the creation operation and the details of the release.<br/>
     <br/>
-    <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360ReleaseCreated.png" alt=""
+    <img src="<%=request.getContextPath()%>/images/welcome/Components-SW360ReleaseCreated1.png" alt=""
          border="0" width="640"/><br/>
     <br/>
     In this detail page for the release it is possible to edit the basic data for the release and update the
@@ -388,7 +360,7 @@
     Show the detailed information about the release.<br/>
     <br/>
     <b>Release Repository</b><br/>
-    A URL to the rpository of the release can be added.<br/>
+    A URL to the repository of the release can be added.<br/>
     <br/>
     <b>Release Clearing Information</b><br/>
     <img src="<%=request.getContextPath()%>/images/welcome/Components%20-%20SW360ReleaseClearingInfo.png" alt=""
