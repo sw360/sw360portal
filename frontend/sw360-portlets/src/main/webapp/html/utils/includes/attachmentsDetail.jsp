@@ -37,16 +37,14 @@
         <tr id="componentattachmentrow${loop.count}" class="tr_clone">
             <td>
                 <table>
-                    <tr>
+                    <tr style="width:800px;">
                         <td colspan="2">
-                            <label class="textlabel stackedLabel" for="comp_file${loop.count}">File name</label>
-                            <input class="toplabelledInput" id="comp_file${loop.count}" style="margin-left: 10px;width:500px;"
+                            <input class="toplabelledInput" id="comp_file${loop.count}" style="margin-left: 10px;width:480px;"
                        name="<portlet:namespace/>attachmentfile" type="text"
                        value="<sw360:out value="${attachment.filename}"/>" readonly/>
                         </td>
                         <td colspan="1">
-                            <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment Type</label>
-                            <input id="comp_filetype${loop.count}" value="<sw360:DisplayEnum value="${attachment.attachmentType}"/>" readonly/>
+                            <input id="comp_filetype${loop.count}" value="<sw360:DisplayEnum value="${attachment.attachmentType}"/>" readonly  style="width:140px;"/>
                         </td>
                         <td class="downloader" colspan="1">
                             <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}" name="${attachment.filename}"/>
@@ -54,39 +52,41 @@
                         <td class="deletor" colspan="1">
                             <core_rt:if test="${not dontDisplayDeleteButton}" >
                             <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteAttachment('componentattachmentrow${loop.count}','${attachment.attachmentContentId}')" alt="Delete">
-                        </core_rt:if>
+                            </core_rt:if>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="5">
-                            Uploader<input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;width:200px;"
+                            <font color="000000">Uploader:</font>  <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;width:150px;"
                                 name="<portlet:namespace/>attachmentfile" type="text"
                                 value="<sw360:out value="${attachment.createdBy}"/>" readonly/>
-                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:110px;"
                                 name="<portlet:namespace/>attachmentfile" type="text"
                                 value="<sw360:out value="${attachment.createdTeam}"/>" readonly/>
-                           <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:90px;"
                                 name="<portlet:namespace/>attachmentcomment" type="text"
                                 value="<sw360:out value="${attachment.createdOn}"/>" readonly />
-                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:200px;"
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:140px;"
                                 name="<portlet:namespace/>attachmentcomment" type="text"
                                 value="<sw360:out value="${attachment.createdComment}"/>" readonly />
+                            <br/>
+                            <font color="000000">Approver:</font> <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;width:150px;"
+                                name="<portlet:namespace/>attachmentfile" type="text"
+                                value="<sw360:out value="${attachment.checkedBy}"/>" readonly/>
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:110px;"
+                                name="<portlet:namespace/>attachmentfile" type="text"
+                                value="<sw360:out value="${attachment.checkedTeam}"/>" readonly/>
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:90px;"
+                                name="<portlet:namespace/>attachmentcomment" type="text"
+                                value="<sw360:out value="${attachment.checkedOn}"/>" readonly />
+                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}"  style="width:140px;"
+                                name="<portlet:namespace/>attachmentcomment" type="text"
+                                value="<sw360:out value="${attachment.checkedComment}"/>" readonly />
                         </td>
                     </tr>
                     <tr>
                         <td colspan="5">
-                            Approver <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="margin-left: 10px;width:200px;"
-                                name="<portlet:namespace/>attachmentfile" type="text"
-                                value="<sw360:out value="${attachment.checkedBy}"/>" readonly/>
-                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
-                                name="<portlet:namespace/>attachmentfile" type="text"
-                                value="<sw360:out value="${attachment.checkedTeam}"/>" readonly/>
-                           <input class="toplabelledInput" id="comp_file_uploader${loop.count}" style="width:120px;"
-                                name="<portlet:namespace/>attachmentcomment" type="text"
-                                value="<sw360:out value="${attachment.checkedOn}"/>" readonly />
-                            <input class="toplabelledInput" id="comp_file_uploader${loop.count}"  style="width:200px;"
-                                name="<portlet:namespace/>attachmentcomment" type="text"
-                                value="<sw360:out value="${attachment.checkedComment}"/>" readonly />
+                            
                         </td>
                     </tr>
                 </table>
