@@ -264,7 +264,7 @@ public class CompareRelease extends NameSpaceAwareTag {
         if (!tableContent.isEmpty()) {
 
             display.append(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
-            display.append(String.format("<thead><tr><th colspan=\"2\">%s</th></tr><tr><th>Release Name</th><th>Release Relationship</th></tr></thead><tbody>", msg));
+            display.append(String.format("<thead><tr><th colspan=\"2\">%s</th></tr><tr><th>Release name</th><th>Release relationship</th></tr></thead><tbody>", msg));
             display.append(tableContent);
             display.append("</tbody></table>");
         }

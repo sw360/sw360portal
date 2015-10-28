@@ -406,7 +406,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             prepareProjectDuplicate(request);
             include("/html/projects/edit.jsp", request, response);
         } else {
-            prepareStandardView(request);
             super.doView(request, response);
         }
 
@@ -555,12 +554,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         return SW360Utils.getLinkedProjects(linkedProjects, thriftClients, log);
     }
 
-    // TODO mcj check if eraseable
-    private void prepareStandardView(RenderRequest request) throws IOException {
-//        User user = UserSessions.getUserFromRequest(request);
-//        List<Project> projects = getAccessibleProjects(user);
-//        request.setAttribute(PROJECT_LIST, projects);
-    }
 
     private Set<Project> getAccessibleProjects(User user) {
         Set<Project> projects;

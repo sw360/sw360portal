@@ -61,8 +61,8 @@
             <th width="10%">Status</th>
             <th width="20%">CPE id</th>
             <th width="20%">Vendor</th>
-            <th width="20%"> Release Name</th>
-            <th width="20%">Release Version</th>
+            <th width="20%"> Release name</th>
+            <th width="20%">Release version</th>
             <th width="5%">Submit</th>
         </tr>
         </thead>
