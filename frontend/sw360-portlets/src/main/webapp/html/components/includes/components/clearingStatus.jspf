@@ -64,8 +64,8 @@
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
-                {"sTitle": "Release Name"},
-                {"sTitle": "Release Version"},
+                {"sTitle": "Release name"},
+                {"sTitle": "Release version"},
                 {"sTitle": "Clearing state"},
                 {"sTitle": "Clearing report"},
                 {"sTitle": "Mainline state"},

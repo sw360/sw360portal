@@ -54,7 +54,7 @@
                    value="<sw360:out value="${attachment.filename}"/>" readonly/>
         </td>
         <td colspan="6">
-            <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment Type</label>
+            <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment type</label>
             <select class="toplabelledInput" id="comp_filetype${loop.count}"
                     name="<portlet:namespace/><%=Release._Fields.ATTACHMENTS%><%=Attachment._Fields.ATTACHMENT_TYPE%>"
                     style="min-width: 162px; min-height: 28px;">
@@ -66,6 +66,7 @@
         <td colspan="6">
             <label class="textlabel stackedLabel" for="comp_filecomment${loop.count}">Comments</label>
             <input class="toplabelledInput" id="comp_filecomment${loop.count}"
+
                    name="<portlet:namespace/><%=Release._Fields.ATTACHMENTS%><%=Attachment._Fields.CREATED_COMMENT%>"
                    type="text" placeholder="Enter comments"
                    value="<sw360:out value="${attachment.createdComment}"/>"

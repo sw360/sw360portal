@@ -35,7 +35,7 @@
     <tr id="projectLinkRow${loop.count}" >
         <td width="30%">
             <input type="hidden" value="${projectLink.id}" name="<portlet:namespace/><%=Project._Fields.LINKED_PROJECTS%><%=ProjectLink._Fields.ID%>">
-            <label class="textlabel stackedLabel" for="projectName">project Name</label>
+            <label class="textlabel stackedLabel" for="projectName">Project name</label>
             <input id="projectName" type="text" class="toplabelledInput" placeholder="Enter project"
                    value="<sw360:out value="${projectLink.name}"/>" readonly/>
         </td>

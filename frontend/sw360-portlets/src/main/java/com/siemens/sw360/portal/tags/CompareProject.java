@@ -272,7 +272,7 @@ public class CompareProject extends NameSpaceAwareTag {
         if (!tableContent.isEmpty()) {
 
             display.append(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
-            display.append(String.format("<thead><tr><th colspan=\"2\">%s</th></tr><tr><th>Release Name</th><th>Release Relationship</th></tr></thead><tbody>", msg));
+            display.append(String.format("<thead><tr><th colspan=\"2\">%s</th></tr><tr><th>Release name</th><th>Release relationship</th></tr></thead><tbody>", msg));
             display.append(tableContent);
             display.append("</tbody></table>");
         }
@@ -312,7 +312,7 @@ public class CompareProject extends NameSpaceAwareTag {
         String tableContent = candidate.toString();
         if (!tableContent.isEmpty()) {
             display.append(String.format("<table class=\"%s\" id=\"%sUpdated\" >", tableClasses, idPrefix));
-            display.append("<thead><tr><th colspan=\"3\">Updated Release Links</th></tr><tr><th>Release Name</th><th>Current Release Relationship</th><th>Suggested Release Relationship</th></tr></thead><tbody>");
+            display.append("<thead><tr><th colspan=\"3\">Updated Release Links</th></tr><tr><th>Release name</th><th>Current Release relationship</th><th>Suggested release relationship</th></tr></thead><tbody>");
             display.append(tableContent);
             display.append("</tbody></table>");
         }

@@ -37,13 +37,13 @@
         </td>
         <td width="23%">
             <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Release._Fields.RELEASE_ID_TO_RELATIONSHIP%><%=ReleaseLink._Fields.ID%>">
-            <label class="textlabel stackedLabel" for="releaseName">Release Name</label>
+            <label class="textlabel stackedLabel" for="releaseName">Release name</label>
             <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
                    value="${releaseLink.name}" readonly/>
         </td>
 
         <td width="23%">
-            <label class="textlabel stackedLabel" for="releaseVersion">Release Version</label>
+            <label class="textlabel stackedLabel" for="releaseVersion">Release version</label>
             <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
                    value="${releaseLink.version}" readonly/>
         </td>

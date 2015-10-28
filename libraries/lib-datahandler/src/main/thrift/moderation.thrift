@@ -91,7 +91,7 @@ service ModerationService {
     // Delete request when project was updated otherwise
     oneway void deleteRequestsOnDocument(1: string documentId);
 
-    // Get moderations requests relevant to a given user
+    // Get moderation requests relevant to a given user
     list<ModerationRequest> getRequestsByModerator(1: User user);
     list<ModerationRequest> getRequestsByRequestingUser(1: User user);
 
