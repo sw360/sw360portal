@@ -30,10 +30,10 @@
     <form>
         <div style="display: inline-block">
             <input type="text" name="searchrelease" id="searchrelease" placeholder="search" class="searchbar"/>&nbsp;
-            <input type="button" value="Search By Name"
+            <input type="button" value="Search by name"
                    onclick="ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_SEARCH%>', $('#searchrelease').val(), true);"
                    class="searchbutton" id="searchbuttonrelease"/>
-            <input type="button" value="Search By Vendor"
+            <input type="button" value="Search by vendor"
                    onclick="ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_SEARCH_BY_VENDOR%>', $('#searchrelease').val(), true);"
                    class="searchbutton" id="searchbuttonrelease2"/>
             <input type="button" value="Releases of linked projects"
@@ -47,7 +47,7 @@
                 <tr class="trheader" style="height: 30px;">
                     <th width="4%">&nbsp;</th>
                     <th width="32%" class="textlabel">Vendor</th>
-                    <th width="32%" class="textlabel">Release Name</th>
+                    <th width="32%" class="textlabel">Release name</th>
                     <th width="32%" class="textlabel">Version</th>
                 </tr>
                 </thead>

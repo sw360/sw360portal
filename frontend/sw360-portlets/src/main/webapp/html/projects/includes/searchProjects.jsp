@@ -41,7 +41,7 @@
                 <thead>
                 <tr class="trheader" style="height: 30px;">
                     <th width="4%">&nbsp;</th>
-                    <th width="32%" class="textlabel">Project Name</th>
+                    <th width="32%" class="textlabel">Project name</th>
                     <th width="32%" class="textlabel">Project Responsible</th>
                     <th width="32%" class="textlabel">Description</th>
                 </tr>

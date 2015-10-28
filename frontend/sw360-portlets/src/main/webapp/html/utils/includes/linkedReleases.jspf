@@ -45,17 +45,17 @@
             </td>
             <td width="23%">
                 <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.ID%>">
-                <label class="textlabel stackedLabel" for="releaseName">Release Name</label>
+                <label class="textlabel stackedLabel" for="releaseName">Release name</label>
                 <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
                        value="<sw360:out value="${releaseLink.name}"/>" readonly/>
             </td>
             <td width="23%">
-                <label class="textlabel stackedLabel" for="releaseVersion">Release Version</label>
+                <label class="textlabel stackedLabel" for="releaseVersion">Release version</label>
                 <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
                        value="<sw360:out value="${releaseLink.version}"/>" readonly/>
             </td>
             <td width="23%">
-                <label class="textlabel stackedLabel mandatory" for="releaseRelation">Release Relation</label>
+                <label class="textlabel stackedLabel mandatory" for="releaseRelation">Release relation</label>
                 <core_rt:if test="${!releaseLink.setReleaseRelationship}" >
                 <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="Enter release usage"
                        value="<sw360:out value="${releaseLink.comment}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>" readonly/>
@@ -80,8 +80,8 @@
     </tr>
     <tr>
         <th>Vendor</th>
-        <th>Release Name</th>
-        <th>Release Version</th>
+        <th>Release name</th>
+        <th>Release version</th>
         <th>Depth</th>
     </tr>
     </thead>

@@ -45,7 +45,7 @@
                        value="<sw360:out value="${attachment.filename}"/>" readonly/>
                         </td>
                         <td colspan="1">
-                            <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment Type</label>
+                            <label class="textlabel stackedLabel" for="comp_filetype${loop.count}">Attachment type</label>
                             <input id="comp_filetype${loop.count}" value="<sw360:DisplayEnum value="${attachment.attachmentType}"/>" readonly/>
                         </td>
                         <td class="downloader" colspan="1">
