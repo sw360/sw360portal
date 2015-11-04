@@ -20,7 +20,7 @@
   <table class="table info_table" id="ReleaseUsage" title="Release usage overview">
     <thead>
     <tr>
-      <th colspan="2"><sw360:out value="${component.name}"/> is used by the following Projects</th>
+      <th colspan="2"><sw360:out value="${component.name}"/> Is used by the following Projects</th>
     </tr>
     </thead>
     <tr>
@@ -36,7 +36,7 @@
   <table class="table info_table" id="ReleaseUsageComponents" title="Release by components usage overview">
     <thead>
     <tr>
-      <th colspan="2"><sw360:out value="${component.name}"/> is used by the following Components</th>
+      <th colspan="2"><sw360:out value="${component.name}"/> Is used by the following Components</th>
     </tr>
     </thead>
     <tr>

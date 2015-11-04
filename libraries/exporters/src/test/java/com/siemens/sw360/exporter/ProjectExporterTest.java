@@ -15,26 +15,21 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.siemens.sw360.projects;
+package com.siemens.sw360.exporter;
 
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.server.TServlet;
+import org.junit.Test;
 
-import java.net.MalformedURLException;
-import java.io.IOException;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
 /**
- * Thrift Servlet instantiation
- *
- * @author cedric.bodet@tngtech.com
- * @author Johannes.Najjar@tngtech.com
+ * Created by heydenrb on 06.11.15.
  */
-public class ProjectServlet extends TServlet {
+public class ProjectExporterTest {
 
-    public ProjectServlet() throws MalformedURLException, IOException {
-        // Create a service processor using the provided handler
-        super(new ProjectService.Processor<>(new ProjectHandler()), new TCompactProtocol.Factory());
+    @Test
+    public void testEveryRenderedFieldHasAHeader() throws Exception {
+        assertThat(ProjectExporter.RENDERED_FIELDS.size(), is(ProjectExporter.HEADERS.size()));
+
     }
-
 }

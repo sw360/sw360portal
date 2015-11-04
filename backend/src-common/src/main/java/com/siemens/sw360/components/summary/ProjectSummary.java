@@ -19,6 +19,7 @@ package com.siemens.sw360.components.summary;
 
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.Project._Fields;
+import com.siemens.sw360.exporter.ProjectExporter;
 
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
 
@@ -35,6 +36,7 @@ public class ProjectSummary extends DocumentSummary<Project> {
         Project copy = new Project();
         copyField(document, copy, _Fields.ID);
         copyField(document, copy, _Fields.NAME);
+        copyField(document, copy, _Fields.DESCRIPTION);
         copyField(document, copy, _Fields.VERSION);
 
         switch (type) {
@@ -49,16 +51,24 @@ public class ProjectSummary extends DocumentSummary<Project> {
         return copy;
     }
 
-    private static void setSummaryFields(Project document, Project copy) {
-        copyField(document, copy, _Fields.DESCRIPTION);
-        copyField(document, copy, _Fields.STATE);
-        copyField(document, copy, _Fields.PROJECT_RESPONSIBLE);
-        // Add release ids
-        if (document.isSetReleaseIdToUsage())
-            copy.setReleaseIds(document.releaseIdToUsage.keySet());
+    protected static void setSummaryFields(Project document, Project copy) {
+        for (_Fields renderedField : ProjectExporter.RENDERED_FIELDS) {
+
+            switch (renderedField) {
+                case RELEASE_ID_TO_USAGE:
+                    if (document.isSetReleaseIdToUsage())
+                        copy.setReleaseIds(document.releaseIdToUsage.keySet());
+                    break;
+
+                default:
+                    copyField(document, copy, renderedField);
+                    break;
+            }
+
+        }
     }
 
-    private static void setExportSummaryFields(Project document, Project copy) {
+    protected static void setExportSummaryFields(Project document, Project copy) {
         copyField(document, copy, _Fields.CREATED_ON);
         copyField(document, copy, _Fields.CREATED_BY);
         copyField(document, copy, _Fields.LEAD_ARCHITECT);

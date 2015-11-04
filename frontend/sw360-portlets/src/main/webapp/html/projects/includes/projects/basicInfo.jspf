@@ -32,9 +32,9 @@
     <tr>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>
-            <input id="comp_name" name="<portlet:namespace/><%=Project._Fields.NAME%>" type="text"
-                   placeholder="Enter Name" required="" class="followedByImg"
+            <label class="textlabel stackedLabel mandatory" for="proj_name">Name</label>
+            <input id="proj_name" name="<portlet:namespace/><%=Project._Fields.NAME%>" type="text"
+                   placeholder="Enter Name" required="" class="followedByImg" minlength="2"
                    value="<sw360:out value="${project.name}"/>"/>
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
                  title="Name of the project"/>
@@ -42,8 +42,8 @@
 
 
         <td width="33%">
-            <label class="textlabel stackedLabel " for="comp_version">Version</label>
-            <input id="comp_version" name="<portlet:namespace/><%=Project._Fields.VERSION%>" type="text"
+            <label class="textlabel stackedLabel " for="proj_version">Version</label>
+            <input id="proj_version" name="<portlet:namespace/><%=Project._Fields.VERSION%>" type="text"
                    placeholder="Enter Version" value="<sw360:out value="${project.version}"/>"/>
         </td>
 
@@ -88,7 +88,12 @@
     </tr>
 
     <tr>
-
+        <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_tag">Tag</label>
+            <input class="toplabelledInput" id="proj_tag" name="<portlet:namespace/><%=Project._Fields.TAG%>"
+                   type="text"
+                   value="<sw360:out value="${project.tag}"/>" placeholder="Enter one word tag"/>
+        </td>
 
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_url">HomePage URL</label>

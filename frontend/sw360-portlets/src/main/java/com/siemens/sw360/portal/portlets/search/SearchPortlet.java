@@ -49,13 +49,18 @@ public class SearchPortlet extends Sw360Portlet {
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         final User user = UserCacheHolder.getUserFromRequest(request);
         String searchtext = request.getParameter(KEY_SEARCH_TEXT);
+        log.info("searchtext:" + searchtext);
         String[] typeMaskArray = request.getParameterValues(TYPE_MASK);
+        log.info("typeMaskArray:" +typeMaskArray);
 
         List<String> typeMask;
-        if (typeMaskArray != null) // premature optimization would add && typeMaskArray.length<6
+        if (typeMaskArray != null) { // premature optimization would add && typeMaskArray.length<6
             typeMask = Arrays.asList(typeMaskArray);
+            log.info("typeMask:" + typeMask);
+        }
         else {
             typeMask = Collections.emptyList();
+            log.info("typeMask set to emptyList");
         }
 
         String usedsearchtext;
@@ -65,12 +70,13 @@ public class SearchPortlet extends Sw360Portlet {
         } else {
             usedsearchtext = searchtext;
         }
-
+        log.info("usedsearchtext"+usedsearchtext);
 
         List<SearchResult> searchResults;
         try {
             SearchService.Iface client = thriftClients.makeSearchClient();
             searchResults = client.searchFiltered(usedsearchtext, user, typeMask);
+            log.info("searchResults:"+ searchResults);
         } catch (TException e) {
             log.error("Search could not be performed!", e);
             searchResults = Collections.emptyList();

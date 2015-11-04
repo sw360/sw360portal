@@ -18,10 +18,12 @@
 package com.siemens.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
+import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
 
 import java.util.ArrayList;
@@ -31,7 +33,9 @@ import java.util.Set;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
+import static com.siemens.sw360.datahandler.thrift.projects.Project._Fields.*;
 
 /**
  * Created by bodet on 06/02/15.
@@ -40,20 +44,37 @@ import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
  */
 public class ProjectExporter extends ExcelExporter<Project> {
 
+
+    public static final List<Project._Fields> RENDERED_FIELDS = ImmutableList.<Project._Fields>builder()
+            .add(ID)
+            .add(NAME)
+            .add(STATE)
+            .add(CREATED_BY)
+            .add(CREATED_ON)
+            .add(PROJECT_RESPONSIBLE)
+            .add(LEAD_ARCHITECT)
+            .add(TAG)
+            .add(BUSINESS_UNIT)
+            .add(RELEASE_IDS)
+            .add(RELEASE_CLEARING_STATE_SUMMARY)
+            .build();
+
+
+
     private static final Logger log = Logger.getLogger(ProjectExporter.class);
 
-    private static final int COLUMNS = 9;
-
-    private static final List<String> HEADERS = ImmutableList.<String>builder()
+    protected static final List<String> HEADERS = ImmutableList.<String>builder()
             .add("Project ID")
             .add("Project Name")
             .add("Project State")
             .add("Created by")
             .add("Creation Date")
-            .add("Project Manager Name")
-            .add("Project Manager Email")
+            .add("Project Responsible")
+            .add("Project Lead Architect")
+            .add("Project Tag")
             .add("Business Unit")
-            .add("Releases")
+            .add("Release IDs")
+            .add("ReleaseClearingStateSummary")
             .build();
 
     public ProjectExporter(ComponentService.Iface client) {
@@ -70,7 +91,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
 
         @Override
         public int getColumns() {
-            return COLUMNS;
+            return HEADERS.size();
         }
 
         @Override
@@ -80,17 +101,24 @@ public class ProjectExporter extends ExcelExporter<Project> {
 
         @Override
         public List<String> makeRow(Project project) {
-            List<String> row = new ArrayList<>(COLUMNS);
+            List<String> row = new ArrayList<>(getColumns());
 
-            row.add(nullToEmpty(project.id));
-            row.add(nullToEmpty(project.name));
-            row.add("Mainline");
-            row.add(nullToEmpty(project.createdBy));
-            row.add(nullToEmpty(project.createdOn));
-            row.add("");
-            row.add(nullToEmpty(project.leadArchitect));
-            row.add(nullToEmpty(project.businessUnit));
-            row.add(joinStrings(getReleases(project.releaseIds)));
+            for (Project._Fields renderedField : RENDERED_FIELDS) {
+                Object fieldValue = project.getFieldValue(renderedField);
+
+                if (renderedField.equals(RELEASE_IDS)) {
+                    row.add(joinStrings(getReleases(project.releaseIds)));
+                }
+                else if(fieldValue instanceof TEnum) {
+                    row.add(nullToEmpty(ThriftEnumUtils.enumToString((TEnum) fieldValue)));
+                }
+                else if (fieldValue instanceof String ) {
+                    row.add(nullToEmpty((String) fieldValue));
+                } else {
+                    row.add("");
+                }
+
+            }
 
             return row;
         }

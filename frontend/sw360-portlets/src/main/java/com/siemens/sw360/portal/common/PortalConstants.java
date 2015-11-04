@@ -18,6 +18,8 @@
 package com.siemens.sw360.portal.common;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
+import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
+import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 
 import java.util.Properties;
 import java.util.Set;
@@ -114,6 +116,8 @@ public class PortalConstants {
     public static final String RELEASE_SEARCH = "releaseSearch";
     public static final String RELEASE_SEARCH_BY_VENDOR = "releaseSearchByVendor";
     public static final String RELEASE_LIST_FROM_LINKED_PROJECTS = "releaseListFromLinkedProjects";
+    public static final String STATE;
+    public static final String PROJECT_TYPE;
 
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
@@ -214,6 +218,8 @@ public class PortalConstants {
         SOFTWARE_PLATFORMS = props.getProperty("software.platforms", "[ \"Adobe AIR\", \"Adobe Flash\", \"Adobe Shockwave\", \"Binary Runtime Environment for Wireless\", \"Cocoa (API)\", \"Cocoa Touch\", \"Java (software platform)|Java platform\", \"Java Platform, Micro Edition\", \"Java Platform, Standard Edition\", \"Java Platform, Enterprise Edition\", \"JavaFX\", \"JavaFX Mobile\", \"Microsoft XNA\", \"Mono (software)|Mono\", \"Mozilla Prism\", \".NET Framework\", \"Silverlight\", \"Open Web Platform\", \"Oracle Database\", \"Qt (framework)|Qt\", \"SAP NetWeaver\", \"Smartface\", \"Vexi\", \"Windows Runtime\" ]");
         OPERATING_SYSTEMS = props.getProperty("operating.systems", "[ \"Android\", \"BSD\", \"iOS\", \"Linux\", \"OS X\", \"QNX\", \"Microsoft Windows\", \"Windows Phone\", \"IBM z/OS\"]");
         SET_CLEARING_TEAMS_STRING = CommonUtils.splitToSet(props.getProperty("clearing.teams", "E-P, EM-AM, BT-CPS, HC-IM, CT-RTC, CT-BE"));
+        STATE = props.getProperty("state","[ \"Active\", \"Phase out\", \"Unknown\"]");
+        PROJECT_TYPE = props.getProperty("project.type","[ \"Customer Project\", \"Internal Project\", \"Product\", \"Service\"]");
     }
 
     private PortalConstants() {
