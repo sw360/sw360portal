@@ -291,6 +291,15 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
+    public List<Release> getReleasesByComponentId(String id, User user) throws TException {
+        assertUser(user);
+        assertId(id);
+
+        return handler.getReleasesFromComponentId(id, user);
+
+    }
+
+    @Override
     public Set<Component> getUsingComponentsForRelease(String releaseId) throws TException {
         return handler.getUsingComponents(releaseId);
     }

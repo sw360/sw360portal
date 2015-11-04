@@ -27,6 +27,6 @@
     </tbody>
 </table>
 
-<input type="button" class="addButton" onclick="showProjectDialog();" value="Click to add Projects"  >
+<input type="button" class="addButton" onclick="showProjectDialog();" value="Click to add linked Projects"  >
 <br/>
 <br/>
