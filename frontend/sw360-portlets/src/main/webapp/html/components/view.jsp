@@ -108,9 +108,9 @@
             <tbody style="background-color: #f8f7f7; border: none;">
             <tr>
                 <td>
-                    <label for="component_name">Component Name</label>
+                    <label for="name_search">Name Search</label>
                     <input type="text" class="searchbar" name="<portlet:namespace/><%=PortalConstants.KEY_SEARCH_TEXT%>"
-                           value="${searchtext}" id="component_name">
+                           value="${searchtext}" id="name_search">
                 </td>
             </tr>
             <tr>

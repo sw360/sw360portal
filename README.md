@@ -40,7 +40,7 @@ In order to build you will need:
 
 * A git client
 * Apache Maven 3.0.X
-* Apache Thrift 0.9.1
+* Apache Thrift 0.9.3
 
 http://maven.apache.org/download.html#Installation
 
@@ -58,7 +58,7 @@ The software is tested with
 
 Please note that there are PROBLEMS with
 
-t.b.d. (no know problems at this time)
+t.b.d. (no known problems at this time)
 
 ### Deployment
 

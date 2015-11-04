@@ -96,6 +96,10 @@
         <td>Project type:</td>
         <td><sw360:DisplayEnum value="${project.projectType}"/></td>
     </tr>
+    <tr>
+        <td>Tag:</td>
+        <td><sw360:out value="${project.tag}"/></td>
+    </tr>
 </table>
 
 <table class="table info_table" id="projectAdminData" title="Project Admin Overview">

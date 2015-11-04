@@ -69,6 +69,7 @@ struct Project {
     12: optional string businessUnit,
     13: optional ProjectState state,
     15: optional ProjectType projectType,
+    16: optional string tag,// user defined tags
 
     // User details
     21: optional string createdBy,
@@ -120,6 +121,7 @@ service ProjectService {
     set<Project> getAccessibleProjects(1: User user);
 
     // Search functions
+    list<Project> refineSearch(1: string text, 2: map<string,set<string>>  subQueryRestrictions);
     list<Project> searchByName(1: string name, 2: User user);
     list<Project> searchByNameForExport(1: string name, 2: User user);
     set<Project> searchByReleaseId(1: string id, 2: User user);
