@@ -52,53 +52,29 @@ public class ProjectPermissionsTest extends ScenarioTest<GivenProject, WhenCompu
     public static Object[][] highestAllowedActionProvider() {
         // @formatter:off
         return new Object[][] {
-                { theUser, theUser, USER, CLEARING },
-                { theUser, theOtherUser, USER, READ },
-                { theUser, theOtherUser, CLEARING_ADMIN, ATTACHMENTS },
-                { theUser, theOtherUser, ADMIN, CLEARING },
+                //own permissions checks
+                //very privileged
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theUser, USER, CLEARING },
+                {GivenProject.ProjectRole.MODERATOR, theUser, theUser, USER, CLEARING },
+                {GivenProject.ProjectRole.CO_MODERATOR, theUser, theUser, USER, CLEARING },
+                {GivenProject.ProjectRole.PROJECT_RESPONSIBLE, theUser, theUser, USER, CLEARING },
+                //less privileged
+                {GivenProject.ProjectRole.LEAD_ARCHITECT, theUser, theUser, USER, ATTACHMENTS },
+                {GivenProject.ProjectRole.CONTRIBUTOR, theUser, theUser, USER, ATTACHMENTS },
+
+                //strangers: rights increase with user group
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, USER, READ },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, CLEARING_ADMIN, ATTACHMENTS },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, ADMIN, CLEARING },
         };
         // @formatter:on
     }
 
     @Test
     @UseDataProvider("highestAllowedActionProvider")
-    public void testHighestAllowedActionCreatedBy(String createdBy, String requestingUser, UserGroup requestingUserGroup, RequestedAction highestAllowedAction) throws Exception {
-        given().a_project_created_by_$(createdBy);
+    public void testHighestAllowedAction(GivenProject.ProjectRole role, String user, String requestingUser, UserGroup requestingUserGroup, RequestedAction highestAllowedAction) throws Exception {
+        given().a_project_with_$_$(role,user);
         when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(requestingUser, requestingUserGroup);
         then().the_highest_allowed_action_should_be(highestAllowedAction);
     }
-
-    @Test
-    public void testHighestAllowedActionLeadArchitect() throws Exception {
-        given().a_project_with_lead_architect_$(theUser);
-        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(theUser, USER);
-        then().the_highest_allowed_action_should_be(ATTACHMENTS);
-    }
-
-
-// Now it would be easy to write tests with copy and paste, but lets see...
-//    @Test
-//    public void testHighestAllowedActionModerator() throws Exception {
-//        given().a_project_with_moderator_$(theUser);
-//        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(theUser, USER);
-//        then().the_highest_allowed_action_should_be(CLEARING);
-//    }
-//
-//    @Test
-//    public void testHighestAllowedActionCoModerator() throws Exception {
-//        given().a_project_with_comoderator_$(theUser);
-//        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(theUser, USER);
-//        then().the_highest_allowed_action_should_be(CLEARING);
-//    }
-//
-//    @Test
-//    public void testHighestAllowedActionContributor() throws Exception {
-//        given().a_project_with_contributor_$(theUser);
-//        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(theUser, USER);
-//        then().the_highest_allowed_action_should_be(ATTACHMENTS);
-//    }
-
-
-
-
 }

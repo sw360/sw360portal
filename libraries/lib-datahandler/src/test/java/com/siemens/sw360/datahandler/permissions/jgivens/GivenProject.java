@@ -40,6 +40,15 @@ public class GivenProject extends Stage<GivenProject> {
 
     private Project project;
 
+    public enum ProjectRole {
+        CREATED_BY,
+        LEAD_ARCHITECT,
+        MODERATOR,
+        CO_MODERATOR,
+        CONTRIBUTOR,
+        PROJECT_RESPONSIBLE
+    }
+
     public GivenProject a_new_project() {
         project = mock(Project.class);
         projectList.add(project);
@@ -47,45 +56,36 @@ public class GivenProject extends Stage<GivenProject> {
         return self();
     }
 
-    public GivenProject a_project_created_by_$( @Quoted String m1) {
+    public GivenProject a_project_with_$_$(ProjectRole role, @Quoted String m1){
         a_new_project();
-        Mockito.when(project.isSetCreatedBy()).thenReturn(true);
-        Mockito.when(project.getCreatedBy()).thenReturn(m1);
-        return self();
-    }
 
-    public GivenProject a_project_with_lead_architect_$( @Quoted String m1) {
-        a_new_project();
-        Mockito.when(project.isSetLeadArchitect()).thenReturn(true);
-        Mockito.when(project.getLeadArchitect()).thenReturn(m1);
-        return self();
-    }
+        switch (role) {
+            case CREATED_BY:
+                Mockito.when(project.isSetCreatedBy()).thenReturn(true);
+                Mockito.when(project.getCreatedBy()).thenReturn(m1);
+                break;
+            case LEAD_ARCHITECT:
+                Mockito.when(project.isSetLeadArchitect()).thenReturn(true);
+                Mockito.when(project.getLeadArchitect()).thenReturn(m1);
+                break;
+            case MODERATOR:
+                Mockito.when(project.isSetModerators()).thenReturn(true);
+                Mockito.when(project.getModerators()).thenReturn(ImmutableSet.of(m1));
+                break;
+            case CO_MODERATOR:
+                Mockito.when(project.isSetComoderators()).thenReturn(true);
+                Mockito.when(project.getComoderators()).thenReturn(ImmutableSet.of(m1));
+                break;
+            case CONTRIBUTOR:
+                Mockito.when(project.isSetContributors()).thenReturn(true);
+                Mockito.when(project.getContributors()).thenReturn(ImmutableSet.of(m1));
+                break;
+            case PROJECT_RESPONSIBLE:
+                Mockito.when(project.isSetProjectResponsible()).thenReturn(true);
+                Mockito.when(project.getProjectResponsible()).thenReturn(m1);
+                break;
+        }
 
-    public GivenProject a_project_with_moderator_$( @Quoted String m1) {
-        a_new_project();
-        Mockito.when(project.isSetModerators()).thenReturn(true);
-        Mockito.when(project.getModerators()).thenReturn(ImmutableSet.of(m1));
-        return self();
-    }
-
-    public GivenProject a_project_with_comoderator_$( @Quoted String m1) {
-        a_new_project();
-        Mockito.when(project.isSetComoderators()).thenReturn(true);
-        Mockito.when(project.getComoderators()).thenReturn(ImmutableSet.of(m1));
-        return self();
-    }
-
-    public GivenProject a_project_with_contributor_$( @Quoted String m1) {
-        a_new_project();
-        Mockito.when(project.isSetContributors()).thenReturn(true);
-        Mockito.when(project.getContributors()).thenReturn(ImmutableSet.of(m1));
-        return self();
-    }
-
-    public GivenProject a_project_with_project_responsible_$( @Quoted String m1) {
-        a_new_project();
-        Mockito.when(project.isSetProjectResponsible()).thenReturn(true);
-        Mockito.when(project.getProjectResponsible()).thenReturn(m1);
         return self();
     }
 }
