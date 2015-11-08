@@ -18,7 +18,7 @@
 
 package com.siemens.sw360.datahandler.permissions;
 
-import com.siemens.sw360.datahandler.permissions.jgivens.GivenProjectsWithVisibility;
+import com.siemens.sw360.datahandler.permissions.jgivens.GivenProject;
 import com.siemens.sw360.datahandler.permissions.jgivens.ThenVisible;
 import com.siemens.sw360.datahandler.permissions.jgivens.WhenComputeVisibility;
 import com.siemens.sw360.datahandler.thrift.Visibility;
@@ -30,6 +30,7 @@ import com.tngtech.jgiven.junit.ScenarioTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.siemens.sw360.datahandler.permissions.jgivens.GivenProject.ProjectRole.*;
 import static com.siemens.sw360.datahandler.thrift.Visibility.*;
 import static com.siemens.sw360.datahandler.thrift.users.UserGroup.*;
 
@@ -37,7 +38,7 @@ import static com.siemens.sw360.datahandler.thrift.users.UserGroup.*;
  * @author johannes.najjar@tngtech.com
  */
 @RunWith(DataProviderRunner.class)
-public class ProjectPermissionsVisibilityTest extends ScenarioTest<GivenProjectsWithVisibility, WhenComputeVisibility, ThenVisible> {
+public class ProjectPermissionsVisibilityTest extends ScenarioTest<GivenProject, WhenComputeVisibility, ThenVisible> {
 
     public static String theBu = "DE PA RT"; // ME NT
     public static String theDep = "DE PA RT ME NT";
@@ -73,7 +74,7 @@ public class ProjectPermissionsVisibilityTest extends ScenarioTest<GivenProjects
                 { BUISNESSUNIT_AND_MODERATORS, theBu, theOtherDep, ADMIN, true },
                 { EVERYONE, theBu, theOtherDep, ADMIN, true },
                 //test same department
-                                //test User
+                //test User
                 { PRIVATE, theBu, theDep, USER, false },
                 { ME_AND_MODERATORS, theBu, theDep, USER, false },
                 { BUISNESSUNIT_AND_MODERATORS, theBu, theDep, USER, true },
@@ -95,173 +96,98 @@ public class ProjectPermissionsVisibilityTest extends ScenarioTest<GivenProjects
     @Test
     @UseDataProvider("projectVisibilityProvider")
     public void testVisibility(Visibility visibility, String businessUnit, String department, UserGroup userGroup, boolean expectedVisibility) {
-        given().a_project_with_visibility_$_and_business_unit_$(visibility, businessUnit);
+        given().a_new_project().with_visibility_$_and_business_unit_$(visibility, businessUnit);
         when().the_visibility_is_computed_for_department_$_and_user_group_$(department, userGroup);
         then().the_visibility_should_be(expectedVisibility);
 
     }
 
-    /**
-     * Here are the tests for moderator equivalence
-     */
     @DataProvider
-    public static Object[][] projectVisibilityCreatedByProvider() {
+    public static Object[][] projectVisibilityByRoleProvider() {
         // @formatter:off
         return new Object[][] {
-                //test otherDeparment
+                //test otherDepartment
+                //created by
                 //test same User
-                { PRIVATE, theBu, theUser, theUser, true },
-                { ME_AND_MODERATORS, theBu, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theUser, true },
-                { EVERYONE, theBu, theUser, theUser, true },
+                { PRIVATE, theBu, CREATED_BY, theUser, theUser, true },
+                { ME_AND_MODERATORS, theBu, CREATED_BY, theUser, theUser, true },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, CREATED_BY, theUser, theUser, true },
+                { EVERYONE, theBu, CREATED_BY, theUser, theUser, true },
                 //test different User
-                { PRIVATE, theBu, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { EVERYONE, theBu, theUser, theOtherUser, true },
+                { PRIVATE, theBu, CREATED_BY, theUser, theOtherUser, false },
+                { ME_AND_MODERATORS, theBu, CREATED_BY, theUser, theOtherUser, false },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, CREATED_BY, theUser, theOtherUser, false },
+                { EVERYONE, theBu, CREATED_BY, theUser, theOtherUser, true },
 
+                //Lead architect
+                //test same User
+                { PRIVATE, theBu, LEAD_ARCHITECT, theUser, theUser, false },
+                { ME_AND_MODERATORS, theBu, LEAD_ARCHITECT, theUser, theUser, true },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, LEAD_ARCHITECT, theUser, theUser, true },
+                { EVERYONE, theBu, LEAD_ARCHITECT, theUser, theUser, true },
+                //test different User
+                { PRIVATE, theBu, LEAD_ARCHITECT, theUser, theOtherUser, false },
+                { ME_AND_MODERATORS, theBu, LEAD_ARCHITECT, theUser, theOtherUser, false },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, LEAD_ARCHITECT, theUser, theOtherUser, false },
+                { EVERYONE, theBu, LEAD_ARCHITECT, theUser, theOtherUser, true },
+
+                //Moderator
+                //test same User
+                { PRIVATE, theBu, MODERATOR, theUser, theUser, false },
+                { ME_AND_MODERATORS, theBu, MODERATOR, theUser, theUser, true },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, MODERATOR, theUser, theUser, true },
+                { EVERYONE, theBu, MODERATOR, theUser, theUser, true },
+                //test different User
+                { PRIVATE, theBu, MODERATOR, theUser, theOtherUser, false },
+                { ME_AND_MODERATORS, theBu, MODERATOR, theUser, theOtherUser, false },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, MODERATOR, theUser, theOtherUser, false },
+                { EVERYONE, theBu, MODERATOR, theUser, theOtherUser, true },
+
+                //CoModerator
+                //test same User
+                { PRIVATE, theBu, CO_MODERATOR, theUser, theUser, false },
+                { ME_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theUser, true },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theUser, true },
+                { EVERYONE, theBu, CO_MODERATOR, theUser, theUser, true },
+                //test different User
+                { PRIVATE, theBu, CO_MODERATOR, theUser, theOtherUser, false },
+                { ME_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theOtherUser, false },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theOtherUser, false },
+                { EVERYONE, theBu, CO_MODERATOR, theUser, theOtherUser, true },
+
+                //Contributor
+                //test same User
+                { PRIVATE, theBu, CONTRIBUTOR, theUser, theUser, false },
+                { ME_AND_MODERATORS, theBu, CONTRIBUTOR, theUser, theUser, true },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, CONTRIBUTOR, theUser, theUser, true },
+                { EVERYONE, theBu, CONTRIBUTOR, theUser, theUser, true },
+                //test different User
+                { PRIVATE, theBu, CONTRIBUTOR, theUser, theOtherUser, false },
+                { ME_AND_MODERATORS, theBu, CONTRIBUTOR, theUser, theOtherUser, false },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, CONTRIBUTOR, theUser, theOtherUser, false },
+                { EVERYONE, theBu, CONTRIBUTOR, theUser, theOtherUser, true },
+
+                //Project responsible
+                //test same User
+                { PRIVATE, theBu, PROJECT_RESPONSIBLE, theUser, theUser, false },
+                { ME_AND_MODERATORS, theBu, PROJECT_RESPONSIBLE, theUser, theUser, true },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, PROJECT_RESPONSIBLE, theUser, theUser, true },
+                { EVERYONE, theBu, PROJECT_RESPONSIBLE, theUser, theUser, true },
+                //test different User
+                { PRIVATE, theBu, PROJECT_RESPONSIBLE, theUser, theOtherUser, false },
+                { ME_AND_MODERATORS, theBu, PROJECT_RESPONSIBLE, theUser, theOtherUser, false },
+                { BUISNESSUNIT_AND_MODERATORS, theBu, PROJECT_RESPONSIBLE, theUser, theOtherUser, false },
+                { EVERYONE, theBu, PROJECT_RESPONSIBLE, theUser, theOtherUser, true },
         };
         // @formatter:on
     }
+
     @Test
-    @UseDataProvider("projectVisibilityCreatedByProvider")
-    public void testVisibilityForProjectCreatedBy(Visibility visibility, String bu, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
-        given().a_project_with_visibility_$_and_business_unit_$_created_by_$(visibility, bu, creatingUser);
+    @UseDataProvider("projectVisibilityByRoleProvider")
+    public void testVisibilityForProject(Visibility visibility, String bu, GivenProject.ProjectRole role, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
+        given().a_project_with_$_$(role, creatingUser).with_visibility_$_and_business_unit_$(visibility, bu);
         when().the_visibility_is_computed_for_the_wrong_department_and_the_user_$(viewingUser);
         then().the_visibility_should_be(expectedVisibility);
     }
 
-    @DataProvider
-    public static Object[][] projectVisibilityLeadArchitectProvider() {
-        // @formatter:off
-        return new Object[][] {
-                //test otherDeparment
-                //test same User
-                { PRIVATE, theBu, theUser, theUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theUser, true },
-                { EVERYONE, theBu, theUser, theUser, true },
-                //test different User
-                { PRIVATE, theBu, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { EVERYONE, theBu, theUser, theOtherUser, true },
-
-        };
-        // @formatter:on
-    }
-    @Test
-    @UseDataProvider("projectVisibilityLeadArchitectProvider")
-    public void testVisibilityForProjectLeadArchitect(Visibility visibility, String bu, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
-        given().a_project_with_visibility_$_and_business_unit_$_with_lead_architect_$(visibility, bu, creatingUser);
-        when().the_visibility_is_computed_for_the_wrong_department_and_the_user_$(viewingUser);
-        then().the_visibility_should_be(expectedVisibility);
-    }
-
-    @DataProvider
-    public static Object[][] projectVisibilityModeratorProvider() {
-        // @formatter:off
-        return new Object[][] {
-                //test same User
-                { PRIVATE, theBu, theUser, theUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theUser, true },
-                { EVERYONE, theBu, theUser, theUser, true },
-                //test different User
-                { PRIVATE, theBu, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { EVERYONE, theBu, theUser, theOtherUser, true },
-
-        };
-        // @formatter:on
-    }
-    @Test
-    @UseDataProvider("projectVisibilityModeratorProvider")
-    public void testVisibilityForProjectModerator(Visibility visibility, String bu, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
-        given().a_project_with_visibility_$_and_business_unit_$_and_moderator_$(visibility, bu, creatingUser);
-        when().the_visibility_is_computed_for_the_wrong_department_and_the_user_$(viewingUser);
-        then().the_visibility_should_be(expectedVisibility);
-    }
-
-
-    @DataProvider
-    public static Object[][] projectVisibilityCoModeratorProvider() {
-        // @formatter:off
-        return new Object[][] {
-                //test same User
-                { PRIVATE, theBu, theUser, theUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theUser, true },
-                { EVERYONE, theBu, theUser, theUser, true },
-                //test different User
-                { PRIVATE, theBu, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { EVERYONE, theBu, theUser, theOtherUser, true },
-
-        };
-        // @formatter:on
-    }
-    @Test
-    @UseDataProvider("projectVisibilityCoModeratorProvider")
-    public void testVisibilityForProjectCoModerator(Visibility visibility, String bu, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
-        given().a_project_with_visibility_$_and_business_unit_$_and_comoderator_$(visibility, bu, creatingUser);
-        when().the_visibility_is_computed_for_the_wrong_department_and_the_user_$(viewingUser);
-        then().the_visibility_should_be(expectedVisibility);
-    }
-
-
-    @DataProvider
-    public static Object[][] projectVisibilityContributorProvider() {
-        // @formatter:off
-        return new Object[][] {
-                //test same User
-                { PRIVATE, theBu, theUser, theUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theUser, true },
-                { EVERYONE, theBu, theUser, theUser, true },
-                //test different User
-                { PRIVATE, theBu, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { EVERYONE, theBu, theUser, theOtherUser, true },
-
-        };
-        // @formatter:on
-    }
-    @Test
-    @UseDataProvider("projectVisibilityContributorProvider")
-    public void testVisibilityForProjectContributor(Visibility visibility, String bu, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
-        given().a_project_with_visibility_$_and_business_unit_$_and_contributor_$(visibility, bu, creatingUser);
-        when().the_visibility_is_computed_for_the_wrong_department_and_the_user_$(viewingUser);
-        then().the_visibility_should_be(expectedVisibility);
-    }
-
-
-    @DataProvider
-    public static Object[][] projectVisibilityResponsibleProvider() {
-        // @formatter:off
-        return new Object[][] {
-                //test same User
-                { PRIVATE, theBu, theUser, theUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theUser, true },
-                { EVERYONE, theBu, theUser, theUser, true },
-                //test different User
-                { PRIVATE, theBu, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, theUser, theOtherUser, false },
-                { EVERYONE, theBu, theUser, theOtherUser, true },
-
-        };
-        // @formatter:on
-    }
-    @Test
-    @UseDataProvider("projectVisibilityResponsibleProvider")
-    public void testVisibilityForProjectResponsible(Visibility visibility, String bu, String creatingUser, String viewingUser, boolean expectedVisibility) throws Exception {
-        given().a_project_with_visibility_$_and_business_unit_$_and_project_responsible_$(visibility, bu, creatingUser);
-        when().the_visibility_is_computed_for_the_wrong_department_and_the_user_$(viewingUser);
-        then().the_visibility_should_be(expectedVisibility);
-    }
 }

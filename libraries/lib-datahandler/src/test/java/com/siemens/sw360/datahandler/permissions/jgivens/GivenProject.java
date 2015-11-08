@@ -19,6 +19,7 @@
 package com.siemens.sw360.datahandler.permissions.jgivens;
 
 import com.google.common.collect.ImmutableSet;
+import com.siemens.sw360.datahandler.TEnumToString;
 import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.tngtech.jgiven.Stage;
@@ -86,6 +87,13 @@ public class GivenProject extends Stage<GivenProject> {
                 break;
         }
 
+        return self();
+    }
+
+
+    public GivenProject with_visibility_$_and_business_unit_$(@TEnumToString Visibility v1, @Quoted String b1) {
+        Mockito.when(project.getVisbility()).thenReturn(v1);
+        Mockito.when(project.getBusinessUnit()).thenReturn(b1);
         return self();
     }
 }
