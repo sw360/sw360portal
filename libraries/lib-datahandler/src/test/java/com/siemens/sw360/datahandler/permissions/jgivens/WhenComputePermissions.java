@@ -37,24 +37,18 @@ import java.util.List;
  */
 public class WhenComputePermissions  extends Stage<WhenComputePermissions> {
     @ExpectedScenarioState
-    List<Project> projectList;
+    Project project;
+
     @ProvidedScenarioState
     RequestedAction highestAllowedAction;
 
     private static String DUMMY_ID = "DAU";
     private static String DUMMY_DEP = "definitleyTheWrongDepartment YO HO HO";
 
-    private Project getFirstProject() {
-        if (projectList.size() != 1) {
-            throw new AssumptionViolatedException("this test can only handle one project, add a 'n-th' release parameter");
-        }
-        return projectList.get(0);
-    }
-
     public WhenComputePermissions the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(@Quoted String userEmail, @TEnumToString UserGroup userGroup) {
         final User user = new User(DUMMY_ID, userEmail, DUMMY_DEP).setUserGroup(userGroup);
 
-        final DocumentPermissions<Project> projectDocumentPermissions = PermissionUtils.makePermission(getFirstProject(), user);
+        final DocumentPermissions<Project> projectDocumentPermissions = PermissionUtils.makePermission(project, user);
 
         highestAllowedAction = projectDocumentPermissions.getHighestAllowedPermission();
         return self();

@@ -37,8 +37,6 @@ import static org.mockito.Mockito.mock;
  */
 public class GivenProject extends Stage<GivenProject> {
     @ScenarioState
-    public List<Project> projectList = newArrayList();
-
     private Project project;
 
     public enum ProjectRole {
@@ -52,7 +50,6 @@ public class GivenProject extends Stage<GivenProject> {
 
     public GivenProject a_new_project() {
         project = mock(Project.class);
-        projectList.add(project);
         Mockito.when(project.getVisbility()).thenReturn(Visibility.EVERYONE);
         return self();
     }
@@ -89,7 +86,6 @@ public class GivenProject extends Stage<GivenProject> {
 
         return self();
     }
-
 
     public GivenProject with_visibility_$_and_business_unit_$(@TEnumToString Visibility v1, @Quoted String b1) {
         Mockito.when(project.getVisbility()).thenReturn(v1);
