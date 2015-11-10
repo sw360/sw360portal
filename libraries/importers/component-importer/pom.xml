@@ -20,12 +20,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License Version 2.0</name>
+            <comments>Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.</comments>
+            <url>https://www.gnu.org/licenses/gpl-2.0.html</url>
+        </license>
+    </licenses>
+
     <parent>
         <artifactId>importers</artifactId>
         <groupId>com.siemens.sw360</groupId>
         <version>0.1.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>component-importer</artifactId>
 

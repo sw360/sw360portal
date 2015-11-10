@@ -55,7 +55,7 @@
         <plugins>
         </plugins>
     </build>
-    
+
     <!-- For deployment right to your local liferay folder -->
     <profiles>
 		<profile>
@@ -74,7 +74,7 @@
               						<goal>deploy</goal>
             					</goals>
           					</execution>
-						</executions> 
+						</executions>
 						<configuration>
 							<autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
 							<appServerDeployDir>${liferay.app.server.deploy.dir}</appServerDeployDir>
@@ -88,5 +88,5 @@
   			</build>
 		</profile>
 	</profiles>
-	
+
 </project>
