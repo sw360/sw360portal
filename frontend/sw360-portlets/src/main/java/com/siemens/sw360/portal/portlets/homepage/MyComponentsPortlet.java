@@ -19,6 +19,8 @@ package com.siemens.sw360.portal.portlets.homepage;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.components.Component;
+import com.siemens.sw360.datahandler.thrift.components.ComponentService;
+import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -47,16 +49,28 @@ public class MyComponentsPortlet extends Sw360Portlet {
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         List<Component> components;
+        String ReleaseInfo = "";
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
             components = thriftClients.makeComponentClient().getMyComponents(user);
+
+            for (Component c: components) {
+                List<Release> releases;
+                releases = thriftClients.makeComponentClient().getReleasesByComponentId(c.getId(), user);
+                if (releases.size() > 1) {
+                    ReleaseInfo = Long.toString(releases.size()) + " releases";
+                } else if (releases.size() == 1){
+                    ReleaseInfo = releases.get(0).getName() + " " + releases.get(0).getVersion();
+                }
+            }
+
         } catch (TException e) {
             log.error("Could not fetch your components from backend", e);
             components = new ArrayList<>();
         }
         request.setAttribute("components",  CommonUtils.nullToEmptyList(components));
-
+        request.setAttribute("releaseinfo", ReleaseInfo);
         super.doView(request, response);
     }
 }

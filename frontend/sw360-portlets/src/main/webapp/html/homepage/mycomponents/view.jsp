@@ -27,6 +27,8 @@
 
 <jsp:useBean id="components" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Component>"
              class="java.util.ArrayList" scope="request"/>
+<jsp:useBean id="releaseinfo" type="java.lang.String"
+             class="java.lang.String" scope="request"/>
 
 <div class="homepageheading">
     My Components
@@ -45,11 +47,14 @@
         var result = [];
 
         <core_rt:forEach items="${components}" var="component">
+
         result.push({
             "DT_RowId": "${component.id}",
             "0": "<sw360:DisplayComponentLink component="${component}"/>",
-            "1": '<sw360:out value="${component.description}" maxChar="30"/>'
+            "1": '<sw360:out value="${component.description}" maxChar="30"/>',
+            "2": '<sw360:out value="${releaseinfo}" maxChar="30"/>'
         });
+
         </core_rt:forEach>
 
         $('#myComponentsTable').dataTable({
@@ -59,6 +64,7 @@
             columns: [
                 {"title": "Component Name"},
                 {"title": "Description"},
+                {"title": "Releases"}
             ]
         });
 

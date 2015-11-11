@@ -158,6 +158,10 @@ public class ComponentDatabaseHandler {
         return releaseRepository.getReleasesFromVendorIds(ids);
     }
 
+    public List<Release> getReleasesFromComponentId(String id, User user) throws TException {
+        return releaseRepository.getReleasesFromComponentId(id, user);
+    }
+
     public List<Component> getMyComponents(String user) {
         //This call could be sped up, because we want the full documents
         Set<String> myComponentIds = componentRepository.getMyComponentIds(user);

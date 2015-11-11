@@ -311,7 +311,7 @@ service ComponentService {
     RequestStatus updateReleaseFossology(1: Release release, 2: User user);
     RequestSummary updateReleases(1: set<Release> releases, 2: User user);
     RequestStatus deleteRelease(1: string id, 2: User user);
-
+    list<Release> getReleasesByComponentId(1: string id, 2: User user);
 
     set <Component> getUsingComponentsForRelease(1: string releaseId );
     set <Component> getUsingComponentsForComponent(1: set <string> releaseId );

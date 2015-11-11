@@ -197,7 +197,7 @@
         Near the bottom of the page you find two buttons:<br/>
     <ul class="wikidpad bulletlist">
         <li/>
-        <b>Click to add Project</b>
+        <b>Click to add linked Project</b>
         <li/>
         <b>Click to add Release</b><br/>
     </ul>
