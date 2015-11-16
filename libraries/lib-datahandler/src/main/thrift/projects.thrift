@@ -69,6 +69,7 @@ struct Project {
     12: optional string businessUnit,
     13: optional ProjectState state,
     15: optional ProjectType projectType,
+    16: optional string tag,// user defined tags
 
     // User details
     21: optional string createdBy,

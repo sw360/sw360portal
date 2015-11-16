@@ -19,6 +19,7 @@
 <%@include file="/html/init.jsp" %>
 
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 
@@ -52,6 +53,8 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_SEND%>'/>
 </portlet:resourceURL>
 
+<portlet:actionURL var="applyFiltersURL" name="applyFilters">
+</portlet:actionURL>
 
 <div id="header"></div>
 <p class="pageHeader">

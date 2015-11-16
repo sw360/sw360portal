@@ -55,6 +55,9 @@ public class ProjectHandler implements ProjectService.Iface {
     // SUMMARY GETTERS //
     /////////////////////
 
+
+
+
     @Override
     public List<Project> getMyProjects(String user) throws TException {
         assertNotEmpty(user);

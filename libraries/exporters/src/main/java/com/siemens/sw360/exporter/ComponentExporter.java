@@ -36,8 +36,6 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
  */
 public class ComponentExporter extends ExcelExporter<Component> {
 
-    private static final int COLUMNS = 10;
-
     private static final List<String> HEADERS = ImmutableList.<String>builder()
             .add("Component ID")
             .add("Component Name")
@@ -45,7 +43,6 @@ public class ComponentExporter extends ExcelExporter<Component> {
             .add("Categories")
             .add("Operating Systems")
             .add("Software Platforms")
-            .add("Component State")
             .add("Created by")
             .add("Creation Date")
             .add("Releases")
@@ -59,7 +56,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
 
         @Override
         public int getColumns() {
-            return COLUMNS;
+            return HEADERS.size();
         }
 
         @Override
@@ -69,7 +66,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
 
         @Override
         public List<String> makeRow(Component component) {
-            List<String> row = new ArrayList<>(COLUMNS);
+            List<String> row = new ArrayList<>(getColumns());
 
             row.add(nullToEmpty(component.id));
             row.add(nullToEmpty(component.name));
@@ -77,7 +74,6 @@ public class ComponentExporter extends ExcelExporter<Component> {
             row.add(joinStrings(component.categories));
             row.add(joinStrings(component.operatingSystems));
             row.add(joinStrings(component.softwarePlatforms));
-            row.add("Mainline");
             row.add(nullToEmpty(component.createdBy));
             row.add(nullToEmpty(component.createdOn));
             row.add(joinStrings(getVersions(component.releases)));
