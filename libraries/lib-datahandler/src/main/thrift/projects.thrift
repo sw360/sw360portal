@@ -121,7 +121,6 @@ service ProjectService {
     set<Project> getAccessibleProjects(1: User user);
 
     // Search functions
-    list<Project> refineSearch(1: string text, 2: map<string,set<string>>  subQueryRestrictions);
     list<Project> searchByName(1: string name, 2: User user);
     list<Project> searchByNameForExport(1: string name, 2: User user);
     set<Project> searchByReleaseId(1: string id, 2: User user);

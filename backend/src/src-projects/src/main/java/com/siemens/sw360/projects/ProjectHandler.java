@@ -28,10 +28,8 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectSearchHandler;
 import org.apache.thrift.TException;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +46,9 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 public class ProjectHandler implements ProjectService.Iface {
 
     private final ProjectDatabaseHandler handler;
-    private final ProjectSearchHandler searchHandler;
 
-    ProjectHandler() throws MalformedURLException, IOException {
+    ProjectHandler() throws MalformedURLException {
         handler = new ProjectDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
-        searchHandler = new ProjectSearchHandler(DatabaseSettings.COUCH_DB_URL,DatabaseSettings.COUCH_DB_DATABASE);
     }
 
     /////////////////////
@@ -60,10 +56,7 @@ public class ProjectHandler implements ProjectService.Iface {
     /////////////////////
 
 
-    @Override
-    public List<Project> refineSearch(String text, Map<String, Set<String>> subQueryRestrictions) throws TException {
-        return searchHandler.search(text, subQueryRestrictions);
-    }
+
 
     @Override
     public List<Project> getMyProjects(String user) throws TException {
