@@ -55,7 +55,7 @@
             ${env.LIFERAY_PATH}/deploy
         </liferay.auto.deploy.dir>
         <liferay.app.server.dir>
-            ${env.LIFERAY_PATH}/tomcat-8.0.26
+            ${env.LIFERAY_PATH}/tomcat-7.0.42
         </liferay.app.server.dir>
         <liferay.app.server.portal.dir>
             ${liferay.app.server.dir}/webapps/ROOT
