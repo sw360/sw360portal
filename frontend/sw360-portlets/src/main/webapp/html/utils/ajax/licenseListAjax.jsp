@@ -40,7 +40,7 @@
 <core_rt:if test="${licenseList.size() == 0}">
     <tr>
         <td colspan="2">
-            No user found with your search.
+            No license found with your search.
         </td>
     </tr>
 
