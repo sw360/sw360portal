@@ -46,7 +46,6 @@ public class ProjectExporter extends ExcelExporter<Project> {
 
 
     public static final List<Project._Fields> RENDERED_FIELDS = ImmutableList.<Project._Fields>builder()
-            .add(ID)
             .add(NAME)
             .add(STATE)
             .add(CREATED_BY)
@@ -63,7 +62,6 @@ public class ProjectExporter extends ExcelExporter<Project> {
     private static final Logger log = Logger.getLogger(ProjectExporter.class);
 
     protected static final List<String> HEADERS = ImmutableList.<String>builder()
-            .add("Project ID")
             .add("Project Name")
             .add("Project State")
             .add("Created by")
