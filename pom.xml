@@ -155,7 +155,7 @@
             <dependency>
                 <groupId>com.tngtech.jgiven</groupId>
                 <artifactId>jgiven-junit</artifactId>
-                <version>0.7.0</version>
+                <version>0.9.4</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -258,6 +258,23 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
+
+            <plugin>
+                <groupId>com.tngtech.jgiven</groupId>
+                <artifactId>jgiven-maven-plugin</artifactId>
+                <version>0.9.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <format>html</format>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

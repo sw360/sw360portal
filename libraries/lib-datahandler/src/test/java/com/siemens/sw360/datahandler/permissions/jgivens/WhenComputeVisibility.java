@@ -36,7 +36,8 @@ import java.util.List;
  */
 public class WhenComputeVisibility extends Stage<WhenComputeVisibility> {
     @ExpectedScenarioState
-    List<Project> projectList;
+    Project project;
+
     @ProvidedScenarioState
     Boolean isVisible;
 
@@ -50,22 +51,15 @@ public class WhenComputeVisibility extends Stage<WhenComputeVisibility> {
     public WhenComputeVisibility the_visibility_is_computed_for_department_$_and_user_group_$(@Quoted String department, @TEnumToString UserGroup userGroup) {
         final User user = new User(DUMMY_ID, DUMMY_MAIL, department).setUserGroup(userGroup);
 
-        isVisible = ProjectPermissions.isVisible(user).apply(getFirstProject());
+        isVisible = ProjectPermissions.isVisible(user).apply(project);
         return self();
     }
 
     public WhenComputeVisibility the_visibility_is_computed_for_the_wrong_department_and_the_user_$(@Quoted String mail) {
         final User user = new User(DUMMY_ID, mail, DUMMY_DEP).setUserGroup(UserGroup.USER);
 
-        isVisible = ProjectPermissions.isVisible(user).apply(getFirstProject());
+        isVisible = ProjectPermissions.isVisible(user).apply(project);
         return self();
-    }
-
-    private Project getFirstProject() {
-        if (projectList.size() != 1) {
-            throw new AssumptionViolatedException("this test can only handle one project, add a 'n-th' release parameter");
-        }
-        return projectList.get(0);
     }
 
 }

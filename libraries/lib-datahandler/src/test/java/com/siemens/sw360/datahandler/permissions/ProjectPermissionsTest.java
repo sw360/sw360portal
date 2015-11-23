@@ -22,24 +22,59 @@ import com.siemens.sw360.datahandler.permissions.jgivens.ThenHighestAllowedActio
 import com.siemens.sw360.datahandler.permissions.jgivens.WhenComputePermissions;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import com.tngtech.jgiven.junit.ScenarioTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static com.siemens.sw360.datahandler.thrift.users.RequestedAction.*;
+import static com.siemens.sw360.datahandler.thrift.users.UserGroup.*;
 
 /**
  * @author johannes.najjar@tngtech.com
  */
+
+@RunWith(DataProviderRunner.class)
 public class ProjectPermissionsTest extends ScenarioTest<GivenProject, WhenComputePermissions, ThenHighestAllowedAction> {
 
     public static String theUser = "user1";
     public static String theOtherUser = "anotherUser";
 
-    @Test
-    public void test000() throws Exception {
-        given().a_project_created_by_$(theUser);
-        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(theUser,  UserGroup.USER);
-        then().the_highest_allowed_action_should_be(RequestedAction.CLEARING);
+
+    /**
+     * See
+     * com.siemens.sw360.datahandler.permissions.DocumentPermissions.getHighestAllowedPermission()
+     * for relevant cases
+     */
+    @DataProvider
+    public static Object[][] highestAllowedActionProvider() {
+        // @formatter:off
+        return new Object[][] {
+                //own permissions checks
+                //very privileged
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theUser, USER, CLEARING },
+                {GivenProject.ProjectRole.MODERATOR, theUser, theUser, USER, CLEARING },
+                {GivenProject.ProjectRole.CO_MODERATOR, theUser, theUser, USER, CLEARING },
+                {GivenProject.ProjectRole.PROJECT_RESPONSIBLE, theUser, theUser, USER, CLEARING },
+                //less privileged
+                {GivenProject.ProjectRole.LEAD_ARCHITECT, theUser, theUser, USER, ATTACHMENTS },
+                {GivenProject.ProjectRole.CONTRIBUTOR, theUser, theUser, USER, ATTACHMENTS },
+
+                //strangers: rights increase with user group
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, USER, READ },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, CLEARING_ADMIN, ATTACHMENTS },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, ADMIN, CLEARING },
+        };
+        // @formatter:on
     }
 
-
-    //TODO write much more tests
+    @Test
+    @UseDataProvider("highestAllowedActionProvider")
+    public void testHighestAllowedAction(GivenProject.ProjectRole role, String user, String requestingUser, UserGroup requestingUserGroup, RequestedAction highestAllowedAction) throws Exception {
+        given().a_project_with_$_$(role,user);
+        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(requestingUser, requestingUserGroup);
+        then().the_highest_allowed_action_should_be(highestAllowedAction);
+    }
 }
