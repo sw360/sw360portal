@@ -66,12 +66,12 @@ public class OutTag extends OutSupport {
         return super.doStartTag();
     }
 
-    //TODO remove uneeded...
+    //TODO remove unneeded...
     private String escapeInDoubleQuote(String value) {
         return value.replaceAll("\"", quoteReplacement("\\\""));
     }
 
-    //TODO remove uneeded...
+    //TODO remove unneeded...
     protected String escapeInSingleQuote(String value) {
         return value.replaceAll("'", quoteReplacement("\\\'"));
     }

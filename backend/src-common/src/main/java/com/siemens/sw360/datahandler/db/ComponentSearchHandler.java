@@ -72,6 +72,7 @@ public class ComponentSearchHandler {
                     "    for(var i in doc.vendorNames) {" +
                     "      ret.add(doc.vendorNames[i], {\"field\": \"vendorNames\"} );" +
                     "    }" +
+                    "        ret.add(doc.componentType, {\"field\": \"componentType\"} );" +
                     "    return ret;" +
                     "}");
 

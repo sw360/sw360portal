@@ -86,6 +86,7 @@ public class ComponentSummary extends DocumentSummary<Component> {
         copyField(document, copy, Component._Fields.ID);
         copyField(document, copy, Component._Fields.NAME);
         copyField(document, copy, Component._Fields.VENDOR_NAMES);
+        copyField(document, copy, Component._Fields.COMPONENT_TYPE);
 
 
         if (type == SummaryType.SUMMARY) {

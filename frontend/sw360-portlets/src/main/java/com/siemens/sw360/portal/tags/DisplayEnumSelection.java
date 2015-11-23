@@ -35,6 +35,8 @@ public class DisplayEnumSelection extends SimpleTagSupport {
 
     private Class type;
     private TEnum selected;
+    private String selectedName;
+    private Boolean useStringValues = false;
     private Iterable<? extends TEnum> options;
 
     public void setType(Class type) {
@@ -54,6 +56,14 @@ public class DisplayEnumSelection extends SimpleTagSupport {
         this.selected = selected;
     }
 
+    public void setSelectedName(String selectedName) {
+        this.selectedName = selectedName;
+    }
+
+    public void setUseStringValues(Boolean useStringValues) {
+        this.useStringValues = useStringValues;
+    }
+
     public void doTag() throws JspException, IOException {
         if (options != null) {
             doEnumValues(options);
@@ -69,12 +79,13 @@ public class DisplayEnumSelection extends SimpleTagSupport {
         for (TEnum enumItem : enums) {
             String enumItemDescription = ThriftEnumUtils.enumToString(enumItem);
 
-            boolean selected = enumItem.equals(this.selected);
+            boolean selected = enumItem.equals(this.selected) || enumItem.toString().equals(this.selectedName);
+            String value = useStringValues ? enumItem.toString() : "" + enumItem.getValue();
             jspWriter.write(String.format(
                     "<option value=\"%s\" class=\"textlabel stackedLabel\" " +
                             (selected ? "selected=\"selected\" " : "") +
-                            ">%s</option>" ,
-                    enumItem.getValue(), enumItemDescription));
+                            ">%s</option>",
+                    value, enumItemDescription));
         }
     }
 }
