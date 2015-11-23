@@ -107,8 +107,8 @@ public class VendorPortlet extends Sw360Portlet {
 
         if (!isNullOrEmpty(id)) {
             try {
-                VendorService.Iface client = thriftClients.makeVendorClient();
-                Vendor vendor = client.getByID(id);
+                VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+                Vendor vendor = vendorClient.getByID(id);
                 request.setAttribute(VENDOR, vendor);
 
 
@@ -148,10 +148,10 @@ public class VendorPortlet extends Sw360Portlet {
 
         if (id != null) {
             try {
-                VendorService.Iface client = thriftClients.makeVendorClient();
-                Vendor vendor = client.getByID(id);
+                VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+                Vendor vendor = vendorClient.getByID(id);
                 ComponentPortletUtils.updateVendorFromRequest(request, vendor);
-                RequestStatus requestStatus = client.updateVendor(vendor, user);
+                RequestStatus requestStatus = vendorClient.updateVendor(vendor, user);
                 setSessionMessage(request, requestStatus, "Vendor", "update", vendor.getFullname());
             } catch (TException e) {
                 log.error("Error fetching release from backend!", e);
@@ -166,8 +166,8 @@ public class VendorPortlet extends Sw360Portlet {
         ComponentPortletUtils.updateVendorFromRequest(request, vendor);
 
         try {
-            VendorService.Iface client = thriftClients.makeVendorClient();
-            String vendorId = client.addVendor(vendor);
+            VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+            String vendorId = vendorClient.addVendor(vendor);
         } catch (TException e) {
             log.error("Error adding vendor", e);
         }

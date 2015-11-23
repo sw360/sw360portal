@@ -18,9 +18,6 @@
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@include file="/html/init.jsp"%>
 
-
-
-
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
