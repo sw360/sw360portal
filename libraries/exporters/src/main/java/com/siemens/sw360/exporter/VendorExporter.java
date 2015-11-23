@@ -36,14 +36,11 @@ import static com.siemens.sw360.datahandler.thrift.vendors.Vendor._Fields.*;
  */
 public class VendorExporter  extends  ExcelExporter<Vendor>{
 
-
-
     public static final List<Vendor._Fields> RENDERED_FIELDS = ImmutableList.<Vendor._Fields>builder()
             .add(FULLNAME)
             .add(SHORTNAME)
             .add(URL)
             .build();
-
 
     private static final List<String> HEADERS = ImmutableList.<String>builder()
             .add("Vendor Fullname")
@@ -81,7 +78,6 @@ public class VendorExporter  extends  ExcelExporter<Vendor>{
                 } else {
                     row.add("");
                 }
-
             }
             return row;
         }
