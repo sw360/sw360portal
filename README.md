@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/siemens/sw360portal.png?label=ready&title=Ready)](https://waffle.io/siemens/sw360portal)
 ### sw360portal
 
 A software component catalogue application - designed to work with FOSSology.
