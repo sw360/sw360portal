@@ -37,7 +37,6 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
 public class ComponentExporter extends ExcelExporter<Component> {
 
     private static final List<String> HEADERS = ImmutableList.<String>builder()
-            .add("Component ID")
             .add("Component Name")
             .add("Programming Languages")
             .add("Categories")
@@ -68,7 +67,6 @@ public class ComponentExporter extends ExcelExporter<Component> {
         public List<String> makeRow(Component component) {
             List<String> row = new ArrayList<>(getColumns());
 
-            row.add(nullToEmpty(component.id));
             row.add(nullToEmpty(component.name));
             row.add(joinStrings(component.languages));
             row.add(joinStrings(component.categories));

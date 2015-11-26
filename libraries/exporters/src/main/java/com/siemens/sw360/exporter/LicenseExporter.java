@@ -33,10 +33,9 @@ import static com.google.common.base.Strings.nullToEmpty;
  */
 public class LicenseExporter extends ExcelExporter<License> {
 
-    private static final int COLUMNS = 6;
+
 
     private static final List<String> HEADERS = ImmutableList.<String>builder()
-            .add("License ID")
             .add("License Shortname")
             .add("License Fullame")
             .add("License Type")
@@ -52,7 +51,7 @@ public class LicenseExporter extends ExcelExporter<License> {
 
         @Override
         public int getColumns() {
-            return COLUMNS;
+            return HEADERS.size();
         }
 
         @Override
@@ -62,9 +61,8 @@ public class LicenseExporter extends ExcelExporter<License> {
 
         @Override
         public List<String> makeRow(License license) {
-            List<String> row = new ArrayList<>(COLUMNS);
+            List<String> row = new ArrayList<>(HEADERS.size());
 
-            row.add(nullToEmpty(license.id));
             row.add(nullToEmpty(license.shortname));
             row.add(nullToEmpty(license.fullname));
             row.add(formatLicenseType(license.licenseType));
