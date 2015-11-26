@@ -18,7 +18,10 @@
 package com.siemens.sw360.portal.portlets.admin;
 
 import com.google.common.collect.Sets;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
@@ -35,8 +38,10 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
@@ -90,7 +95,7 @@ public class VendorPortlet extends Sw360Portlet {
         String pageName = request.getParameter(PAGENAME);
         if (PAGENAME_EDIT.equals(pageName)) {
             prepareVendorEdit(request);
-            include("/html/vendors/edit.jsp", request, response);
+            include("/html/admin/vendors/edit.jsp", request, response);
         } else {
             prepareStandardView(request);
             super.doView(request, response);
@@ -100,23 +105,23 @@ public class VendorPortlet extends Sw360Portlet {
     private void prepareVendorEdit(RenderRequest request) throws PortletException {
         String id = request.getParameter(VENDOR_ID);
 
-        if (isNullOrEmpty(id)) {
-            throw new PortletException("Component ID not set!");
+        if (!isNullOrEmpty(id)) {
+            try {
+                VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+                Vendor vendor = vendorClient.getByID(id);
+                request.setAttribute(VENDOR, vendor);
+
+
+                final ComponentService.Iface componentClient = thriftClients.makeComponentClient();
+                final List<Release> releasesFromVendorIds = componentClient.getReleasesFromVendorIds(Sets.newHashSet(id));
+
+                request.setAttribute(RELEASE_LIST, releasesFromVendorIds);
+            } catch (TException e) {
+                log.error("Problem retrieving vendor");
+            }
         }
-        try {
-            VendorService.Iface client = thriftClients.makeVendorClient();
-            Vendor vendor = client.getByID(id);
-            request.setAttribute(VENDOR, vendor);
-
-
-            final ComponentService.Iface componentClient = thriftClients.makeComponentClient();
-            final List<Release> releasesFromVendorIds = componentClient.getReleasesFromVendorIds(Sets.newHashSet(id));
-
-            request.setAttribute(RELEASE_LIST, releasesFromVendorIds);
-
-
-        } catch (TException e) {
-            log.error("Problem retrieving vendor");
+        else{
+            request.setAttribute(RELEASE_LIST, Collections.emptyList());
         }
     }
 
@@ -143,16 +148,28 @@ public class VendorPortlet extends Sw360Portlet {
 
         if (id != null) {
             try {
-                VendorService.Iface client = thriftClients.makeVendorClient();
-                Vendor vendor = client.getByID(id);
+                VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+                Vendor vendor = vendorClient.getByID(id);
                 ComponentPortletUtils.updateVendorFromRequest(request, vendor);
-                RequestStatus requestStatus = client.updateVendor(vendor, user);
-
-                setSessionMessage(request, requestStatus, "Vendor", "update", vendor.getFullname());
+                RequestStatus requestStatus = vendorClient.updateVendor(vendor, user);
+                setSessionMessage(request, requestStatus, "Vendor", "update", vendor.getShortname());
             } catch (TException e) {
                 log.error("Error fetching release from backend!", e);
             }
         }
+        else{
+            addVendor(request);
+        }
     }
+    private void addVendor(ActionRequest request)  {
+        final Vendor vendor = new Vendor();
+        ComponentPortletUtils.updateVendorFromRequest(request, vendor);
 
+        try {
+            VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+            String vendorId = vendorClient.addVendor(vendor);
+        } catch (TException e) {
+            log.error("Error adding vendor", e);
+        }
+    }
 }

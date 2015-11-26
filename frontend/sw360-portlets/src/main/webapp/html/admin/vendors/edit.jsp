@@ -51,8 +51,6 @@
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${vendor.fullname}"/></span>
 
     </p>
-
-
 </div>
 
 <div id="editField" class="content2">
@@ -66,29 +64,37 @@
             </thead>
             <tbody>
             <tr>
-                <td width="30%">
-                    <label class="textlabel stackedLabel" for="vendorFullname">Fullname</label>
-                    <input id="vendorFullname" type="text" class="toplabelledInput" placeholder="Enter project" name="<portlet:namespace/><%=Vendor._Fields.FULLNAME%>"
-                           value="<sw360:out value="${vendor.fullname}"/>" />
-                </td>
 
                 <td width="30%">
                     <label class="textlabel stackedLabel" for="vendorShortname">Shortname</label>
-                    <input id="vendorShortname" type="text" class="toplabelledInput" placeholder="Enter project" name="<portlet:namespace/><%=Vendor._Fields.SHORTNAME%>"
+                    <input id="vendorShortname" type="text" class="toplabelledInput" placeholder="Enter vendor short name" name="<portlet:namespace/><%=Vendor._Fields.SHORTNAME%>"
                            value="<sw360:out value="${vendor.shortname}"/>" />
                 </td>
 
                 <td width="30%">
+                    <label class="textlabel stackedLabel" for="vendorFullname">Fullname</label>
+                    <input id="vendorFullname" type="text" class="toplabelledInput" placeholder="Enter vendor fullname" name="<portlet:namespace/><%=Vendor._Fields.FULLNAME%>"
+                           value="<sw360:out value="${vendor.fullname}"/>" />
+                </td>
+
+
+                <td width="30%">
                     <label class="textlabel stackedLabel" for="vendorURL">URL</label>
-                    <input id="vendorURL" type="text" class="toplabelledInput" placeholder="Enter project" name="<portlet:namespace/><%=Vendor._Fields.URL%>"
+                    <input id="vendorURL" type="text" class="toplabelledInput" placeholder="Enter vendor url" name="<portlet:namespace/><%=Vendor._Fields.URL%>"
                            value="<sw360:out value="${vendor.url}"/>" />
                 </td>
             </tr>
 
             </tbody>
         </table>
+        <core_rt:if test="${not addMode}" >
+            <input type="submit" value="Update Vendor" class="addButton">
             <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
-            <input type="submit" value="Save" class="addButton">
+        </core_rt:if>
+        <core_rt:if test="${addMode}" >
+            <input type="submit" value="Add Vendor" class="addButton">
+            <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
+        </core_rt:if>
     </form>
 
     <core_rt:if test="${releaseList.size() > 0}" >
@@ -114,7 +120,6 @@
                 <core_rt:if test="${addMode}" >
                 .setParameter('<%=PortalConstants.PAGENAME%>','<%=PortalConstants.PAGENAME_VIEW%>')
                 </core_rt:if>
-
                 .setParameter('<%=PortalConstants.VENDOR_ID%>','${vendor.id}');
         window.location = portletURL.toString();
     }
@@ -126,7 +131,6 @@
             ignore: [],
             invalidHandler: invalidHandlerShowErrorTab
         });
-
     });
 
 
