@@ -152,7 +152,7 @@ public class VendorPortlet extends Sw360Portlet {
                 Vendor vendor = vendorClient.getByID(id);
                 ComponentPortletUtils.updateVendorFromRequest(request, vendor);
                 RequestStatus requestStatus = vendorClient.updateVendor(vendor, user);
-                setSessionMessage(request, requestStatus, "Vendor", "update", vendor.getFullname());
+                setSessionMessage(request, requestStatus, "Vendor", "update", vendor.getShortname());
             } catch (TException e) {
                 log.error("Error fetching release from backend!", e);
             }

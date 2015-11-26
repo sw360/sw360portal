@@ -64,17 +64,19 @@
             </thead>
             <tbody>
             <tr>
-                <td width="30%">
-                    <label class="textlabel stackedLabel" for="vendorFullname">Fullname</label>
-                    <input id="vendorFullname" type="text" class="toplabelledInput" placeholder="Enter vendor full name" name="<portlet:namespace/><%=Vendor._Fields.FULLNAME%>"
-                           value="<sw360:out value="${vendor.fullname}"/>" />
-                </td>
 
                 <td width="30%">
                     <label class="textlabel stackedLabel" for="vendorShortname">Shortname</label>
                     <input id="vendorShortname" type="text" class="toplabelledInput" placeholder="Enter vendor short name" name="<portlet:namespace/><%=Vendor._Fields.SHORTNAME%>"
                            value="<sw360:out value="${vendor.shortname}"/>" />
                 </td>
+
+                <td width="30%">
+                    <label class="textlabel stackedLabel" for="vendorFullname">Fullname</label>
+                    <input id="vendorFullname" type="text" class="toplabelledInput" placeholder="Enter vendor fullname" name="<portlet:namespace/><%=Vendor._Fields.FULLNAME%>"
+                           value="<sw360:out value="${vendor.fullname}"/>" />
+                </td>
+
 
                 <td width="30%">
                     <label class="textlabel stackedLabel" for="vendorURL">URL</label>

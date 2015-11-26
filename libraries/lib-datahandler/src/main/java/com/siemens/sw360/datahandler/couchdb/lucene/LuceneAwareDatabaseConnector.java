@@ -174,7 +174,7 @@ public class LuceneAwareDatabaseConnector extends LuceneAwareCouchDbConnector {
     }
 
     private static String formatSubquery(Set<String> filterSet, final String fieldname) {
-        final Function<String, String> addType = new Function<String, String>() {
+        final Function<String, String> addType =new Function<String, String>() {
             @Override
             public String apply(String input) {
                 return fieldname+":\""+input+"\"";
