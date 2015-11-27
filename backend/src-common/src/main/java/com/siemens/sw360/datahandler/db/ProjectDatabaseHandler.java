@@ -211,7 +211,9 @@ public class ProjectDatabaseHandler {
         for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
             Project project = repository.get(entry.getKey());
             if (project != null) {
-                out.add(new ProjectLink(project.id, project.name, entry.getValue()));
+                ProjectLink projectLink = new ProjectLink(project.id, project.name, entry.getValue());
+                projectLink.setVersion(project.version);
+                out.add(projectLink);
             } else {
                 log.error("Broken ProjectLink in project with id: " + entry.getKey() + ", received null from DB");
             }

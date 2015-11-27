@@ -109,7 +109,8 @@ struct Project {
 struct ProjectLink {
     1: required string id,
     2: required string name,
-    3: required ProjectRelationship relation
+    3: required ProjectRelationship relation,
+    4: optional string version
 }
 
 service ProjectService {

@@ -488,7 +488,12 @@
             <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
-
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>DisplayLicenseLink</name>
@@ -498,6 +503,12 @@
             <name>license</name>
             <required>true</required>
             <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
@@ -523,6 +534,12 @@
             <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>DisplaySearchResultLink</name>
@@ -532,6 +549,12 @@
             <name>searchResult</name>
             <required>true</required>
             <type>com.siemens.sw360.datahandler.thrift.search.SearchResult</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
@@ -552,6 +575,12 @@
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
 
     <tag>
@@ -568,6 +597,12 @@
             <name>name</name>
             <required>false</required>
             <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

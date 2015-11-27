@@ -33,6 +33,7 @@ import static com.siemens.sw360.portal.tags.urlutils.UrlWriterImpl.renderUrl;
 public class DisplayLinkToProject extends DisplayLinkAbstract {
     private Project project;
     private Boolean showName = true;
+
     private String projectId;
     public void setProject(Project project) {
         this.project = project;

@@ -28,13 +28,15 @@ import java.io.IOException;
  * @author daniele.fognini@tngtech.com
  */
 public abstract class DisplayLinkAbstract extends TagSupport {
+    public Boolean bare = false;
+
     @Override
     public int doStartTag() throws JspException {
         try {
             JspWriter jspWriter = pageContext.getOut();
-            jspWriter.write("<a href='");
+            if (!bare) jspWriter.write("<a href='");
             writeUrl();
-            jspWriter.write("'>");
+            if (!bare) jspWriter.write("'>");
 
             String value = getTextDisplay();
             if (value != null) {
@@ -55,12 +57,18 @@ public abstract class DisplayLinkAbstract extends TagSupport {
     @Override
     public int doEndTag() throws JspException {
         try {
-            JspWriter jspWriter = pageContext.getOut();
-            jspWriter.write("</a>");
+            if (!bare) {
+                JspWriter jspWriter = pageContext.getOut();
+                jspWriter.write("</a>");
+            }
         } catch (IOException e) {
             throw new JspException("cannot write", e);
         }
         return super.doEndTag();
+    }
+
+    public void setBare(Boolean bare) {
+        this.bare = bare;
     }
 
     protected abstract void writeUrl() throws JspException;

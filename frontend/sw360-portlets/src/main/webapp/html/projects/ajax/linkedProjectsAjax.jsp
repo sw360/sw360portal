@@ -33,13 +33,19 @@
 
 <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">
     <tr id="projectLinkRow${loop.count}" >
-        <td width="30%">
+        <td width="32%">
             <input type="hidden" value="${projectLink.id}" name="<portlet:namespace/><%=Project._Fields.LINKED_PROJECTS%><%=ProjectLink._Fields.ID%>">
             <label class="textlabel stackedLabel" for="projectName">Project name</label>
             <input id="projectName" type="text" class="toplabelledInput" placeholder="Enter project"
-                   value="<sw360:out value="${projectLink.name}"/>" readonly/>
+                   value="<sw360:out value="${projectLink.name}"/>" readonly onclick="window.location='<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true"/>'"/>
         </td>
-        <td width="33%">
+        <td width="32%">
+            <input type="hidden" value="${projectLink.version}" name="<portlet:namespace/><%=ProjectLink._Fields.VERSION%>">
+            <label class="textlabel stackedLabel" for="projectVersion">Project version</label>
+            <input id="projectVersion" type="text" class="toplabelledInput" placeholder="Enter project version"
+                   value="<sw360:out value="${projectLink.version}"/>" readonly/>
+        </td>
+        <td width="32%">
             <label class="textlabel stackedLabel mandatory" for="projectRelation">Project relation</label>
             <select class="toplabelledInput" id="projectRelation"
                     name="<portlet:namespace/><%=Project._Fields.LINKED_PROJECTS%><%=ProjectLink._Fields.RELATION%>"
