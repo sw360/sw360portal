@@ -24,6 +24,7 @@
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -35,6 +36,7 @@
              scope="request"/>
 
 <jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
+<core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 
 <portlet:resourceURL var="subscribeReleaseURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.SUBSCRIBE_RELEASE%>"/>
@@ -76,28 +78,33 @@
         <div id="myTab" class="row-fluid">
             <ul class="nav nav-tabs span2">
                 <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> id="Summary" >    <a href="#tab-Summary">Summary</a></li>
-                <li <core_rt:if test="${selectedTab == 'Vendor'}">                       class="active" </core_rt:if>  >                <a href="#tab-Vendors">Vendor</a></li>
                 <li <core_rt:if test="${selectedTab == 'Linked Releases'}">              class="active" </core_rt:if>  >                <a href="#tab-linkedReleases">Linked Releases</a></li>
-                <li <core_rt:if test="${selectedTab == 'Clearing'}">                     class="active" </core_rt:if> id="Clearing" >   <a href="#tab-ClearingStatus">Clearing Details</a></li>
+                <li <core_rt:if test="${selectedTab == 'Clearing'}">                     class="active" </core_rt:if> id="Clearing" >   <a href="#tab-ClearingDetails">Clearing Details</a></li>
                 <li <core_rt:if test="${selectedTab == 'Attachments'}">                  class="active" </core_rt:if>  >                <a href="#tab-Attachments">Attachments</a></li>
+                <core_rt:if test="${cotsMode}">
+                    <li <core_rt:if test="${selectedTab == 'COTSDetails'}"> class="active" </core_rt:if>  ><a href="#tab-CommercialDetails">Commercial Details</a></li>
+                </core_rt:if>
             </ul>
             <div class="tab-content span10">
                 <div id="tab-Summary" class="tab-pane">
                     <%@include file="/html/components/includes/releases/summaryRelease.jspf" %>
+                    <%@include file="/html/components/includes/vendors/vendorDetail.jspf" %>
                     <%@include file="/html/components/includes/releases/usingDocumentsRelease.jspf" %>
                 </div>
-                <div id="tab-Vendors">
-                    <%@include file="/html/components/includes/vendors/vendorDetail.jspf" %>
-                </div>
                 <div id="tab-linkedReleases" >
-                    <%@include file="/html/utils/includes/linkedReleases.jspf" %>
+                    <%@include file="/html/utils/includes/linkedReleaseDetails.jspf" %>
                 </div>
-                <div id="tab-ClearingStatus">
+                <div id="tab-ClearingDetails">
                     <%@include file="/html/components/includes/releases/clearingDetails.jspf" %>
                 </div>
                 <div id="tab-Attachments">
-                    <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />
+                    <jsp:include page="/html/utils/includes/attachmentDetails.jsp" />
                 </div>
+                <core_rt:if test="${cotsMode}">
+                    <div id="tab-CommercialDetails">
+                        <%@include file="/html/components/includes/releases/commercialDetails.jspf" %>
+                    </div>
+                </core_rt:if>
             </div>
         </div>
     </div>

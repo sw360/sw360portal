@@ -61,6 +61,9 @@ public abstract class ComponentPortletUtils {
                 case CLEARING_INFORMATION:
                     release.setFieldValue(field, getClearingInformationFromRequest(request));
                     break;
+                case COTS_DETAILS:
+                    release.setFieldValue(field, getCOTSDetailsFromRequest(request));
+                    break;
                 case VENDOR_ID:
                     release.unsetVendor();
                     setFieldValue(request, release, field);
@@ -86,6 +89,15 @@ public abstract class ComponentPortletUtils {
         }
 
         return clearingInformation;
+    }
+
+    private static COTSDetails getCOTSDetailsFromRequest(PortletRequest request) {
+        COTSDetails cotsDetails = new COTSDetails();
+        for (COTSDetails._Fields field : COTSDetails._Fields.values()) {
+            setFieldValue(request, cotsDetails, field);
+        }
+
+        return cotsDetails;
     }
 
     private static Repository getRepositoryFromRequest(PortletRequest request) {
@@ -145,6 +157,10 @@ public abstract class ComponentPortletUtils {
 
     private static void setFieldValue(PortletRequest request, ClearingInformation clearingInformation, ClearingInformation._Fields field) {
         PortletUtils.setFieldValue(request, clearingInformation, field, ClearingInformation.metaDataMap.get(field), Release._Fields.CLEARING_INFORMATION.toString());
+    }
+
+    private static void setFieldValue(PortletRequest request, COTSDetails cotsDetails, COTSDetails._Fields field) {
+        PortletUtils.setFieldValue(request, cotsDetails, field, COTSDetails.metaDataMap.get(field), Release._Fields.COTS_DETAILS.toString());
     }
 
     private static void setFieldValue(PortletRequest request, Vendor vendor, Vendor._Fields field) {

@@ -21,7 +21,7 @@
         <table class="table info_table" id="ReleaseUsage" title="Release usage overview">
             <thead>
             <tr>
-                <th colspan="2"><sw360:ReleaseName release="${release}"/> Is used by the following Projects</th>
+                <th colspan="2"><sw360:ReleaseName release="${release}"/> is used by the following projects</th>
             </tr>
             </thead>
 
@@ -42,7 +42,7 @@
         <table class="table info_table" id="ReleaseUsageComponents" title="Release by components usage overview">
             <thead>
             <tr>
-                <th colspan="2"><sw360:ReleaseName release="${release}"/> Is used by the following Components</th>
+                <th colspan="2"><sw360:ReleaseName release="${release}"/> Is used by the following components</th>
             </tr>
             </thead>
             <tr>
@@ -51,6 +51,7 @@
                         <sw360:DisplayComponentLink component="${component}"/>&nbsp;
                     </core_rt:forEach>
                 </td>
+                <td></td>
             </tr>
         </table>
     </core_rt:if>

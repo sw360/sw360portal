@@ -24,6 +24,7 @@
 <%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
 <%@ page import="com.siemens.sw360.portal.portlets.projects.ProjectPortlet" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.*" %>
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
@@ -42,7 +43,7 @@
 <core_rt:set var="operatingSystemsAutoC" value='<%=PortalConstants.OPERATING_SYSTEMS%>'/>
 
 <core_rt:set var="addMode" value="${empty release.id}"/>
-
+<core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 
 <portlet:actionURL var="updateReleaseURL" name="updateRelease">
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
@@ -82,25 +83,23 @@
         <form id="releaseEditForm" name="releaseEditForm" action="<%=updateReleaseURL%>" method="post">
             <div id="myTab" class="row-fluid">
                 <ul class="nav nav-tabs span2">
-                    <li><a href="#tab-ReleaseInformation">Release Information</a></li>
-                    <%--<li><a href="#tab-Vendor">Vendor</a></li>--%>
-                    <li><a href="#tab-ReleaseRepository">Release Repository</a></li>
-                    <li><a href="#tab-ReleaseLinks">Release Links</a></li>
+                    <li><a href="#tab-ReleaseInformation">Summary</a></li>
+                    <li><a href="#tab-ReleaseLinks">Linked Releases</a></li>
                     <core_rt:if test="${not addMode}">
-                        <li><a href="#tab-ReleaseClearingInformation">Release Clearing Information</a></li>
+                        <li><a href="#tab-ReleaseClearingInformation">Clearing Details</a></li>
                     </core_rt:if>
                     <li><a href="#tab-Attachments">Attachments</a></li>
-                    <li><a href="#tab-UsingDocs">Using Documents</a></li>
+                    <core_rt:if test="${cotsMode}">
+                        <li><a href="#tab-COTSDetails">Commercial Details</a></li>
+                    </core_rt:if>
                 </ul>
                 <div class="tab-content span10">
                     <div id="tab-ReleaseInformation" class="tab-pane">
                         <%@include file="/html/components/includes/releases/editReleaseInformation.jspf" %>
-                    </div>
-                    <div id="tab-ReleaseRepository">
                         <%@include file="/html/components/includes/releases/editReleaseRepository.jspf" %>
                     </div>
                     <div id="tab-ReleaseLinks">
-                        <%@include file="/html/utils/includes/linkedReleaseRelationsEdit.jspf" %>
+                        <%@include file="/html/utils/includes/editLinkedReleases.jspf" %>
                     </div>
                     <core_rt:if test="${not addMode}">
                         <div id="tab-ReleaseClearingInformation">
@@ -108,14 +107,15 @@
                         </div>
                     </core_rt:if>
                     <div id="tab-Attachments">
-                        <%@include file="/html/utils/includes/formAttachments.jsp" %>
+                        <%@include file="/html/utils/includes/editAttachments.jsp" %>
                     </div>
-                    <div id="tab-UsingDocs">
-                        <%@include file="/html/components/includes/releases/usingDocsTable.jspf" %>
-                    </div>
+                    <core_rt:if test="${cotsMode}">
+                        <div id="tab-COTSDetails">
+                            <%@include file="/html/components/includes/releases/editCOTSDetails.jspf" %>
+                        </div>
+                    </core_rt:if>
                 </div>
             </div>
-            <%--<input type="button" value="Validate" onclick="validate()">--%>
             <core_rt:if test="${not addMode}">
                 <input type="hidden" value="true" name="<portlet:namespace/>clearingInformation">
                 <input type="submit" value="Update Release" class="addButton" >

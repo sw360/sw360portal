@@ -192,8 +192,6 @@ public class ThriftEnumUtils {
         return out;
     }
 
-
-
      public static  <T extends Enum<T>> T  stringToEnum(String in, Class<T> clazz){
          for (T t : clazz.getEnumConstants()) {
              if(t.name().equals(in)) return t;
