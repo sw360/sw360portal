@@ -34,7 +34,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="proj_name">Name</label>
             <input id="proj_name" name="<portlet:namespace/><%=Project._Fields.NAME%>" type="text"
-                   placeholder="Enter Name" required="" class="followedByImg"
+                   placeholder="Enter Name" required="" class="followedByImg" minlength="2"
                    value="<sw360:out value="${project.name}"/>"/>
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
                  title="Name of the project"/>

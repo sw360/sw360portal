@@ -36,6 +36,7 @@ public class ProjectSummary extends DocumentSummary<Project> {
         Project copy = new Project();
         copyField(document, copy, _Fields.ID);
         copyField(document, copy, _Fields.NAME);
+        copyField(document, copy, _Fields.DESCRIPTION);
         copyField(document, copy, _Fields.VERSION);
 
         switch (type) {

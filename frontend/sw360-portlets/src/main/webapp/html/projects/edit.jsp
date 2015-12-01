@@ -36,12 +36,9 @@
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}" />
 </portlet:actionURL>
 
-
 <portlet:actionURL var="deleteURL" name="delete">
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/>
 </portlet:actionURL>
-
-
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">

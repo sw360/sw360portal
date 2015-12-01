@@ -607,4 +607,45 @@
         </attribute>
     </tag>
 
+    <tag>
+        <name>DisplayReleaseClearingStateSummary</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayReleaseClearingStateSummary</tag-class>
+        <body-content>empty</body-content>
+        <description>
+            wraps ReleaseClearingStateSummary
+        </description>
+        <attribute>
+            <name>releaseClearingStateSummary</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>DisplayDescription</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayDescription</tag-class>
+        <body-content>empty</body-content>
+        <description>
+           abbreviates description
+        </description>
+        <attribute>
+            <name>description</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>jsQuoting</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>maxChar</name>
+            <required>false</required>
+            <type>int</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

@@ -30,6 +30,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import org.apache.thrift.TEnum;
 
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -156,7 +157,7 @@ public class ThriftEnumUtils {
 
     private static final ImmutableMap<ProjectState, String> MAP_PROJECT_STATE_STRING = ImmutableMap.of(
             ProjectState.ACTIVE, "Active" ,
-            ProjectState.PHASED_OUT, "Phase out" ,
+            ProjectState.PHASE_OUT, "Phase out" ,
             ProjectState.UNKNOWN, "Unknown");
 
     private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.of(
@@ -192,8 +193,6 @@ public class ThriftEnumUtils {
         return out;
     }
 
-
-
      public static  <T extends Enum<T>> T  stringToEnum(String in, Class<T> clazz){
          for (T t : clazz.getEnumConstants()) {
              if(t.name().equals(in)) return t;
@@ -201,5 +200,13 @@ public class ThriftEnumUtils {
 
          return null;
      }
+    public static  <T extends Enum<T>> T  enumByString(String in, Class<T> clazz){
+        Map<? extends TEnum, String> map = MAP_ENUMTYPE_MAP.get(clazz);
+        for (T t : clazz.getEnumConstants()) {
+            if(map.get(t).equals(in)) return t;
+        }
+
+        return null;
+    }
 
 }
