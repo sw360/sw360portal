@@ -60,8 +60,7 @@ struct User {
 service UserService {
 
     // Get user by emails ID
-    User getByEmail(1:string emails),
-
+    User getByEmail(1:string emails);
     list<User> searchUsers(1:string name);
     list<User> getAllUsers();
 

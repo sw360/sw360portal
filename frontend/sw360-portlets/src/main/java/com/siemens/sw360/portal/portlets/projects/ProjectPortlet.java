@@ -17,6 +17,7 @@
  */
 package com.siemens.sw360.portal.portlets.projects;
 
+import com.google.common.collect.ImmutableList;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -54,6 +55,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
@@ -70,6 +72,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private static final Logger log = Logger.getLogger(ProjectPortlet.class);
 
+    private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(Project._Fields.BUSINESS_UNIT,Project._Fields.PROJECT_TYPE, Project._Fields.PROJECT_RESPONSIBLE,Project._Fields.NAME,Project._Fields.STATE,Project._Fields.TAG);
     @Override
     protected Attachment linkAttachment(String documentId, String documentType, User user, String attachmentContentId) {
         try {
@@ -406,10 +409,63 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             prepareProjectDuplicate(request);
             include("/html/projects/edit.jsp", request, response);
         } else {
+            prepareStandardView(request);
             super.doView(request, response);
         }
 
     }
+
+    private void prepareStandardView(RenderRequest request) throws IOException {
+
+        String searchtext = request.getParameter(KEY_SEARCH_TEXT);
+
+        String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
+
+        Map<String, Set<String>> filterMap = new HashMap<>();
+        for (Project._Fields filteredField : projectFilteredFields) {
+            String parameter = request.getParameter(filteredField.toString());
+            if (!isNullOrEmpty(parameter)) {
+                filterMap.put(filteredField.getFieldName(), CommonUtils.splitToSet(parameter));
+            }
+            request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
+        }
+
+        List<Project> projectList;
+
+        try {
+            final User user = UserCacheHolder.getUserFromRequest(request);
+            ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+
+            if (isNullOrEmpty(searchtext) && filterMap.isEmpty()) {
+                projectList = projectClient.getAccessibleProjectsSummary(user);
+            } else {
+                projectList = projectClient.refineSearch(searchtext, filterMap, user);
+            }
+            for(Project project:projectList){
+                setClearingStateSummary(project);
+            }
+
+        } catch (TException e) {
+            log.error("Could not search projects in backend ", e);
+            projectList = Collections.emptyList();
+        }
+
+        //Set<String> vendorNames;
+
+        //try {
+        //    vendorNames = thriftClients.makeVendorClient().getAllVendorNames();
+        //} catch (TException e) {
+        //    log.error("Problem retrieving all the Vendor names");
+        //    vendorNames = Collections.emptySet();
+
+
+        //request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
+        request.setAttribute(PROJECT_LIST, projectList);
+        request.setAttribute(KEY_SEARCH_TEXT, searchtext);
+        request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
+
+    }
+
 
     private void prepareDetailView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);
@@ -433,6 +489,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
                 addProjectBreadcrumb(request, response, project);
+                log.info("in prepareDetailView:");
+                log.info(project.name);
+                log.info(project.description);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
             }
@@ -607,6 +666,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Error updating project in backend!", e);
         }
     }
-
+    @UsedAsLiferayAction
+    public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
+        response.setRenderParameter(KEY_SEARCH_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_TEXT)));
+        response.setRenderParameter(KEY_SEARCH_FILTER_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_FILTER_TEXT)));
+        for (Project._Fields projectFilteredField : projectFilteredFields) {
+            response.setRenderParameter(projectFilteredField.toString(), nullToEmpty(request.getParameter(projectFilteredField.toString())));
+        }
+    }
 
 }

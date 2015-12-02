@@ -54,9 +54,7 @@ public class SearchPortlet extends Sw360Portlet {
         List<String> typeMask;
         if (typeMaskArray != null) { // premature optimization would add && typeMaskArray.length<6
             typeMask = Arrays.asList(typeMaskArray);
-            log.info("typeMask:" + typeMask);
-        }
-        else {
+        } else {
             typeMask = Collections.emptyList();
             log.info("typeMask set to emptyList");
         }
@@ -74,7 +72,6 @@ public class SearchPortlet extends Sw360Portlet {
         try {
             SearchService.Iface client = thriftClients.makeSearchClient();
             searchResults = client.searchFiltered(usedsearchtext, user, typeMask);
-
         } catch (TException e) {
             log.error("Search could not be performed!", e);
             searchResults = Collections.emptyList();

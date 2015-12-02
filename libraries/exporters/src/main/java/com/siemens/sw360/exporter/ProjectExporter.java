@@ -46,6 +46,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
 
 
     public static final List<Project._Fields> RENDERED_FIELDS = ImmutableList.<Project._Fields>builder()
+            .add(ID)
             .add(NAME)
             .add(STATE)
             .add(CREATED_BY)
@@ -55,6 +56,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add(TAG)
             .add(BUSINESS_UNIT)
             .add(RELEASE_IDS)
+            .add(RELEASE_CLEARING_STATE_SUMMARY)
             .build();
 
 
@@ -62,6 +64,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
     private static final Logger log = Logger.getLogger(ProjectExporter.class);
 
     protected static final List<String> HEADERS = ImmutableList.<String>builder()
+            .add("Project ID")
             .add("Project Name")
             .add("Project State")
             .add("Created by")
@@ -70,7 +73,8 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add("Project Lead Architect")
             .add("Project Tag")
             .add("Business Unit")
-            .add("Releases")
+            .add("Release IDs")
+            .add("ReleaseClearingStateSummary")
             .build();
 
     public ProjectExporter(ComponentService.Iface client) {

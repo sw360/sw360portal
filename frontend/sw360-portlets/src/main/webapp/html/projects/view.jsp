@@ -20,12 +20,30 @@
 
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="com.siemens.sw360.portal.common.JsonHelpers" %>
+<%@ page import="com.siemens.sw360.portal.common.ThriftJsonSerializer" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
+<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.Project>"
+             scope="request"/>
+
+<jsp:useBean id="projectType" class="java.lang.String" scope="request"/>
+<jsp:useBean id="projectResponsible" class="java.lang.String" scope="request"/>
+<jsp:useBean id="releaseClearingStateSummary" class="com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary" scope="request"/>
+<jsp:useBean id="businessUnit" class="java.lang.String" scope="request"/>
+<jsp:useBean id="tag" class="java.lang.String" scope="request"/>
+<jsp:useBean id="name" class="java.lang.String" scope="request"/>
+<jsp:useBean id="state" class="java.lang.String" scope="request"/>
+<jsp:useBean id="searchtext" class="java.lang.String" scope="request"/>
+<jsp:useBean id="searchfilter" class="java.lang.String" scope="request"/>
+
+<core_rt:set var="stateAutoC" value='<%=PortalConstants.STATE%>'/>
+<core_rt:set var="projectTypeAutoC" value='<%=PortalConstants.PROJECT_TYPE%>'/>
 
 <portlet:resourceURL var="exportProjectsURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.EXPORT_TO_EXCEL%>"/>
@@ -42,7 +60,6 @@
 <portlet:renderURL var="addProjectURL">
     <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/>
 </portlet:renderURL>
-
 
 <portlet:resourceURL var="projectReleasesAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_GET_SENDABLE%>'/>
@@ -88,6 +105,65 @@
         </tr>
         </tbody>
     </table>
+    <br/>
+    <form action="<%=applyFiltersURL%>" method="post">
+        <table>
+            <thead>
+            <tr>
+                <th class="infoheading">
+                    Filters
+                </th>
+            </tr>
+            </thead>
+            <tbody style="background-color: #f8f7f7; border: none;">
+            <tr>
+                <td>
+                    <label for="project_name">Project Name</label>
+                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.NAME%>"
+                           value="${name}" id="project_name">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="project_type">Project Type</label>
+                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
+                           value="${projectType}" id="project_type">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="project_responsible">Project Responsible (Email)</label>
+                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_RESPONSIBLE%>"
+                           value="${projectResponsible}" id="project_responsible">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="business_unit">Business Unit</label>
+                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
+                           value="${businessUnit}" id="business_unit">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="state">State</label>
+                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.STATE%>"
+                           value="${state}" id="state">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="tag">Tag</label>
+                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.TAG%>"
+                           value="${tag}" id="tag">
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+        <br/>
+        <input type="submit" class="addButton" value="Apply Filters">
+    </form>
 </div>
 <div id="projectsTableDiv" class="content2">
     <table id="projectsTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -118,7 +194,7 @@
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js" type="text/javascript"></script>
-
+<script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 
 <script>
     var oTable;
@@ -126,7 +202,7 @@
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
         PortletURL = Liferay.PortletURL;
-        createProjectsTable();
+        load();
         $('#exportbutton').click(exportExcel);
     });
 
@@ -165,137 +241,158 @@
         return renderLinkTo(makeProjectUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
     }
 
-    function renderClearingStatus(clearingStatus, type, row) {
-        return "<span title='new releases, under clearing, under clearing by the project clearing team, report available'>" +
-                clearingStatus.newRelease + " " +
-                clearingStatus.underClearing + " " +
-                clearingStatus.underClearingByProjectTeam + " " +
-                clearingStatus.reportAvailable +
-                "</span>";
-    }
 
+    function load() {
+        prepareAutocompleteForMultipleHits('state', ${stateAutoC});
+        prepareAutocompleteForMultipleHits('project_type', ${projectTypeAutoC});
+        createProjectsTable();
+
+    }
     function createProjectsTable() {
-        oTable = $('#projectsTable').DataTable({
-            ajax: {url: '<%=projectListAjaxURL%>', data: objectNamespacerOf('<portlet:namespace/>')},
-            columns: [
-                {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
-                {title: "Description", data: "description", render: {display: displayEscaped}},
-                {title: "Project Responsible", data: "responsible", render: {display: renderUserEmail}},
-                {title: "State", data: "state", render: {display: displayEscaped}},
-                {title: "Clearing Status", data: "clearing", render: {display: renderClearingStatus}},
-                {title: "Actions", data: "id", render: {display: renderProjectActions}}
-            ],
-            pagingType: "full_numbers",
-            search: {smart: false}
+       var result = [];
+
+        <core_rt:forEach items="${projectList}" var="project">
+        result.push({
+            "DT_RowId": "${project.id}",
+            "id": '${project.id}',
+            "name": '${project.name}',
+            "description": "<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="\""/>",
+            "state":"<sw360:DisplayEnum value='${project.state}'/>",
+            "clearing":'<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
+            "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>'
         });
+        </core_rt:forEach>
 
-        $('#projectsTable_filter').hide();
-        $('#projectsTable_first').hide();
-        $('#projectsTable_last').hide();
-    }
+         oTable = $('#projectsTable').DataTable({
+             "sPaginationType": "full_numbers",
+             "aaData": result,
+             search: {smart: false},
+             "aoColumns": [
+                 {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
+                 {title: "Description", data: "description"},// render: {display: displayEscaped}},
+                 {title: "Project Responsible", data: "responsible"},
+                 {title: "State", data: "state", render: {display: displayEscaped}},
+                 {title: "Clearing Status", data: "clearing"},
+                 {title: "Actions", data: "id", render: {display: renderProjectActions}}
+             ]
+         });
 
-    function exportExcel() {
-        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-                .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-        portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
-
-        window.location.href = portletURL.toString();
-
-    }
-
-
-    function openSelectClearingDialog(projectId, fieldId) {
-        $('#projectId').val(projectId);
-
-        setFormSubmit(fieldId);
-        fillClearingFormAndOpenDialog(projectId);
-    }
-
-    function deleteProject(projectId, name) {
-
-        if (confirm("Do you want to delete project " + name + " ?")) {
-
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=deleteAjaxURL%>',
-                cache: false,
-                data: {
-                    "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
-                },
-                success: function (data) {
-                    if (data.result == 'SUCCESS') {
-                        oTable.ajax.reload();
-                    }
-                    else if (data.result == 'SENT_TO_MODERATOR') {
-                        alert("You may not delete the project, but a request was sent to a moderator!");
-                    } else if (data.result == 'IN_USE') {
-                        alert("The project is used by another project!");
-                    }
-                    else {
-                        alert("I could not delete the project!");
-                    }
-                },
-                error: function () {
-                    alert("I could not delete the project!");
-                }
-            });
-
-        }
-    }
+         $('#projectsTable_filter').hide();
+         $('#projectsTable_first').hide();
+         $('#projectsTable_last').hide();
+     }
 
 
-    function fillClearingFormAndOpenDialog(projectId) {
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=projectReleasesAjaxURL%>',
-            cache: false,
-            data: {
-                "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
-            },
-            success: function (data) {
-                $('#fossologyClearingTable').find('tbody').html(data);
-                openDialog('fossologyClearing', 'fossologyClearingForm', .4, .5);
-            },
-            error: function () {
-                alert("I could not get any releases!");
-            }
-        });
-    }
+     function createUrl_comp(paramId, paramVal) {
+         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+                 .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
+         return portletURL.toString();
+     }
 
-    function setFormSubmit(fieldId) {
-        $('#fossologyClearingForm').submit(function (e) {
-            e.preventDefault();
-            closeOpenDialogs();
+     function createDetailURLfromProjectId(paramVal) {
+         return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
+     }
 
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=projectReleasesSendURL%>',
-                cache: false,
-                data: $('form#fossologyClearingForm').serialize(),
-                success: function (data) {
-                    if (data.result) {
-                        if (data.result == "FAILURE") {
-                            $('#' + fieldId).html("Error");
-                        }
-                        else {
-                            $('#' + fieldId).html("Sent");
-                        }
-                    }
-                },
-                error: function () {
-                    alert("I could not upload the files");
-                }
-            })
+     function exportExcel() {
+         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+                 .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+         portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
 
-        });
+         window.location.href = portletURL.toString();
 
-    }
+     }
 
-    function selectAll(form) {
-        $(form).find(':checkbox').prop("checked", true);
-    }
+     function openSelectClearingDialog(projectId, fieldId) {
+         $('#projectId').val(projectId);
 
-</script>
+         setFormSubmit(fieldId);
+         fillClearingFormAndOpenDialog(projectId);
+     }
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+     function deleteProject(projectId, name) {
+
+         if (confirm("Do you want to delete project " + name + " ?")) {
+
+             jQuery.ajax({
+                 type: 'POST',
+                 url: '<%=deleteAjaxURL%>',
+                 cache: false,
+                 data: {
+                     "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
+                 },
+                 success: function (data) {
+                     if (data.result == 'SUCCESS') {
+                         oTable.row('#' + projectId).remove().draw();
+                     }
+                     else if (data.result == 'SENT_TO_MODERATOR') {
+                         alert("You may not delete the project, but a request was sent to a moderator!");
+                     } else if (data.result == 'IN_USE') {
+                         alert("The project is used by another project!");
+                     }
+                     else {
+                         alert("I could not delete the project!");
+                     }
+                 },
+                 error: function () {
+                     alert("I could not delete the project!");
+                 }
+             });
+
+         }
+     }
+
+     function fillClearingFormAndOpenDialog(projectId) {
+         jQuery.ajax({
+             type: 'POST',
+             url: '<%=projectReleasesAjaxURL%>',
+             cache: false,
+             data: {
+                 "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
+             },
+             success: function (data) {
+                 $('#fossologyClearingTable').find('tbody').html(data);
+                 openDialog('fossologyClearing', 'fossologyClearingForm', .4, .5);
+             },
+             error: function () {
+                 alert("I could not get any releases!");
+             }
+         });
+     }
+
+     function setFormSubmit(fieldId) {
+         $('#fossologyClearingForm').submit(function (e) {
+             e.preventDefault();
+             closeOpenDialogs();
+
+             jQuery.ajax({
+                 type: 'POST',
+                 url: '<%=projectReleasesSendURL%>',
+                 cache: false,
+                 data: $('form#fossologyClearingForm').serialize(),
+                 success: function (data) {
+                     if (data.result) {
+                         if (data.result == "FAILURE") {
+                             $('#' + fieldId).html("Error");
+                         }
+                         else {
+                             $('#' + fieldId).html("Sent");
+                         }
+                     }
+                 },
+                 error: function () {
+                     alert("I could not upload the files");
+                 }
+             })
+
+         });
+
+     }
+
+     function selectAll(form) {
+         $(form).find(':checkbox').prop("checked", true);
+     }
+
+ </script>
+
+ <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+ <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

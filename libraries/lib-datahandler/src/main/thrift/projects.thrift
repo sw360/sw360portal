@@ -35,7 +35,7 @@ typedef attachments.Attachment Attachment
 
 enum ProjectState {
     ACTIVE = 0,
-    PHASED_OUT = 1,
+    PHASE_OUT = 1,
     UNKNOWN = 2,
 }
 
@@ -121,6 +121,7 @@ service ProjectService {
     set<Project> getAccessibleProjects(1: User user);
 
     // Search functions
+    list<Project> refineSearch(1: string text, 2: map<string,set<string>>  subQueryRestrictions, 3: User user);
     list<Project> searchByName(1: string name, 2: User user);
     list<Project> searchByNameForExport(1: string name, 2: User user);
     set<Project> searchByReleaseId(1: string id, 2: User user);
