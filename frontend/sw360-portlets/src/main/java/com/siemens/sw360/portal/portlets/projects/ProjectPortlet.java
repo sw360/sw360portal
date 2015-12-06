@@ -125,6 +125,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         addBreadcrumbEntry(request, printName(project), url);
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
@@ -262,7 +263,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             for (String linkedId : linkedIds) {
                 Project project = client.getProjectById(linkedId, user);
-                ProjectLink linkedProject = new ProjectLink(linkedId, project.name, ProjectRelationship.UNKNOWN);
+                ProjectLink linkedProject = new ProjectLink(linkedId, project.getName(), ProjectRelationship.UNKNOWN);
+                linkedProject.setVersion(project.getVersion());
                 linkedProjects.add(linkedProject);
             }
         } catch (TException e) {
@@ -275,6 +277,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         include("/html/projects/ajax/linkedProjectsAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
+
+    @SuppressWarnings("Duplicates")
     private void serveNewTableRowLinkedRelease(ResourceRequest request, ResourceResponse response, String[] linkedIds) throws IOException, PortletException {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
@@ -328,6 +332,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         serveReleaseSearch(request, response, searchText, true);
     }
 
+
+    @SuppressWarnings("Duplicates")
     private void serveReleaseSearch(ResourceRequest request, ResourceResponse response, String searchText, boolean searchByVendor) throws IOException, PortletException {
         List<Release> searchResult;
 
