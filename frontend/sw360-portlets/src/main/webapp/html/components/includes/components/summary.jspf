@@ -47,6 +47,10 @@
         <td><sw360:DisplayCollection value="${component.categories}"/></td>
     </tr>
     <tr>
+        <td>Component Type:</td>
+        <td><sw360:DisplayEnum value="${component.componentType}"/></td>
+    </tr>
+    <tr>
         <td>Languages:</td>
         <td><sw360:DisplayCollection value="${component.languages}"/></td>
     </tr>

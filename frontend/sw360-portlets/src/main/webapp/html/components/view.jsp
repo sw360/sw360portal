@@ -22,6 +22,7 @@
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.Component" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -33,6 +34,7 @@
 <jsp:useBean id="languages" class="java.lang.String" scope="request"/>
 <jsp:useBean id="softwarePlatforms" class="java.lang.String" scope="request"/>
 <jsp:useBean id="operatingSystems" class="java.lang.String" scope="request"/>
+<jsp:useBean id="componentType" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorList" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorNames" class="java.lang.String" scope="request"/>
 <jsp:useBean id="searchtext" class="java.lang.String" scope="request"/>
@@ -122,6 +124,16 @@
             </tr>
             <tr>
                 <td>
+                    <label for="component_type">Component Type</label>
+                    <select class="toplabelledInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
+                            style="min-width: 162px; min-height: 28px;">
+                        <option value="<%=PortalConstants.NO_FILTER%>" class="textlabel stackedLabel">Any</option>
+                        <sw360:DisplayEnumOptions type="<%=ComponentType.class%>" selectedName="${componentType}" useStringValues="true"/>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <label for="languages">Languages</label>
                     <input type="text" class="searchbar" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
                            value="${languages}" id="languages">
@@ -161,7 +173,7 @@
     <table id="componentsTable" cellpadding="0" cellspacing="0" border="0" class="display">
         <tfoot>
         <tr>
-            <th colspan="4"></th>
+            <th colspan="5"></th>
         </tr>
         </tfoot>
     </table>
@@ -221,7 +233,8 @@
             "0": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
             "1": "<a href='" + createDetailURLfromComponentId("${component.id}") + "' target='_self'><sw360:out value="${component.name}"/></a>",
             "2": "<sw360:out value="${component.description}" maxChar="140" jsQuoting="\""/>",
-            "3": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
+            "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
+            "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
             + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '${component.name}')\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
@@ -233,6 +246,7 @@
                 {"sTitle": "Vendor"},
                 {"sTitle": "Component Name"},
                 {"sTitle": "Description"},
+                {"sTitle": "Component Type"},
                 {"title": "Actions"}
             ]
         });

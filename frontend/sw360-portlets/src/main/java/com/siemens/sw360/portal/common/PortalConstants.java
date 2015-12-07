@@ -48,6 +48,7 @@ public class PortalConstants {
 
     public static final String KEY_LIST_SIZE = "documentssize";
 
+    public static final String NO_FILTER = "noFilter";
     public static final String KEY_SEARCH_TEXT = "searchtext";
     public static final String KEY_SEARCH_FILTER_TEXT = "searchfilter";
     public static final String DOCUMENT_ID = "documentID";
@@ -81,6 +82,7 @@ public class PortalConstants {
     public static final String ACTUAL_COMPONENT = "actual_component";
     public static final String COMPONENT_LIST = "componentList";
     public static final String TYPE_MASK = "typeMask";
+    public static final String COMPONENT_TYPE_LIST = "componentTypeList";
 
     //! Specialized keys for releases
     public static final String RELEASE_ID = "releaseId";

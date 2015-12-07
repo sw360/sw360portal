@@ -25,13 +25,11 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
+import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
+import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
@@ -52,6 +50,7 @@ import org.apache.thrift.TException;
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -131,7 +130,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private static final ImmutableList<Component._Fields> componentFilteredFields = ImmutableList.of(Component._Fields.CATEGORIES,
-            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES);
+            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES, Component._Fields.COMPONENT_TYPE);
 
     //! Serve resource and helpers
     @Override
@@ -318,7 +317,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
 
-                final String fullname = vendor!=null ? vendor.getFullname() : "";
+                final String fullname = vendor != null ? vendor.getFullname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(), fullname, release.getName(), release.getVersion());
                 linkedReleases.add(linkedRelease);
             }
@@ -637,7 +636,9 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         for (Component._Fields filteredField : componentFilteredFields) {
             String parameter = request.getParameter(filteredField.toString());
-            if (!isNullOrEmpty(parameter)) {
+            if (!isNullOrEmpty(parameter) &&
+                    !(filteredField.equals(Component._Fields.COMPONENT_TYPE) && parameter.equals(PortalConstants.NO_FILTER)))
+            {
                 filterMap.put(filteredField.getFieldName(), CommonUtils.splitToSet(parameter));
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
@@ -654,7 +655,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             } else {
                 componentList = componentClient.refineSearch(searchtext, filterMap);
             }
-            Collections.sort(componentList,(Component c1, Component c2) -> c1.name.compareTo(c2.name));
+            Collections.sort(componentList, (Component c1, Component c2) -> c1.name.compareTo(c2.name));
         } catch (TException e) {
             log.error("Could not search components in backend ", e);
             componentList = Collections.emptyList();
@@ -669,10 +670,16 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             vendorNames = Collections.emptySet();
         }
 
+        List<String> componentTypeNames = Arrays.asList(ComponentType.values())
+                .stream()
+                .map(ct -> ThriftEnumUtils.enumToString(ct))
+                .collect(Collectors.toList());
+
         request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
         request.setAttribute(COMPONENT_LIST, componentList);
         request.setAttribute(KEY_SEARCH_TEXT, searchtext);
         request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
+        request.setAttribute(COMPONENT_TYPE_LIST, new ThriftJsonSerializer().toJson(componentTypeNames));
 
     }
 
