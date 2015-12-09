@@ -139,12 +139,7 @@ public class ReleaseRepository extends SummaryAwareRepository<Release> {
     }
 
     public ImmutableListMultimap<String, Release> getFullReleases() {
-        return FluentIterable.from(queryView("fullbycomponentId")).index(new Function<Release, String>() {
-            @Override
-            public String apply(Release input) {
-                return input.getComponentId();
-            }
-        });
+        return FluentIterable.from(queryView("fullbycomponentId")).index(Release::getComponentId);
     }
 
     public List<Release> getReleasesFromVendorIds(Set<String> ids) {

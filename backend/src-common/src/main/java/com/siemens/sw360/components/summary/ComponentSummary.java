@@ -69,18 +69,27 @@ public class ComponentSummary extends DocumentSummary<Component> {
             ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
             return makeExportSummary(document, fullReleases);
         } else if (type == SummaryType.DETAILED_EXPORT_SUMMARY) {
-                ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
+            ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
 
-                final Map<String, Vendor> vendorsById = ThriftUtils.getIdMap(vendorRepository.getAll());
+            final Map<String, Vendor> vendorsById = ThriftUtils.getIdMap(vendorRepository.getAll());
 
-                for (Release release : fullReleases.values()) {
-                    if (!release.isSetVendor() && release.isSetVendorId()) {
-                        release.setVendor(vendorsById.get(release.getVendorId()));
-                    }
+            for (Release release : fullReleases.values()) {
+                if (!release.isSetVendor() && release.isSetVendorId()) {
+                    release.setVendor(vendorsById.get(release.getVendorId()));
                 }
-
-                return makeDetailedExportSummary(document, fullReleases);
             }
+
+            return makeDetailedExportSummary(document, fullReleases);
+        } else if (type == SummaryType.HOME) {
+            copyField(document, copy, Component._Fields.ID);
+            copyField(document, copy, Component._Fields.DESCRIPTION);
+
+            ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
+
+            ImmutableList<Release> releases = fullReleases.get(document.getId());
+            copy.setReleases(releases);
+        }
+
 
 
         copyField(document, copy, Component._Fields.ID);

@@ -20,7 +20,7 @@ package com.siemens.sw360.moderation;
 
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.server.TServlet;
+import com.siemens.sw360.projects.Sw360ThriftServlet;
 
 import java.net.MalformedURLException;
 
@@ -29,8 +29,9 @@ import java.net.MalformedURLException;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author Andreas.Reichel@tngtech.com
  */
-public class ModerationServlet extends TServlet {
+public class ModerationServlet extends Sw360ThriftServlet {
 
     public ModerationServlet() throws MalformedURLException {
         // Create a service processor using the provided handler
