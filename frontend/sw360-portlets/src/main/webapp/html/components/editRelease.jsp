@@ -216,7 +216,21 @@
 
 
     function submitAddVendor(fullnameId, shortnameId, urlId) {
+        var fullnameText = $('#' + fullnameId).val();
+        var shortnameText = $('#' + shortnameId).val();
+        var urlText = $('#' + urlId).val();
+        var errortxt = '';
 
+        if (fullnameText == '' || shortnameText == '' || urlText == '')
+        {
+            errortxt += fullnameText != '' ? '':  '<br> Fullname is required. ';
+            errortxt += shortnameText != '' ? '': ' <br> Shortname is required. ';
+            errortxt += urlText != '' ? '': ' <br> URL is required. ';
+            $('#divVendorSearchAddVendorError').html(errortxt);
+            $('#divVendorSearchAddVendorError').css('visibility', 'visible');
+
+
+        } else
         jQuery.ajax({
             type: 'POST',
             url: '<%=addVendorURL%>',

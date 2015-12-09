@@ -49,7 +49,9 @@
       <input type="button" value="Add Vendor"
             class="addButton" onclick="submitAddVendor('addVendorFullName', 'addVendorShortName', 'addVendorUrl')"/>
     </div>
-
+    <div id="divVendorSearchAddVendorError" style="visibility:hidden">
+        Errortext
+    </div>
 
 
 </div>
