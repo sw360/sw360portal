@@ -111,7 +111,7 @@
                     </div>
                     <core_rt:if test="${cotsMode}">
                         <div id="tab-COTSDetails">
-                            <%@include file="/html/components/includes/releases/editCOTSDetails.jspf" %>
+                            <%@include file="/html/components/includes/releases/editCommercialDetails.jspf" %>
                         </div>
                     </core_rt:if>
                 </div>

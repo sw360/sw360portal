@@ -98,7 +98,7 @@
                     <%@include file="/html/components/includes/releases/clearingDetails.jspf" %>
                 </div>
                 <div id="tab-Attachments">
-                    <jsp:include page="/html/utils/includes/attachmentDetails.jsp" />
+                    <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />
                 </div>
                 <core_rt:if test="${cotsMode}">
                     <div id="tab-CommercialDetails">

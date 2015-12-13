@@ -67,7 +67,7 @@
                     <%@include file="/html/projects/includes/linkedProjects.jspf" %>
                 </div>
                 <div id="tab-linkedReleases" >
-                    <%@include file="/html/utils/includes/linkedReleases.jspf" %>
+                    <%@include file="/html/utils/includes/linkedReleaseDetails.jspf" %>
                 </div>
                 <div id="tab-ClearingStatus" >
                     <%@include file="/html/projects/includes/projects/clearingStatus.jspf" %>
