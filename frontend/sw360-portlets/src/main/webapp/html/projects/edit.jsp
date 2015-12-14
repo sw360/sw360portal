@@ -78,7 +78,7 @@
         <%@include file="/html/projects/includes/linkedProjectsEdit.jspf" %>
         <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
         <core_rt:if test="${not addMode}" >
-            <%@include file="/html/utils/includes/formAttachments.jsp" %>
+            <%@include file="/html/utils/includes/editAttachments.jsp" %>
             <%@include file="/html/projects/includes/projects/usingProjects.jspf" %>
 
         </core_rt:if>

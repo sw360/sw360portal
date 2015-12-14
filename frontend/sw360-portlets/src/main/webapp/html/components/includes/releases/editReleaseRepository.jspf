@@ -21,10 +21,10 @@
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.RepositoryType" %>
 
-<table class="table info_table" id="ComponentRepository" title="Release repository">
+<table class="table info_table" id="ComponentRepository" title="Release Repository">
   <thead>
   <tr>
-    <th colspan="3" class="headlabel">Release repository</th>
+    <th colspan="3" class="headlabel">Release Repository</th>
   </tr>
   </thead>
   <tr>
@@ -44,5 +44,6 @@
              placeholder="Enter URL"
              value="<sw360:out value="${release.repository.url}"/>"/>
     </td>
+    <td></td>
   </tr>
 </table>

@@ -103,7 +103,7 @@
     <form id="componentEditForm" name="componentEditForm" action="<%=updateComponentURL%>" method="post">
         <%@include file="/html/components/includes/components/editBasicInfo.jspf" %>
         <core_rt:if test="${not componentDivAddMode}">
-            <%@include file="/html/utils/includes/formAttachments.jsp" %>
+            <%@include file="/html/utils/includes/editAttachments.jsp" %>
             <%@include file="/html/components/includes/components/usingDocuments.jspf" %>
         </core_rt:if>
     </form>

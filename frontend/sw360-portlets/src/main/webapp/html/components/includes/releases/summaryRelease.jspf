@@ -20,7 +20,7 @@
     <table class="table info_table" id="ReleaseDetailOverview" title="Release detail overview">
         <thead>
         <tr>
-            <th colspan="2">Release Details: <sw360:ReleaseName release="${release}" /></th>
+            <th colspan="2">Release Summary: <sw360:ReleaseName release="${release}" /></th>
         </tr>
         </thead>
         <tr>
@@ -55,12 +55,6 @@
             <td>Download URL:</td>
             <td><sw360:out value="${release.downloadurl}"/></td>
         </tr>
-        <core_rt:if test="${release.setRepository}">
-            <tr>
-                <td>Repository:</td>
-                <td><sw360:out value="${release.repository.url} (${release.repository.repositorytype})"/></td>
-            </tr>
-        </core_rt:if>
 
         <tr>
             <td>Clearing State:</td>
@@ -76,4 +70,19 @@
             <td><sw360:DisplayCollection value="${release.mainLicenseNames}" /></td>
         </tr>
     </table>
+    <table class="table info_table" id="ReleaseRepository" title="Release Repository">
+        <core_rt:if test="${release.setRepository}">
+            <thead>
+            <tr>
+                <th colspan="2">Release Repository</th>
+            </tr>
+            </thead>
+
+            <tr>
+                <td>Repository:</td>
+                <td><sw360:out value="${release.repository.url} (${release.repository.repositorytype})"/></td>
+            </tr>
+        </core_rt:if>
+    </table>
+
 </core_rt:if>

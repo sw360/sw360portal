@@ -86,7 +86,7 @@
                     <%@include file="/html/components/includes/vendors/vendorDetail.jspf" %>
                 </div>
                 <div id="tab-linkedReleases" >
-                    <%@include file="/html/utils/includes/linkedReleases.jspf" %>
+                    <%@include file="/html/utils/includes/linkedReleaseDetails.jspf" %>
                 </div>
                 <div id="tab-Attachments">
                     <jsp:include page="/html/utils/includes/attachmentsDetail.jsp"/>

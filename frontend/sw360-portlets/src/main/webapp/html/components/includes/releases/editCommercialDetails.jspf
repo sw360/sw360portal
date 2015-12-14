@@ -1,0 +1,88 @@
+<%--
+  ~ Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+
+<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
+<%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.Repository" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingInformation" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.components.COTSDetails" %>
+<table class="table info_table" id="COTSDetails" title="COTS Details">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">Commercial Details</th>
+    </tr>
+    </thead>
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="usageRightAvailable">
+                <input id="usageRightAvailable" type="checkbox"
+                       name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.USAGE_RIGHT_AVAILABLE%>"
+                       value="<sw360:out value="${release.cotsDetails.usageRightAvailable}"/>"
+                        <core_rt:if test="${release.cotsDetails.usageRightAvailable == 'true'}"> checked="checked" </core_rt:if>
+                /> Usage Right Available</label>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="used_license">Used License</label>
+            <input id="used_license"
+                   name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.USED_LICENSE%>"
+                   type="text"
+                   placeholder="Enter used license"
+                   value="<sw360:out value="${release.cotsDetails.usedLicense}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="LC_Url">License/Clearing report-URL</label>
+            <input id="LC_Url"
+                   name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.LICENSE_CLEARING_REPORT_URL%>"
+                   type="text"
+                   placeholder="Enter URL"
+                   value="<sw360:out value="${release.cotsDetails.licenseClearingReportURL}"/>"/>
+        </td>
+    </tr>
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="containsOSS">
+                <input id="containsOSS" type="checkbox"
+                       name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.CONTAINS_OSS%>"
+                       value="<sw360:out value="${release.cotsDetails.containsOSS}"/>"
+                        <core_rt:if test="${release.cotsDetails.containsOSS == 'true'}"> checked="checked" </core_rt:if>
+                /> Contains OSS</label>
+        </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="OSSContractSigned">
+                <input id="OSSContractSigned" type="checkbox"
+                       name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.OSS_CONTRACT_SIGNED%>"
+                       value="<sw360:out value="${release.cotsDetails.ossContractSigned}"/>"
+                        <core_rt:if test="${release.cotsDetails.ossContractSigned == 'true'}"> checked="checked" </core_rt:if>
+                /> OSS contract signed</label>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="OSSInfoUrl">OSS Information URL</label>
+            <input id="OSSInfoUrl"
+                   name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.OSS_INFORMATION_URL%>"
+                   type="text"
+                   placeholder="Enter URL"
+                   value="<sw360:out value="${release.cotsDetails.ossInformationURL}"/>"/>
+        </td>
+    </tr>
+    <tr>
+    </tr>
+
+</table>
+

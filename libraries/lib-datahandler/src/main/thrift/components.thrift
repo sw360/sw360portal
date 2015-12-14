@@ -103,7 +103,14 @@ enum ReleaseRelationship {
     REFERRED = 1,
     UNKNOWN = 2,
 }
-
+struct COTSDetails{
+    1: optional string usedLicense,
+    2: optional string licenseClearingReportURL,
+    3: optional bool containsOSS,
+    4: optional bool ossContractSigned,
+    5: optional string ossInformationURL,
+    6: optional bool usageRightAvailable,
+}
 struct ClearingInformation {
     // supplier / ec info
     1: optional string AL, // German Ausfuhrliste
@@ -183,6 +190,7 @@ struct Release {
     50: optional ClearingInformation clearingInformation,
     51: optional set<string> languages,
     53: optional set<string> operatingSystems,
+    54: optional COTSDetails cotsDetails,
 
     65: optional set<string> mainLicenseIds,
     66: optional set<string> mainLicenseNames,

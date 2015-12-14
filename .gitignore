@@ -11,8 +11,10 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-/backend/target/
-/backend/src/target/
+backend/*/target/
+frontend/*/target/
+libraries/*/target/
+target/
 
 # Ignore private and public keys
 *id_rsa*
