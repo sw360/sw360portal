@@ -655,7 +655,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             } else {
                 componentList = componentClient.refineSearch(searchtext, filterMap);
             }
-            Collections.sort(componentList, (Component c1, Component c2) -> c1.name.compareTo(c2.name));
         } catch (TException e) {
             log.error("Could not search components in backend ", e);
             componentList = Collections.emptyList();
