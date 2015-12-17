@@ -135,7 +135,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 JSONObject row = createJSONObject();
                 row.put("id", project.getId());
                 row.put("name", printName(project));
-                row.put("description", abbreviate(project.getDescription(), 140));
+                String pDesc = abbreviate(project.getDescription(), 140);
+                row.put("description", pDesc == null || pDesc == "" ? "N.A.": pDesc);
                 row.put("state", ThriftEnumUtils.enumToString(project.getState()));
                 row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
                 row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
@@ -525,8 +526,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             request.setAttribute(DOCUMENT_ID, id);
 
             setAttachmentsInRequest(request, project.getAttachments());
-            putLinkedProjectsInRequest(request, project.getLinkedProjects());
-            putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
+            try {
+                putLinkedProjectsInRequest(request, project.getLinkedProjects());
+                putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
+            } catch (TException e) {
+                log.error("Could not fetch linked projects or linked releases in projects view.", e);
+                return;
+            }
 
             request.setAttribute(USING_PROJECTS, usingProjects);
             Map<RequestedAction, Boolean> permissions = project.getPermissions();
@@ -538,8 +544,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             project.setBusinessUnit(user.getDepartment());
             request.setAttribute(PROJECT, project);
             setAttachmentsInRequest(request, project.getAttachments());
-            putLinkedProjectsInRequest(request, Collections.emptyMap());
-            putLinkedReleasesInRequest(request, Collections.emptyMap());
+            try {
+                putLinkedProjectsInRequest(request, Collections.emptyMap());
+                putLinkedReleasesInRequest(request, Collections.emptyMap());
+            } catch (TException e) {
+                log.error("Could not put empty linked projects or linked releases in projects view.", e);
+            }
             request.setAttribute(USING_PROJECTS, Collections.emptySet());
 
             SessionMessages.add(request, "request_processed", "New Project");

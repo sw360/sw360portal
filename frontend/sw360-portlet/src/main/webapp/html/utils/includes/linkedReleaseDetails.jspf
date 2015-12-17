@@ -32,39 +32,53 @@
 <table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases">
     <thead>
     <tr>
-        <th colspan="4" class="headlabel">Linked Releases</th>
+        <th colspan="5" class="headlabel">Linked Releases</th>
     </tr>
     <tr>
         <th>Vendor</th>
         <th>Release name</th>
         <th>Release version</th>
         <th>Release relation</th>
+        <th>License names</th>
     </tr>    </thead>
     <tbody>
     <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
         <tr id="releaseLinkRow${loop.count}" >
-            <td width="23%">
-                <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
+            <td width="18%">
+                <input width="100%" id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
                        value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
             </td>
             <td width="23%">
                 <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.ID%>">
-                <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
+                input width="100%" id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
                        value="<sw360:out value="${releaseLink.name}"/>" readonly/>
             </td>
-            <td width="23%">
-                <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
+            <td width="18%">
+                <input width="100%" id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
                        value="<sw360:out value="${releaseLink.version}"/>" readonly/>
             </td>
             <td width="23%">
+                <label class="textlabel stackedLabel" for="releaseRelation">Release relation</label>
                 <core_rt:if test="${!releaseLink.setReleaseRelationship}" >
-                <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
+                <input width="100%" id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
                        value="<sw360:out value="${releaseLink.comment}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>" readonly/>
                 </core_rt:if>
                 <core_rt:if test="${releaseLink.setReleaseRelationship}" >
                     <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="Enter release usage"
                            value="<sw360:out value="${releaseLink.releaseRelationship}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.RELEASE_RELATIONSHIP%>" readonly/>
                 </core_rt:if>
+            </td>
+            <td width="18%">
+                <core_rt:set var="licNameSep" value=", " />
+                <core_rt:set var="licType" value="" scope="request"/>
+                <core_rt:forEach items="${releaseLink.licenseNames}" var="licenseName">
+                    <core_rt:if test='${licType != ""}' >
+                        <core_rt:set var="licType" value="${licType.concat(licNameSep)}" scope="request"/>
+                    </core_rt:if >
+                    <core_rt:set var="licType" value="${licType.concat(licenseName)}" scope="request"/>
+                </core_rt:forEach>
+                    <input width="100%" id="releaseLicenseType" type="text" class="toplabelledInput"
+                           placeholder="License Name" value="${licType}" readonly />
             </td>
         </tr>
     </core_rt:forEach>
