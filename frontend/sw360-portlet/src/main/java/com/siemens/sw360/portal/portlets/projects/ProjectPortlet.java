@@ -136,7 +136,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 row.put("id", project.getId());
                 row.put("name", printName(project));
                 String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc == "" ? "N.A.": pDesc);
+                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
                 row.put("state", ThriftEnumUtils.enumToString(project.getState()));
                 row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
                 row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));

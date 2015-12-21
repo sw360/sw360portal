@@ -272,3 +272,11 @@ input[readonly].clickable {
     margin-bottom: 0;
     height: 15px;
 }
+
+.release-list-entry-element {
+    width: 18%;
+}
+
+.release-list-entry-element input {
+    width: 100%;
+}

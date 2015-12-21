@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -194,6 +195,7 @@ struct Release {
     54: optional COTSDetails cotsDetails,
 
     65: optional set<string> mainLicenseIds,
+    66: optional set<string> mainLicenseNames,
 
     // Urls for the project
     70: optional string downloadurl, // URL for download page for this release
@@ -238,6 +240,7 @@ struct Component {
     33: optional set<string> releaseIds,
 
     35: optional set<string> mainLicenseIds,        //Aggregate of release main licenses
+    36: optional set<string> mainLicenseNames,
 
     // List of keywords
     40: optional set<string> categories,
@@ -277,6 +280,9 @@ struct ReleaseLink{
     16: optional ReleaseRelationship releaseRelationship,
     //This is to indicate the depth of the link (I link to a, a links to b, so b has depth 2)
     25: optional i32 depth,
+
+    100: optional set<string> licenseIds,
+    101: optional set<string> licenseNames
 }
 
 service ComponentService {
