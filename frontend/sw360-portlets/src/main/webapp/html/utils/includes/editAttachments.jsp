@@ -19,7 +19,7 @@
 <table class="table info_table " id="attachmentInfo" title="Attachment Information ${documentType}">
     <thead>
     <tr>
-        <th colspan="20" class="headlabel">Attachments</th>
+        <th colspan="5" class="headlabel">Attachments</th>
     </tr>
     </thead>
 

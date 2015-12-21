@@ -42,8 +42,9 @@
                     <portlet:namespace/>attachmentId: attachmentId
                 },
                 success: function (data) {
-                    if(data.result == 'SUCCESS')
+                    if(data.result == 'SUCCESS') {
                         $('#' + rowId).remove();
+                    }
                     else {
                         alert("I could not remove the attachment!");
                     }
