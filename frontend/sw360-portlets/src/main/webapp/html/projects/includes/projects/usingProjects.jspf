@@ -20,7 +20,7 @@
   <table class="table info_table" id="ReleaseUsage" title="Release usage overview">
     <thead>
     <tr>
-      <th colspan="2"><sw360:ProjectName project="${project}"/> Is used by the following Projects</th>
+      <th ><sw360:ProjectName project="${project}"/> Is used by the following Projects</th>
     </tr>
     </thead>
 

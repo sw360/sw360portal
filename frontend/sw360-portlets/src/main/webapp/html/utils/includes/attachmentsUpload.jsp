@@ -99,7 +99,7 @@
                 data: {<portlet:namespace/>attachmentId: attachmentId}
             }).done(function (data) {
                 $('#noAttachmentsRow').hide();
-                $('#attachmentInfo').find('tbody').append(data);
+                $('#attachmentInfo > tbody').append(data);
             }).fail(function () {
                 cancelAttachment(attachmentId);
             });

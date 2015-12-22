@@ -25,10 +25,12 @@ import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
+import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
@@ -76,6 +78,9 @@ public class PortletUtils {
 
     public static AttachmentType getAttachmentTypefromString(String enumNumber) {
         return AttachmentType.findByValue(parseInt(enumNumber));
+    }
+    public static CheckStatus getCheckStatusfromString(String enumNumber) {
+        return CheckStatus.findByValue(parseInt(enumNumber));
     }
 
     public static ProjectState getProjectStateFromString(String enumNumber) {
@@ -142,12 +147,14 @@ public class PortletUtils {
         if (attachments == null || attachments.size() == 0) return;
 
         String[] ids = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_CONTENT_ID.toString());
-        String[] comments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CREATED_COMMENT.toString());
+        String[] createdComments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CREATED_COMMENT.toString());
+        String[] checkedComments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECKED_COMMENT.toString());
+        String[] checkStatuses = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECK_STATUS.toString());
         String[] atypes = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_TYPE.toString());
 
-        if (CommonUtils.oneIsNull(atypes, comments, ids)) {
+        if (CommonUtils.oneIsNull(atypes, createdComments, checkedComments, ids)) {
             log.error("We have a problem null arrays");
-        } else if (atypes.length != comments.length || atypes.length != ids.length)
+        } else if (atypes.length != createdComments.length || atypes.length != ids.length || atypes.length != checkedComments.length)
             log.error("We have a problem length != other.length ");
         else {
             Map<String, Attachment> attachmentMap = Maps.uniqueIndex(attachments, new Function<Attachment, String>() {
@@ -163,11 +170,16 @@ public class PortletUtils {
 
                 String id = ids[i];
                 if (attachmentMap.containsKey(id)) {
-
                     Attachment attachment = attachmentMap.get(id);
-
-                    attachment.setCheckedComment(comments[i]);
+                    attachment.setCreatedComment(createdComments[i]);
                     attachment.setAttachmentType(getAttachmentTypefromString(atypes[i]));
+                    if(attachment.checkedComment != checkedComments[i]|| attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])){
+                        attachment.setCheckedOn(SW360Utils.getCreatedOn());
+                        attachment.setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail());
+                        attachment.setCheckedTeam(UserCacheHolder.getUserFromRequest(request).getDepartment());
+                        attachment.setCheckStatus(getCheckStatusfromString(checkStatuses[i]));
+                        attachment.setCheckedComment(checkedComments[i]);
+                    }
                 } else {
                     log.error("Unable to find attachment!" + id);
                 }

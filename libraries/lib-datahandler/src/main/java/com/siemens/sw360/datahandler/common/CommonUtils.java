@@ -27,6 +27,7 @@ import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
@@ -239,9 +240,12 @@ public class CommonUtils {
         attachment.setCreatedBy(user.getEmail());
         attachment.setCreatedOn(SW360Utils.getCreatedOn());
         attachment.setCreatedComment("");
+        attachment.setCreatedTeam(user.getDepartment());
         attachment.setFilename(fileName);
         attachment.setAttachmentContentId(attachmentContentId);
         attachment.setAttachmentType(AttachmentType.DOCUMENT);
+        attachment.setCheckStatus(CheckStatus.NOTCHECKED);
+        attachment.setCheckedComment("");
         return attachment;
     }
 

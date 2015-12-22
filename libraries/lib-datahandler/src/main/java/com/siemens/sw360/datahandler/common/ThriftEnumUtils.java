@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
@@ -148,6 +149,12 @@ public class ThriftEnumUtils {
             MainlineState.PHASEOUT, "Phaseout"
     );
 
+    private static final ImmutableMap<CheckStatus, String> MAP_CHECK_STATUS_STRING = ImmutableMap.of(
+            CheckStatus.ACCEPTED,"Accepted",
+            CheckStatus.REJECTED,"Rejected",
+            CheckStatus.NOTCHECKED,"Not checked"
+    );
+
     private static final ImmutableMap<Visibility, String> MAP_VISIBILITY_STRING = ImmutableMap.of(
             Visibility.PRIVATE, "Private" ,
             Visibility.ME_AND_MODERATORS, "Me and Moderators",
@@ -182,6 +189,7 @@ public class ThriftEnumUtils {
             .put(UserGroup.class, MAP_USER_GROUP_STRING)
             .put(Visibility.class, MAP_VISIBILITY_STRING)
             .put(ProjectState.class, MAP_PROJECT_STATE_STRING)
+            .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
             .build();
 
     public static String enumToString(TEnum value) {
