@@ -216,21 +216,32 @@
 
 
     function submitAddVendor(fullnameId, shortnameId, urlId) {
+        var fullnameText = $('#' + fullnameId).val();
+        var shortnameText = $('#' + shortnameId).val();
+        var urlText = $('#' + urlId).val();
+        var errortxt = '';
 
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=addVendorURL%>',
-            data: {
-                <portlet:namespace/>FULLNAME: $('#' + fullnameId).val(),
-                <portlet:namespace/>SHORTNAME: $('#' + shortnameId).val(),
-                <portlet:namespace/>URL: $('#' + urlId).val()
-
-            },
-            success: function (data) {
-                closeOpenDialogs();
-                fillVendorInfoFields(data.id,$('#' + fullnameId).val() );
-            }
-        });
+        if (fullnameText == '' || shortnameText == '' || urlText == '')
+        {
+            errortxt += fullnameText != '' ? '':  '<br> Fullname is required. ';
+            errortxt += shortnameText != '' ? '': ' <br> Shortname is required. ';
+            errortxt += urlText != '' ? '': ' <br> URL is required. ';
+            $('#divVendorSearchAddVendorError').html(errortxt).css('visibility', 'visible');
+        } else {
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=addVendorURL%>',
+                data: {
+                    <portlet:namespace/>FULLNAME: fullnameText,
+                    <portlet:namespace/>SHORTNAME: shortnameText,
+                    <portlet:namespace/>URL: urlText
+                },
+                success: function (data) {
+                    closeOpenDialogs();
+                    fillVendorInfoFields(data.id, $('#' + fullnameId).val());
+                }
+            });
+        }
 
     }
 
