@@ -19,7 +19,7 @@ package com.siemens.sw360.fossology;
 
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TProtocolFactory;
-import org.apache.thrift.server.TServlet;
+import com.siemens.sw360.projects.Sw360ThriftServlet;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RequestMapping("/thrift")
-public class SpringTServlet extends TServlet {
+public class SpringTServlet extends Sw360ThriftServlet {
     public SpringTServlet(TProcessor processor, TProtocolFactory inProtocolFactory, TProtocolFactory outProtocolFactory) {
         super(processor, inProtocolFactory, outProtocolFactory);
     }

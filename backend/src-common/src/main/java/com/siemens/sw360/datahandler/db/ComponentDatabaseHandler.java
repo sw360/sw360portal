@@ -169,7 +169,7 @@ public class ComponentDatabaseHandler {
         //! but in general this will be the much larger junk and so we keep it this way
         Set<String> myComponentIdsFromReleases = releaseRepository.getMyComponentIds(user);
 
-        return componentRepository.makeSummary(SummaryType.SHORT, Sets.union(myComponentIds, myComponentIdsFromReleases));
+        return componentRepository.makeSummary(SummaryType.HOME, Sets.union(myComponentIds, myComponentIdsFromReleases));
     }
 
     public List<Component> getSummaryForExport() {

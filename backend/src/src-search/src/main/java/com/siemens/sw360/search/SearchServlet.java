@@ -19,7 +19,7 @@ package com.siemens.sw360.search;
 
 import com.siemens.sw360.datahandler.thrift.search.SearchService;
 import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.server.TServlet;
+import com.siemens.sw360.projects.Sw360ThriftServlet;
 
 import java.io.IOException;
 
@@ -28,8 +28,9 @@ import java.io.IOException;
  *
  * @author cedric.bodet@tngtech.com
  * @author johannes.najjar@tngtech.com
+ * @author Andreas.Reichel@tngtech.com
  */
-public class SearchServlet extends TServlet {
+public class SearchServlet extends Sw360ThriftServlet {
 
     public SearchServlet() throws IOException {
         // Create a service processor using the provided handler
