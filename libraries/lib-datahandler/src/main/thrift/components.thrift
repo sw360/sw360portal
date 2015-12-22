@@ -209,7 +209,7 @@ struct Release {
 }
 
 enum ComponentType {
-    SIEMENS = 0,
+    INTERNAL = 0,
     OSS = 1,      //open source software
     COTS = 2,     //commercial of the shelf
     FREESOFTWARE = 3,

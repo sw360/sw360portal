@@ -50,7 +50,7 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.of(
             ComponentType.OSS, "Open Source Software" ,
             ComponentType.COTS, "Commercial Off The Shelf" ,
-            ComponentType.SIEMENS, "Siemens" ,
+            ComponentType.INTERNAL, "Internal" ,
             ComponentType.FREESOFTWARE, "Free Software");
 
 
