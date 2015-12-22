@@ -27,8 +27,6 @@
 
 <jsp:useBean id="components" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Component>"
              class="java.util.ArrayList" scope="request"/>
-<jsp:useBean id="releaseinfo" type="java.lang.String"
-             class="java.lang.String" scope="request"/>
 
 <div class="homepageheading">
     My Components
@@ -39,21 +37,30 @@
     </table>
 </div>
 
-
 <script>
-
     //This can not be document ready function as liferay definitions need to be loaded first
     $(window).load(function () {
         var result = [];
-
+        var releasesInfo = '';
         <core_rt:forEach items="${components}" var="component">
+            <core_rt:choose>
+                <core_rt:when test="${component.releases.size() > 1}">
+                    releasesInfo = '<sw360:out value="${component.releases.size()} releases"/>';
+                </core_rt:when>
+                <core_rt:otherwise>
+                    releasesInfo = 'no release';
+                    <core_rt:if test="${component.releases.size() == 1}">
+                        releasesInfo = '<sw360:out value="${component.releases[0].name}"/>';
+                    </core_rt:if>
+                </core_rt:otherwise>
+            </core_rt:choose>
 
-        result.push({
-            "DT_RowId": "${component.id}",
-            "0": "<sw360:DisplayComponentLink component="${component}"/>",
-            "1": '<sw360:out value="${component.description}" maxChar="30"/>',
-            "2": '<sw360:out value="${releaseinfo}" maxChar="30"/>'
-        });
+            result.push({
+                "DT_RowId": "${component.id}",
+                "0": "<sw360:DisplayComponentLink component="${component}"/>",
+                "1": '<sw360:out value="${component.description}" maxChar="30"/>',
+                "2": releasesInfo
+            });
 
         </core_rt:forEach>
 

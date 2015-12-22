@@ -19,7 +19,7 @@ package com.siemens.sw360.components;
 
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.server.TServlet;
+import com.siemens.sw360.projects.Sw360ThriftServlet;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -29,8 +29,9 @@ import java.net.MalformedURLException;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author Andreas.Reichel@tngtech.com
  */
-public class ComponentServlet extends TServlet {
+public class ComponentServlet extends Sw360ThriftServlet {
 
     public ComponentServlet() throws IOException {
         // Create a service processor using the provided handler

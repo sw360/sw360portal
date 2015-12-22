@@ -15,39 +15,51 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.siemens.sw360.fossology;
+package com.siemens.sw360.projects;
 
+import org.apache.log4j.Logger;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TProtocolFactory;
-import com.siemens.sw360.projects.Sw360ThriftServlet;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.apache.thrift.server.TServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@RequestMapping("/thrift")
-public class SpringTServlet extends Sw360ThriftServlet {
-    public SpringTServlet(TProcessor processor, TProtocolFactory inProtocolFactory, TProtocolFactory outProtocolFactory) {
-        super(processor, inProtocolFactory, outProtocolFactory);
-    }
+import static org.apache.log4j.Logger.getLogger;
 
-    public SpringTServlet(TProcessor processor, TProtocolFactory protocolFactory) {
+/**
+ * @author Andreas.Reichel@tngtech.com
+ */
+public class Sw360ThriftServlet extends TServlet {
+    private static final Logger log = getLogger(Sw360ThriftServlet.class);
+
+    public Sw360ThriftServlet(TProcessor processor, TProtocolFactory protocolFactory) {
         super(processor, protocolFactory);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    public Sw360ThriftServlet(TProcessor processor, TProtocolFactory inProtocolFactory, TProtocolFactory outProtocolFactory) {
+        super(processor, inProtocolFactory, outProtocolFactory);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doPost(request, response);
+        try {
+            super.doPost(request, response);
+        } catch (Exception e) {
+            log.error("uncaught", e);
+            throw e;
+        }
     }
 
-    @RequestMapping(method = RequestMethod.GET)
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doGet(request, response);
+        try {
+            super.doGet(request, response);
+        } catch (Exception e) {
+            log.error("uncaught", e);
+            throw e;
+        }
     }
-
 }

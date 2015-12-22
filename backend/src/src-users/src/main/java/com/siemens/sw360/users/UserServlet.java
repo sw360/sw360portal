@@ -19,7 +19,7 @@ package com.siemens.sw360.users;
 
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.server.TServlet;
+import com.siemens.sw360.projects.Sw360ThriftServlet;
 
 import java.net.MalformedURLException;
 
@@ -27,8 +27,9 @@ import java.net.MalformedURLException;
  * Thrift Servlet instantiation
  *
  * @author cedric.bodet@tngtech.com
+ * @author Andreas.Reichel@tngtech.com
  */
-public class UserServlet extends TServlet {
+public class UserServlet extends Sw360ThriftServlet {
 
     public UserServlet() throws MalformedURLException {
         // Create a service processor using the provided handler
