@@ -21,6 +21,16 @@
 <%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectState" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.Visibility" %>
 
+<script>
+    $(document).ready(function(){
+        $("#proj_deadline").datepicker({dateFormat: "yy-mm-dd"});
+        $("#proj_systemTestStart").datepicker({dateFormat: "yy-mm-dd"});
+        $("#proj_systemTestEnd").datepicker({dateFormat: "yy-mm-dd"});
+        $("#proj_delivery").datepicker({dateFormat: "yy-mm-dd"});
+        $("#proj_phaseout").datepicker({dateFormat: "yy-mm-dd"});
+    });
+</script>
+
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
 <table class="table info_table" id="ProjectBasicInfo" title="Project Basic Information">
