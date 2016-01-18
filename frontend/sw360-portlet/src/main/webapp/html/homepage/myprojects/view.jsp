@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -43,7 +44,7 @@
         <core_rt:forEach items="${projects}" var="project">
         result.push({
             "DT_RowId": "${project.id}",
-            "0": "<sw360:DisplayProjectLink project="${project}"/>",
+            "0": "<sw360:DisplayProjectLink project="${project}" portletGroupId="${portletGroupId}"/>",
             "1": '<sw360:out value="${project.description}" maxChar="30"/>'
         });
         </core_rt:forEach>

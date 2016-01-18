@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -23,10 +24,6 @@
 <%@ page import="static com.siemens.sw360.portal.common.PortalConstants.KEY_SEARCH_TEXT" %>
 <%@ page import="com.siemens.sw360.datahandler.common.SW360Constants" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.components.ComponentPortlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.licenses.LicensesPortlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.projects.ProjectPortlet" %>
 
 <portlet:renderURL var="edit">
 </portlet:renderURL>
@@ -156,7 +153,7 @@
         result.push({
             "DT_RowId": '${doc.id}',
             "0": '${doc.type}',
-            "1": "<sw360:DisplaySearchResultLink searchResult="${doc}"/>"
+            "1": "<sw360:DisplaySearchResultLink searchResult="${doc}" portletGroupId="${portletGroupId}"/>"
         });
         </core_rt:forEach>
 

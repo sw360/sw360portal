@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -22,13 +23,21 @@ import com.siemens.sw360.portal.tags.OutTag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.PageContext;
 import java.io.IOException;
 
 /**
+ * Tag to create a link to a portlet.
+ * Can link to portlet on different pages (layouts in liferay terminology)
+ * if portletGroupId is set through a parameter in the jsp file.
  * @author daniele.fognini@tngtech.com
  */
 public abstract class DisplayLinkAbstract extends TagSupport {
     public Boolean bare = false;
+    protected Long portletGroupId;
+    public void setPortletGroupId(Long portletGroupId) {
+        this.portletGroupId = portletGroupId;
+    }
 
     @Override
     public int doStartTag() throws JspException {

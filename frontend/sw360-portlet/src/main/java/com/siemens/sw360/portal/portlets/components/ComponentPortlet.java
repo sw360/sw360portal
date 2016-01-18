@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -30,6 +31,7 @@ import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
+import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
@@ -473,6 +475,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             try {
                 ComponentService.Iface client = thriftClients.makeComponentClient();
                 Component component = client.getComponentById(id, user);
+                final Set<License> licenses = new HashSet<>(SW360Utils.getLicenses(component.getMainLicenseIds(), user.getDepartment()));
+                component.setMainLicenses(licenses);
 
                 request.setAttribute(COMPONENT, component);
                 request.setAttribute(DOCUMENT_ID, id);
@@ -523,6 +527,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
             if (!isNullOrEmpty(releaseId)) {
                 release = client.getReleaseById(releaseId, user);
+                final Set<String> licenseNames = new HashSet<>(SW360Utils.getLicenseNamesFromIds(release.getMainLicenseIds(), user.getDepartment()));
+                release.setMainLicenseNames(licenseNames);
 
                 request.setAttribute(RELEASE_ID, releaseId);
                 request.setAttribute(RELEASE, release);

@@ -1,5 +1,6 @@
 <!--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -514,6 +515,12 @@
             <type>com.siemens.sw360.portal.common.page.PortletReleasePage</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>portletGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>ProjectName</name>
@@ -571,6 +578,12 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>portletGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>bare</name>
             <required>false</required>
             <type>java.lang.Boolean</type>
@@ -585,6 +598,18 @@
             <name>licenseId</name>
             <required>true</required>
             <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>scopeGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>portletGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
@@ -617,6 +642,12 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>portletGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>bare</name>
             <required>false</required>
             <type>java.lang.Boolean</type>
@@ -626,6 +657,29 @@
     <tag>
         <name>DisplaySearchResultLink</name>
         <tag-class>com.siemens.sw360.portal.tags.links.DisplayLinkToSearchResult</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>searchResult</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.search.SearchResult</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>portletGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplaySearchResult</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplaySearchResult</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>searchResult</name>

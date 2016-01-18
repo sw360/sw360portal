@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -23,6 +24,7 @@ import com.liferay.taglib.portlet.ResourceURLTag;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.page.PortletPage;
 import com.siemens.sw360.portal.portlets.PortletProperties;
+import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -48,10 +50,10 @@ public class UrlWriterImpl implements UrlWriter {
     }
 
     @Override
-    public UrlWriter toPortlet(PortletProperties portlet) throws JspException {
+    public UrlWriter toPortlet(LinkToPortletConfiguration portlet, Long portletGroupId) throws JspException {
         checkNotDone();
         urlTag.setPortletName(portlet.portletName());
-        urlTag.setPlid(portlet.findPlid());
+        urlTag.setPlid(portlet.findPlid(portletGroupId));
         return this;
     }
 

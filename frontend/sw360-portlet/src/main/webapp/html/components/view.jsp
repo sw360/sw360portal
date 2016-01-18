@@ -243,7 +243,7 @@
             "DT_RowId": "${component.id}",
             "0": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
             "1": "<a href='" + createDetailURLfromComponentId("${component.id}") + "' target='_self'><sw360:out value="${component.name}"/></a>",
-            "2": `<tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}"/>`,
+            "2": `<tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>`,
             "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
             "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
             + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '${component.name}')\"  alt='Delete' title='Delete'>"
