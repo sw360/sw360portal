@@ -46,7 +46,7 @@ public class TestVendorClient {
     }
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085/vendorservice/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080/vendorservice/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         VendorService.Iface client = new VendorService.Client(protocol);
 

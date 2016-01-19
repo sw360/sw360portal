@@ -25,9 +25,9 @@ import com.siemens.sw360.portal.portlets.projects.ProjectPortlet;
  * @author daniele.fognini@tngtech.com
  */
 public enum PortletProperties {
-    COMPONENTS(ComponentPortlet.class,"components_WAR_sw360portlets110SNAPSHOT"),
-    PROJECTS(ProjectPortlet.class, "projects_WAR_sw360portlets110SNAPSHOT"),
-    LICENSES(LicensesPortlet.class,"licenses_WAR_sw360portlets110SNAPSHOT");
+    COMPONENTS(ComponentPortlet.class, "components_WAR_sw360portlet"),
+    PROJECTS(ProjectPortlet.class, "projects_WAR_sw360portlet"),
+    LICENSES(LicensesPortlet.class, "licenses_WAR_sw360portlet");
 
     private final Class<? extends Sw360Portlet> portletClass;
     private final String portletName;

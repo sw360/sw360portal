@@ -27,7 +27,7 @@
 
 
             <tr>
-                <td>
+                <td colspan="2">
                     <core_rt:forEach var="project" items="${usingProjects}">
                         <sw360:DisplayProjectLink project="${project}"/>&nbsp;
                     </core_rt:forEach>
@@ -46,7 +46,7 @@
             </tr>
             </thead>
             <tr>
-                <td>
+                <td colspan="2">
                     <core_rt:forEach var="component" items="${usingComponents}" varStatus="loop">
                         <sw360:DisplayComponentLink component="${component}"/>&nbsp;
                     </core_rt:forEach>

@@ -54,18 +54,6 @@
         <liferay.auto.deploy.dir>
             ${env.LIFERAY_PATH}/deploy
         </liferay.auto.deploy.dir>
-        <liferay.app.server.dir>
-            ${env.LIFERAY_PATH}/tomcat-7.0.42
-        </liferay.app.server.dir>
-        <liferay.app.server.portal.dir>
-            ${liferay.app.server.dir}/webapps/ROOT
-        </liferay.app.server.portal.dir>
-        <liferay.app.server.deploy.dir>
-            ${liferay.app.server.dir}/webapps
-        </liferay.app.server.deploy.dir>
-        <liferay.app.server.lib.global.dir>
-            ${liferay.app.server.dir}/lib
-        </liferay.app.server.lib.global.dir>
         <liferay.maven.plugin.version>${liferay.version}</liferay.maven.plugin.version>
 
         <!-- some mem optimization here -->

@@ -36,7 +36,7 @@ public class TestComponentClient {
     private static final User user = new User().setEmail("cedric.bodet@tngtech.com").setDepartment("AB CD EF");
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085/components/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080/components/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         ComponentService.Iface client = new ComponentService.Client(protocol);
 
