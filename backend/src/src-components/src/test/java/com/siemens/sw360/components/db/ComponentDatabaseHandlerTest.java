@@ -36,10 +36,7 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -470,18 +467,28 @@ public class ComponentDatabaseHandlerTest {
 
     @Test
     public void testGetMyComponents() throws Exception {
+        List<Component> user2components = handler.getMyComponents(email2);
+        List<Component> user1components = handler.getMyComponents(email1);
+
+        assertTrue(componentsContain(user1components, "C1"));
+        assertTrue(componentsContain(user1components, "C3"));
+
+        assertTrue(componentsContain(user2components, "C2"));
+        assertFalse(componentsContain(user2components, "C3"));
+    }
+
+    @Ignore ("This functionality is deactivated due to performance problems. See commit ff0d8f7.")
+    @Test
+    public void testGetMyComponentsReferencedByRelease() throws Exception {
         List<Component> user1components = handler.getMyComponents(email1);
         List<Component> user2components = handler.getMyComponents(email2);
 
         assertEquals(3, user1components.size());
         assertEquals(2, user2components.size());
 
-        assertTrue(componentsContain(user1components, "C1"));
         assertTrue(componentsContain(user1components, "C2"));
-        assertTrue(componentsContain(user1components, "C3"));
 
         assertTrue(componentsContain(user2components, "C1"));
-        assertTrue(componentsContain(user2components, "C2"));
         assertFalse(componentsContain(user2components, "C3"));
     }
 
