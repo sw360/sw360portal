@@ -166,10 +166,7 @@ public class ComponentDatabaseHandler {
         //This call could be sped up, because we want the full documents
         Set<String> myComponentIds = componentRepository.getMyComponentIds(user);
 
-        //! but in general this will be the much larger junk and so we keep it this way
-        Set<String> myComponentIdsFromReleases = releaseRepository.getMyComponentIds(user);
-
-        return componentRepository.makeSummary(SummaryType.HOME, Sets.union(myComponentIds, myComponentIdsFromReleases));
+        return componentRepository.makeSummary(SummaryType.HOME, myComponentIds);
     }
 
     public List<Component> getSummaryForExport() {
