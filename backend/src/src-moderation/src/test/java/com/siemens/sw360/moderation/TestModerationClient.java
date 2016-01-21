@@ -36,7 +36,7 @@ import java.util.List;
 public class TestModerationClient {
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085//moderation/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080//moderation/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         ModerationService.Iface client = new ModerationService.Client(protocol);
 

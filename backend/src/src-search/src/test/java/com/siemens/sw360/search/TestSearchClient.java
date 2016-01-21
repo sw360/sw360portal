@@ -37,7 +37,7 @@ public class TestSearchClient {
     private static final String searchtext = "s*";
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085/search/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080/search/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         SearchService.Iface client = new SearchService.Client(protocol);
 

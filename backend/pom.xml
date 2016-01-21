@@ -105,7 +105,7 @@
             </activation>
             <properties>
                 <tomcat-backend-server>localtomcat</tomcat-backend-server>
-                <tomcat-backend-url>http://localhost:8085/manager/text</tomcat-backend-url>
+                <tomcat-backend-url>http://localhost:8080/manager/text</tomcat-backend-url>
             </properties>
         </profile>
     </profiles>

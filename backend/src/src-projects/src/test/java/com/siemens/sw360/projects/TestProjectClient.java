@@ -33,7 +33,7 @@ import java.io.IOException;
 public class TestProjectClient {
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085/projects/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080/projects/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         ProjectService.Iface client = new ProjectService.Client(protocol);
 

@@ -37,7 +37,7 @@ import java.util.List;
 public class TestLicenseClient {
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085/licenses/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080/licenses/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         LicenseService.Iface client = new LicenseService.Client(protocol);
 

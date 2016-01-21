@@ -33,7 +33,7 @@ import java.io.IOException;
 public class TestAttachmentClient {
 
     public static void main(String[] args) throws TException, IOException {
-        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8085/attachmentservice/thrift");
+        THttpClient thriftClient = new THttpClient("http://127.0.0.1:8080/attachmentservice/thrift");
         TProtocol protocol = new TCompactProtocol(thriftClient);
         AttachmentService.Iface client = new AttachmentService.Client(protocol);
 
