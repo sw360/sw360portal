@@ -528,7 +528,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             if (!isNullOrEmpty(releaseId)) {
                 release = client.getReleaseById(releaseId, user);
                 final Set<String> licenseNames = new HashSet<>(SW360Utils.getLicenseNamesFromIds(release.getMainLicenseIds(), user.getDepartment()));
-                release.setMainLicenseNames(licenseNames);
+                final Set<License> licenses = new HashSet<>(SW360Utils.getLicenses(release.getMainLicenseIds(), user.getDepartment()));
+                release.setMainLicenses(licenses);
 
                 request.setAttribute(RELEASE_ID, releaseId);
                 request.setAttribute(RELEASE, release);
