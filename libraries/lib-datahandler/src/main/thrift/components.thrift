@@ -88,6 +88,7 @@ enum ClearingState {
     SENT_TO_FOSSOLOGY = 1,
     UNDER_CLEARING = 2,
     REPORT_AVAILABLE = 3,
+    APPROVED = 4,
 }
 
 enum MainlineState {
@@ -267,6 +268,7 @@ struct ReleaseClearingStateSummary {
     2: required i32 underClearing,
     3: required i32 underClearingByProjectTeam,
     4: required i32 reportAvailable,
+    5: required i32 approved,
 }
 
 struct ReleaseLink{

@@ -84,7 +84,8 @@ public class ThriftEnumUtils {
             ClearingState.NEW_CLEARING, "New",
             ClearingState.SENT_TO_FOSSOLOGY, "Sent to Fossology",
             ClearingState.UNDER_CLEARING, "Under clearing",
-            ClearingState.REPORT_AVAILABLE, "Report available");
+            ClearingState.REPORT_AVAILABLE, "Report available",
+            ClearingState.APPROVED, "Approved");
 
     private static final ImmutableMap<FossologyStatus, String> MAP_FOSSOLOGY_STATE_STRING = ImmutableMap.<FossologyStatus, String>builder()
             .put(FossologyStatus.CONNECTION_FAILED, "Connection to FOSSology failed")
