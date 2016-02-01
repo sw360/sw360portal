@@ -24,7 +24,7 @@
     <parent>
         <artifactId>backend-svc</artifactId>
         <groupId>com.siemens.sw360</groupId>
-        <version>1.2.0</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>svc-users</artifactId>

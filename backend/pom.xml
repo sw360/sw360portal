@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.siemens.sw360</groupId>
         <artifactId>sw360</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>backend</artifactId>
