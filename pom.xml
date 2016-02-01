@@ -28,6 +28,17 @@
         </license>
     </licenses>
 
+    <scm>
+      <connection>scm:git:https://github.com/siemens/sw360portal</connection>
+    </scm>
+
+    <distributionManagement>
+      <repository>
+        <id>artifact-repository</id>
+        <url>https://github.com/siemens/sw360portal</url>
+      </repository>
+    </distributionManagement>
+
     <properties>
         <java.version>1.8</java.version>
         <liferay.version>6.2.1</liferay.version>
@@ -261,6 +272,19 @@
                 <configuration>
                     <format>html</format>
                 </configuration>
+            </plugin>
+
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>versions-maven-plugin</artifactId>
+              <version>2.2</version>
+            </plugin>
+            <plugin>
+              <artifactId>maven-scm-plugin</artifactId>
+              <version>1.9.4</version>
+              <configuration>
+                <tag>${project.artifactId}-${project.version}</tag>
+              </configuration>
             </plugin>
 
         </plugins>
