@@ -32,6 +32,8 @@ import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
+import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -268,6 +270,9 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     case PROJECT:
                         renderProjectModeration(request, response, moderationRequest, user);
                         break;
+                    case LICENSE:
+                        renderLicenseModeration(request, response, moderationRequest, user);
+                        break;
                 }
                 request.setAttribute(PortalConstants.MODERATION_REQUEST, moderationRequest);
             }
@@ -290,7 +295,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
 
         if (actual_component == null) {
-            renderNextModeration(request, response, user, "Ingored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
+            renderNextModeration(request, response, user, "Ignored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
             return;
         }
 
@@ -345,7 +350,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
 
         if (actual_release == null) {
-            renderNextModeration(request, response, user, "Ingored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
+            renderNextModeration(request, response, user, "Ignored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
             return;
         }
 
@@ -365,7 +370,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         if (requestDocumentDelete && is_used) {
             ModerationService.Iface client = thriftClients.makeModerationClient();
             client.refuseRequest(moderationRequest.getId());
-            renderNextModeration(request, response, user, "Ingored delete of used target", client, moderationRequest);
+            renderNextModeration(request, response, user, "Ignored delete of used target", client, moderationRequest);
             return true;
         }
         return false;
@@ -412,7 +417,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
 
         if (actual_project == null) {
-            renderNextModeration(request, response, user, "Ingored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
+            renderNextModeration(request, response, user, "Ignored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
             return;
         }
 
@@ -444,6 +449,30 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             log.error("Error fetching project from backend!", e);
         }
     }
+
+    public void renderLicenseModeration(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user) throws IOException, PortletException, TException {
+        License actual_license = null;
+        try {
+            LicenseService.Iface client = thriftClients.makeLicenseClient();
+            String organisation = UserCacheHolder.getUserFromRequest(request).getDepartment();
+            actual_license = client.getByID(moderationRequest.getDocumentId(),organisation);
+            request.setAttribute(PortalConstants.ACTUAL_LICENSE, actual_license);
+            List<Obligation> obligations = client.getAllObligations();
+            request.setAttribute(KEY_OBLIGATION_LIST, obligations);
+            request.setAttribute(KEY_LICENSE_DETAIL, actual_license);
+            request.setAttribute(SELECTED_TAB, request.getParameter(SELECTED_TAB));
+        } catch (TException e) {
+            log.error("Could not retrieve license", e);
+        }
+
+        if (actual_license == null) {
+            renderNextModeration(request, response, user, "Ignored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
+            return;
+        }
+
+        include("/html/moderation/licenses/merge.jsp", request, response);
+    }
+
 
     private Map<Integer, Collection<ReleaseLink>> getLinkedReleases(Map<String, String> releaseIdToUsage) {
         return SW360Utils.getLinkedReleases(releaseIdToUsage, thriftClients, log);

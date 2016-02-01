@@ -24,6 +24,7 @@ import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
+import com.siemens.sw360.datahandler.entitlement.LicenseModerator;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
@@ -62,7 +63,7 @@ public class LicenseDatabaseHandler {
     private final RiskRepository riskRepository;
     private final RiskCategoryRepository riskCategoryRepository;
     private final LicenseTypeRepository licenseTypeRepository;
-
+    private final LicenseModerator moderator;
 
     public LicenseDatabaseHandler(String url, String dbName) throws MalformedURLException {
         // Create the connector
@@ -75,6 +76,8 @@ public class LicenseDatabaseHandler {
         riskRepository = new RiskRepository(db);
         riskCategoryRepository = new RiskCategoryRepository(db);
         licenseTypeRepository = new LicenseTypeRepository(db);
+
+        moderator = new LicenseModerator();
     }
 
 
@@ -171,15 +174,25 @@ public class LicenseDatabaseHandler {
         assertNotNull(license);
         assertNotNull(todo);
 
+        List<Todo> Todos = license.getTodos();
+        if (Todos != null){
+            for (Todo todoAlreadyInLicense : Todos) {
+                if (todoAlreadyInLicense.whitelist == null) {
+                    todo.setWhitelist(Collections.emptySet());
+                }
+            }
+        }
+        license.addToTodoDatabaseIds(todoId);
+
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
-            license.addToTodoDatabaseIds(todoId);
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
         } else {
-            return RequestStatus.SENT_TO_MODERATOR; // Only moderators can delete!
+            if(todo.getObligations()==null) {
+                todo.setObligations(Collections.emptyList());
+            }
+            return moderator.updateLicense(license, user); // Only moderators can change licenses!
         }
-
-
     }
 
     /**

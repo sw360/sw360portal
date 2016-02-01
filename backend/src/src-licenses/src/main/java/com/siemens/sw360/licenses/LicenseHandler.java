@@ -246,7 +246,7 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     /**
-     * Add an existing todo do a license
+     * Add an existing todo to a license
      */
     @Override
     public RequestStatus addTodoToLicense(Todo todo, String licenseId, User user) throws TException {

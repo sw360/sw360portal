@@ -27,19 +27,34 @@ import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.DocumentType;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.siemens.sw360.datahandler.thrift.users.UserService;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
+import com.siemens.sw360.licenses.db.LicenseTypeRepository;
+import com.siemens.sw360.licenses.db.TodoRepository;
+import com.siemens.sw360.licenses.db.TodoRepository;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
+
 
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 /**
  * Class for accessing the CouchDB database for the moderation objects
@@ -55,12 +70,16 @@ public class ModerationDatabaseHandler {
      * Connection to the couchDB database
      */
     private final ModerationRequestRepository repository;
+    private final LicenseDatabaseHandler licenseDatabaseHandler;
+    private final DatabaseConnector db;
 
     public ModerationDatabaseHandler(String url, String dbName) throws MalformedURLException {
-        DatabaseConnector db = new DatabaseConnector(url, dbName);
+        db = new DatabaseConnector(url, dbName);
 
         // Create the repository
         repository = new ModerationRequestRepository(db);
+
+        licenseDatabaseHandler = new LicenseDatabaseHandler(url,dbName);
     }
 
     public List<ModerationRequest> getRequestsByModerator(String moderator) {
@@ -72,7 +91,23 @@ public class ModerationDatabaseHandler {
     }
 
     public ModerationRequest getRequest(String requestId) {
-        return repository.get(requestId);
+        ModerationRequest moderationRequest = repository.get(requestId);
+        if(moderationRequest.license != null) {
+            fillLicense(moderationRequest);
+        }
+        return moderationRequest;
+    }
+
+    private void fillLicense(ModerationRequest moderationRequest){
+        License updateLicense = moderationRequest.getLicense();
+        String licenseTypeDatabaseId = updateLicense.getLicenseTypeDatabaseId();
+        if (licenseTypeDatabaseId !=null){
+            updateLicense.setLicenseType((new LicenseTypeRepository(db)).get(licenseTypeDatabaseId));
+        }
+
+        //also fills Todos with obligations
+        updateLicense.setTodos(licenseDatabaseHandler.getTodosByIds(updateLicense.todoDatabaseIds));
+
     }
 
     public List<ModerationRequest> getRequestByDocumentId(String documentId) {
@@ -182,6 +217,29 @@ public class ModerationDatabaseHandler {
 
         // Set the object
         request.setProject(project);
+
+        addOrUpdate(request);
+    }
+
+    public void createRequest(License license, String user, Boolean isDeleteRequest) {
+        // Define moderators
+        List<User> sw360users=Collections.emptyList();
+        try {
+            UserService.Iface client = (new ThriftClients()).makeUserClient();
+            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
+        } catch (TException e) {
+            log.error("Problem with user client", e);
+        }
+
+        Set<String> moderators = sw360users.stream().filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1)).map(user2 -> user2.getEmail()).collect(Collectors.toSet());
+        ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
+
+        // Set meta-data
+        request.setDocumentType(DocumentType.LICENSE);
+        request.setDocumentName(SW360Utils.printName(license));
+
+        // Set the object
+        request.setLicense(license);
 
         addOrUpdate(request);
     }

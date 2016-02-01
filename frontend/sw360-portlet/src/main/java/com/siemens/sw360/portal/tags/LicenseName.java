@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -18,15 +18,15 @@
 package com.siemens.sw360.portal.tags;
 
 import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
+import com.siemens.sw360.datahandler.thrift.licenses.License;
 
 /**
- * This prints a project name and version
+ * This prints a license name and version
  *
- * @author Johannes.Najjar@tngtech.com
+ * @author birgit.heydenreich@tngtech.com
  */
-public class ProjectName extends OutTag {
-    public void setProject(Project project) {
-        this.value = SW360Utils.printName(project);
+public class LicenseName extends OutTag {
+    public void setLicense(License license) {
+        this.value = SW360Utils.printName(license);
     }
 }

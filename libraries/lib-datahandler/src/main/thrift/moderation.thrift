@@ -20,6 +20,7 @@ include "sw360.thrift"
 include "components.thrift"
 include "projects.thrift"
 include "users.thrift"
+include "licenses.thrift"
 
 namespace java com.siemens.sw360.datahandler.thrift.moderation
 namespace php sw360.thrift.moderation
@@ -30,11 +31,13 @@ typedef components.Component Component
 typedef components.Release Release
 typedef projects.Project Project
 typedef users.User User
+typedef licenses.License License
 
 enum DocumentType {
     COMPONENT = 1,
     RELEASE = 2,
     PROJECT = 3,
+    LICENSE = 4,
 }
 
 struct ModerationRequest {
@@ -59,6 +62,7 @@ struct ModerationRequest {
     20: optional Component component,
     21: optional Release Release,
     22: optional Project project,
+    23: optional License license,
 }
 
 service ModerationService {
@@ -67,6 +71,7 @@ service ModerationService {
     oneway void createComponentRequest(1: Component component, 2: User user);
     oneway void createReleaseRequest(1: Release release, 2: User user);
     oneway void createProjectRequest(1: Project project, 2: User user);
+    oneway void createLicenseRequest(1: License license, 2: User user);
 
     // Create a new delete request
     oneway void createComponentDeleteRequest(1: Component component, 2: User user);

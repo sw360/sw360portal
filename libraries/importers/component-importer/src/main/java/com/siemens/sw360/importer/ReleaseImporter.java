@@ -60,7 +60,6 @@ public class ReleaseImporter {
             vendorClient = thriftClients.makeVendorClient();
             attachmentClient = thriftClients.makeAttachmentClient();
             byEmail = thriftClients.makeUserClient().getByEmail("admin@siemens.com");
-
         } catch (TException e) {
             log.error("cannot communicate with backend", e);
             return;

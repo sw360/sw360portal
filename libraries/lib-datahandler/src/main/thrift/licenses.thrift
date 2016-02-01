@@ -45,7 +45,7 @@ struct Todo {
     9: optional set<string> obligationDatabaseIds,
     10: required i32 todoId,
 
-    // These two are a quick fix to recieving boolens in PHP not working at the moment
+    // These two are a quick fix to receiving booleans in PHP not working at the moment
     15: optional string developmentString,
     16: optional string distributionString,
 }

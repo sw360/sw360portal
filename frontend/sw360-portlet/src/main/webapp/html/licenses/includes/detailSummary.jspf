@@ -19,7 +19,7 @@
   <thead><tr><th colspan="2">License Details: ${licenseDetail.fullname} (${licenseDetail.shortname})</th></tr></thead>
   <tr><td>Fullname:</td><td><sw360:out value="${licenseDetail.fullname}"/></td></tr>
   <tr><td>Shortname:</td><td><sw360:out value="${licenseDetail.shortname}"/></td></tr>
-  <tr><td>Type:</td><td><sw360:out value="${licenseDetail.licenseType.type}"/></td></tr>
+  <tr><td>Type:</td><td><sw360:out value="${licenseDetail.licenseType.licenseType}"/></td></tr>
   <%--need nested ifs for the yes no because the values can be undefined--%>
   <tr><td>GPL-2.0 compatibility:</td><td><sw360:DisplayBoolean value="${licenseDetail.GPLv2Compat}" defined="${licenseDetail.setGPLv2Compat}"/></td></tr>
   <tr><td>GPL-3.0 compatibility:</td><td><sw360:DisplayBoolean value="${licenseDetail.GPLv3Compat}" defined="${licenseDetail.setGPLv3Compat}"/></td></tr>

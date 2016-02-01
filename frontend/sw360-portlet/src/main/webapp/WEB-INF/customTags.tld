@@ -361,6 +361,68 @@
     </tag>
 
     <tag>
+        <name>CompareLicense</name>
+        <tag-class>com.siemens.sw360.portal.tags.CompareLicense</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>old</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>update</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>idPrefix</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>tableClasses</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>CompareTodos</name>
+        <tag-class>com.siemens.sw360.portal.tags.CompareTodos</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>old</name>
+            <required>true</required>
+            <type>java.util.List</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>update</name>
+            <required>true</required>
+            <type>java.util.List</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>idPrefix</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>tableClasses</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>CompareAttachments</name>
         <tag-class>com.siemens.sw360.portal.tags.CompareAttachments</tag-class>
         <body-content>empty</body-content>
@@ -475,6 +537,17 @@
             <name>project</name>
             <required>true</required>
             <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>LicenseName</name>
+        <tag-class>com.siemens.sw360.portal.tags.LicenseName</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>license</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

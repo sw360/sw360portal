@@ -143,6 +143,13 @@ public class SW360Utils {
         return getVersionedName(project.getName(), project.getVersion());
     }
 
+    public static String printName(License license) {
+        if (license == null || isNullOrEmpty(license.getShortname())) {
+            return "New License";
+        }
+        return license.getShortname();
+    }
+
     public static List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
         if (in != null) {
             try {

@@ -40,6 +40,7 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.siemens.sw360.portal.common.PortalConstants.*;
@@ -193,6 +194,8 @@ public class LicensesPortlet extends Sw360Portlet {
                 if (obligationId != null && !obligationId.isEmpty())
                     todo.addToObligationDatabaseIds(obligationId);
             }
+        } else {
+            todo.setObligationDatabaseIds(Collections.emptySet());
         }
         todo.setText(todoText);
 
