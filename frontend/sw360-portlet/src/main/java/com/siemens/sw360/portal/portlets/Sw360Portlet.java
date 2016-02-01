@@ -270,6 +270,10 @@ abstract public class Sw360Portlet extends MVCPortlet {
         SessionMessages.add(request, "request_processed", successMsg);
     }
 
+    public void setSessionMessage(PortletRequest request, String successMsg) throws PortletException {
+        SessionMessages.add(request, "request_processed", successMsg);
+    }
+
     public void setSessionMessage(PortletRequest request, RequestStatus requestStatus, String type, String verb) throws PortletException {
         setSessionMessage(request, requestStatus, type, verb, null);
     }

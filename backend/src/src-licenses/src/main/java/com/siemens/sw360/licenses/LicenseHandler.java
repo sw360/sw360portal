@@ -251,7 +251,7 @@ public class LicenseHandler implements LicenseService.Iface {
     @Override
     public RequestStatus addTodoToLicense(Todo todo, String licenseId, User user) throws TException {
         final String todoId = addTodo(todo);
-        assertEmpty(todoId);
+        assertNotEmpty(todoId);
         assertNotEmpty(licenseId);
        return  handler.addTodoToLicense(todoId, licenseId, user);
     }

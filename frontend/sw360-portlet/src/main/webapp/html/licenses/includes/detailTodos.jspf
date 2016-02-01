@@ -41,6 +41,7 @@
                     Obligations
                 </td>
                 <td class="addToWhiteListCheckboxes">Add to white List</td>
+                <td class="addToWhiteListCheckboxesPlaceholder"></td>
             </tr>
             <core_rt:forEach var="todo" varStatus="status" items="${licenseDetail.todos}">
                 <tr class="dependentOnWhiteList"
@@ -66,6 +67,7 @@
                         <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
                                       <core_rt:if test="${not empty todo.whitelist}">checked</core_rt:if> /></label>
                     </td>
+                    <td class="addToWhiteListCheckboxesPlaceholder"></td>
                 </tr>
             </core_rt:forEach>
         </core_rt:if>

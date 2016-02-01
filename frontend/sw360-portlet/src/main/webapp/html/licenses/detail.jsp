@@ -87,12 +87,14 @@
                 ).render();
 
                 Y.all('td.addToWhiteListCheckboxes').hide();
+                Y.all('td.addToWhiteListCheckboxesPlaceholder').show();
             }
 
     );
 
     function showWhiteListOptions() {
         Y.all('td.addToWhiteListCheckboxes').show();
+        Y.all('td.addToWhiteListCheckboxesPlaceholder').hide();
         Y.all('tr.dependentOnWhiteList').show();
         Y.one('#EditWhitelist').hide();
 //        Y.one('#showAddTodoModal').hide();

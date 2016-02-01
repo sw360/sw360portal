@@ -212,7 +212,7 @@ public class LicensesPortlet extends Sw360Portlet {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             RequestStatus requestStatus = client.addTodoToLicense(todo, licenseID, user);
 
-            setSessionMessage(request, requestStatus, "License", "update");
+            setSessionMessage(request, "You do not have the permission to update the license.");
 
         } catch (TException e) {
             log.error("Error updating license details from backend", e);
