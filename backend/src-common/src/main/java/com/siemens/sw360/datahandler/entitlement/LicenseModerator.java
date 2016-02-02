@@ -21,11 +21,14 @@ import com.siemens.sw360.datahandler.common.Moderator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+
+import java.util.List;
 
 /**
  * Moderation for the license service
@@ -51,6 +54,18 @@ public class LicenseModerator extends Moderator {
         try {
             ModerationService.Iface client = thriftClients.makeModerationClient();
             client.createLicenseRequest(license, user);
+            return RequestStatus.SENT_TO_MODERATOR;
+        } catch (TException e) {
+            log.error("Could not moderate license " + license.getId() + " for User " + user.getEmail(), e);
+            return  RequestStatus.FAILURE;
+        }
+    }
+
+    public RequestStatus updateLicense(License license, List<Todo> todos, User user) {
+
+        try {
+            ModerationService.Iface client = thriftClients.makeModerationClient();
+            client.createLicenseRequest(license, todos, user);
             return RequestStatus.SENT_TO_MODERATOR;
         } catch (TException e) {
             log.error("Could not moderate license " + license.getId() + " for User " + user.getEmail(), e);

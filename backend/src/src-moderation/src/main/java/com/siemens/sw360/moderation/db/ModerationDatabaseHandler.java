@@ -105,7 +105,7 @@ public class ModerationDatabaseHandler {
             updateLicense.setLicenseType((new LicenseTypeRepository(db)).get(licenseTypeDatabaseId));
         }
 
-        //also fills Todos with obligations
+        //also fills Todos with obligations and whitelist
         updateLicense.setTodos(licenseDatabaseHandler.getTodosByIds(updateLicense.todoDatabaseIds));
 
     }
@@ -221,17 +221,31 @@ public class ModerationDatabaseHandler {
         addOrUpdate(request);
     }
 
-    public void createRequest(License license, String user, Boolean isDeleteRequest) {
+    public void createRequest(License license, String user, String department, Boolean isDeleteRequest) {
         // Define moderators
         List<User> sw360users=Collections.emptyList();
+
         try {
             UserService.Iface client = (new ThriftClients()).makeUserClient();
             sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
         } catch (TException e) {
             log.error("Problem with user client", e);
         }
-
-        Set<String> moderators = sw360users.stream().filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1)).map(user2 -> user2.getEmail()).collect(Collectors.toSet());
+        //try first clearing admins or admins from same department as user
+        Set<String> moderators = sw360users
+                .stream()
+                .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
+                .filter(user1 -> user1.getDepartment().equals(department))
+                .map(user2 -> user2.getEmail())
+                .collect(Collectors.toSet());
+        //second choice are all clearing admins or admins in SW360
+        if (moderators.size() == 0) {
+            moderators = sw360users
+                    .stream()
+                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
+                    .map(user2 -> user2.getEmail())
+                    .collect(Collectors.toSet());
+        }
         ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
 
         // Set meta-data

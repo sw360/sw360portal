@@ -28,6 +28,7 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Predicates.notNull;
@@ -66,6 +67,14 @@ public class ThriftValidate {
             for (Obligation obligation : todo.getObligations()) {
                 todo.addToObligationDatabaseIds(obligation.getId());
             }
+        }
+
+        if (!todo.isSetObligations()) {
+            todo.setObligations(Collections.emptyList());
+        }
+
+        if (todo.whitelist == null) {
+            todo.setWhitelist(Collections.emptySet());
         }
 
         todo.unsetObligations();

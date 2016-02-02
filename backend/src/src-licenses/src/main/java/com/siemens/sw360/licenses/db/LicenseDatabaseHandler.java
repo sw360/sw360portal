@@ -174,23 +174,12 @@ public class LicenseDatabaseHandler {
         assertNotNull(license);
         assertNotNull(todo);
 
-        List<Todo> Todos = license.getTodos();
-        if (Todos != null){
-            for (Todo todoAlreadyInLicense : Todos) {
-                if (todoAlreadyInLicense.whitelist == null) {
-                    todo.setWhitelist(Collections.emptySet());
-                }
-            }
-        }
         license.addToTodoDatabaseIds(todoId);
 
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
         } else {
-            if(todo.getObligations()==null) {
-                todo.setObligations(Collections.emptyList());
-            }
             return moderator.updateLicense(license, user); // Only moderators can change licenses!
         }
     }
@@ -202,11 +191,10 @@ public class LicenseDatabaseHandler {
         License license = licenseRepository.get(licenseId);
         assertNotNull(license);
 
+        String organisation = user.getDepartment();
+        String bu = SW360Utils.getBUFromOrganisation(organisation);
+
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
-
-            String organisation = user.getDepartment();
-
-            String bu = SW360Utils.getBUFromOrganisation(organisation);
 
             List<Todo> todos = todoRepository.get(license.todoDatabaseIds);
             for (Todo todo : todos) {
@@ -229,7 +217,24 @@ public class LicenseDatabaseHandler {
             }
             return RequestStatus.SUCCESS;
         } else {
-            return RequestStatus.SENT_TO_MODERATOR; // Only moderators can delete!
+            //add updated whitelists to todos in moderation request, not yet in database
+            List<Todo> todos = todoRepository.get(license.todoDatabaseIds);
+            for (Todo todo : todos) {
+                String todoId = todo.getId();
+                Set<String> currentWhitelist = CommonUtils.nullToEmptySet(todo.whitelist);
+
+                // Add to whitelist if necessary
+                if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(bu)) {
+                    todo.addToWhitelist(bu);
+                }
+
+                // Remove from whitelist if necessary
+                if (!whitelistTodos.contains(todoId) && currentWhitelist.contains(bu)) {
+                    currentWhitelist.remove(bu);
+                }
+                // In the other cases, no doBulk necessary
+            }
+            return moderator.updateLicense(license,todos,user); // Only moderators can edit whitelists!
         }
     }
 
@@ -302,7 +307,7 @@ public class LicenseDatabaseHandler {
     }
 
     public RequestStatus updateLicense(License license, User user) {
-        if (PermissionUtils.isAdmin(user)) {
+        if (PermissionUtils.isClearingAdmin(user)) {
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
         }
@@ -533,6 +538,12 @@ public class LicenseDatabaseHandler {
             todo.setDevelopmentString(todo.isDevelopement()?"True":"False");
             todo.setDistributionString(todo.isDistribution()?"True":"False");
             todo.unsetObligationDatabaseIds();
+        }
+
+        for (Todo todo : todos) {
+            if(! todo.isSetWhitelist()){
+                todo.setWhitelist(Collections.emptySet());
+            }
         }
     }
 

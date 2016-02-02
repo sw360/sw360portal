@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import org.apache.thrift.meta_data.FieldMetaData;
 
@@ -31,6 +32,7 @@ import javax.servlet.jsp.JspWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
@@ -136,6 +138,12 @@ public class CompareTodos extends NameSpaceAwareTag {
 
             FieldMetaData fieldMetaData = Todo.metaDataMap.get(field);
             Object fieldValue = todo.getFieldValue(field);
+            if(field.equals(Todo._Fields.OBLIGATIONS) && fieldValue != null){
+                fieldValue =
+                        ((List<Obligation>)fieldValue).stream()
+                        .map(Obligation::getName)
+                        .collect(Collectors.toList());
+            }
             display.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData, fieldValue)));
 
         }

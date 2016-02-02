@@ -107,7 +107,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     moderationRequest.setReviewer(user.getEmail());
                     client.updateModerationRequest(moderationRequest);
 
-                    sessionMessage = "You have postponed the previous moderation request.";
+                    sessionMessage = "You have accepted the previous moderation request.";
                 } else if (ACTION_POSTPONE.equals(request.getParameter(ACTION))) {
                     // keep me assigned but do it later... so nothing to be done here
                     sessionMessage = "You have postponed the previous moderation request.";
@@ -156,6 +156,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                 }
             }
             break;
+            case LICENSE: {
+                LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
+                    licenseClient.updateLicense(moderationRequest.getLicense(), user);
+            }
         }
     }
 

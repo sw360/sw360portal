@@ -4,6 +4,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 
+import java.util.List;
+
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
@@ -52,28 +54,21 @@ public class TagUtils {
         }
 
     }
-
-    // TODO check if the commented out sections can be removed
     public static String getDisplayString(FieldMetaData fieldMetaData, Object fieldValue) {
-        String fieldDisplay;
+        String fieldDisplay = "";
         switch (fieldMetaData.valueMetaData.type) {
-            case org.apache.thrift.protocol.TType.SET:
-//                            instance.setFieldValue(field, CommonUtils.splitToSet(value));
-//                            break;
-            case org.apache.thrift.protocol.TType.ENUM:
-//                            if (!"".equals(value))
-//                                instance.setFieldValue(field, enumFromString(value, field));
-//                            break;
-            case org.apache.thrift.protocol.TType.I32:
-//                            if (!"".equals(value))
-//                                instance.setFieldValue(field, Integer.parseInt(value));
-//                            break;
-            case org.apache.thrift.protocol.TType.BOOL:
-//                            if (!"".equals(value))
-//                                instance.setFieldValue(field, true);
-//                            break;
+            case org.apache.thrift.protocol.TType.LIST:
+                if (fieldValue != null) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<ul>");
+                    for (Object o : ((List<Object>) fieldValue)) {
+                        sb.append("<li>" + o.toString() + "</li>");
+                    }
+                    sb.append("</ul>");
+                    fieldDisplay = sb.toString();
+                }
+                break;
             default:
-
                 fieldDisplay = fieldValue.toString();
         }
         return fieldDisplay;

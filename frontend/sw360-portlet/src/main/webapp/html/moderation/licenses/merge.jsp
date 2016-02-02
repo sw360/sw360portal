@@ -25,6 +25,7 @@
 <%@ page import="com.siemens.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 
 <jsp:useBean id="moderationRequest" class="com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
@@ -57,11 +58,11 @@
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change License:  <sw360:LicenseName license="${license}"/></span>
 </p>
-<%--<input type="button" onclick="acceptDelete()" id="edit" value="Accept Request"    class="acceptButton">&nbsp;
+<input type="button" onclick="acceptDelete()" id="edit" value="Accept Request"    class="acceptButton">&nbsp;
 <input type="button" onclick="removeFromModerators()" id="edit" value="Remove Me from Moderators"    class="ignoreButton">&nbsp;
 <input type="button" onclick="declineDelete()" id="edit" value="Decline Request"    class="addButton">&nbsp;
 <input type="button" onclick="postPone()" id="edit" value="Postpone Request"    class="postponeButton">&nbsp;
-<input type="button" onclick="cancel()" id="edit" value="Cancel"    class="cancelButton">--%>
+<input type="button" onclick="cancel()" id="edit" value="Cancel"    class="cancelButton">
 
 <h2>Proposed changes</h2>
 <h3>Basic fields</h3>
@@ -101,7 +102,7 @@
         Y.one('#SubmitWhitelist').show();
     }
 
-<%-- /*
+
     function getBaseURL(){
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
         var portletURL = Liferay.PortletURL.createURL(baseUrl)
@@ -138,18 +139,6 @@
         window.location = portletURL.toString();
     }
 
-    function deleteAttachment(id1, id2) {
-        alert("You can not delete individual attachments in the moderation, if you accept the request all attachments will be deleted.");
-    }
 
-    function deleteReleaseLink(rowId, linkedRelease){
-        alert("You can not delete individual release links in the moderation, if you accept the request all links (original releases will prevail) will be deleted.");
-    }
-
-    function deleteProjectLink(rowId, linkedProjectId){
-        alert("You can not delete individual project links in the moderation, if you accept the request all links (original projects will prevail) will be deleted.");
-    }
-*/
-    --%>
 </script>
 

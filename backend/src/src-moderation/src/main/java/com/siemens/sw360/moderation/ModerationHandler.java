@@ -83,7 +83,7 @@ public class ModerationHandler implements ModerationService.Iface {
         assertUser(user);
         assertNotNull(license);
 
-        handler.createRequest(license, user.getEmail(), false);
+        handler.createRequest(license, user.getEmail(), user.getDepartment(), false);
     }
 
     @Override
