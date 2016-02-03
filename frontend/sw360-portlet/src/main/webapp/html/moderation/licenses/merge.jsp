@@ -58,9 +58,9 @@
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change License:  <sw360:LicenseName license="${license}"/></span>
 </p>
-<input type="button" onclick="acceptDelete()" id="edit" value="Accept Request"    class="acceptButton">&nbsp;
+<input type="button" onclick="acceptRequest()" id="edit" value="Accept Request"    class="acceptButton">&nbsp;
 <input type="button" onclick="removeFromModerators()" id="edit" value="Remove Me from Moderators"    class="ignoreButton">&nbsp;
-<input type="button" onclick="declineDelete()" id="edit" value="Decline Request"    class="addButton">&nbsp;
+<input type="button" onclick="decline()" id="edit" value="Decline Request"    class="addButton">&nbsp;
 <input type="button" onclick="postPone()" id="edit" value="Postpone Request"    class="postponeButton">&nbsp;
 <input type="button" onclick="cancel()" id="edit" value="Cancel"    class="cancelButton">
 
@@ -114,7 +114,7 @@
     }
 
 
-    function acceptDelete() {
+    function acceptRequest() {
         var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_ACCEPT%>');
         window.location = portletURL.toString();
     }
@@ -124,7 +124,7 @@
         window.location = portletURL.toString();
     }
 
-    function declineDelete() {
+    function decline() {
         var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_DECLINE%>');
         window.location = portletURL.toString();
     }

@@ -92,9 +92,9 @@ public class ModerationDatabaseHandler {
 
     public ModerationRequest getRequest(String requestId) {
         ModerationRequest moderationRequest = repository.get(requestId);
-        if(moderationRequest.license != null) {
-            fillLicense(moderationRequest);
-        }
+        //if(moderationRequest.license != null) {
+          //  fillLicense(moderationRequest);
+        //}
         return moderationRequest;
     }
 
@@ -223,29 +223,7 @@ public class ModerationDatabaseHandler {
 
     public void createRequest(License license, String user, String department, Boolean isDeleteRequest) {
         // Define moderators
-        List<User> sw360users=Collections.emptyList();
-
-        try {
-            UserService.Iface client = (new ThriftClients()).makeUserClient();
-            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
-        } catch (TException e) {
-            log.error("Problem with user client", e);
-        }
-        //try first clearing admins or admins from same department as user
-        Set<String> moderators = sw360users
-                .stream()
-                .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
-                .filter(user1 -> user1.getDepartment().equals(department))
-                .map(user2 -> user2.getEmail())
-                .collect(Collectors.toSet());
-        //second choice are all clearing admins or admins in SW360
-        if (moderators.size() == 0) {
-            moderators = sw360users
-                    .stream()
-                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
-                    .map(user2 -> user2.getEmail())
-                    .collect(Collectors.toSet());
-        }
+        Set<String> moderators = getLicenseModerators(department);
         ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
 
         // Set meta-data
@@ -256,6 +234,50 @@ public class ModerationDatabaseHandler {
         request.setLicense(license);
 
         addOrUpdate(request);
+    }
+
+    public void createRequest(License license, List<Todo> todos, String user, String department, Boolean isDeleteRequest) {
+        // Define moderators
+        Set<String> moderators = getLicenseModerators(department);
+        ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
+
+        // Set meta-data
+        request.setDocumentType(DocumentType.LICENSE);
+        request.setDocumentName(SW360Utils.printName(license));
+
+        //Add todos to license in request
+        license.setTodos(todos);
+
+        // Set the object
+        request.setLicense(license);
+
+        addOrUpdate(request);
+    }
+
+    private Set<String> getLicenseModerators(String department) {
+        List<User> sw360users = Collections.emptyList();
+        try {
+            UserService.Iface client = (new ThriftClients()).makeUserClient();
+            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
+        } catch (TException e) {
+            log.error("Problem with user client", e);
+        }
+        //try first clearing admins or admins from same department
+        Set<String> moderators = sw360users
+                .stream()
+                .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
+                .filter(user1 -> user1.getDepartment().equals(department))
+                .map(User::getEmail)
+                .collect(Collectors.toSet());
+        //second choice are all clearing admins or admins in SW360
+        if (moderators.size() == 0) {
+            moderators = sw360users
+                    .stream()
+                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
+                    .map(User::getEmail)
+                    .collect(Collectors.toSet());
+        }
+        return moderators;
     }
 
     public void addOrUpdate(ModerationRequest request) {

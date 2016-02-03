@@ -25,6 +25,7 @@ import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -79,6 +80,7 @@ public class ModerationHandler implements ModerationService.Iface {
         handler.createRequest(project, user.getEmail(), false);
     }
 
+    @Override
     public void createLicenseRequest(License license, User user) throws TException {
         assertUser(user);
         assertNotNull(license);

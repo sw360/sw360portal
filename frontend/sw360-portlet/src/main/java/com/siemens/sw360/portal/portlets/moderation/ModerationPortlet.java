@@ -98,16 +98,15 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     sessionMessage = "You have cancelled working on the previous moderation request.";
                 } else if (ACTION_DECLINE.equals(request.getParameter(ACTION))) {
                     client.refuseRequest(id);
-
-                    sessionMessage = "You have decline the previous moderation request";
+                    client.deleteRequestsOnDocument(moderationRequest.getDocumentId());
+                    sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
                     acceptModerationRequest(user, moderationRequest);
-
-                    moderationRequest.setModerationState(ModerationState.APPROVED);
-                    moderationRequest.setReviewer(user.getEmail());
-                    client.updateModerationRequest(moderationRequest);
-
+                    //moderationRequest.setModerationState(ModerationState.APPROVED);
+                    //moderationRequest.setReviewer(user.getEmail());
+                    client.deleteRequestsOnDocument(moderationRequest.getDocumentId());
                     sessionMessage = "You have accepted the previous moderation request.";
+
                 } else if (ACTION_POSTPONE.equals(request.getParameter(ACTION))) {
                     // keep me assigned but do it later... so nothing to be done here
                     sessionMessage = "You have postponed the previous moderation request.";

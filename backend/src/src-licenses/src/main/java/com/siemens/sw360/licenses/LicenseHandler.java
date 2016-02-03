@@ -183,7 +183,7 @@ public class LicenseHandler implements LicenseService.Iface {
         assertNotEmpty(id);
         assertNotEmpty(organisation);
 
-        return handler.getLicense(id, organisation);
+        return handler.getLicenseForOrganisation(id, organisation);
     }
 
     @Override
@@ -250,10 +250,10 @@ public class LicenseHandler implements LicenseService.Iface {
      */
     @Override
     public RequestStatus addTodoToLicense(Todo todo, String licenseId, User user) throws TException {
-        final String todoId = addTodo(todo);
-        assertNotEmpty(todoId);
+        //final String todoId = addTodo(todo);
+        //assertNotEmpty(todoId);
         assertNotEmpty(licenseId);
-       return  handler.addTodoToLicense(todoId, licenseId, user);
+       return  handler.addTodoToLicense(todo, licenseId, user);
     }
 
     @Override
@@ -262,11 +262,11 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     @Override
-    public RequestStatus updateWhitelist(String licenceId, Set<String> todoIds, User user) throws TException {
+    public RequestStatus updateWhitelist(String licenceId, Set<String> whitelist, User user) throws TException {
         assertNotEmpty(licenceId);
         assertUser(user);
 
-        return handler.updateWhitelist(licenceId, todoIds, user);
+        return handler.updateWhitelist(licenceId, whitelist, user);
     }
 
 }

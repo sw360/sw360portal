@@ -34,6 +34,9 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.ektorp.DocumentOperationResult;
 import org.jetbrains.annotations.NotNull;
+import org.apache.log4j.Logger;
+import org.omg.PortableServer.LifespanPolicy;
+
 
 import java.net.MalformedURLException;
 import java.util.*;
@@ -65,6 +68,8 @@ public class LicenseDatabaseHandler {
     private final LicenseTypeRepository licenseTypeRepository;
     private final LicenseModerator moderator;
 
+    private final Logger log = Logger.getLogger(LicenseDatabaseHandler.class);
+
     public LicenseDatabaseHandler(String url, String dbName) throws MalformedURLException {
         // Create the connector
         db = new DatabaseConnector(url, dbName);
@@ -78,6 +83,7 @@ public class LicenseDatabaseHandler {
         licenseTypeRepository = new LicenseTypeRepository(db);
 
         moderator = new LicenseModerator();
+
     }
 
 
@@ -118,17 +124,27 @@ public class LicenseDatabaseHandler {
     /**
      * Get license from the database and fill its obligations
      */
-    public License getLicense(String id, String organisation) throws SW360Exception {
+    public License getFilledLicense(String id) throws SW360Exception {
         License license = licenseRepository.get(id);
 
         assertNotNull(license);
 
-        fillLicense(organisation, license);
+        fillLicense(license);
 
         return license;
     }
 
-    private void fillLicense(String organisation, License license) {
+    public License getLicenseForOrganisation(String id, String organisation) throws SW360Exception {
+        License license = licenseRepository.get(id);
+
+        assertNotNull(license);
+
+        fillLicenseForOrganisation(organisation, license);
+
+        return license;
+    }
+
+    private void fillLicenseForOrganisation(String organisation, License license) {
         if (license.isSetTodoDatabaseIds()) {
             license.setTodos(getTodosByIds(license.todoDatabaseIds));
             license.unsetTodoDatabaseIds();
@@ -137,6 +153,26 @@ public class LicenseDatabaseHandler {
         if (license.isSetTodos()) {
             for (Todo todo : license.getTodos()) {
                 todo.setWhitelist(SW360Utils.filterBUSet(organisation, todo.whitelist));
+            }
+        }
+
+        if (license.isSetLicenseTypeDatabaseId()) {
+            final LicenseType licenseType = licenseTypeRepository.get(license.getLicenseTypeDatabaseId());
+            license.setLicenseType(licenseType);
+        }
+
+    }
+
+    private void fillLicense( License license) {
+        if (license.isSetTodoDatabaseIds()) {
+            license.setTodos(getTodosByIds(license.todoDatabaseIds));
+        }
+
+        if (license.isSetTodos()) {
+            for (Todo todo : license.getTodos()) {
+                if(todo.isSetObligationDatabaseIds()) {
+                    todo.setObligations(getObligationsByIds(todo.obligationDatabaseIds));
+                }
             }
         }
 
@@ -166,21 +202,20 @@ public class LicenseDatabaseHandler {
     /**
      * Add todo id to a given license
      */
-    public RequestStatus addTodoToLicense(String todoId, String licenseId, User user) throws SW360Exception {
-        // Get objects from database
-        License license = licenseRepository.get(licenseId);
-        Todo todo = todoRepository.get(todoId);
-
-        assertNotNull(license);
+    public RequestStatus addTodoToLicense(Todo todo, String licenseId, User user) throws SW360Exception {
         assertNotNull(todo);
-
-        license.addToTodoDatabaseIds(todoId);
-
+        License license = licenseRepository.get(licenseId);
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
+            assertNotNull(license);
+            String todoId = addTodo(todo);
+            license.addToTodoDatabaseIds(todoId);
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
         } else {
-            return moderator.updateLicense(license, user); // Only moderators can change licenses!
+            License licenseForModerationRequest = getFilledLicense(licenseId);
+            assertNotNull(license);
+            licenseForModerationRequest.addToTodos(todo);
+            return moderator.updateLicense(licenseForModerationRequest, user); // Only moderators can change licenses!
         }
     }
 
@@ -218,7 +253,8 @@ public class LicenseDatabaseHandler {
             return RequestStatus.SUCCESS;
         } else {
             //add updated whitelists to todos in moderation request, not yet in database
-            List<Todo> todos = todoRepository.get(license.todoDatabaseIds);
+            License licenseForModerationRequest = getFilledLicense(licenseId);
+            List<Todo> todos = licenseForModerationRequest.getTodos();
             for (Todo todo : todos) {
                 String todoId = todo.getId();
                 Set<String> currentWhitelist = CommonUtils.nullToEmptySet(todo.whitelist);
@@ -234,7 +270,7 @@ public class LicenseDatabaseHandler {
                 }
                 // In the other cases, no doBulk necessary
             }
-            return moderator.updateLicense(license,todos,user); // Only moderators can edit whitelists!
+            return moderator.updateLicense(licenseForModerationRequest, user); // Only moderators can edit whitelists!
         }
     }
 
@@ -308,6 +344,19 @@ public class LicenseDatabaseHandler {
 
     public RequestStatus updateLicense(License license, User user) {
         if (PermissionUtils.isClearingAdmin(user)) {
+            for(Todo todo: license.getTodos()) {
+                try {
+                    if(!todo.isSetId()) {
+                        String todoDatabaseId = addTodo(todo);
+                        license.addToTodoDatabaseIds(todoDatabaseId);
+                    } else {
+                        todoRepository.update(todo);
+                    }
+                } catch (SW360Exception e) {
+                    log.error("Error preparing todo or adding todo to database");
+                }
+            }
+            license.unsetTodos();
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
         }

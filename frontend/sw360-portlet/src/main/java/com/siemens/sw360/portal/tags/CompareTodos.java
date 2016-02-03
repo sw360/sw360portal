@@ -175,14 +175,15 @@ public class CompareTodos extends NameSpaceAwareTag {
 
             FieldMetaData fieldMetaData = Todo.metaDataMap.get(field);
             displaySimpleField(display, old, update, field,
-                    fieldMetaData, idPrefix);
+                        fieldMetaData, idPrefix);
+
         }
         display.append("</tbody></table>");
     }
 
 
     private static Map<String, Todo> getTodosById(List<Todo> currentTodos) {
-        return Maps.uniqueIndex(currentTodos, input -> input.getId());
+        return Maps.uniqueIndex(currentTodos, input -> input.getId()!=null ? input.getId() : "new");
     }
 
     private static boolean isFieldRelevant(Todo._Fields field) {

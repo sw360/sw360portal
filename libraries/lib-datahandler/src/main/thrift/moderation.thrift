@@ -32,6 +32,7 @@ typedef components.Release Release
 typedef projects.Project Project
 typedef users.User User
 typedef licenses.License License
+typedef licenses.Todo Todo
 
 enum DocumentType {
     COMPONENT = 1,

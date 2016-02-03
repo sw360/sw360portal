@@ -60,16 +60,4 @@ public class LicenseModerator extends Moderator {
             return  RequestStatus.FAILURE;
         }
     }
-
-    public RequestStatus updateLicense(License license, List<Todo> todos, User user) {
-
-        try {
-            ModerationService.Iface client = thriftClients.makeModerationClient();
-            client.createLicenseRequest(license, todos, user);
-            return RequestStatus.SENT_TO_MODERATOR;
-        } catch (TException e) {
-            log.error("Could not moderate license " + license.getId() + " for User " + user.getEmail(), e);
-            return  RequestStatus.FAILURE;
-        }
-    }
 }
