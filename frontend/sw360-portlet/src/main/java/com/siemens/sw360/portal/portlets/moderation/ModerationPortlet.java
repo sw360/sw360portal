@@ -51,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
@@ -98,15 +99,16 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     sessionMessage = "You have cancelled working on the previous moderation request.";
                 } else if (ACTION_DECLINE.equals(request.getParameter(ACTION))) {
                     client.refuseRequest(id);
-                    client.deleteRequestsOnDocument(moderationRequest.getDocumentId());
+
                     sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
                     acceptModerationRequest(user, moderationRequest);
-                    //moderationRequest.setModerationState(ModerationState.APPROVED);
-                    //moderationRequest.setReviewer(user.getEmail());
-                    client.deleteRequestsOnDocument(moderationRequest.getDocumentId());
-                    sessionMessage = "You have accepted the previous moderation request.";
 
+                    moderationRequest.setModerationState(ModerationState.APPROVED);
+                    moderationRequest.setReviewer(user.getEmail());
+                    client.updateModerationRequest(moderationRequest);
+
+                    sessionMessage = "You have accepted the previous moderation request.";
                 } else if (ACTION_POSTPONE.equals(request.getParameter(ACTION))) {
                     // keep me assigned but do it later... so nothing to be done here
                     sessionMessage = "You have postponed the previous moderation request.";
@@ -170,31 +172,26 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
 
         List<ModerationRequest> requestsByModerator = client.getRequestsByModerator(user);
-        ImmutableList<ModerationRequest> openModerationRequests = FluentIterable.from(requestsByModerator).filter(new Predicate<ModerationRequest>() {
-            @Override
-            public boolean apply(ModerationRequest input) {
-                return ModerationState.PENDING.equals(input.getModerationState());
-            }
-        }).toList();
+        List<ModerationRequest> openModerationRequests = requestsByModerator
+                .stream()
+                .filter(input-> ModerationState.PENDING.equals(input.getModerationState()))
+                .collect(Collectors.toList());
+
         Collections.sort(openModerationRequests, compareByTimeStamp());
 
         int nextIndex = openModerationRequests.indexOf(moderationRequest) + 1;
         if (nextIndex < openModerationRequests.size()) {
-            sessionMessage += " You have assigned yourself to this moderation request.";
-            SessionMessages.add(request, "request_processed", sessionMessage);
             renderEditViewForId(request, response, openModerationRequests.get(nextIndex).getId());
         } else {
-            FluentIterable<ModerationRequest> requestsInProgressAndAssignedToMe = FluentIterable.from(requestsByModerator).filter(new Predicate<ModerationRequest>() {
-                @Override
-                public boolean apply(ModerationRequest input) {
-                    return ModerationState.INPROGRESS.equals(input.getModerationState()) && user.getEmail().equals(input.getReviewer());
-                }
-            });
+            List<ModerationRequest> requestsInProgressAndAssignedToMe = requestsByModerator
+                    .stream()
+                    .filter(input-> ModerationState.INPROGRESS.equals(input.getModerationState()) && user.getEmail().equals(input.getReviewer()))
+                    .collect(Collectors.toList());
 
-            if (requestsInProgressAndAssignedToMe.first().isPresent()) {
+            if (requestsInProgressAndAssignedToMe.size()>0) {
                 sessionMessage += " You have returned to your first open request.";
                 SessionMessages.add(request, "request_processed", sessionMessage);
-                renderEditViewForId(request, response, Collections.min(requestsInProgressAndAssignedToMe.toList(), compareByTimeStamp()).getId());
+                renderEditViewForId(request, response, Collections.min(requestsInProgressAndAssignedToMe, compareByTimeStamp()).getId());
             } else {
                 sessionMessage += " You have no open Requests.";
                 SessionMessages.add(request, "request_processed", sessionMessage);
@@ -237,8 +234,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
     public void renderEditView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         String id = request.getParameter(MODERATION_ID);
-        SessionMessages.add(request, "request_processed", "You have assigned yourself to this moderation request.");
-
         try {
             renderEditViewForId(request, response, id);
         } catch (TException e) {
@@ -254,7 +249,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
                 ModerationService.Iface client = thriftClients.makeModerationClient();
                 moderationRequest = client.getModerationRequestById(id);
-                client.setInProgress(id, user);
+                if(moderationRequest.getModerationState().equals(ModerationState.PENDING) || moderationRequest.getModerationState().equals(ModerationState.INPROGRESS)) {
+                    SessionMessages.add(request, "request_processed", "You have assigned yourself to this moderation request.");
+                    client.setInProgress(id, user);
+                }
                 request.setAttribute(MODERATION_REQUEST, moderationRequest);
                 addModerationBreadcrumb(request, response, moderationRequest);
 
@@ -458,7 +456,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             String organisation = UserCacheHolder.getUserFromRequest(request).getDepartment();
-            actual_license = client.getByID(moderationRequest.getDocumentId(),organisation);
+            actual_license = client.getFilledByID(moderationRequest.getDocumentId());
             request.setAttribute(PortalConstants.ACTUAL_LICENSE, actual_license);
             List<Obligation> obligations = client.getAllObligations();
             request.setAttribute(KEY_OBLIGATION_LIST, obligations);

@@ -187,6 +187,21 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     @Override
+    public License getByIDWithOwnModerationRequests(String id, String organisation, User user) throws TException {
+        assertNotEmpty(id);
+        assertNotEmpty(organisation);
+        assertUser(user);
+
+        return handler.getLicenseForOrganisationWithOwnModerationRequests(id, organisation, user);
+    }
+    @Override
+    public License getFilledByID(String id) throws TException {
+        assertNotEmpty(id);
+
+        return handler.getFilledLicense(id);
+    }
+
+    @Override
     public License getFromID(String id) throws TException {
         assertNotEmpty(id);
         return handler.getById(id);

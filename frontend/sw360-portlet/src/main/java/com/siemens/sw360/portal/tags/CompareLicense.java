@@ -87,6 +87,7 @@ public class CompareLicense extends NameSpaceAwareTag {
                     case PERMISSIONS:
                     case TODO_DATABASE_IDS:
                     case RISK_DATABASE_IDS:
+                    case DOCUMENT_STATE:
 
                     //taken care of externally
                     case TODOS:

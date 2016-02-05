@@ -708,7 +708,8 @@ public class ComponentDatabaseHandler {
 
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
-            if (moderationRequestOptional.isPresent()) {
+            if (moderationRequestOptional.isPresent()
+                    && (moderationRequestOptional.get().getModerationState().equals(ModerationState.INPROGRESS)|| moderationRequestOptional.get().getModerationState().equals(ModerationState.PENDING))) {
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 component = moderationRequest.getComponent();
@@ -739,7 +740,8 @@ public class ComponentDatabaseHandler {
         } else {
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
-            if (moderationRequestOptional.isPresent()) {
+            if (moderationRequestOptional.isPresent()
+                    && (moderationRequestOptional.get().getModerationState().equals(ModerationState.INPROGRESS)|| moderationRequestOptional.get().getModerationState().equals(ModerationState.PENDING))) {
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 release = moderationRequest.getRelease();

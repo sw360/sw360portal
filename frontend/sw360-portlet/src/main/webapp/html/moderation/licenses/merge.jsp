@@ -58,6 +58,7 @@
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change License:  <sw360:LicenseName license="${license}"/></span>
 </p>
+
 <input type="button" onclick="acceptRequest()" id="edit" value="Accept Request"    class="acceptButton">&nbsp;
 <input type="button" onclick="removeFromModerators()" id="edit" value="Remove Me from Moderators"    class="ignoreButton">&nbsp;
 <input type="button" onclick="decline()" id="edit" value="Decline Request"    class="addButton">&nbsp;

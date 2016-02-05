@@ -22,11 +22,13 @@ import com.google.common.collect.ImmutableSet;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
+import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
 import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
+import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.exporter.LicenseExporter;
 import com.siemens.sw360.portal.common.PortalConstants;
@@ -36,13 +38,13 @@ import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
+import java.util.*;
+
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 
 /**
@@ -94,13 +96,31 @@ public class LicensesPortlet extends Sw360Portlet {
                 try {
                     LicenseService.Iface client = thriftClients.makeLicenseClient();
                     License license = client.getByID(id, user.getDepartment());
+
+
+                    License moderationLicense = client.getByIDWithOwnModerationRequests(id, user.getDepartment(), user);
+                    if(moderationLicense !=null) {
+                        List<Todo> addedTodos = moderationLicense.getTodos();
+                        if (addedTodos != null) {
+                            addedTodos = addedTodos
+                                    .stream()
+                                    .filter(todo -> todo.id.startsWith("tmp"))
+                                    .collect(Collectors.toList());
+                        }
+                        request.setAttribute(TODOS_FROM_MODERATION_REQUEST, nullToEmptyList(addedTodos));
+                        DocumentState documentState = moderationLicense.getDocumentState();
+                        Map<RequestedAction, Boolean> permissions = moderationLicense.getPermissions();
+                        addEditDocumentMessage(request, permissions, documentState);
+                    }
                     request.setAttribute(KEY_LICENSE_DETAIL, license);
+
                     List<Obligation> obligations = client.getAllObligations();
                     request.setAttribute(KEY_OBLIGATION_LIST, obligations);
 
                     request.setAttribute(SELECTED_TAB, request.getParameter(SELECTED_TAB));
 
                     addLicenseBreadcrumb(request, response, license);
+
                 } catch (TException e) {
                     log.error("Error fetching license details from backend", e);
                 }
@@ -188,7 +208,8 @@ public class LicensesPortlet extends Sw360Portlet {
 
 
         Todo todo = new Todo();
-
+        //add temporary id
+        todo.setId("tmp"+UUID.randomUUID().toString());
         if (obligationIds != null) {
             for (String obligationId : obligationIds) {
                 if (obligationId != null && !obligationId.isEmpty())

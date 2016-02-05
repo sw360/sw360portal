@@ -70,6 +70,7 @@ public class PortalConstants {
     public static final String LICENSE_TEXT = "licenseText";
     public static final String LICENSE_LIST = "licenseList";
     public static final String ACTUAL_LICENSE = "actual_license";
+    public static final String TODOS_FROM_MODERATION_REQUEST = "todos_from_moderation_request";
 
     //! Specialized keys for moderation
     public static final String MODERATION_ID = "moderationId";

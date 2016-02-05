@@ -104,9 +104,8 @@ public class CompareTodos extends NameSpaceAwareTag {
 
         Set<String> commonTodoIds = Sets.intersection(currentTodoIds, updateTodoIds);
 
-        renderTodoList(display, currentTodoById, deletedTodoIds, "Deleted");
         renderTodoList(display, updateTodoById, addedTodoIds, "Added");
-        renderTodoComparison(display, currentTodoById, updateTodoById, commonTodoIds);
+        renderWhitelistChanges(display, currentTodoById, updateTodoById, commonTodoIds);
 
 
     }
@@ -150,7 +149,7 @@ public class CompareTodos extends NameSpaceAwareTag {
         display.append("</tr>");
     }
 
-    private void renderTodoComparison(StringBuilder display, Map<String, Todo> currentTodoById, Map<String, Todo> updateTodoById, Set<String> commonTodoIds) {
+    private void renderWhitelistChanges(StringBuilder display, Map<String, Todo> currentTodoById, Map<String, Todo> updateTodoById, Set<String> commonTodoIds) {
         if (commonTodoIds.isEmpty()) return;
 
         StringBuilder candidate = new StringBuilder();
@@ -166,24 +165,20 @@ public class CompareTodos extends NameSpaceAwareTag {
 
     private void renderCompareTodo(StringBuilder display, Todo old, Todo update) {
 
-        if (old.equals(update)) return;
+        if(old.whitelist.size() == update.whitelist.size()) return;
         display.append(String.format("<table class=\"%s\" id=\"%schanges%s\" >", tableClasses, idPrefix, old.getId()));
-        display.append(String.format("<thead><tr><th colspan=\"3\"> Changes for Todo %s </th></tr>", old.getId()));
-        display.append(String.format("<tr><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>", FIELD_NAME, CURRENT_VAL, SUGGESTED_VAL));
-
-        for (Todo._Fields field : RELEVANT_FIELDS) {
-
-            FieldMetaData fieldMetaData = Todo.metaDataMap.get(field);
-            displaySimpleField(display, old, update, field,
-                        fieldMetaData, idPrefix);
-
+        display.append(String.format("<thead><tr><th colspan=\"3\"> Changes for Todo %140.140s %s</th></tr>", "\""+old.getText(),"\""));
+        if(update.whitelist.size()==1){
+            display.append(String.format("<tr><td colspan=\"3\">%s</td></tr>","Add to whitelist of department of requesting user."));
+        } else if(update.whitelist.size()==0){
+            display.append(String.format("<tr><td colspan=\"3\">%s</td></tr>","Remove from whitelist of department of requesting user."));
         }
         display.append("</tbody></table>");
     }
 
 
     private static Map<String, Todo> getTodosById(List<Todo> currentTodos) {
-        return Maps.uniqueIndex(currentTodos, input -> input.getId()!=null ? input.getId() : "new");
+        return Maps.uniqueIndex(currentTodos, input -> input.getId());
     }
 
     private static boolean isFieldRelevant(Todo._Fields field) {

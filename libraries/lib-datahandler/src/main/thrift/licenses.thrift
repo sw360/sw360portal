@@ -24,6 +24,7 @@ namespace php sw360.thrift.licenses
 typedef users.User User
 typedef users.RequestedAction RequestedAction
 typedef sw360.RequestStatus RequestStatus
+typedef sw360.DocumentState DocumentState
 
 struct Obligation {
 	1: optional string id,
@@ -91,9 +92,11 @@ struct License {
     21: optional set<string> todoDatabaseIds,
 	22: optional list<Risk> risks,
 	23: optional set<string> riskDatabaseIds,
-    25: optional string text;
+    25: optional string text,
 
-	200: optional map<RequestedAction, bool> permissions
+    90: optional DocumentState documentState,
+
+	200: optional map<RequestedAction, bool> permissions,
 }
 
 service LicenseService {
@@ -107,6 +110,10 @@ service LicenseService {
     License getFromID(1:string id);
     // Get a single license by providing its ID, with todos filtered for the given organisation
     License getByID(1:string id, 2: string organisation);
+    License getByIDWithOwnModerationRequests(1:string id, 2: string organisation, 3: User user);
+    //Get a single license by providing its ID, filled with all todos, obligations and licenseType
+    License getFilledByID(1:string id);
+
     list<License> getByIds(1:set<string> ids, 2: string organisation);
 
     // Add a new todo object

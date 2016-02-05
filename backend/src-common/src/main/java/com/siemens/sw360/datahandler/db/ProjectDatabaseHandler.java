@@ -27,10 +27,7 @@ import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
-import com.siemens.sw360.datahandler.thrift.DocumentState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
+import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
@@ -247,7 +244,8 @@ public class ProjectDatabaseHandler {
         } else {
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
-            if (moderationRequestOptional.isPresent()) {
+            if (moderationRequestOptional.isPresent()
+                    && (moderationRequestOptional.get().getModerationState().equals(ModerationState.INPROGRESS)|| moderationRequestOptional.get().getModerationState().equals(ModerationState.PENDING))) {
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 project = moderationRequest.getProject();
