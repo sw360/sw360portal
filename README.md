@@ -57,10 +57,6 @@ The software is tested with
 * Tested with windows 7 SP1, ubuntu 14.04, macosx 10.8, 10.9 10.10
 * We run Liferay with PostgreSQL 9.3, but HSQL (as of the bundle) runs also OK.
 
-Please note that there are PROBLEMS with
-
-t.b.d. (no known problems at this time)
-
 ### Deployment
 
 There is a vagrant project for one-step-deployment. See the project wiki for details.
