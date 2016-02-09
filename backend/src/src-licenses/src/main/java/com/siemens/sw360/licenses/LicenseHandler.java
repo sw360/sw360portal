@@ -272,8 +272,8 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     @Override
-    public RequestStatus updateLicense(License license, User user) throws TException {
-        return handler.updateLicense(license, user);
+    public RequestStatus updateLicense(License license, User user, User requestingUser) throws TException {
+        return handler.updateLicense(license, user, requestingUser);
     }
 
     @Override

@@ -102,7 +102,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
                     sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
-                    acceptModerationRequest(user, moderationRequest);
+                    acceptModerationRequest(user, UserCacheHolder.getUserFromEmail(moderationRequest.getRequestingUser()), moderationRequest);
 
                     moderationRequest.setModerationState(ModerationState.APPROVED);
                     moderationRequest.setReviewer(user.getEmail());
@@ -128,7 +128,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void acceptModerationRequest(User user, ModerationRequest moderationRequest) throws TException {
+    private void acceptModerationRequest(User user, User requestingUser, ModerationRequest moderationRequest) throws TException {
         switch (moderationRequest.getDocumentType()) {
             case COMPONENT: {
                 ComponentService.Iface componentClient = thriftClients.makeComponentClient();
@@ -159,7 +159,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             break;
             case LICENSE: {
                 LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
-                    licenseClient.updateLicense(moderationRequest.getLicense(), user);
+                    licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
             }
         }
     }
@@ -453,10 +453,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
     public void renderLicenseModeration(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user) throws IOException, PortletException, TException {
         License actual_license = null;
+        User requestingUser = UserCacheHolder.getUserFromEmail(moderationRequest.getRequestingUser());
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
-            String organisation = UserCacheHolder.getUserFromRequest(request).getDepartment();
-            actual_license = client.getFilledByID(moderationRequest.getDocumentId());
+            actual_license = client.getByID(moderationRequest.getDocumentId(),requestingUser.getDepartment());
             request.setAttribute(PortalConstants.ACTUAL_LICENSE, actual_license);
             List<Obligation> obligations = client.getAllObligations();
             request.setAttribute(KEY_OBLIGATION_LIST, obligations);

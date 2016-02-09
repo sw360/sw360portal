@@ -105,7 +105,8 @@ public class CompareTodos extends NameSpaceAwareTag {
         Set<String> commonTodoIds = Sets.intersection(currentTodoIds, updateTodoIds);
 
         renderTodoList(display, updateTodoById, addedTodoIds, "Added");
-        renderWhitelistChanges(display, currentTodoById, updateTodoById, commonTodoIds);
+        renderTodoList(display, currentTodoById, updateTodoById, commonTodoIds, "Changed");
+        //renderWhitelistChanges(display, currentTodoById, updateTodoById, commonTodoIds);
 
 
     }
@@ -117,6 +118,19 @@ public class CompareTodos extends NameSpaceAwareTag {
         renderTodoRowHeader(display, msg);
         for (String deletedTodoId : todoIds) {
             renderTodoRow(display, allTodos.get(deletedTodoId));
+        }
+
+        display.append("</table>");
+    }
+
+    private void renderTodoList(StringBuilder display, Map<String, Todo> currentTodoById, Map<String ,Todo> updateTodoById, Set<String> commonTodoIds, String msg) {
+        if (commonTodoIds.isEmpty()) return;
+        display.append(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
+        display.append(String.format("<thead><tr><th colspan=\"2\"> %s Todos: </th></tr><tr>", msg));
+        display.append(String.format("<th>%s</th>", "Text"));
+        display.append(String.format("<th>%s</th>", "Requested Action"));
+        for (String todoId : commonTodoIds) {
+            renderTodoRow(display, currentTodoById.get(todoId),updateTodoById.get(todoId));
         }
 
         display.append("</table>");
@@ -149,6 +163,18 @@ public class CompareTodos extends NameSpaceAwareTag {
         display.append("</tr>");
     }
 
+    private static void renderTodoRow(StringBuilder display, Todo old, Todo update) {
+        display.append("<tr>");
+        if(old.whitelist.size() == update.whitelist.size()) return;
+            display.append(String.format("<td>%s</td>", old.getText()));
+        if(update.whitelist.size()==1){
+            display.append(String.format("<td>%s</td>", "Add to whitelist of department of requesting user."));
+        } else if(update.whitelist.size()==0){
+            display.append(String.format("<td>%s</td>", "Remove from whitelist of department of requesting user."));
+        }
+        display.append("</tr>");
+    }
+
     private void renderWhitelistChanges(StringBuilder display, Map<String, Todo> currentTodoById, Map<String, Todo> updateTodoById, Set<String> commonTodoIds) {
         if (commonTodoIds.isEmpty()) return;
 
@@ -158,7 +184,6 @@ public class CompareTodos extends NameSpaceAwareTag {
         }
         String changedTodoTable = candidate.toString();
         if (!changedTodoTable.isEmpty()) {
-            display.append("<h4>Changed TODOs</h4>");
             display.append(changedTodoTable);
         }
     }
@@ -167,7 +192,8 @@ public class CompareTodos extends NameSpaceAwareTag {
 
         if(old.whitelist.size() == update.whitelist.size()) return;
         display.append(String.format("<table class=\"%s\" id=\"%schanges%s\" >", tableClasses, idPrefix, old.getId()));
-        display.append(String.format("<thead><tr><th colspan=\"3\"> Changes for Todo %140.140s %s</th></tr>", "\""+old.getText(),"\""));
+        display.append(String.format("<thead><tr><th colspan=\"3\"> Changes for Todo:</th></tr></thead>"));
+        display.append(String.format("<thead><tr><td colspan=\"3\">%s</td></tr></thead>", "\""+old.getText()+"\""));
         if(update.whitelist.size()==1){
             display.append(String.format("<tr><td colspan=\"3\">%s</td></tr>","Add to whitelist of department of requesting user."));
         } else if(update.whitelist.size()==0){

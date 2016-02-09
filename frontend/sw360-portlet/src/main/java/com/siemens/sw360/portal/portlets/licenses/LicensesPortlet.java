@@ -95,31 +95,37 @@ public class LicensesPortlet extends Sw360Portlet {
             if (id != null) {
                 try {
                     LicenseService.Iface client = thriftClients.makeLicenseClient();
-                    License license = client.getByID(id, user.getDepartment());
-
-
                     License moderationLicense = client.getByIDWithOwnModerationRequests(id, user.getDepartment(), user);
-                    if(moderationLicense !=null) {
-                        List<Todo> addedTodos = moderationLicense.getTodos();
-                        if (addedTodos != null) {
-                            addedTodos = addedTodos
-                                    .stream()
-                                    .filter(todo -> todo.id.startsWith("tmp"))
-                                    .collect(Collectors.toList());
-                        }
-                        request.setAttribute(TODOS_FROM_MODERATION_REQUEST, nullToEmptyList(addedTodos));
-                        DocumentState documentState = moderationLicense.getDocumentState();
-                        Map<RequestedAction, Boolean> permissions = moderationLicense.getPermissions();
-                        addEditDocumentMessage(request, permissions, documentState);
+
+                    List<Todo> addedTodos = moderationLicense.getTodos();
+                    List<Todo> currentTodos = moderationLicense.getTodos();
+                    if (addedTodos != null) {
+                        addedTodos = addedTodos
+                                .stream()
+                                .filter(todo -> todo.id.startsWith("tmp"))
+                                .collect(Collectors.toList());
+                        currentTodos =  currentTodos
+                                .stream()
+                                .filter(todo -> !todo.id.startsWith("tmp"))
+                                .collect(Collectors.toList());
                     }
-                    request.setAttribute(KEY_LICENSE_DETAIL, license);
+                    request.setAttribute(ADDED_TODOS_FROM_MODERATION_REQUEST, nullToEmptyList(addedTodos));
+                    request.setAttribute(DB_TODOS_FROM_MODERATION_REQUEST,nullToEmptyList(currentTodos));
+                    DocumentState documentState = moderationLicense.getDocumentState();
+                    Map<RequestedAction, Boolean> permissions = moderationLicense.getPermissions();
+                    addEditDocumentMessage(request, permissions, documentState);
+
+                    request.setAttribute(MODERATION_LICENSE_DETAIL, moderationLicense);
+
+                    License dbLicense = client.getByID(id, user.getDepartment());
+                    request.setAttribute(KEY_LICENSE_DETAIL, dbLicense);
 
                     List<Obligation> obligations = client.getAllObligations();
                     request.setAttribute(KEY_OBLIGATION_LIST, obligations);
 
                     request.setAttribute(SELECTED_TAB, request.getParameter(SELECTED_TAB));
 
-                    addLicenseBreadcrumb(request, response, license);
+                    addLicenseBreadcrumb(request, response, moderationLicense);
 
                 } catch (TException e) {
                     log.error("Error fetching license details from backend", e);
@@ -187,7 +193,7 @@ public class LicensesPortlet extends Sw360Portlet {
                 final License license = client.getFromID(licenseId);
 
                 license.setText(CommonUtils.nullToEmptyString(text));
-                final RequestStatus requestStatus = client.updateLicense(license, user);
+                final RequestStatus requestStatus = client.updateLicense(license, user, user);
 
                 renderRequestStatus(request,response,requestStatus);
             } catch (TException e) {

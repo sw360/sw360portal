@@ -121,7 +121,7 @@ service LicenseService {
     // Add an existing todo do a license
     RequestStatus addTodoToLicense(1: Todo todo, 2: string licenseId, 3: User user);
 
-    RequestStatus updateLicense(1: License license, 2: User user);
+    RequestStatus updateLicense(1: License license, 2: User user, 3: User requestingUser);
     // Update the whitelisted todos for an organisation
     RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);
 

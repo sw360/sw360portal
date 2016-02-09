@@ -23,7 +23,9 @@
 
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
 <jsp:useBean id="licenseDetail" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request" />
-<jsp:useBean id="todos_from_moderation_request" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Todo>" scope="request" />
+<jsp:useBean id="moderationLicenseDetail" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request" />
+<jsp:useBean id="added_todos_from_moderation_request" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Todo>" scope="request" />
+<jsp:useBean id="db_todos_from_moderation_request" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Todo>" scope="request" />
 <jsp:useBean id="isAdminUser" class="java.lang.String" scope="request" />
 <jsp:useBean id="obligationList" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Obligation>"
              scope="request"/>
@@ -56,21 +58,13 @@
                             type: 'tab'
                         }
                 ).render();
-
-                Y.all('td.addToWhiteListCheckboxes').hide();
-                Y.all('td.addToWhiteListCheckboxesPlaceholder').show();
             }
 
     );
 
     function showWhiteListOptions() {
-        Y.all('td.addToWhiteListCheckboxes').show();
-        Y.all('td.addToWhiteListCheckboxesPlaceholder').hide();
-        Y.all('tr.dependentOnWhiteList').show();
-        Y.all('tr.todosFromModerationRequest').show();
         Y.all('table.todosFromModerationRequest').show();
-        Y.one('#EditWhitelist').hide();
-        Y.one('#SubmitWhitelist').show();
+        Y.all('table.db_table').hide();
     }
 </script>
 

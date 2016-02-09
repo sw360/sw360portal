@@ -264,6 +264,7 @@ public class LicenseDatabaseHandler {
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
             assertNotNull(license);
             if(todo.isSetId() && todo.id.startsWith("tmp")) todo.unsetId();
+            todo.unsetObligations();
             String todoId = addTodo(todo);
             license.addToTodoDatabaseIds(todoId);
             licenseRepository.update(license);
@@ -271,6 +272,11 @@ public class LicenseDatabaseHandler {
         } else {
             License licenseForModerationRequest = getFilledLicenseForEdit(licenseId, user);
             assertNotNull(licenseForModerationRequest);
+            if(todo.isSetObligationDatabaseIds()){
+                for(String obligationDatabaseId: todo.obligationDatabaseIds){
+                    todo.addToObligations(obligationRepository.get(obligationDatabaseId));
+                }
+            }
             licenseForModerationRequest.addToTodos(todo);
             return moderator.updateLicense(licenseForModerationRequest, user); // Only moderators can change licenses!
         }
@@ -399,15 +405,16 @@ public class LicenseDatabaseHandler {
         }).filter(Predicates.notNull()).toList();
     }
 
-    public RequestStatus updateLicense(License license, User user) {
+    public RequestStatus updateLicense(License moderatedLicense, User user, User requestingUser) {
         if (PermissionUtils.isClearingAdmin(user)) {
-            String bu = SW360Utils.getBUFromOrganisation(user.getDepartment());
-            for (Todo todo : license.getTodos()) {
+            String bu = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
+            License dbLicense = licenseRepository.get(moderatedLicense.getId());
+            for (Todo todo : moderatedLicense.getTodos()) {
                 try {
                     if (todo.isSetId() && todo.id.startsWith("tmp")) {
                         todo.unsetId();
                         String todoDatabaseId = addTodo(todo);
-                        license.addToTodoDatabaseIds(todoDatabaseId);
+                        dbLicense.addToTodoDatabaseIds(todoDatabaseId);
                     } else if (todo.isSetId()) {
                         Todo dbTodo = todoRepository.get(todo.id);
                         if (todo.whitelist.contains(bu) && !dbTodo.whitelist.contains(bu)) {
@@ -423,8 +430,7 @@ public class LicenseDatabaseHandler {
                     log.error("Error adding todo to database or updating whitelist.");
                 }
             }
-            license.unsetTodos();
-            licenseRepository.update(license);
+            licenseRepository.update(dbLicense);
             return RequestStatus.SUCCESS;
         }
         return RequestStatus.FAILURE;
