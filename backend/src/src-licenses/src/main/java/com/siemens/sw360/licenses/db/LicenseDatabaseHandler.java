@@ -115,6 +115,9 @@ public class LicenseDatabaseHandler {
         return licenseRepository.getLicenseSummaryForExport();
     }
 
+    public List<LicenseType> getLicenseTypeSummaryForExport() {
+        return licenseTypeRepository.getLicenseTypeSummaryForExport();
+    }
     ////////////////////////////
     // GET INDIVIDUAL OBJECTS //
     ////////////////////////////

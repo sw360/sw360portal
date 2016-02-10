@@ -73,6 +73,11 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     @Override
+    public List<LicenseType> getLicenseTypeSummaryForExport() throws TException {
+        return handler.getLicenseTypeSummaryForExport();
+    }
+
+    @Override
     public List<License> getDetailedLicenseSummaryForExport(String organisation) throws TException {
         return handler.getDetailedLicenseSummaryForExport(organisation);
     }

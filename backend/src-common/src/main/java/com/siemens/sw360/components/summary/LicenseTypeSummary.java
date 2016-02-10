@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,39 +17,31 @@
  */
 package com.siemens.sw360.components.summary;
 
-import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.licenses.LicenseType;
 
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
-import static com.siemens.sw360.datahandler.thrift.licenses.License._Fields;
+import static com.siemens.sw360.datahandler.thrift.licenses.LicenseType._Fields;
 
 /**
- * Created by bodet on 17/02/15.
  *
- * @author cedric.bodet@tngtech.com
+ *
+ * @author birgit.heydenreich@tngtech.com
  */
-public class LicenseSummary extends DocumentSummary<License> {
+public class LicenseTypeSummary extends DocumentSummary<LicenseType> {
 
     @Override
-    protected License summary(SummaryType type, License document) {
+    protected LicenseType summary(SummaryType type, LicenseType document) {
         // Copy required details
-        License copy = new License();
+        LicenseType copy = new LicenseType();
 
         switch (type) {
             case EXPORT_SUMMARY:
-                copyField(document, copy, _Fields.GPLV2_COMPAT);
-                copyField(document, copy, _Fields.REVIEWDATE);
-                copyField(document, copy, _Fields.RISKS);
-            case SUMMARY:
                 copyField(document, copy, _Fields.LICENSE_TYPE);
-            default:
+                copyField(document, copy, _Fields.LICENSE_TYPE_ID);
                 copyField(document, copy, _Fields.ID);
-                copyField(document, copy, _Fields.SHORTNAME);
-                copyField(document, copy, _Fields.FULLNAME);
-                copyField(document, copy, _Fields.LICENSE_TYPE_DATABASE_ID);
+            default:
         }
 
         return copy;
     }
-
-
 }
