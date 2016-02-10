@@ -40,7 +40,7 @@ struct Todo {
     3: optional string type = "todo",
     4: required string text,
     5: optional set<string> whitelist,
-    6: optional bool developement,
+    6: optional bool development,
     7: optional bool distribution,
     8: optional list<Obligation> obligations,
     9: optional set<string> obligationDatabaseIds,
@@ -107,12 +107,12 @@ service LicenseService {
     // Get a list of all obligations
     list<Obligation> getAllObligations();
 
-    License getFromID(1:string id);
+
     // Get a single license by providing its ID, with todos filtered for the given organisation
     License getByID(1:string id, 2: string organisation);
+    //Get a single license by providing its ID, todos filtered for organisation, user's
+    //moderation request with status pending or in progress applied
     License getByIDWithOwnModerationRequests(1:string id, 2: string organisation, 3: User user);
-    //Get a single license by providing its ID, filled with all todos, obligations and licenseType
-    License getFilledByID(1:string id);
 
     list<License> getByIds(1:set<string> ids, 2: string organisation);
 
@@ -120,7 +120,8 @@ service LicenseService {
     string addTodo(1:Todo todo),
     // Add an existing todo do a license
     RequestStatus addTodoToLicense(1: Todo todo, 2: string licenseId, 3: User user);
-
+    //Update given license, user must have permission to do so,
+    // requestingUser could be same as user or the requesting user from a moderation request
     RequestStatus updateLicense(1: License license, 2: User user, 3: User requestingUser);
     // Update the whitelisted todos for an organisation
     RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);

@@ -17,7 +17,6 @@
  */
 package com.siemens.sw360.fossology.ssh;
 
-import com.google.common.base.Optional;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -31,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Optional;
 
 import static org.apache.log4j.Logger.getLogger;
 
@@ -87,7 +87,7 @@ public class JSchSessionProvider implements DisposableBean {
         if (session != null && session.isConnected()) {
             return Optional.of(session);
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

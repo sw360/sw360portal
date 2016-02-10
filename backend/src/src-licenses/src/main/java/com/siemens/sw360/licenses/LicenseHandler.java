@@ -194,18 +194,6 @@ public class LicenseHandler implements LicenseService.Iface {
 
         return handler.getLicenseForOrganisationWithOwnModerationRequests(id, organisation, user);
     }
-    @Override
-    public License getFilledByID(String id) throws TException {
-        assertNotEmpty(id);
-
-        return handler.getFilledLicense(id);
-    }
-
-    @Override
-    public License getFromID(String id) throws TException {
-        assertNotEmpty(id);
-        return handler.getById(id);
-    }
 
     @Override
     public List<License> getByIds(Set<String> ids, String organisation) throws TException {
@@ -265,8 +253,6 @@ public class LicenseHandler implements LicenseService.Iface {
      */
     @Override
     public RequestStatus addTodoToLicense(Todo todo, String licenseId, User user) throws TException {
-        //final String todoId = addTodo(todo);
-        //assertNotEmpty(todoId);
         assertNotEmpty(licenseId);
        return  handler.addTodoToLicense(todo, licenseId, user);
     }

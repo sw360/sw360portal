@@ -130,7 +130,7 @@
 //
 //        assertEquals("6", todo.getId());
 //        assertEquals("Todo6", todo.getText());
-//        assertFalse(todo.isDevelopement());
+//        assertFalse(todo.isDevelopment());
 //        assertTrue(todo.isDistribution());
 //
 //        assertEquals(1, todo.getObligationsSize());

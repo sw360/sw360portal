@@ -18,7 +18,6 @@
 package com.siemens.sw360.datahandler.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.siemens.sw360.datahandler.common.CommonUtils;
@@ -37,12 +36,10 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.common.SW360Utils.*;
@@ -245,7 +242,7 @@ public class ProjectDatabaseHandler {
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
             if (moderationRequestOptional.isPresent()
-                    && (moderationRequestOptional.get().getModerationState().equals(ModerationState.INPROGRESS)|| moderationRequestOptional.get().getModerationState().equals(ModerationState.PENDING))) {
+                    && isInProgressOrPending(moderationRequestOptional.get())){
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 project = moderationRequest.getProject();

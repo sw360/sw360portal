@@ -102,7 +102,9 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
                     sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
-                    acceptModerationRequest(user, UserCacheHolder.getUserFromEmail(moderationRequest.getRequestingUser()), moderationRequest);
+                    String requestingUserEmail = moderationRequest.getRequestingUser();
+                    User requestingUser = UserCacheHolder.getUserFromEmail(requestingUserEmail);
+                    acceptModerationRequest(user, requestingUser, moderationRequest);
 
                     moderationRequest.setModerationState(ModerationState.APPROVED);
                     moderationRequest.setReviewer(user.getEmail());

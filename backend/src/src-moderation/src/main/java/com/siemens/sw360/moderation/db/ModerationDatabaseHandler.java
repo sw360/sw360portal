@@ -18,7 +18,6 @@
 
 package com.siemens.sw360.moderation.db;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
@@ -39,22 +38,16 @@ import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
 import com.siemens.sw360.licenses.db.LicenseTypeRepository;
-import com.siemens.sw360.licenses.db.TodoRepository;
-import com.siemens.sw360.licenses.db.TodoRepository;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 /**
  * Class for accessing the CouchDB database for the moderation objects
@@ -92,22 +85,8 @@ public class ModerationDatabaseHandler {
 
     public ModerationRequest getRequest(String requestId) {
         ModerationRequest moderationRequest = repository.get(requestId);
-        //if(moderationRequest.license != null) {
-          //  fillLicense(moderationRequest);
-        //}
+
         return moderationRequest;
-    }
-
-    private void fillLicense(ModerationRequest moderationRequest){
-        License updateLicense = moderationRequest.getLicense();
-        String licenseTypeDatabaseId = updateLicense.getLicenseTypeDatabaseId();
-        if (licenseTypeDatabaseId !=null){
-            updateLicense.setLicenseType((new LicenseTypeRepository(db)).get(licenseTypeDatabaseId));
-        }
-
-        //also fills Todos with obligations and whitelist
-        updateLicense.setTodos(licenseDatabaseHandler.getTodosByIds(updateLicense.todoDatabaseIds));
-
     }
 
     public List<ModerationRequest> getRequestByDocumentId(String documentId) {
@@ -229,24 +208,6 @@ public class ModerationDatabaseHandler {
         // Set meta-data
         request.setDocumentType(DocumentType.LICENSE);
         request.setDocumentName(SW360Utils.printName(license));
-
-        // Set the object
-        request.setLicense(license);
-
-        addOrUpdate(request);
-    }
-
-    public void createRequest(License license, List<Todo> todos, String user, String department, Boolean isDeleteRequest) {
-        // Define moderators
-        Set<String> moderators = getLicenseModerators(department);
-        ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
-
-        // Set meta-data
-        request.setDocumentType(DocumentType.LICENSE);
-        request.setDocumentName(SW360Utils.printName(license));
-
-        //Add todos to license in request
-        license.setTodos(todos);
 
         // Set the object
         request.setLicense(license);

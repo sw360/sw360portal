@@ -17,9 +17,9 @@
  */
 package com.siemens.sw360.datahandler;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
+import com.google.common.base.Optional;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.couchdb.DatabaseInstance;
 import com.siemens.sw360.datahandler.couchdb.DatabaseInstanceTracker;

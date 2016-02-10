@@ -69,7 +69,7 @@ public class ThriftValidate {
             }
         }
 
-        if (!todo.isSetObligations()) {
+        if (todo.obligations == null) {
             todo.setObligations(Collections.emptyList());
         }
 

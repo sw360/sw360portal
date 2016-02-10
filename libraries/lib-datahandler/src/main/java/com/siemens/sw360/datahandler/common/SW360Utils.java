@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.transform;
@@ -78,10 +79,13 @@ public class SW360Utils {
 
     public static Set<String> filterBUSet(String organisation, Set<String> strings) {
         if (strings == null || isNullOrEmpty(organisation)) {
-            return Collections.emptySet();
+            return new HashSet<String>();
         }
         String bu = getBUFromOrganisation(organisation);
-        return Sets.intersection(strings, ImmutableSet.of(bu));
+        return strings
+                .stream()
+                .filter(string-> bu.equals(string))
+                .collect(Collectors.toSet());
     }
 
     /**

@@ -93,7 +93,7 @@
 
         <core_rt:forEach items="${moderationRequests}" var="moderation">
         <core_rt:set var="isOpenModerationRequest" value="${moderation.getModerationState().toString()== 'INPROGRESS' ||
-moderation.getModerationState().toString()== 'PENDING'}" scope="request"/>
+        moderation.getModerationState().toString()== 'PENDING'}" scope="request"/>
         <core_rt:if test="${isOpenModerationRequest}">
             result.push({
                 "DT_RowId": "${moderation.id}",

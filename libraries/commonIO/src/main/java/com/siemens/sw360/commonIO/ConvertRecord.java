@@ -132,7 +132,7 @@ public class ConvertRecord {
             String developmentString = record.get(2);
             if (!"NULL".equals(developmentString)) {
                 boolean development = parseBoolean(developmentString);
-                todo.setDevelopement(development);
+                todo.setDevelopment(development);
             }
 
             String distributionString = record.get(3);
@@ -156,7 +156,7 @@ public class ConvertRecord {
 
                         out.add(((Integer) in.getTodoId()).toString());
                         out.add(in.getText());
-                        out.add(((Boolean) in.isDevelopement()).toString());
+                        out.add(((Boolean) in.isDevelopment()).toString());
                         out.add(((Boolean) in.isDistribution()).toString());
                         return out;
                     }

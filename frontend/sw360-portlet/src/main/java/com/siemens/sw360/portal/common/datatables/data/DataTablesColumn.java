@@ -18,7 +18,7 @@
 package com.siemens.sw360.portal.common.datatables.data;
 
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * @author daniele.fognini@tngtech.com

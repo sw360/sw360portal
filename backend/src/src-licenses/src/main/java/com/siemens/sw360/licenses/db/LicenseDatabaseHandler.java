@@ -17,8 +17,7 @@
  */
 package com.siemens.sw360.licenses.db;
 
-import com.google.common.base.*;
-import com.google.common.collect.FluentIterable;
+
 import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
@@ -37,7 +36,9 @@ import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static com.siemens.sw360.datahandler.thrift.ThriftValidate.*;
@@ -121,15 +122,6 @@ public class LicenseDatabaseHandler {
     /**
      * Get license from the database and fill its obligations
      */
-    public License getFilledLicense(String id) throws SW360Exception {
-        License license = licenseRepository.get(id);
-
-        assertNotNull(license);
-
-        fillLicense(license);
-
-        return license;
-    }
 
     public License getLicenseForOrganisation(String id, String organisation) throws SW360Exception {
         License license = licenseRepository.get(id);
@@ -154,9 +146,9 @@ public class LicenseDatabaseHandler {
         } else {
 
             final String email = user.getEmail();
-            com.google.common.base.Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
+            Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
             if (moderationRequestOptional.isPresent()
-                    && (moderationRequestOptional.get().getModerationState().equals(ModerationState.INPROGRESS)|| moderationRequestOptional.get().getModerationState().equals(ModerationState.PENDING))) {
+                    && isInProgressOrPending(moderationRequestOptional.get())) {
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 license = moderationRequest.getLicense();
@@ -182,50 +174,12 @@ public class LicenseDatabaseHandler {
     private void fillLicenseForOrganisation(String organisation, License license) {
         if (license.isSetTodoDatabaseIds()) {
             license.setTodos(getTodosByIds(license.todoDatabaseIds));
-            license.unsetTodoDatabaseIds();
         }
 
         if (license.isSetTodos()) {
             for (Todo todo : license.getTodos()) {
                 //remove other organisations from whitelist of todo
                 todo.setWhitelist(SW360Utils.filterBUSet(organisation, todo.whitelist));
-            }
-        }
-
-        if (license.isSetLicenseTypeDatabaseId()) {
-            final LicenseType licenseType = licenseTypeRepository.get(license.getLicenseTypeDatabaseId());
-            license.setLicenseType(licenseType);
-        }
-
-    }
-
-    private void fillLicenseForOrganisation(String organisation, License license, User user) {
-        if (license.isSetTodoDatabaseIds()) {
-            license.setTodos(getTodosByIds(license.todoDatabaseIds));
-            license.unsetTodoDatabaseIds();
-        }
-
-        if (license.isSetTodos()) {
-            for (Todo todo : license.getTodos()) {
-                //remove other organisations from whitelist of todo
-                todo.setWhitelist(SW360Utils.filterBUSet(organisation, todo.whitelist));
-            }
-        }
-
-        if (license.isSetLicenseTypeDatabaseId()) {
-            final LicenseType licenseType = licenseTypeRepository.get(license.getLicenseTypeDatabaseId());
-            license.setLicenseType(licenseType);
-        }
-
-    }
-
-    private void fillLicense( License license) {
-        if (license.isSetTodoDatabaseIds()) {
-            license.setTodos(getTodosByIds(license.todoDatabaseIds));
-        }
-
-        if (license.isSetTodos()) {
-            for (Todo todo : license.getTodos()) {
                 if(todo.isSetObligationDatabaseIds()) {
                     todo.setObligations(getObligationsByIds(todo.obligationDatabaseIds));
                 }
@@ -263,14 +217,16 @@ public class LicenseDatabaseHandler {
         License license = licenseRepository.get(licenseId);
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
             assertNotNull(license);
-            if(todo.isSetId() && todo.id.startsWith("tmp")) todo.unsetId();
+            if(todo.isSetId() && todo.id.startsWith("tmp")){
+                todo.unsetId();
+            }
             todo.unsetObligations();
             String todoId = addTodo(todo);
             license.addToTodoDatabaseIds(todoId);
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
         } else {
-            License licenseForModerationRequest = getFilledLicenseForEdit(licenseId, user);
+            License licenseForModerationRequest = getLicenseForOrganisationWithOwnModerationRequests(licenseId, user.getDepartment(),user);
             assertNotNull(licenseForModerationRequest);
             if(todo.isSetObligationDatabaseIds()){
                 for(String obligationDatabaseId: todo.obligationDatabaseIds){
@@ -290,48 +246,47 @@ public class LicenseDatabaseHandler {
         assertNotNull(license);
 
         String organisation = user.getDepartment();
-        String bu = SW360Utils.getBUFromOrganisation(organisation);
+        String businessUnit = SW360Utils.getBUFromOrganisation(organisation);
 
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
 
             List<Todo> todos = todoRepository.get(license.todoDatabaseIds);
             for (Todo todo : todos) {
                 String todoId = todo.getId();
-                Set<String> currentWhitelist = CommonUtils.nullToEmptySet(todo.whitelist);
+                Set<String> currentWhitelist = todo.whitelist != null ? todo.whitelist : new HashSet<String>();
 
                 // Add to whitelist if necessary
-                if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(bu)) {
-                    todo.addToWhitelist(bu);
+                if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(businessUnit)) {
+                    todo.addToWhitelist(businessUnit);
                     todoRepository.update(todo);
                 }
 
                 // Remove from whitelist if necessary
-                if (!whitelistTodos.contains(todoId) && currentWhitelist.contains(bu)) {
-                    currentWhitelist.remove(bu);
+                if (!whitelistTodos.contains(todoId) && currentWhitelist.contains(businessUnit)) {
+                    currentWhitelist.remove(businessUnit);
                     todoRepository.update(todo);
                 }
 
-                // In the other cases, no doBulk necessary
             }
             return RequestStatus.SUCCESS;
         } else {
             //add updated whitelists to todos in moderation request, not yet in database
-            License licenseForModerationRequest = getFilledLicenseForEdit(licenseId, user);
+            License licenseForModerationRequest = getLicenseForOrganisationWithOwnModerationRequests(licenseId, user.getDepartment(),user);
             List<Todo> todos = licenseForModerationRequest.getTodos();
             for (Todo todo : todos) {
                 String todoId = todo.getId();
-                Set<String> currentWhitelist = CommonUtils.nullToEmptySet(todo.whitelist);
+                Set<String> currentWhitelist = todo.whitelist != null ? todo.whitelist : new HashSet<String>();
 
                 // Add to whitelist if necessary
-                if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(bu)) {
-                    todo.addToWhitelist(bu);
+                if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(businessUnit)) {
+                    todo.addToWhitelist(businessUnit);
                 }
 
                 // Remove from whitelist if necessary
-                if (!whitelistTodos.contains(todoId) && currentWhitelist.contains(bu)) {
-                    currentWhitelist.remove(bu);
+                if (!whitelistTodos.contains(todoId) && currentWhitelist.contains(businessUnit)) {
+                    currentWhitelist.remove(businessUnit);
                 }
-                // In the other cases, no doBulk necessary
+
             }
             return moderator.updateLicense(licenseForModerationRequest, user); // Only moderators can edit whitelists!
         }
@@ -397,12 +352,11 @@ public class LicenseDatabaseHandler {
 
 
     public static <T> List<T> getEntriesFromIds(final Map<String, T> map, Set<String> ids) {
-        return FluentIterable.from(ids).transform(new Function<String, T>() {
-            @Override
-            public T apply(String input) {
-                return map.get(input);
-            }
-        }).filter(Predicates.notNull()).toList();
+        return ids
+                .stream()
+                .map(input -> map.get(input))
+                .filter(input -> input !=null)
+                .collect(Collectors.toList());
     }
 
     public RequestStatus updateLicense(License moderatedLicense, User user, User requestingUser) {
@@ -410,12 +364,15 @@ public class LicenseDatabaseHandler {
             String bu = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
             License dbLicense = licenseRepository.get(moderatedLicense.getId());
             for (Todo todo : moderatedLicense.getTodos()) {
-                try {
-                    if (todo.isSetId() && todo.id.startsWith("tmp")) {
-                        todo.unsetId();
+                if (todo.isSetId() && todo.id.startsWith("tmp")) {
+                    todo.unsetId();
+                    try {
                         String todoDatabaseId = addTodo(todo);
                         dbLicense.addToTodoDatabaseIds(todoDatabaseId);
-                    } else if (todo.isSetId()) {
+                    } catch (SW360Exception e) {
+                        log.error("Error adding todo to database.");
+                    }
+                } else if (todo.isSetId()) {
                         Todo dbTodo = todoRepository.get(todo.id);
                         if (todo.whitelist.contains(bu) && !dbTodo.whitelist.contains(bu)) {
                             dbTodo.addToWhitelist(bu);
@@ -425,9 +382,6 @@ public class LicenseDatabaseHandler {
                             dbTodo.whitelist.remove(bu);
                             todoRepository.update(dbTodo);
                         }
-                    }
-                } catch (SW360Exception e) {
-                    log.error("Error adding todo to database or updating whitelist.");
                 }
             }
             licenseRepository.update(dbLicense);
@@ -440,38 +394,6 @@ public class LicenseDatabaseHandler {
         return licenseRepository.get(id);
     }
 
-    public License getFilledLicenseForEdit(String id, User user) throws SW360Exception {
-        List<ModerationRequest> moderationRequestsForDocumentId = moderator.getModerationRequestsForDocumentId(id);
-
-        License license;
-        DocumentState documentState;
-
-        if (moderationRequestsForDocumentId.isEmpty()) {
-            license = getFilledLicense(id);
-
-            documentState = CommonUtils.getOriginalDocumentState();
-        } else {
-
-            final String email = user.getEmail();
-            com.google.common.base.Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
-            if (moderationRequestOptional.isPresent()
-                    && (moderationRequestOptional.get().getModerationState().equals(ModerationState.INPROGRESS)|| moderationRequestOptional.get().getModerationState().equals(ModerationState.PENDING))) {
-                ModerationRequest moderationRequest = moderationRequestOptional.get();
-
-                license = moderationRequest.getLicense();
-
-                documentState = CommonUtils.getModeratedDocumentState(moderationRequest);
-            } else {
-                license = getFilledLicense(id);
-
-                documentState = new DocumentState().setIsOriginalDocument(true).setModerationState(moderationRequestsForDocumentId.get(0).getModerationState());
-            }
-        }
-
-        license.setPermissions(makePermission(license, user).getPermissionMap());
-        license.setDocumentState(documentState);
-        return license;
-    }
 
     public List<License> getDetailedLicenseSummaryForExport(String organisation, List<String> identifiers) {
         final List<License> licenses = CommonUtils.nullToEmptyList(licenseRepository.searchByShortName(identifiers));
@@ -633,12 +555,10 @@ public class LicenseDatabaseHandler {
     }
 
     private void fillRisks(List<Risk> risks) {
-        final List<RiskCategory> riskCategories = riskCategoryRepository.get(FluentIterable.from(risks).transform(new Function<Risk, String>() {
-            @Override
-            public String apply(Risk input) {
-                return input.getRiskCategoryDatabaseId();
-            }
-        }).filter(Predicates.notNull()).toList());
+        final List<RiskCategory> riskCategories = riskCategoryRepository.get(risks.stream()
+                .map(input -> input.getRiskCategoryDatabaseId())
+                .filter(input -> input != null)
+                .collect(Collectors.toList()));
 
         final Map<String, RiskCategory> idMap = ThriftUtils.getIdMap(riskCategories);
         for (Risk risk : risks) {
@@ -690,7 +610,7 @@ public class LicenseDatabaseHandler {
                     }
                 }
             }
-            todo.setDevelopmentString(todo.isDevelopement()?"True":"False");
+            todo.setDevelopmentString(todo.isDevelopment()?"True":"False");
             todo.setDistributionString(todo.isDistribution()?"True":"False");
             todo.unsetObligationDatabaseIds();
         }
@@ -742,7 +662,7 @@ public class LicenseDatabaseHandler {
             todo.setObligations(obligations);
             todo.unsetObligationDatabaseIds();
 
-            todo.setDevelopmentString(todo.isDevelopement()?"True":"False");
+            todo.setDevelopmentString(todo.isDevelopment()?"True":"False");
             todo.setDistributionString(todo.isDistribution()?"True":"False");
         }
     }

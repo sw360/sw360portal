@@ -97,20 +97,18 @@ public class LicensesPortlet extends Sw360Portlet {
                     LicenseService.Iface client = thriftClients.makeLicenseClient();
                     License moderationLicense = client.getByIDWithOwnModerationRequests(id, user.getDepartment(), user);
 
-                    List<Todo> addedTodos = moderationLicense.getTodos();
-                    List<Todo> currentTodos = moderationLicense.getTodos();
-                    if (addedTodos != null) {
-                        addedTodos = addedTodos
-                                .stream()
-                                .filter(todo -> todo.id.startsWith("tmp"))
-                                .collect(Collectors.toList());
-                        currentTodos =  currentTodos
-                                .stream()
-                                .filter(todo -> !todo.id.startsWith("tmp"))
-                                .collect(Collectors.toList());
-                    }
-                    request.setAttribute(ADDED_TODOS_FROM_MODERATION_REQUEST, nullToEmptyList(addedTodos));
-                    request.setAttribute(DB_TODOS_FROM_MODERATION_REQUEST,nullToEmptyList(currentTodos));
+                    List<Todo> allTodos = nullToEmptyList(moderationLicense.getTodos());
+                    List<Todo> addedTodos = allTodos
+                            .stream()
+                            .filter(todo -> todo.id.startsWith("tmp"))
+                            .collect(Collectors.toList());
+                    List<Todo>  currentTodos =  allTodos
+                            .stream()
+                            .filter(todo -> !todo.id.startsWith("tmp"))
+                            .collect(Collectors.toList());
+
+                    request.setAttribute(ADDED_TODOS_FROM_MODERATION_REQUEST, addedTodos);
+                    request.setAttribute(DB_TODOS_FROM_MODERATION_REQUEST,currentTodos);
                     DocumentState documentState = moderationLicense.getDocumentState();
                     Map<RequestedAction, Boolean> permissions = moderationLicense.getPermissions();
                     addEditDocumentMessage(request, permissions, documentState);
@@ -190,7 +188,7 @@ public class LicensesPortlet extends Sw360Portlet {
             try {
                 User user = UserCacheHolder.getUserFromRequest(request);
                 LicenseService.Iface client = thriftClients.makeLicenseClient();
-                final License license = client.getFromID(licenseId);
+                final License license = client.getByID(licenseId,user.getDepartment());
 
                 license.setText(CommonUtils.nullToEmptyString(text));
                 final RequestStatus requestStatus = client.updateLicense(license, user, user);
@@ -232,10 +230,10 @@ public class LicensesPortlet extends Sw360Portlet {
 
         if (bools != null) {
             List<String> theBools = Arrays.asList(bools);
-            todo.setDevelopement(theBools.contains("development"));
+            todo.setDevelopment(theBools.contains("development"));
             todo.setDistribution(theBools.contains("distribution"));
         } else {
-            todo.setDevelopement(false);
+            todo.setDevelopment(false);
             todo.setDistribution(false);
         }
         try {
