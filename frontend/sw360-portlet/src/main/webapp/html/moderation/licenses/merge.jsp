@@ -28,7 +28,6 @@
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 
 <jsp:useBean id="moderationRequest" class="com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
-<jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
 <jsp:useBean id="actual_license" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request" />
 <jsp:useBean id="licenseDetail" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request" />
 <jsp:useBean id="isAdminUser" class="java.lang.String" scope="request" />

@@ -463,7 +463,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             List<Obligation> obligations = client.getAllObligations();
             request.setAttribute(KEY_OBLIGATION_LIST, obligations);
             request.setAttribute(KEY_LICENSE_DETAIL, actual_license);
-            request.setAttribute(SELECTED_TAB, request.getParameter(SELECTED_TAB));
         } catch (TException e) {
             log.error("Could not retrieve license", e);
         }

@@ -29,6 +29,7 @@ import com.siemens.sw360.datahandler.thrift.licenses.*;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import org.ektorp.DocumentOperationResult;
 import org.jetbrains.annotations.NotNull;
 import org.apache.log4j.Logger;
@@ -81,7 +82,6 @@ public class LicenseDatabaseHandler {
         licenseTypeRepository = new LicenseTypeRepository(db);
 
         moderator = new LicenseModerator();
-
     }
 
 
@@ -360,7 +360,7 @@ public class LicenseDatabaseHandler {
     }
 
     public RequestStatus updateLicense(License moderatedLicense, User user, User requestingUser) {
-        if (PermissionUtils.isClearingAdmin(user)) {
+        if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
             String bu = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
             License dbLicense = licenseRepository.get(moderatedLicense.getId());
             for (Todo todo : moderatedLicense.getTodos()) {
@@ -373,15 +373,15 @@ public class LicenseDatabaseHandler {
                         log.error("Error adding todo to database.");
                     }
                 } else if (todo.isSetId()) {
-                        Todo dbTodo = todoRepository.get(todo.id);
-                        if (todo.whitelist.contains(bu) && !dbTodo.whitelist.contains(bu)) {
-                            dbTodo.addToWhitelist(bu);
-                            todoRepository.update(dbTodo);
-                        }
-                        if (!todo.whitelist.contains(bu) && dbTodo.whitelist.contains(bu)) {
-                            dbTodo.whitelist.remove(bu);
-                            todoRepository.update(dbTodo);
-                        }
+                    Todo dbTodo = todoRepository.get(todo.id);
+                    if (todo.whitelist.contains(bu) && !dbTodo.whitelist.contains(bu)) {
+                        dbTodo.addToWhitelist(bu);
+                        todoRepository.update(dbTodo);
+                    }
+                    if (!todo.whitelist.contains(bu) && dbTodo.whitelist.contains(bu)) {
+                        dbTodo.whitelist.remove(bu);
+                        todoRepository.update(dbTodo);
+                    }
                 }
             }
             licenseRepository.update(dbLicense);

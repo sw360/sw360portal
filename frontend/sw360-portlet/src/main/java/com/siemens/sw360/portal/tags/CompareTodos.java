@@ -27,6 +27,7 @@ import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +83,7 @@ public class CompareTodos extends NameSpaceAwareTag {
             }
 
             jspWriter.print(renderString);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new JspException(e);
         }
         return SKIP_BODY;

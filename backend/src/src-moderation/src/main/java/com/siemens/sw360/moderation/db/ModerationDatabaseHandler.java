@@ -200,7 +200,7 @@ public class ModerationDatabaseHandler {
         addOrUpdate(request);
     }
 
-    public void createRequest(License license, String user, String department, Boolean isDeleteRequest) {
+    public void createRequest(License license, String user, String department) {
         // Define moderators
         Set<String> moderators = getLicenseModerators(department);
         ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
