@@ -24,11 +24,13 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
+import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.moderation.DocumentType;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
+import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
@@ -99,6 +101,22 @@ public class ModerationDatabaseHandler {
                 repository.remove(request);
             }
         }
+    }
+
+    public RequestStatus deleteModerationRequest(String id, User user){
+        ModerationRequest moderationRequest = repository.get(id);
+        if(moderationRequest!=null) {
+            if (moderationRequest.getRequestingUser().equals(user.getEmail())) {
+                repository.remove(id);
+                return RequestStatus.SUCCESS;
+            } else {
+                log.error("Problems deleting moderation request: User " + user.getEmail() + " tried to delete " +
+                        "moderation request of user " + moderationRequest.getRequestingUser());
+                return RequestStatus.FAILURE;
+            }
+        }
+        log.error("Moderation request to delete was null.");
+        return RequestStatus.FAILURE;
     }
 
     public void refuseRequest(String requestId) {
