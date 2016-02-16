@@ -18,6 +18,7 @@
 
 package com.siemens.sw360.moderation.db;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
@@ -38,6 +39,7 @@ import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
 import com.siemens.sw360.licenses.db.LicenseTypeRepository;
+import com.siemens.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -137,6 +139,7 @@ public class ModerationDatabaseHandler {
         ModerationRequest request = repository.get(requestId);
         request.moderationState = ModerationState.REJECTED;
         repository.update(request);
+        sendMailToUserForDeclinedRequest(request.getRequestingUser());
     }
 
 
@@ -244,8 +247,10 @@ public class ModerationDatabaseHandler {
     public void addOrUpdate(ModerationRequest request) {
         if (request.isSetId()) {
             repository.update(request);
+            sendMailToModeratorsForUpdateRequest(request.getModerators());
         } else {
             repository.add(request);
+            sendMailToModeratorsForNewRequest(request.getModerators());
         }
     }
 
@@ -269,6 +274,21 @@ public class ModerationDatabaseHandler {
 
         return request;
 
+    }
+
+    private void sendMailToModeratorsForNewRequest(Set<String> moderators){
+        MailUtil mailUtil = new MailUtil();
+        mailUtil.sendMail(moderators,"subjectForNewModerationRequest","textForNewModerationRequest");
+    }
+
+    private void sendMailToModeratorsForUpdateRequest(Set<String> moderators){
+        MailUtil mailUtil = new MailUtil();
+        mailUtil.sendMail(moderators,"subjectForUpdateModerationRequest","textForUpdateModerationRequest");
+    }
+
+    private void sendMailToUserForDeclinedRequest(String userEmail){
+        MailUtil mailUtil = new MailUtil();
+        mailUtil.sendMail(userEmail,"subjectForDeclinedModerationRequest","textForDeclinedModerationRequest");
     }
 
 

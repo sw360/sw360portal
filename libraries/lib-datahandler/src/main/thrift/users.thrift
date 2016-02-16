@@ -66,4 +66,6 @@ service UserService {
 
     RequestStatus addUser(1: User user);
     RequestStatus updateUser(1: User user);
+
+    RequestStatus sendMailForAcceptedModerationRequest(1: string userEmail);
 }
