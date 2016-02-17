@@ -95,4 +95,5 @@ service ModerationService {
     list<ModerationRequest> getRequestsByModerator(1: User user);
     list<ModerationRequest> getRequestsByRequestingUser(1: User user);
 
+    RequestStatus deleteModerationRequest(1: string id, 2: User user);
 }

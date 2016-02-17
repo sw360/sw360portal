@@ -75,6 +75,7 @@ public class PortalConstants {
     public static final String MODERATION_ID = "moderationId";
     public static final String MODERATION_REQUEST = "moderationRequest";
     public static final String MODERATION_REQUESTS = "moderationRequests";
+    public static final String DELETE_MODERATION_REQUEST = "deleteModerationRequest";
 
     //! Specialized keys for components
     public static final String COMPONENT_ID = "componentid";

@@ -21,6 +21,7 @@ package com.siemens.sw360.moderation;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -166,6 +167,13 @@ public class ModerationHandler implements ModerationService.Iface {
         assertId(documentId);
 
         handler.deleteRequestsOnDocument(documentId);
+    }
+
+    @Override
+    public RequestStatus deleteModerationRequest(String id, User user) throws SW360Exception{
+        assertUser(user);
+
+        return handler.deleteModerationRequest(id,user);
     }
 
     @Override
