@@ -60,7 +60,7 @@
 <jsp:include page="/html/utils/includes/attachmentsDelete.jsp"/>
 
 <div id="header"></div>
-<p class="pageHeader"><label> <span class="pageHeaderBigSpan"> Component: ${component.name}</span>
+<p class="pageHeader"><label id="releaseHeaderLabel"> <span class="pageHeaderBigSpan"> Component: ${component.name}</span>
     <select id="releaseSelect" onchange="this.options[this.selectedIndex].value
         && (window.location = createDetailURLfromReleaseId (this.options[this.selectedIndex].value) );">
         <core_rt:forEach var="releaseItr" items="${component.releases}">
@@ -68,9 +68,12 @@
                     value="${releaseItr.id}"><sw360:ReleaseName release="${releaseItr}" />
             </option>
         </core_rt:forEach>
-    </select> <input type="button" onclick="editRelease('${releaseId}')" id="edit" value="Edit" class="addButton">
-    <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}"
+    </select>
+    <span class="pull-right">
+        <input type="button" onclick="editRelease('${releaseId}')" id="edit" value="Edit" class="addButton">
+        <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}"
                                   id="SubscribeButton" onclick="subscribeRelease('SubscribeButton')" altonclick="unsubscribeRelease('SubscribeButton')"/>
+    </span>
 </label>
 </p>
 <div id="content">

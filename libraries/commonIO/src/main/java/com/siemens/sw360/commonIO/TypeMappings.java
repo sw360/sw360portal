@@ -137,7 +137,7 @@ public class TypeMappings {
         if (clazz.equals(LicenseType.class)) {
             return (List<T>) licenseClient.getLicenseTypes();
         } else if (clazz.equals(Obligation.class)) {
-            return (List<T>) licenseClient.getAllObligations();
+            return (List<T>) licenseClient.getObligations();
         } else if (clazz.equals(RiskCategory.class)) {
             return (List<T>) licenseClient.getRiskCategories();
         }

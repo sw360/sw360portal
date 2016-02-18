@@ -48,8 +48,8 @@
                    value="<sw360:out value="${release.clearingInformation.ECCN}"/>"/>
         </td>
         <td width="33%">
-            <label class="textlabel stackedLabel " for="externalSupplierId">Material Index Number</label>
-            <input id="ExternalSupplierId"
+            <label class="textlabel stackedLabel " for="materialIndexNumber">Material Index Number</label>
+            <input id="materialIndexNumber"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.MATERIAL_INDEX_NUMBER%>"
                    type="text"
                    placeholder="Enter material index number"
@@ -67,7 +67,7 @@
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel " for="externalSupplierId">ExternalSupplierId</label>
-            <input id="ExternalSupplierId"
+            <input id="externalSupplierId"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_SUPPLIER_ID%>"
                    type="text"
                    placeholder="Enter ExternalSupplierID"
@@ -77,8 +77,8 @@
 </tr>
     <tr>
         <td width="33%">
-            <label class="textlabel stackedLabel " for="assessorDepartment">ECC Comment</label>
-            <input id="assessorDepartment"
+            <label class="textlabel stackedLabel " for="ECCComment">ECC Comment</label>
+            <input id="ECCComment"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECC_COMMENT%>"
                    type="text"
                    placeholder="Enter ECC comment"
@@ -295,7 +295,7 @@
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel " for="externalUrl">External URL</label>
-            <input id="erternalUrl"
+            <input id="externalUrl"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_URL%>"
                    type="text"
                    placeholder="Enter URL"

@@ -301,7 +301,7 @@ public class ComponentUploadPortlet extends Sw360Portlet {
         fileNameToStreams.put(RISK_CATEGORY_FILE, getCsvStream(serialize(client.getRiskCategories(), riskCategorySerializer())));
 
         fileNameToStreams.put(ZipTools.RISK_FILE, getCsvStream(serialize(client.getRisks(), riskSerializer())));
-        fileNameToStreams.put(ZipTools.OBLIGATION_FILE, getCsvStream(serialize(client.getAllObligations(), obligationSerializer())));
+        fileNameToStreams.put(ZipTools.OBLIGATION_FILE, getCsvStream(serialize(client.getObligations(), obligationSerializer())));
 
         final List<Todo> todos = client.getTodos();
         fileNameToStreams.put(ZipTools.OBLIGATION_TODO_FILE, getCsvStream(serialize(getTodoToObligationMap(todos), ImmutableList.of("O_ID", "T_ID"))));

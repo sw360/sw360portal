@@ -52,12 +52,12 @@
 </portlet:resourceURL>
 
 <div id="header"></div>
-<p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span> <input type="button"
-                                                                                                 onclick="editComponent()"
-                                                                                                 id="edit" value="Edit"
-                                                                                                 class="addButton">
-    <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${component}"
+<p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span>
+     <span class="pull-right">
+        <input type="button" onclick="editComponent()" id="edit" value="Edit" class="addButton">
+        <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${component}"
                                   id="SubscribeButton" onclick="subscribeComponent('SubscribeButton')"  altonclick="unsubscribeComponent('SubscribeButton')" />
+    </span>
 </p>
 <div id="content">
     <div class="container-fluid">

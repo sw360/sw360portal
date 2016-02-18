@@ -60,7 +60,7 @@ public class PortalConstants {
     public static final String PAGENAME_ACTION = "action";
     public static final String PAGENAME_DUPLICATE = "duplicate";
     public static final String SELECTED_TAB = "selectedTab";
-    public static final String IS_ADMINUSER = "isAdminUser";
+    public static final String IS_USER_AT_LEAST_CLEARING_ADMIN = "isUserAtLeastClearingAdmin";
     public static final String DOCUMENT_TYPE = "documentType";
 
     //! Specialized keys for licenses
@@ -73,6 +73,7 @@ public class PortalConstants {
     public static final String ADDED_TODOS_FROM_MODERATION_REQUEST = "added_todos_from_moderation_request";
     public static final String DB_TODOS_FROM_MODERATION_REQUEST = "db_todos_from_moderation_request";
     public static final String MODERATION_LICENSE_DETAIL = "moderationLicenseDetail";
+    public static final String LICENSE_TYPE_CHOICE = "licenseTypeChoice";
 
     //! Specialized keys for moderation
     public static final String MODERATION_ID = "moderationId";

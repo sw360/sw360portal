@@ -247,7 +247,9 @@ abstract public class Sw360Portlet extends MVCPortlet {
 
     public void setSessionMessage(PortletRequest request, RequestStatus requestStatus, String type, String verb, String name) throws PortletException {
         String successMsg;
-        if (isNullOrEmpty(name)) name = "";
+        if (isNullOrEmpty(name)) {
+            name = "";
+        }
         else {
             name = " " + name;
         }
@@ -262,7 +264,11 @@ abstract public class Sw360Portlet extends MVCPortlet {
                 successMsg = type + name + " could not be " + verb + "d successfully!";
                 break;
             case IN_USE:
-                successMsg = type + name + " could not be " + verb + "d successfully, as it is used by other Projects or Releases!";
+                if(type.equals("License")) {
+                    successMsg = type + name + " could not be " + verb + "d successfully, as it is used by at least one Release!";
+                } else {
+                    successMsg = type + name + " could not be " + verb + "d successfully, as it is used by other Projects or Releases!";
+                }
                 break;
             default:
                 throw new PortletException("Unknown request status");

@@ -29,7 +29,7 @@
         <td>Clearing State:</td>
         <td>
             <sw360:DisplayEnum value="${release.clearingState}"/>
-
+            &nbsp;
             <span id='releaseAction${release.id}'>
                 <img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'
                      onclick='openSelectClearingDialog("fossologySending${release.id}","${release.id}")'

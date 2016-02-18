@@ -52,8 +52,8 @@ public class LicenseHandler implements LicenseService.Iface {
      * Get a list of all obligations
      */
     @Override
-    public List<Obligation> getAllObligations() throws TException {
-        return handler.getAllObligations();
+    public List<Obligation> getObligations() throws TException {
+        return handler.getObligations();
     }
 
     /**
@@ -273,6 +273,14 @@ public class LicenseHandler implements LicenseService.Iface {
         assertUser(user);
 
         return handler.updateWhitelist(licenceId, whitelist, user);
+    }
+
+    @Override
+    public RequestStatus deleteLicense(String id, User user) throws TException {
+        assertId(id);
+        assertUser(user);
+
+        return handler.deleteLicense(id, user);
     }
 
 }

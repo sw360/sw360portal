@@ -17,9 +17,6 @@
  */
 package com.siemens.sw360.portal.portlets.moderation;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
@@ -460,7 +457,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             actual_license = client.getByID(moderationRequest.getDocumentId(),requestingUser.getDepartment());
             request.setAttribute(PortalConstants.ACTUAL_LICENSE, actual_license);
-            List<Obligation> obligations = client.getAllObligations();
+            List<Obligation> obligations = client.getObligations();
             request.setAttribute(KEY_OBLIGATION_LIST, obligations);
             request.setAttribute(KEY_LICENSE_DETAIL, actual_license);
         } catch (TException e) {

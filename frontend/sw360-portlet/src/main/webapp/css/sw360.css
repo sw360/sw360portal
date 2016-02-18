@@ -28,7 +28,8 @@ div.content1 {
     top: 90px;
     width: 20%;
     margin-right: 2%;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 div.content2 {
@@ -237,4 +238,14 @@ div.content2 {
 
 input[readonly].clickable {
     cursor: pointer;
+}
+
+#releaseSelect {
+    left: 30px;
+    top: -4px;
+    position: relative;
+}
+#releaseHeaderLabel {
+    top: 20px;
+    position: relative;
 }
