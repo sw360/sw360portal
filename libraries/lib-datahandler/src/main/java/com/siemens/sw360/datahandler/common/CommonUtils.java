@@ -18,7 +18,6 @@
 package com.siemens.sw360.datahandler.common;
 
 import com.google.common.base.*;
-import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
@@ -44,6 +43,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.log4j.LogManager.getLogger;
@@ -226,12 +226,10 @@ public class CommonUtils {
     }
 
     public static Optional<Attachment> getAttachmentOptional(final String attachmentId, Set<Attachment> attachments) {
-        return Iterables.tryFind(attachments, new Predicate<Attachment>() {
-            @Override
-            public boolean apply(Attachment input) {
-                return attachmentId.equals(input.getAttachmentContentId());
-            }
-        });
+        return attachments
+                .stream()
+                .filter(attachment -> attachmentId.equals(attachment.getAttachmentContentId()))
+                .findFirst();
     }
 
     @NotNull
@@ -259,6 +257,11 @@ public class CommonUtils {
         };
     }
 
+    public static boolean isInProgressOrPending(ModerationRequest moderationRequest){
+        return  moderationRequest.getModerationState().equals(ModerationState.INPROGRESS) ||
+                moderationRequest.getModerationState().equals(ModerationState.PENDING);
+    }
+
     @NotNull
     public static DocumentState getOriginalDocumentState() {
         DocumentState documentState = new DocumentState().setIsOriginalDocument(true);
@@ -267,12 +270,10 @@ public class CommonUtils {
     }
 
     public static Optional<ModerationRequest> getFirstModerationRequestOfUser(List<ModerationRequest> moderationRequestsForDocumentId, final String email) {
-        return Iterables.tryFind(moderationRequestsForDocumentId, new Predicate<ModerationRequest>() {
-            @Override
-            public boolean apply(ModerationRequest input) {
-                return input.getRequestingUser().equals(email);
-            }
-        });
+        return moderationRequestsForDocumentId
+                .stream()
+                .filter(moderationRequest -> moderationRequest.getRequestingUser().equals(email))
+                .findFirst();
     }
 
     @NotNull

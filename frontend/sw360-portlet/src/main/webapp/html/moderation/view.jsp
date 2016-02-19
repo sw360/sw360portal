@@ -92,14 +92,30 @@
         var result = [];
 
         <core_rt:forEach items="${moderationRequests}" var="moderation">
+        <core_rt:set var="isOpenModerationRequest" value="${moderation.getModerationState().toString()== 'INPROGRESS' ||
+        moderation.getModerationState().toString()== 'PENDING'}" scope="request"/>
+        <core_rt:if test="${isOpenModerationRequest}">
+            result.push({
+                "DT_RowId": "${moderation.id}",
+                "0":
+                    '<a href=\'<portlet:renderURL ><portlet:param name="<%=PortalConstants.MODERATION_ID%>" value="${moderation.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>\' target=\'_self\'><sw360:out value="${moderation.documentName}"/></a>',
+
+                "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}"/>',
+                "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}"/>',
+                "3": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                "4": 'TODO'
+            });
+        </core_rt:if>
+        <core_rt:if test="${!isOpenModerationRequest}">
         result.push({
             "DT_RowId": "${moderation.id}",
-            "0": '<a href=\'<portlet:renderURL ><portlet:param name="<%=PortalConstants.MODERATION_ID%>" value="${moderation.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>\' target=\'_self\'><sw360:out value="${moderation.documentName}"/></a>',
+            "0": '<sw360:out value="${moderation.documentName}"/>',
             "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}"/>',
             "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}"/>',
             "3": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
-            "4": 'TODO'
+            "4": 'READY'
         });
+        </core_rt:if>
         </core_rt:forEach>
 
         oTable = $('#moderationsTable').dataTable({

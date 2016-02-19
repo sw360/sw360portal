@@ -16,20 +16,23 @@
   ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   ~ 02110-1301, USA.
 --%>
-
-<core_rt:if test="${isAdminUser == 'Yes'}" >
-<form action="<%=changeLicenseTextURL%>" method="post" id="LicenseText">
-<label for="<portlet:namespace/><%=License._Fields.TEXT%>">
-  <textarea name="<portlet:namespace/><%=License._Fields.TEXT%>" rows="5"  style="width: 100%" id="<portlet:namespace/><%=License._Fields.TEXT%>"
+<core_rt:if test="${editMode}">
+    <core_rt:if test="${isAdminUser == 'Yes'}">
+        <form action="<%=changeLicenseTextURL%>" method="post" id="LicenseText">
+            <label for="<portlet:namespace/><%=License._Fields.TEXT%>">
+  <textarea name="<portlet:namespace/><%=License._Fields.TEXT%>" rows="5" style="width: 100%"
+            id="<portlet:namespace/><%=License._Fields.TEXT%>"
             placeholder="Enter the License-Text here..."
-          >${licenseDetail.text}</textarea>
-</label>
+  >${licenseDetail.text}</textarea>
+            </label>
 
-  <input type="submit" id="SubmitLicenseText" value="Submit" >
-</form>
+            <input type="submit" id="SubmitLicenseText" value="Submit">
+        </form>
+    </core_rt:if>
 </core_rt:if>
-<core_rt:if test="${isAdminUser != 'Yes'}" >
-    <textarea name="<portlet:namespace/><%=License._Fields.TEXT%>" rows="5"  style="width: 100%" id="<portlet:namespace/><%=License._Fields.TEXT%>"
+<core_rt:if test="${isAdminUser != 'Yes' || editMode != 'Yes'}" >
+        <textarea name="<portlet:namespace/><%=License._Fields.TEXT%>" rows="5"  style="width: 100%" id="<portlet:namespace/><%=License._Fields.TEXT%>"
               placeholder="No license text..." readonly=""
             >${licenseDetail.text}</textarea>
 </core_rt:if>
+

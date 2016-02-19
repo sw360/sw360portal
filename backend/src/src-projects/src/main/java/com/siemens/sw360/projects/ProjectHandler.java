@@ -17,7 +17,6 @@
  */
 package com.siemens.sw360.projects;
 
-import com.google.common.base.Optional;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -33,9 +32,7 @@ import org.apache.thrift.TException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 

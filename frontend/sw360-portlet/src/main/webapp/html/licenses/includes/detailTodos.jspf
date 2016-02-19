@@ -15,62 +15,165 @@
   ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   ~ 02110-1301, USA.
 --%>
-<form action="<%=editLicenseTodosURL%>" method="post">
-    <table class="table info_table" id="licenseObligations" title="Todo overview">
-        <thead>
-        <tr>
-            <th colspan="8">Todos and Obligations Details:
+
+<core_rt:if test="${editMode}">
+    <form action="${editLicenseTodosURL}" method="post">
+</core_rt:if>
+<table class="table info_table db_table" id="licenseObligations" title="Todo overview">
+    <thead>
+    <tr>
+        <th colspan="8">Todos and Obligations Details:
+            <core_rt:if test="${editMode}">
                                     <span class="pull-right">
-                                        <core_rt:if test="${not empty licenseDetail.todos}">
+                                        <core_rt:if
+                                                test="${not empty licenseDetail.todos || not empty added_todos_from_moderation_request}">
                                             <input id="EditWhitelist" class="addButton" type="button"
                                                    onclick="showWhiteListOptions()" value="Edit WhiteList">
-                                            <input type="submit" id="SubmitWhitelist" value="Submit" hidden>
                                         </core_rt:if>
                                     </span>
+            </core_rt:if>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <core_rt:if test="${not empty licenseDetail.todos}">
+        <tr class="bold">
+            <td colspan="3">Todo</td>
+            <td>Applies to development</td>
+            <td>Applies to distribution</td>
+            <td colspan="2">
+                Obligations
+            </td>
+            <td class="addToWhiteListCheckboxesPlaceholder"></td>
+        </tr>
+        <core_rt:forEach var="todo" varStatus="status" items="${licenseDetail.todos}">
+            <core_rt:if test="${not empty todo.whitelist}">
+            <tr class="dependentOnWhiteList">
+                <td colspan="3"><sw360:out value="${todo.text}"/></td>
+                <td><sw360:DisplayBoolean value="${todo.development}" defined="${todo.setDevelopment}"/></td>
+                <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
 
-            </th>
+                <core_rt:if test="${todo.obligationsSize > 0}">
+                    <td colspan="2">
+                        <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
+                            <ul>
+                                <li style="color: red"><sw360:out value="${ob.name}"/></li>
+                            </ul>
+                        </core_rt:forEach>
+                    </td>
+                </core_rt:if>
+
+                <core_rt:if test="${todo.obligationsSize == 0}">
+                    <td colspan="2"> No obligations</td>
+                </core_rt:if>
+                <td class="addToWhiteListCheckboxesPlaceholder"></td>
+            </tr>
+            </core_rt:if>
+        </core_rt:forEach>
+    </core_rt:if>
+    </tbody>
+</table>
+
+<table class="table info_table todosFromModerationRequest" id="moderationLicenseObligations" title="Todo overview" hidden>
+    <thead>
+    <tr>
+        <th colspan="8">Todos and Obligations Details:
+            <core_rt:if test="${editMode}">
+                                    <span class="pull-right">
+                                        <core_rt:if test="${not empty moderationLicenseDetail.todos || not empty added_todos_from_moderation_request}">
+                                            <input type="submit" id="SubmitWhitelist" value="Submit">
+                                        </core_rt:if>
+                                    </span>
+            </core_rt:if>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <core_rt:if test="${not empty db_todos_from_moderation_request}">
+        <tr class="bold">
+            <td colspan="3">Todo</td>
+            <td>Applies to development</td>
+            <td>Applies to distribution</td>
+            <td colspan="2">
+                Obligations
+            </td>
+            <td class="addToWhiteListCheckboxes">Add to white list</td>
+        </tr>
+        <core_rt:forEach var="todo" varStatus="status" items="${db_todos_from_moderation_request}">
+            <tr class="dependentOnWhiteList">
+                <td colspan="3"><sw360:out value="${todo.text}"/></td>
+                <td><sw360:DisplayBoolean value="${todo.development}" defined="${todo.setDevelopment}"/></td>
+                <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
+
+                <core_rt:if test="${todo.obligationsSize > 0}">
+                    <td colspan="2">
+                        <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
+                            <ul>
+                                <li style="color: red"><sw360:out value="${ob.name}"/></li>
+                            </ul>
+                        </core_rt:forEach>
+                    </td>
+                </core_rt:if>
+
+                <core_rt:if test="${todo.obligationsSize == 0}">
+                    <td colspan="2"> No obligations</td>
+                </core_rt:if>
+                <td class="addToWhiteListCheckboxes">
+                    <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
+                                  <core_rt:if test="${not empty todo.whitelist}">checked</core_rt:if> /></label>
+                </td>
+            </tr>
+        </core_rt:forEach>
+    </core_rt:if>
+    </tbody>
+</table>
+
+<core_rt:if test="${not empty added_todos_from_moderation_request}">
+    <table class="table info_table todosFromModerationRequest" id="licenseObligationsFromModeration"
+           title="Todos to be added according to Moderation Request" hidden>
+        <thead>
+        <tr>
+            <th colspan="8">Todos to be added according to Moderation Request:</th>
         </tr>
         </thead>
         <tbody>
-        <core_rt:if test="${not empty licenseDetail.todos}">
-            <tr class="bold">
-                <td colspan="3">Todo</td>
-                <td>Applies to development</td>
-                <td>Applies to distribution</td>
-                <td colspan="2">
-                    Obligations
-                </td>
-                <td class="addToWhiteListCheckboxes">Add to white List</td>
-                <td class="addToWhiteListCheckboxesPlaceholder"></td>
-            </tr>
-            <core_rt:forEach var="todo" varStatus="status" items="${licenseDetail.todos}">
-                <tr class="dependentOnWhiteList"
-                    <core_rt:if test="${empty todo.whitelist}">hidden</core_rt:if> >
-                    <td colspan="3"><sw360:out value="${todo.text}"/></td>
-                    <td><sw360:DisplayBoolean value="${todo.developement}" defined="${todo.setDevelopement}"/></td>
-                    <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
+        <tr class="bold todosFromModerationRequest" hidden>
+            <td colspan="3">Todo</td>
+            <td>Applies to development</td>
+            <td>Applies to distribution</td>
+            <td colspan="2">
+                Obligations
+            </td>
+            <td class="addToWhiteListCheckboxes">Add to white list</td>
+        </tr>
+        <core_rt:forEach var="todo" varStatus="status" items="${added_todos_from_moderation_request}">
+            <tr class="dependentOnWhiteList todosFromModerationRequest">
+                <td colspan="3"><sw360:out value="${todo.text}"/></td>
+                <td><sw360:DisplayBoolean value="${todo.development}" defined="${todo.setDevelopment}"/></td>
+                <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
 
-                    <core_rt:if test="${todo.obligationsSize > 0}">
-                        <td colspan="2">
-                            <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
-                                <ul>
-                                    <li style="color: red"><sw360:out value="${ob.name}"/></li>
-                                </ul>
-                            </core_rt:forEach>
-                        </td>
-                    </core_rt:if>
-
-                    <core_rt:if test="${todo.obligationsSize == 0}">
-                        <td colspan="2"> No obligations</td>
-                    </core_rt:if>
-                    <td class="addToWhiteListCheckboxes">
-                        <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
-                                      <core_rt:if test="${not empty todo.whitelist}">checked</core_rt:if> /></label>
+                <core_rt:if test="${todo.obligationsSize > 0}">
+                    <td colspan="2">
+                        <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
+                            <ul>
+                                <li style="color: red"><sw360:out value="${ob.name}"/></li>
+                            </ul>
+                        </core_rt:forEach>
                     </td>
-                    <td class="addToWhiteListCheckboxesPlaceholder"></td>
-                </tr>
-            </core_rt:forEach>
-        </core_rt:if>
+                </core_rt:if>
+
+                <core_rt:if test="${todo.obligationsSize == 0}">
+                    <td colspan="2"> No obligations</td>
+                </core_rt:if>
+                <td class="addToWhiteListCheckboxes">
+                    <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
+                                  <core_rt:if test="${not empty todo.whitelist}">checked</core_rt:if> /></label>
+                </td>
+            </tr>
+        </core_rt:forEach>
         </tbody>
     </table>
-</form>
+</core_rt:if>
+<core_rt:if test="${editMode}">
+    </form>
+</core_rt:if>

@@ -17,7 +17,6 @@
  */
 package com.siemens.sw360.components;
 
-import com.google.common.base.Optional;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
@@ -32,10 +31,7 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 

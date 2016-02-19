@@ -48,7 +48,7 @@ public class PermissionUtils {
         return user != null && user.isSetUserGroup() && user.getUserGroup() == userGroup;
     }
 
-    static boolean isUserAtLeast(UserGroup group, User user) {
+    public static boolean isUserAtLeast(UserGroup group, User user) {
         switch (group) {
             case USER:
                 return isNormalUser(user) || isClearingAdmin(user) || isAdmin(user);

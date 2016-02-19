@@ -17,9 +17,6 @@
  */
 package com.siemens.sw360.datahandler.db;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.FluentIterable;
@@ -50,9 +47,13 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.datahandler.common.Duration.durationOf;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
@@ -403,13 +404,10 @@ public class ComponentDatabaseHandler {
 
             if (documentOperationResults.isEmpty()) {
 
-                final List<Component> componentList = componentRepository.get(
-                        FluentIterable.from(storedReleases).transform(new Function<Release, String>() {
-                            @Override
-                            public String apply(Release input) {
-                                return input.getComponentId();
-                            }
-                        }).toSet());
+                final List<Component> componentList = componentRepository.get(storedReleases
+                        .stream()
+                        .map(Release::getComponentId)
+                        .collect(Collectors.toSet()));
 
                 final Map<String, Component> componentsById = ThriftUtils.getIdMap(componentList);
 
@@ -708,7 +706,8 @@ public class ComponentDatabaseHandler {
 
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
-            if (moderationRequestOptional.isPresent()) {
+            if (moderationRequestOptional.isPresent()
+                    && isInProgressOrPending(moderationRequestOptional.get())){
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 component = moderationRequest.getComponent();
@@ -739,7 +738,8 @@ public class ComponentDatabaseHandler {
         } else {
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
-            if (moderationRequestOptional.isPresent()) {
+            if (moderationRequestOptional.isPresent()
+                    && isInProgressOrPending(moderationRequestOptional.get())){
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
                 release = moderationRequest.getRelease();
@@ -827,17 +827,12 @@ public class ComponentDatabaseHandler {
 
     public Set<Attachment> getSourceAttachments(String releaseId) throws SW360Exception {
         Release release = assertNotNull(releaseRepository.get(releaseId));
-
-        final Predicate<Attachment> isSourceAttachment = new Predicate<Attachment>() {
-            @Override
-            public boolean apply(Attachment input) {
-                return (input != null) && input.getAttachmentType() == AttachmentType.SOURCE;
-            }
-        };
-
-        return FluentIterable.from(nullToEmptySet(release.getAttachments()))
-                .filter(isSourceAttachment)
-                .toSet();
+        
+        return nullToEmptySet(release.getAttachments())
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(input -> input.getAttachmentType() == AttachmentType.SOURCE)
+                .collect(Collectors.toSet());
     }
 
     public Map<String,List<String>> getDuplicateReleaseSources() {

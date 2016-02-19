@@ -183,13 +183,16 @@ public class LicenseHandler implements LicenseService.Iface {
         assertNotEmpty(id);
         assertNotEmpty(organisation);
 
-        return handler.getLicense(id, organisation);
+        return handler.getLicenseForOrganisation(id, organisation);
     }
 
     @Override
-    public License getFromID(String id) throws TException {
+    public License getByIDWithOwnModerationRequests(String id, String organisation, User user) throws TException {
         assertNotEmpty(id);
-        return handler.getById(id);
+        assertNotEmpty(organisation);
+        assertUser(user);
+
+        return handler.getLicenseForOrganisationWithOwnModerationRequests(id, organisation, user);
     }
 
     @Override
@@ -246,27 +249,25 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     /**
-     * Add an existing todo do a license
+     * Add an existing todo to a license
      */
     @Override
     public RequestStatus addTodoToLicense(Todo todo, String licenseId, User user) throws TException {
-        final String todoId = addTodo(todo);
-        assertNotEmpty(todoId);
         assertNotEmpty(licenseId);
-       return  handler.addTodoToLicense(todoId, licenseId, user);
+       return  handler.addTodoToLicense(todo, licenseId, user);
     }
 
     @Override
-    public RequestStatus updateLicense(License license, User user) throws TException {
-        return handler.updateLicense(license, user);
+    public RequestStatus updateLicense(License license, User user, User requestingUser) throws TException {
+        return handler.updateLicense(license, user, requestingUser);
     }
 
     @Override
-    public RequestStatus updateWhitelist(String licenceId, Set<String> todoIds, User user) throws TException {
+    public RequestStatus updateWhitelist(String licenceId, Set<String> whitelist, User user) throws TException {
         assertNotEmpty(licenceId);
         assertUser(user);
 
-        return handler.updateWhitelist(licenceId, todoIds, user);
+        return handler.updateWhitelist(licenceId, whitelist, user);
     }
 
 }

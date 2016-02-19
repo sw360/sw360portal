@@ -4,6 +4,9 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 
+import java.util.List;
+import java.util.Set;
+
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
@@ -46,34 +49,38 @@ public class TagUtils {
             }
 
             display.append(String.format("<tr><td>%s:</td>", prefix + field.getFieldName()));
-            display.append(String.format("<td><input type=\"text\" readonly=\"\" value=\"%s\" id=\"%sOld\" class=\"oldValue\" /></td>", oldDisplay, prefix + field.getFieldName()));
-            display.append(String.format("<td><input type=\"text\" readonly=\"\" value=\"%s\" id=\"%sNew\" class=\"newValue\" /></td></tr> ", updateDisplay, prefix + field.getFieldName()));
+            display.append(String.format("<td>%s</td>", oldDisplay, prefix + field.getFieldName()));
+            display.append(String.format("<td>%s</td></tr> ", updateDisplay, prefix + field.getFieldName()));
 
         }
 
     }
-
-    // TODO check if the commented out sections can be removed
     public static String getDisplayString(FieldMetaData fieldMetaData, Object fieldValue) {
-        String fieldDisplay;
+        String fieldDisplay = "";
         switch (fieldMetaData.valueMetaData.type) {
+            case org.apache.thrift.protocol.TType.LIST:
+                if (fieldValue != null) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<ul>");
+                    for (Object o : ((List<Object>) fieldValue)) {
+                        sb.append("<li>" + o.toString() + "</li>");
+                    }
+                    sb.append("</ul>");
+                    fieldDisplay = sb.toString();
+                }
+                break;
             case org.apache.thrift.protocol.TType.SET:
-//                            instance.setFieldValue(field, CommonUtils.splitToSet(value));
-//                            break;
-            case org.apache.thrift.protocol.TType.ENUM:
-//                            if (!"".equals(value))
-//                                instance.setFieldValue(field, enumFromString(value, field));
-//                            break;
-            case org.apache.thrift.protocol.TType.I32:
-//                            if (!"".equals(value))
-//                                instance.setFieldValue(field, Integer.parseInt(value));
-//                            break;
-            case org.apache.thrift.protocol.TType.BOOL:
-//                            if (!"".equals(value))
-//                                instance.setFieldValue(field, true);
-//                            break;
+                if (fieldValue != null) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<ul>");
+                    for (Object o : ((Set<Object>) fieldValue)) {
+                        sb.append("<li>" + o.toString() + "</li>");
+                    }
+                    sb.append("</ul>");
+                    fieldDisplay = sb.toString();
+                }
+                break;
             default:
-
                 fieldDisplay = fieldValue.toString();
         }
         return fieldDisplay;

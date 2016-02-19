@@ -24,6 +24,7 @@ namespace php sw360.thrift.licenses
 typedef users.User User
 typedef users.RequestedAction RequestedAction
 typedef sw360.RequestStatus RequestStatus
+typedef sw360.DocumentState DocumentState
 
 struct Obligation {
 	1: optional string id,
@@ -39,13 +40,13 @@ struct Todo {
     3: optional string type = "todo",
     4: required string text,
     5: optional set<string> whitelist,
-    6: optional bool developement,
+    6: optional bool development,
     7: optional bool distribution,
     8: optional list<Obligation> obligations,
     9: optional set<string> obligationDatabaseIds,
     10: required i32 todoId,
 
-    // These two are a quick fix to recieving boolens in PHP not working at the moment
+    // These two are a quick fix to receiving booleans in PHP not working at the moment
     15: optional string developmentString,
     16: optional string distributionString,
 }
@@ -91,9 +92,11 @@ struct License {
     21: optional set<string> todoDatabaseIds,
 	22: optional list<Risk> risks,
 	23: optional set<string> riskDatabaseIds,
-    25: optional string text;
+    25: optional string text,
 
-	200: optional map<RequestedAction, bool> permissions
+    90: optional DocumentState documentState,
+
+	200: optional map<RequestedAction, bool> permissions,
 }
 
 service LicenseService {
@@ -104,17 +107,22 @@ service LicenseService {
     // Get a list of all obligations
     list<Obligation> getAllObligations();
 
-    License getFromID(1:string id);
+
     // Get a single license by providing its ID, with todos filtered for the given organisation
     License getByID(1:string id, 2: string organisation);
+    //Get a single license by providing its ID, todos filtered for organisation, user's
+    //moderation request with status pending or in progress applied
+    License getByIDWithOwnModerationRequests(1:string id, 2: string organisation, 3: User user);
+
     list<License> getByIds(1:set<string> ids, 2: string organisation);
 
     // Add a new todo object
     string addTodo(1:Todo todo),
     // Add an existing todo do a license
     RequestStatus addTodoToLicense(1: Todo todo, 2: string licenseId, 3: User user);
-
-    RequestStatus updateLicense(1: License license, 2: User user);
+    //Update given license, user must have permission to do so,
+    // requestingUser could be same as user or the requesting user from a moderation request
+    RequestStatus updateLicense(1: License license, 2: User user, 3: User requestingUser);
     // Update the whitelisted todos for an organisation
     RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);
 

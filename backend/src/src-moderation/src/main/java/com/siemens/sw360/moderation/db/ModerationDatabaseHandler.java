@@ -18,7 +18,6 @@
 
 package com.siemens.sw360.moderation.db;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
@@ -27,17 +26,26 @@ import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.DocumentType;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.siemens.sw360.datahandler.thrift.users.UserService;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
+import com.siemens.sw360.licenses.db.LicenseTypeRepository;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
+
 
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
 
@@ -55,12 +63,16 @@ public class ModerationDatabaseHandler {
      * Connection to the couchDB database
      */
     private final ModerationRequestRepository repository;
+    private final LicenseDatabaseHandler licenseDatabaseHandler;
+    private final DatabaseConnector db;
 
     public ModerationDatabaseHandler(String url, String dbName) throws MalformedURLException {
-        DatabaseConnector db = new DatabaseConnector(url, dbName);
+        db = new DatabaseConnector(url, dbName);
 
         // Create the repository
         repository = new ModerationRequestRepository(db);
+
+        licenseDatabaseHandler = new LicenseDatabaseHandler(url,dbName);
     }
 
     public List<ModerationRequest> getRequestsByModerator(String moderator) {
@@ -72,7 +84,9 @@ public class ModerationDatabaseHandler {
     }
 
     public ModerationRequest getRequest(String requestId) {
-        return repository.get(requestId);
+        ModerationRequest moderationRequest = repository.get(requestId);
+
+        return moderationRequest;
     }
 
     public List<ModerationRequest> getRequestByDocumentId(String documentId) {
@@ -184,6 +198,47 @@ public class ModerationDatabaseHandler {
         request.setProject(project);
 
         addOrUpdate(request);
+    }
+
+    public void createRequest(License license, String user, String department) {
+        // Define moderators
+        Set<String> moderators = getLicenseModerators(department);
+        ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
+
+        // Set meta-data
+        request.setDocumentType(DocumentType.LICENSE);
+        request.setDocumentName(SW360Utils.printName(license));
+
+        // Set the object
+        request.setLicense(license);
+
+        addOrUpdate(request);
+    }
+
+    private Set<String> getLicenseModerators(String department) {
+        List<User> sw360users = Collections.emptyList();
+        try {
+            UserService.Iface client = (new ThriftClients()).makeUserClient();
+            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
+        } catch (TException e) {
+            log.error("Problem with user client", e);
+        }
+        //try first clearing admins or admins from same department
+        Set<String> moderators = sw360users
+                .stream()
+                .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
+                .filter(user1 -> user1.getDepartment().equals(department))
+                .map(User::getEmail)
+                .collect(Collectors.toSet());
+        //second choice are all clearing admins or admins in SW360
+        if (moderators.size() == 0) {
+            moderators = sw360users
+                    .stream()
+                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user1))
+                    .map(User::getEmail)
+                    .collect(Collectors.toSet());
+        }
+        return moderators;
     }
 
     public void addOrUpdate(ModerationRequest request) {
