@@ -27,7 +27,6 @@ import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
@@ -364,23 +363,11 @@ public class ComponentHandler implements ComponentService.Iface {
             }
             attachments.remove(attachment);
             if (attachment.getAttachmentType() == AttachmentType.CLEARING_REPORT){
-                autosetClearingState(release, attachments);
+                CommonUtils.setReleaseClearingStateOnClearingReportRemoval(release);
             }
             return updateRelease(release, user);
         } else {
             return RequestStatus.SUCCESS;
-        }
-    }
-
-    private void autosetClearingState(Release release, Set<Attachment> attachments) {
-        if (attachments.stream().anyMatch(att -> att.getAttachmentType()== AttachmentType.CLEARING_REPORT)){
-            if (attachments.stream().anyMatch(att -> att.getAttachmentType()==AttachmentType.CLEARING_REPORT && att.getCheckStatus() == CheckStatus.ACCEPTED)){
-                release.setClearingState(ClearingState.APPROVED);
-            }else{
-                release.setClearingState(ClearingState.REPORT_AVAILABLE);
-            }
-        }else{
-            release.setClearingState(ClearingState.NEW_CLEARING);
         }
     }
 

@@ -17,11 +17,10 @@
  */
 package com.siemens.sw360.portal.portlets.components;
 
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -56,43 +55,35 @@ public abstract class ComponentPortletUtils {
 
     public static void updateReleaseFromRequest(PortletRequest request, Release release) {
         for (Release._Fields field : Release._Fields.values()) {
-            if (field != Release._Fields.ATTACHMENTS) {
-                switch (field) {
-                    case REPOSITORY:
-                        release.setFieldValue(field, getRepositoryFromRequest(request));
-                        break;
-                    case CLEARING_INFORMATION:
-                        release.setFieldValue(field, getClearingInformationFromRequest(request));
-                        break;
-                    case COTS_DETAILS:
-                        release.setFieldValue(field, getCOTSDetailsFromRequest(request));
-                        break;
-                    case VENDOR_ID:
-                        release.unsetVendor();
-                        setFieldValue(request, release, field);
-                        break;
-                    case RELEASE_ID_TO_RELATIONSHIP:
-                        if (!release.isSetReleaseIdToRelationship())
-                            release.setReleaseIdToRelationship(new HashMap<String, ReleaseRelationship>());
-                        updateLinkedReleaesFromRequest(request, release.releaseIdToRelationship);
-                        break;
-                    default:
-                        setFieldValue(request, release, field);
-                }
+            switch (field) {
+                case REPOSITORY:
+                    release.setFieldValue(field, getRepositoryFromRequest(request));
+                    break;
+                case CLEARING_INFORMATION:
+                    release.setFieldValue(field, getClearingInformationFromRequest(request));
+                    break;
+                case COTS_DETAILS:
+                    release.setFieldValue(field, getCOTSDetailsFromRequest(request));
+                    break;
+                case VENDOR_ID:
+                    release.unsetVendor();
+                    setFieldValue(request, release, field);
+                    break;
+                case ATTACHMENTS:
+                    break;
+                case RELEASE_ID_TO_RELATIONSHIP:
+                    if (!release.isSetReleaseIdToRelationship())
+                        release.setReleaseIdToRelationship(new HashMap<String, ReleaseRelationship>());
+                    updateLinkedReleaesFromRequest(request, release.releaseIdToRelationship);
+                    break;
+                default:
+                    setFieldValue(request, release, field);
             }
         }
         // ensure ATTACHMENTS are processed after CLEARING_STATE so that automatic asignment of CLEARING_STATE will not get overwritten by the clearing state from request
         if (!release.isSetAttachments()) release.setAttachments(new HashSet<Attachment>());
         PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments());
-        updateReleaseClearingStateOnAttachmentChange(release);
-    }
-
-    private static void updateReleaseClearingStateOnAttachmentChange(Release release) {
-        if (release.getAttachments().stream().anyMatch(attachment -> attachment.getAttachmentType() == AttachmentType.CLEARING_REPORT && attachment.getCheckStatus() == CheckStatus.ACCEPTED))
-            release.setClearingState(ClearingState.APPROVED);
-        else if (release.getAttachments().stream().anyMatch(attachment -> attachment.getAttachmentType() == AttachmentType.CLEARING_REPORT))
-            release.setClearingState(ClearingState.REPORT_AVAILABLE);
-
+        CommonUtils.setReleaseClearingStateOnUpdate(release);
     }
 
     private static ClearingInformation getClearingInformationFromRequest(PortletRequest request) {

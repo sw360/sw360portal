@@ -58,10 +58,13 @@ public class DisplayReleaseClearingStateSummary extends SimpleTagSupport {
     }
 
     public void doTag() throws JspException, IOException {
-        String s = releaseClearingStateSummary.newRelease + " " +
+        String s = "<span title=\"new release, under clearing, under clearing by the project clearing team, report available, approved\">" +
+                releaseClearingStateSummary.newRelease + " " +
                 releaseClearingStateSummary.underClearing + " " +
                 releaseClearingStateSummary.underClearingByProjectTeam + " " +
-                releaseClearingStateSummary.reportAvailable;
+                releaseClearingStateSummary.reportAvailable + " " +
+                releaseClearingStateSummary.approved +
+                "</span>";
         getJspContext().getOut().print(s);
 
     }
