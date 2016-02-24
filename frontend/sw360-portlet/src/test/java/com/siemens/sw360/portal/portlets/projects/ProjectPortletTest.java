@@ -35,12 +35,12 @@ public class ProjectPortletTest {
 
     @Test
     public void testJsonOfClearing() throws Exception {
-        ReleaseClearingStateSummary releaseClearingStateSummary = new ReleaseClearingStateSummary().setNewRelease(1).setReportAvailable(5).setUnderClearing(6).setUnderClearingByProjectTeam(17);
+        ReleaseClearingStateSummary releaseClearingStateSummary = new ReleaseClearingStateSummary().setNewRelease(1).setReportAvailable(5).setUnderClearing(6).setUnderClearingByProjectTeam(17).setApproved(4);
 
         ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
         String json = thriftJsonSerializer.toJson(releaseClearingStateSummary);
 
-        assertThat(json, containsString("{\"newRelease\":1,\"underClearing\":6,\"underClearingByProjectTeam\":17,\"reportAvailable\":5}"));
+        assertThat(json, containsString("{\"newRelease\":1,\"underClearing\":6,\"underClearingByProjectTeam\":17,\"reportAvailable\":5,\"approved\":4}"));
 
         ObjectMapper objectMapper = new ObjectMapper();
         @SuppressWarnings("unchecked")

@@ -26,6 +26,7 @@ import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
@@ -361,6 +362,9 @@ public class ComponentHandler implements ComponentService.Iface {
                 return RequestStatus.FAILURE;
             }
             attachments.remove(attachment);
+            if (attachment.getAttachmentType() == AttachmentType.CLEARING_REPORT){
+                CommonUtils.setReleaseClearingStateOnClearingReportRemoval(release);
+            }
             return updateRelease(release, user);
         } else {
             return RequestStatus.SUCCESS;

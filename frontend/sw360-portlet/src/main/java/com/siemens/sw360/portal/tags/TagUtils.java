@@ -81,7 +81,8 @@ public class TagUtils {
                 }
                 break;
             default:
-                fieldDisplay = fieldValue.toString();
+
+                fieldDisplay = fieldValue == null ? "" : fieldValue.toString();
         }
         return fieldDisplay;
     }

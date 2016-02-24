@@ -27,6 +27,8 @@ import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
+import com.siemens.sw360.datahandler.thrift.components.ClearingState;
+import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
@@ -459,6 +461,34 @@ public class CommonUtils {
         } else {
             throw new NoSuchElementException();
         }
+    }
+
+    public static void setReleaseClearingStateOnClearingReportRemoval(Release release) {
+        setReleaseClearingState(release, true);
+    }
+
+    public static void setReleaseClearingStateOnUpdate(Release release) {
+        setReleaseClearingState(release, false);
+    }
+
+    private static void setReleaseClearingState(Release release, boolean maySetToNew) {
+        if (hasClearingReport(release)){
+            if (hasAcceptedClearingReport(release)){
+                release.setClearingState(ClearingState.APPROVED);
+            }else{
+                release.setClearingState(ClearingState.REPORT_AVAILABLE);
+            }
+        }else{
+            if (maySetToNew) release.setClearingState(ClearingState.NEW_CLEARING);
+        }
+    }
+
+    private static boolean hasAcceptedClearingReport(Release release) {
+        return release.getAttachments().stream().anyMatch(att -> att.getAttachmentType()== AttachmentType.CLEARING_REPORT && att.getCheckStatus() == CheckStatus.ACCEPTED);
+    }
+
+    private static boolean hasClearingReport(Release release) {
+        return release.getAttachments().stream().anyMatch(att -> att.getAttachmentType()== AttachmentType.CLEARING_REPORT);
     }
 
     public static class AfterFunction<T, V> {

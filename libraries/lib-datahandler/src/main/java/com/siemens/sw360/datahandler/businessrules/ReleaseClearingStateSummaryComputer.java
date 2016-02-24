@@ -39,7 +39,7 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
  */
 public class ReleaseClearingStateSummaryComputer {
     public static ReleaseClearingStateSummary computeReleaseClearingStateSummary(List<Release> releases, String clearingTeam) {
-        ReleaseClearingStateSummary summary = new ReleaseClearingStateSummary(0, 0, 0, 0);
+        ReleaseClearingStateSummary summary = new ReleaseClearingStateSummary(0, 0, 0, 0, 0);
 
         if (releases == null) {
             return summary;
@@ -81,6 +81,8 @@ public class ReleaseClearingStateSummaryComputer {
                     return ViewedState.CLEARING;
                 case REPORT_AVAILABLE:
                     return ViewedState.REPORT_AVAILABLE;
+                case APPROVED:
+                    return ViewedState.APPROVED;
             }
         }
         return ViewedState.NONE;
@@ -130,6 +132,9 @@ public class ReleaseClearingStateSummaryComputer {
             case REPORT_AVAILABLE:
                 summary.reportAvailable++;
                 break;
+            case APPROVED:
+                summary.approved++;
+                break;
             default:
                 break;
         }
@@ -148,6 +153,7 @@ public class ReleaseClearingStateSummaryComputer {
                 return addReleaseState(summary, stateWhenCleared);
             case NEW:
             case REPORT_AVAILABLE:
+            case APPROVED:
             default:
                 return addReleaseState(summary, state);
         }
@@ -177,7 +183,7 @@ public class ReleaseClearingStateSummaryComputer {
     }
 
     enum ViewedState {
-        NONE(false), NEW, CLEARING, CLEARING_MY_TEAM, REPORT_AVAILABLE;
+        NONE(false), NEW, CLEARING, CLEARING_MY_TEAM, REPORT_AVAILABLE, APPROVED;
 
         private boolean present;
 

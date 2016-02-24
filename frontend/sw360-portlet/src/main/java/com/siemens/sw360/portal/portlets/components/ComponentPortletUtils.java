@@ -17,6 +17,7 @@
  */
 package com.siemens.sw360.portal.portlets.components;
 
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
@@ -69,17 +70,20 @@ public abstract class ComponentPortletUtils {
                     setFieldValue(request, release, field);
                     break;
                 case ATTACHMENTS:
-                    if (!release.isSetAttachments()) release.setAttachments(new HashSet<Attachment>());
-                    PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments());
                     break;
                 case RELEASE_ID_TO_RELATIONSHIP:
-                    if (!release.isSetReleaseIdToRelationship()) release.setReleaseIdToRelationship(new HashMap<String, ReleaseRelationship>());
+                    if (!release.isSetReleaseIdToRelationship())
+                        release.setReleaseIdToRelationship(new HashMap<String, ReleaseRelationship>());
                     updateLinkedReleaesFromRequest(request, release.releaseIdToRelationship);
                     break;
                 default:
                     setFieldValue(request, release, field);
             }
         }
+        // ensure ATTACHMENTS are processed after CLEARING_STATE so that automatic asignment of CLEARING_STATE will not get overwritten by the clearing state from request
+        if (!release.isSetAttachments()) release.setAttachments(new HashSet<Attachment>());
+        PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments());
+        CommonUtils.setReleaseClearingStateOnUpdate(release);
     }
 
     private static ClearingInformation getClearingInformationFromRequest(PortletRequest request) {
