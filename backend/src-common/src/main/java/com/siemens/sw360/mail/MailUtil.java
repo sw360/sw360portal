@@ -27,6 +27,8 @@ public class MailUtil {
     private String enableStarttls;
     private String login;
     private String password;
+    private String enableSsl;
+    private String enableDebug;
 
     private String subject;
     private String text;
@@ -44,7 +46,9 @@ public class MailUtil {
         isAuthenticationNecessary = loadedProperties.getProperty("MailUtil_isAuthenticationNecessary", "true");
         login = loadedProperties.getProperty("MailUtil_login", "");
         password = loadedProperties.getProperty("MailUtil_password", "");
-        enableStarttls=loadedProperties.getProperty("MaitUtil_enableStarttls","false");
+        enableStarttls = loadedProperties.getProperty("MaitUtil_enableStarttls","false");
+        enableSsl = loadedProperties.getProperty("MaitUtil_enableSsl","false");
+        enableDebug = loadedProperties.getProperty("MaitUtil_enableDebug","false");
     }
 
     private void setSession() {
@@ -52,10 +56,14 @@ public class MailUtil {
         Properties properties = System.getProperties();
 
         // Setup mail server
+        properties.setProperty("mail.transport.protocol", "smtp");
         properties.setProperty("mail.smtp.host", host);
         properties.setProperty("mail.smtp.port", port);
         properties.setProperty("mail.smtp.auth", isAuthenticationNecessary);
         properties.setProperty("mail.smtp.starttls.enable", enableStarttls);
+        properties.setProperty("mail.smtp.ssl.enable", enableSsl);
+
+        properties.setProperty("mail.debug", enableDebug);
 
         if (Boolean.parseBoolean(isAuthenticationNecessary)) {
             Authenticator auth = new SMTPAuthenticator(login, password);
