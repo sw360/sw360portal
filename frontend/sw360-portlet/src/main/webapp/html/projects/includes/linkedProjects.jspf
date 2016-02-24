@@ -60,7 +60,7 @@
             <%--</td>--%>
         </tr>
     </core_rt:forEach>
-    <core_rt:if test="${projectList.size() < 1}"> <tr> <td colspan="2"> No linked projects</td></tr> </core_rt:if>
+    <core_rt:if test="${projectList.size() < 1}"> <tr> <td colspan="3"> No linked projects</td></tr> </core_rt:if>
     </tbody>
 </table>
 
