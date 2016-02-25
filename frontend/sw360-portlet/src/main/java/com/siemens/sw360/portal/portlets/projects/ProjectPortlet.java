@@ -456,16 +456,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             projectList = Collections.emptyList();
         }
 
-        //Set<String> vendorNames;
-
-        //try {
-        //    vendorNames = thriftClients.makeVendorClient().getAllVendorNames();
-        //} catch (TException e) {
-        //    log.error("Problem retrieving all the Vendor names");
-        //    vendorNames = Collections.emptySet();
-
-
-        //request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
         request.setAttribute(PROJECT_LIST, projectList);
         request.setAttribute(KEY_SEARCH_TEXT, searchtext);
         request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
@@ -495,9 +485,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
                 addProjectBreadcrumb(request, response, project);
-                log.info("in prepareDetailView:");
-                log.info(project.name);
-                log.info(project.description);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
             }

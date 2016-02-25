@@ -88,7 +88,6 @@ public class UserHandler implements UserService.Iface {
     public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) throws TException {
         assertNotNull(userEmail);
         return db.sendMailForAcceptedModerationRequest(userEmail);
-
     }
 
 }

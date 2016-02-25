@@ -70,8 +70,8 @@ public class UserDatabaseHandler {
 
         MailUtil mailUtil = new MailUtil();
         mailUtil.sendMail(userEmail,"subjectForAcceptedModerationRequest","textForAcceptedModerationRequest");
-        return RequestStatus.SUCCESS;
 
+        return RequestStatus.SUCCESS;
     }
 
     public List<User> getAll() {return repository.getAll();}

@@ -30,8 +30,6 @@ public class MailUtil {
     private String enableSsl;
     private String enableDebug;
 
-    private String subject;
-    private String text;
 
     public MailUtil() {
         loadedProperties = CommonUtils.loadProperties(MailUtil.class, MAIL_PROPERTIES_FILE_PATH);
@@ -41,14 +39,14 @@ public class MailUtil {
 
     private void setBasicProperties() {
         from = loadedProperties.getProperty("MailUtil_from", "");
-        host = loadedProperties.getProperty("MailUtil_host", "localhost");
+        host = loadedProperties.getProperty("MailUtil_host", "");
         port = loadedProperties.getProperty("MailUtil_port", "25");
+        enableStarttls = loadedProperties.getProperty("MailUtil_enableStarttls", "false");
+        enableSsl = loadedProperties.getProperty("MailUtil_enableSsl", "false");
         isAuthenticationNecessary = loadedProperties.getProperty("MailUtil_isAuthenticationNecessary", "true");
         login = loadedProperties.getProperty("MailUtil_login", "");
         password = loadedProperties.getProperty("MailUtil_password", "");
-        enableStarttls = loadedProperties.getProperty("MaitUtil_enableStarttls","false");
-        enableSsl = loadedProperties.getProperty("MaitUtil_enableSsl","false");
-        enableDebug = loadedProperties.getProperty("MaitUtil_enableDebug","false");
+        enableDebug = loadedProperties.getProperty("MailUtil_enableDebug", "false");
     }
 
     private void setSession() {
@@ -65,7 +63,7 @@ public class MailUtil {
 
         properties.setProperty("mail.debug", enableDebug);
 
-        if (Boolean.parseBoolean(isAuthenticationNecessary)) {
+        if (isAuthenticationNecessary!="false") {
             Authenticator auth = new SMTPAuthenticator(login, password);
             session = Session.getInstance(properties, auth);
         } else {
@@ -74,35 +72,58 @@ public class MailUtil {
     }
 
     public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
-        loadSubjectAndText(subjectNameInPropertiesFile,textNameInPropertiesFile);
-        sendMailWithSubjectAndText(recipient);
-    }
-
-    public void sendMail(Set<String> recipients, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
-        loadSubjectAndText(subjectNameInPropertiesFile,textNameInPropertiesFile);
-        for (String recipient : recipients) {
-            sendMailWithSubjectAndText(recipient);
+        if (isMailingEnabledAndValid()) {
+            MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
+            sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
         }
     }
 
-    private void loadSubjectAndText(String subjectKeyInPropertiesFile, String textKeyInPropertiesFile){
-        subject=loadedProperties.getProperty(subjectKeyInPropertiesFile,"");
-        text=loadedProperties.getProperty("defaultBegin","")
-            +loadedProperties.getProperty(textKeyInPropertiesFile,"")
-            +loadedProperties.getProperty("defaultEnd","");
+    public void sendMail(Set<String> recipients, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
+        if (!isMailingEnabledAndValid()) {
+            MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
+            for (String recipient : recipients) {
+                sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
+            }
+        }
     }
 
-    private void sendMailWithSubjectAndText(String recipient) {
+    private boolean isMailingEnabledAndValid() {
+        if (host == "") {
+            return false; //e-mailing is disabled
+        }
+        if (isAuthenticationNecessary!="false" && login == "") {
+            log.error("Cannot send emails: authentication necessary, but login is not set.");
+            return false;
+        }
+        return true;
+
+    }
+
+    private MimeMessage makeMessageWithSubjectAndText(String subjectKeyInPropertiesFile, String textKeyInPropertiesFile) {
+        MimeMessage message = new MimeMessage(session);
+
+        String subject = loadedProperties.getProperty(subjectKeyInPropertiesFile, "");
+        String text = loadedProperties.getProperty("defaultBegin", "")
+                + loadedProperties.getProperty(textKeyInPropertiesFile, "")
+                + loadedProperties.getProperty("defaultEnd", "");
         try {
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(from));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
             message.setSubject(subject);
             message.setText(text);
+        } catch (MessagingException mex) {
+            log.error(mex.getMessage());
+        }
+
+        return message;
+    }
+
+    private void sendMailWithSubjectAndText(String recipient, MimeMessage message) {
+        try {
+            message.setFrom(new InternetAddress(from));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
 
             Transport.send(message);
 
-            log.info("Sent message successfully....");
+            log.info("Sent message successfully to user "+recipient+".");
 
         } catch (MessagingException mex) {
             log.error(mex.getMessage());
