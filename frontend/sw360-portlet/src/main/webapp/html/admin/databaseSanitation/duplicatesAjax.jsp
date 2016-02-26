@@ -34,15 +34,16 @@
 <jsp:useBean id="duplicateProjects" type="java.util.Map<java.lang.String,  java.util.List<java.lang.String>>"
              scope="request"/>
 <core_rt:if test="${duplicateReleases.size()>0}">
-    <table class="info_table">
+            <h4>Releases with the same identifier [name(version)]</h4>
+    <table id="duplicateReleasesTable" class="display">
         <thead>
         <tr>
-            <th colspan="2">Releases with the same identifier [name(version)]</th>
+            <th>Release Name</th><th>Links</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <core_rt:forEach items="${duplicateReleases.entrySet()}" var="duplicate">
+        <core_rt:forEach items="${duplicateReleases.entrySet()}" var="duplicate">
+            <tr>
                 <td>${duplicate.key}</td>
                 <td>
                     <core_rt:forEach items="${duplicate.value}" var="id" varStatus="loop">
@@ -50,41 +51,43 @@
                                                   showName="false">${loop.count}</sw360:DisplayReleaseLink>&nbsp;
                     </core_rt:forEach>
                 </td>
-            </core_rt:forEach>
-        </tr>
+            </tr>
+        </core_rt:forEach>
         </tbody>
     </table>
 </core_rt:if>
 <core_rt:if test="${duplicateReleaseSources.size()>0}">
-    <table class="info_table">
+    <h4>Releases with more than one source attachment</h4>
+    <table id="duplicateReleaseSourcesTable" class="display">
         <thead>
         <tr>
-            <th colspan="2">Releases with more than one source attachment</th>
+            <th>Release Name</th><th>Source Attachments Count</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <core_rt:forEach items="${duplicateReleaseSources.entrySet()}" var="duplicate">
+        <core_rt:forEach items="${duplicateReleaseSources.entrySet()}" var="duplicate">
+            <tr>
                 <td>   <sw360:DisplayReleaseLink releaseId="${duplicate.value.get(0)}"
                                                  showName="false">${duplicate.key}</sw360:DisplayReleaseLink></td>
                 <td>
                     <sw360:out value="${duplicate.value.size()}"/>
                 </td>
-            </core_rt:forEach>
-        </tr>
+            </tr>
+        </core_rt:forEach>
         </tbody>
     </table>
 </core_rt:if>
 <core_rt:if test="${duplicateComponents.size()>0}">
-    <table class="info_table">
+    <h4>Components with the same identifier [name]</h4>
+    <table id="duplicateComponentsTable" class="display">
         <thead>
         <tr>
-            <th colspan="2">Components with the same identifier [name]</th>
+            <th>Component Name</th><th>Links</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <core_rt:forEach items="${duplicateComponents.entrySet()}" var="duplicate">
+        <core_rt:forEach items="${duplicateComponents.entrySet()}" var="duplicate">
+            <tr>
                 <td>${duplicate.key}</td>
                 <td>
                     <core_rt:forEach items="${duplicate.value}" var="id" varStatus="loop">
@@ -92,21 +95,22 @@
                                                   showName="false">${loop.count}</sw360:DisplayComponentLink>&nbsp;
                     </core_rt:forEach>
                 </td>
-            </core_rt:forEach>
-        </tr>
+            </tr>
+        </core_rt:forEach>
         </tbody>
     </table>
 </core_rt:if>
 <core_rt:if test="${duplicateProjects.size()>0}">
-    <table class="info_table">
+    <h4>Projects with the same identifier [name(version)]</h4>
+    <table id="duplicateProjectsTable" class="display">
         <thead>
         <tr>
-            <th colspan="2">Projects with the same identifier [name(version)]</th>
+            <th>Project Name</th><th>Links</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <core_rt:forEach items="${duplicateProjects.entrySet()}" var="duplicate">
+        <core_rt:forEach items="${duplicateProjects.entrySet()}" var="duplicate">
+            <tr>
                 <td>${duplicate.key}</td>
                 <td>
                     <core_rt:forEach items="${duplicate.value}" var="id" varStatus="loop">
@@ -114,8 +118,8 @@
                                                     showName="false">${loop.count}</sw360:DisplayProjectLink>&nbsp;
                     </core_rt:forEach>
                 </td>
-            </core_rt:forEach>
-        </tr>
+            </tr>
+        </core_rt:forEach>
         </tbody>
     </table>
 </core_rt:if>

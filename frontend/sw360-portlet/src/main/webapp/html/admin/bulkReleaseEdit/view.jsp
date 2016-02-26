@@ -48,6 +48,7 @@
 <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
 
 
 <div id="header"></div>
@@ -107,6 +108,26 @@
 <%@include file="/html/components/includes/vendors/vendorSearchForm.jspf" %>
 
 <script>
+    var PortletURL;
+    AUI().use('liferay-portlet-url', function (A) {
+        PortletURL = Liferay.PortletURL;
+        load();
+    });
+
+    //This can not be document ready function as liferay definitions need to be loaded first
+    function load() {
+        configureComponentBasicInfoTable();
+    }
+
+    function configureComponentBasicInfoTable(){
+        $('#ComponentBasicInfo').dataTable({
+            "sPaginationType": "full_numbers"
+        });
+
+        $('#ComponentBasicInfo_filter').hide();
+        $('#ComponentBasicInfo_first').hide();
+        $('#ComponentBasicInfo_last').hide();
+    }
 
     var activeReleaseId = '';
 
@@ -190,3 +211,5 @@
     }
 
 </script>
+
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
