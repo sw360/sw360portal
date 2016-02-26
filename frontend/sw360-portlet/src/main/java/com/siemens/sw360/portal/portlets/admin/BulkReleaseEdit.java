@@ -35,6 +35,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -58,6 +59,7 @@ public class BulkReleaseEdit extends Sw360Portlet {
 
         } catch (TException e) {
             log.error("Could not fetch releases from backend", e);
+            request.setAttribute(RELEASE_LIST, Collections.emptyList());
         }
 
         // Proceed with page rendering

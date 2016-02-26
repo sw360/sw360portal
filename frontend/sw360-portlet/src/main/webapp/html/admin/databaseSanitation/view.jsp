@@ -54,18 +54,6 @@
 <br/>
 
 <script>
-    var PortletURL;
-    AUI().use('liferay-portlet-url', function (A) {
-        PortletURL = Liferay.PortletURL;
-//        load();
-    });
-
-    //This can not be document ready function as liferay definitions need to be loaded first
-//    function load() {
-//        configureUsersTable();
-//        configureMissingUsersTable();
-//    }
-
 function findDuplicates(){
 
   var field =   $('#DuplicateSearch');
