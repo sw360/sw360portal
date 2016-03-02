@@ -1,0 +1,79 @@
+<%@ page import="com.siemens.sw360.datahandler.thrift.licenses.LicenseType" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.licenses.License" %>
+<%--
+  ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+--%>
+
+
+<table class="table info_table" id="LicenseBasicInfo" title="License Details">
+  <thead>
+  <tr>
+    <th colspan="3" class="headlabel">License Details</th>
+  </tr>
+  </thead>
+
+  <tr>
+    <td width="33%">
+      <label class="textlabel stackedLabel mandatory" for="lic_fullname">Fullname</label>
+      <input id="lic_fullname" name="<portlet:namespace/><%=License._Fields.FULLNAME%>" type="text"
+             placeholder="Enter Fullname" required="" value="<sw360:out value="${licenseDetail.fullname}"/>"/>
+    </td>
+
+    <td width="33%">
+      <label class="textlabel stackedLabel mandatory" for="lic_shortname">Shortname</label>
+      <input id="lic_shortname" name="<portlet:namespace/><%=License._Fields.SHORTNAME%>" type="text"
+             placeholder="Enter Shortname" required="" value="<sw360:out value="${licenseDetail.shortname}"/>"/>
+    </td>
+
+    <td width="33%">
+      <label class="textlabel stackedLabel" for="lic_licenseType">License Type</label>
+      <select class="toplabelledInput" id="lic_licenseType"
+              name="<portlet:namespace/><%=License._Fields.LICENSE_TYPE%><%=LicenseType._Fields.LICENSE_TYPE%>"
+              style="min-width: 162px; min-height: 28px;">
+
+        <core_rt:forEach items="${licenseTypeChoice}" var="entry">
+          <option value="${entry.licenseType}" class="textlabel stackedLabel" <core_rt:if
+                  test='${licenseDetail.licenseType.licenseType == entry.licenseType}'>selected="selected"</core_rt:if>> ${entry.licenseType} </option>
+        </core_rt:forEach>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <td width="33%">
+      <label class="checkboxlabel" for="gpl2">
+        <input id="gpl2" type="checkbox"
+               name="<portlet:namespace/><%=License._Fields.GPLV2_COMPAT%>"
+               value="<sw360:out value="${licenseDetail.GPLv2Compat}"/>"
+                <core_rt:if test="${licenseDetail.GPLv2Compat == 'true'}"> checked="checked" </core_rt:if>
+        />
+        GPL-2.0 compatibility</label>
+    </td>
+    <td width="33%">
+      <label class="checkboxlabel" for="gpl3">
+        <input id="gpl3" type="checkbox"
+               name="<portlet:namespace/><%=License._Fields.GPLV3_COMPAT%>"
+               value="<sw360:out value="${licenseDetail.GPLv3Compat}"/>"
+                <core_rt:if test="${licenseDetail.GPLv3Compat == 'true'}"> checked="checked" </core_rt:if>
+        />
+        GPL-3.0 compatibility</label>
+    </td>
+
+    <td width="33%"></td>
+  </tr>
+
+</table>

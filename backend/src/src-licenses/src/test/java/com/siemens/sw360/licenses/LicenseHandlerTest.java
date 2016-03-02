@@ -140,7 +140,7 @@ public class LicenseHandlerTest {
 
     @Test
     public void testGetObligations() throws Exception {
-        List<Obligation> actualObligations = handler.getAllObligations();
+        List<Obligation> actualObligations = handler.getObligations();
         assertEquals(obligations.size(), actualObligations.size());
     }
 

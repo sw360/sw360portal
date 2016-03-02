@@ -36,7 +36,11 @@
 
 <core_rt:set var="dontDisplayDeleteButton" value="true" scope="request"/>
 <div id="header"></div>
-<p class="pageHeader"><span class="pageHeaderBigSpan">Project: <sw360:ProjectName project="${project}"/></span> <input type="button" onclick="editProject()" id="edit" value="Edit" class="addButton"> </p>
+<p class="pageHeader"><span class="pageHeaderBigSpan">Project: <sw360:ProjectName project="${project}"/></span>
+    <span class="pull-right">
+        <input type="button" onclick="editProject()" id="edit" value="Edit" class="addButton">
+    </span>
+</p>
 <div id="content" >
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">

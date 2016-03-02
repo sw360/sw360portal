@@ -104,10 +104,6 @@ service LicenseService {
     // Get an map of id/identifier/fullname for all licenses. The other fields will be set to null.
     list<License> getLicenseSummary();
 
-    // Get a list of all obligations
-    list<Obligation> getAllObligations();
-
-
     // Get a single license by providing its ID, with todos filtered for the given organisation
     License getByID(1:string id, 2: string organisation);
     //Get a single license by providing its ID, todos filtered for organisation, user's
@@ -125,6 +121,7 @@ service LicenseService {
     RequestStatus updateLicense(1: License license, 2: User user, 3: User requestingUser);
     // Update the whitelisted todos for an organisation
     RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);
+    RequestStatus deleteLicense(1: string licenseId, 2: User user);
 
     // Get an map of id/identifier/fullname for all licenses. The other fields will be set to null.
     list<License> getLicenseSummaryForExport();
@@ -147,6 +144,8 @@ service LicenseService {
     list<LicenseType> getLicenseTypes();
     list<License> getLicenses();
     list<Todo> getTodos();
+    // Get a list of all obligations
+    list<Obligation> getObligations();
 
     list<Risk> getRisksByIds( 1: list<string> ids);
     list<RiskCategory> getRiskCategoriesByIds( 1: list<string> ids);

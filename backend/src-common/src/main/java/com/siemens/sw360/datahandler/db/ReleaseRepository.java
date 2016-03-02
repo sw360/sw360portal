@@ -69,7 +69,16 @@ public class ReleaseRepository extends SummaryAwareRepository<Release> {
                     "  }" +
                     "}";
 
-        private static final String MY_COMPONENTS_VIEW =
+    private static final String RELEASE_IDS_BY_LICENSE_ID =
+            "function(doc) {" +
+                      "  if (doc.type == 'release'){" +
+                      "    for(var i in doc.mainLicenseIds) {" +
+                      "      emit(doc.mainLicenseIds[i], doc);" +
+                      "    }" +
+                      "  }" +
+                      "}";
+
+    private static final String MY_COMPONENTS_VIEW =
             "function(doc) {" +
                     " if (doc.type == 'release'){" +
                     "    emit(doc.createdBy, doc.componentId);" +
@@ -145,5 +154,11 @@ public class ReleaseRepository extends SummaryAwareRepository<Release> {
     public List<Release> getReleasesFromVendorIds(Set<String> ids) {
 
         return makeSummaryFromFullDocs(SummaryType.SHORT, queryByIds("releaseIdByVendorId", ids));
+    }
+
+    @View(name = "releaseIdsByLicenseId", map = RELEASE_IDS_BY_LICENSE_ID)
+    public List<Release> searchReleasesByUsingLicenseId(String licenseId) {
+
+        return queryView("releaseIdsByLicenseId", licenseId);
     }
 }

@@ -28,7 +28,7 @@
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
-
+<jsp:useBean id="isUserAtLeastClearingAdmin" class="java.lang.String" scope="request" />
 <jsp:useBean id="licenseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.License>"
              scope="request"/>
 
@@ -36,11 +36,19 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.EXPORT_TO_EXCEL%>"/>
 </portlet:resourceURL>
 
+<portlet:renderURL var="addLicenseURL">
+    <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/>
+</portlet:renderURL>
+
 <div id="header"></div>
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Licenses</span> <span class="pageHeaderSmallSpan">(${licenseList.size()})</span>
-        <span class="pull-right">
-        <input type="button" class="addButton" onclick="window.location.href='<%=exportLicensesURL%>'" value="Export Licenses">
+    <span class="pull-right">
+        <input type="button" class="addButton" onclick="window.location.href='<%=exportLicensesURL%>'"
+               value="Export Licenses">
+        <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
+            <input type="button" class="addButton" onclick="window.location.href='<%=addLicenseURL%>'" value="Add License">
+        </core_rt:if>
     </span>
 </p>
 

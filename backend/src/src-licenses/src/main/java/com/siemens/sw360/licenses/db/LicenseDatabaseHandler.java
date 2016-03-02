@@ -22,9 +22,14 @@ import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
+import com.siemens.sw360.datahandler.db.ComponentRepository;
+import com.siemens.sw360.datahandler.db.ReleaseRepository;
+import com.siemens.sw360.datahandler.db.VendorRepository;
 import com.siemens.sw360.datahandler.entitlement.LicenseModerator;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.components.Component;
+import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.*;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
@@ -92,7 +97,7 @@ public class LicenseDatabaseHandler {
     /**
      * Get all obligations from database
      */
-    public List<Obligation> getAllObligations() {
+    public List<Obligation> getObligations() {
         return obligationRepository.getAll();
     }
 
@@ -362,35 +367,60 @@ public class LicenseDatabaseHandler {
                 .collect(Collectors.toList());
     }
 
-    public RequestStatus updateLicense(License moderatedLicense, User user, User requestingUser) {
+    public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) {
         if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
-            String bu = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
-            License dbLicense = licenseRepository.get(moderatedLicense.getId());
-            for (Todo todo : moderatedLicense.getTodos()) {
+            String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
+
+            License dbLicense = new License();
+            if(inputLicense.isSetId()) {
+                dbLicense = licenseRepository.get(inputLicense.getId());
+            }
+
+            dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit);
+
+            if(dbLicense.isSetId()) {
+                licenseRepository.update(dbLicense);
+            }else{
+                licenseRepository.add(dbLicense);
+            }
+            return RequestStatus.SUCCESS;
+        }
+        return RequestStatus.FAILURE;
+    }
+
+    private License updateLicenseFromInputLicense(License license, License inputLicense, String businessUnit){
+        if(inputLicense.isSetTodos()) {
+            for (Todo todo : inputLicense.getTodos()) {
                 if (todo.isSetId() && todo.id.startsWith("tmp")) {
                     todo.unsetId();
                     try {
                         String todoDatabaseId = addTodo(todo);
-                        dbLicense.addToTodoDatabaseIds(todoDatabaseId);
+                        license.addToTodoDatabaseIds(todoDatabaseId);
                     } catch (SW360Exception e) {
                         log.error("Error adding todo to database.");
                     }
                 } else if (todo.isSetId()) {
                     Todo dbTodo = todoRepository.get(todo.id);
-                    if (todo.whitelist.contains(bu) && !dbTodo.whitelist.contains(bu)) {
-                        dbTodo.addToWhitelist(bu);
+                    if (todo.whitelist.contains(businessUnit) && !dbTodo.whitelist.contains(businessUnit)) {
+                        dbTodo.addToWhitelist(businessUnit);
                         todoRepository.update(dbTodo);
                     }
-                    if (!todo.whitelist.contains(bu) && dbTodo.whitelist.contains(bu)) {
-                        dbTodo.whitelist.remove(bu);
+                    if (!todo.whitelist.contains(businessUnit) && dbTodo.whitelist.contains(businessUnit)) {
+                        dbTodo.whitelist.remove(businessUnit);
                         todoRepository.update(dbTodo);
                     }
                 }
             }
-            licenseRepository.update(dbLicense);
-            return RequestStatus.SUCCESS;
         }
-        return RequestStatus.FAILURE;
+        license.setText(inputLicense.getText());
+        license.setFullname(inputLicense.getFullname());
+        license.setShortname(inputLicense.getShortname());
+        license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
+        license.unsetLicenseType();
+        license.setGPLv2Compat(inputLicense.GPLv2Compat);
+        license.setGPLv3Compat(inputLicense.GPLv3Compat);
+
+        return license;
     }
 
     public License getById(String id) {
@@ -668,5 +698,30 @@ public class LicenseDatabaseHandler {
             todo.setDevelopmentString(todo.isDevelopment()?"True":"False");
             todo.setDistributionString(todo.isDistribution()?"True":"False");
         }
+    }
+
+    public RequestStatus deleteLicense(String id, User user) throws SW360Exception {
+        License license = licenseRepository.get(id);
+        assertNotNull(license);
+
+        if (checkIfInUse(id)) {
+            return RequestStatus.IN_USE;
+        }
+
+        // Remove the license if the user is allowed to do it by himself
+        if (makePermission(license, user).isActionAllowed(RequestedAction.DELETE)) {
+            licenseRepository.remove(license);
+            moderator.notifyModeratorOnDelete(license.getId());
+            return RequestStatus.SUCCESS;
+        } else {
+            log.error(user + " does not have the permission to delete the license.");
+            return RequestStatus.FAILURE;
+        }
+    }
+
+    public boolean checkIfInUse(String licenseId) {
+        ReleaseRepository releaseRepository = new ReleaseRepository(db,new VendorRepository(db));
+        final List<Release> usingReleases = releaseRepository.searchReleasesByUsingLicenseId(licenseId);
+        return !usingReleases.isEmpty();
     }
 }

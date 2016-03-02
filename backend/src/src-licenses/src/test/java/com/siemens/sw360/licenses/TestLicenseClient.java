@@ -42,7 +42,7 @@ public class TestLicenseClient {
         LicenseService.Iface client = new LicenseService.Client(protocol);
 
         List<License> licenses = client.getLicenseSummary();
-        List<Obligation> obligations = client.getAllObligations();
+        List<Obligation> obligations = client.getObligations();
 
         System.out.println("Fetched " + licenses.size() + " licenses from license service");
         System.out.println("Fetched " + obligations.size() + " obligations from license service");

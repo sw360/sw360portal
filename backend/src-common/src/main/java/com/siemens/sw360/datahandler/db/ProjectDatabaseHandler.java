@@ -174,7 +174,9 @@ public class ProjectDatabaseHandler {
         Project project = repository.get(id);
         assertNotNull(project);
 
-        if (checkIfInUse(id)) return RequestStatus.IN_USE;
+        if (checkIfInUse(id)) {
+            return RequestStatus.IN_USE;
+        }
 
         // Remove the project if the user is allowed to do it by himself
         if (makePermission(project, user).isActionAllowed(RequestedAction.DELETE)) {
