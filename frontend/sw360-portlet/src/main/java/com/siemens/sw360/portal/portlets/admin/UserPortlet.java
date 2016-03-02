@@ -32,17 +32,21 @@ import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.*;
+import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
 import com.liferay.portal.service.persistence.RoleUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
+import com.siemens.sw360.datahandler.thrift.users.*;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.UsedAsLiferayAction;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
+import com.siemens.sw360.portal.users.UserCSV;
+import com.siemens.sw360.portal.users.UserCacheHolder;
 import com.siemens.sw360.portal.users.UserUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -56,6 +60,7 @@ import java.io.*;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.siemens.sw360.portal.users.UserUtils.getRoleConstantFromUserGroup;
 
 /**
  * Created by jn on 06.03.15.
@@ -64,40 +69,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  */
 public class UserPortlet extends Sw360Portlet {
     private static final Logger log = Logger.getLogger(UserPortlet.class);
-
-
-    private static class UserCSV {
-
-        private String givenname;
-        private String lastname;
-        private String email;
-        private String department;
-        private String group;
-        private String gid;
-        private boolean isMale;
-        private String hash;
-
-        public String getDepartment() {
-            return department;
-        }
-
-        public UserCSV(CSVRecord record) {
-            givenname = record.get(0);
-            lastname = record.get(1);
-            email = record.get(2);
-            department = record.get(3);
-            group = record.get(4);
-            gid = record.get(5);
-            isMale = Boolean.parseBoolean(record.get(6));
-            hash = record.get(7);
-        }
-
-        public User addLifeRayUser(PortletRequest request) throws PortalException, SystemException {
-            return addLiferayUser(request, givenname, lastname, email,
-                    department, getRoleConstantFromUserGroup(userGroupFromString(group)), isMale, gid, hash);
-
-        }
-    }
 
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
@@ -228,7 +199,7 @@ public class UserPortlet extends Sw360Portlet {
 
         CSVPrinter csvPrinter = new CSVPrinter(out, CommonUtils.sw360CsvFormat);
 
-        csvPrinter.printRecord("GivenName", "Lastname", "Email", "Department", "UserGroup", "GID", "isMale", "PasswdHash");
+        csvPrinter.printRecord("GivenName", "Lastname", "Email", "Department", "UserGroup", "GID", "isMale", "PasswdHash","wantsMailNotification");
         for (User liferayUser : liferayUsers) {
 
             String firstName = liferayUser.getFirstName();
@@ -242,7 +213,7 @@ public class UserPortlet extends Sw360Portlet {
                 department = organizations.get(0).getName();
             }
 
-            String userGroup = "";
+            /*String userGroup = "";
 
             List<Role> roles = liferayUser.getRoles();
             List<String> roleNames = new ArrayList<>();
@@ -257,14 +228,21 @@ public class UserPortlet extends Sw360Portlet {
                     userGroup = group.toString();
                     break;
                 }
-            }
+            }*/
 
             String gid = liferayUser.getOpenId();
             boolean isMale = liferayUser.isMale();
             String passwordHash = liferayUser.getPassword();
             if (isNullOrEmpty(emailAddress) || isNullOrEmpty(department))
                 continue;
-            csvPrinter.printRecord(firstName, lastName, emailAddress, department, userGroup, gid, isMale, passwordHash);
+            com.siemens.sw360.datahandler.thrift.users.User sw360user = UserCacheHolder.getUserFromEmail(emailAddress);
+            boolean wantsMailNotification =
+                    sw360user.isSetWantsMailNotification() ? sw360user.wantsMailNotification : true;
+
+            String userGroup = sw360user.getUserGroup().toString();
+
+            log.info("out:"+ csvPrinter.getOut().toString());
+            csvPrinter.printRecord(firstName, lastName, emailAddress, department, userGroup, gid, isMale, passwordHash, wantsMailNotification);
         }
 
         csvPrinter.flush();
@@ -553,33 +531,12 @@ public class UserPortlet extends Sw360Portlet {
         return users;
     }
 
-    public static UserGroup userGroupFromString(String s) {
-        try {
-            return UserGroup.valueOf(s);
-        } catch (IllegalArgumentException e) {
-            log.error("Illegal Argument Exception from " + s, e);
-            return UserGroup.USER;
-        }
-    }
-
-    private static String getRoleConstantFromUserGroup(UserGroup group) {
-        switch (group) {
-            case USER:
-                return RoleConstants.USER;
-            case CLEARING_ADMIN:
-                return RoleConstants.ORGANIZATION_ADMINISTRATOR;
-            case ADMIN:
-                return RoleConstants.ADMINISTRATOR;
-        }
-        return RoleConstants.USER;
-    }
-
     private User dealWithUser(PortletRequest request, UserCSV userRec) {
         User user = null;
         try {
             user = userRec.addLifeRayUser(request);
             if (user != null) {
-                UserUtils.synchronizeUserWithDatabase(user, thriftClients);
+                UserUtils.synchronizeUserWithDatabase(userRec, thriftClients);
             }
         } catch (SystemException | PortalException e) {
             log.error("Error creating a new user", e);
@@ -587,5 +544,4 @@ public class UserPortlet extends Sw360Portlet {
 
         return user;
     }
-
 }

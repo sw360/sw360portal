@@ -38,3 +38,4 @@ target/
 /libraries/importers/license-importer/target/
 /backend/src/src-projects/target/
 /backend/svc/svc-licenses/target/
+/backend/src-common/src/main/resources/sw360.properties

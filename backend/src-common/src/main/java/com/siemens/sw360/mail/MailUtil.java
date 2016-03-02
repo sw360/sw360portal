@@ -5,7 +5,10 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 
 /**
  * Provides the possiblity to send mail from SW360
@@ -29,6 +32,7 @@ public class MailUtil {
     private String password;
     private String enableSsl;
     private String enableDebug;
+    private String supportMailAddress;
 
 
     public MailUtil() {
@@ -47,6 +51,7 @@ public class MailUtil {
         login = loadedProperties.getProperty("MailUtil_login", "");
         password = loadedProperties.getProperty("MailUtil_password", "");
         enableDebug = loadedProperties.getProperty("MailUtil_enableDebug", "false");
+        supportMailAddress = loadedProperties.getProperty("MailUtil_supportMailAddress","");
     }
 
     private void setSession() {
@@ -72,19 +77,35 @@ public class MailUtil {
     }
 
     public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
-        if (isMailingEnabledAndValid()) {
+        if (isMailingEnabledAndValid() && isMailWantedBy(recipient)) {
             MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
             sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
         }
     }
 
     public void sendMail(Set<String> recipients, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
-        if (!isMailingEnabledAndValid()) {
+        if (isMailingEnabledAndValid()) {
             MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
             for (String recipient : recipients) {
-                sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
+                if(isMailWantedBy(recipient)) {
+                    sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
+                }
             }
         }
+    }
+
+    private boolean isMailWantedBy(String userEmail){
+        User user;
+        try {
+            user = (new ThriftClients()).makeUserClient().getByEmail(userEmail);
+        } catch (TException e){
+            log.info("Problem fetching user:" + e);
+            return false;
+        }
+        if (!user.isSetWantsMailNotification()){
+            return true;
+        }
+        return user.wantsMailNotification;
     }
 
     private boolean isMailingEnabledAndValid() {
@@ -101,14 +122,21 @@ public class MailUtil {
 
     private MimeMessage makeMessageWithSubjectAndText(String subjectKeyInPropertiesFile, String textKeyInPropertiesFile) {
         MimeMessage message = new MimeMessage(session);
-
         String subject = loadedProperties.getProperty(subjectKeyInPropertiesFile, "");
-        String text = loadedProperties.getProperty("defaultBegin", "")
-                + loadedProperties.getProperty(textKeyInPropertiesFile, "")
-                + loadedProperties.getProperty("defaultEnd", "");
+
+        StringBuffer text = new StringBuffer();
+        text.append(loadedProperties.getProperty("defaultBegin", ""));
+        text.append(loadedProperties.getProperty(textKeyInPropertiesFile, ""));
+        text.append(loadedProperties.getProperty("defaultEnd", ""));
+        if (!supportMailAddress.equals("")) {
+            text.append(loadedProperties.getProperty("unsubscribeNoticeBefore", ""));
+            text.append(" ");
+            text.append(supportMailAddress);
+            text.append(loadedProperties.getProperty("unsubscribeNoticeAfter", ""));
+        }
         try {
             message.setSubject(subject);
-            message.setText(text);
+            message.setText(text.toString());
         } catch (MessagingException mex) {
             log.error(mex.getMessage());
         }

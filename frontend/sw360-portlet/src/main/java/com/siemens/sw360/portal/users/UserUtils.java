@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Role;
+import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
@@ -79,6 +80,33 @@ public class UserUtils {
         }
     }
 
+    public static void synchronizeUserWithDatabase(UserCSV userCsv, ThriftClients thriftClients) {
+        UserService.Iface client = thriftClients.makeUserClient();
+
+        com.siemens.sw360.datahandler.thrift.users.User thriftUser = null;
+
+        try {
+            thriftUser = client.getByEmail(userCsv.getEmail());
+        } catch (TException e) {
+            //This occurs for every new user, so there is not necessarily something wrong
+            log.trace("Thrift exception when getting the user", e);
+        }
+
+        try {
+            if (thriftUser == null) {
+                //we have a new user
+                thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
+                fillThriftUserFromUserCSV(thriftUser, userCsv);
+                client.addUser(thriftUser);
+            } else {
+                fillThriftUserFromUserCSV(thriftUser, userCsv);
+                client.updateUser(thriftUser);
+            }
+        } catch (TException e) {
+            log.error("Thrift exception when saving the user", e);
+        }
+    }
+
     public static String displayUser(String email, com.siemens.sw360.datahandler.thrift.users.User user) {
         String userString;
         if (user != null) {
@@ -103,6 +131,19 @@ public class UserUtils {
         final com.siemens.sw360.datahandler.thrift.users.User thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
         fillThriftUserFromLiferayUser(thriftUser, user);
         return thriftUser.equals(refreshed);
+    }
+
+    public static void fillThriftUserFromUserCSV(final com.siemens.sw360.datahandler.thrift.users.User thriftUser, final UserCSV userCsv) {
+        thriftUser.setEmail(userCsv.getEmail());
+        thriftUser.setId(userCsv.getEmail());
+        thriftUser.setType(TYPE_USER);
+        thriftUser.setUserGroup(UserGroup.valueOf(userCsv.getGroup()));
+        thriftUser.setExternalid(userCsv.getGid());
+        thriftUser.setFullname(userCsv.getGivenname()+" "+userCsv.getLastname());
+        thriftUser.setGivenname(userCsv.getGivenname());
+        thriftUser.setLastname(userCsv.getLastname());
+        thriftUser.setDepartment(userCsv.getDepartment());
+        thriftUser.setWantsMailNotification(userCsv.wantsMailNotification());
     }
 
     public static void fillThriftUserFromLiferayUser(final com.siemens.sw360.datahandler.thrift.users.User thriftUser, final User user) {
@@ -151,4 +192,24 @@ public class UserUtils {
         return department;
     }
 
+    public static String getRoleConstantFromUserGroup(UserGroup group) {
+        switch (group) {
+            case USER:
+                return RoleConstants.USER;
+            case CLEARING_ADMIN:
+                return RoleConstants.ORGANIZATION_ADMINISTRATOR;
+            case ADMIN:
+                return RoleConstants.ADMINISTRATOR;
+        }
+        return RoleConstants.USER;
+    }
+
+    public static UserGroup userGroupFromString(String s) {
+        try {
+            return UserGroup.valueOf(s);
+        } catch (IllegalArgumentException e) {
+            log.error("Illegal Argument Exception from " + s, e);
+            return UserGroup.USER;
+        }
+    }
 }
