@@ -24,10 +24,8 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
-import com.siemens.sw360.datahandler.thrift.licenses.Todo;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.licenses.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.exporter.LicenseExporter;
@@ -42,6 +40,7 @@ import java.util.*;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
@@ -77,9 +76,11 @@ public class LicensesPortlet extends Sw360Portlet {
 
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
         try {
-            List<License> licenses = thriftClients.makeLicenseClient().getLicenseSummaryForExport();
+            LicenseService.Iface client = thriftClients.makeLicenseClient();
+            List<License> licenses = client.getLicenseSummaryForExport();
+            List<LicenseType> licenseTypes = client.getLicenseTypeSummaryForExport();
 
-            PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses, licenseTypes), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         } catch (IOException | TException e) {
             log.error("An error occured while generating the Excel export", e);
         }

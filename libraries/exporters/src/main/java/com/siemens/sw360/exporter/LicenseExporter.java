@@ -21,8 +21,12 @@ import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseType;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -34,7 +38,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 public class LicenseExporter extends ExcelExporter<License> {
 
 
-
+    private List<LicenseType> licenseTypes;
     private static final List<String> HEADERS = ImmutableList.<String>builder()
             .add("License Shortname")
             .add("License Fullame")
@@ -47,6 +51,21 @@ public class LicenseExporter extends ExcelExporter<License> {
         super(new LicenseHelper());
     }
 
+    public InputStream makeExcelExport(List<License> licenses, List<LicenseType> licenseTypes) throws IOException {
+        licenses=fillLicensesWithLicenseTypes(licenses,licenseTypes);
+        return super.makeExcelExport(licenses);
+    }
+    private List<License> fillLicensesWithLicenseTypes(List<License> licenses, List<LicenseType> licenseTypes){
+        Map<String,LicenseType> licenseTypeHashMap = new HashMap<String,LicenseType>();
+        for (LicenseType licenseType : licenseTypes){
+            licenseTypeHashMap.put(licenseType.getId(),licenseType);
+        }
+        for (License license: licenses){
+            license.setLicenseType(licenseTypeHashMap.get(license.getLicenseTypeDatabaseId()));
+        }
+
+        return licenses;
+    }
     private static class LicenseHelper implements ExporterHelper<License> {
 
         @Override
@@ -62,7 +81,6 @@ public class LicenseExporter extends ExcelExporter<License> {
         @Override
         public List<String> makeRow(License license) {
             List<String> row = new ArrayList<>(HEADERS.size());
-
             row.add(nullToEmpty(license.shortname));
             row.add(nullToEmpty(license.fullname));
             row.add(formatLicenseType(license.licenseType));
@@ -73,8 +91,8 @@ public class LicenseExporter extends ExcelExporter<License> {
         }
 
         private static String formatLicenseType(LicenseType type) {
-            if (type == null || type.getType() == null) return "";
-            return type.getType();
+            if (type == null || type.getLicenseType() == null) return "";
+            return (type.getLicenseTypeId()+": "+type.getLicenseType());
         }
 
         private static String formatBoolean(boolean value) {
