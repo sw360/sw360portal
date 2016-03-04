@@ -45,9 +45,11 @@
               name="<portlet:namespace/><%=License._Fields.LICENSE_TYPE%><%=LicenseType._Fields.LICENSE_TYPE%>"
               style="min-width: 162px; min-height: 28px;">
 
+        <option value="" class="textlabel stackedLabel" <core_rt:if
+                  test='${licenseDetail.licenseTypeDatabaseId == null}'>selected="selected"</core_rt:if>>No type selected</option>
         <core_rt:forEach items="${licenseTypeChoice}" var="entry">
-          <option value="${entry.licenseType}" class="textlabel stackedLabel" <core_rt:if
-                  test='${licenseDetail.licenseType.licenseType == entry.licenseType}'>selected="selected"</core_rt:if>> ${entry.licenseType} </option>
+          <option value="${entry.licenseTypeId}" class="textlabel stackedLabel" <core_rt:if
+                  test='${licenseDetail.licenseType.licenseTypeId == entry.licenseTypeId}'>selected="selected"</core_rt:if>> ${entry.licenseType} </option>
         </core_rt:forEach>
       </select>
     </td>
