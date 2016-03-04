@@ -245,15 +245,23 @@ public class LicensesPortlet extends Sw360Portlet {
         license.setGPLv2Compat(gpl2compatibility);
         license.setGPLv3Compat(gpl3compatibility);
         try {
-            String licenseTypeDatabaseId = getDatabaseIdFromLicenseType(licenseTypeString);
-            license.setLicenseTypeDatabaseId(licenseTypeDatabaseId);
+            Optional<String> licenseTypeDatabaseId = getDatabaseIdFromLicenseType(licenseTypeString);
+            if(licenseTypeDatabaseId.isPresent()) {
+                license.setLicenseTypeDatabaseId(licenseTypeDatabaseId.get());
+            } else {
+                license.unsetLicenseTypeDatabaseId();
+            }
         } catch (TException e) {
             log.error("Could not set licenseTypeDatabaseId:" + e);
+            license.unsetLicenseTypeDatabaseId();
         }
         return license;
     }
 
-    private String getDatabaseIdFromLicenseType(String licenseTypeString) throws TException {
+    private Optional<String> getDatabaseIdFromLicenseType(String licenseTypeIdString) throws TException {
+        if (licenseTypeIdString != null && licenseTypeIdString.equals("")){
+            return Optional.empty();
+        }
         if (licenseTypes == null) {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             try {
@@ -263,8 +271,8 @@ public class LicensesPortlet extends Sw360Portlet {
             }
         }
         for (LicenseType licenseType : licenseTypes) {
-            if (licenseType.licenseType.equals(licenseTypeString)) {
-                return licenseType.getId();
+            if (licenseType.getLicenseTypeId() == Integer.parseInt(licenseTypeIdString)) {
+                return Optional.of(licenseType.getId());
             }
         }
         throw new SW360Exception("Wrong license type!");
