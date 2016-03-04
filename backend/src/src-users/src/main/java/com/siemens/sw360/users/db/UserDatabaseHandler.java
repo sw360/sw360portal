@@ -20,6 +20,7 @@ package com.siemens.sw360.users.db;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
 
 import java.net.MalformedURLException;
@@ -69,7 +70,7 @@ public class UserDatabaseHandler {
     public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) {
 
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(userEmail,"subjectForAcceptedModerationRequest","textForAcceptedModerationRequest");
+        mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST,MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST);
 
         return RequestStatus.SUCCESS;
     }

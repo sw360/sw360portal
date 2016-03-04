@@ -213,23 +213,6 @@ public class UserPortlet extends Sw360Portlet {
                 department = organizations.get(0).getName();
             }
 
-            /*String userGroup = "";
-
-            List<Role> roles = liferayUser.getRoles();
-            List<String> roleNames = new ArrayList<>();
-
-            for (Role role : roles) {
-                roleNames.add(role.getName());
-            }
-
-            for (UserGroup group : UserGroup.values()) {
-                String roleConstantFromUserGroup = getRoleConstantFromUserGroup(group);
-                if (roleNames.contains(roleConstantFromUserGroup)) {
-                    userGroup = group.toString();
-                    break;
-                }
-            }*/
-
             String gid = liferayUser.getOpenId();
             boolean isMale = liferayUser.isMale();
             String passwordHash = liferayUser.getPassword();
@@ -238,7 +221,7 @@ public class UserPortlet extends Sw360Portlet {
             com.siemens.sw360.datahandler.thrift.users.User sw360user = UserCacheHolder.getUserFromEmail(emailAddress);
             boolean wantsMailNotification =
                     sw360user.isSetWantsMailNotification() ? sw360user.wantsMailNotification : true;
-
+String department = 
             String userGroup = sw360user.getUserGroup().toString();
 
             log.info("out:"+ csvPrinter.getOut().toString());

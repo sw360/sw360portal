@@ -7,6 +7,7 @@ import javax.mail.internet.*;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.mail.MailConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -19,7 +20,6 @@ public class MailUtil {
 
     private static final Logger log = Logger.getLogger(MailUtil.class);
 
-    public static final String MAIL_PROPERTIES_FILE_PATH = "/sw360.properties";
     private Properties loadedProperties;
     private Session session;
 
@@ -36,7 +36,7 @@ public class MailUtil {
 
 
     public MailUtil() {
-        loadedProperties = CommonUtils.loadProperties(MailUtil.class, MAIL_PROPERTIES_FILE_PATH);
+        loadedProperties = CommonUtils.loadProperties(MailUtil.class, MailConstants.MAIL_PROPERTIES_FILE_PATH);
         setBasicProperties();
         setSession();
     }

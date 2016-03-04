@@ -39,6 +39,7 @@ import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
 import com.siemens.sw360.licenses.db.LicenseTypeRepository;
+import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -278,17 +279,17 @@ public class ModerationDatabaseHandler {
 
     private void sendMailToModeratorsForNewRequest(Set<String> moderators){
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(moderators,"subjectForNewModerationRequest","textForNewModerationRequest");
+        mailUtil.sendMail(moderators, MailConstants.SUBJECT_FOR_NEW_MODERATION_REQUEST,MailConstants.TEXT_FOR_NEW_MODERATION_REQUEST);
     }
 
     private void sendMailToModeratorsForUpdateRequest(Set<String> moderators){
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(moderators,"subjectForUpdateModerationRequest","textForUpdateModerationRequest");
+        mailUtil.sendMail(moderators,MailConstants.SUBJECT_FOR_UPDATE_MODERATION_REQUEST,MailConstants.TEXT_FOR_UPDATE_MODERATION_REQUEST);
     }
 
     private void sendMailToUserForDeclinedRequest(String userEmail){
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(userEmail,"subjectForDeclinedModerationRequest","textForDeclinedModerationRequest");
+        mailUtil.sendMail(userEmail,MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST,MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST);
     }
 
 
