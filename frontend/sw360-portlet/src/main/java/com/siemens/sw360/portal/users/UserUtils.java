@@ -89,12 +89,12 @@ public class UserUtils {
             thriftUser = client.getByEmail(userCsv.getEmail());
         } catch (TException e) {
             //This occurs for every new user, so there is not necessarily something wrong
-            log.trace("Thrift exception when getting the user", e);
+            log.trace("User does not exist in DB yet.");
         }
 
         try {
             if (thriftUser == null) {
-                //we have a new user
+                log.info("Create new user.");
                 thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
                 fillThriftUserFromUserCSV(thriftUser, userCsv);
                 client.addUser(thriftUser);

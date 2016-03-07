@@ -18,7 +18,6 @@
 
 package com.siemens.sw360.moderation.db;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;

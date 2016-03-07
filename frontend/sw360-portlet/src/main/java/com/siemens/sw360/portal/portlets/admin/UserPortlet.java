@@ -216,15 +216,14 @@ public class UserPortlet extends Sw360Portlet {
             String gid = liferayUser.getOpenId();
             boolean isMale = liferayUser.isMale();
             String passwordHash = liferayUser.getPassword();
-            if (isNullOrEmpty(emailAddress) || isNullOrEmpty(department))
+            if (isNullOrEmpty(emailAddress) || isNullOrEmpty(department)) {
                 continue;
+            }
             com.siemens.sw360.datahandler.thrift.users.User sw360user = UserCacheHolder.getUserFromEmail(emailAddress);
             boolean wantsMailNotification =
                     sw360user.isSetWantsMailNotification() ? sw360user.wantsMailNotification : true;
-String department = 
             String userGroup = sw360user.getUserGroup().toString();
 
-            log.info("out:"+ csvPrinter.getOut().toString());
             csvPrinter.printRecord(firstName, lastName, emailAddress, department, userGroup, gid, isMale, passwordHash, wantsMailNotification);
         }
 

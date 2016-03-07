@@ -56,7 +56,7 @@ public class UserHandler implements UserService.Iface {
         // Get user from database
         User user = db.getByEmail(email);
         if (user == null) {
-            log.error("Non existing user");
+            log.info("User does not exist in DB");
         }
         return user;
     }

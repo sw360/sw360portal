@@ -92,7 +92,7 @@ public class DatabaseConnector extends StdCouchDbConnector {
         try {
             return super.get(type, id);
         } catch (DocumentNotFoundException e) {
-            log.error("Document not found for ID: " + id, e);
+            log.info("Document not found for ID: " + id);
             return null;
         } catch (DbAccessException e) {
             log.error("Document ID " + id + " could not be successfully converted to " + type.getName(), e);
