@@ -123,11 +123,7 @@
                     <artifactId>tomcat7-maven-plugin</artifactId>
                     <version>2.2</version>
                     <configuration>
-                        <server>${tomcat-backend-server}</server>
-                        <path>/${project.build.finalName}</path>
-                        <url>${tomcat-backend-url}</url>
-                        <username>admin</username>
-                        <password>sw360fossy</password>
+                        <server>localtomcat</server>
                     </configuration>
                 </plugin>
 
