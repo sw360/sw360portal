@@ -251,12 +251,12 @@ input[readonly].clickable {
 }
 #attachmentDetail td {
     border-right: 1px solid rgb(204, 204, 204);
-    height:15px;
+    height: 15px;
     padding: 5px;
-    color:black !important;
+    color: black !important;
 }
 #attachmentDetail img {
-    width:15px;
+    width: 15px;
     padding: 0px;
 }
 #attachmentDetail .attachmentTitle{
@@ -266,5 +266,9 @@ input[readonly].clickable {
     border-bottom: 2.5px solid rgb(204, 204, 204);
 }
 #attachmentDetail .lessPadding{
-    padding:0.5px !important;
+    padding: 0.5px !important;
+}
+#attachmentDetail .checksumInput{
+    margin-bottom: 0;
+    height: 15px;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -23,12 +23,17 @@ import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashSet;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
+import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
+
+import org.apache.log4j.Logger;
 
 /**
  * Ektorp connector for uploading attachments
@@ -36,6 +41,8 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
  * @author cedric.bodet@tngtech.com
  */
 public class AttachmentConnector extends AttachmentStreamConnector {
+
+    private static Logger log = Logger.getLogger(AttachmentConnector.class);
 
     public AttachmentConnector(DatabaseAddress address, Duration downloadTimeout) throws MalformedURLException {
         super(address, downloadTimeout);
@@ -78,4 +85,17 @@ public class AttachmentConnector extends AttachmentStreamConnector {
         connector.deleteIds(attachmentContentIds, AttachmentContent.class);
     }
 
+    public String getSha1FromAttachmentContentId(String attachmentContentId) {
+        try {
+            AttachmentContent attachmentContent = getAttachmentContent(attachmentContentId);
+            InputStream attachmentStream = readAttachmentStream(attachmentContent);
+            return sha1Hex(attachmentStream);
+        } catch (SW360Exception e) {
+            log.error("Problem retrieving content of attachment", e);
+            return "";
+        } catch (IOException e) {
+            log.error("Problem computing the sha1 checksum", e);
+            return "";
+        }
+    }
 }

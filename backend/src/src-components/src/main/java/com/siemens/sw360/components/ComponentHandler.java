@@ -17,6 +17,7 @@
  */
 package com.siemens.sw360.components;
 
+import com.siemens.sw360.attachments.AttachmentHandler;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
@@ -46,6 +47,7 @@ public class ComponentHandler implements ComponentService.Iface {
 
     private final ComponentDatabaseHandler handler;
     private final ComponentSearchHandler searchHandler;
+    private final AttachmentHandler attachmentHandler;
 
     public ComponentHandler() throws IOException {
         this(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
@@ -54,6 +56,7 @@ public class ComponentHandler implements ComponentService.Iface {
     ComponentHandler(String dbUrl, String dbName, String attachmentDbName) throws IOException {
         handler = new ComponentDatabaseHandler(dbUrl, dbName, attachmentDbName);
         searchHandler = new ComponentSearchHandler(dbUrl, dbName);
+        attachmentHandler = new AttachmentHandler();
     }
 
     // TODO use dependency injection instead of this constructors mess
@@ -64,6 +67,7 @@ public class ComponentHandler implements ComponentService.Iface {
     ComponentHandler(String dbUrl, String dbName, String attachmentDbName, ThriftClients thriftClients) throws IOException {
         handler = new ComponentDatabaseHandler(dbUrl, dbName, attachmentDbName, thriftClients);
         searchHandler = new ComponentSearchHandler(dbUrl, dbName);
+        attachmentHandler = new AttachmentHandler();
     }
 
     /////////////////////
@@ -319,7 +323,7 @@ public class ComponentHandler implements ComponentService.Iface {
     @Override
     public RequestStatus addAttachmentToComponent(String componentId, User user, String attachmentContentId, String fileName) throws TException {
 
-        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName);
+        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
 
         Component component = getComponentById(componentId, user);
         component.addToAttachments(attachment);
@@ -342,7 +346,7 @@ public class ComponentHandler implements ComponentService.Iface {
 
     @Override
     public RequestStatus addAttachmentToRelease(String releaseId, User user, String attachmentContentId, String fileName) throws TException {
-        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName);
+        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
 
         Release release = getReleaseById(releaseId, user);
         release.addToAttachments(attachment);

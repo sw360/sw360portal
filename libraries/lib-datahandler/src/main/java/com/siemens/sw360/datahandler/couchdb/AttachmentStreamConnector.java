@@ -185,5 +185,4 @@ public class AttachmentStreamConnector {
     private String getPartFileName(AttachmentContent attachment, int part) {
         return attachment.getFilename() + "_part" + part;
     }
-
 }

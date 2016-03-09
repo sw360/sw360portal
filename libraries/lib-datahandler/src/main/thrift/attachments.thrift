@@ -55,6 +55,7 @@ struct Attachment {
     // TODO mcj check for tests for added fields on 20151021
     1: required string attachmentContentId,
     5: required string filename,
+    6: optional string sha1,
 
     10: optional AttachmentType attachmentType,
 
@@ -114,4 +115,6 @@ service AttachmentService {
     RequestStatus deleteAttachmentContent(1: string attachmentId);
 
     RequestSummary vacuumAttachmentDB(1: User user, 2: set<string > usedIds);
+
+    string getSha1FromAttachmentContentId(1: string attachmentContentId);
 }

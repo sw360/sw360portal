@@ -17,6 +17,7 @@
  */
 package com.siemens.sw360.projects;
 
+import com.siemens.sw360.attachments.AttachmentHandler;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -46,10 +47,12 @@ public class ProjectHandler implements ProjectService.Iface {
 
     private final ProjectDatabaseHandler handler;
     private final ProjectSearchHandler searchHandler;
+    private final AttachmentHandler attachmentHandler;
 
     ProjectHandler() throws MalformedURLException, IOException {
         handler = new ProjectDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
         searchHandler = new ProjectSearchHandler(DatabaseSettings.COUCH_DB_URL,DatabaseSettings.COUCH_DB_DATABASE);
+        attachmentHandler = new AttachmentHandler();
     }
 
     /////////////////////
@@ -215,7 +218,7 @@ public class ProjectHandler implements ProjectService.Iface {
 
     @Override
     public RequestStatus addAttachmentToProject(String projectId, User user, String attachmentContentId, String fileName) throws TException {
-        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName);
+        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
 
         Project projectById = getProjectById(projectId, user);
         projectById.addToAttachments(attachment);

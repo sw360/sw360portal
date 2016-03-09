@@ -134,4 +134,8 @@ public class AttachmentHandler implements AttachmentService.Iface {
         return repository.vacuumAttachmentDB(user, usedIds);
     }
 
+    @Override
+    public String getSha1FromAttachmentContentId(String attachmentContentId){
+        return attachmentConnector.getSha1FromAttachmentContentId(attachmentContentId);
+    }
 }

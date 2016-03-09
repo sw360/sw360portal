@@ -41,7 +41,7 @@
                 </td>
                 <td rowspan="2">Uploader</td>
                 <td colspan="3" rowspan="2">
-                    Comment: "<sw360:out value="${attachment.createdComment}"/>" <br>
+                    Comment: "<sw360:out value="${attachment.createdComment}"/>" <br/>
                     <sw360:out value="${attachment.createdBy}"/>,
                     <sw360:out value= "${attachment.createdTeam}"/>,
                     <sw360:out value="${attachment.createdOn}"/>
@@ -49,22 +49,25 @@
             </tr>
             <tr id="attachmentRow2${loop.count}" >
                 <td colspan="2" rowspan="3" class="lessPadding">
-                    Type: <sw360:DisplayEnum value="${attachment.attachmentType}"/> <br>
-                    Status: <sw360:DisplayEnum value="${attachment.checkStatus}"/> <br>
+                    Type: <sw360:DisplayEnum value="${attachment.attachmentType}"/> <br/>
+                    Status: <sw360:DisplayEnum value="${attachment.checkStatus}"/> <br/>
+                    SHA1-Checksum: <input class="checksumInput" readonly="true"
+                           type="text"
+                           value="${attachment.sha1}">
                 </td>
             </tr>
             <tr id="attachmentRow3${loop.count}" >
                 <td rowspan="2">Approver</td>
                 <td colspan="3" rowspan="2">
                     <core_rt:if test="${not empty attachment.checkedBy}">
-                        Comment: "<sw360:out value="${attachment.checkedComment}"/>" <br>
+                        Comment: "<sw360:out value="${attachment.checkedComment}"/>" <br/>
                         <sw360:out value="${attachment.checkedBy}"/>,
                         <sw360:out value="${attachment.checkedTeam}"/>,
                         <sw360:out value="${attachment.checkedOn}"/>
                     </core_rt:if>
                     <core_rt:if test="${empty attachment.checkedBy}">
-                        -<br>
-                         <br>
+                        -<br/>
+                         <br/>
                     </core_rt:if>
                 </td>
             </tr>

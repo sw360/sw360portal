@@ -30,6 +30,7 @@ import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
@@ -76,12 +77,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     @Override
     protected Attachment linkAttachment(String documentId, String documentType, User user, String attachmentContentId) {
         try {
-            String filename = thriftClients.makeAttachmentClient().getAttachmentContent(attachmentContentId).getFilename();
+            AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
+            String filename = attachmentClient.getAttachmentContent(attachmentContentId).getFilename();
             ProjectService.Iface client = thriftClients.makeProjectClient();
             RequestStatus requestStatus = client.addAttachmentToProject(documentId, user, attachmentContentId, filename);
 
             if (!requestStatus.equals(RequestStatus.FAILURE)) {
-                return CommonUtils.getNewAttachment(user, attachmentContentId, filename);
+                return CommonUtils.getNewAttachment(user, attachmentContentId, filename, attachmentClient.getSha1FromAttachmentContentId(attachmentContentId));
             } else {
                 return null;
             }
@@ -495,9 +497,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
                 addProjectBreadcrumb(request, response, project);
-                log.info("in prepareDetailView:");
-                log.info(project.name);
-                log.info(project.description);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
             }

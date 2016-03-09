@@ -29,6 +29,7 @@ import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
@@ -70,7 +71,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     @Override
     protected Attachment linkAttachment(String documentId, String documentType, User user, String attachmentContentId) {
         try {
-            String filename = thriftClients.makeAttachmentClient().getAttachmentContent(attachmentContentId).getFilename();
+            AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
+            String filename = attachmentClient.getAttachmentContent(attachmentContentId).getFilename();
             ComponentService.Iface client = thriftClients.makeComponentClient();
 
             RequestStatus requestStatus;
@@ -81,13 +83,13 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             }
 
             if (!requestStatus.equals(RequestStatus.FAILURE)) {
-                return CommonUtils.getNewAttachment(user, attachmentContentId, filename);
+                return CommonUtils.getNewAttachment(user, attachmentContentId, filename, attachmentClient.getSha1FromAttachmentContentId(attachmentContentId));
             } else {
                 return null;
             }
 
         } catch (TException e) {
-            log.error("Could not get project", e);
+            log.error("Could not get component or release", e);
         }
         return null;
     }
@@ -102,7 +104,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 return client.removeAttachmentFromRelease(documentId, user, attachmentContentId);
             }
         } catch (TException e) {
-            log.error("Could not get project", e);
+            log.error("Could not get component or release", e);
         }
         return RequestStatus.FAILURE;
     }
