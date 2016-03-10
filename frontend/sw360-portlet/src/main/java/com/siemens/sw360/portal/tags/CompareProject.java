@@ -86,6 +86,7 @@ public class CompareProject extends NameSpaceAwareTag {
                     case PERMISSIONS:
                     case RELEASE_CLEARING_STATE_SUMMARY:
                     case RELEASE_IDS:
+                    case DOCUMENT_STATE:
                         //Taken care of externally
                     case ATTACHMENTS:
 

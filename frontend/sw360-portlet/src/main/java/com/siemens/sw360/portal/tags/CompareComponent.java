@@ -81,6 +81,7 @@ public class CompareComponent extends NameSpaceAwareTag {
                     case RELEASES:
                     case RELEASE_IDS:
                     case MAIN_LICENSE_IDS:
+                    case DOCUMENT_STATE:
                         break;
 
                     default:

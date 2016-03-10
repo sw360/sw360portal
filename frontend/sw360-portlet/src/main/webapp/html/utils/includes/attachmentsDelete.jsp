@@ -45,6 +45,9 @@
                     if(data.result == 'SUCCESS') {
                         $('#' + rowId).remove();
                     }
+                    else if(data.result == 'SENT_TO_MODERATOR') {
+                        alert("A moderation request was sent to remove the attachment.");
+                    }
                     else {
                         alert("I could not remove the attachment!");
                     }

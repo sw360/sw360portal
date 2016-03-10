@@ -646,12 +646,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         try {
             ProjectService.Iface client = thriftClients.makeProjectClient();
             if (id != null) {
-                Project project = client.getProjectById(id, user);
+                Project project = client.getProjectByIdForEdit(id, user);
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
                 requestStatus = client.updateProject(project, user);
-
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
-
             } else {
                 // Add project
                 Project project = new Project();

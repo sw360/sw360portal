@@ -694,7 +694,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
 
             if (id != null) {
-                Component component = client.getComponentById(id, user);
+                Component component = client.getComponentByIdForEdit(id, user);
 
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
                 RequestStatus requestStatus = client.updateComponent(component, user);
@@ -732,7 +732,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 Release release;
                 String releaseId = request.getParameter(RELEASE_ID);
                 if (releaseId != null) {
-                    release = client.getReleaseById(releaseId, user);
+                    release = client.getReleaseByIdForEdit(releaseId, user);
                     ComponentPortletUtils.updateReleaseFromRequest(request, release);
 
                     RequestStatus requestStatus = client.updateRelease(release, user);
