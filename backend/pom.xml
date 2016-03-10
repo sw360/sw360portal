@@ -124,6 +124,8 @@
                     <version>2.2</version>
                     <configuration>
                         <server>localtomcat</server>
+                        <path>/${project.build.finalName}</path>
+                        <url>${tomcat-backend-url}</url>
                     </configuration>
                 </plugin>
 
