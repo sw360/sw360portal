@@ -81,17 +81,17 @@
     <table class="table info_table" id="ComponentBasicInfo" title="Releases">
         <thead>
         <tr>
-            <th width="10%">Status</th>
+            <th width="13%">Status</th>
             <th width="20%">CPE id</th>
             <th width="20%">Vendor</th>
             <th width="20%">Release name</th>
             <th width="20%">Release version</th>
-            <th width="5%">Submit</th>
+            <th width="7%">Submit</th>
         </tr>
         </thead>
         <core_rt:forEach items="${releaseList}" var="release">
             <tr id="TableRow${release.id}">
-                <td width="10%" id="Status${release.id}"></td>
+                <td width="13%" id="Status${release.id}"></td>
                 <td width="20%">
                     <label>
                     <input id='cpeid${release.id}'  type="text"
@@ -123,7 +123,7 @@
                     </label>
                     <span style="display:none" id='plainversion${release.id}'>${release.version}</span>
                 </td>
-                <td width="5%">
+                <td width="7%">
                     <input type="button" onclick="submitRow('${release.id}')"  value="OK" />
                 </td>
             </tr>
@@ -151,7 +151,16 @@
     function configureComponentBasicInfoTable(){
         var tbl;
         tbl = $('#ComponentBasicInfo').dataTable({
-            "sPaginationType": "full_numbers"
+            "sPaginationType": "full_numbers",
+            "bAutoWidth": false,
+            "aoColumnDefs": [
+                { "sWidth": "13%", "aTargets": [ 0 ] },
+                { "sWidth": "20%", "aTargets": [ 1 ] },
+                { "sWidth": "20%", "aTargets": [ 2 ] },
+                { "sWidth": "20%", "aTargets": [ 3 ] },
+                { "sWidth": "20%", "aTargets": [ 4 ] },
+                { "sWidth": "7%", "aTargets": [ 5 ] }
+            ]
         });
 
         $('#ComponentBasicInfo_filter').hide();
