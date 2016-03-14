@@ -17,21 +17,30 @@
  */
 package com.siemens.sw360.portal.users;
 
+import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.model.*;
 import com.liferay.portal.model.User;
+import com.liferay.portal.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.users.*;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
+import com.siemens.sw360.portal.portlets.admin.UserPortlet;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
+import javax.portlet.PortletRequest;
+import javax.portlet.RenderRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.siemens.sw360.datahandler.common.SW360Constants.TYPE_USER;
 
@@ -53,7 +62,7 @@ public class UserUtils {
         thriftClients = new ThriftClients();
     }
 
-    public static void synchronizeUserWithDatabase(User user, ThriftClients thriftClients) {
+    public static com.siemens.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(User user, ThriftClients thriftClients) {
         UserService.Iface client = thriftClients.makeUserClient();
 
         com.siemens.sw360.datahandler.thrift.users.User thriftUser = null;
@@ -78,6 +87,7 @@ public class UserUtils {
         } catch (TException e) {
             log.error("Thrift exception when saving the user", e);
         }
+        return thriftUser;
     }
 
     public static void synchronizeUserWithDatabase(UserCSV userCsv, ThriftClients thriftClients) {
@@ -115,6 +125,58 @@ public class UserUtils {
             userString = "<a href=\"mailto:" + email + "\">" + email + "</a>";
         }
         return userString;
+    }
+
+    public static List<Organization> getOrganizations(RenderRequest request) {
+        long companyId = getCompanyId(request);
+        List<Organization> organizations = Collections.emptyList();
+        try {
+            // This only gives top-level organizations, not the whole tree. TODO: check whether it's necessary to load all organizations
+            organizations = OrganizationLocalServiceUtil.getOrganizations(companyId, OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID);
+        } catch (SystemException e) {
+            log.error("Couldn't find top-level organizations", e);
+        }
+        return organizations;
+    }
+
+    public static void activateLiferayUser(PortletRequest request, com.siemens.sw360.datahandler.thrift.users.User user){
+        Optional<User> liferayUser = findLiferayUser(request, user);
+        try {
+            if (liferayUser.isPresent()) {
+                UserLocalServiceUtil.updateStatus(liferayUser.get().getUserId(), WorkflowConstants.STATUS_APPROVED);
+            }
+        } catch (SystemException | PortalException e) {
+            log.error("Could not activate Liferay user", e);
+        }
+
+    }
+
+    public static void deleteLiferayUser(PortletRequest request, com.siemens.sw360.datahandler.thrift.users.User user){
+        Optional<User> liferayUser = findLiferayUser(request, user);
+        try {
+            if (liferayUser.isPresent()){
+                UserLocalServiceUtil.deleteUser(liferayUser.get());
+            }
+        } catch (PortalException | SystemException e) {
+            log.error("Could not delete Liferay user", e);
+        }
+
+    }
+
+    private static Optional<User> findLiferayUser(PortletRequest request, com.siemens.sw360.datahandler.thrift.users.User user) {
+        long companyId = getCompanyId(request);
+        User liferayUser = null;
+        try {
+            liferayUser = UserLocalServiceUtil.getUserByEmailAddress(companyId, user.getEmail());
+        } catch (PortalException | SystemException e) {
+            log.error("Could not find Liferay user", e);
+        }
+        return Optional.ofNullable(liferayUser);
+    }
+
+    private static long getCompanyId(PortletRequest request) {
+        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        return themeDisplay.getCompanyId();
     }
 
     public void synchronizeUserWithDatabase(User user) {

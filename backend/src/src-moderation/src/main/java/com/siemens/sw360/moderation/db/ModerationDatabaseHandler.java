@@ -217,14 +217,23 @@ public class ModerationDatabaseHandler {
         addOrUpdate(request);
     }
 
+    public void createRequest(User user) {
+        // Define moderators
+        Set<String> admins = getAdministrators(user.getDepartment());
+        ModerationRequest request = createStubRequest(user.getEmail(), false, user.getId(), admins);
+
+        // Set meta-data
+        request.setDocumentType(DocumentType.USER);
+        request.setDocumentName(SW360Utils.printName(user));
+
+        // Set the object
+        request.setUser(user);
+
+        addOrUpdate(request);
+    }
+
     private Set<String> getLicenseModerators(String department) {
-        List<User> sw360users = Collections.emptyList();
-        try {
-            UserService.Iface client = (new ThriftClients()).makeUserClient();
-            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
-        } catch (TException e) {
-            log.error("Problem with user client", e);
-        }
+        List<User> sw360users = getAllSW360Users();
         //try first clearing admins or admins from same department
         Set<String> moderators = sw360users
                 .stream()
@@ -241,6 +250,37 @@ public class ModerationDatabaseHandler {
                     .collect(Collectors.toSet());
         }
         return moderators;
+    }
+
+    private Set<String> getAdministrators(String department) {
+        List<User> sw360users = getAllSW360Users();
+        List<User> allAdministrators = sw360users
+                    .stream()
+                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.ADMIN, user1))
+                    .collect(Collectors.toList());
+        List<User> administrators = allAdministrators.stream()
+                    .filter(user -> user.getDepartment().equals(department))
+                    .collect(Collectors.toList());
+        if (administrators.isEmpty()){
+            // no admins for department found -> fall back to all admins
+            administrators = allAdministrators;
+        }
+        Set<String> adminEmails = administrators.stream()
+                    .map(User::getEmail)
+                    .collect(Collectors.toSet());
+
+        return adminEmails;
+    }
+
+    private List<User> getAllSW360Users() {
+        List<User> sw360users = Collections.emptyList();
+        try {
+            UserService.Iface client = (new ThriftClients()).makeUserClient();
+            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
+        } catch (TException e) {
+            log.error("Problem with user client", e);
+        }
+        return sw360users;
     }
 
     public void addOrUpdate(ModerationRequest request) {

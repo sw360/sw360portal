@@ -154,6 +154,13 @@ public class SW360Utils {
         return license.getShortname();
     }
 
+    public static String printName(User user) {
+        if (user == null || isNullOrEmpty(user.getEmail())) {
+            return "New User";
+        }
+        return user.getEmail();
+    }
+
     public static List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
         if (in != null) {
             try {

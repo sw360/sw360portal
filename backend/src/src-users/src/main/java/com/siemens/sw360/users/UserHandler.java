@@ -85,6 +85,13 @@ public class UserHandler implements UserService.Iface {
         return db.updateUser(user);
     }
 
+    @Override
+    public RequestStatus deleteUser(User user, User adminUser) throws TException {
+        assertNotNull(user);
+        assertNotNull(user.getEmail());
+        return db.deleteUser(user, adminUser);
+    }
+
     public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) throws TException {
         assertNotNull(userEmail);
         return db.sendMailForAcceptedModerationRequest(userEmail);

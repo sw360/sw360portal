@@ -527,6 +527,5 @@
 
 </core_rt:if>
 <core_rt:if test="${not themeDisplay.signedIn}">
-    <p style="font-weight: bold;"> In order to go ahead, please us the "Sign In" with your account. Please contact
-        the support E-Mail for an account. </p>
+    <p style="font-weight: bold;"> In order to go ahead, please use the "Sign In" with your account. If you don&apos;t have an account, go to the <a href="/web/guest/sign-up">Sign Up</a> page to request one.</p>
 </core_rt:if>

@@ -637,4 +637,29 @@
         </security-role-ref>
     </portlet>
 
+    <portlet>
+        <portlet-name>signup</portlet-name>
+        <display-name>Sign-Up</display-name>
+        <portlet-class>
+            com.siemens.sw360.portal.portlets.signup.SignupPortlet
+        </portlet-class>
+        <init-param>
+            <name>view-template</name>
+            <value>/html/homepage/signup/view.jsp</value>
+        </init-param>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Sign-Up</title>
+            <short-title>Sign-Up</short-title>
+            <keywords/>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+    </portlet>
+
 </portlet-app>

@@ -136,6 +136,14 @@ public class PortalConstants {
     public static final String DUPLICATE_COMPONENTS = "duplicateComponents";
     public static final String DUPLICATE_PROJECTS = "duplicateProjects";
 
+    //! Specialized keys for account sign-up
+    public static final String PASSWORD = "password";
+    public static final String PASSWORD_REPEAT = "password_repeat";
+    public static final String USER_GROUPS = "usergroups";
+    public static final String USER = "newuser";
+    public static final String ORGANIZATIONS = "organizations";
+    public static final String PAGENAME_SUCCESS = "success";
+
     //! Serve resource generic keywords
     public static final String ACTION = "action";
     public static final String ACTION_CANCEL = "action_cancel";

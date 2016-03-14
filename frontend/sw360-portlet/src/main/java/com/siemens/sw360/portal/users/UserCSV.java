@@ -89,7 +89,7 @@ public class UserCSV {
 
     public User addLifeRayUser(PortletRequest request) throws PortalException, SystemException {
         return UserPortlet.addLiferayUser(request, givenname, lastname, email,
-                department, getRoleConstantFromUserGroup(userGroupFromString(group)), isMale, gid, hash);
+                department, getRoleConstantFromUserGroup(userGroupFromString(group)), isMale, gid, hash, true, true);
 
     }
 

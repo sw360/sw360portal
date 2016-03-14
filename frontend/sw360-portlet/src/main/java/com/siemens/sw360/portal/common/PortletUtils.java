@@ -30,6 +30,8 @@ import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
+import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
@@ -94,6 +96,10 @@ public class PortletUtils {
         return  Visibility.findByValue(parseInt(enumNumber));
     }
 
+    public static UserGroup getUserGroupFromString(String enumNumber) {
+        return  UserGroup.findByValue(parseInt(enumNumber));
+    }
+
     public static <U extends TFieldIdEnum, T extends TBase<T, U>> void setFieldValue(PortletRequest request, T instance, U field, FieldMetaData fieldMetaData, String prefix) {
 
         String value = request.getParameter(prefix + field.toString());
@@ -136,6 +142,8 @@ public class PortletUtils {
             return getProjectTypeFromString(value);
         else if (field == Project._Fields.VISBILITY)
             return getVisibilityFromString(value);
+        else if (field == User._Fields.USER_GROUP)
+            return getUserGroupFromString(value);
         else {
             log.error("Missing case in enumFromString, unknown field was " + field.toString());
             return null;

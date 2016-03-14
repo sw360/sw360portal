@@ -31,5 +31,6 @@
 		<portlet id="attachmentVacuum"/>
 		<portlet id="databaseSanitation"/>
 		<portlet id="bulkReleaseEdit"/>
+		<portlet id="signup"/>
 	</category>
 </display>

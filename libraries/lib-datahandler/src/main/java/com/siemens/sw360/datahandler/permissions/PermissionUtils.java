@@ -73,6 +73,8 @@ public class PermissionUtils {
             return (DocumentPermissions<T>) new ProjectPermissions((Project) document, user);
         } else if (document instanceof Vendor) {
             return (DocumentPermissions<T>) new VendorPermissions((Vendor) document, user);
+        } else if (document instanceof User) {
+            return (DocumentPermissions<T>) new UserPermissions((User) document, user);
         } else {
             throw new IllegalArgumentException("Invalid input type!");
         }

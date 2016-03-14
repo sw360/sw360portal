@@ -88,6 +88,13 @@ public class ModerationHandler implements ModerationService.Iface {
     }
 
     @Override
+    public void createUserRequest(User user) throws TException {
+        assertUser(user);
+
+        handler.createRequest(user);
+    }
+
+    @Override
     public void createComponentDeleteRequest(Component component, User user) throws TException {
         assertUser(user);
         assertNotNull(component);
