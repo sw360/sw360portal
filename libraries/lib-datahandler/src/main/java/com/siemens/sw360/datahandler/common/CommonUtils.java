@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -19,14 +19,8 @@ package com.siemens.sw360.datahandler.common;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.thrift.DocumentState;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
+import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.attachments.*;
 import com.siemens.sw360.datahandler.thrift.components.ClearingState;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -56,6 +50,7 @@ import static org.apache.log4j.LogManager.getLogger;
  */
 public class CommonUtils {
 
+    private static Logger log = Logger.getLogger(CommonUtils.class);
     private CommonUtils() {
         // Utility class with only static functions
     }
@@ -235,7 +230,7 @@ public class CommonUtils {
     }
 
     @NotNull
-    public static Attachment getNewAttachment(User user, String attachmentContentId, String fileName) {
+    public static Attachment getNewAttachment(User user, String attachmentContentId, String fileName, String sha1) {
         Attachment attachment = new Attachment();
         attachment.setCreatedBy(user.getEmail());
         attachment.setCreatedOn(SW360Utils.getCreatedOn());
@@ -246,6 +241,7 @@ public class CommonUtils {
         attachment.setAttachmentType(AttachmentType.DOCUMENT);
         attachment.setCheckStatus(CheckStatus.NOTCHECKED);
         attachment.setCheckedComment("");
+        attachment.setSha1(sha1);
         return attachment;
     }
 
