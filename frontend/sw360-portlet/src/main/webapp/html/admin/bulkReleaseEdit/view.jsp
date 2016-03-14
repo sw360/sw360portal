@@ -48,37 +48,63 @@
 <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
 
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Release Bulk Edit</span>
 </p>
+<div id="searchInput" class="content1">
+    <table style="width: 90%; margin-left:3%;border:1px solid #cccccc;">
+        <thead>
+        <tr>
+            <th class="infoheading">
+                Keyword Search
+            </th>
+        </tr>
+        </thead>
+        <tbody style="background-color: #f8f7f7; border: none;">
+        <tr>
+            <td>
+                <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;"
+                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
+                <br/>
+                <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
+                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
-<div id="content">
+<div id="content" class="content2">
     <table class="table info_table" id="ComponentBasicInfo" title="Releases">
         <thead>
         <tr>
-            <th width="10%">Status</th>
+            <th width="13%">Status</th>
             <th width="20%">CPE id</th>
             <th width="20%">Vendor</th>
-            <th width="20%"> Release name</th>
+            <th width="20%">Release name</th>
             <th width="20%">Release version</th>
-            <th width="5%">Submit</th>
+            <th width="7%">Submit</th>
         </tr>
         </thead>
         <core_rt:forEach items="${releaseList}" var="release">
             <tr id="TableRow${release.id}">
-                <td width="10%" id="Status${release.id}"></td>
+                <td width="13%" id="Status${release.id}"></td>
                 <td width="20%">
                     <label>
                     <input id='cpeid${release.id}'  type="text"
                            class="toplabelledInput"
                            placeholder="Enter CPE ID" required="" value="${release.cpeid}"/>
                     </label>
+                    <%-- this and following hidden spans are added to make keyword search and sorting using dataTables work--%>
+                    <span style="display:none" id='plaincpeid${release.id}'>${release.cpeid}</span>
                 </td>
                 <td width="20%">
                     <sw360:DisplayVendorEdit id='vendorId${release.id}' displayLabel="false"
                                              vendor="${release.vendor}" onclick="displayVendors('${release.id}')"/>
+                    <span style="display:none" id='plainvendor${release.id}'>${release.vendor.fullname}</span>
                 </td>
                 <td width="20%">
                     <label>
@@ -87,6 +113,7 @@
                                 value="<sw360:out value="${release.name}"/>"
                             />
                     </label>
+                    <span style="display:none" id='plainname${release.id}'>${release.name}</span>
                 </td>
                 <td width="20%">
                     <label>
@@ -94,8 +121,9 @@
                            placeholder="Enter Version"
                            value="<sw360:out value="${release.version}"/>"/>
                     </label>
+                    <span style="display:none" id='plainversion${release.id}'>${release.version}</span>
                 </td>
-                <td width="5%">
+                <td width="7%">
                     <input type="button" onclick="submitRow('${release.id}')"  value="OK" />
                 </td>
             </tr>
@@ -107,6 +135,39 @@
 <%@include file="/html/components/includes/vendors/vendorSearchForm.jspf" %>
 
 <script>
+    var PortletURL;
+    AUI().use('liferay-portlet-url', function (A) {
+        PortletURL = Liferay.PortletURL;
+        load();
+    });
+
+    var oTable;
+
+    //This can not be document ready function as liferay definitions need to be loaded first
+    function load() {
+        oTable = configureComponentBasicInfoTable();
+    }
+
+    function configureComponentBasicInfoTable(){
+        var tbl;
+        tbl = $('#ComponentBasicInfo').dataTable({
+            "sPaginationType": "full_numbers",
+            "bAutoWidth": false,
+            "aoColumnDefs": [
+                { "sWidth": "13%", "aTargets": [ 0 ] },
+                { "sWidth": "20%", "aTargets": [ 1 ] },
+                { "sWidth": "20%", "aTargets": [ 2 ] },
+                { "sWidth": "20%", "aTargets": [ 3 ] },
+                { "sWidth": "20%", "aTargets": [ 4 ] },
+                { "sWidth": "7%", "aTargets": [ 5 ] }
+            ]
+        });
+
+        $('#ComponentBasicInfo_filter').hide();
+        $('#ComponentBasicInfo_first').hide();
+        $('#ComponentBasicInfo_last').hide();
+        return tbl;
+    }
 
     var activeReleaseId = '';
 
@@ -189,4 +250,9 @@
 
     }
 
+    function useSearch( buttonId) {
+        oTable.fnFilter( $('#'+buttonId).val());
+    }
 </script>
+
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">

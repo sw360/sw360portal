@@ -27,12 +27,38 @@
 <portlet:actionURL var="updateLifeRayUsers" name="updateUsers">
 </portlet:actionURL>
 
+<script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
+
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Liferay Users</span> <span
         class="pageHeaderSmallSpan">(${userList.size()}) </span></p>
 
+<div id="searchInput" class="content1">
+    <table style="width: 90%; margin-left:3%;border:1px solid #cccccc;">
+        <thead>
+        <tr>
+            <th class="infoheading">
+                Keyword Search
+            </th>
+        </tr>
+        </thead>
+        <tbody style="background-color: #f8f7f7; border: none;">
+        <tr>
+            <td>
+                <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;"
+                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
+                <br/>
+                <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
+                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
-<div id="searchTableDiv" class="SW360full">
+<div id="searchTableDiv" class="content2">
     <h4>Users already in liferay</h4>
     <table id="userTable" cellpadding="0" cellspacing="0" border="0" class="display">
         <thead>
@@ -127,15 +153,57 @@
 </div>
 
 <script>
+    var PortletURL;
+    AUI().use('liferay-portlet-url', function (A) {
+        PortletURL = Liferay.PortletURL;
+        load();
+    });
+
+    var usersTable;
+    var usersMissingTable;
+
+    //This can not be document ready function as liferay definitions need to be loaded first
+    function load() {
+        configureUsersTable();
+        configureMissingUsersTable();
+    }
+
     document.getElementById("<portlet:namespace/>userFileUploadInput").onchange = function () {
         if (this.value) {
             document.getElementById("<portlet:namespace/>userCSV-Submit").disabled = false;
         }
     }
+
+    function configureUsersTable() {
+        usersTable = setupPagination('#userTable');
+    }
+
+    function configureMissingUsersTable() {
+        usersMissingTable = setupPagination('#userMissingTable');
+    }
+
+    function setupPagination(tableId){
+        var tbl;
+        if ($(tableId)){
+            tbl = $(tableId).dataTable({
+                "sPaginationType": "full_numbers"
+            });
+
+            $(tableId+'_filter').hide();
+            $(tableId+'_first').hide();
+            $(tableId+'_last').hide();
+        }
+        return tbl;
+    }
+
+    function useSearch( buttonId) {
+        usersTable.fnFilter( $('#'+buttonId).val());
+        usersMissingTable.fnFilter( $('#'+buttonId).val());
+    }
 </script>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/search.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
 
 

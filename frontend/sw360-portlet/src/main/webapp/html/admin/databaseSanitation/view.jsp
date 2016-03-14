@@ -25,6 +25,10 @@
   <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DUPLICATES%>'/>
 </portlet:resourceURL>
 
+<script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
+
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">DB Administration</span> </p>
 
@@ -69,6 +73,10 @@ function findDuplicates(){
         html = data;
       }
       field.html(html);
+      setupPagination('#duplicateReleasesTable');
+      setupPagination('#duplicateReleaseSourcesTable');
+      setupPagination('#duplicateComponentsTable');
+      setupPagination('#duplicateProjectsTable');
     },
     error: function () {
       html = "Error in looking for duplicate identifiers";
@@ -76,7 +84,17 @@ function findDuplicates(){
     }
   });
 }
+function setupPagination(tableId){
+    if ($(tableId)){
+        $(tableId).dataTable({
+            "sPaginationType": "full_numbers"
+        });
 
+        $(tableId+'_filter').hide();
+        $(tableId+'_first').hide();
+        $(tableId+'_last').hide();
+    }
+}
 </script>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
