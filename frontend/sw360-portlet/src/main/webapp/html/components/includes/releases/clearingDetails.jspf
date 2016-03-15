@@ -66,7 +66,7 @@
                                   value="${clearingInfo.binariesSelfMade}"/></td>
     </tr>
     <tr>
-        <td>Component Licence Information:</td>
+        <td>Component License Information:</td>
         <td><sw360:DisplayBoolean defined="${clearingInfo.setComponentLicenseInformation}"
                                   value="${clearingInfo.componentLicenseInformation}"/></td>
     </tr>
@@ -111,7 +111,7 @@
                                   value="${clearingInfo.legalEvaluation}"/></td>
     </tr>
     <tr>
-        <td>Licence Agreement:</td>
+        <td>License Agreement:</td>
         <td><sw360:DisplayBoolean defined="${clearingInfo.setLicenseAgreement}"
                                   value="${clearingInfo.licenseAgreement}"/></td>
     </tr>

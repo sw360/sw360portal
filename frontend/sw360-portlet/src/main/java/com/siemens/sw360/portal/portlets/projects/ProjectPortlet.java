@@ -458,16 +458,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             projectList = Collections.emptyList();
         }
 
-        //Set<String> vendorNames;
-
-        //try {
-        //    vendorNames = thriftClients.makeVendorClient().getAllVendorNames();
-        //} catch (TException e) {
-        //    log.error("Problem retrieving all the Vendor names");
-        //    vendorNames = Collections.emptySet();
-
-
-        //request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
         request.setAttribute(PROJECT_LIST, projectList);
         request.setAttribute(KEY_SEARCH_TEXT, searchtext);
         request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
@@ -521,7 +511,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void setClearingStateSummary(ComponentService.Iface componentClient, Project project) {
         try {
-            final Set<String> releaseIds = CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
+            final Set<String> releaseIds;
+            if(project.isSetReleaseIds()){
+                releaseIds = project.getReleaseIds();
+            } else {
+                releaseIds = CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
+            }
             final ReleaseClearingStateSummary releaseClearingStateSummary =
                     componentClient.getReleaseClearingStateSummary(releaseIds, project.getClearingTeam());
             project.setReleaseClearingStateSummary(releaseClearingStateSummary);

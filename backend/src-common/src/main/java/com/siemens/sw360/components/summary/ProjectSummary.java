@@ -38,6 +38,7 @@ public class ProjectSummary extends DocumentSummary<Project> {
         copyField(document, copy, _Fields.NAME);
         copyField(document, copy, _Fields.DESCRIPTION);
         copyField(document, copy, _Fields.VERSION);
+        copyField(document, copy, _Fields.CLEARING_TEAM);
 
         switch (type) {
             case EXPORT_SUMMARY:
@@ -52,19 +53,17 @@ public class ProjectSummary extends DocumentSummary<Project> {
     }
 
     protected static void setSummaryFields(Project document, Project copy) {
+
         for (_Fields renderedField : ProjectExporter.RENDERED_FIELDS) {
-
             switch (renderedField) {
-                case RELEASE_ID_TO_USAGE:
-                    if (document.isSetReleaseIdToUsage())
+                case RELEASE_IDS:
+                    if (document.isSetReleaseIdToUsage()) {
                         copy.setReleaseIds(document.releaseIdToUsage.keySet());
+                    }
                     break;
-
                 default:
                     copyField(document, copy, renderedField);
-                    break;
             }
-
         }
     }
 
