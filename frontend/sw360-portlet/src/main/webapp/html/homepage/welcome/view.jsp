@@ -486,7 +486,7 @@
         tbd<br/>
 
     <p><br/>
-        <i><b>Licence</b></i><br/>
+        <i><b>License</b></i><br/>
         tbd<br/>
 
     <p><br/>
