@@ -21,14 +21,17 @@ package com.siemens.sw360.portal.common;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.util.PortalUtil;
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.couchdb.AttachmentStreamConnector;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
+import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentNotFoundException;
@@ -57,17 +60,19 @@ public class AttachmentPortletUtils {
 
     private static final Logger log = Logger.getLogger(AttachmentPortletUtils.class);
     private final ThriftClients thriftClients;
+    private AttachmentService.Iface client;
 
     private AttachmentStreamConnector connector;
     // TODO add Config class and DI
     private final Duration downloadTimeout = Duration.durationOf(30, TimeUnit.SECONDS);
 
     public AttachmentPortletUtils() {
-        thriftClients = new ThriftClients();
+        this(new ThriftClients());
     }
 
     public AttachmentPortletUtils(ThriftClients thriftClients) {
         this.thriftClients = thriftClients;
+        client = thriftClients.makeAttachmentClient();
     }
 
     private synchronized void makeConnector() throws TException {
@@ -96,7 +101,6 @@ public class AttachmentPortletUtils {
         String id = request.getParameter(PortalConstants.ATTACHMENT_ID);
 
         try {
-            AttachmentService.Iface client = thriftClients.makeAttachmentClient();
             AttachmentContent attachment = client.getAttachmentContent(id);
             InputStream attachmentStream = getConnector().getAttachmentStream(attachment);
             try {
@@ -264,4 +268,14 @@ public class AttachmentPortletUtils {
         }
     }
 
+    public Attachment getAttachmentForDisplay(User user, String attachmentContentId) {
+        try {
+            String filename = client.getAttachmentContent(attachmentContentId).getFilename();
+            return CommonUtils.getNewAttachment(user, attachmentContentId, filename);
+
+        } catch (TException e) {
+            log.error("Could not get attachment content", e);
+        }
+        return null;
+    }
 }
