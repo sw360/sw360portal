@@ -54,7 +54,8 @@ struct User {
     7: optional string fullname,
     8: optional string givenname, // firstname or given name of the person
     9: optional string lastname, // Lastname or Surname of the person
-    10: required string department, 
+    10: required string department,
+    11: optional bool wantsMailNotification,
 }
 
 service UserService {
@@ -66,4 +67,6 @@ service UserService {
 
     RequestStatus addUser(1: User user);
     RequestStatus updateUser(1: User user);
+
+    RequestStatus sendMailForAcceptedModerationRequest(1: string userEmail);
 }

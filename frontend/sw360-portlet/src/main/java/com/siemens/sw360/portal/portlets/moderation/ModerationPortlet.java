@@ -38,6 +38,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -161,6 +162,8 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
             }
         }
+        UserService.Iface userClient = thriftClients.makeUserClient();
+        userClient.sendMailForAcceptedModerationRequest(moderationRequest.getRequestingUser());
     }
 
     private void renderNextModeration(RenderRequest request, RenderResponse response, final User user, String sessionMessage, ModerationService.Iface client, ModerationRequest moderationRequest) throws IOException, PortletException, TException {
