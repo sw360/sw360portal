@@ -568,16 +568,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     }
 
     @Override
-    protected Attachment linkAttachment(String documentId, String documentType, User user, String attachmentId) {
-        throw unsupportedActionException();
-    }
-
-    @Override
-    protected RequestStatus deleteAttachment(String documentId, String documentType, User user, String attachmentId) {
-        throw unsupportedActionException();
-    }
-
-    @Override
     protected Set<Attachment> getAttachments(String documentId, String documentType, User user) {
         throw unsupportedActionException();
     }

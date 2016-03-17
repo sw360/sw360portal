@@ -57,7 +57,7 @@ public class ProjectDatabaseHandler {
 
     private final ProjectRepository repository;
     private final ProjectModerator moderator;
-    private final AttachmentConnector attachments;
+    private final AttachmentConnector attachmentConnector;
 
     public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(url, dbName);
@@ -69,7 +69,7 @@ public class ProjectDatabaseHandler {
         moderator = new ProjectModerator();
 
         // Create the attachment connector
-        attachments = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
+        attachmentConnector = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
     }
 
     @VisibleForTesting
@@ -82,7 +82,7 @@ public class ProjectDatabaseHandler {
         this.moderator = moderator;
 
         // Create the attachment connector
-        attachments = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
+        attachmentConnector = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
     }
 
     /////////////////////
@@ -150,11 +150,18 @@ public class ProjectDatabaseHandler {
         // Prepare project for database
         prepareProject(project);
 
+        //add sha1 to attachments if necessary
+        if(project.isSetAttachments()) {
+            attachmentConnector.setSha1ForAttachments(project.getAttachments());
+        }
         Project actual = repository.get(project.getId());
 
         if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
             copyImmutableFields(project,actual);
             repository.update(project);
+
+            //clean up attachments in database
+            attachmentConnector.deleteAttachmentDifference(actual.getAttachments(), project.getAttachments());
             return RequestStatus.SUCCESS;
         } else {
             return moderator.updateProject(project, user);
@@ -193,7 +200,7 @@ public class ProjectDatabaseHandler {
     }
 
     private void removeProjectAndCleanUp(Project project) {
-        attachments.deleteAttachments(project.getAttachments());
+        attachmentConnector.deleteAttachments(project.getAttachments());
         repository.remove(project);
         moderator.notifyModeratorOnDelete(project.getId());
     }

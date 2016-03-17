@@ -17,8 +17,8 @@
  */
 package com.siemens.sw360.portal.common;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
@@ -39,8 +39,10 @@ import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.portlet.PortletRequest;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 
@@ -151,48 +153,61 @@ public class PortletUtils {
     }
 
 
-    public static void updateAttachmentsFromRequest(PortletRequest request, Set<Attachment> attachments) {
-        if (attachments == null || attachments.size() == 0) return;
+    public static Set<Attachment> updateAttachmentsFromRequest(PortletRequest request, Set<Attachment> documentAttachments) {
+        if (documentAttachments == null) {
+            log.info("UpdateAttachments called with null documentAttachments.");
+            return null;
+        }
 
+        User user = UserCacheHolder.getUserFromRequest(request);
+        String[] fileNames = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.FILENAME);
         String[] ids = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_CONTENT_ID.toString());
         String[] createdComments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CREATED_COMMENT.toString());
         String[] checkedComments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECKED_COMMENT.toString());
         String[] checkStatuses = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECK_STATUS.toString());
         String[] atypes = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_TYPE.toString());
 
-        if (CommonUtils.oneIsNull(atypes, createdComments, checkedComments, ids)) {
-            log.error("We have a problem null arrays");
-        } else if (atypes.length != createdComments.length || atypes.length != ids.length || atypes.length != checkedComments.length)
+        if(ids == null || ids.length == 0) {
+            return new HashSet<>();
+        } else if (CommonUtils.oneIsNull(atypes, createdComments, checkedComments, fileNames)) {
+            log.error("We have a problem with null arrays");
+        } else if (
+                atypes.length != createdComments.length ||
+                atypes.length != ids.length ||
+                atypes.length != checkedComments.length ||
+                atypes.length != fileNames.length) {
             log.error("We have a problem length != other.length ");
-        else {
-            Map<String, Attachment> attachmentMap = Maps.uniqueIndex(attachments, new Function<Attachment, String>() {
-                @Override
-                public String apply(Attachment attachment) {
-                    return attachment.getAttachmentContentId();
-                }
-            });
-
+        } else {
+            Map<String, Attachment> documentAttachmentMap = documentAttachments.stream().collect(Collectors.toMap(Attachment::getAttachmentContentId, Function.identity()));
+            Map<String, Attachment> documentAttachmentsInRequestMap = new HashMap<>();
             int length = atypes.length;
 
             for (int i = 0; i < length; ++i) {
 
                 String id = ids[i];
-                if (attachmentMap.containsKey(id)) {
-                    Attachment attachment = attachmentMap.get(id);
-                    attachment.setCreatedComment(createdComments[i]);
-                    attachment.setAttachmentType(getAttachmentTypefromString(atypes[i]));
-                    if(attachment.checkedComment != checkedComments[i]|| attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])){
-                        attachment.setCheckedOn(SW360Utils.getCreatedOn());
-                        attachment.setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail());
-                        attachment.setCheckedTeam(UserCacheHolder.getUserFromRequest(request).getDepartment());
-                        attachment.setCheckStatus(getCheckStatusfromString(checkStatuses[i]));
-                        attachment.setCheckedComment(checkedComments[i]);
-                    }
+                Attachment attachment;
+                if (documentAttachmentMap.containsKey(id)) {
+                    attachment = documentAttachmentMap.get(id);
+                    documentAttachmentsInRequestMap.put(id,attachment);
                 } else {
-                    log.error("Unable to find attachment!" + id);
+                    //the sha1 checksum is not computed here, but in the backend, when updating the component in the database
+                    attachment = CommonUtils.getNewAttachment(user, id, fileNames[i]);
+                    documentAttachments.add(attachment);
+                }
+                attachment.setCreatedComment(createdComments[i]);
+                attachment.setAttachmentType(getAttachmentTypefromString(atypes[i]));
+                if(attachment.checkedComment != checkedComments[i]|| attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])){
+                    attachment.setCheckedOn(SW360Utils.getCreatedOn());
+                    attachment.setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail());
+                    attachment.setCheckedTeam(UserCacheHolder.getUserFromRequest(request).getDepartment());
+                    attachment.setCheckStatus(getCheckStatusfromString(checkStatuses[i]));
+                    attachment.setCheckedComment(checkedComments[i]);
                 }
             }
+            Set<String> removedAttachmentIds = Sets.difference(documentAttachmentMap.keySet(),documentAttachmentsInRequestMap.keySet());
+            documentAttachments.removeIf(attachment -> removedAttachmentIds.contains(attachment.getAttachmentContentId()));
         }
+        return documentAttachments;
     }
 
 

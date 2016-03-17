@@ -33,29 +33,7 @@
 
     function deleteAttachment(rowId, attachmentId) {
         if (confirm("Do you really want to delete this attachment?")) {
-
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=deleteAjaxURL%>',
-                cache: false,
-                data: {
-                    <portlet:namespace/>attachmentId: attachmentId
-                },
-                success: function (data) {
-                    if(data.result == 'SUCCESS') {
-                        $('#' + rowId).remove();
-                    }
-                    else if(data.result == 'SENT_TO_MODERATOR') {
-                        alert("A moderation request was sent to remove the attachment.");
-                    }
-                    else {
-                        alert("I could not remove the attachment!");
-                    }
-                },
-                error: function () {
-                    alert("I could not remove the attachment!");
-                }
-            });
+            $('#' + rowId).remove();
         }
     }
 

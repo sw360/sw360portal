@@ -66,10 +66,6 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         return request.getParameter(PortalConstants.DOCUMENT_TYPE);
     }
 
-    protected abstract Attachment linkAttachment(String documentId, String documentType, User user, String attachmentId);
-
-    protected abstract RequestStatus deleteAttachment(String documentId, String documentType, User user, String attachmentId);
-
     protected abstract Set<Attachment> getAttachments(String documentId, String documentType, User user);
 
     protected void dealWithAttachments(ResourceRequest request, ResourceResponse response, String action) throws IOException, PortletException {
@@ -78,7 +74,7 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         } else if (PortalConstants.ATTACHMENT_LIST.equals(action)) {
             serveAttachmentSet(request, response);
         } else if (PortalConstants.ATTACHMENT_LINK_TO.equals(action)) {
-            doLinkAttachment(request, response);
+            doGetAttachmentForDisplay(request, response);
         } else if (PortalConstants.ATTACHMENT_RESERVE_ID.equals(action)) {
             serveNewAttachmentId(request, response);
         } else if (PortalConstants.ATTACHMENT_UPLOAD.equals(action)) {
@@ -96,26 +92,18 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         } else if (PortalConstants.ATTACHMENT_CANCEL.equals(action)) {
             RequestStatus status = attachmentPortletUtils.cancelUpload(request);
             renderRequestStatus(request, response, status);
-        } else if (PortalConstants.ATTACHMENT_UNLINK_AND_DELETE.equals(action)) {
-            String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
-            String attachmentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
-            final User user = UserCacheHolder.getUserFromRequest(request);
-
-            RequestStatus status = deleteAttachment(documentId, getDocumentType(request), user, attachmentId);
-            renderRequestStatus(request, response, status);
         }
     }
 
-    private void doLinkAttachment(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
-        String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
+    private void doGetAttachmentForDisplay(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String attachmentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
         final User user = UserCacheHolder.getUserFromRequest(request);
 
-        Attachment attachment = linkAttachment(documentId, getDocumentType(request), user, attachmentId);
+        Attachment attachment = attachmentPortletUtils.getAttachmentForDisplay(user, attachmentId);
 
         if(attachment==null) {
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
-        }else {
+        } else {
             request.setAttribute(PortalConstants.DOCUMENT_TYPE, getDocumentType(request));
             request.setAttribute(PortalConstants.ATTACHMENTS, toSingletonSet(attachment));
             include("/html/utils/ajax/attachmentsAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
@@ -140,7 +128,6 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
             response.getWriter().write(attachmentId);
         }
     }
-
 
     protected boolean isAttachmentAwareAction(String action) {
         return action.startsWith(PortalConstants.ATTACHMENT_PREFIX);

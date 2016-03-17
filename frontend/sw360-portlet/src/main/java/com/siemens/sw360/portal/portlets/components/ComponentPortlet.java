@@ -68,47 +68,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     private static final Logger log = Logger.getLogger(ComponentPortlet.class);
 
-    @Override
-    protected Attachment linkAttachment(String documentId, String documentType, User user, String attachmentContentId) {
-        try {
-            AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
-            String filename = attachmentClient.getAttachmentContent(attachmentContentId).getFilename();
-            ComponentService.Iface client = thriftClients.makeComponentClient();
-
-            RequestStatus requestStatus;
-            if (typeIsComponent(documentType)) {
-                requestStatus = client.addAttachmentToComponent(documentId, user, attachmentContentId, filename);
-            } else {
-                requestStatus = client.addAttachmentToRelease(documentId, user, attachmentContentId, filename);
-            }
-
-            if (!requestStatus.equals(RequestStatus.FAILURE)) {
-                return CommonUtils.getNewAttachment(user, attachmentContentId, filename, attachmentClient.getSha1FromAttachmentContentId(attachmentContentId));
-            } else {
-                return null;
-            }
-
-        } catch (TException e) {
-            log.error("Could not get component or release", e);
-        }
-        return null;
-    }
-
-    @Override
-    protected RequestStatus deleteAttachment(String documentId, String documentType, User user, String attachmentContentId) {
-        try {
-            ComponentService.Iface client = thriftClients.makeComponentClient();
-            if (typeIsComponent(documentType)) {
-                return client.removeAttachmentFromComponent(documentId, user, attachmentContentId);
-            } else {
-                return client.removeAttachmentFromRelease(documentId, user, attachmentContentId);
-            }
-        } catch (TException e) {
-            log.error("Could not get component or release", e);
-        }
-        return RequestStatus.FAILURE;
-    }
-
     private boolean typeIsComponent(String documentType) {
         return SW360Constants.TYPE_COMPONENT.equals(documentType);
     }
@@ -695,7 +654,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
             if (id != null) {
                 Component component = client.getComponentByIdForEdit(id, user);
-
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
                 RequestStatus requestStatus = client.updateComponent(component, user);
                 setSessionMessage(request, requestStatus, "Component", "update", component.getName());
