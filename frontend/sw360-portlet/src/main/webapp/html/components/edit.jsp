@@ -58,6 +58,9 @@
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
 </portlet:actionURL>
 
+<portlet:actionURL var="deleteAttachmentsOnCancelURL" name='<%=PortalConstants.ATTACHMENT_DELETE_ON_CANCEL%>'>
+</portlet:actionURL>
+
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
 <!--include jQuery -->
@@ -119,11 +122,23 @@
     baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
 
     function cancel() {
+        deleteAttachmentsOnCancel();
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
         var portletURL = Liferay.PortletURL.createURL(baseUrl)
                 .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
                 .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
         window.location = portletURL.toString();
+    }
+
+    function deleteAttachmentsOnCancel() {
+        jQuery.ajax({
+            type: 'POST',
+            url: '<%=deleteAttachmentsOnCancelURL%>',
+            cache: false,
+            data: {
+                "<portlet:namespace/><%=PortalConstants.DOCUMENT_ID%>": "${component.id}"
+            },
+        });
     }
 
     var contextpath;

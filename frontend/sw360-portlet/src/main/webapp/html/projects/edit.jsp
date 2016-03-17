@@ -36,6 +36,9 @@
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}" />
 </portlet:actionURL>
 
+<portlet:actionURL var="deleteAttachmentsOnCancelURL" name='<%=PortalConstants.ATTACHMENT_DELETE_ON_CANCEL%>'>
+</portlet:actionURL>
+
 <portlet:actionURL var="deleteURL" name="delete">
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/>
 </portlet:actionURL>
@@ -91,6 +94,7 @@
 
 <script>
     function cancel() {
+        deleteAttachmentsOnCancel();
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
         var portletURL = Liferay.PortletURL.createURL( baseUrl )
 <core_rt:if test="${not addMode}" >
@@ -102,6 +106,17 @@
 
                 .setParameter('<%=PortalConstants.PROJECT_ID%>','${project.id}');
         window.location = portletURL.toString();
+    }
+
+    function deleteAttachmentsOnCancel() {
+        jQuery.ajax({
+            type: 'POST',
+            url: '<%=deleteAttachmentsOnCancelURL%>',
+            cache: false,
+            data: {
+                "<portlet:namespace/><%=PortalConstants.DOCUMENT_ID%>": "${project.id}"
+            },
+        });
     }
 
     var contextpath;

@@ -29,7 +29,6 @@ import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
@@ -655,8 +654,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             if (id != null) {
                 Component component = client.getComponentByIdForEdit(id, user);
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
+
                 RequestStatus requestStatus = client.updateComponent(component, user);
                 setSessionMessage(request, requestStatus, "Component", "update", component.getName());
+                cleanUploadHistory(user.getEmail(),id);
 
             } else {
                 Component component = new Component();
@@ -694,8 +695,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     ComponentPortletUtils.updateReleaseFromRequest(request, release);
 
                     RequestStatus requestStatus = client.updateRelease(release, user);
-
                     setSessionMessage(request, requestStatus, "Release", "update", printName(release));
+                    cleanUploadHistory(user.getEmail(),releaseId);
 
                     response.setRenderParameter(PAGENAME, PAGENAME_RELEASE_DETAIL);
                     response.setRenderParameter(COMPONENT_ID, request.getParameter(COMPONENT_ID));
@@ -728,6 +729,9 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     public void deleteRelease(ActionRequest request, ActionResponse response) throws PortletException, IOException {
         RequestStatus requestStatus = ComponentPortletUtils.deleteRelease(request, log);
 
+        String userEmail = UserCacheHolder.getUserFromRequest(request).getEmail();
+        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
+        deleteUnneededAttachments(userEmail, releaseId);
         setSessionMessage(request, requestStatus, "Release", "delete");
 
         response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
@@ -737,6 +741,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     @UsedAsLiferayAction
     public void deleteComponent(ActionRequest request, ActionResponse response) throws PortletException, IOException {
         RequestStatus requestStatus = ComponentPortletUtils.deleteComponent(request, log);
+
+        String userEmail = UserCacheHolder.getUserFromRequest(request).getEmail();
+        String id = request.getParameter(PortalConstants.COMPONENT_ID);
+        deleteUnneededAttachments(userEmail, id);
         setSessionMessage(request, requestStatus, "Component", "delete");
     }
 

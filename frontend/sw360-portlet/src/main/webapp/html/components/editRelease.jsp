@@ -55,6 +55,9 @@
     <portlet:param name="<%=PortalConstants.RELEASE_ID%>" value="${release.id}"/>
 </portlet:actionURL>
 
+<portlet:actionURL var="deleteAttachmentsOnCancelURL" name='<%=PortalConstants.ATTACHMENT_DELETE_ON_CANCEL%>'>
+</portlet:actionURL>
+
 <portlet:resourceURL var="viewVendorURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
 </portlet:resourceURL>
@@ -155,11 +158,23 @@
     );
 
     function cancel() {
+        deleteAttachmentsOnCancel();
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
         var portletURL = Liferay.PortletURL.createURL(baseUrl)
                 .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
                 .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
         window.location = portletURL.toString();
+    }
+
+    function deleteAttachmentsOnCancel() {
+        jQuery.ajax({
+            type: 'POST',
+            url: '<%=deleteAttachmentsOnCancelURL%>',
+            cache: false,
+            data: {
+                "<portlet:namespace/><%=PortalConstants.DOCUMENT_ID%>": "${release.id}"
+            },
+        });
     }
 
     function validate(){

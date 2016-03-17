@@ -19,6 +19,7 @@ package com.siemens.sw360.datahandler.db;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.components.summary.SummaryType;
@@ -46,6 +47,8 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;

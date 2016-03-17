@@ -30,7 +30,6 @@ import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
@@ -192,6 +191,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         try {
+            deleteUnneededAttachments(user.getEmail(),projectId);
             ProjectService.Iface client = thriftClients.makeProjectClient();
             return client.deleteProject(projectId, user);
         } catch (TException e) {
@@ -621,6 +621,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
                 requestStatus = client.updateProject(project, user);
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
+                cleanUploadHistory(user.getEmail(),id);
             } else {
                 // Add project
                 Project project = new Project();
