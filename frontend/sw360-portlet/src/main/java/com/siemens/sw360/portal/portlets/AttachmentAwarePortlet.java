@@ -25,12 +25,14 @@ import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.AttachmentPortletUtils;
 import com.siemens.sw360.portal.common.PortalConstants;
+import com.siemens.sw360.portal.common.UsedAsLiferayAction;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.datahandler.common.CommonUtils.toSingletonSet;
 import static com.siemens.sw360.portal.common.PortalConstants.ATTACHMENTS;
 
@@ -39,23 +41,25 @@ import static com.siemens.sw360.portal.common.PortalConstants.ATTACHMENTS;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author birgit.heydenreich@tngtech.com
  */
 public abstract class AttachmentAwarePortlet extends Sw360Portlet {
 
     protected final AttachmentPortletUtils attachmentPortletUtils;
+    protected Map< String, Map< String, Set<String>>> uploadHistoryPerUserEmailAndDocumentId;
 
     protected AttachmentAwarePortlet() {
-        attachmentPortletUtils = new AttachmentPortletUtils(thriftClients);
+        this(new ThriftClients());
     }
 
     public AttachmentAwarePortlet(ThriftClients thriftClients) {
-        super(thriftClients);
-        attachmentPortletUtils = new AttachmentPortletUtils(thriftClients);
+        this(thriftClients, new AttachmentPortletUtils(thriftClients));
     }
 
     public AttachmentAwarePortlet(ThriftClients thriftClients, AttachmentPortletUtils attachmentPortletUtils) {
         super(thriftClients);
         this.attachmentPortletUtils = attachmentPortletUtils;
+        uploadHistoryPerUserEmailAndDocumentId = new HashMap<>();
     }
 
     public static void setAttachmentsInRequest(RenderRequest request, Set<Attachment> attachments) {
@@ -80,6 +84,7 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         } else if (PortalConstants.ATTACHMENT_UPLOAD.equals(action)) {
             if ("POST".equals(request.getMethod())) {
                 // POST is for actual upload
+                storeUploadedAttachmentIdInHistory(request);
                 if (!attachmentPortletUtils.uploadAttachmentPart(request, "file")) {
                     response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
                 }
@@ -129,6 +134,39 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         }
     }
 
+    private void storeUploadedAttachmentIdInHistory(ResourceRequest request){
+        String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
+        String userEmail = UserCacheHolder.getUserFromRequest(request).getEmail();
+        String attachmentId = request.getParameter("resumableIdentifier");
+
+        if(!uploadHistoryPerUserEmailAndDocumentId.containsKey(userEmail)){
+            Map<String,Set<String>> documentIdsToAttachmentIds = new HashMap<>();
+            documentIdsToAttachmentIds.put(documentId,new HashSet<>());
+            uploadHistoryPerUserEmailAndDocumentId.put(userEmail, documentIdsToAttachmentIds);
+        } else if (!uploadHistoryPerUserEmailAndDocumentId.get(userEmail).containsKey(documentId)){
+            uploadHistoryPerUserEmailAndDocumentId.get(userEmail).put(documentId,new HashSet<>());
+        }
+
+        Set<String> attachmentIdsForDocument = uploadHistoryPerUserEmailAndDocumentId.get(userEmail).get(documentId);
+        attachmentIdsForDocument.add(attachmentId);
+    }
+
+    public void cleanUploadHistory(String userEmail, String documentId){
+        if(uploadHistoryPerUserEmailAndDocumentId.containsKey(userEmail)) {
+            if (uploadHistoryPerUserEmailAndDocumentId.get(userEmail).containsKey(documentId)) {
+                uploadHistoryPerUserEmailAndDocumentId.get(userEmail).remove(documentId);
+            }
+        }
+    }
+
+    public void deleteUnneededAttachments(String userEmail, String documentId){
+        if(uploadHistoryPerUserEmailAndDocumentId.containsKey(userEmail)) {
+            Set<String> uploadedAttachmentIds = nullToEmptySet(uploadHistoryPerUserEmailAndDocumentId.get(userEmail).get(documentId));
+            attachmentPortletUtils.deleteUnneededAttachments(uploadedAttachmentIds);
+            cleanUploadHistory(userEmail,documentId);
+        }
+    }
+
     protected boolean isAttachmentAwareAction(String action) {
         return action.startsWith(PortalConstants.ATTACHMENT_PREFIX);
     }
@@ -144,6 +182,17 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
             super.dealWithGenericAction(request, response, action);
         } else {
             dealWithAttachments(request, response, action);
+        }
+    }
+
+    @UsedAsLiferayAction
+    public void attachmentDeleteOnCancel(ActionRequest request, ActionResponse response){
+        String userEmail = UserCacheHolder.getUserFromRequest(request).getEmail();
+        if(uploadHistoryPerUserEmailAndDocumentId.containsKey(userEmail)) {
+            String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
+            Set<String> uploadedAttachmentIds = nullToEmptySet(uploadHistoryPerUserEmailAndDocumentId.get(userEmail).get(documentId));
+            attachmentPortletUtils.deleteUnneededAttachments(uploadedAttachmentIds);
+            cleanUploadHistory(userEmail, documentId);
         }
     }
 }

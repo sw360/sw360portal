@@ -31,11 +31,13 @@
 <portlet:resourceURL var="newAttachmentAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.ATTACHMENT_RESERVE_ID%>'/>
     <portlet:param name="<%=PortalConstants.DOCUMENT_TYPE%>" value="${documentType}"/>
+    <portlet:param name="<%=PortalConstants.DOCUMENT_ID%>" value="${documentID}"/>
 </portlet:resourceURL>
 
 <portlet:resourceURL var="uploadPartAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.ATTACHMENT_UPLOAD%>'/>
     <portlet:param name="<%=PortalConstants.DOCUMENT_TYPE%>" value="${documentType}"/>
+    <portlet:param name="<%=PortalConstants.DOCUMENT_ID%>" value="${documentID}"/>
 </portlet:resourceURL>
 
 <portlet:resourceURL var="cancelAttachmentAjaxURL">

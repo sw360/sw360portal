@@ -49,6 +49,7 @@ import static java.lang.Integer.parseInt;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author birgit.heydenreich@tngtech.com
  */
 public class PortletUtils {
 

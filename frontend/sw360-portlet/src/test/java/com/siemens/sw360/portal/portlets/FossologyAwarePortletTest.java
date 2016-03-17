@@ -192,6 +192,7 @@ public class FossologyAwarePortletTest extends TestCase {
         }).when(projectClient).getProjectById(anyString(), any(User.class));
 
         fossologyAwarePortlet = new FossologyAwarePortlet(thriftClients) {
+
             @Override
             protected Set<Attachment> getAttachments(String documentId, String documentType, User user) {
                 return null;

@@ -42,6 +42,7 @@ import javax.portlet.ResourceResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -55,6 +56,7 @@ import static java.net.URLConnection.guessContentTypeFromStream;
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author daniele.fognini@tngtech.com
+ * @author birgit.heydenreich@tngtech.com
  */
 public class AttachmentPortletUtils {
 
@@ -272,10 +274,19 @@ public class AttachmentPortletUtils {
         try {
             String filename = client.getAttachmentContent(attachmentContentId).getFilename();
             return CommonUtils.getNewAttachment(user, attachmentContentId, filename);
-
         } catch (TException e) {
             log.error("Could not get attachment content", e);
         }
         return null;
+    }
+
+    public void deleteUnneededAttachments(Set<String> attachmentContentIds){
+        try {
+            for(String id: attachmentContentIds) {
+                client.deleteAttachmentContent(id);
+            }
+        } catch (TException e){
+            log.error("Could not delete attachments from database.",e);
+        }
     }
 }
