@@ -186,7 +186,6 @@ public class ModerationDatabaseHandler {
         // Define moderators
         Set<String> moderators = new HashSet<>();
         CommonUtils.add(moderators, project.getCreatedBy());
-        CommonUtils.add(moderators, project.getLeadArchitect());
         CommonUtils.add(moderators, project.getProjectResponsible());
         CommonUtils.addAll(moderators, project.getModerators());
         CommonUtils.addAll(moderators, project.getComoderators());

@@ -97,6 +97,7 @@ public class CompareRelease extends NameSpaceAwareTag {
                     case MAIN_LICENSE_IDS:
                     case FOSSOLOGY_ID:
                     case CLEARING_TEAM_TO_FOSSOLOGY_STATUS:
+                    case DOCUMENT_STATE:
                         break;
 
                     case REPOSITORY:

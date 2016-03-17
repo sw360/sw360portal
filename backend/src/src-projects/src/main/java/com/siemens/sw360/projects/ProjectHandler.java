@@ -220,20 +220,21 @@ public class ProjectHandler implements ProjectService.Iface {
     public RequestStatus addAttachmentToProject(String projectId, User user, String attachmentContentId, String fileName) throws TException {
         Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
 
-        Project projectById = getProjectById(projectId, user);
+        Project projectById = getProjectByIdForEdit(projectId, user);
         projectById.addToAttachments(attachment);
         return updateProject(projectById, user);
     }
 
     @Override
     public RequestStatus removeAttachmentFromProject(String projectId, User user, String attachmentContentId) throws TException {
-        Project projectById = getProjectById(projectId, user);
+        Project projectByIdForEdit = getProjectByIdForEdit(projectId, user);
 
-        Set<Attachment> attachments = projectById.getAttachments();
+        Set<Attachment> attachments = projectByIdForEdit.getAttachments();
+
         Optional<Attachment> attachmentOptional = CommonUtils.getAttachmentOptional(attachmentContentId, attachments);
         if (attachmentOptional.isPresent()) {
             attachments.remove(attachmentOptional.get());
-            return updateProject(projectById, user);
+            return updateProject(projectByIdForEdit, user);
         } else {
             return RequestStatus.SUCCESS;
         }

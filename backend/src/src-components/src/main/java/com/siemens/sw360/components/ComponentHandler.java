@@ -325,20 +325,20 @@ public class ComponentHandler implements ComponentService.Iface {
 
         Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
 
-        Component component = getComponentById(componentId, user);
+        Component component = getComponentByIdForEdit(componentId, user);
         component.addToAttachments(attachment);
         return updateComponent(component, user);
     }
 
     @Override
     public RequestStatus removeAttachmentFromComponent(String componentId, User user, String attachmentContentId) throws TException {
-        Component component = getComponentById(componentId, user);
+        Component componentByIdForEdit = getComponentByIdForEdit(componentId, user);
 
-        Set<Attachment> attachments = component.getAttachments();
+        Set<Attachment> attachments = componentByIdForEdit.getAttachments();
         Optional<Attachment> attachmentOptional = CommonUtils.getAttachmentOptional(attachmentContentId, attachments);
         if (attachmentOptional.isPresent()) {
             attachments.remove(attachmentOptional.get());
-            return updateComponent(component, user);
+            return updateComponent(componentByIdForEdit, user);
         } else {
             return RequestStatus.SUCCESS;
         }
@@ -348,28 +348,28 @@ public class ComponentHandler implements ComponentService.Iface {
     public RequestStatus addAttachmentToRelease(String releaseId, User user, String attachmentContentId, String fileName) throws TException {
         Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
 
-        Release release = getReleaseById(releaseId, user);
+        Release release = getReleaseByIdForEdit(releaseId, user);
         release.addToAttachments(attachment);
         return updateRelease(release, user);
     }
 
     @Override
     public RequestStatus removeAttachmentFromRelease(String releaseId, User user, String attachmentContentId) throws TException {
-        Release release = getReleaseById(releaseId, user);
+        Release releaseByIdForEdit = getReleaseByIdForEdit(releaseId, user);
 
-        Set<Attachment> attachments = release.getAttachments();
+        Set<Attachment> attachments = releaseByIdForEdit.getAttachments();
         Optional<Attachment> attachmentOptional = CommonUtils.getAttachmentOptional(attachmentContentId, attachments);
         if (attachmentOptional.isPresent()) {
             final Attachment attachment = attachmentOptional.get();
 
-            if (Objects.equals(release.getAttachmentInFossology(), attachment.getAttachmentContentId())) {
+            if (Objects.equals(releaseByIdForEdit.getAttachmentInFossology(), attachment.getAttachmentContentId())) {
                 return RequestStatus.FAILURE;
             }
             attachments.remove(attachment);
             if (attachment.getAttachmentType() == AttachmentType.CLEARING_REPORT){
-                CommonUtils.setReleaseClearingStateOnClearingReportRemoval(release);
+                CommonUtils.setReleaseClearingStateOnClearingReportRemoval(releaseByIdForEdit);
             }
-            return updateRelease(release, user);
+            return updateRelease(releaseByIdForEdit, user);
         } else {
             return RequestStatus.SUCCESS;
         }
