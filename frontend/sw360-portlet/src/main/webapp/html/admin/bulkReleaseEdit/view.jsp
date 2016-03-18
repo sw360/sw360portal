@@ -27,11 +27,6 @@
              scope="request"/>
 
 <%--TODO--%>
-<portlet:resourceURL var="addVendorURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.ADD_VENDOR%>"/>
-</portlet:resourceURL>
-
-<%--TODO--%>
 <portlet:resourceURL var="viewVendorURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
 </portlet:resourceURL>
@@ -200,10 +195,6 @@
     }
 
     //Vendor things
-    function addVendor() {
-        openDialog('add-vendor-form', 'addVendorFullName');
-    }
-
     function fillVendorInfo(vendorInfo) {
 
         var beforeComma = vendorInfo.substr(0, vendorInfo.indexOf(","));
@@ -228,26 +219,6 @@
                 $('#' + id).html(data);
             }
         });
-    }
-
-
-    function submitAddVendor(fullnameId, shortnameId, urlId) {
-
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=addVendorURL%>',
-            data: {
-                <portlet:namespace/>FULLNAME: $('#' + fullnameId).val(),
-                <portlet:namespace/>SHORTNAME: $('#' + shortnameId).val(),
-                <portlet:namespace/>URL: $('#' + urlId).val()
-
-            },
-            success: function (data) {
-                closeOpenDialogs();
-                fillVendorInfoFields(data.id, $('#' + fullnameId).val());
-            }
-        });
-
     }
 
     function useSearch( buttonId) {

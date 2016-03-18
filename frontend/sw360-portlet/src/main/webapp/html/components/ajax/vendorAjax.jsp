@@ -42,11 +42,11 @@
     <core_rt:if test="${not empty vendor.id}" >
       <td width="30%">
         <input type="hidden" value="${vendor.id}" name="<portlet:namespace/><%=Release._Fields.VENDOR_ID%>">
-        <label class="textlabel stackedLabel" for="vendorName">Vendor Name</label>
+        <label class="textlabel stackedLabel" for="vendorName">Vendor Full Name</label>
         <input id="vendorName" type="text" class="toplabelledInput"  placeholder="Enter Vendor" value="${vendor.fullname}" readonly/>
       </td>
       <td width="30%">
-        <label class="textlabel stackedLabel" for="vendorShortName">Vendor Shortname</label>
+        <label class="textlabel stackedLabel" for="vendorShortName">Vendor Short Name</label>
         <input id="vendorShortName"  type="text" class="toplabelledInput"  placeholder="Enter Vendor" value="${vendor.shortname}" readonly/>
       </td>
       <td width="30%">

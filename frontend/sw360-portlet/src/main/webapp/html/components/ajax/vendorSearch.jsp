@@ -38,12 +38,5 @@
 <core_rt:if test="${vendorsSearch.size() == 0}">
 <tr><td colspan="3">
     No vendor found with your search.
-
-    <input type="button" class="addButton" onclick="addVendor()" value="Add Vendor">
-
-    <%@include file="/html/components/includes/vendors/addVendorForm.jspf" %>
-
-
 </td></tr>
-
 </core_rt:if>

@@ -18,6 +18,7 @@
 package com.siemens.sw360.portal.portlets.admin;
 
 import com.google.common.collect.Sets;
+import com.liferay.portal.kernel.events.Action;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
@@ -161,6 +162,14 @@ public class VendorPortlet extends Sw360Portlet {
             addVendor(request);
         }
     }
+
+    @UsedAsLiferayAction
+    public void removeVendor(ActionRequest request, ActionResponse response) throws IOException, PortletException {
+        final RequestStatus requestStatus = ComponentPortletUtils.deleteVendor(request, log);
+        setSessionMessage(request, requestStatus, "Vendor", "delete");
+        response.setRenderParameter(PAGENAME, PAGENAME_VIEW);
+    }
+
     private void addVendor(ActionRequest request)  {
         final Vendor vendor = new Vendor();
         ComponentPortletUtils.updateVendorFromRequest(request, vendor);
