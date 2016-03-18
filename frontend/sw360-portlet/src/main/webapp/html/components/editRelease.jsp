@@ -55,6 +55,10 @@
     <portlet:param name="<%=PortalConstants.RELEASE_ID%>" value="${release.id}"/>
 </portlet:actionURL>
 
+<portlet:resourceURL var="viewVendorURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
+</portlet:resourceURL>
+
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
 <!--include jQuery -->
@@ -135,14 +139,6 @@
 <jsp:include page="/html/utils/includes/searchLicenses.jsp" />
 <jsp:include page="/html/utils/includes/searchReleasesFromRelease.jsp" />
 
-<portlet:resourceURL var="addVendorURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.ADD_VENDOR%>"/>
-</portlet:resourceURL>
-
-<portlet:resourceURL var="viewVendorURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
-</portlet:resourceURL>
-
 <script>
     var tabView;
     var Y = YUI().use(
@@ -183,11 +179,6 @@
 
 
     //Vendor things
-
-    function addVendor(){
-        openDialog('add-vendor-form', 'addVendorFullName');
-    }
-
     function fillVendorInfo( vendorInfo) {
 
         var beforeComma = vendorInfo.substr(0, vendorInfo.indexOf(","));
@@ -213,37 +204,5 @@
             }
         });
     }
-
-
-    function submitAddVendor(fullnameId, shortnameId, urlId) {
-        var fullnameText = $('#' + fullnameId).val();
-        var shortnameText = $('#' + shortnameId).val();
-        var urlText = $('#' + urlId).val();
-        var errortxt = '';
-
-        if (fullnameText == '' || shortnameText == '' || urlText == '')
-        {
-            errortxt += fullnameText != '' ? '':  '<br> Fullname is required. ';
-            errortxt += shortnameText != '' ? '': ' <br> Shortname is required. ';
-            errortxt += urlText != '' ? '': ' <br> URL is required. ';
-            $('#divVendorSearchAddVendorError').html(errortxt).css('visibility', 'visible');
-        } else {
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=addVendorURL%>',
-                data: {
-                    <portlet:namespace/>FULLNAME: fullnameText,
-                    <portlet:namespace/>SHORTNAME: shortnameText,
-                    <portlet:namespace/>URL: urlText
-                },
-                success: function (data) {
-                    closeOpenDialogs();
-                    fillVendorInfoFields(data.id, $('#' + fullnameId).val());
-                }
-            });
-        }
-
-    }
-
 </script>
 

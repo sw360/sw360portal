@@ -39,6 +39,10 @@
     <portlet:param name="<%=PortalConstants.VENDOR_ID%>" value="${vendor.id}" />
 </portlet:actionURL>
 
+<portlet:actionURL var="deleteVendorURL" name="removeVendor">
+    <portlet:param name="<%=PortalConstants.VENDOR_ID%>" value="${vendor.id}"/>
+</portlet:actionURL>
+
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
@@ -49,7 +53,10 @@
 
 <div id="where" class="content1">
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${vendor.fullname}"/></span>
-
+        <core_rt:if test="${not addMode}" >
+            <input type="button" class="addButton" onclick="window.location.href='<%=deleteVendorURL%>'"
+                   value="Delete <sw360:out value="${vendor.fullname}"/>">
+        </core_rt:if>
     </p>
 </div>
 
@@ -64,19 +71,17 @@
             </thead>
             <tbody>
             <tr>
-
                 <td width="30%">
-                    <label class="textlabel stackedLabel mandatory" for="vendorShortname">Shortname</label>
-                    <input id="vendorShortname" type="text" required class="toplabelledInput" placeholder="Enter vendor short name" name="<portlet:namespace/><%=Vendor._Fields.SHORTNAME%>"
-                           value="<sw360:out value="${vendor.shortname}"/>" />
-                </td>
-
-                <td width="30%">
-                    <label class="textlabel stackedLabel mandatory" for="vendorFullname">Fullname</label>
+                    <label class="textlabel stackedLabel mandatory" for="vendorFullname">Full Name</label>
                     <input id="vendorFullname" type="text" required class="toplabelledInput" placeholder="Enter vendor fullname" name="<portlet:namespace/><%=Vendor._Fields.FULLNAME%>"
                            value="<sw360:out value="${vendor.fullname}"/>" />
                 </td>
 
+                <td width="30%">
+                    <label class="textlabel stackedLabel mandatory" for="vendorShortname">Short Name</label>
+                    <input id="vendorShortname" type="text" required class="toplabelledInput" placeholder="Enter vendor short name" name="<portlet:namespace/><%=Vendor._Fields.SHORTNAME%>"
+                           value="<sw360:out value="${vendor.shortname}"/>" />
+                </td>
 
                 <td width="30%">
                     <label class="textlabel stackedLabel mandatory" for="vendorURL">URL</label>
@@ -132,6 +137,5 @@
             invalidHandler: invalidHandlerShowErrorTab
         });
     });
-
 
 </script>

@@ -23,11 +23,11 @@
     </tr>
     </thead>
     <tr>
-        <td>Fullname:</td>
+        <td>Full Name:</td>
         <td><sw360:out value="${release.vendor.fullname}"/></td>
     </tr>
     <tr>
-        <td>Shortname:</td>
+        <td>Short Name:</td>
         <td><sw360:out value="${release.vendor.shortname}"/></td>
     </tr>
     <tr>

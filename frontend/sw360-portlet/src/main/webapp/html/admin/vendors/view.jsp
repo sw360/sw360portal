@@ -95,19 +95,20 @@
 
     var oTable;
 
+    var PortletURL;
+    AUI().use('liferay-portlet-url', function (A) {
+        PortletURL = Liferay.PortletURL;
+        createVendorsTable()
+    });
+
     function createUrl_comp( paramId, paramVal) {
-        var portletURL = Liferay.PortletURL.createURL( baseUrl ).setParameter(pageName,pageEdit).setParameter(paramId,paramVal);
+        var portletURL = PortletURL.createURL( baseUrl ).setParameter(pageName,pageEdit).setParameter(paramId,paramVal);
         return portletURL.toString();
     }
 
     function createDetailURLfromVendorId (paramVal) {
         return createUrl_comp(vendorIdInURL,paramVal );
     }
-
-    //This can not be document ready function as liferay definitions need to be loaded first
-    $(window).load(function() {
-        createVendorsTable();
-    });
 
     function useSearch( buttonId) {
         oTable.fnFilter( $('#'+buttonId).val());
@@ -118,11 +119,11 @@
         <core_rt:forEach items="${vendorList}" var="vendor">
         result.push({
             "DT_RowId": "${vendor.id}",
-            "0": "<a href='"+createDetailURLfromVendorId('${vendor.id}')+"' target='_self'><sw360:out value="${vendor.shortname}"/></a>",
-            "1": "<sw360:out value="${vendor.fullname}"/>",
+            "0": "<a href='"+createDetailURLfromVendorId('${vendor.id}')+"' target='_self'><sw360:out value="${vendor.fullname}"/></a>",
+            "1": "<sw360:out value="${vendor.shortname}"/>",
             "2": "<sw360:out value="${vendor.url}"/>",
             "3": "<a href='"+createDetailURLfromVendorId('${vendor.id}')+"' target='_self'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'></a>"
-            +"<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteVendor('${vendor.id}', '<sw360:out value="${vendor.shortname}"/>')\"  alt='Delete' title='Delete'>"
+            +"<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteVendor('${vendor.id}', '<sw360:out value="${vendor.fullname}"/>')\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
 
@@ -130,8 +131,8 @@
             pagingType: "full_numbers",
             data: result,
             columns: [
-                { "title": "Shortname" },
-                { "title": "Name" },
+                { "title": "Full Name" },
+                { "title": "Short Name" },
                 { "title": "URL" },
                 { "title": "Actions"}
             ]

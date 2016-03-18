@@ -15,6 +15,9 @@
   ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   ~ 02110-1301, USA.
 --%>
+<portlet:resourceURL var="addVendorURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.ADD_VENDOR%>"/>
+</portlet:resourceURL>
 
 <div id="search-vendor-form" title="Search Vendor" style="display: none; background-color: #ffffff;">
     <form>
@@ -27,10 +30,10 @@
             <table width="100%" style="border-bottom: 2px solid #66c1c2;">
                 <thead>
                 <tr class="trheader" style="height: 30px;">
-                    <th width="4%">&nbsp;</th>
-                    <th width="24%" class="textlabel">Vendor ID</th>
-                    <th width="24%" class="textlabel">Vendor Name</th>
-                    <th width="24%" class="textlabel">Vendor URL</th>
+                    <th></th>
+                    <th class="textlabel">Vendor Full Name</th>
+                    <th class="textlabel">Vendor Short Name</th>
+                    <th class="textlabel">Vendor URL</th>
                 </tr>
                 </thead>
             </table>
@@ -46,6 +49,8 @@
 
             <div>
                 <input type="button" value="Select" class="addButton" onclick="selectVendor();"/>
+                <input type="button" class="addButton" onclick="addVendor()" value="Add New Vendor">
+                <%@include file="/html/components/includes/vendors/addVendorForm.jspf" %>
             </div>
         </div>
     </form>
@@ -54,6 +59,43 @@
 <script>
     function showSetVendorDialog(){
         openDialog('search-vendor-form', 'searchvendor');
+    }
+
+    function addVendor(){
+        openDialog('add-vendor-form', 'addVendorFullName');
+        $('#addVendorFullName').val("");
+        $('#addVendorShortName').val("");
+        $('#addVendorUrl').val("");
+    }
+
+    function submitAddVendor(fullnameId, shortnameId, urlId) {
+        var fullnameText = $('#' + fullnameId).val();
+        var shortnameText = $('#' + shortnameId).val();
+        var urlText = $('#' + urlId).val();
+        var errortxt = '';
+
+        if (fullnameText == '' || shortnameText == '' || urlText == '')
+        {
+            errortxt += fullnameText != '' ? '':  '<br> Fullname is required. ';
+            errortxt += shortnameText != '' ? '': ' <br> Shortname is required. ';
+            errortxt += urlText != '' ? '': ' <br> URL is required. ';
+            $('#divVendorSearchAddVendorError').html(errortxt).css('visibility', 'visible');
+        } else {
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=addVendorURL%>',
+                data: {
+                    <portlet:namespace/>FULLNAME: fullnameText,
+                    <portlet:namespace/>SHORTNAME: shortnameText,
+                    <portlet:namespace/>URL: urlText
+                },
+                success: function (data) {
+                    closeOpenDialogs();
+                    fillVendorInfoFields(data.id, $('#' + fullnameId).val());
+                }
+            });
+        }
+
     }
 
     function selectVendor() {
