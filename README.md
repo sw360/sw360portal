@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/siemens/sw360portal.png?label=ready&title=Ready)](https://waffle.io/siemens/sw360portal)
+[![Stories in Ready](https://badge.waffle.io/sw360/sw360portal.png?label=ready&title=Ready)](https://waffle.io/sw360/sw360portal)
 
 [![Build Status](https://travis-ci.org/sw360/sw360portal.svg?branch=master)](https://travis-ci.org/sw360/sw360portal)
 
