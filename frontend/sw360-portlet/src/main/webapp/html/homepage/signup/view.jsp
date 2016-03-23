@@ -81,7 +81,7 @@
                                         style="min-width: 162px; min-height: 28px;">
                         <core_rt:forEach items="${organizations}" var="org">
                             <option value="${org.name}" class="textlabel stackedLabel"
-                            <core_rt:if test="$org.name.equals($user.department)"> selected="selected"</core_rt:if>
+                            <core_rt:if test="${org.name == newuser.department}"> selected="selected"</core_rt:if>
                             >${org.name}</option>
                         </core_rt:forEach>
                     </select>
@@ -129,14 +129,14 @@ $(document).ready(function () {
 
     $('#signup_form').validate({
         rules: {
-            password: "required",
-            password_repeat: {
+            "<portlet:namespace/><%=PortalConstants.PASSWORD%>": "required",
+            "<portlet:namespace/><%=PortalConstants.PASSWORD_REPEAT%>": {
                 equalTo: '#password'
             }
         },
         messages: {
-            password_repeat: {
-                equalTo: "passwords must match"
+            "<portlet:namespace/><%=PortalConstants.PASSWORD_REPEAT%>": {
+                equalTo: "Passwords must match."
             }
         }
     });
