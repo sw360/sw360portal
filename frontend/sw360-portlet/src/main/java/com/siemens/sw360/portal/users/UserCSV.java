@@ -20,7 +20,6 @@ package com.siemens.sw360.portal.users;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.User;
-import com.siemens.sw360.portal.portlets.admin.UserPortlet;
 import org.apache.commons.csv.CSVRecord;
 
 import javax.portlet.PortletRequest;
@@ -88,7 +87,7 @@ public class UserCSV {
     }
 
     public User addLifeRayUser(PortletRequest request) throws PortalException, SystemException {
-        return UserPortlet.addLiferayUser(request, givenname, lastname, email,
+        return UserPortletUtils.addLiferayUser(request, givenname, lastname, email,
                 department, getRoleConstantFromUserGroup(userGroupFromString(group)), isMale, gid, hash, true, true);
 
     }

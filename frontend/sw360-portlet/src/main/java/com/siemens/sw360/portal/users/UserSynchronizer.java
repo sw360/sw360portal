@@ -15,18 +15,15 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.siemens.sw360.portal.tags;
 
-import com.siemens.sw360.datahandler.common.SW360Utils;
+package com.siemens.sw360.portal.users;
+
 import com.siemens.sw360.datahandler.thrift.users.User;
 
 /**
- * This prints user's display name
- *
  * @author alex.borodin@evosoft.com
  */
-public class UserName extends OutTag {
-    public void setUser(User user) {
-        this.value = SW360Utils.printName(user);
-    }
+@FunctionalInterface
+public interface UserSynchronizer<T> {
+    void fillUserFromSource(User thriftUser, T source);
 }

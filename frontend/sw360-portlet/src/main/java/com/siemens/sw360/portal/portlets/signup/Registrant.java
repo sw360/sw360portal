@@ -1,3 +1,20 @@
+/*
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License Version 2.0 as published by the
+ * Free Software Foundation with classpath exception.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program (please see the COPYING file); if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
 package com.siemens.sw360.portal.portlets.signup;
 
 import com.liferay.portal.kernel.exception.PortalException;
@@ -8,7 +25,7 @@ import com.siemens.sw360.datahandler.common.SW360Assert;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.portlets.admin.UserPortlet;
+import com.siemens.sw360.portal.users.UserPortletUtils;
 import com.siemens.sw360.portal.users.UserUtils;
 
 import javax.portlet.ActionRequest;
@@ -32,10 +49,11 @@ class Registrant extends User {
         isMale = false;
         password = request.getParameter(PortalConstants.PASSWORD);
         password2 = request.getParameter(PortalConstants.PASSWORD_REPEAT);
+        setWantsMailNotification(true);
     }
 
     public com.liferay.portal.model.User addLifeRayUser(PortletRequest request) throws PortalException, SystemException {
-        return UserPortlet.addLiferayUser(request, getGivenname(), getLastname(), getEmail(),
+        return UserPortletUtils.addLiferayUser(request, getGivenname(), getLastname(), getEmail(),
                 getDepartment(), UserUtils.getRoleConstantFromUserGroup(getUserGroup()), isMale, getExternalid(), password, false, false);
 
     }

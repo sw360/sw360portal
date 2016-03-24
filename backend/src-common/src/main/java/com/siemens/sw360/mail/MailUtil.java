@@ -7,7 +7,6 @@ import javax.mail.internet.*;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.mail.MailConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -68,7 +67,7 @@ public class MailUtil {
 
         properties.setProperty("mail.debug", enableDebug);
 
-        if (isAuthenticationNecessary!="false") {
+        if (!"false".equals(isAuthenticationNecessary)) {
             Authenticator auth = new SMTPAuthenticator(login, password);
             session = Session.getInstance(properties, auth);
         } else {
@@ -76,8 +75,8 @@ public class MailUtil {
         }
     }
 
-    public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
-        if (isMailingEnabledAndValid() && isMailWantedBy(recipient)) {
+    public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile, boolean checkWantsNotifications) {
+        if (isMailingEnabledAndValid() && (!checkWantsNotifications || isMailWantedBy(recipient))) {
             MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
             sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
         }
@@ -154,7 +153,7 @@ public class MailUtil {
             log.info("Sent message successfully to user "+recipient+".");
 
         } catch (MessagingException mex) {
-            log.error(mex.getMessage());
+            log.error(mex.getMessage(), mex);
         }
     }
 

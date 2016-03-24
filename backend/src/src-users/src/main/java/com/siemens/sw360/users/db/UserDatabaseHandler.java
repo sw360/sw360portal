@@ -81,7 +81,7 @@ public class UserDatabaseHandler {
     public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) {
 
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST,MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST);
+        mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST, MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST, true);
 
         return RequestStatus.SUCCESS;
     }

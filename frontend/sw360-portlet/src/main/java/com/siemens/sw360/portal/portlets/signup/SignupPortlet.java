@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -105,7 +105,7 @@ public class SignupPortlet extends Sw360Portlet {
         try {
             com.liferay.portal.model.User liferayUser = registrant.addLifeRayUser(request);
             if (liferayUser != null) {
-                user = UserUtils.synchronizeUserWithDatabase(liferayUser, thriftClients);
+                user = UserUtils.synchronizeUserWithDatabase(registrant, thriftClients, registrant::getEmail, UserUtils::fillThriftUserFromThriftUser);
             }
         } catch (PortalException | SystemException e) {
             log.error(e);

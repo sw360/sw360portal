@@ -21,26 +21,19 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
-import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.*;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
-import com.liferay.portal.service.persistence.RoleUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.users.*;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
@@ -311,7 +304,7 @@ public class UserPortlet extends Sw360Portlet {
         }
     }
 
-    private static Organization createOrganization(ServiceContext serviceContext, String headDepartment, int parentId) throws PortalException, SystemException {
+    private Organization createOrganization(ServiceContext serviceContext, String headDepartment, int parentId) throws PortalException, SystemException {
         return OrganizationServiceUtil.addOrganization(
                 parentId,
                 headDepartment,
@@ -333,152 +326,6 @@ public class UserPortlet extends Sw360Portlet {
             user = themeDisplay.getUser();
         else {
             throw new SW360Exception("Broken portlet!");
-        }
-        return user;
-    }
-
-    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String openId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
-        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        long companyId = themeDisplay.getCompanyId();
-
-        long organizationId = OrganizationLocalServiceUtil.getOrganizationId(companyId, organizationName);
-        final Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
-        long roleId = role.getRoleId();
-
-        return addLiferayUser(request, firstName, lastName, emailAddress, organizationId, roleId, male, openId, password, passwordEncrypted, activateImmediately);
-    }
-
-    /**
-     * Copied from https://github.com/fdelprete/CSV_User_Import-portlet/blob/master/docroot/WEB-INF/src/com/fmdp/csvuserimport/portlet/UserServiceImpl.java
-     * with slight modifications
-     *
-     * @author Filippo Maria Del Prete
-     * <p/>
-     * based on the original work of Paul Butenko
-     * http://java-liferay.blogspot.it/2012/09/how-to-make-users-import-into-liferay.html
-     */
-    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, long organizationId, long roleId, boolean male, String openId, String password, boolean passwordEncrypted, boolean activateImmediately) {
-        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-
-        long creatorUserId = themeDisplay.getUserId();
-        long companyId = themeDisplay.getCompanyId();
-
-        boolean autoPassword = false;
-        String password1 = password;
-        String password2 = password;
-        boolean autoScreenName = false;
-        String screenName = firstName + lastName;
-        String middleName = "";
-        long facebookId = 0;
-
-        Locale locale = themeDisplay.getLocale();
-        int prefixId = 0;
-        int suffixId = 0;
-        int birthdayMonth = 1;
-        int birthdayDay = 1;
-        int birthdayYear = 1970;
-        String jobTitle = "";
-        long[] groupIds = null;
-        long[] organizationIds = null;
-
-            if (organizationId != 0) {
-                organizationIds = new long[1];
-                organizationIds[0] = organizationId;
-            }
-
-        long[] roleIds = null;
-        if (roleId != 0) {
-            roleIds = new long[1];
-            roleIds[0] = roleId;
-        }
-        long[] userGroupIds = null;
-        boolean sendEmail = false;
-        boolean userbyscreeenname_exists = true;
-        boolean userbyemail_exists = true;
-        boolean userbyopenid_exists = true;
-        User user = null;
-        try {
-            try {
-                user = UserLocalServiceUtil.getUserByScreenName(companyId, screenName);
-            } catch (NoSuchUserException nsue) {
-                userbyscreeenname_exists = false;
-            }
-            try {
-                user = UserLocalServiceUtil.getUserByEmailAddress(companyId, emailAddress);
-            } catch (NoSuchUserException nsue) {
-                userbyemail_exists = false;
-            }
-            try {
-                user = UserLocalServiceUtil.getUserByOpenId(companyId, openId);
-            } catch (NoSuchUserException nsue) {
-                userbyopenid_exists = false;
-            }
-        } catch (PortalException | SystemException e) {
-            log.error(e);
-        }
-        if (userbyscreeenname_exists || userbyemail_exists || userbyopenid_exists) {
-            String msg_exists = "";
-            if (userbyscreeenname_exists) {
-                msg_exists = msg_exists + "Full name is not unique.";
-            }
-            if (userbyemail_exists) {
-                msg_exists = msg_exists + " Email address is not unique.";
-            }
-            if (userbyopenid_exists) {
-                msg_exists = msg_exists + " External id is not unique.";
-            }
-            msg_exists = msg_exists.trim();
-            log.info(msg_exists);
-            SessionMessages.add(request, "request_processed", msg_exists);
-            return null;
-        }
-        try {
-            ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
-            user = UserLocalServiceUtil.addUser(creatorUserId,
-                    companyId,
-                    autoPassword,
-                    password1,
-                    password2,
-                    autoScreenName,
-                    screenName,
-                    emailAddress,
-                    facebookId,
-                    openId,
-                    locale,
-                    firstName,
-                    middleName,
-                    lastName,
-                    prefixId,
-                    suffixId,
-                    male,
-                    birthdayMonth,
-                    birthdayDay,
-                    birthdayYear,
-                    jobTitle,
-                    groupIds,
-                    organizationIds,
-                    roleIds,
-                    userGroupIds,
-                    sendEmail,
-                    serviceContext);
-            user.setPasswordReset(false);
-
-            if (passwordEncrypted) {
-                user.setPassword(password);
-                user.setPasswordEncrypted(true);
-            }
-
-            Role role = RoleLocalServiceUtil.getRole(roleId);
-            RoleUtil.addUser(role.getRoleId(), user.getUserId());
-            UserLocalServiceUtil.updateUser(user);
-            RoleLocalServiceUtil.updateRole(role);
-
-            UserLocalServiceUtil.updateStatus(user.getUserId(), activateImmediately ? WorkflowConstants.STATUS_APPROVED : WorkflowConstants.STATUS_INACTIVE);
-            Indexer indexer = IndexerRegistryUtil.getIndexer(User.class);
-
-            indexer.reindex(user);
-        } catch (PortalException | SystemException e) {
-            log.error(e);
         }
         return user;
     }
@@ -522,7 +369,7 @@ public class UserPortlet extends Sw360Portlet {
         try {
             user = userRec.addLifeRayUser(request);
             if (user != null) {
-                UserUtils.synchronizeUserWithDatabase(userRec, thriftClients);
+                UserUtils.synchronizeUserWithDatabase(userRec, thriftClients, userRec::getEmail, UserUtils::fillThriftUserFromUserCSV);
             }
         } catch (SystemException | PortalException e) {
             log.error("Error creating a new user", e);

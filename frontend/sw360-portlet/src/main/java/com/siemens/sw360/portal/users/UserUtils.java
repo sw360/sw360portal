@@ -17,7 +17,6 @@
  */
 package com.siemens.sw360.portal.users;
 
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -31,7 +30,6 @@ import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.users.*;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.portlets.admin.UserPortlet;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -41,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.common.SW360Constants.TYPE_USER;
 
@@ -62,41 +61,13 @@ public class UserUtils {
         thriftClients = new ThriftClients();
     }
 
-    public static com.siemens.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(User user, ThriftClients thriftClients) {
+    public static <T> com.siemens.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(T source, ThriftClients thriftClients, Supplier<String> emailSupplier, UserSynchronizer<T> synchronizer) {
         UserService.Iface client = thriftClients.makeUserClient();
 
         com.siemens.sw360.datahandler.thrift.users.User thriftUser = null;
 
         try {
-            thriftUser = client.getByEmail(user.getEmailAddress());
-        } catch (TException e) {
-            //This occurs for every new user, so there is not necessarily something wrong
-            log.trace("Thrift exception when getting the user", e);
-        }
-
-        try {
-            if (thriftUser == null) {
-                //we have a new user
-                thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
-                fillThriftUserFromLiferayUser(thriftUser, user);
-                client.addUser(thriftUser);
-            } else {
-                fillThriftUserFromLiferayUser(thriftUser, user);
-                client.updateUser(thriftUser);
-            }
-        } catch (TException e) {
-            log.error("Thrift exception when saving the user", e);
-        }
-        return thriftUser;
-    }
-
-    public static void synchronizeUserWithDatabase(UserCSV userCsv, ThriftClients thriftClients) {
-        UserService.Iface client = thriftClients.makeUserClient();
-
-        com.siemens.sw360.datahandler.thrift.users.User thriftUser = null;
-
-        try {
-            thriftUser = client.getByEmail(userCsv.getEmail());
+            thriftUser = client.getByEmail(emailSupplier.get());
         } catch (TException e) {
             //This occurs for every new user, so there is not necessarily something wrong
             log.trace("User does not exist in DB yet.");
@@ -104,17 +75,18 @@ public class UserUtils {
 
         try {
             if (thriftUser == null) {
-                log.info("Create new user.");
+                log.info("Creating new user.");
                 thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
-                fillThriftUserFromUserCSV(thriftUser, userCsv);
+                synchronizer.fillUserFromSource(thriftUser, source);
                 client.addUser(thriftUser);
             } else {
-                fillThriftUserFromUserCSV(thriftUser, userCsv);
+                synchronizer.fillUserFromSource(thriftUser, source);
                 client.updateUser(thriftUser);
             }
         } catch (TException e) {
             log.error("Thrift exception when saving the user", e);
         }
+        return thriftUser;
     }
 
     public static String displayUser(String email, com.siemens.sw360.datahandler.thrift.users.User user) {
@@ -184,7 +156,7 @@ public class UserUtils {
 
         com.siemens.sw360.datahandler.thrift.users.User refreshed = UserCacheHolder.getRefreshedUserFromEmail(userEmailAddress);
         if (!equivalent(refreshed, user)) {
-            synchronizeUserWithDatabase(user, thriftClients);
+            synchronizeUserWithDatabase(user, thriftClients, user::getEmailAddress, UserUtils::fillThriftUserFromLiferayUser);
             UserCacheHolder.getRefreshedUserFromEmail(userEmailAddress);
         }
     }
@@ -218,6 +190,19 @@ public class UserUtils {
         thriftUser.setGivenname(user.getFirstName());
         thriftUser.setLastname(user.getLastName());
         thriftUser.setDepartment(getDepartment(user));
+    }
+
+    public static void fillThriftUserFromThriftUser(final com.siemens.sw360.datahandler.thrift.users.User thriftUser, final com.siemens.sw360.datahandler.thrift.users.User user) {
+        thriftUser.setEmail(user.getEmail());
+        thriftUser.setId(user.getEmail());
+        thriftUser.setType(TYPE_USER);
+        thriftUser.setUserGroup(user.getUserGroup());
+        thriftUser.setExternalid(user.getExternalid());
+        thriftUser.setFullname(user.getGivenname()+" "+user.getLastname());
+        thriftUser.setGivenname(user.getGivenname());
+        thriftUser.setLastname(user.getLastname());
+        thriftUser.setDepartment(user.getDepartment());
+        thriftUser.setWantsMailNotification(user.isWantsMailNotification());
     }
 
     public static UserGroup getUserGroupFromLiferayUser(com.liferay.portal.model.User user) {

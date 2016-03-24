@@ -174,7 +174,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             break;
             case LICENSE: {
                 LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
-                    licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
+                licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
             }
             break;
             case USER: {
@@ -476,7 +476,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
     }
 
-    public void  renderLicenseModeration(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user) throws IOException, PortletException, TException {
+    public void renderLicenseModeration(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user) throws IOException, PortletException, TException {
         License actual_license = null;
         User requestingUser = UserCacheHolder.getUserFromEmail(moderationRequest.getRequestingUser());
         try {
