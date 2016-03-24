@@ -20,9 +20,10 @@ package com.siemens.sw360.portal.tags;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -32,7 +33,6 @@ import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,22 +40,27 @@ import java.util.Set;
 import static com.siemens.sw360.portal.tags.TagUtils.*;
 
 /**
- * Display the fields that have changed from old to update
+ * Display the fields that have changed in the project
  *
  * @author birgit.heydenreich@tngtech.com
  */
-public class CompareLicense extends NameSpaceAwareTag {
-    private License old;
-    private License update;
+public class DisplayComponentChanges extends NameSpaceAwareTag {
+    private Component actual;
+    private Component additions;
+    private Component deletions;
     private String tableClasses = "";
     private String idPrefix = "";
 
-    public void setUpdate(License update) {
-        this.update = update;
+    public void setActual(Component actual) {
+        this.actual = actual;
     }
 
-    public void setOld(License old) {
-        this.old = old;
+    public void setAdditions(Component additions) {
+        this.additions = additions;
+    }
+
+    public void setDeletions(Component deletions) {
+        this.deletions = deletions;
     }
 
     public void setTableClasses(String tableClasses) {
@@ -73,29 +78,36 @@ public class CompareLicense extends NameSpaceAwareTag {
         StringBuilder display = new StringBuilder();
         String namespace = getNamespace();
 
-        if (old == null || update == null) {
+        if (additions == null || deletions == null) {
             return SKIP_BODY;
         }
 
         try {
-            for (License._Fields field : License._Fields.values()) {
+            for (Component._Fields field : Component._Fields.values()) {
                 switch (field) {
                     //ignored Fields
                     case ID:
                     case REVISION:
                     case TYPE:
+                    case CREATED_BY:
+                    case CREATED_ON:
                     case PERMISSIONS:
-                    case TODO_DATABASE_IDS:
-                    case RISK_DATABASE_IDS:
                     case DOCUMENT_STATE:
-
-                    //taken care of externally
-                    case TODOS:
+                        //Releases and aggregates:
+                    case RELEASES:
+                    case RELEASE_IDS:
+                    case MAIN_LICENSE_IDS:
+                    case MAIN_LICENSE_NAMES:
+                    case LANGUAGES:
+                    case OPERATING_SYSTEMS:
+                    case VENDOR_NAMES:
+                        //Taken care of externally
+                    case ATTACHMENTS:
                         break;
 
                     default:
-                        FieldMetaData fieldMetaData = License.metaDataMap.get(field);
-                        displaySimpleField(display, old, update, field, fieldMetaData, "");
+                        FieldMetaData fieldMetaData = Component.metaDataMap.get(field);
+                        displaySimpleFieldOrSet(display, actual, additions, deletions, field, fieldMetaData, "");
                 }
             }
 
@@ -105,10 +117,12 @@ public class CompareLicense extends NameSpaceAwareTag {
                 renderString = "<h4> No changes in basic fields </h4>";
             } else {
                 renderString = String.format("<table class=\"%s\" id=\"%schanges\" >", tableClasses, idPrefix)
-                        + "<thead><tr><th colspan=\"3\"> Changes for Basic fields</th></tr>"
-                        + String.format("<tr><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>", FIELD_NAME, CURRENT_VAL, SUGGESTED_VAL)
+                        + "<thead><tr><th colspan=\"4\"> Changes for Basic fields</th></tr>"
+                        + String.format("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
+                        FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL)
                         + renderString + "</tbody></table>";
             }
+
             jspWriter.print(renderString);
         } catch (Exception e) {
             throw new JspException(e);

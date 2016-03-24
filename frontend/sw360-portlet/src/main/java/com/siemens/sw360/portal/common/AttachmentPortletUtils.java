@@ -280,7 +280,7 @@ public class AttachmentPortletUtils {
         return null;
     }
 
-    public void deleteUnneededAttachments(Set<String> attachmentContentIds){
+    public void deleteAttachments(Set<String> attachmentContentIds){
         try {
             for(String id: attachmentContentIds) {
                 client.deleteAttachmentContent(id);

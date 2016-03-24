@@ -247,6 +247,10 @@ public class ComponentHandler implements ComponentService.Iface {
         return handler.updateComponents(components, user);
     }
 
+    public RequestStatus updateComponentFromModerationRequest(Component componentAdditions, Component componentDeletions, User user){
+        return handler.updateComponentFromAdditionsAndDeletions(componentAdditions, componentDeletions, user);
+    }
+
     @Override
     public RequestStatus updateRelease(Release release, User user) throws TException {
         assertNotNull(release);
@@ -269,6 +273,10 @@ public class ComponentHandler implements ComponentService.Iface {
     public RequestSummary updateReleases(Set<Release> releases, User user) throws TException {
         assertUser(user);
         return handler.updateReleases(releases, user);
+    }
+
+    public RequestStatus updateReleaseFromModerationRequest(Release releaseAdditions, Release releaseDeletions, User user){
+        return handler.updateReleaseFromAdditionsAndDeletions(releaseAdditions, releaseDeletions, user);
     }
 
     ///////////////////////////////
@@ -321,16 +329,6 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
-    public RequestStatus addAttachmentToComponent(String componentId, User user, String attachmentContentId, String fileName) throws TException {
-
-        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
-
-        Component component = getComponentByIdForEdit(componentId, user);
-        component.addToAttachments(attachment);
-        return updateComponent(component, user);
-    }
-
-    @Override
     public RequestStatus removeAttachmentFromComponent(String componentId, User user, String attachmentContentId) throws TException {
         Component componentByIdForEdit = getComponentByIdForEdit(componentId, user);
 
@@ -342,15 +340,6 @@ public class ComponentHandler implements ComponentService.Iface {
         } else {
             return RequestStatus.SUCCESS;
         }
-    }
-
-    @Override
-    public RequestStatus addAttachmentToRelease(String releaseId, User user, String attachmentContentId, String fileName) throws TException {
-        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
-
-        Release release = getReleaseByIdForEdit(releaseId, user);
-        release.addToAttachments(attachment);
-        return updateRelease(release, user);
     }
 
     @Override

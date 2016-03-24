@@ -55,12 +55,12 @@
 
 <h2>Proposed changes</h2>
 <h3>Basic fields</h3>
-<sw360:CompareComponent old="${actual_component}" update="${moderationRequest.component}" idPrefix="basicFields" tableClasses="table info_table"/>
+<sw360:DisplayComponentChanges actual="${actual_component}" additions="${moderationRequest.componentAdditions}" deletions="${moderationRequest.componentDeletions}" idPrefix="basicFields" tableClasses="table info_table" />
 
 <h3>Attachments</h3>
-<sw360:CompareAttachments old="${actual_component.attachments}" update="${moderationRequest.component.attachments}" idPrefix="attachments" tableClasses="table info_table" />
+<sw360:CompareAttachments actual="${actual_component.attachments}" additions="${moderationRequest.componentAdditions.attachments}"  deletions="${moderationRequest.componentDeletions.attachments}" idPrefix="attachments" tableClasses="table info_table" />
 
-<h3>Current Component</h3>
+<h2>Current Component</h2>
 <div id="content">
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">

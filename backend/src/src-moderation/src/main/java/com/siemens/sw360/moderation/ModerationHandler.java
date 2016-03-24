@@ -29,7 +29,6 @@ import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.moderation.db.DocumentDatabaseHandler;
 import com.siemens.sw360.moderation.db.ModerationDatabaseHandler;
 import org.apache.thrift.TException;
 
@@ -48,43 +47,43 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 public class ModerationHandler implements ModerationService.Iface {
 
     private final ModerationDatabaseHandler handler;
-    private final DocumentDatabaseHandler documentHandler;
+    /*private final DocumentDatabaseHandler documentHandler;*/
 
     public ModerationHandler() throws MalformedURLException {
-        handler = new ModerationDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);
-        documentHandler = new DocumentDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);
+        handler = new ModerationDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
+        /*documentHandler = new DocumentDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);*/
     }
 
     @Override
-    public void createComponentRequest(Component component, User user) throws TException {
+    public RequestStatus createComponentRequest(Component component, User user) throws TException {
         assertUser(user);
         assertNotNull(component);
 
-        handler.createRequest(component, user.getEmail(), false);
+        return handler.createRequest(component, user, false);
     }
 
     @Override
-    public void createReleaseRequest(Release release, User user) throws TException {
+    public RequestStatus createReleaseRequest(Release release, User user) throws TException {
         assertUser(user);
         assertNotNull(release);
 
-        handler.createRequest(release, user.getEmail(), false);
+        return handler.createRequest(release, user, false);
     }
 
     @Override
-    public void createProjectRequest(Project project, User user) throws TException {
+    public RequestStatus createProjectRequest(Project project, User user) throws TException {
         assertUser(user);
         assertNotNull(project);
 
-        handler.createRequest(project, user.getEmail(), false);
+        return handler.createRequest(project, user, false);
     }
 
     @Override
-    public void createLicenseRequest(License license, User user) throws TException {
+    public RequestStatus createLicenseRequest(License license, User user) throws TException {
         assertUser(user);
         assertNotNull(license);
 
-        handler.createRequest(license, user.getEmail(), user.getDepartment());
+        return handler.createRequest(license, user.getEmail(), user.getDepartment());
     }
 
     @Override
@@ -99,7 +98,7 @@ public class ModerationHandler implements ModerationService.Iface {
         assertUser(user);
         assertNotNull(component);
 
-        handler.createRequest(component, user.getEmail(), true);
+        handler.createRequest(component, user, true);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class ModerationHandler implements ModerationService.Iface {
         assertUser(user);
         assertNotNull(release);
 
-        handler.createRequest(release, user.getEmail(), true);
+        handler.createRequest(release, user, true);
     }
 
     @Override
@@ -115,7 +114,7 @@ public class ModerationHandler implements ModerationService.Iface {
         assertUser(user);
         assertNotNull(project);
 
-        handler.createRequest(project, user.getEmail(), true);
+        handler.createRequest(project, user, true);
     }
 
     @Override
@@ -134,18 +133,6 @@ public class ModerationHandler implements ModerationService.Iface {
     @Override
     public ModerationRequest getModerationRequestById(String id) throws TException {
         return handler.getRequest(id);
-    }
-
-    @Override
-    public void acceptRequest(String requestId) throws TException {
-        assertId(requestId);
-
-        // Get request object and doBulk the database
-        ModerationRequest request = handler.getRequest(requestId);
-        String documentId = documentHandler.updateDocument(request);
-
-        // Delete the related requests from the database
-        handler.deleteRequestsOnDocument(documentId);
     }
 
     @Override

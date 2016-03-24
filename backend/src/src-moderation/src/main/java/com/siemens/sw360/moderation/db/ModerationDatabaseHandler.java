@@ -22,8 +22,11 @@ import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
+import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
+import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
@@ -64,15 +67,19 @@ public class ModerationDatabaseHandler {
      */
     private final ModerationRequestRepository repository;
     private final LicenseDatabaseHandler licenseDatabaseHandler;
+    private final ProjectDatabaseHandler projectDatabaseHandler;
+    private final ComponentDatabaseHandler componentDatabaseHandler;
     private final DatabaseConnector db;
 
-    public ModerationDatabaseHandler(String url, String dbName) throws MalformedURLException {
+    public ModerationDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
         db = new DatabaseConnector(url, dbName);
 
         // Create the repository
         repository = new ModerationRequestRepository(db);
 
         licenseDatabaseHandler = new LicenseDatabaseHandler(url,dbName);
+        projectDatabaseHandler = new ProjectDatabaseHandler(url,dbName,attachmentDbName);
+        componentDatabaseHandler = new ComponentDatabaseHandler(url,dbName,attachmentDbName);
     }
 
     public List<ModerationRequest> getRequestsByModerator(String moderator) {
@@ -85,7 +92,6 @@ public class ModerationDatabaseHandler {
 
     public ModerationRequest getRequest(String requestId) {
         ModerationRequest moderationRequest = repository.get(requestId);
-
         return moderationRequest;
     }
 
@@ -140,67 +146,97 @@ public class ModerationDatabaseHandler {
         sendMailToUserForDeclinedRequest(request.getRequestingUser(), request.getDocumentType() == DocumentType.USER);
     }
 
-
-    public void createRequest(Component component, String user, Boolean isDeleteRequest) {
+    public RequestStatus createRequest(Component component, User user, Boolean isDeleteRequest) {
+        Component dbcomponent;
+        try {
+            dbcomponent = componentDatabaseHandler.getComponent(component.getId(), user);
+        } catch (SW360Exception e) {
+            log.error("Could not get original component from database. Could not generate moderation request.", e);
+            return RequestStatus.FAILURE;
+        }
         // Define moderators
         Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, component.getCreatedBy());
+        CommonUtils.add(moderators, dbcomponent.getCreatedBy());
 
-        ModerationRequest request = createStubRequest(user, isDeleteRequest, component.getId(), moderators);
+        ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, component.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.COMPONENT);
-        request.setDocumentName(SW360Utils.printName(component));
+        request.setDocumentName(SW360Utils.printName(dbcomponent));
 
-        // Set the object TODO 10
-        component.unsetReleaseIds();
-        component.unsetReleases();
-
-        request.setComponent(component);
-
+        //Fill the request
+        ModerationRequestGenerator generator = new ComponentModerationRequestGenerator();
+        request = generator.setAdditionsAndDeletions(request, component, dbcomponent);
         addOrUpdate(request);
+        return RequestStatus.SENT_TO_MODERATOR;
     }
 
-    public void createRequest(Release release, String user, Boolean isDeleteRequest) {
+    public RequestStatus createRequest(Release release, User user, Boolean isDeleteRequest) {
+        Release dbrelease;
+        try {
+            dbrelease = componentDatabaseHandler.getRelease(release.getId(), user);
+
+        } catch (SW360Exception e) {
+            log.error("Could not get original release from database. Could not generate moderation request.", e);
+            return RequestStatus.FAILURE;
+        }
         // Define moderators
         Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, release.getCreatedBy());
-        CommonUtils.addAll(moderators, release.getModerators());
+        CommonUtils.add(moderators, dbrelease.getCreatedBy());
+        CommonUtils.addAll(moderators, dbrelease.getModerators());
 
-        ModerationRequest request = createStubRequest(user, isDeleteRequest, release.getId(), moderators);
+        ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, release.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.RELEASE);
-        request.setDocumentName(SW360Utils.printName(release));
+        request.setDocumentName(SW360Utils.printName(dbrelease));
 
-        // Set the object
+        // Fill the rest
         SW360Utils.setVendorId(release);
-        request.setRelease(release);
-
+        SW360Utils.setVendorId(dbrelease);
+        ModerationRequestGenerator generator = new ReleaseModerationRequestGenerator();
+        request = generator.setAdditionsAndDeletions(request, release, dbrelease);
         addOrUpdate(request);
+        return RequestStatus.SENT_TO_MODERATOR;
     }
 
-    public void createRequest(Project project, String user, Boolean isDeleteRequest) {
+    public RequestStatus createRequest(Project project, User user, Boolean isDeleteRequest) {
+        Project dbproject;
+        try {
+            dbproject = projectDatabaseHandler.getProjectById(project.getId(), user);
+        } catch (SW360Exception e) {
+            log.error("Could not get original project from database. Could not generate moderation request.", e);
+            return RequestStatus.FAILURE;
+        }
+
         // Define moderators
         Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, project.getCreatedBy());
-        CommonUtils.add(moderators, project.getProjectResponsible());
-        CommonUtils.addAll(moderators, project.getModerators());
-        CommonUtils.addAll(moderators, project.getComoderators());
+        CommonUtils.add(moderators, dbproject.getCreatedBy());
+        CommonUtils.add(moderators, dbproject.getProjectResponsible());
+        CommonUtils.addAll(moderators, dbproject.getModerators());
+        CommonUtils.addAll(moderators, dbproject.getComoderators());
 
-        ModerationRequest request = createStubRequest(user, isDeleteRequest, project.getId(), moderators);
+        ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.PROJECT);
-        request.setDocumentName(SW360Utils.printName(project));
+        request.setDocumentName(SW360Utils.printName(dbproject));
 
-        // Set the object
-        request.setProject(project);
-
+        // Fill the request
+        ModerationRequestGenerator generator = new ProjectModerationRequestGenerator();
+        request = generator.setAdditionsAndDeletions(request, project, dbproject);
         addOrUpdate(request);
+        return RequestStatus.SENT_TO_MODERATOR;
     }
 
-    public void createRequest(License license, String user, String department) {
+    public RequestStatus createRequest(License license, String user, String department) {
+        License dblicense;
+        try{
+            dblicense = licenseDatabaseHandler.getLicenseForOrganisation(license.getId(), department);
+        } catch (SW360Exception e) {
+            log.error("Could not get original license from database. Could not generate moderation request.", e);
+            return RequestStatus.FAILURE;
+        }
         // Define moderators
         Set<String> moderators = getLicenseModerators(department);
         ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
@@ -208,14 +244,16 @@ public class ModerationDatabaseHandler {
         // Set meta-data
         request.setDocumentType(DocumentType.LICENSE);
         request.setDocumentName(SW360Utils.printName(license));
+        request.setRequestingUserDepartment(department);
 
-        // Set the object
-        request.setLicense(license);
-
+        // Fill the request
+        ModerationRequestGenerator generator = new LicenseModerationRequestGenerator();
+        request = generator.setAdditionsAndDeletions(request, license, dblicense);
         addOrUpdate(request);
+        return RequestStatus.SENT_TO_MODERATOR;
     }
 
-    public void createRequest(User user) {
+ public void createRequest(User user) {
         // Define moderators
         Set<String> admins = getAdministrators(user.getDepartment());
         ModerationRequest request = createStubRequest(user.getEmail(), false, user.getId(), admins);

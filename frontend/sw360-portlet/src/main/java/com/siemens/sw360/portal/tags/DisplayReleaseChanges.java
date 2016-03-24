@@ -1,0 +1,236 @@
+/*
+ * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License Version 2.0 as published by the
+ * Free Software Foundation with classpath exception.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program (please see the COPYING file); if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
+package com.siemens.sw360.portal.tags;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+import com.siemens.sw360.datahandler.thrift.components.COTSDetails;
+import com.siemens.sw360.datahandler.thrift.components.ClearingInformation;
+import com.siemens.sw360.datahandler.thrift.components.Component;
+import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
+import com.sun.org.apache.regexp.internal.RE;
+import org.apache.commons.io.output.StringBuilderWriter;
+import org.apache.thrift.meta_data.FieldMetaData;
+import org.apache.thrift.protocol.TType;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
+
+import java.util.HashMap;
+import java.util.Set;
+
+import static com.siemens.sw360.portal.tags.TagUtils.*;
+
+/**
+ * Display the fields that have changed in the project
+ *
+ * @author birgit.heydenreich@tngtech.com
+ */
+public class DisplayReleaseChanges extends NameSpaceAwareTag {
+    private Release actual;
+    private Release additions;
+    private Release deletions;
+    private String tableClasses = "";
+    private String idPrefix = "";
+
+    public void setActual(Release actual) {
+        this.actual = actual;
+    }
+
+    public void setAdditions(Release additions) {
+        this.additions = additions;
+    }
+
+    public void setDeletions(Release deletions) {
+        this.deletions = deletions;
+    }
+
+    public void setTableClasses(String tableClasses) {
+        this.tableClasses = tableClasses;
+    }
+
+    public void setIdPrefix(String idPrefix) {
+        this.idPrefix = idPrefix;
+    }
+
+    public int doStartTag() throws JspException {
+
+        JspWriter jspWriter = pageContext.getOut();
+
+        StringBuilder display = new StringBuilder();
+        String namespace = getNamespace();
+
+        if (additions == null || deletions == null) {
+            return SKIP_BODY;
+        }
+
+        try {
+            for (Release._Fields field : Release._Fields.values()) {
+                switch (field) {
+                    //ignored Fields
+                    case ID:
+                    case REVISION:
+                    case TYPE:
+                    case CREATED_BY:
+                    case CREATED_ON:
+                    case PERMISSIONS:
+                    case DOCUMENT_STATE:
+                    case COMPONENT_ID:
+                    case VENDOR_ID:
+                    case CLEARING_TEAM_TO_FOSSOLOGY_STATUS:
+                        //Taken care of externally or in extra tables
+                    case ATTACHMENTS:
+                    case RELEASE_ID_TO_RELATIONSHIP:
+                    case CLEARING_INFORMATION:
+                    case COTS_DETAILS:
+                        break;
+                    default:
+                        FieldMetaData fieldMetaData = Release.metaDataMap.get(field);
+                        displaySimpleFieldOrSet(display, actual, additions, deletions, field, fieldMetaData, "");
+                }
+            }
+
+            String renderString = display.toString();
+
+            if (Strings.isNullOrEmpty(renderString)) {
+                renderString = "<h4> No changes in basic fields </h4>";
+            } else {
+                renderString = String.format("<table class=\"%s\" id=\"%schanges\" >", tableClasses, idPrefix)
+                        + "<thead><tr><th colspan=\"4\"> Changes for Basic fields</th></tr>"
+                        + String.format("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
+                        FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL)
+                        + renderString + "</tbody></table>";
+            }
+
+            StringBuilder releaseRelationshipDisplay = new StringBuilder();
+            renderReleaseIdToRelationship(releaseRelationshipDisplay);
+
+            String clearingInformationDisplay = renderClearingInformation();
+            String cotsDetailDisplay = renderCOTSDetails();
+
+            jspWriter.print(renderString + releaseRelationshipDisplay.toString() + clearingInformationDisplay + cotsDetailDisplay);
+        } catch (Exception e) {
+            throw new JspException(e);
+        }
+        return SKIP_BODY;
+    }
+
+    private void renderReleaseIdToRelationship(StringBuilder display) {
+
+        if (ensureSomethingTodoAndNoNull(Release._Fields.RELEASE_ID_TO_RELATIONSHIP)) {
+
+            Set<String> changedReleaseIds = Sets.intersection(
+                    additions.getReleaseIdToRelationship().keySet(),
+                    deletions.getReleaseIdToRelationship().keySet());
+            //remove projects already deleted in database
+            changedReleaseIds = Sets.intersection(changedReleaseIds, actual.getReleaseIdToRelationship().keySet());
+
+            Set<String> removedReleaseIds = Sets.difference(deletions.getReleaseIdToRelationship().keySet(), changedReleaseIds);
+            removedReleaseIds = Sets.intersection(removedReleaseIds, actual.getReleaseIdToRelationship().keySet());
+
+            Set<String> addedReleaseIds = Sets.difference(additions.getReleaseIdToRelationship().keySet(), changedReleaseIds);
+
+            display.append("<h3> Changes in linked releases </h3>");
+            LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, actual.getCreatedBy());
+            renderer.renderReleaseLinkList(display, deletions.getReleaseIdToRelationship(), removedReleaseIds, "Removed Release Links");
+            renderer.renderReleaseLinkList(display, additions.getReleaseIdToRelationship(), addedReleaseIds, "Added Release Links");
+            renderer.renderReleaseLinkListCompare(
+                    display,
+                    actual.getReleaseIdToRelationship(),
+                    deletions.getReleaseIdToRelationship(),
+                    additions.getReleaseIdToRelationship(),
+                    changedReleaseIds);
+        }
+    }
+
+    private boolean ensureSomethingTodoAndNoNull(Release._Fields field) {
+        if (!deletions.isSet(field) && !additions.isSet(field)) {
+            return false;
+        }
+        if(Release.metaDataMap.get(field).valueMetaData.type == TType.MAP) {
+            if (!deletions.isSet(field)) {
+                deletions.setFieldValue(field, new HashMap<>());
+            }
+            if (!additions.isSetReleaseIdToRelationship()) {
+                additions.setFieldValue(field, new HashMap<>());
+            }
+        } else if (field == Release._Fields.CLEARING_INFORMATION){
+            if (!deletions.isSet(field)) {
+                deletions.setFieldValue(field, new ClearingInformation());
+            }
+            if (!additions.isSet(field)) {
+                additions.setFieldValue(field, new ClearingInformation());
+            }
+        } else if (field == Release._Fields.COTS_DETAILS){
+            if (!deletions.isSet(field)) {
+                deletions.setFieldValue(field, new COTSDetails());
+            }
+            if (!additions.isSet(field)) {
+                additions.setFieldValue(field, new COTSDetails());
+            }
+        }
+        return true;
+    }
+
+    private String renderClearingInformation() {
+        if (!ensureSomethingTodoAndNoNull(Release._Fields.CLEARING_INFORMATION)) {
+            return "";
+        }
+        StringBuilder display = new StringBuilder();
+        for (ClearingInformation._Fields field : ClearingInformation._Fields.values()) {
+            FieldMetaData fieldMetaData = ClearingInformation.metaDataMap.get(field);
+            displaySimpleFieldOrSet(
+                    display,
+                    actual.getClearingInformation(),
+                    additions.getClearingInformation(),
+                    deletions.getClearingInformation(),
+                    field, fieldMetaData, "");
+        }
+        return "<h3> Changes in Clearing Information </h3>"
+                + String.format("<table class=\"%s\" id=\"%schanges\" >", tableClasses, idPrefix)
+                + String.format("<thead><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
+                FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL)
+                + display.toString() + "</tbody></table>";
+
+
+    }
+
+    private String renderCOTSDetails() {
+        if (!ensureSomethingTodoAndNoNull(Release._Fields.COTS_DETAILS)) {
+            return "";
+        }
+        StringBuilder display = new StringBuilder();
+        for (COTSDetails._Fields field : COTSDetails._Fields.values()) {
+            FieldMetaData fieldMetaData = COTSDetails.metaDataMap.get(field);
+            displaySimpleFieldOrSet(
+                    display,
+                    actual.getCotsDetails(),
+                    additions.getCotsDetails(),
+                    deletions.getCotsDetails(),
+                    field, fieldMetaData, "");
+        }
+        return "<h3> Changes in COTS Details </h3>"
+                + String.format("<table class=\"%s\" id=\"%schanges\" >", tableClasses, idPrefix)
+                + String.format("<thead><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
+                FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL)
+                + display.toString() + "</tbody></table>";
+
+
+    }
+}

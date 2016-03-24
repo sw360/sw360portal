@@ -22,13 +22,11 @@ import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.ComponentRepository;
 import com.siemens.sw360.datahandler.db.ReleaseRepository;
 import com.siemens.sw360.datahandler.db.VendorRepository;
 import com.siemens.sw360.datahandler.entitlement.LicenseModerator;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.*;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -46,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static com.siemens.sw360.datahandler.thrift.ThriftValidate.*;
 
@@ -144,22 +143,23 @@ public class LicenseDatabaseHandler {
     public License getLicenseForOrganisationWithOwnModerationRequests(String id, String organisation, User user) throws SW360Exception {
         List<ModerationRequest> moderationRequestsForDocumentId = moderator.getModerationRequestsForDocumentId(id);
 
-        License license;
+        License license = getLicenseForOrganisation(id, organisation);;
         DocumentState documentState;
 
         if (moderationRequestsForDocumentId.isEmpty()) {
-            license = getLicenseForOrganisation(id, organisation);
-
             documentState = CommonUtils.getOriginalDocumentState();
         } else {
-
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
             if (moderationRequestOptional.isPresent()
                     && isInProgressOrPending(moderationRequestOptional.get())) {
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
-                license = moderationRequest.getLicense();
+                license = moderator.updateLicenseFromModerationRequest(
+                        license,
+                        moderationRequest.getLicenseAdditions(),
+                        moderationRequest.getLicenseDeletions(),
+                        organisation);
 
                 for (Todo todo : license.getTodos()) {
                     //remove other organisations from whitelist of todo
@@ -168,12 +168,9 @@ public class LicenseDatabaseHandler {
 
                 documentState = CommonUtils.getModeratedDocumentState(moderationRequest);
             } else {
-                license = getLicenseForOrganisation(id, organisation);
-
                 documentState = new DocumentState().setIsOriginalDocument(true).setModerationState(moderationRequestsForDocumentId.get(0).getModerationState());
             }
         }
-
         license.setPermissions(makePermission(license, user).getPermissionMap());
         license.setDocumentState(documentState);
         return license;
@@ -380,7 +377,7 @@ public class LicenseDatabaseHandler {
 
             if(dbLicense.isSetId()) {
                 licenseRepository.update(dbLicense);
-            }else{
+            } else {
                 licenseRepository.add(dbLicense);
             }
             return RequestStatus.SUCCESS;
@@ -423,10 +420,30 @@ public class LicenseDatabaseHandler {
         return license;
     }
 
-    public License getById(String id) {
-        return licenseRepository.get(id);
+    public RequestStatus updateLicenseFromAdditionsAndDeletions(License licenseAdditions,
+                                                                License licenseDeletions,
+                                                                User user,
+                                                                User requestingUser){
+        try {
+            License license = getLicenseForOrganisation(licenseAdditions.getId(), requestingUser.getDepartment());
+            license = moderator.updateLicenseFromModerationRequest(license,
+                    licenseAdditions,
+                    licenseDeletions,
+                    requestingUser.getDepartment());
+            return updateLicense(license, user, requestingUser);
+        } catch (SW360Exception e) {
+            log.error("Could not get original license when updating from moderation request.");
+            return RequestStatus.FAILURE;
+        }
     }
 
+    public License getLicenseFromRepository(String id) throws SW360Exception {
+        License license = licenseRepository.get(id);
+        if (license == null) {
+            throw fail("Could not fetch license from database! id=" + id);
+        }
+        return license;
+    }
 
     public List<License> getDetailedLicenseSummaryForExport(String organisation, List<String> identifiers) {
         final List<License> licenses = CommonUtils.nullToEmptyList(licenseRepository.searchByShortName(identifiers));

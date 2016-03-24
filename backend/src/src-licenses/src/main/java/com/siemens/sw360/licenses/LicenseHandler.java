@@ -268,6 +268,15 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     @Override
+    public RequestStatus updateLicenseFromModerationRequest(License licenseAdditions,
+                                                            License licenseDeletions,
+                                                            User user,
+                                                            User requestingUser){
+        return handler.updateLicenseFromAdditionsAndDeletions(licenseAdditions,
+                licenseDeletions, user, requestingUser);
+    }
+
+    @Override
     public RequestStatus updateWhitelist(String licenceId, Set<String> whitelist, User user) throws TException {
         assertNotEmpty(licenceId);
         assertUser(user);

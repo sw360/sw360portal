@@ -50,7 +50,7 @@ public class DisplayBoolean extends SimpleTagSupport {
             else
                 out.print("No");
         } else {
-            out.print("Undefined");
+            out.print("No");
         }
     }
 }

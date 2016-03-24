@@ -24,6 +24,7 @@ import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
@@ -40,6 +41,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
+import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.add;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 
@@ -101,6 +104,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     declineModerationRequest(user, moderationRequest, request);
 
                     client.refuseRequest(id);
+
                     sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
                     String requestingUserEmail = moderationRequest.getRequestingUser();
@@ -149,7 +153,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                 if (moderationRequest.isRequestDocumentDelete()) {
                     componentClient.deleteComponent(moderationRequest.getDocumentId(), user);
                 } else {
-                    componentClient.updateComponent(moderationRequest.getComponent(), user);
+                    componentClient.updateComponentFromModerationRequest(
+                            moderationRequest.getComponentAdditions(),
+                            moderationRequest.getComponentDeletions(),
+                            user);
                 }
             }
             break;
@@ -158,7 +165,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                 if (moderationRequest.isRequestDocumentDelete()) {
                     componentClient.deleteRelease(moderationRequest.getDocumentId(), user);
                 } else {
-                    componentClient.updateRelease(moderationRequest.getRelease(), user);
+                    componentClient.updateReleaseFromModerationRequest(
+                            moderationRequest.getReleaseAdditions(),
+                            moderationRequest.getReleaseDeletions(),
+                            user);
                 }
             }
             break;
@@ -167,13 +177,20 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                 if (moderationRequest.isRequestDocumentDelete()) {
                     projectClient.deleteProject(moderationRequest.getDocumentId(), user);
                 } else {
-                    projectClient.updateProject(moderationRequest.getProject(), user);
+                    projectClient.updateProjectFromModerationRequest(
+                            moderationRequest.getProjectAdditions(),
+                            moderationRequest.getProjectDeletions(),
+                            user);
                 }
             }
             break;
             case LICENSE: {
                 LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
-                licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
+                    licenseClient.updateLicenseFromModerationRequest(
+                            moderationRequest.getLicenseAdditions(),
+                            moderationRequest.getLicenseDeletions(),
+                            user,
+                            requestingUser);
             }
             break;
             case USER: {
@@ -274,7 +291,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     SessionMessages.add(request, "request_processed", "You have assigned yourself to this moderation request.");
                     client.setInProgress(id, user);
                 }
-                request.setAttribute(MODERATION_REQUEST, moderationRequest);
+                request.setAttribute(PortalConstants.MODERATION_REQUEST, moderationRequest);
                 addModerationBreadcrumb(request, response, moderationRequest);
 
             } catch (TException e) {
@@ -287,6 +304,15 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                         renderComponentModeration(request, response, moderationRequest, user);
                         break;
                     case RELEASE:
+                        VendorService.Iface vendorClient = thriftClients.makeVendorClient();
+                        Release additions = moderationRequest.getReleaseAdditions();
+                        if(additions.isSetVendorId()){
+                            additions.setVendor(vendorClient.getByID(additions.getVendorId()));
+                        }
+                        Release deletions = moderationRequest.getReleaseDeletions();
+                        if(deletions.isSetVendorId()){
+                            deletions.setVendor(vendorClient.getByID(deletions.getVendorId()));
+                        }
                         renderReleaseModeration(request, response, moderationRequest, user);
                         break;
                     case PROJECT:
@@ -299,7 +325,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                         renderUserModeration(request, response, moderationRequest, user);
                         break;
                 }
-                request.setAttribute(PortalConstants.MODERATION_REQUEST, moderationRequest);
             }
         }
     }
@@ -342,7 +367,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         releases = CommonUtils.nullToEmptyList(actualComponent.getReleases());
         Set<String> releaseIds = SW360Utils.getReleaseIds(releases);
 
-        final Component moderatedComponent = moderationRequest.getComponent();
+        final Component moderatedComponent = moderationRequest.getComponentAdditions();
         setLicenseNames(user, actualComponent, moderatedComponent);
 
         Set<Project> usingProjects = null;
@@ -403,7 +428,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
     private void prepareRelease(RenderRequest request, User user, Release actualRelease, ModerationRequest moderationRequest) {
 
-        final Release moderatedRelease = moderationRequest.getRelease();
+        final Release moderatedRelease = moderationRequest.getReleaseAdditions();
 
         setLicenseNames(user, actualRelease, moderatedRelease);
 
@@ -453,6 +478,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         if (moderationRequest.isRequestDocumentDelete()) {
             include("/html/moderation/projects/delete.jsp", request, response);
         } else {
+            //updateProjectFromModerationRequest and add updated project to request.
             include("/html/moderation/projects/merge.jsp", request, response);
         }
     }
@@ -481,10 +507,9 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             actual_license = client.getByID(moderationRequest.getDocumentId(),requestingUser.getDepartment());
-            request.setAttribute(PortalConstants.ACTUAL_LICENSE, actual_license);
+            request.setAttribute(ACTUAL_LICENSE, actual_license);
             List<Obligation> obligations = client.getObligations();
             request.setAttribute(KEY_OBLIGATION_LIST, obligations);
-            request.setAttribute(KEY_LICENSE_DETAIL, actual_license);
         } catch (TException e) {
             log.error("Could not retrieve license", e);
         }

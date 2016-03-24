@@ -230,13 +230,6 @@ public class CommonUtils {
     }
 
     @NotNull
-    public static Attachment getNewAttachment(User user, String attachmentContentId, String fileName, String sha1) {
-        Attachment attachment = getNewAttachment(user,attachmentContentId, fileName);
-        attachment.setSha1(sha1);
-        return attachment;
-    }
-
-    @NotNull
     public static Attachment getNewAttachment(User user, String attachmentContentId, String fileName) {
         Attachment attachment = new Attachment();
         attachment.setCreatedBy(user.getEmail());

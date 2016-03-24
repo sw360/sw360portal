@@ -82,7 +82,6 @@ public abstract class ComponentPortletUtils {
             }
         }
         // ensure ATTACHMENTS are processed after CLEARING_STATE so that automatic asignment of CLEARING_STATE will not get overwritten by the clearing state from request
-        if (!release.isSetAttachments()) release.setAttachments(new HashSet<Attachment>());
         release.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments()));
         CommonUtils.setReleaseClearingStateOnUpdate(release);
     }
@@ -121,7 +120,6 @@ public abstract class ComponentPortletUtils {
 
             switch (field) {
                 case ATTACHMENTS:
-                    if (!component.isSetAttachments()) component.setAttachments(new HashSet<Attachment>());
                     component.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, component.getAttachments()));
                     break;
 

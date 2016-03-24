@@ -20,7 +20,6 @@ package com.siemens.sw360.portal.tags;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import org.apache.thrift.meta_data.FieldMetaData;
@@ -38,7 +37,7 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.portal.tags.TagUtils.*;
 
 /**
- * Display the fields that have changed from old to update
+ * Display the todos that are added or added to/removed from department whitelist
  *
  * @author birgit.heydenreich@tngtech.com
  */
@@ -48,6 +47,8 @@ public class CompareTodos extends NameSpaceAwareTag {
 
     private List<Todo> old;
     private List<Todo> update;
+    private List<Todo> delete;
+    private String department;
     private String tableClasses = "";
     private String idPrefix = "";
 
@@ -57,6 +58,14 @@ public class CompareTodos extends NameSpaceAwareTag {
 
     public void setUpdate(List<Todo> update) {
         this.update = nullToEmptyList(update);
+    }
+
+    public void setDelete(List<Todo> delete) {
+        this.delete = nullToEmptyList(delete);
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public void setTableClasses(String tableClasses) {
@@ -74,7 +83,7 @@ public class CompareTodos extends NameSpaceAwareTag {
         String namespace = getNamespace();
 
         try {
-            renderTodos(display, old, update);
+            renderTodos(display, old, update, delete);
 
             String renderString = display.toString();
 
@@ -89,20 +98,49 @@ public class CompareTodos extends NameSpaceAwareTag {
         return SKIP_BODY;
     }
 
-    private void renderTodos(StringBuilder display, List<Todo> currentTodos, List<Todo> updateTodos) {
+    private void renderTodos(StringBuilder display, List<Todo> current, List<Todo> update, List<Todo> delete) {
+        List<Todo> newWhitelistedTodos = update
+                .stream()
+                .filter(todo -> todo.getId().startsWith("tmp"))
+                .filter(todo -> todo.isSetWhitelist() && todo.getWhitelist().contains(department))
+                .collect(Collectors.toList());
+        Map<String, Todo> newWhitelistedTodosById = getTodosById(newWhitelistedTodos);
+        Set<String> newWhitelistedTodoIds = newWhitelistedTodosById.keySet();
+        renderTodoList(display, newWhitelistedTodosById, newWhitelistedTodoIds, "Add to database and to whitelist of " + department);
 
-        Map<String, Todo> currentTodoById = getTodosById(currentTodos);
-        Map<String, Todo> updateTodoById = getTodosById(updateTodos);
+        List<Todo> newBlacklistedTodos = update
+                .stream()
+                .filter(todo -> todo.getId().startsWith("tmp"))
+                .filter(todo -> !todo.isSetWhitelist() || !todo.getWhitelist().contains(department))
+                .collect(Collectors.toList());
+        Map<String, Todo> newBlacklistedTodosById = getTodosById(newBlacklistedTodos);
+        Set<String> newBlacklistedTodoIds = newBlacklistedTodosById.keySet();
+        renderTodoList(display, newBlacklistedTodosById, newBlacklistedTodoIds, "Add to database and <em>not</em> to whitelist of " + department);
 
-        Set<String> currentTodoIds = currentTodoById.keySet();
-        Set<String> updateTodoIds = updateTodoById.keySet();
+        Map<String, Todo> currentTodosById = getTodosById(current);
+        Set<String> currentTodoIds = currentTodosById.keySet();
+        List<Todo> whitelistedTodos = update
+                .stream()
+                .filter(todo -> !todo.getId().startsWith("tmp"))
+                .filter(todo -> todo.isSetWhitelist() && todo.getWhitelist().contains(department))
+                .filter(todo -> currentTodoIds.contains(todo.getId()))
+                .filter(todo -> !(currentTodosById.get(todo.getId()).isSetWhitelist() &&
+                        currentTodosById.get(todo.getId()).getWhitelist().contains(department)))
+                .collect(Collectors.toList());
 
-        Set<String> addedTodoIds = Sets.difference(updateTodoIds, currentTodoIds);
+        Set<String> whitelistedTodoIds = getTodosById(whitelistedTodos).keySet();
+        renderTodoList(display, currentTodosById, whitelistedTodoIds, "Add to whitelist of " + department);
 
-        Set<String> commonTodoIds = Sets.intersection(currentTodoIds, updateTodoIds);
+        List<Todo> blacklistedTodos = delete
+                .stream()
+                .filter(todo -> todo.isSetWhitelist() && todo.getWhitelist().contains(department))
+                .filter(todo -> currentTodoIds.contains(todo.getId()))
+                .filter(todo -> currentTodosById.get(todo.getId()).isSetWhitelist() &&
+                        currentTodosById.get(todo.getId()).getWhitelist().contains(department))
+                .collect(Collectors.toList());
 
-        renderTodoList(display, updateTodoById, addedTodoIds, "Added");
-        renderTodoList(display, currentTodoById, updateTodoById, commonTodoIds, "Changed");
+        Set<String> blacklistedTodoIds = getTodosById(blacklistedTodos).keySet();
+        renderTodoList(display, currentTodosById, blacklistedTodoIds, "Remove from whitelist of " + department);
 
     }
 
@@ -118,25 +156,9 @@ public class CompareTodos extends NameSpaceAwareTag {
         display.append("</table>");
     }
 
-    private void renderTodoList(StringBuilder display, Map<String, Todo> currentTodoById, Map<String ,Todo> updateTodoById, Set<String> commonTodoIds, String msg) {
-        if (commonTodoIds.isEmpty()) return;
-        StringBuilder candidate = new StringBuilder();
-        for (String todoId : commonTodoIds) {
-            renderTodoRow(candidate, currentTodoById.get(todoId), updateTodoById.get(todoId));
-        }
-        if (candidate.length() > 0) {
-            display.append(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
-            display.append(String.format("<thead><tr><th colspan=\"2\"> %s Todos: </th></tr><tr>", msg));
-            display.append(String.format("<th>%s</th>", "Text"));
-            display.append(String.format("<th>%s</th>", "Requested Action"));
-            display.append(candidate.toString());
-            display.append("</table>");
-        }
-    }
-
     private static void renderTodoRowHeader(StringBuilder display, String msg) {
 
-        display.append(String.format("<thead><tr><th colspan=\"%d\"> %s Todos: </th></tr><tr>", RELEVANT_FIELDS.size(), msg));
+        display.append(String.format("<thead><tr><th colspan=\"%d\"> %s</th></tr><tr>", RELEVANT_FIELDS.size(), msg));
         for (Todo._Fields field : RELEVANT_FIELDS) {
             display.append(String.format("<th>%s</th>", field.getFieldName()));
         }
@@ -149,26 +171,14 @@ public class CompareTodos extends NameSpaceAwareTag {
 
             FieldMetaData fieldMetaData = Todo.metaDataMap.get(field);
             Object fieldValue = todo.getFieldValue(field);
-            if(field.equals(Todo._Fields.OBLIGATIONS) && fieldValue != null){
+            if (field.equals(Todo._Fields.OBLIGATIONS) && fieldValue != null) {
                 fieldValue =
-                        ((List<Obligation>)fieldValue).stream()
-                        .map(Obligation::getName)
-                        .collect(Collectors.toList());
+                        ((List<Obligation>) fieldValue).stream()
+                                .map(Obligation::getName)
+                                .collect(Collectors.toList());
             }
             display.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData, fieldValue)));
 
-        }
-        display.append("</tr>");
-    }
-
-    private static void renderTodoRow(StringBuilder display, Todo old, Todo update) {
-        if(old.whitelist.size() == update.whitelist.size()) return;
-        display.append("<tr>");
-            display.append(String.format("<td>%s</td>", old.getText()));
-        if(update.whitelist.size()==1){
-            display.append(String.format("<td>%s</td>", "Add to whitelist of department of requesting user."));
-        } else if(update.whitelist.size()==0){
-            display.append(String.format("<td>%s</td>", "Remove from whitelist of department of requesting user."));
         }
         display.append("</tr>");
     }
@@ -187,6 +197,7 @@ public class CompareTodos extends NameSpaceAwareTag {
             case TODO_ID:
             case DEVELOPMENT_STRING:
             case DISTRIBUTION_STRING:
+            case WHITELIST:
                 return false;
             default:
                 return true;

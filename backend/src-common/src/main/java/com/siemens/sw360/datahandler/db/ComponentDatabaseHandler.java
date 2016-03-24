@@ -29,6 +29,7 @@ import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ComponentModerator;
+import com.siemens.sw360.datahandler.entitlement.ReleaseModerator;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
@@ -86,9 +87,10 @@ public class ComponentDatabaseHandler {
      * Access to moderation
      */
     private final ComponentModerator moderator;
+    private final ReleaseModerator releaseModerator;
 
 
-    public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName, ComponentModerator moderator) throws MalformedURLException {
+    public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(url, dbName);
 
         // Create the repositories
@@ -99,6 +101,7 @@ public class ComponentDatabaseHandler {
 
         // Create the moderator
         this.moderator = moderator;
+        this.releaseModerator = releaseModerator;
 
         // Create the attachment connector
         attachmentConnector = new AttachmentConnector(url, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
@@ -106,11 +109,11 @@ public class ComponentDatabaseHandler {
 
 
     public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        this(url, dbName, attachmentDbName, new ComponentModerator());
+        this(url, dbName, attachmentDbName, new ComponentModerator(), new ReleaseModerator());
     }
 
     public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName, ThriftClients thriftClients) throws MalformedURLException {
-        this(url, dbName, attachmentDbName, new ComponentModerator(thriftClients));
+        this(url, dbName, attachmentDbName, new ComponentModerator(thriftClients), new ReleaseModerator(thriftClients));
     }
 
     /////////////////////
@@ -204,14 +207,7 @@ public class ComponentDatabaseHandler {
             throw fail("Could not fetch release from database! id=" + id);
         }
 
-        if (release.isSetVendorId()) {
-            String vendorId = release.getVendorId();
-            if (!isNullOrEmpty(vendorId)) {
-                release.setVendor(getVendor(vendorId));
-            }
-            release.unsetVendorId();
-        }
-
+        fillVendor(release);
         // Set permissions
         if (user != null) {
             makePermission(release, user).fillPermissions();
@@ -378,6 +374,19 @@ public class ComponentDatabaseHandler {
     }
 
 
+    public RequestStatus updateComponentFromAdditionsAndDeletions(Component componentAdditions, Component componentDeletions, User user){
+
+        try {
+            Component component= getComponent(componentAdditions.getId(), user);
+            component = moderator.updateComponentFromModerationRequest(component, componentAdditions, componentDeletions);
+            return updateComponent(component, user);
+        } catch (SW360Exception e) {
+            log.error("Could not get original component when updating from moderation request.");
+            return RequestStatus.FAILURE;
+        }
+    }
+
+
     public RequestStatus updateRelease(Release release, User user, Iterable<Release._Fields> immutableFields) throws SW360Exception {
         // Prepare release for database
         prepareRelease(release);
@@ -401,7 +410,7 @@ public class ComponentDatabaseHandler {
             attachmentConnector.deleteAttachmentDifference(nullToEmptySet(actual.getAttachments()),nullToEmptySet(release.getAttachments()));
 
         } else {
-            return moderator.updateRelease(release, user);
+            return releaseModerator.updateRelease(release, user);
         }
 
         return RequestStatus.SUCCESS;
@@ -443,6 +452,18 @@ public class ComponentDatabaseHandler {
         return requestSummary;
     }
 
+    public RequestStatus updateReleaseFromAdditionsAndDeletions(Release releaseAdditions, Release releaseDeletions, User user){
+
+        try {
+            Release release = getRelease(releaseAdditions.getId(), user);
+            release = releaseModerator.updateReleaseFromModerationRequest(release, releaseAdditions, releaseDeletions);
+            return updateRelease(release, user, ThriftUtils.immutableOfRelease());
+        } catch (SW360Exception e) {
+            log.error("Could not get original release when updating from moderation request.");
+            return RequestStatus.FAILURE;
+        }
+
+    }
 
     public Component updateReleaseDependentFieldsForComponentId(String componentId) {
         Component component = componentRepository.get(componentId);
@@ -548,7 +569,7 @@ public class ComponentDatabaseHandler {
             removeReleaseAndCleanUp(release);
             return RequestStatus.SUCCESS;
         } else {
-            return moderator.deleteRelease(release, user);
+            return releaseModerator.deleteRelease(release, user);
         }
     }
 
@@ -708,31 +729,27 @@ public class ComponentDatabaseHandler {
     public Component getComponentForEdit(String id, User user) throws SW360Exception {
         List<ModerationRequest> moderationRequestsForDocumentId = moderator.getModerationRequestsForDocumentId(id);
 
-        Component component;
+        Component component = getComponent(id, user);
         DocumentState documentState;
 
         if (moderationRequestsForDocumentId.isEmpty()) {
-            component = getComponent(id, user);
-
             documentState = CommonUtils.getOriginalDocumentState();
         } else {
-
             final String email = user.getEmail();
             Optional<ModerationRequest> moderationRequestOptional = CommonUtils.getFirstModerationRequestOfUser(moderationRequestsForDocumentId, email);
             if (moderationRequestOptional.isPresent()
                     && isInProgressOrPending(moderationRequestOptional.get())){
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
-                component = moderationRequest.getComponent();
-
+                component = moderator.updateComponentFromModerationRequest(
+                        component,
+                        moderationRequest.getComponentAdditions(),
+                        moderationRequest.getComponentDeletions());
                 documentState = CommonUtils.getModeratedDocumentState(moderationRequest);
             } else {
-                component = getComponent(id, user);
-
                 documentState = new DocumentState().setIsOriginalDocument(true).setModerationState(moderationRequestsForDocumentId.get(0).getModerationState());
             }
         }
-
         component.setPermissions(makePermission(component, user).getPermissionMap());
         component.setDocumentState(documentState);
         return component;
@@ -741,12 +758,10 @@ public class ComponentDatabaseHandler {
     public Release getReleaseForEdit(String id, User user) throws SW360Exception {
         List<ModerationRequest> moderationRequestsForDocumentId = moderator.getModerationRequestsForDocumentId(id);
 
-        Release release;
+        Release release = getRelease(id, user);
         DocumentState documentState;
 
         if (moderationRequestsForDocumentId.isEmpty()) {
-            release = getRelease(id, user);
-
             documentState = CommonUtils.getOriginalDocumentState();
         } else {
             final String email = user.getEmail();
@@ -755,15 +770,16 @@ public class ComponentDatabaseHandler {
                     && isInProgressOrPending(moderationRequestOptional.get())){
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
 
-                release = moderationRequest.getRelease();
-
+                release = releaseModerator.updateReleaseFromModerationRequest(
+                        release,
+                        moderationRequest.getReleaseAdditions(),
+                        moderationRequest.getReleaseDeletions());
                 documentState = CommonUtils.getModeratedDocumentState(moderationRequest);
             } else {
-                release = getRelease(id, user);
-
                 documentState = new DocumentState().setIsOriginalDocument(true).setModerationState(moderationRequestsForDocumentId.get(0).getModerationState());
             }
         }
+        fillVendor(release);
         release.setPermissions(makePermission(release, user).getPermissionMap());
         release.setDocumentState(documentState);
         return release;

@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
@@ -110,7 +111,7 @@ public class AttachmentConnector extends AttachmentStreamConnector {
 
     public void setSha1ForAttachments(Set<Attachment> attachments){
         for(Attachment attachment : attachments){
-            if(! attachment.isSetSha1() || attachment.getSha1().equals("")){
+            if(isNullOrEmpty(attachment.getSha1())){
                 String sha1 = getSha1FromAttachmentContentId(attachment.getAttachmentContentId());
                 attachment.setSha1(sha1);
             }

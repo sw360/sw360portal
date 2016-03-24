@@ -98,6 +98,9 @@ public class SW360Utils {
             release.setVendorId(vendor.getId());
             release.unsetVendor();
         }
+        if (isNullOrEmpty(release.getVendorId())){
+            release.unsetVendorId();
+        }
     }
 
     public static Set<String> getReleaseIds(Collection<Release> in) {

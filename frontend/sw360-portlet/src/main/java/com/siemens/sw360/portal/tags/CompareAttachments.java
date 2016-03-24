@@ -17,8 +17,6 @@
  */
 package com.siemens.sw360.portal.tags;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
@@ -38,7 +36,7 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.portal.tags.TagUtils.*;
 
 /**
- * Display the fields that have changed from old to update
+ * Display the fields that have changed as described by additions and deletions
  *
  * @author Daniele.Fognini@tngtech.com
  * @author Johannes.Najjar@tngtech.com
@@ -46,24 +44,25 @@ import static com.siemens.sw360.portal.tags.TagUtils.*;
 public class CompareAttachments extends NameSpaceAwareTag {
     public static final List<Attachment._Fields> RELEVANT_FIELDS = FluentIterable
             .from(copyOf(Attachment._Fields.values()))
-            .filter(new Predicate<Attachment._Fields>() {
-                @Override
-                public boolean apply(Attachment._Fields input) {
-                    return isFieldRelevant(input);
-                }
-            }).toList();
+            .filter(CompareAttachments::isFieldRelevant)
+            .toList();
 
-    private Set<Attachment> old;
-    private Set<Attachment> update;
+    private Set<Attachment> actual;
+    private Set<Attachment> additions;
+    private Set<Attachment> deletions;
     private String tableClasses = "";
     private String idPrefix = "";
 
-    public void setOld(Set<Attachment> old) {
-        this.old = nullToEmptySet(old);
+    public void setActual(Set<Attachment> actual) {
+        this.actual = nullToEmptySet(actual);
     }
 
-    public void setUpdate(Set<Attachment> update) {
-        this.update = nullToEmptySet(update);
+    public void setAdditions(Set<Attachment> additions) {
+        this.additions = nullToEmptySet(additions);
+    }
+
+    public void setDeletions(Set<Attachment> deletions) {
+        this.deletions = nullToEmptySet(deletions);
     }
 
     public void setTableClasses(String tableClasses) {
@@ -81,7 +80,7 @@ public class CompareAttachments extends NameSpaceAwareTag {
         String namespace = getNamespace();
 
         try {
-            renderAttachments(display, old, update);
+            renderAttachments(display, actual, additions, deletions);
 
             String renderString = display.toString();
 
@@ -96,24 +95,24 @@ public class CompareAttachments extends NameSpaceAwareTag {
         return SKIP_BODY;
     }
 
-    private void renderAttachments(StringBuilder display, Set<Attachment> currentAttachments, Set<Attachment> updateAttachments) {
+    private void renderAttachments(StringBuilder display, Set<Attachment> currentAttachments, Set<Attachment> addedAttachments , Set<Attachment> deletedAttachments) {
 
-        Map<String, Attachment> currentAttachmentById = getAttachmentsById(currentAttachments);
-        Map<String, Attachment> updateAttachmentById = getAttachmentsById(updateAttachments);
+        Map<String, Attachment> currentAttachmentsById = getAttachmentsById(currentAttachments);
+        Map<String, Attachment> addedAttachmentsById = getAttachmentsById(addedAttachments);
+        Map<String, Attachment> deletedAttachmentsById = getAttachmentsById(deletedAttachments);
 
-        Set<String> currentAttachmentIds = currentAttachmentById.keySet();
-        Set<String> updateAttachmentIds = updateAttachmentById.keySet();
+        Set<String> currentAttachmentIds = currentAttachmentsById.keySet();
+        Set<String> addedAttachmentIds = addedAttachmentsById.keySet();
+        Set<String> deletedAttachmentIds = deletedAttachmentsById.keySet();
+        Set<String> commonAttachmentIds = Sets.intersection(deletedAttachmentIds, addedAttachmentIds);
 
-        Set<String> deletedAttachmentIds = Sets.difference(currentAttachmentIds, updateAttachmentIds);
-        Set<String> addedAttachmentIds = Sets.difference(updateAttachmentIds, currentAttachmentIds);
+        addedAttachmentIds = Sets.difference(addedAttachmentIds, commonAttachmentIds);
+        deletedAttachmentIds = Sets.difference(deletedAttachmentIds, commonAttachmentIds);
+        deletedAttachmentIds = Sets.intersection(deletedAttachmentIds, currentAttachmentIds);//remove what was deleted already in the database
 
-        Set<String> commonAttachmentIds = Sets.intersection(currentAttachmentIds, updateAttachmentIds);
-
-        renderAttachmentList(display, currentAttachmentById, deletedAttachmentIds, "Deleted");
-        renderAttachmentList(display, updateAttachmentById, addedAttachmentIds, "Added");
-        renderAttachmentComparison(display, currentAttachmentById, updateAttachmentById, commonAttachmentIds);
-
-
+        renderAttachmentList(display, currentAttachmentsById, deletedAttachmentIds, "Deleted");
+        renderAttachmentList(display, addedAttachmentsById, addedAttachmentIds, "Added");
+        renderAttachmentComparison(display, currentAttachmentsById, deletedAttachmentsById, addedAttachmentsById, commonAttachmentIds);
     }
 
     private void renderAttachmentList(StringBuilder display, Map<String, Attachment> allAttachments, Set<String> attachmentIds, String msg) {
@@ -121,8 +120,8 @@ public class CompareAttachments extends NameSpaceAwareTag {
         display.append(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
 
         renderAttachmentRowHeader(display, msg);
-        for (String deletedAttachmentId : attachmentIds) {
-            renderAttachmentRow(display, allAttachments.get(deletedAttachmentId));
+        for (String attachmentId : attachmentIds) {
+            renderAttachmentRow(display, allAttachments.get(attachmentId));
         }
 
         display.append("</table>");
@@ -149,12 +148,15 @@ public class CompareAttachments extends NameSpaceAwareTag {
         display.append("</tr>");
     }
 
-    private void renderAttachmentComparison(StringBuilder display, Map<String, Attachment> currentAttachmentById, Map<String, Attachment> updateAttachmentById, Set<String> commonAttachmentIds) {
+    private void renderAttachmentComparison(StringBuilder display, Map<String, Attachment> currentAttachmentsById, Map<String, Attachment> deletedAttachmentsById, Map<String, Attachment> addedAttachmentsById, Set<String> commonAttachmentIds) {
         if (commonAttachmentIds.isEmpty()) return;
 
         StringBuilder candidate = new StringBuilder();
         for (String commonAttachmentId : commonAttachmentIds) {
-            renderCompareAttachment(candidate, currentAttachmentById.get(commonAttachmentId), updateAttachmentById.get(commonAttachmentId));
+            renderCompareAttachment(candidate,
+                    currentAttachmentsById.get(commonAttachmentId),
+                    deletedAttachmentsById.get(commonAttachmentId),
+                    addedAttachmentsById.get(commonAttachmentId));
         }
         String changedAttachmentTable = candidate.toString();
         if (!changedAttachmentTable.isEmpty()) {
@@ -163,17 +165,17 @@ public class CompareAttachments extends NameSpaceAwareTag {
         }
     }
 
-    private void renderCompareAttachment(StringBuilder display, Attachment old, Attachment update) {
+    private void renderCompareAttachment(StringBuilder display, Attachment old, Attachment deleted, Attachment added) {
 
-        if (old.equals(update)) return;
+        if (old.equals(added)) return;
         display.append(String.format("<table class=\"%s\" id=\"%schanges%s\" >", tableClasses, idPrefix, old.getAttachmentContentId()));
-        display.append(String.format("<thead><tr><th colspan=\"3\"> Changes for Attachment %s </th></tr>", old.getFilename()));
-        display.append(String.format("<tr><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>", FIELD_NAME, CURRENT_VAL, SUGGESTED_VAL));
+        display.append(String.format("<thead><tr><th colspan=\"4\"> Changes for Attachment %s </th></tr>", old.getFilename()));
+        display.append(String.format("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>", FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL));
 
         for (Attachment._Fields field : RELEVANT_FIELDS) {
 
             FieldMetaData fieldMetaData = Attachment.metaDataMap.get(field);
-            displaySimpleField(display, old, update, field,
+            displaySimpleFieldOrSet(display, old, added, deleted, field,
                     fieldMetaData, Release._Fields.ATTACHMENTS.getFieldName());
         }
         display.append("</tbody></table>");
@@ -181,18 +183,15 @@ public class CompareAttachments extends NameSpaceAwareTag {
 
 
     private static Map<String, Attachment> getAttachmentsById(Set<Attachment> currentAttachments) {
-        return Maps.uniqueIndex(currentAttachments, new Function<Attachment, String>() {
-            @Override
-            public String apply(Attachment input) {
-                return input.getAttachmentContentId();
-            }
-        });
+        return Maps.uniqueIndex(currentAttachments, Attachment::getAttachmentContentId);
     }
 
     private static boolean isFieldRelevant(Attachment._Fields field) {
         switch (field) {
             //ignored Fields
             case ATTACHMENT_CONTENT_ID:
+                return false;
+            case UPLOAD_HISTORY:
                 return false;
             default:
                 return true;

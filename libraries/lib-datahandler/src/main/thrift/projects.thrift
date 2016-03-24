@@ -117,7 +117,6 @@ service ProjectService {
 
     // Summary getters
     list<Project> getMyProjects(1: string user);
-    // list<Project> getBUProjectsSummary(1: string organisation);
     list<Project> getAccessibleProjectsSummary(1: User user);
     set<Project> getAccessibleProjects(1: User user);
 
@@ -136,8 +135,8 @@ service ProjectService {
     Project getProjectByIdForEdit(1: string id, 2: User user);
     RequestStatus updateProject(1: Project project, 2: User user);
     RequestStatus deleteProject(1: string id, 2: User user);
+    RequestStatus updateProjectFromModerationRequest(1: Project additions, 2: Project deletions, 3: User user);
 
-    RequestStatus addAttachmentToProject(1: string projectId, 2:User user, 3:string attachmentContentId, 4:string filename);
     RequestStatus removeAttachmentFromProject(1: string projectId, 2:User user, 3:string attachmentContentId);
 
     bool projectIsUsed(1: string projectId);

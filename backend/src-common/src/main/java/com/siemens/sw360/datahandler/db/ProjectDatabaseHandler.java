@@ -168,6 +168,19 @@ public class ProjectDatabaseHandler {
         }
     }
 
+    public RequestStatus updateProjectFromAdditionsAndDeletions(Project projectAdditions, Project projectDeletions, User user){
+
+        try {
+            Project project = getProjectById(projectAdditions.getId(), user);
+            project = moderator.updateProjectFromModerationRequest(project, projectAdditions, projectDeletions);
+            return updateProject(project, user);
+        } catch (SW360Exception e) {
+            log.error("Could not get original project when updating from moderation request.");
+            return RequestStatus.FAILURE;
+        }
+
+    }
+
     private void copyImmutableFields(Project destination, Project source) {
         ThriftUtils.copyField(source, destination, Project._Fields.CREATED_ON);
         ThriftUtils.copyField(source, destination, Project._Fields.CREATED_BY);
@@ -237,15 +250,13 @@ public class ProjectDatabaseHandler {
         return repository.searchByLinkingProjectId(id, user);
     }
 
-    public Project getProjectByIdforEdit(String id, User user) throws SW360Exception {
+    public Project getProjectForEdit(String id, User user) throws SW360Exception {
 
         List<ModerationRequest> moderationRequestsForDocumentId = moderator.getModerationRequestsForDocumentId(id);
 
-        Project project;
+        Project project = getProjectById(id,user);
         DocumentState documentState;
         if (moderationRequestsForDocumentId.isEmpty()) {
-            project = getProjectById(id, user);
-
             documentState = CommonUtils.getOriginalDocumentState();
         } else {
             final String email = user.getEmail();
@@ -253,13 +264,11 @@ public class ProjectDatabaseHandler {
             if (moderationRequestOptional.isPresent()
                     && isInProgressOrPending(moderationRequestOptional.get())){
                 ModerationRequest moderationRequest = moderationRequestOptional.get();
-
-                project = moderationRequest.getProject();
-
+                project = moderator.updateProjectFromModerationRequest(project,
+                        moderationRequest.getProjectAdditions(),
+                        moderationRequest.getProjectDeletions());
                 documentState = CommonUtils.getModeratedDocumentState(moderationRequest);
             } else {
-                project = getProjectById(id, user);
-
                 documentState = new DocumentState().setIsOriginalDocument(true).setModerationState(moderationRequestsForDocumentId.get(0).getModerationState());
             }
         }

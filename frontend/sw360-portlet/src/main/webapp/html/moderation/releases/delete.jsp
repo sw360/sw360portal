@@ -35,7 +35,7 @@
              scope="request"/>
 <jsp:useBean id="actual_release" class="com.siemens.sw360.datahandler.thrift.components.Release" scope="request"/>
 <core_rt:set var="release" value="${actual_release}" scope="request"/>
-<core_rt:set var="releaseId" value="${moderationRequest.release.id}" scope="request"/>
+<core_rt:set var="releaseId" value="${moderationRequest.releaseAdditions.id}" scope="request"/>
 
 <portlet:resourceURL var="subscribeReleaseURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.SUBSCRIBE_RELEASE%>"/>

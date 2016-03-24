@@ -162,7 +162,7 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
     public void deleteUnneededAttachments(String userEmail, String documentId){
         if(uploadHistoryPerUserEmailAndDocumentId.containsKey(userEmail)) {
             Set<String> uploadedAttachmentIds = nullToEmptySet(uploadHistoryPerUserEmailAndDocumentId.get(userEmail).get(documentId));
-            attachmentPortletUtils.deleteUnneededAttachments(uploadedAttachmentIds);
+            attachmentPortletUtils.deleteAttachments(uploadedAttachmentIds);
             cleanUploadHistory(userEmail,documentId);
         }
     }
@@ -191,7 +191,7 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         if(uploadHistoryPerUserEmailAndDocumentId.containsKey(userEmail)) {
             String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
             Set<String> uploadedAttachmentIds = nullToEmptySet(uploadHistoryPerUserEmailAndDocumentId.get(userEmail).get(documentId));
-            attachmentPortletUtils.deleteUnneededAttachments(uploadedAttachmentIds);
+            attachmentPortletUtils.deleteAttachments(uploadedAttachmentIds);
             cleanUploadHistory(userEmail, documentId);
         }
     }

@@ -29,7 +29,6 @@
 
 <jsp:useBean id="moderationRequest" class="com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
 <jsp:useBean id="actual_license" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request" />
-<jsp:useBean id="licenseDetail" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request" />
 <jsp:useBean id="isAdminUser" class="java.lang.String" scope="request" />
 <jsp:useBean id="obligationList" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Obligation>"
              scope="request"/>
@@ -43,15 +42,15 @@
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
 
 <portlet:actionURL var="editLicenseTodosURL" name="updateWhiteList">
-    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
+    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${actual_license.id}" />
 </portlet:actionURL>
 
 <portlet:actionURL var="addLicenseTodoURL" name="addTodo">
-    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
+    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${actual_license.id}" />
 </portlet:actionURL>
 
 <portlet:actionURL var="changeLicenseTextURL" name="changeText">
-    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
+    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${actual_license.id}" />
 </portlet:actionURL>
 
 <div id="header"></div>
@@ -65,13 +64,17 @@
 <input type="button" onclick="cancel()" id="edit" value="Cancel"    class="cancelButton">
 
 <h2>Proposed changes</h2>
-<h3>Basic fields</h3>
-<sw360:CompareLicense old="${actual_license}" update="${moderationRequest.license}" idPrefix="basicFields" tableClasses="table info_table"/>
 
 <h3>TODOs</h3>
-<sw360:CompareTodos old="${actual_license.todos}" update="${moderationRequest.license.todos}" idPrefix="" tableClasses="table info_table" />
+<sw360:CompareTodos old="${actual_license.todos}"
+                    update="${moderationRequest.licenseAdditions.todos}"
+                    delete="${moderationRequest.licenseDeletions.todos}"
+                    department="${moderationRequest.requestingUserDepartment}"
+                    idPrefix=""
+                    tableClasses="table info_table" />
 
-<h3>Current license</h3>
+
+<h2>Current license</h2>
 <core_rt:set var="editMode" value="false" scope="request"/>
 
 <%@include file="/html/licenses/includes/detailOverview.jspf"%>

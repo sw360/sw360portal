@@ -156,8 +156,7 @@ public class PortletUtils {
 
     public static Set<Attachment> updateAttachmentsFromRequest(PortletRequest request, Set<Attachment> documentAttachments) {
         if (documentAttachments == null) {
-            log.info("UpdateAttachments called with null documentAttachments.");
-            return null;
+            documentAttachments = new HashSet<>();
         }
 
         User user = UserCacheHolder.getUserFromRequest(request);
@@ -197,7 +196,7 @@ public class PortletUtils {
                 }
                 attachment.setCreatedComment(createdComments[i]);
                 attachment.setAttachmentType(getAttachmentTypefromString(atypes[i]));
-                if(attachment.checkedComment != checkedComments[i]|| attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])){
+                if(!checkedComments[i].equals(attachment.checkedComment) || attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])){
                     attachment.setCheckedOn(SW360Utils.getCreatedOn());
                     attachment.setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail());
                     attachment.setCheckedTeam(UserCacheHolder.getUserFromRequest(request).getDepartment());
