@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.common.SW360Constants.TYPE_USER;
@@ -61,7 +62,7 @@ public class UserUtils {
         thriftClients = new ThriftClients();
     }
 
-    public static <T> com.siemens.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(T source, ThriftClients thriftClients, Supplier<String> emailSupplier, UserSynchronizer<T> synchronizer) {
+    public static <T> com.siemens.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(T source, ThriftClients thriftClients, Supplier<String> emailSupplier, BiConsumer<com.siemens.sw360.datahandler.thrift.users.User, T> synchronizer) {
         UserService.Iface client = thriftClients.makeUserClient();
 
         com.siemens.sw360.datahandler.thrift.users.User thriftUser = null;
@@ -77,10 +78,10 @@ public class UserUtils {
             if (thriftUser == null) {
                 log.info("Creating new user.");
                 thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
-                synchronizer.fillUserFromSource(thriftUser, source);
+                synchronizer.accept(thriftUser, source);
                 client.addUser(thriftUser);
             } else {
-                synchronizer.fillUserFromSource(thriftUser, source);
+                synchronizer.accept(thriftUser, source);
                 client.updateUser(thriftUser);
             }
         } catch (TException e) {

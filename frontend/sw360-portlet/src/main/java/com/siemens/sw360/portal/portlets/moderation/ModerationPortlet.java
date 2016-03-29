@@ -133,12 +133,11 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
     private void declineModerationRequest(User user, ModerationRequest moderationRequest, RenderRequest request) throws TException {
         switch (moderationRequest.getDocumentType()) {
-            case USER: {
+            case USER:
                 UserUtils.deleteLiferayUser(request, moderationRequest.getUser());
                 UserService.Iface userClient = thriftClients.makeUserClient();
                 userClient.deleteUser(UserCacheHolder.getRefreshedUserFromEmail(moderationRequest.getUser().getEmail()), user);
-            }
-            break;
+                break;
             default:
                 break;
         }
