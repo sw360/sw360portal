@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,18 +17,14 @@
  */
 package com.siemens.sw360.portal.portlets.licenses;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.exporter.LicenseExporter;
@@ -39,12 +35,12 @@ import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
-import java.util.*;
-
 import javax.portlet.*;
 import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 
@@ -120,15 +116,18 @@ public class LicensesPortlet extends Sw360Portlet {
         if (id != null) {
             try {
                 License license = client.getByID(id, user.getDepartment());
+                license.setShortname(license.getId());
                 request.setAttribute(KEY_LICENSE_DETAIL, license);
                 addLicenseBreadcrumb(request, response, license);
             } catch (TException e) {
                 log.error("Error fetching license details from backend", e);
             }
         } else {
-            SessionMessages.add(request, "request_processed", "New License");
-            License license = new License();
-            request.setAttribute(KEY_LICENSE_DETAIL, license);
+            if (request.getAttribute(KEY_LICENSE_DETAIL) == null){
+                SessionMessages.add(request, "request_processed", "New License");
+                License license = new License();
+                request.setAttribute(KEY_LICENSE_DETAIL, license);
+            }
         }
     }
 
@@ -173,6 +172,7 @@ public class LicensesPortlet extends Sw360Portlet {
                 request.setAttribute(MODERATION_LICENSE_DETAIL, moderationLicense);
 
                 License dbLicense = client.getByID(id, user.getDepartment());
+                dbLicense.setShortname(dbLicense.getId());
                 request.setAttribute(KEY_LICENSE_DETAIL, dbLicense);
 
                 List<Obligation> obligations = client.getObligations();
@@ -191,42 +191,73 @@ public class LicensesPortlet extends Sw360Portlet {
         componentUrl.setParameter(PAGENAME, PAGENAME_DETAIL);
         componentUrl.setParameter(LICENSE_ID, license.getId());
 
-        addBreadcrumbEntry(request, license.getShortname(), componentUrl);
+        addBreadcrumbEntry(request, license.getId(), componentUrl);
     }
 
     @UsedAsLiferayAction
     public void update(ActionRequest request, ActionResponse response) throws PortletException, IOException {
-        License license = new License();
         LicenseService.Iface client = thriftClients.makeLicenseClient();
         String licenseId = request.getParameter(LICENSE_ID);
         User user = UserCacheHolder.getUserFromRequest(request);
 
-        if (!Strings.isNullOrEmpty(licenseId)) {
-            try {
-                license = client.getByID(licenseId, user.getDepartment());
-            } catch (TException e) {
-                log.error("Error updating license:", e);
-            }
-        }
+        License license = prepareLicenseForUpdate(request, client, licenseId, user);
+        boolean isNewLicense = isNullOrEmpty(licenseId);
+        boolean isAttemptToOverwriteExistingByNew = isAttemptToOverwriteExistingByNew(license, user, isNewLicense, client);
 
-        license = updateLicenseFromRequest(license,request);
+        RequestStatus requestStatus = updateLicense(license, user, isAttemptToOverwriteExistingByNew, client);
 
-        RequestStatus requestStatus;
-        try {
-            requestStatus = client.updateLicense(license, user, user);
-        } catch (TException e) {
-            log.error("Could not add or update license:" + e);
-            requestStatus = RequestStatus.FAILURE;
-        }
-        if (!Strings.isNullOrEmpty(licenseId)) {
+        if (isAttemptToOverwriteExistingByNew){
+            response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
+            setSessionMessage(request, "License shortname is already taken.");
+            request.setAttribute(KEY_LICENSE_DETAIL, license);
+        } else if (isNewLicense) {
+            response.setRenderParameter(PAGENAME, PAGENAME_VIEW);
+            setSessionMessage(request, requestStatus, "License", "adde");
+        } else {
             response.setRenderParameter(LICENSE_ID, licenseId);
             response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
             response.setRenderParameter(SELECTED_TAB, "Details");
             setSessionMessage(request, requestStatus, "License", "update");
-        } else {
-            response.setRenderParameter(PAGENAME, PAGENAME_VIEW);
-            setSessionMessage(request, requestStatus, "License", "adde");
         }
+    }
+
+    private RequestStatus updateLicense(License license, User user, boolean isAttemptToOverwriteExistingByNew, LicenseService.Iface client) {
+        RequestStatus requestStatus;
+        try {
+            requestStatus = isAttemptToOverwriteExistingByNew ? RequestStatus.FAILURE : client.updateLicense(license, user, user);
+        } catch (TException e) {
+            log.error("Could not add or update license:" + e);
+            requestStatus = RequestStatus.FAILURE;
+        }
+        return requestStatus;
+    }
+
+    private boolean isAttemptToOverwriteExistingByNew(License license, User user, boolean isNewLicense, LicenseService.Iface client) {
+        return isNewLicense && checkLicenseExists(license, user, client);
+    }
+
+    private License prepareLicenseForUpdate(ActionRequest request, LicenseService.Iface client, String licenseId, User user) {
+        License license = new License();;
+        if (!isNullOrEmpty(licenseId)) {
+            try {
+                license = client.getByID(licenseId, user.getDepartment());
+            } catch (TException e) {
+                log.error("Could not find license to update:", e);
+            }
+        }
+
+        license = updateLicenseFromRequest(license, request);
+        return license;
+    }
+
+    private boolean checkLicenseExists(License license, User user, LicenseService.Iface client) {
+        try {
+            client.getByID(license.getShortname(), user.getDepartment());
+            return true;
+        } catch (TException e1) {
+            log.info("No existing license found:", e1);
+        }
+        return false;
     }
 
     private License updateLicenseFromRequest(License license, ActionRequest request) {
@@ -248,6 +279,8 @@ public class LicensesPortlet extends Sw360Portlet {
             Optional<String> licenseTypeDatabaseId = getDatabaseIdFromLicenseType(licenseTypeString);
             if(licenseTypeDatabaseId.isPresent()) {
                 license.setLicenseTypeDatabaseId(licenseTypeDatabaseId.get());
+                final LicenseType licenseType = thriftClients.makeLicenseClient().getLicenseTypeById(license.getLicenseTypeDatabaseId());
+                license.setLicenseType(licenseType);
             } else {
                 license.unsetLicenseTypeDatabaseId();
             }
@@ -308,7 +341,7 @@ public class LicensesPortlet extends Sw360Portlet {
         String licenseId = request.getParameter(LICENSE_ID);
         String text = request.getParameter(License._Fields.TEXT.name());
 
-        if(!Strings.isNullOrEmpty(licenseId)) {
+        if(!isNullOrEmpty(licenseId)) {
             try {
                 User user = UserCacheHolder.getUserFromRequest(request);
                 LicenseService.Iface client = thriftClients.makeLicenseClient();

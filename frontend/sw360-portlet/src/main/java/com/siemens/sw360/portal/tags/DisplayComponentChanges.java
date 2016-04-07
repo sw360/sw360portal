@@ -97,7 +97,6 @@ public class DisplayComponentChanges extends NameSpaceAwareTag {
                     case RELEASES:
                     case RELEASE_IDS:
                     case MAIN_LICENSE_IDS:
-                    case MAIN_LICENSE_NAMES:
                     case LANGUAGES:
                     case OPERATING_SYSTEMS:
                     case VENDOR_NAMES:

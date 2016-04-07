@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2015-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -30,12 +30,12 @@ import static com.siemens.sw360.portal.tags.urlutils.UrlWriterImpl.renderUrl;
  * @author daniele.fognini@tngtech.com
  */
 public class DisplayLinkToLicense extends DisplayLinkAbstract {
-    private License license;
+    private String licenseId;
     private PortletDefaultPage page = PortletDefaultPage.DETAIL;
     private Boolean showName = true;
 
-    public void setLicense(License license) {
-        this.license = license;
+    public void setLicenseId(String licenseId) {
+        this.licenseId = licenseId;
     }
 
     public void setPage(PortletDefaultPage page) {
@@ -48,7 +48,7 @@ public class DisplayLinkToLicense extends DisplayLinkAbstract {
 
     @Override
     protected String getTextDisplay() {
-        return showName ? license.getShortname() : null;
+        return showName ? licenseId : null;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class DisplayLinkToLicense extends DisplayLinkAbstract {
         renderUrl(pageContext)
                 .toPortlet(PortletProperties.LICENSES)
                 .toPage(page)
-                .withParam(PortalConstants.LICENSE_ID, license.getId())
+                .withParam(PortalConstants.LICENSE_ID, licenseId)
                 .writeUrlToJspWriter();
     }
 }

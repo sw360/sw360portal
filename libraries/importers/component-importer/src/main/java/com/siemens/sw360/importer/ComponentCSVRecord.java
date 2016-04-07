@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -70,7 +70,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
     private final String releaseSubscribers;
     private final String releaseLanguages;
     private final String releaseOperatingSystems;
-    private final String releaseMainLicenseNames;
+    private final String releaseMainLicenseIds;
     private final String releaseDownloadURL;
     private final String vendorName;
     private final String vendorShortname;
@@ -113,7 +113,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                               String releaseCreatedOn, String releaseCreatedBy, String releaseRepostitoryURL,
                               String releaseRepostitoryType, String releaseMainlineState, String releaseClearingState,
                               String releaseContacts, String releaseModerators, String releaseSubscribers,
-                              String releaseLanguages, String releaseOperatingSystems, String releaseMainLicenseNames,
+                              String releaseLanguages, String releaseOperatingSystems, String releaseMainLicenseIds,
                               String releaseDownloadURL, String vendorName, String vendorShortname, String vendorUrl,
                               String cIAL, String cIECCN, String cIExternalSupplierID, String cIAssessorContactPerson,
                               String cIAssessorDepartment, String cIAdditionalInfo, String cIEvaluated,
@@ -157,7 +157,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         this.releaseSubscribers = releaseSubscribers;
         this.releaseLanguages = releaseLanguages;
         this.releaseOperatingSystems = releaseOperatingSystems;
-        this.releaseMainLicenseNames = releaseMainLicenseNames;
+        this.releaseMainLicenseIds = releaseMainLicenseIds;
         this.releaseDownloadURL = releaseDownloadURL;
         this.vendorName = vendorName;
         this.vendorShortname = vendorShortname;
@@ -420,8 +420,8 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         if (!isNullOrEmpty(releaseOperatingSystems)) {
             release.setOperatingSystems(CommonUtils.splitToSet(releaseOperatingSystems));
         }
-        if (!isNullOrEmpty(releaseMainLicenseNames)) {
-            release.setMainLicenseNames(CommonUtils.splitToSet(releaseMainLicenseNames));
+        if (!isNullOrEmpty(releaseMainLicenseIds)) {
+            release.setMainLicenseIds(CommonUtils.splitToSet(releaseMainLicenseIds));
         }
 
         if(isSetClearingInformation())
@@ -617,7 +617,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add(nullToEmptyString(releaseSubscribers));
         elements.add(nullToEmptyString(releaseLanguages));
         elements.add(nullToEmptyString(releaseOperatingSystems));
-        elements.add(nullToEmptyString(releaseMainLicenseNames));
+        elements.add(nullToEmptyString(releaseMainLicenseIds));
         elements.add(nullToEmptyString(releaseDownloadURL));
         elements.add(nullToEmptyString(vendorName));
         elements.add(nullToEmptyString(vendorShortname));
@@ -755,7 +755,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add("releaseSubscribers");
         elements.add("releaseLanguages");
         elements.add("releaseOperatingSystems");
-        elements.add("releaseMainLicenseNames");
+        elements.add("releaseMainLicenseIds");
         elements.add("releaseDownloadURL");
         elements.add("vendorName");
         elements.add("vendorShortname");
@@ -831,7 +831,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                 ", releaseSubscribers='" + releaseSubscribers + '\'' +
                 ", releaseLanguages='" + releaseLanguages + '\'' +
                 ", releaseOperatingSystems='" + releaseOperatingSystems + '\'' +
-                ", releaseMainLicenseNames='" + releaseMainLicenseNames + '\'' +
+                ", releaseMainLicenseIds='" + releaseMainLicenseIds + '\'' +
                 ", releaseDownloadURL='" + releaseDownloadURL + '\'' +
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorShortname='" + vendorShortname + '\'' +

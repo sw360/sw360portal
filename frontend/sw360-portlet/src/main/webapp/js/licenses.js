@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -40,7 +40,7 @@ function parseAllLicensesList(allLicensesList ){
         var id = allLicensesList[i].id;
         var row = {
             "DT_RowId": id,
-            "0": "<a href='"+createDetailURLfromLicenseId(id)+"' target='_self'>"+allLicensesList[i].shortname+"</a>",
+            "0": "<a href='"+createDetailURLfromLicenseId(id)+"' target='_self'>"+allLicensesList[i].id+"</a>",
             "1": allLicensesList[i].fullname,
             "2": getLicenseType(allLicensesList[i])
          };

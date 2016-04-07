@@ -36,7 +36,8 @@
     <td width="33%">
       <label class="textlabel stackedLabel mandatory" for="lic_shortname">Shortname</label>
       <input id="lic_shortname" name="<portlet:namespace/><%=License._Fields.SHORTNAME%>" type="text"
-             placeholder="Enter Shortname" required="" value="<sw360:out value="${licenseDetail.shortname}"/>"/>
+             placeholder="Enter Shortname" required="" value="<sw360:out value="${licenseDetail.shortname}"/>"
+             <core_rt:if test="${not empty licenseDetail.id}">readonly</core_rt:if> />
     </td>
 
     <td width="33%">

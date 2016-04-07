@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -60,7 +60,7 @@ public class ComponentCSVRecordBuilderTest {
                 .setContacts(ImmutableSet.of("me", "myself", "and", "I")).setContacts(ImmutableSet.of("are", "singing"))
                 .setModerators(ImmutableSet.of("and", "dancing")).setSubscribers(ImmutableSet.of("to", "a"))
                 .setLanguages(ImmutableSet.of("silent", "tune")).setOperatingSystems(ImmutableSet.of("which", "is", "licensed"))
-                .setMainLicenseNames(ImmutableSet.of("under", "GPL"));
+                .setMainLicenseIds(ImmutableSet.of("under", "GPL"));
 
 
         final ComponentCSVRecordBuilder componentCSVRecordBuilder = new ComponentCSVRecordBuilder().fill(release);

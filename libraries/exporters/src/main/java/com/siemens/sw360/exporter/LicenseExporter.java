@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -81,7 +81,7 @@ public class LicenseExporter extends ExcelExporter<License> {
         @Override
         public List<String> makeRow(License license) {
             List<String> row = new ArrayList<>(HEADERS.size());
-            row.add(nullToEmpty(license.shortname));
+            row.add(nullToEmpty(license.id));
             row.add(nullToEmpty(license.fullname));
             row.add(formatLicenseType(license.licenseType));
             row.add(formatBoolean(license.GPLv2Compat));
