@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -23,6 +23,8 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
+
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -232,7 +234,7 @@
             "DT_RowId": "${component.id}",
             "0": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
             "1": "<a href='" + createDetailURLfromComponentId("${component.id}") + "' target='_self'><sw360:out value="${component.name}"/></a>",
-            "2": "<sw360:out value="${component.description}" maxChar="140" jsQuoting="\""/>",
+            "2": `<tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}"/>`,
             "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
             "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
             + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '${component.name}')\"  alt='Delete' title='Delete'>"
@@ -241,11 +243,12 @@
 
         oTable = $('#componentsTable').DataTable({
             "sPaginationType": "full_numbers",
+            "iDisplayLength": 25,
             "aaData": result,
             "aoColumns": [
                 {"sTitle": "Vendor"},
                 {"sTitle": "Component Name"},
-                {"sTitle": "Description"},
+                {"sTitle": "Main Licenses"},
                 {"sTitle": "Component Type"},
                 {"title": "Actions"}
             ]
