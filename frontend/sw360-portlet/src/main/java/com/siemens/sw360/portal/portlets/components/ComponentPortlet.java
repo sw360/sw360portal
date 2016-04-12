@@ -90,7 +90,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private static final ImmutableList<Component._Fields> componentFilteredFields = ImmutableList.of(Component._Fields.CATEGORIES,
-            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES, Component._Fields.COMPONENT_TYPE);
+            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES, Component._Fields.COMPONENT_TYPE, Component._Fields.MAIN_LICENSE_IDS);
 
     //! Serve resource and helpers
     @Override

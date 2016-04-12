@@ -39,6 +39,7 @@
 <jsp:useBean id="componentType" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorList" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorNames" class="java.lang.String" scope="request"/>
+<jsp:useBean id="mainLicenseIds" class="java.lang.String" scope="request"/>
 <jsp:useBean id="searchtext" class="java.lang.String" scope="request"/>
 <jsp:useBean id="searchfilter" class="java.lang.String" scope="request"/>
 
@@ -163,6 +164,14 @@
                     <input type="text" class="searchbar"
                            name="<portlet:namespace/><%=Component._Fields.VENDOR_NAMES%>"
                            value="${vendorNames}" id="vendor_names">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="main_licenses">Main Licenses</label>
+                    <input type="text" class="searchbar"
+                           name="<portlet:namespace/><%=Component._Fields.MAIN_LICENSE_IDS%>"
+                           value="${mainLicenseIds}" id="main_licenses">
                 </td>
             </tr>
             </tbody>
