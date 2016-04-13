@@ -32,7 +32,6 @@ import com.liferay.portal.theme.ThemeDisplay;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
-import java.util.Locale;
 
 /**
  * @author alex.borodin@evosoft.com
@@ -43,118 +42,54 @@ public class UserPortletUtils {
         // Utility class with only static functions
     }
 
-    /**
-     * Copied from https://github.com/fdelprete/CSV_User_Import-portlet/blob/master/docroot/WEB-INF/src/com/fmdp/csvuserimport/portlet/UserServiceImpl.java
-     * with slight modifications
-     *
-     * @author Filippo Maria Del Prete
-     * <p/>
-     * based on the original work of Paul Butenko
-     * http://java-liferay.blogspot.it/2012/09/how-to-make-users-import-into-liferay.html
-     */
-    private static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, long organizationId, long roleId, boolean male, String openId, String password, boolean passwordEncrypted, boolean activateImmediately) {
+    private static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, long organizationId, long roleId, boolean isMale, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) {
         ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-
-        long creatorUserId = themeDisplay.getUserId();
+        String screenName = firstName + lastName;
         long companyId = themeDisplay.getCompanyId();
 
-        boolean autoPassword = false;
-        String password1 = password;
-        String password2 = password;
-        boolean autoScreenName = false;
-        String screenName = firstName + lastName;
-        String middleName = "";
-        long facebookId = 0;
-
-        Locale locale = themeDisplay.getLocale();
-        int prefixId = 0;
-        int suffixId = 0;
-        int birthdayMonth = 1;
-        int birthdayDay = 1;
-        int birthdayYear = 1970;
-        String jobTitle = "";
-        long[] groupIds = null;
-        long[] organizationIds = null;
-
-            if (organizationId != 0) {
-                organizationIds = new long[1];
-                organizationIds[0] = organizationId;
-            }
-
-        long[] roleIds = null;
-        if (roleId != 0) {
-            roleIds = new long[1];
-            roleIds[0] = roleId;
-        }
-        long[] userGroupIds = null;
-        boolean sendEmail = false;
-        boolean userbyscreeenname_exists = true;
-        boolean userbyemail_exists = true;
-        boolean userbyopenid_exists = true;
-        User user = null;
         try {
-            try {
-                user = UserLocalServiceUtil.getUserByScreenName(companyId, screenName);
-            } catch (NoSuchUserException nsue) {
-                userbyscreeenname_exists = false;
-            }
-            try {
-                user = UserLocalServiceUtil.getUserByEmailAddress(companyId, emailAddress);
-            } catch (NoSuchUserException nsue) {
-                userbyemail_exists = false;
-            }
-            try {
-                user = UserLocalServiceUtil.getUserByOpenId(companyId, openId);
-            } catch (NoSuchUserException nsue) {
-                userbyopenid_exists = false;
+            if (userAlreadyExists(request, emailAddress, externalId, screenName, companyId)){
+                return null;
             }
         } catch (PortalException | SystemException e) {
             log.error(e);
-        }
-        if (userbyscreeenname_exists || userbyemail_exists || userbyopenid_exists) {
-            String msg_exists = "";
-            if (userbyscreeenname_exists) {
-                msg_exists = msg_exists + "Full name already exists.";
-            }
-            if (userbyemail_exists) {
-                msg_exists = msg_exists + " Email address already exists.";
-            }
-            if (userbyopenid_exists) {
-                msg_exists = msg_exists + " External id already exists.";
-            }
-            msg_exists = msg_exists.trim();
-            log.info(msg_exists);
-            SessionMessages.add(request, "request_processed", msg_exists);
+            // won't try to create user if even checking for existing user failed
             return null;
         }
+
         try {
             ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
-            user = UserLocalServiceUtil.addUser(creatorUserId,
+            long[] roleIds = roleId == 0 ? new long[]{} : new long[]{roleId};
+            long[] organizationIds = organizationId == 0 ? new long[]{} : new long[]{organizationId};
+            long[] userGroupIds = null;
+            long currentUserId = themeDisplay.getUserId();
+            User user = UserLocalServiceUtil.addUser(
+                    currentUserId/*creator*/,
                     companyId,
-                    autoPassword,
-                    password1,
-                    password2,
-                    autoScreenName,
+                    false,/*autoPassword*/
+                    password,
+                    password,
+                    false,/*autoScreenName*/
                     screenName,
                     emailAddress,
-                    facebookId,
-                    openId,
-                    locale,
+                    0/*facebookId*/,
+                    externalId/*openId*/,
+                    themeDisplay.getLocale(),
                     firstName,
-                    middleName,
+                    ""/*middleName*/,
                     lastName,
-                    prefixId,
-                    suffixId,
-                    male,
-                    birthdayMonth,
-                    birthdayDay,
-                    birthdayYear,
-                    jobTitle,
-                    groupIds,
+                    0/*prefixId*/,
+                    0/*suffixId*/,
+                    isMale,
+                    4/*birthdayMonth*/,
+                    12/*birthdayDay*/,
+                    1959/*birthdayYear*/,
+                    ""/*jobTitle*/,
+                    null/*groupIds*/,
                     organizationIds,
                     roleIds,
                     userGroupIds,
-                    sendEmail,
+                    false/*sendEmail*/,
                     serviceContext);
             user.setPasswordReset(false);
 
@@ -170,15 +105,41 @@ public class UserPortletUtils {
 
             UserLocalServiceUtil.updateStatus(user.getUserId(), activateImmediately ? WorkflowConstants.STATUS_APPROVED : WorkflowConstants.STATUS_INACTIVE);
             Indexer indexer = IndexerRegistryUtil.getIndexer(User.class);
-
             indexer.reindex(user);
+            return user;
         } catch (PortalException | SystemException e) {
             log.error(e);
+            return null;
         }
-        return user;
     }
 
-    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String openId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
+    private static boolean userAlreadyExists(PortletRequest request, String emailAddress, String externalId, String screenName, long companyId) throws PortalException, SystemException {
+        boolean sameEmailExists = userByFieldExists(emailAddress, UserLocalServiceUtil::getUserByEmailAddress, companyId);
+        boolean sameScreenNameExists = userByFieldExists(screenName, UserLocalServiceUtil::getUserByScreenName, companyId);
+        boolean sameExternalIdExists = userByFieldExists(externalId, UserLocalServiceUtil::getUserByOpenId, companyId);
+        boolean alreadyExists = sameScreenNameExists || sameEmailExists || sameExternalIdExists;
+        if (alreadyExists) {
+            String errorMessage = "" +
+                    (sameEmailExists ? "Email address already exists." : "") +
+                    (sameScreenNameExists ? " Full name already exists." : "") +
+                    (sameExternalIdExists ? " External id already exists." : "");
+            errorMessage = errorMessage.trim();
+            log.info(errorMessage);
+            SessionMessages.add(request, "request_processed", errorMessage);
+        }
+        return alreadyExists;
+    }
+
+    private static boolean userByFieldExists(String searchParameter, UserSearchFunction searchFunction, long companyId) throws PortalException, SystemException {
+        try {
+            searchFunction.apply(companyId, searchParameter);
+        } catch (NoSuchUserException nsue) {
+            return false;
+        }
+        return true;
+    }
+
+    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
         ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         long companyId = themeDisplay.getCompanyId();
 
@@ -186,6 +147,11 @@ public class UserPortletUtils {
         final Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
         long roleId = role.getRoleId();
 
-        return addLiferayUser(request, firstName, lastName, emailAddress, organizationId, roleId, male, openId, password, passwordEncrypted, activateImmediately);
+        return addLiferayUser(request, firstName, lastName, emailAddress, organizationId, roleId, male, externalId, password, passwordEncrypted, activateImmediately);
+    }
+
+    @FunctionalInterface
+    interface UserSearchFunction {
+        User apply(long companyId, String searchParameter) throws PortalException, SystemException;
     }
 }
