@@ -30,7 +30,6 @@ import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
@@ -73,37 +72,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private static final Logger log = Logger.getLogger(ProjectPortlet.class);
 
-    private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(Project._Fields.BUSINESS_UNIT,Project._Fields.PROJECT_TYPE, Project._Fields.PROJECT_RESPONSIBLE,Project._Fields.NAME,Project._Fields.STATE,Project._Fields.TAG);
-    @Override
-    protected Attachment linkAttachment(String documentId, String documentType, User user, String attachmentContentId) {
-        try {
-            AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
-            String filename = attachmentClient.getAttachmentContent(attachmentContentId).getFilename();
-            ProjectService.Iface client = thriftClients.makeProjectClient();
-            RequestStatus requestStatus = client.addAttachmentToProject(documentId, user, attachmentContentId, filename);
-
-            if (!requestStatus.equals(RequestStatus.FAILURE)) {
-                return CommonUtils.getNewAttachment(user, attachmentContentId, filename, attachmentClient.getSha1FromAttachmentContentId(attachmentContentId));
-            } else {
-                return null;
-            }
-
-        } catch (TException e) {
-            log.error("Could not get project", e);
-        }
-        return null;
-    }
-
-    @Override
-    protected RequestStatus deleteAttachment(String documentId, String documentType, User user, String attachmentContentId) {
-        try {
-            ProjectService.Iface client = thriftClients.makeProjectClient();
-            return client.removeAttachmentFromProject(documentId, user, attachmentContentId);
-        } catch (TException e) {
-            log.error("Could not get project", e);
-        }
-        return RequestStatus.FAILURE;
-    }
+    private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(
+            Project._Fields.BUSINESS_UNIT,
+            Project._Fields.PROJECT_TYPE,
+            Project._Fields.PROJECT_RESPONSIBLE,
+            Project._Fields.NAME,
+            Project._Fields.STATE,
+            Project._Fields.TAG);
 
     @Override
     protected Set<Attachment> getAttachments(String documentId, String documentType, User user) {
@@ -216,6 +191,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         try {
+            deleteUnneededAttachments(user.getEmail(),projectId);
             ProjectService.Iface client = thriftClients.makeProjectClient();
             return client.deleteProject(projectId, user);
         } catch (TException e) {
@@ -645,6 +621,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
                 requestStatus = client.updateProject(project, user);
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
+                cleanUploadHistory(user.getEmail(),id);
             } else {
                 // Add project
                 Project project = new Project();

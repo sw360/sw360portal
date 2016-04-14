@@ -162,6 +162,8 @@ public class PortalConstants {
     public static final String ATTACHMENT_LINK_TO = ATTACHMENT_PREFIX + "LinkTo";
     public static final String ATTACHMENT_DOWNLOAD = ATTACHMENT_PREFIX + "Download";
 
+    public static final String ATTACHMENT_DELETE_ON_CANCEL = "attachmentDeleteOnCancel";
+
     public static final String CLEANUP = "Cleanup";
     public static final String DUPLICATES = "Duplicates";
     public static final String DOWNLOAD = "Download";

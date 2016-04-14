@@ -81,7 +81,7 @@ public class ComponentDatabaseHandler {
     private final VendorRepository vendorRepository;
     private final ProjectRepository projectRepository;
 
-    private final AttachmentConnector attachments;
+    private final AttachmentConnector attachmentConnector;
     /**
      * Access to moderation
      */
@@ -101,7 +101,7 @@ public class ComponentDatabaseHandler {
         this.moderator = moderator;
 
         // Create the attachment connector
-        attachments = new AttachmentConnector(url, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
+        attachmentConnector = new AttachmentConnector(url, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
     }
 
 
@@ -345,6 +345,11 @@ public class ComponentDatabaseHandler {
         // Prepare component for database
         prepareComponent(component);
 
+        //add sha1 to attachments if necessary
+        if(component.isSetAttachments()) {
+            attachmentConnector.setSha1ForAttachments(component.getAttachments());
+        }
+
         // Get actual document for members that should no change
         Component actual = componentRepository.get(component.getId());
         assertNotNull(actual, "Could not find component to doBulk!");
@@ -359,6 +364,8 @@ public class ComponentDatabaseHandler {
             copyFields(actual, component, immutableOfComponent());
             // Update the database with the component
             componentRepository.update(component);
+            //clean up attachments in database
+            attachmentConnector.deleteAttachmentDifference(actual.getAttachments(),component.getAttachments());
 
         } else {
             return moderator.updateComponent(component, user);
@@ -375,6 +382,10 @@ public class ComponentDatabaseHandler {
         // Prepare release for database
         prepareRelease(release);
 
+        //add sha1 to attachments if necessary
+        if(release.isSetAttachments()) {
+            attachmentConnector.setSha1ForAttachments(release.getAttachments());
+        }
         // Get actual document for members that should no change
         Release actual = releaseRepository.get(release.getId());
         assertNotNull(actual, "Could not find release to update");
@@ -386,6 +397,8 @@ public class ComponentDatabaseHandler {
             copyFields(actual, release, immutableFields);
             releaseRepository.update(release);
             updateReleaseDependentFieldsForComponentId(release.getComponentId());
+            //clean up attachments in database
+            attachmentConnector.deleteAttachmentDifference(nullToEmptySet(actual.getAttachments()),nullToEmptySet(release.getAttachments()));
 
         } else {
             return moderator.updateRelease(release, user);
@@ -469,7 +482,7 @@ public class ComponentDatabaseHandler {
             }
 
             // Remove the component with attachments
-            attachments.deleteAttachments(component.getAttachments());
+            attachmentConnector.deleteAttachments(component.getAttachments());
             componentRepository.remove(component);
             moderator.notifyModeratorOnDelete(id);
             return RequestStatus.SUCCESS;
@@ -511,7 +524,7 @@ public class ComponentDatabaseHandler {
     }
 
     private Component removeReleaseAndCleanUp(Release release) {
-        attachments.deleteAttachments(release.getAttachments());
+        attachmentConnector.deleteAttachments(release.getAttachments());
 
         Component component = updateReleaseDependentFieldsForComponentId(release.getComponentId());
 
