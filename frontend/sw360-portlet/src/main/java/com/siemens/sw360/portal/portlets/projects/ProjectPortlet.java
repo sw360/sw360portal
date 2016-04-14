@@ -622,6 +622,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 requestStatus = client.updateProject(project, user);
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
                 cleanUploadHistory(user.getEmail(),id);
+                response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
+                response.setRenderParameter(PROJECT_ID, request.getParameter(PROJECT_ID));
             } else {
                 // Add project
                 Project project = new Project();
@@ -631,10 +633,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 if (id != null) {
                     String successMsg = "Project " + printName(project) + " added successfully";
                     SessionMessages.add(request, "request_processed", successMsg);
+                    response.setRenderParameter(PROJECT_ID, id);
                 } else {
                     String successMsg = "Project was not added successfully";
                     SessionMessages.add(request, "request_processed", successMsg);
                 }
+                response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
             }
 
         } catch (TException e) {
