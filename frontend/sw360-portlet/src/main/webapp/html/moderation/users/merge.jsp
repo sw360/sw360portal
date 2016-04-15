@@ -67,11 +67,11 @@
         <td><sw360:out value="${newuser.email}"/></td>
     </tr>
     <tr>
-        <td>Department:</td>
+        <td>Group:</td>
         <td><sw360:out value="${newuser.department}"/></td>
     </tr>
     <tr>
-        <td>User Group:</td>
+        <td>Role:</td>
         <td><sw360:DisplayEnum value="${newuser.userGroup}"/></td>
     </tr>
     <tr>

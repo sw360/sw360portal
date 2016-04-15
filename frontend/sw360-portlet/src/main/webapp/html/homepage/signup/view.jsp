@@ -76,7 +76,7 @@
             </tr>
             <tr>
                 <td>
-                    <label class="textlabel mandatory" for="department">Department</label>
+                    <label class="textlabel mandatory" for="department">Group</label>
                     <select class="toplabelledInput" id="department" name="<portlet:namespace/><%=User._Fields.DEPARTMENT%>"
                                         style="min-width: 162px; min-height: 28px;">
                         <core_rt:forEach items="${organizations}" var="org">
@@ -89,7 +89,7 @@
             </tr>
             <tr>
                 <td>
-                    <label class="textlabel mandatory" for="usergroup">Requested User Group</label>
+                    <label class="textlabel mandatory" for="usergroup">Requested Role</label>
                     <select class="toplabelledInput" id="usergroup" name="<portlet:namespace/><%=User._Fields.USER_GROUP%>"
                             style="min-width: 162px; min-height: 28px;">
 
