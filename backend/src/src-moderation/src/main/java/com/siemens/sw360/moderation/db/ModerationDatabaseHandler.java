@@ -27,7 +27,6 @@ import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.DocumentType;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -37,7 +36,6 @@ import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
-import com.siemens.sw360.licenses.db.LicenseTypeRepository;
 import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
@@ -139,7 +137,7 @@ public class ModerationDatabaseHandler {
         ModerationRequest request = repository.get(requestId);
         request.moderationState = ModerationState.REJECTED;
         repository.update(request);
-        sendMailToUserForDeclinedRequest(request.getRequestingUser());
+        sendMailToUserForDeclinedRequest(request.getRequestingUser(), request.getDocumentType() == DocumentType.USER);
     }
 
 
@@ -217,14 +215,23 @@ public class ModerationDatabaseHandler {
         addOrUpdate(request);
     }
 
+    public void createRequest(User user) {
+        // Define moderators
+        Set<String> admins = getAdministrators(user.getDepartment());
+        ModerationRequest request = createStubRequest(user.getEmail(), false, user.getId(), admins);
+
+        // Set meta-data
+        request.setDocumentType(DocumentType.USER);
+        request.setDocumentName(SW360Utils.printName(user));
+
+        // Set the object
+        request.setUser(user);
+
+        addOrUpdate(request);
+    }
+
     private Set<String> getLicenseModerators(String department) {
-        List<User> sw360users = Collections.emptyList();
-        try {
-            UserService.Iface client = (new ThriftClients()).makeUserClient();
-            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
-        } catch (TException e) {
-            log.error("Problem with user client", e);
-        }
+        List<User> sw360users = getAllSW360Users();
         //try first clearing admins or admins from same department
         Set<String> moderators = sw360users
                 .stream()
@@ -241,6 +248,37 @@ public class ModerationDatabaseHandler {
                     .collect(Collectors.toSet());
         }
         return moderators;
+    }
+
+    private Set<String> getAdministrators(String department) {
+        List<User> sw360users = getAllSW360Users();
+        List<User> allAdministrators = sw360users
+                    .stream()
+                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.ADMIN, user1))
+                    .collect(Collectors.toList());
+        List<User> administrators = allAdministrators.stream()
+                    .filter(user -> user.getDepartment().equals(department))
+                    .collect(Collectors.toList());
+        if (administrators.isEmpty()){
+            // no admins for department found -> fall back to all admins
+            administrators = allAdministrators;
+        }
+        Set<String> adminEmails = administrators.stream()
+                    .map(User::getEmail)
+                    .collect(Collectors.toSet());
+
+        return adminEmails;
+    }
+
+    private List<User> getAllSW360Users() {
+        List<User> sw360users = Collections.emptyList();
+        try {
+            UserService.Iface client = (new ThriftClients()).makeUserClient();
+            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
+        } catch (TException e) {
+            log.error("Problem with user client", e);
+        }
+        return sw360users;
     }
 
     public void addOrUpdate(ModerationRequest request) {
@@ -285,9 +323,13 @@ public class ModerationDatabaseHandler {
         mailUtil.sendMail(moderators,MailConstants.SUBJECT_FOR_UPDATE_MODERATION_REQUEST,MailConstants.TEXT_FOR_UPDATE_MODERATION_REQUEST);
     }
 
-    private void sendMailToUserForDeclinedRequest(String userEmail){
+    private void sendMailToUserForDeclinedRequest(String userEmail, boolean userRequest){
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(userEmail,MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST,MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST);
+        if (userRequest){
+            mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_DECLINED_USER_MODERATION_REQUEST, MailConstants.TEXT_FOR_DECLINED_USER_MODERATION_REQUEST, false);
+        } else {
+            mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST, MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST, true);
+        }
     }
 
 

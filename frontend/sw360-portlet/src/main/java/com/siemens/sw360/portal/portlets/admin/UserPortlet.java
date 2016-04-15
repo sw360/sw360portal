@@ -21,25 +21,19 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
-import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.*;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
-import com.liferay.portal.service.persistence.RoleUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.users.*;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
@@ -268,12 +262,13 @@ public class UserPortlet extends Sw360Portlet {
 
         /* Find the departments of the users, create the head departments and then create the organizations */
 
-        ImmutableSet<String> headDepartments = FluentIterable.from(users).transform(new Function<UserCSV, String>() {
-            @Override
-            public String apply(UserCSV input) {
-                return extractHeadDept(input.getDepartment());
-            }
-        }).toSet();
+        ImmutableSet<String> departments = FluentIterable.from(users).transform(input -> input.getDepartment()).toSet();
+
+        createOrganizations(request, departments);
+    }
+
+    public void createOrganizations(PortletRequest request, Iterable<String> departments) throws PortalException, SystemException {
+        ImmutableSet<String> headDepartments = FluentIterable.from(departments).transform(department -> extractHeadDept(department)).toSet();
 
         Map<String, Long> organizationIds = new HashMap<>();
         ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
@@ -295,14 +290,6 @@ public class UserPortlet extends Sw360Portlet {
             }
             organizationIds.put(headDepartment, organizationId);
         }
-
-        ImmutableSet<String> departments = FluentIterable.from(users).transform(new Function<UserCSV, String>() {
-            @Override
-            public String apply(UserCSV input) {
-                return input.getDepartment();
-            }
-        }).toSet();
-
 
         for (String department : departments) {
             long organizationId;
@@ -339,142 +326,6 @@ public class UserPortlet extends Sw360Portlet {
             user = themeDisplay.getUser();
         else {
             throw new SW360Exception("Broken portlet!");
-        }
-        return user;
-    }
-
-    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String openId, String passwordHash) throws SystemException, PortalException {
-        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        long companyId = themeDisplay.getCompanyId();
-
-        long organizationId = OrganizationLocalServiceUtil.getOrganizationId(companyId, organizationName);
-        final Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
-        long roleId = role.getRoleId();
-
-        return addLiferayUser(request, firstName, lastName, emailAddress, organizationId, roleId, male, openId, passwordHash);
-    }
-
-    /**
-     * Copied from https://github.com/fdelprete/CSV_User_Import-portlet/blob/master/docroot/WEB-INF/src/com/fmdp/csvuserimport/portlet/UserServiceImpl.java
-     * with slight modifications
-     *
-     * @author Filippo Maria Del Prete
-     * <p/>
-     * based on the original work of Paul Butenko
-     * http://java-liferay.blogspot.it/2012/09/how-to-make-users-import-into-liferay.html
-     */
-    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, long organizationId, long roleId, boolean male, String openId, String passwordHash) {
-        User user = null;
-        try {
-            ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-
-            long creatorUserId = themeDisplay.getUserId();
-            long companyId = themeDisplay.getCompanyId();
-
-            boolean autoPassword = false;
-            String password1 = passwordHash;
-            String password2 = passwordHash;
-            boolean autoScreenName = false;
-            String screenName = firstName + lastName;
-            String middleName = "";
-            long facebookId = 0;
-
-            Locale locale = themeDisplay.getLocale();
-            int prefixId = 0;
-            int suffixId = 0;
-            int birthdayMonth = 1;
-            int birthdayDay = 1;
-            int birthdayYear = 1970;
-            String jobTitle = "";
-            long[] groupIds = null;
-            long[] organizationIds = null;
-
-            if (organizationId != 0) {
-                organizationIds = new long[1];
-                organizationIds[0] = organizationId;
-            }
-
-            long[] roleIds = null;
-            if (roleId != 0) {
-                roleIds = new long[1];
-                roleIds[0] = roleId;
-            }
-            long[] userGroupIds = null;
-
-            boolean sendEmail = false;
-
-            ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
-            user = null;
-            boolean userbyscreeenname_exists = true;
-            boolean userbyemail_exists = true;
-
-            try {
-                user = UserLocalServiceUtil.getUserByScreenName(companyId, screenName);
-            } catch (NoSuchUserException nsue) {
-                userbyscreeenname_exists = false;
-            }
-            try {
-                user = UserLocalServiceUtil.getUserByEmailAddress(companyId, emailAddress);
-            } catch (NoSuchUserException nsue) {
-                userbyemail_exists = false;
-            }
-
-            if ((!userbyscreeenname_exists) & (!userbyemail_exists)) {
-                user = UserLocalServiceUtil.addUser(creatorUserId,
-                        companyId,
-                        autoPassword,
-                        password1,
-                        password2,
-                        autoScreenName,
-                        screenName,
-                        emailAddress,
-                        facebookId,
-                        openId,
-                        locale,
-                        firstName,
-                        middleName,
-                        lastName,
-                        prefixId,
-                        suffixId,
-                        male,
-                        birthdayMonth,
-                        birthdayDay,
-                        birthdayYear,
-                        jobTitle,
-                        groupIds,
-                        organizationIds,
-                        roleIds,
-                        userGroupIds,
-                        sendEmail,
-                        serviceContext);
-                user.setPasswordReset(false);
-
-                user.setPassword(passwordHash);
-                user.setPasswordEncrypted(true);
-
-                Role role = RoleLocalServiceUtil.getRole(roleId);
-                RoleUtil.addUser(role.getRoleId(), user.getUserId());
-                UserLocalServiceUtil.updateUser(user);
-                RoleLocalServiceUtil.updateRole(role);
-
-
-                UserLocalServiceUtil.updateStatus(user.getUserId(), WorkflowConstants.STATUS_APPROVED);
-                Indexer indexer = IndexerRegistryUtil.getIndexer(User.class);
-
-                indexer.reindex(user);
-            } else {
-                String msg_exists = "";
-                if (userbyscreeenname_exists) {
-                    msg_exists = msg_exists + "Screen Name is not unique.";
-                }
-                if (userbyemail_exists) {
-                    msg_exists = msg_exists + " Email Address is not unique.";
-                }
-                log.debug(msg_exists);
-                user = null;
-            }
-        } catch (PortalException | SystemException e) {
-            log.error(e);
         }
         return user;
     }
@@ -518,7 +369,7 @@ public class UserPortlet extends Sw360Portlet {
         try {
             user = userRec.addLifeRayUser(request);
             if (user != null) {
-                UserUtils.synchronizeUserWithDatabase(userRec, thriftClients);
+                UserUtils.synchronizeUserWithDatabase(userRec, thriftClients, userRec::getEmail, UserUtils::fillThriftUserFromUserCSV);
             }
         } catch (SystemException | PortalException e) {
             log.error("Error creating a new user", e);

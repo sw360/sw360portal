@@ -39,11 +39,13 @@ public class MailConstants {
     public static final String SUBJECT_FOR_UPDATE_MODERATION_REQUEST = "subjectForUpdateModerationRequest";
     public static final String SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST = "subjectForAcceptedModerationRequest";
     public static final String SUBJECT_FOR_DECLINED_MODERATION_REQUEST = "subjectForDeclinedModerationRequest";
+    public static final String SUBJECT_FOR_DECLINED_USER_MODERATION_REQUEST = "subjectForDeclinedUserModerationRequest";
 
     public static final String TEXT_FOR_NEW_MODERATION_REQUEST = "textForNewModerationRequest";
     public static final String TEXT_FOR_UPDATE_MODERATION_REQUEST = "textForUpdateModerationRequest";
     public static final String TEXT_FOR_ACCEPTED_MODERATION_REQUEST = "textForAcceptedModerationRequest";
     public static final String TEXT_FOR_DECLINED_MODERATION_REQUEST = "textForDeclinedModerationRequest";
+    public static final String TEXT_FOR_DECLINED_USER_MODERATION_REQUEST = "textForDeclinedUserModerationRequest";
 
     private MailConstants() {
         // Utility class with only static functions

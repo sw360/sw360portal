@@ -19,12 +19,15 @@ package com.siemens.sw360.users.db;
 
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
 
 import java.net.MalformedURLException;
 import java.util.List;
+
+import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
 
 /**
  * Class for accessing the CouchDB database
@@ -67,10 +70,18 @@ public class UserDatabaseHandler {
         return RequestStatus.SUCCESS;
     }
 
+    public RequestStatus deleteUser(User user, User adminUser) {
+        if (makePermission(user, adminUser).isActionAllowed(RequestedAction.DELETE)) {
+            repository.remove(user);
+            return RequestStatus.SUCCESS;
+        }
+        return RequestStatus.FAILURE;
+    }
+
     public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) {
 
         MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST,MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST);
+        mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST, MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST, true);
 
         return RequestStatus.SUCCESS;
     }

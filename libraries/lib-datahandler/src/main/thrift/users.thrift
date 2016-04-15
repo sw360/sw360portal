@@ -67,6 +67,7 @@ service UserService {
 
     RequestStatus addUser(1: User user);
     RequestStatus updateUser(1: User user);
+    RequestStatus deleteUser(1: User user, 2: User adminUser);
 
     RequestStatus sendMailForAcceptedModerationRequest(1: string userEmail);
 }

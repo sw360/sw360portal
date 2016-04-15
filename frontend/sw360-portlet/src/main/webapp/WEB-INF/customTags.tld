@@ -552,6 +552,17 @@
         </attribute>
     </tag>
     <tag>
+        <name>UserName</name>
+        <tag-class>com.siemens.sw360.portal.tags.UserName</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>user</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.users.User</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplayProjectLink</name>
         <tag-class>com.siemens.sw360.portal.tags.links.DisplayLinkToProject</tag-class>
         <body-content>JSP</body-content>

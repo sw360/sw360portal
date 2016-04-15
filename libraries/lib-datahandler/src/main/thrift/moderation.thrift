@@ -39,6 +39,7 @@ enum DocumentType {
     RELEASE = 2,
     PROJECT = 3,
     LICENSE = 4,
+    USER = 5,
 }
 
 struct ModerationRequest {
@@ -64,6 +65,7 @@ struct ModerationRequest {
     21: optional Release Release,
     22: optional Project project,
     23: optional License license,
+    24: optional User user,
 }
 
 service ModerationService {
@@ -73,6 +75,7 @@ service ModerationService {
     oneway void createReleaseRequest(1: Release release, 2: User user);
     oneway void createProjectRequest(1: Project project, 2: User user);
     oneway void createLicenseRequest(1: License license, 2: User user);
+    oneway void createUserRequest(1: User user);
 
     // Create a new delete request
     oneway void createComponentDeleteRequest(1: Component component, 2: User user);

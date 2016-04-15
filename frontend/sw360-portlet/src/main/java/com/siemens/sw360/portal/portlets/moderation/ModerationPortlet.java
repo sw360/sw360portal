@@ -18,6 +18,7 @@
 package com.siemens.sw360.portal.portlets.moderation;
 
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
@@ -42,6 +43,7 @@ import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
+import com.siemens.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
@@ -96,13 +98,14 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
                     sessionMessage = "You have cancelled working on the previous moderation request.";
                 } else if (ACTION_DECLINE.equals(request.getParameter(ACTION))) {
-                    client.refuseRequest(id);
+                    declineModerationRequest(user, moderationRequest, request);
 
+                    client.refuseRequest(id);
                     sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
                     String requestingUserEmail = moderationRequest.getRequestingUser();
                     User requestingUser = UserCacheHolder.getUserFromEmail(requestingUserEmail);
-                    acceptModerationRequest(user, requestingUser, moderationRequest);
+                    acceptModerationRequest(user, requestingUser, moderationRequest, request);
 
                     moderationRequest.setModerationState(ModerationState.APPROVED);
                     moderationRequest.setReviewer(user.getEmail());
@@ -128,7 +131,18 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void acceptModerationRequest(User user, User requestingUser, ModerationRequest moderationRequest) throws TException {
+    private void declineModerationRequest(User user, ModerationRequest moderationRequest, RenderRequest request) throws TException {
+        switch (moderationRequest.getDocumentType()) {
+            case USER:
+                UserUtils.deleteLiferayUser(request, moderationRequest.getUser());
+                UserService.Iface userClient = thriftClients.makeUserClient();
+                userClient.deleteUser(UserCacheHolder.getRefreshedUserFromEmail(moderationRequest.getUser().getEmail()), user);
+                break;
+            default:
+                break;
+        }
+    }
+    private void acceptModerationRequest(User user, User requestingUser, ModerationRequest moderationRequest, RenderRequest request) throws TException {
         switch (moderationRequest.getDocumentType()) {
             case COMPONENT: {
                 ComponentService.Iface componentClient = thriftClients.makeComponentClient();
@@ -159,8 +173,13 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             break;
             case LICENSE: {
                 LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
-                    licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
+                licenseClient.updateLicense(moderationRequest.getLicense(), user, requestingUser);
             }
+            break;
+            case USER: {
+                UserUtils.activateLiferayUser(request, moderationRequest.getUser());
+            }
+            break;
         }
         UserService.Iface userClient = thriftClients.makeUserClient();
         userClient.sendMailForAcceptedModerationRequest(moderationRequest.getRequestingUser());
@@ -275,6 +294,9 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                         break;
                     case LICENSE:
                         renderLicenseModeration(request, response, moderationRequest, user);
+                        break;
+                    case USER:
+                        renderUserModeration(request, response, moderationRequest, user);
                         break;
                 }
                 request.setAttribute(PortalConstants.MODERATION_REQUEST, moderationRequest);
@@ -475,6 +497,26 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         include("/html/moderation/licenses/merge.jsp", request, response);
     }
 
+    public void  renderUserModeration(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user) throws IOException, PortletException, TException {
+        User changedUser = null;
+        try {
+            UserService.Iface client = thriftClients.makeUserClient();
+            changedUser = client.getByEmail(moderationRequest.getUser().getEmail());
+            request.setAttribute(PortalConstants.USER, changedUser);
+        } catch (TException e) {
+            log.error("Could not retrieve user", e);
+        }
+
+        if (changedUser == null) {
+            renderNextModeration(request, response, user, "Ignored unretrievable target", thriftClients.makeModerationClient(), moderationRequest);
+            return;
+        }
+
+        List<Organization> organizations = UserUtils.getOrganizations(request);
+        request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
+
+        include("/html/moderation/users/merge.jsp", request, response);
+    }
 
     private Map<Integer, Collection<ReleaseLink>> getLinkedReleases(Map<String, String> releaseIdToUsage) {
         return SW360Utils.getLinkedReleases(releaseIdToUsage, thriftClients, log);

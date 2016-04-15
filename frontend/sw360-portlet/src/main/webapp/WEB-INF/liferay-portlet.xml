@@ -253,9 +253,18 @@
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
         <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
     </portlet>
-    
+
     <portlet>
         <portlet-name>bulkReleaseEdit</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>signup</portlet-name>
         <icon>/icon.png</icon>
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
