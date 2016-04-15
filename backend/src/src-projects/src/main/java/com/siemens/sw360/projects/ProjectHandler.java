@@ -146,7 +146,7 @@ public class ProjectHandler implements ProjectService.Iface {
         assertUser(user);
         assertId(id);
 
-        Project project = handler.getProjectByIdforEdit(id, user);
+        Project project = handler.getProjectForEdit(id, user);
         assertNotNull(project);
 
         return project;
@@ -176,6 +176,10 @@ public class ProjectHandler implements ProjectService.Iface {
         assertUser(user);
 
         return handler.updateProject(project, user);
+    }
+
+    public RequestStatus updateProjectFromModerationRequest(Project projectAdditions, Project projectDeletions, User user){
+        return handler.updateProjectFromAdditionsAndDeletions(projectAdditions, projectDeletions, user);
     }
 
     ///////////////////////////////
@@ -213,16 +217,6 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public Map<String, List<String>> getDuplicateProjects() throws TException {
         return handler.getDuplicateProjects();
-    }
-
-
-    @Override
-    public RequestStatus addAttachmentToProject(String projectId, User user, String attachmentContentId, String fileName) throws TException {
-        Attachment attachment = CommonUtils.getNewAttachment(user, attachmentContentId, fileName, attachmentHandler.getSha1FromAttachmentContentId(attachmentContentId));
-
-        Project projectById = getProjectByIdForEdit(projectId, user);
-        projectById.addToAttachments(attachment);
-        return updateProject(projectById, user);
     }
 
     @Override

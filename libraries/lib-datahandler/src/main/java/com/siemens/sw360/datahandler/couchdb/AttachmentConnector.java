@@ -17,6 +17,7 @@
  */
 package com.siemens.sw360.datahandler.couchdb;
 
+import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
@@ -28,7 +29,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
@@ -85,6 +88,13 @@ public class AttachmentConnector extends AttachmentStreamConnector {
         connector.deleteIds(attachmentContentIds, AttachmentContent.class);
     }
 
+    public void deleteAttachmentDifference(Set<Attachment> before, Set<Attachment> after){
+        if (before == null || before.size() == 0) {
+            return;
+        }
+        deleteAttachments(Sets.difference(before,after));
+    }
+
     public String getSha1FromAttachmentContentId(String attachmentContentId) {
         try {
             AttachmentContent attachmentContent = getAttachmentContent(attachmentContentId);
@@ -96,6 +106,15 @@ public class AttachmentConnector extends AttachmentStreamConnector {
         } catch (IOException e) {
             log.error("Problem computing the sha1 checksum", e);
             return "";
+        }
+    }
+
+    public void setSha1ForAttachments(Set<Attachment> attachments){
+        for(Attachment attachment : attachments){
+            if(isNullOrEmpty(attachment.getSha1())){
+                String sha1 = getSha1FromAttachmentContentId(attachment.getAttachmentContentId());
+                attachment.setSha1(sha1);
+            }
         }
     }
 }

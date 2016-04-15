@@ -32,7 +32,7 @@
     <tr id="releaseLinkRow${loop.count}" >
         <td width="23%">
             <label class="textlabel stackedLabel" for="releaseVendor">Vendor name</label>
-            <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="Enter vendor"
+            <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
                    value="${releaseLink.vendor}" readonly/>
         </td>
         <td width="23%">
@@ -47,7 +47,7 @@
                    value="${releaseLink.version}" readonly/>
         </td>
         <td width="23%">
-            <label class="textlabel stackedLabel mandatory" for="releaseRelation">Release relation</label>
+            <label class="textlabel stackedLabel" for="releaseRelation">Release relation</label>
             <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="Enter release usage"
                    value="${releaseLink.comment}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>"/>
         </td>

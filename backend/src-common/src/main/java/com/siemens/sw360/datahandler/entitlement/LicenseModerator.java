@@ -17,26 +17,30 @@
  */
 package com.siemens.sw360.datahandler.entitlement;
 
+import com.google.common.collect.Maps;
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Moderator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 
 /**
  * Moderation for the license service
  *
  * @author birgit.heydenreich@tngtech.com
- *
  */
-public class LicenseModerator extends Moderator {
+public class LicenseModerator extends Moderator<License._Fields, License> {
 
     private static final Logger log = Logger.getLogger(LicenseModerator.class);
 
@@ -45,7 +49,7 @@ public class LicenseModerator extends Moderator {
         super(thriftClients);
     }
 
-    public LicenseModerator(){
+    public LicenseModerator() {
         super(new ThriftClients());
     }
 
@@ -57,7 +61,52 @@ public class LicenseModerator extends Moderator {
             return RequestStatus.SENT_TO_MODERATOR;
         } catch (TException e) {
             log.error("Could not moderate license " + license.getId() + " for User " + user.getEmail(), e);
-            return  RequestStatus.FAILURE;
+            return RequestStatus.FAILURE;
         }
+    }
+
+    public License updateLicenseFromModerationRequest(License license,
+                                                      License licenseAdditions,
+                                                      License licenseDeletions,
+                                                      String department) {
+        Map<String, Todo> actualTodoMap = Maps.uniqueIndex(nullToEmptyList(license.getTodos()), Todo::getId);
+
+        for (Todo added : nullToEmptyList(licenseAdditions.getTodos())) {
+            if (!added.isSetId()) {
+                log.error("Todo id not set in licenseAdditions.");
+                continue;
+            }
+            if (added.getId().startsWith("tmp")) {
+                if(!license.isSetTodos()){
+                    license.setTodos(new ArrayList<>());
+                }
+                license.getTodos().add(added);
+            } else {
+                Todo actual = actualTodoMap.get(added.getId());
+                if (added.isSetWhitelist() && added.getWhitelist().contains(department)) {
+                    if(!actual.isSetWhitelist()){
+                        actual.setWhitelist(new HashSet<>());
+                    }
+                    actual.getWhitelist().add(department);
+                }
+            }
+        }
+        for (Todo deleted : nullToEmptyList(licenseDeletions.getTodos())) {
+            if (!deleted.isSetId()) {
+                log.error("Todo id is not set in licenseDeletions.");
+                continue;
+            }
+            Todo actual = actualTodoMap.get(deleted.getId());
+            if (actual == null) {
+                log.info("Todo from licenseDeletions does not exist (any more) in license.");
+                continue;
+            }
+            if (deleted.isSetWhitelist() && deleted.getWhitelist().contains(department)) {
+                if (actual.isSetWhitelist() && actual.getWhitelist().contains(department)) {
+                    actual.getWhitelist().remove(department);
+                }
+            }
+        }
+        return license;
     }
 }

@@ -41,7 +41,7 @@
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change Project:  <sw360:ProjectName project="${project}"/></span>
 </p>
-<input type="button" onclick="acceptDelete()" id="edit" value="Accept Request"    class="acceptButton">&nbsp;
+<input type="button" onclick="acceptRequest()" id="edit" value="Accept Request" class="acceptButton">&nbsp;
 <input type="button" onclick="removeFromModerators()" id="edit" value="Remove Me from Moderators"    class="ignoreButton">&nbsp;
 <input type="button" onclick="declineDelete()" id="edit" value="Decline Request"    class="addButton">&nbsp;
 <input type="button" onclick="postPone()" id="edit" value="Postpone Request"    class="postponeButton">&nbsp;
@@ -49,12 +49,13 @@
 
 <h2>Proposed changes</h2>
 <h3>Basic fields</h3>
-<sw360:CompareProject old="${actual_project}" update="${moderationRequest.project}" idPrefix="basicFields" tableClasses="table info_table"/>
+<sw360:DisplayProjectChanges actual="${actual_project}" additions="${moderationRequest.projectAdditions}" deletions="${moderationRequest.projectDeletions}" idPrefix="basicFields" tableClasses="table info_table"/>
 
 <h3>Attachments</h3>
-<sw360:CompareAttachments old="${actual_project.attachments}" update="${moderationRequest.project.attachments}" idPrefix="attachments" tableClasses="table info_table" />
+<sw360:CompareAttachments actual="${actual_project.attachments}" additions="${moderationRequest.projectAdditions.attachments}" deletions="${moderationRequest.projectDeletions.attachments}" idPrefix="attachments" tableClasses="table info_table" />
 
-<h3>Current Project</h3>
+
+<h2>Current Project</h2>
 <div id="content" >
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">
@@ -116,7 +117,7 @@
     }
 
 
-    function acceptDelete() {
+    function acceptRequest() {
         var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_ACCEPT%>');
         window.location = portletURL.toString();
     }

@@ -119,6 +119,8 @@ service LicenseService {
     //Update given license, user must have permission to do so,
     // requestingUser could be same as user or the requesting user from a moderation request
     RequestStatus updateLicense(1: License license, 2: User user, 3: User requestingUser);
+    RequestStatus updateLicenseFromModerationRequest(1: License additions, 2: License deletions, 3: User user, 4: User requestingUser);
+
     // Update the whitelisted todos for an organisation
     RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);
     RequestStatus deleteLicense(1: string licenseId, 2: User user);

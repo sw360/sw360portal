@@ -93,7 +93,7 @@
         </td>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="comp_componenttype">Component Type</label>
+            <label class="textlabel stackedLabel" for="comp_componenttype">Component Type</label>
             <select class="toplabelledInput" id="comp_componenttype" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
                     style="min-width: 162px; min-height: 28px;">
 

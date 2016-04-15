@@ -224,6 +224,8 @@
                    name="<portlet:namespace/><%=Project._Fields.PHASE_OUT_SINCE%>" type="text"
                    value="<sw360:out value="${project.phaseOutSince}"/>" placeholder="Phase out since YYYY-MM-DD"/>
         </td>
+        <td></td>
+        <td></td>
     </tr>
 </table>
 

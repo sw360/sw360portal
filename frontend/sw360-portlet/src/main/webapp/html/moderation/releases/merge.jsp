@@ -37,7 +37,7 @@
              scope="request"/>
 
 <core_rt:set var="release" value="${actual_release}" scope="request"/>
-<core_rt:set var="releaseId" value="${moderationRequest.release.id}" scope="request"/>
+<core_rt:set var="releaseId" value="${moderationRequest.releaseAdditions.id}" scope="request"/>
 
 <portlet:resourceURL var="subscribeReleaseURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.SUBSCRIBE_RELEASE%>"/>
@@ -72,12 +72,13 @@
 
 <h2>Proposed changes</h2>
 <h3>Basic fields</h3>
-<sw360:CompareRelease old="${actual_release}" update="${moderationRequest.release}" idPrefix="basicFields" tableClasses="table info_table"/>
+
+<sw360:DisplayReleaseChanges actual="${actual_release}" additions="${moderationRequest.releaseAdditions}" deletions="${moderationRequest.releaseDeletions}" idPrefix="basicFields" tableClasses="table info_table"/>
 
 <h3>Attachments</h3>
-<sw360:CompareAttachments old="${actual_release.attachments}" update="${moderationRequest.release.attachments}" idPrefix="attachments" tableClasses="table info_table" />
+<sw360:CompareAttachments actual="${actual_release.attachments}" additions="${moderationRequest.releaseAdditions.attachments}" deletions="${moderationRequest.releaseDeletions.attachments}" idPrefix="attachments" tableClasses="table info_table" />
 
-<h3>Current Release</h3>
+<h2>Current Release</h2>
 <div id="content">
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">

@@ -21,6 +21,7 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -81,8 +82,7 @@ public abstract class ComponentPortletUtils {
             }
         }
         // ensure ATTACHMENTS are processed after CLEARING_STATE so that automatic asignment of CLEARING_STATE will not get overwritten by the clearing state from request
-        if (!release.isSetAttachments()) release.setAttachments(new HashSet<Attachment>());
-        PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments());
+        release.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments()));
         CommonUtils.setReleaseClearingStateOnUpdate(release);
     }
 
@@ -120,8 +120,7 @@ public abstract class ComponentPortletUtils {
 
             switch (field) {
                 case ATTACHMENTS:
-                    if (!component.isSetAttachments()) component.setAttachments(new HashSet<Attachment>());
-                    PortletUtils.updateAttachmentsFromRequest(request, component.getAttachments());
+                    component.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, component.getAttachments()));
                     break;
 
 

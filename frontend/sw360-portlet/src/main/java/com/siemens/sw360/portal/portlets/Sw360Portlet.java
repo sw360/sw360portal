@@ -287,9 +287,6 @@ abstract public class Sw360Portlet extends MVCPortlet {
     protected void addEditDocumentMessage(RenderRequest request, Map<RequestedAction, Boolean> permissions, DocumentState documentState) {
 
         List<String> msgs = new ArrayList<>();
-        if (documentState.isIsOriginalDocument()) {
-            msgs.add("You are editing the original document.");
-        }
         if (documentState.isSetModerationState()) {
             ModerationState moderationState = documentState.getModerationState();
             switch (moderationState) {
@@ -308,6 +305,8 @@ abstract public class Sw360Portlet extends MVCPortlet {
 
         if (!permissions.get(RequestedAction.WRITE)) {
             msgs.add("You will create a moderation request if you update.");
+        } else if (documentState.isIsOriginalDocument()) {
+            msgs.add("You are editing the original document.");
         }
 
         SessionMessages.add(request, "request_processed", Joiner.on(" ").join(msgs));

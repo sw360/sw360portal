@@ -40,7 +40,7 @@
         <tr id="releaseLinkRow${loop.count}" >
             <td width="23%">
                 <label class="textlabel stackedLabel" for="releaseVendor">Vendor</label>
-                <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="Enter vendor"
+                <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
                        value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
             </td>
             <td width="23%">
@@ -55,9 +55,9 @@
                        value="<sw360:out value="${releaseLink.version}"/>" readonly/>
             </td>
             <td width="23%">
-                <label class="textlabel stackedLabel mandatory" for="releaseRelation">Release relation</label>
+                <label class="textlabel stackedLabel" for="releaseRelation">Release relation</label>
                 <core_rt:if test="${!releaseLink.setReleaseRelationship}" >
-                <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="Enter release usage"
+                <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
                        value="<sw360:out value="${releaseLink.comment}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>" readonly/>
                 </core_rt:if>
                 <core_rt:if test="${releaseLink.setReleaseRelationship}" >

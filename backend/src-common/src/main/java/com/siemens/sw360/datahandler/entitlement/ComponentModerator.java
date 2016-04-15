@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -32,8 +32,9 @@ import org.apache.thrift.TException;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author birgit.heydenreich@tngtech.com
  */
-public class ComponentModerator extends Moderator {
+public class ComponentModerator extends Moderator<Component._Fields, Component> {
 
     private static final Logger log = Logger.getLogger(ComponentModerator.class);
 
@@ -43,29 +44,6 @@ public class ComponentModerator extends Moderator {
 
     public ComponentModerator() {
         super(new ThriftClients());
-    }
-
-    public RequestStatus updateRelease(Release release, User user) {
-
-        try {
-            ModerationService.Iface client = thriftClients.makeModerationClient();
-            client.createReleaseRequest(release, user);
-            return RequestStatus.SENT_TO_MODERATOR;
-        } catch (TException e) {
-            log.error("Could not moderate release " + release.getId() + " for User " + user.getEmail(), e);
-            return RequestStatus.FAILURE;
-        }
-    }
-
-    public RequestStatus deleteRelease(Release release, User user) {
-        try {
-            ModerationService.Iface client = thriftClients.makeModerationClient();
-            client.createReleaseDeleteRequest(release, user);
-            return RequestStatus.SENT_TO_MODERATOR;
-        } catch (TException e) {
-            log.error("Could not moderate delete release " + release.getId() + " for User " + user.getEmail(), e);
-            return RequestStatus.FAILURE;
-        }
     }
 
     public RequestStatus updateComponent(Component component, User user) {
@@ -80,6 +58,45 @@ public class ComponentModerator extends Moderator {
         }
     }
 
+    public Component updateComponentFromModerationRequest(Component component,
+                                                          Component componentAdditions,
+                                                          Component componentDeletions){
+
+        for (Component._Fields field : Component._Fields.values()) {
+            if(componentAdditions.getFieldValue(field) == null && componentDeletions.getFieldValue(field) == null){
+                continue;
+            }
+
+            switch (field) {
+                case ID:
+                case REVISION:
+                case TYPE:
+                case CREATED_BY:
+                case CREATED_ON:
+                case PERMISSIONS:
+                case DOCUMENT_STATE:
+                    //Releases and aggregates:
+                case RELEASES:
+                case RELEASE_IDS:
+                case MAIN_LICENSE_IDS:
+                case MAIN_LICENSE_NAMES:
+                case LANGUAGES:
+                case OPERATING_SYSTEMS:
+                case VENDOR_NAMES:
+                    break;
+                case ATTACHMENTS:
+                    component.setAttachments( updateAttachments(
+                            component.getAttachments(),
+                            componentAdditions.getAttachments(),
+                            componentDeletions.getAttachments()));
+                    break;
+                default:
+                    component = updateBasicField(field, Component.metaDataMap.get(field), component, componentAdditions, componentDeletions);
+            }
+
+        }
+        return component;
+    }
     public RequestStatus deleteComponent(Component component, User user) {
         try {
             ModerationService.Iface client = thriftClients.makeModerationClient();

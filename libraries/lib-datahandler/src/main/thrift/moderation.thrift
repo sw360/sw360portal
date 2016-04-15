@@ -59,22 +59,29 @@ struct ModerationRequest {
     16: required ModerationState moderationState,
     17: optional string reviewer,
     18: required bool requestDocumentDelete,
+    19: optional string requestingUserDepartment;
 
     // Underlying objects
-    20: optional Component component,
-    21: optional Release Release,
-    22: optional Project project,
-    23: optional License license,
+    20: optional Component componentAdditions,
+    21: optional Release releaseAdditions,
+    22: optional Project projectAdditions,
+    23: optional License licenseAdditions,//only moderation of todos is supported
     24: optional User user,
+
+    30: optional Component componentDeletions,
+    31: optional Release releaseDeletions,
+    32: optional Project projectDeletions,
+    33: optional License licenseDeletions,
+
 }
 
 service ModerationService {
 
     // Create a new moderation request
-    oneway void createComponentRequest(1: Component component, 2: User user);
-    oneway void createReleaseRequest(1: Release release, 2: User user);
-    oneway void createProjectRequest(1: Project project, 2: User user);
-    oneway void createLicenseRequest(1: License license, 2: User user);
+    RequestStatus createComponentRequest(1: Component component, 2: User user);
+    RequestStatus createReleaseRequest(1: Release release, 2: User user);
+    RequestStatus createProjectRequest(1: Project project, 2: User user);
+    RequestStatus createLicenseRequest(1: License license, 2: User user);
     oneway void createUserRequest(1: User user);
 
     // Create a new delete request
@@ -88,8 +95,6 @@ service ModerationService {
     RequestStatus updateModerationRequest(1: ModerationRequest moderationRequest);
     ModerationRequest getModerationRequestById(1: string id);
 
-    // Accept/refuse a moderation request
-    oneway void acceptRequest(1: string requestId);
     oneway void refuseRequest(1: string requestId);
 
     // Refuse to work on moderation request, but keep it open for other moderators

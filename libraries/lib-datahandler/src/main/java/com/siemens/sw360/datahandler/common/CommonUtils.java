@@ -230,7 +230,7 @@ public class CommonUtils {
     }
 
     @NotNull
-    public static Attachment getNewAttachment(User user, String attachmentContentId, String fileName, String sha1) {
+    public static Attachment getNewAttachment(User user, String attachmentContentId, String fileName) {
         Attachment attachment = new Attachment();
         attachment.setCreatedBy(user.getEmail());
         attachment.setCreatedOn(SW360Utils.getCreatedOn());
@@ -241,7 +241,7 @@ public class CommonUtils {
         attachment.setAttachmentType(AttachmentType.DOCUMENT);
         attachment.setCheckStatus(CheckStatus.NOTCHECKED);
         attachment.setCheckedComment("");
-        attachment.setSha1(sha1);
+        attachment.setSha1("");
         return attachment;
     }
 

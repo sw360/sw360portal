@@ -20,10 +20,19 @@ package com.siemens.sw360.portal.tags;
 
 import com.liferay.portal.kernel.servlet.taglib.TagSupport;
 import com.liferay.portal.kernel.util.JavaConstants;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.components.ComponentService;
+import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.users.UserService;
+import org.apache.thrift.TException;
 
 import javax.portlet.PortletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Heavily inspired by com.liferay.taglib.portlet.NamespaceTag
@@ -51,4 +60,5 @@ public class NameSpaceAwareTag extends TagSupport {
             throw new JspException(e);
         }
     }
+
 }

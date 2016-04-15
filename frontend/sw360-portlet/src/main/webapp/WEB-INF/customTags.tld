@@ -267,80 +267,23 @@
     </tag>
 
     <tag>
-        <name>CompareRelease</name>
-        <tag-class>com.siemens.sw360.portal.tags.CompareRelease</tag-class>
+        <name>DisplayProjectChanges</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayProjectChanges</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>old</name>
-            <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.components.Release</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>update</name>
-            <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.components.Release</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-
-        <attribute>
-            <name>idPrefix</name>
-            <required>false</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>tableClasses</name>
-            <required>false</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-    </tag>
-
-    <tag>
-        <name>CompareComponent</name>
-        <tag-class>com.siemens.sw360.portal.tags.CompareComponent</tag-class>
-        <body-content>empty</body-content>
-        <attribute>
-            <name>old</name>
-            <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.components.Component</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>update</name>
-            <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.components.Component</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-
-        <attribute>
-            <name>idPrefix</name>
-            <required>false</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>tableClasses</name>
-            <required>false</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-    </tag>
-
-
-    <tag>
-        <name>CompareProject</name>
-        <tag-class>com.siemens.sw360.portal.tags.CompareProject</tag-class>
-        <body-content>empty</body-content>
-        <attribute>
-            <name>old</name>
+            <name>actual</name>
             <required>true</required>
             <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>update</name>
+            <name>additions</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>deletions</name>
             <required>true</required>
             <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
             <rtexprvalue>true</rtexprvalue>
@@ -361,19 +304,62 @@
     </tag>
 
     <tag>
-        <name>CompareLicense</name>
-        <tag-class>com.siemens.sw360.portal.tags.CompareLicense</tag-class>
+        <name>DisplayComponentChanges</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayComponentChanges</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>old</name>
+            <name>actual</name>
             <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
+            <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>update</name>
+            <name>additions</name>
             <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
+            <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>deletions</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.projects.Project</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>idPrefix</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>tableClasses</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>DisplayReleaseChanges</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayReleaseChanges</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>actual</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.components.Release</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>additions</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.components.Release</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>deletions</name>
+            <required>true</required>
+            <type>com.siemens.sw360.datahandler.thrift.components.Release</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
 
@@ -407,7 +393,18 @@
             <type>java.util.List</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
-
+        <attribute>
+            <name>delete</name>
+            <required>true</required>
+            <type>java.util.List</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>department</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
         <attribute>
             <name>idPrefix</name>
             <required>false</required>
@@ -427,13 +424,19 @@
         <tag-class>com.siemens.sw360.portal.tags.CompareAttachments</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>old</name>
+            <name>actual</name>
             <required>true</required>
             <type>java.util.Set</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>update</name>
+            <name>additions</name>
+            <required>true</required>
+            <type>java.util.Set</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>deletions</name>
             <required>true</required>
             <type>java.util.Set</type>
             <rtexprvalue>true</rtexprvalue>

@@ -231,7 +231,6 @@ struct Component {
 
     // string details
     20: optional string createdBy, // person who created the component in sw360
-    //  22: optional set<string> developers, // developpers linked to the component TODO mcj remove this
     24: optional set<string> subscribers, // List of subscriber information
     25: optional set<string> moderators, // people who can modify the data
 
@@ -306,6 +305,7 @@ service ComponentService {
     RequestStatus updateComponent(1: Component component, 2: User user);
     RequestSummary updateComponents(1: set<Component> components, 2: User user);
     RequestStatus deleteComponent(1: string id, 2: User user);
+    RequestStatus updateComponentFromModerationRequest(1: Component additions, 2: Component deletions, 3: User user);
 
     // Release CRUD support
     string addRelease(1: Release release, 2: User user);
@@ -321,6 +321,7 @@ service ComponentService {
     RequestStatus updateReleaseFossology(1: Release release, 2: User user);
     RequestSummary updateReleases(1: set<Release> releases, 2: User user);
     RequestStatus deleteRelease(1: string id, 2: User user);
+    RequestStatus updateReleaseFromModerationRequest(1: Release additions, 2: Release deletions, 3: User user);
     list<Release> getReleasesByComponentId(1: string id, 2: User user);
 
     set <Component> getUsingComponentsForRelease(1: string releaseId );
@@ -329,10 +330,8 @@ service ComponentService {
     bool releaseIsUsed(1: string releaseId);
     bool componentIsUsed(1: string componentId);
 
-    RequestStatus addAttachmentToComponent(1: string componentId, 2:User user, 3:string attachmentContentId, 4:string filename);
     RequestStatus removeAttachmentFromComponent(1: string componentId, 2:User user, 3:string attachmentContentId);
 
-    RequestStatus addAttachmentToRelease(1: string releaseId, 2:User user, 3:string attachmentContentId, 4:string filename);
     RequestStatus removeAttachmentFromRelease(1: string releaseId, 2:User user, 3:string attachmentContentId);
 
     // These two methods are needed because there is no rights management needed to subscribe

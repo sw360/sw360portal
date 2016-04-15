@@ -42,11 +42,11 @@
         <td width="32%">
             <input type="hidden" value="${projectLink.version}" name="<portlet:namespace/><%=ProjectLink._Fields.VERSION%>">
             <label class="textlabel stackedLabel" for="projectVersion">Project version</label>
-            <input id="projectVersion" type="text" class="toplabelledInput" placeholder="Enter project version"
+            <input id="projectVersion" type="text" class="toplabelledInput" placeholder="No project version"
                    value="<sw360:out value="${projectLink.version}"/>" readonly/>
         </td>
         <td width="32%">
-            <label class="textlabel stackedLabel mandatory" for="projectRelation">Project relation</label>
+            <label class="textlabel stackedLabel" for="projectRelation">Project relation</label>
             <select class="toplabelledInput" id="projectRelation"
                     name="<portlet:namespace/><%=Project._Fields.LINKED_PROJECTS%><%=ProjectLink._Fields.RELATION%>"
                     style="min-width: 162px; min-height: 28px;">

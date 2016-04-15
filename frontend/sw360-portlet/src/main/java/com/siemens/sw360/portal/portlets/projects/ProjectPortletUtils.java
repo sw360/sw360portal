@@ -54,8 +54,7 @@ public class ProjectPortletUtils {
                     break;
 
                 case ATTACHMENTS:
-                    if (!project.isSetAttachments()) project.setAttachments(new HashSet<Attachment>());
-                    PortletUtils.updateAttachmentsFromRequest(request, project.getAttachments());
+                    project.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, project.getAttachments()));
                     break;
                 default:
                     setFieldValue(request, project, field);

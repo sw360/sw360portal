@@ -27,6 +27,7 @@ import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseInstance;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.entitlement.ComponentModerator;
+import com.siemens.sw360.datahandler.entitlement.ReleaseModerator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
@@ -81,6 +82,8 @@ public class ComponentDatabaseHandlerTest {
 
     @Mock
     ComponentModerator moderator;
+    @Mock
+    ReleaseModerator releaseModerator;
 
     @Before
     public void setUp() throws Exception {
@@ -143,7 +146,7 @@ public class ComponentDatabaseHandlerTest {
         releaseMap= ThriftUtils.getIdMap(releases);
 
         // Prepare the handler
-        handler = new ComponentDatabaseHandler(url, dbName, attachmentsDbName, moderator);
+        handler = new ComponentDatabaseHandler(url, dbName, attachmentsDbName, moderator, releaseModerator);
     }
 
     @After
@@ -794,13 +797,13 @@ public class ComponentDatabaseHandlerTest {
         String expected = release.getName();
         release.setName("UPDATED");
 
-        when(moderator.updateRelease(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
+        when(releaseModerator.updateRelease(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
         RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.immutableOfRelease());
         Release actual = handler.getRelease("R1B", user1);
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
         assertEquals(expected, actual.getName());
-        verify(moderator).updateRelease(release, user1);
+        verify(releaseModerator).updateRelease(release, user1);
     }
 
     @Test
@@ -868,13 +871,13 @@ public class ComponentDatabaseHandlerTest {
 
     @Test
     public void testDeleteReleaseNotModerator() throws Exception {
-        when(moderator.deleteRelease(any(Release.class), eq(user1))).thenReturn(RequestStatus.SENT_TO_MODERATOR);
+        when(releaseModerator.deleteRelease(any(Release.class), eq(user1))).thenReturn(RequestStatus.SENT_TO_MODERATOR);
         RequestStatus status = handler.deleteRelease("R1B", user1);
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
         List<Release> releaseSummary = handler.getReleaseSummary();
         assertEquals(5, releaseSummary.size());
         assertTrue("Component NOT deleted", releasesContain(releaseSummary, "R1B"));
-        verify(moderator).deleteRelease(any(Release.class), eq(user1));
+        verify(releaseModerator).deleteRelease(any(Release.class), eq(user1));
     }
 
     private static boolean componentsContain(Collection<Component> components, @NotNull String id) {
