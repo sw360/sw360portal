@@ -1,16 +1,25 @@
 package com.siemens.sw360.portal.tags;
 
 import com.google.common.collect.Sets;
+import com.siemens.sw360.portal.common.PortalConstants;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.PageContext;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static com.siemens.sw360.portal.tags.urlutils.UrlWriterImpl.resourceUrl;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
  * Utils for Tags
@@ -171,4 +180,19 @@ public class TagUtils {
         }
         return fieldDisplay;
     }
+
+    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, String id)
+                                                                                     throws IOException, JspException {
+        name = escapeHtml(" " + name);
+        jspWriter.write("<a href='");
+        resourceUrl(pageContext)
+                .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD)
+                .withParam(PortalConstants.ATTACHMENT_ID, id)
+                .writeUrlToJspWriter();
+        jspWriter.write(format(
+                "'><img src='%s/images/downloadEnable.jpg' alt='Download%s' title='Download%s'/>",
+                ((HttpServletRequest) pageContext.getRequest()).getContextPath(), name, name));
+        jspWriter.write("</a>");
+    }
+
 }
