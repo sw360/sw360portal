@@ -27,6 +27,7 @@ import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +42,7 @@ import static com.siemens.sw360.portal.tags.TagUtils.*;
  * @author Daniele.Fognini@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  */
-public class CompareAttachments extends NameSpaceAwareTag {
+public class CompareAttachments extends ContextAwareTag {
     public static final List<Attachment._Fields> RELEVANT_FIELDS = FluentIterable
             .from(copyOf(Attachment._Fields.values()))
             .filter(CompareAttachments::isFieldRelevant)
@@ -77,10 +78,9 @@ public class CompareAttachments extends NameSpaceAwareTag {
 
         JspWriter jspWriter = pageContext.getOut();
         StringBuilder display = new StringBuilder();
-        String namespace = getNamespace();
 
         try {
-            renderAttachments(display, actual, additions, deletions);
+            renderAttachments(jspWriter, actual, additions, deletions);
 
             String renderString = display.toString();
 
@@ -95,7 +95,10 @@ public class CompareAttachments extends NameSpaceAwareTag {
         return SKIP_BODY;
     }
 
-    private void renderAttachments(StringBuilder display, Set<Attachment> currentAttachments, Set<Attachment> addedAttachments , Set<Attachment> deletedAttachments) {
+    private void renderAttachments(JspWriter jspWriter,
+                                   Set<Attachment> currentAttachments,
+                                   Set<Attachment> addedAttachments ,
+                                   Set<Attachment> deletedAttachments) throws JspException, IOException {
 
         Map<String, Attachment> currentAttachmentsById = getAttachmentsById(currentAttachments);
         Map<String, Attachment> addedAttachmentsById = getAttachmentsById(addedAttachments);
@@ -110,45 +113,55 @@ public class CompareAttachments extends NameSpaceAwareTag {
         deletedAttachmentIds = Sets.difference(deletedAttachmentIds, commonAttachmentIds);
         deletedAttachmentIds = Sets.intersection(deletedAttachmentIds, currentAttachmentIds);//remove what was deleted already in the database
 
-        renderAttachmentList(display, currentAttachmentsById, deletedAttachmentIds, "Deleted");
-        renderAttachmentList(display, addedAttachmentsById, addedAttachmentIds, "Added");
-        renderAttachmentComparison(display, currentAttachmentsById, deletedAttachmentsById, addedAttachmentsById, commonAttachmentIds);
+        renderAttachmentList(jspWriter, currentAttachmentsById, deletedAttachmentIds, "Deleted");
+        renderAttachmentList(jspWriter, addedAttachmentsById, addedAttachmentIds, "Added");
+        renderAttachmentComparison(jspWriter, currentAttachmentsById, deletedAttachmentsById, addedAttachmentsById, commonAttachmentIds);
     }
 
-    private void renderAttachmentList(StringBuilder display, Map<String, Attachment> allAttachments, Set<String> attachmentIds, String msg) {
+    private void renderAttachmentList(JspWriter jspWriter,
+                                      Map<String, Attachment> allAttachments,
+                                      Set<String> attachmentIds, String msg) throws JspException, IOException {
         if (attachmentIds.isEmpty()) return;
-        display.append(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
+        jspWriter.write(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
 
-        renderAttachmentRowHeader(display, msg);
+        renderAttachmentRowHeader(jspWriter, msg);
         for (String attachmentId : attachmentIds) {
-            renderAttachmentRow(display, allAttachments.get(attachmentId));
+            renderAttachmentRow(jspWriter, allAttachments.get(attachmentId));
         }
 
-        display.append("</table>");
+        jspWriter.write("</table>");
     }
 
-    private static void renderAttachmentRowHeader(StringBuilder display, String msg) {
-
-        display.append(String.format("<thead><tr><th colspan=\"%d\"> %s Attachments: </th></tr><tr>", RELEVANT_FIELDS.size(), msg));
+    private void renderAttachmentRowHeader(JspWriter jspWriter, String msg) throws IOException {
+        jspWriter.write(String.format("<thead><tr><th colspan=\"%d\"> %s Attachments: </th></tr><tr>", RELEVANT_FIELDS.size(), msg));
         for (Attachment._Fields field : RELEVANT_FIELDS) {
-            display.append(String.format("<th>%s</th>", field.getFieldName()));
+            jspWriter.write(String.format("<th>%s</th>", field.getFieldName()));
         }
-        display.append("</tr></thead>");
+        jspWriter.write("</tr></thead>");
     }
 
-    private static void renderAttachmentRow(StringBuilder display, Attachment attachment) {
-        display.append("<tr>");
+    private void renderAttachmentRow(JspWriter jspWriter, Attachment attachment) throws JspException, IOException {
+        jspWriter.write("<tr>");
         for (Attachment._Fields field : RELEVANT_FIELDS) {
-
             FieldMetaData fieldMetaData = Attachment.metaDataMap.get(field);
             Object fieldValue = attachment.getFieldValue(field);
-            display.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData, fieldValue)));
-
+            if(field.equals(Attachment._Fields.FILENAME)){
+                jspWriter.append(String.format("<td>%s", getDisplayString(fieldMetaData, fieldValue)));
+                jspWriter.write("<br/>");
+                addDownloadLink(pageContext, jspWriter, attachment.getFilename(), attachment.getAttachmentContentId());
+                jspWriter.append("</td>");
+            } else {
+                jspWriter.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData, fieldValue)));
+            }
         }
-        display.append("</tr>");
+        jspWriter.append("</tr>");
     }
 
-    private void renderAttachmentComparison(StringBuilder display, Map<String, Attachment> currentAttachmentsById, Map<String, Attachment> deletedAttachmentsById, Map<String, Attachment> addedAttachmentsById, Set<String> commonAttachmentIds) {
+    private void renderAttachmentComparison(JspWriter jspWriter,
+                                            Map<String, Attachment> currentAttachmentsById,
+                                            Map<String, Attachment> deletedAttachmentsById,
+                                            Map<String, Attachment> addedAttachmentsById,
+                                            Set<String> commonAttachmentIds) throws IOException {
         if (commonAttachmentIds.isEmpty()) return;
 
         StringBuilder candidate = new StringBuilder();
@@ -160,8 +173,8 @@ public class CompareAttachments extends NameSpaceAwareTag {
         }
         String changedAttachmentTable = candidate.toString();
         if (!changedAttachmentTable.isEmpty()) {
-            display.append("<h4>Changed Attachments</h4>");
-            display.append(changedAttachmentTable);
+            jspWriter.write("<h4>Changed Attachments</h4>");
+            jspWriter.write(changedAttachmentTable);
         }
     }
 
@@ -170,7 +183,8 @@ public class CompareAttachments extends NameSpaceAwareTag {
         if (old.equals(added)) return;
         display.append(String.format("<table class=\"%s\" id=\"%schanges%s\" >", tableClasses, idPrefix, old.getAttachmentContentId()));
         display.append(String.format("<thead><tr><th colspan=\"4\"> Changes for Attachment %s </th></tr>", old.getFilename()));
-        display.append(String.format("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>", FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL));
+        display.append(String.format("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
+                FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL));
 
         for (Attachment._Fields field : RELEVANT_FIELDS) {
 

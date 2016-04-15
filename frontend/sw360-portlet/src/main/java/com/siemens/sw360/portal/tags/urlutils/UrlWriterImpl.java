@@ -23,7 +23,6 @@ import com.liferay.taglib.portlet.ResourceURLTag;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.page.PortletPage;
 import com.siemens.sw360.portal.portlets.PortletProperties;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;

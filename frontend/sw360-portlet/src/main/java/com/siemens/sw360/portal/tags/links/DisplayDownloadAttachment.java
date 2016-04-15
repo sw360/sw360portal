@@ -17,14 +17,12 @@
  */
 package com.siemens.sw360.portal.tags.links;
 
-import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.tags.ContextAwareTag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
-import static com.siemens.sw360.portal.tags.urlutils.UrlWriterImpl.resourceUrl;
-import static java.lang.String.format;
+import static com.siemens.sw360.portal.tags.TagUtils.addDownloadLink;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
@@ -40,18 +38,7 @@ public class DisplayDownloadAttachment extends ContextAwareTag {
     public int doStartTag() throws JspException {
         try {
             JspWriter jspWriter = pageContext.getOut();
-            jspWriter.write("<a href='");
-
-            resourceUrl(pageContext)
-                    .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD)
-                    .withParam(PortalConstants.ATTACHMENT_ID, id)
-                    .writeUrlToJspWriter();
-
-            jspWriter.write(format(
-                    "'><img src='%s/images/downloadEnable.jpg' alt='Download%s' title='Download%s'/>",
-                    getContext(), name, name
-            ));
-            jspWriter.write("</a>");
+            addDownloadLink(pageContext, jspWriter, name, id);
         } catch (Exception e) {
             throw new JspException(e);
         }
