@@ -654,11 +654,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             if (id != null) {
                 Component component = client.getComponentByIdForEdit(id, user);
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
-
                 RequestStatus requestStatus = client.updateComponent(component, user);
                 setSessionMessage(request, requestStatus, "Component", "update", component.getName());
-                cleanUploadHistory(user.getEmail(),id);
-
+                cleanUploadHistory(user.getEmail(),id);                
+                response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
+                response.setRenderParameter(COMPONENT_ID, request.getParameter(COMPONENT_ID));
             } else {
                 Component component = new Component();
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
@@ -667,10 +667,12 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 if (componentId != null) {
                     String successMsg = "Component " + component.getName() + " added successfully";
                     SessionMessages.add(request, "request_processed", successMsg);
+                    response.setRenderParameter(COMPONENT_ID, componentId);
                 } else {
                     String failMsg = "Component was not added successfully";
                     SessionMessages.add(request, "request_processed", failMsg);
                 }
+                response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
             }
 
         } catch (TException e) {
