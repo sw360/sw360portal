@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -241,7 +241,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             for (String linkedId : linkedIds) {
                 Project project = client.getProjectById(linkedId, user);
-                ProjectLink linkedProject = new ProjectLink(linkedId, project.getName(), ProjectRelationship.UNKNOWN);
+                ProjectLink linkedProject = new ProjectLink(linkedId, project.getName());
+                linkedProject.setRelation(ProjectRelationship.UNKNOWN);
                 linkedProject.setVersion(project.getVersion());
                 linkedProjects.add(linkedProject);
             }
@@ -453,7 +454,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
                 setAttachmentsInRequest(request, project.getAttachments());
-                request.setAttribute(PROJECT_LIST, getLinkedProjects(project.getLinkedProjects()));
+                putLinkedProjectsInRequest(request, project.getLinkedProjects());
                 putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
@@ -524,7 +525,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             request.setAttribute(DOCUMENT_ID, id);
 
             setAttachmentsInRequest(request, project.getAttachments());
-            request.setAttribute(PROJECT_LIST, getLinkedProjects(project.getLinkedProjects()));
+            putLinkedProjectsInRequest(request, project.getLinkedProjects());
             putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
 
             request.setAttribute(USING_PROJECTS, usingProjects);
@@ -537,8 +538,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             project.setBusinessUnit(user.getDepartment());
             request.setAttribute(PROJECT, project);
             setAttachmentsInRequest(request, project.getAttachments());
-            request.setAttribute(PROJECT_LIST, Collections.emptyList());
-            request.setAttribute(RELEASE_LIST, Collections.emptyList());
+            putLinkedProjectsInRequest(request, Collections.emptyMap());
+            putLinkedReleasesInRequest(request, Collections.emptyMap());
             request.setAttribute(USING_PROJECTS, Collections.emptySet());
 
             SessionMessages.add(request, "request_processed", "New Project");
@@ -560,7 +561,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project newProject = PortletUtils.cloneProject(emailFromRequest, department, client.getProjectById(id, user));
                 setAttachmentsInRequest(request, newProject.getAttachments());
                 request.setAttribute(PROJECT, newProject);
-                request.setAttribute(PROJECT_LIST, getLinkedProjects(newProject.getLinkedProjects()));
+                putLinkedProjectsInRequest(request, newProject.getLinkedProjects());
                 putLinkedReleasesInRequest(request, newProject.getReleaseIdToUsage());
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             } else {
@@ -569,9 +570,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 setAttachmentsInRequest(request, project.getAttachments());
 
                 request.setAttribute(PROJECT, project);
-                request.setAttribute(PROJECT_LIST, Collections.emptyList());
-                request.setAttribute(RELEASE_LIST, Collections.emptyList());
-                putLinkedReleasesInRequest(request, Collections.<String, String>emptyMap());
+                putLinkedProjectsInRequest(request, Collections.emptyMap());
+                putLinkedReleasesInRequest(request, Collections.emptyMap());
 
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             }
@@ -580,15 +580,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
 
     }
-
-    private Map<Integer, Collection<ReleaseLink>> getLinkedReleases(Map<String, String> releaseIdToUsage) {
-        return SW360Utils.getLinkedReleases(releaseIdToUsage, thriftClients, log);
-    }
-
-    private List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> linkedProjects) {
-        return SW360Utils.getLinkedProjects(linkedProjects, thriftClients, log);
-    }
-
 
     private Set<Project> getAccessibleProjects(User user) {
         Set<Project> projects;

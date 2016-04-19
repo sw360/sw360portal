@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -109,8 +109,10 @@ struct Project {
 struct ProjectLink {
     1: required string id,
     2: required string name,
-    3: required ProjectRelationship relation,
-    4: optional string version
+    3: optional ProjectRelationship relation,
+    4: optional string version,
+    //This is to indicate the depth of the link (I link to a, a links to b, so b has depth 2)
+    20: optional i32 depth,
 }
 
 service ProjectService {
