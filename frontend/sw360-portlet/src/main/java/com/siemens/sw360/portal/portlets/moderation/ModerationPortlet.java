@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -23,21 +23,16 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
 import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
@@ -55,7 +50,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.add;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 
@@ -478,7 +472,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     private void prepareProject(RenderRequest request, User user, Project actual_project) {
         try {
             ProjectService.Iface client = thriftClients.makeProjectClient();
-            request.setAttribute(PortalConstants.PROJECT_LIST, getLinkedProjects(actual_project.getLinkedProjects()));
+            putLinkedProjectsInRequest(request, actual_project.getLinkedProjects());
             putLinkedReleasesInRequest(request, actual_project.getReleaseIdToUsage());
             Set<Project> usingProjects = client.searchLinkingProjects(actual_project.getId(), user);
             request.setAttribute(USING_PROJECTS, usingProjects);
@@ -533,14 +527,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
 
         include("/html/moderation/users/merge.jsp", request, response);
-    }
-
-    private Map<Integer, Collection<ReleaseLink>> getLinkedReleases(Map<String, String> releaseIdToUsage) {
-        return SW360Utils.getLinkedReleases(releaseIdToUsage, thriftClients, log);
-    }
-
-    private List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> linkedProjects) {
-        return SW360Utils.getLinkedProjects(linkedProjects, thriftClients, log);
     }
 
     private UnsupportedOperationException unsupportedActionException() {

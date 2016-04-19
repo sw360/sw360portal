@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -224,18 +224,41 @@ public class ProjectDatabaseHandler {
 
     public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations) {
         List<ProjectLink> out = new ArrayList<>();
-        for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
-            Project project = repository.get(entry.getKey());
-            if (project != null) {
-                ProjectLink projectLink = new ProjectLink(project.id, project.name, entry.getValue());
-                projectLink.setVersion(project.version);
-                out.add(projectLink);
-            } else {
-                log.error("Broken ProjectLink in project with id: " + entry.getKey() + ", received null from DB");
+        final List<Project> projects = repository.getAll();
+        final Map<String, Project> projectMap = ThriftUtils.getIdMap(projects);
+
+        Set<String> visitedIds = new HashSet<>();
+        int depth = 0;
+
+        Map<String, ProjectRelationship> addedProjectRelationships = iterateProjectRelationShips(relations, out, projectMap, visitedIds, depth);
+
+        while (!addedProjectRelationships.isEmpty()) {
+            addedProjectRelationships = iterateProjectRelationShips(addedProjectRelationships, out, projectMap, visitedIds, ++depth);
+        }
+        return out;
+    }
+
+    private Map<String, ProjectRelationship> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, List<ProjectLink> out, Map<String, Project> projectMap, Set<String> visitedIds, int depth) {
+        Map<String, ProjectRelationship> addedProjectRelationShips = new HashMap<>();
+
+        for (Map.Entry<String, ?> entry : relations.entrySet()) {
+            String id = entry.getKey();
+            if (visitedIds.add(id)) {
+                Project project = projectMap.get(id);
+                if (project != null) {
+                    final ProjectLink projectLink = new ProjectLink(id, project.name);
+                    projectLink.setRelation(((Map.Entry<String, ProjectRelationship>) entry).getValue());
+                    projectLink.setDepth(depth);
+                    if (project.isSetLinkedProjects()) {
+                        addedProjectRelationShips.putAll(project.getLinkedProjects());
+                    }
+                    out.add(projectLink);
+                } else {
+                    log.error("Broken ProjectLink in project with id: " + entry.getKey() + ", received null from DB");
+                }
             }
         }
-
-        return out;
+        return addedProjectRelationShips;
     }
 
     public Set<Project> searchByReleaseId(String id, User user) {
