@@ -42,6 +42,7 @@
 
 
 <core_rt:set var="softwarePlatformsAutoC" value='<%=PortalConstants.SOFTWARE_PLATFORMS%>'/>
+<core_rt:set var="componentCategoriesAutocomplete" value='<%=PortalConstants.COMPONENT_CATEGORIES%>'/>
 
 <core_rt:set var="componentDivAddMode" value="${empty component.id}"/>
 
@@ -145,6 +146,7 @@
     $(document).ready(function () {
         contextpath = '<%=request.getContextPath()%>';
         prepareAutocompleteForMultipleHits('comp_platforms', ${softwarePlatformsAutoC});
+        prepareAutocompleteForMultipleHits('comp_categories', ${componentCategoriesAutocomplete});
         $('#componentEditForm').validate({
             invalidHandler: invalidHandlerShowErrorTab
         });
