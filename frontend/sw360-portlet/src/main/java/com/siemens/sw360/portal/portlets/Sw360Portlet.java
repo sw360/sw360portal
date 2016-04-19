@@ -32,10 +32,10 @@ import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseRelationship;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
+import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
@@ -52,6 +52,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.liferay.portal.kernel.util.WebKeys.THEME_DISPLAY;
 import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_DEPTH_MAP;
 import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_LIST;
+import static com.siemens.sw360.portal.common.PortalConstants.PROJECT_DEPTH_MAP;
+import static com.siemens.sw360.portal.common.PortalConstants.PROJECT_LIST;
 
 
 abstract public class Sw360Portlet extends MVCPortlet {
@@ -313,27 +315,29 @@ abstract public class Sw360Portlet extends MVCPortlet {
     }
 
     protected void putLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
-        final Map<Integer, Collection<ReleaseLink>> nonImmutableMap = Maps.newHashMap(SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log));
-        if (nonImmutableMap.containsKey(0)) {
-            request.setAttribute(RELEASE_LIST, Lists.newArrayList(nonImmutableMap.get(0)));
-            nonImmutableMap.remove(0);
-        } else {
-            request.setAttribute(RELEASE_LIST, Collections.emptyList());
-        }
-        request.setAttribute(RELEASE_DEPTH_MAP, nonImmutableMap);
+        final Map<Integer, Collection<?>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log));
+        putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
     }
 
     protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) {
-        final Map<Integer, Collection<ReleaseLink>> nonImmutableMap = Maps.newHashMap(SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log));
-        if (nonImmutableMap.containsKey(0)) {
-            request.setAttribute(RELEASE_LIST, Lists.newArrayList(nonImmutableMap.get(0)));
-            nonImmutableMap.remove(0);
-        } else {
-            request.setAttribute(RELEASE_LIST, Collections.emptyList());
-        }
-        request.setAttribute(RELEASE_DEPTH_MAP, nonImmutableMap);
+        final Map<Integer, Collection<?>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log));
+        putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
     }
 
+    protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
+        final Map<Integer, Collection<?>> depthMap = Maps.newHashMap(SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log));
+        putLinkedObjectsInRequest(request, depthMap, PROJECT_LIST, PROJECT_DEPTH_MAP);
+    }
+
+    private void putLinkedObjectsInRequest(RenderRequest request, Map<Integer, Collection<?>> depthMap, String listBeanName, String depthMapBeanName) {
+        if (depthMap.containsKey(0)) {
+            request.setAttribute(listBeanName, Lists.newArrayList(depthMap.get(0)));
+            depthMap.remove(0);
+        } else {
+            request.setAttribute(listBeanName, Collections.emptyList());
+        }
+        request.setAttribute(depthMapBeanName, depthMap);
+    }
 }
 
 

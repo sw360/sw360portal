@@ -17,7 +17,6 @@
  */
 package com.siemens.sw360.datahandler.common;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -37,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -164,17 +164,17 @@ public class SW360Utils {
         return user.getEmail();
     }
 
-    public static List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
+    public static Map<Integer, Collection<ProjectLink>> getLinkedProjects(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
         if (in != null) {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
-                return client.getLinkedProjects(in);
+                List<ProjectLink> linkedProjects = client.getLinkedProjects(in);
+                return getDepthMap(linkedProjects);
             } catch (TException e) {
                 log.error("Could not get linked projects", e);
             }
         }
-        return Collections.emptyList();
-
+        return Collections.emptyMap();
     }
 
     public static Map<Integer, Collection<ReleaseLink>> getLinkedReleases(Map<String, String> releaseUsage, ThriftClients thriftClients, Logger log) {
@@ -204,11 +204,15 @@ public class SW360Utils {
         return Collections.emptyMap();
     }
 
-    private static ImmutableMap<Integer, Collection<ReleaseLink>> getDepthMap(List<ReleaseLink> linkedReleases) {
-        return Multimaps.index(linkedReleases, new Function<ReleaseLink, Integer>() {
-            @Override
-            public Integer apply(ReleaseLink input) {
-                return input.getDepth();
+    private static <T> ImmutableMap<Integer, Collection<T>> getDepthMap(List<T> links) {
+        return Multimaps.index(links, input -> {
+            // duck typed ReleaseLink and ProjectLink, because Thrift types do not support inheritance
+            // and therefore a common ancestor could not be extracted
+            try {
+                Object depthObj = input.getClass().getMethod("getDepth", new Class[]{}).invoke(input);
+                return (Integer) depthObj;
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+                throw new IllegalStateException("Links MUST have a method `public int getDepth()`", e);
             }
         }).asMap();
     }

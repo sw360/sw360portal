@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -34,28 +34,29 @@
     <tr>
         <th colspan="4" class="headlabel">Linked Releases</th>
     </tr>
-    </thead>
+    <tr>
+        <th>Vendor</th>
+        <th>Release name</th>
+        <th>Release version</th>
+        <th>Release relation</th>
+    </tr>    </thead>
     <tbody>
     <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
         <tr id="releaseLinkRow${loop.count}" >
             <td width="23%">
-                <label class="textlabel stackedLabel" for="releaseVendor">Vendor</label>
                 <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
                        value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
             </td>
             <td width="23%">
                 <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.ID%>">
-                <label class="textlabel stackedLabel" for="releaseName">Release name</label>
                 <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
                        value="<sw360:out value="${releaseLink.name}"/>" readonly/>
             </td>
             <td width="23%">
-                <label class="textlabel stackedLabel" for="releaseVersion">Release version</label>
                 <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
                        value="<sw360:out value="${releaseLink.version}"/>" readonly/>
             </td>
             <td width="23%">
-                <label class="textlabel stackedLabel" for="releaseRelation">Release relation</label>
                 <core_rt:if test="${!releaseLink.setReleaseRelationship}" >
                 <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
                        value="<sw360:out value="${releaseLink.comment}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>" readonly/>
