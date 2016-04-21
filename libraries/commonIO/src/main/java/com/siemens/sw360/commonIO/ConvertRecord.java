@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -277,7 +277,7 @@ public class ConvertRecord {
             String identifier = record.get(0);
             String fullname = record.get(1);
 
-            License license = new License().setShortname(identifier).setFullname(fullname);
+            License license = new License().setId(identifier).setFullname(fullname);
 
 
             String typeString = record.get(2);
@@ -341,7 +341,7 @@ public class ConvertRecord {
                     @Override
                     public List<String> apply(License in) {
                         final ArrayList<String> out = new ArrayList<>(7);
-                        out.add(CommonUtils.nullToEmptyString(in.getShortname()));
+                        out.add(CommonUtils.nullToEmptyString(in.getId()));
                         out.add(CommonUtils.nullToEmptyString(in.getFullname()));
                         out.add(in.isSetLicenseType()?((Integer) in.getLicenseType().getLicenseTypeId()).toString():"");
                         out.add(in.isSetGPLv2Compat()?((Boolean) in.isGPLv2Compat()).toString():"");
@@ -452,7 +452,7 @@ public class ConvertRecord {
         for (License license : licenses) {
             if (license.isSetTodos()) {
                 for (Todo todo : license.getTodos()) {
-                    licenseToTodo.put(license.getShortname(), todo.getTodoId());
+                    licenseToTodo.put(license.getId(), todo.getTodoId());
                 }
             }
         }
@@ -466,7 +466,7 @@ public class ConvertRecord {
         for (License license : licenses) {
             if (license.isSetRisks()) {
                 for (Risk risk : license.getRisks()) {
-                    licenseToRisk.put(license.getShortname(), risk.getRiskId());
+                    licenseToRisk.put(license.getId(), risk.getRiskId());
                 }
             }
         }

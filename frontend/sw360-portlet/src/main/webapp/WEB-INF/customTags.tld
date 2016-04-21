@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -217,23 +217,6 @@
             <name>licenseIds</name>
             <required>false</required>
             <type>java.util.Set</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-    </tag>
-    <tag>
-        <name>DisplayLicenseCollection</name>
-        <tag-class>com.siemens.sw360.portal.tags.DisplayLicenseCollection</tag-class>
-        <body-content>empty</body-content>
-        <attribute>
-            <name>licenseIds</name>
-            <required>true</required>
-            <type>java.util.Collection</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>userEmail</name>
-            <required>true</required>
-            <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
@@ -599,9 +582,9 @@
         <tag-class>com.siemens.sw360.portal.tags.links.DisplayLinkToLicense</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>license</name>
+            <name>licenseId</name>
             <required>true</required>
-            <type>com.siemens.sw360.datahandler.thrift.licenses.License</type>
+            <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>

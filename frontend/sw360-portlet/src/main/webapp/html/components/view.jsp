@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -24,6 +24,8 @@
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
 
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
+
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
@@ -37,6 +39,7 @@
 <jsp:useBean id="componentType" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorList" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorNames" class="java.lang.String" scope="request"/>
+<jsp:useBean id="mainLicenseIds" class="java.lang.String" scope="request"/>
 <jsp:useBean id="searchtext" class="java.lang.String" scope="request"/>
 <jsp:useBean id="searchfilter" class="java.lang.String" scope="request"/>
 
@@ -163,6 +166,14 @@
                            value="${vendorNames}" id="vendor_names">
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <label for="main_licenses">Main Licenses</label>
+                    <input type="text" class="searchbar"
+                           name="<portlet:namespace/><%=Component._Fields.MAIN_LICENSE_IDS%>"
+                           value="${mainLicenseIds}" id="main_licenses">
+                </td>
+            </tr>
             </tbody>
         </table>
         <br/>
@@ -232,7 +243,7 @@
             "DT_RowId": "${component.id}",
             "0": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
             "1": "<a href='" + createDetailURLfromComponentId("${component.id}") + "' target='_self'><sw360:out value="${component.name}"/></a>",
-            "2": "<sw360:out value="${component.description}" maxChar="140" jsQuoting="\""/>",
+            "2": `<tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}"/>`,
             "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
             "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
             + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '${component.name}')\"  alt='Delete' title='Delete'>"
@@ -241,11 +252,12 @@
 
         oTable = $('#componentsTable').DataTable({
             "sPaginationType": "full_numbers",
+            "iDisplayLength": 25,
             "aaData": result,
             "aoColumns": [
                 {"sTitle": "Vendor"},
                 {"sTitle": "Component Name"},
-                {"sTitle": "Description"},
+                {"sTitle": "Main Licenses"},
                 {"sTitle": "Component Type"},
                 {"title": "Actions"}
             ]

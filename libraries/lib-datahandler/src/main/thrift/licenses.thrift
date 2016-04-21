@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -81,7 +81,7 @@ struct License {
 	 1: optional string id,
 	 2: optional string revision,
 	 3: optional string type = "license",
-	 4: required string shortname, // Short name of the license
+	 4: optional string shortname, // Short name of the license
 	 5: required string fullname,
 	 6: optional LicenseType licenseType,
 	 7: optional string licenseTypeDatabaseId,

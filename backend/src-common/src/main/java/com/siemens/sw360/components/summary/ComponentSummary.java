@@ -99,7 +99,7 @@ public class ComponentSummary extends DocumentSummary<Component> {
 
 
         if (type == SummaryType.SUMMARY) {
-            copyField(document, copy, Component._Fields.DESCRIPTION);
+            copyField(document, copy, Component._Fields.MAIN_LICENSE_IDS);
             copyField(document, copy, Component._Fields.CATEGORIES);
         }
 

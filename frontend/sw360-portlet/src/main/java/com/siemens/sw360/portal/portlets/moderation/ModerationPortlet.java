@@ -104,7 +104,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     declineModerationRequest(user, moderationRequest, request);
 
                     client.refuseRequest(id);
-
                     sessionMessage = "You have declined the previous moderation request";
                 } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
                     String requestingUserEmail = moderationRequest.getRequestingUser();
@@ -352,7 +351,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         if (refuseToDeleteUsedDocument(request, response, moderationRequest, user, requestDocumentDelete, is_used))
             return;
 
-        prepareComponent(request, user, actual_component, moderationRequest);
+        prepareComponent(request, user, actual_component);
         request.setAttribute(PortalConstants.ACTUAL_COMPONENT, actual_component);
         if (moderationRequest.isRequestDocumentDelete()) {
             include("/html/moderation/components/delete.jsp", request, response);
@@ -361,14 +360,11 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void prepareComponent(RenderRequest request, User user, Component actualComponent, ModerationRequest moderationRequest) {
+    private void prepareComponent(RenderRequest request, User user, Component actualComponent) {
         List<Release> releases;
 
         releases = CommonUtils.nullToEmptyList(actualComponent.getReleases());
         Set<String> releaseIds = SW360Utils.getReleaseIds(releases);
-
-        final Component moderatedComponent = moderationRequest.getComponentAdditions();
-        setLicenseNames(user, actualComponent, moderatedComponent);
 
         Set<Project> usingProjects = null;
 
@@ -407,7 +403,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         if (refuseToDeleteUsedDocument(request, response, moderationRequest, user, requestDocumentDelete, is_used))
             return;
 
-        prepareRelease(request, user, actual_release, moderationRequest);
+        prepareRelease(request, user, actual_release);
         request.setAttribute(PortalConstants.ACTUAL_RELEASE, actual_release);
         if (requestDocumentDelete) {
             include("/html/moderation/releases/delete.jsp", request, response);
@@ -426,11 +422,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         return false;
     }
 
-    private void prepareRelease(RenderRequest request, User user, Release actualRelease, ModerationRequest moderationRequest) {
-
-        final Release moderatedRelease = moderationRequest.getReleaseAdditions();
-
-        setLicenseNames(user, actualRelease, moderatedRelease);
+    private void prepareRelease(RenderRequest request, User user, Release actualRelease) {
 
         String actualReleaseId = actualRelease.getId();
         request.setAttribute(DOCUMENT_ID, actualReleaseId);
@@ -553,34 +545,6 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
     private UnsupportedOperationException unsupportedActionException() {
         throw new UnsupportedOperationException("cannot call this action on the moderation portlet");
-    }
-
-    private static void setLicenseNames(User user, Component actualComponent, Component moderatedComponent) {
-        Set<String> licenseIds = new HashSet<>();
-        if (actualComponent.isSetMainLicenseIds()) {
-            licenseIds.addAll(actualComponent.getMainLicenseIds());
-        }
-        if (moderatedComponent.isSetMainLicenseIds()) {
-            licenseIds.addAll(moderatedComponent.getMainLicenseIds());
-        }
-
-        Map<String, License> idToLicense = SW360Utils.getStringLicenseMap(user, licenseIds);
-        SW360Utils.setLicenseNames(actualComponent, idToLicense);
-        SW360Utils.setLicenseNames(moderatedComponent, idToLicense);
-    }
-
-    private static void setLicenseNames(User user, Release actualRelease, Release moderatedRelease) {
-        Set<String> licenseIds = new HashSet<>();
-        if (actualRelease.isSetMainLicenseIds()) {
-            licenseIds.addAll(actualRelease.getMainLicenseIds());
-        }
-        if (moderatedRelease.isSetMainLicenseIds()) {
-            licenseIds.addAll(moderatedRelease.getMainLicenseIds());
-        }
-
-        Map<String, License> idToLicense = SW360Utils.getStringLicenseMap(user, licenseIds);
-        SW360Utils.setLicenseNames(actualRelease, idToLicense);
-        SW360Utils.setLicenseNames(moderatedRelease, idToLicense);
     }
 
     @Override

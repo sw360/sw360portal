@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -21,6 +21,7 @@ package com.siemens.sw360.components.db;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.TestUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
@@ -98,16 +99,16 @@ public class ComponentDatabaseHandlerTest {
 
 
         components = new ArrayList<>();
-        Component component1 = new Component().setId("C1").setName("component1").setDescription("d1").setCreatedBy(email1);
+        Component component1 = new Component().setId("C1").setName("component1").setDescription("d1").setCreatedBy(email1).setMainLicenseIds(new HashSet<>(Arrays.asList("lic1")));
         component1.addToReleaseIds("R1A");
         component1.addToReleaseIds("R1B");
         components.add(component1);
-        Component component2 = new Component().setId("C2").setName("component2").setDescription("d2").setCreatedBy(email2);
+        Component component2 = new Component().setId("C2").setName("component2").setDescription("d2").setCreatedBy(email2).setMainLicenseIds(new HashSet<>(Arrays.asList("lic2")));
         component2.addToReleaseIds("R2A");
         component2.addToReleaseIds("R2B");
         component2.addToReleaseIds("R2C");
         components.add(component2);
-        Component component3 = new Component().setId("C3").setName("component3").setDescription("d3").setCreatedBy(email1);
+        Component component3 = new Component().setId("C3").setName("component3").setDescription("d3").setCreatedBy(email1).setMainLicenseIds(new HashSet<>(Arrays.asList("lic3")));
         component3.addToSubscribers(email1);
         component3.addToLanguages("E");
         components.add(component3);
@@ -220,7 +221,7 @@ public class ComponentDatabaseHandlerTest {
                 // Fields that are defined
                 case ID:
                 case NAME:
-                case DESCRIPTION:
+                case MAIN_LICENSE_IDS:
                 case PERMISSIONS:
                     assertTrue(field.getFieldName(), isSet);
                     break;

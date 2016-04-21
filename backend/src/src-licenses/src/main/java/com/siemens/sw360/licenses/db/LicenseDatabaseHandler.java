@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -375,7 +375,7 @@ public class LicenseDatabaseHandler {
 
             dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit);
 
-            if(dbLicense.isSetId()) {
+            if(inputLicense.isSetId()) {
                 licenseRepository.update(dbLicense);
             } else {
                 licenseRepository.add(dbLicense);
@@ -411,7 +411,8 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setShortname(inputLicense.getShortname());
+        license.setId(inputLicense.getShortname());
+        license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
         license.setGPLv2Compat(inputLicense.GPLv2Compat);

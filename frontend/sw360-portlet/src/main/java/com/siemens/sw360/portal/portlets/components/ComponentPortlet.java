@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -90,7 +90,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private static final ImmutableList<Component._Fields> componentFilteredFields = ImmutableList.of(Component._Fields.CATEGORIES,
-            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES, Component._Fields.COMPONENT_TYPE);
+            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES, Component._Fields.COMPONENT_TYPE, Component._Fields.MAIN_LICENSE_IDS);
 
     //! Serve resource and helpers
     @Override
@@ -473,8 +473,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             try {
                 ComponentService.Iface client = thriftClients.makeComponentClient();
                 Component component = client.getComponentById(id, user);
-                final Set<String> licenseNames = new HashSet<>(SW360Utils.getLicenseNamesFromIds(component.getMainLicenseIds(), user.getDepartment()));
-                component.setMainLicenseNames(licenseNames);
 
                 request.setAttribute(COMPONENT, component);
                 request.setAttribute(DOCUMENT_ID, id);
@@ -525,8 +523,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
             if (!isNullOrEmpty(releaseId)) {
                 release = client.getReleaseById(releaseId, user);
-                final Set<String> licenseNames = new HashSet<>(SW360Utils.getLicenseNamesFromIds(release.getMainLicenseIds(), user.getDepartment()));
-                release.setMainLicenseNames(licenseNames);
 
                 request.setAttribute(RELEASE_ID, releaseId);
                 request.setAttribute(RELEASE, release);

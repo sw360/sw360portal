@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -15,6 +15,7 @@
   ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   ~ 02110-1301, USA.
 --%>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <div class="up_Summary" id="up_Summary"><p><sw360:out value="${component.description}" maxChar="500"/></p></div>
 <table class="table info_table" id="componentOverview" title="Component detail overview">
     <thead>
@@ -81,6 +82,6 @@
     </tr>
     <tr>
         <td>Main licenses of contained releases:</td>
-        <td><sw360:DisplayCollection value="${component.mainLicenseNames}" /></td>
+        <td><tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}"/></td>
     </tr>
 </table>

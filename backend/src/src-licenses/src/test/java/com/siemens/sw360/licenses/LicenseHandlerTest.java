@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -90,9 +90,8 @@ public class LicenseHandlerTest {
         assertEquals(summary.size(), licenses.size());
 
         for (License license : summary) {
-            // Only those three fields should be present
+            // Only those two fields should be present
             assertNotNull(license.id);
-            assertNotNull(license.shortname);
             assertNotNull(license.fullname);
             // The rest should not be set
             assertFalse(license.isSetTodoDatabaseIds());
@@ -108,7 +107,6 @@ public class LicenseHandlerTest {
 
         assertEquals(expLicense.getId(), actLicense.getId());
         assertEquals(expLicense.getFullname(), actLicense.getFullname());
-        assertEquals(expLicense.getShortname(), actLicense.getShortname());
         assertEquals(expLicense.getTodoDatabaseIdsSize(), actLicense.getTodosSize());
 
         // Check obligations
@@ -151,8 +149,7 @@ public class LicenseHandlerTest {
         obligations = new HashMap<>();
 
         License license1 = new License();
-        license1.setId("L1");
-        license1.setShortname("Apache 1.1");
+        license1.setId("Apache 1.1");
         license1.setFullname("The Apache Software License, Version 1.1");
         license1.setLicenseType(new LicenseType().setLicenseTypeId(3).setType("Red - copyleft effect"));
         license1.addToRisks(new Risk().setRiskId(123123).setText("If Siemens uses this contractor pattern a long text follows here for reading and display... this might be long.").setCategory(new RiskCategory().setRiskCategoryId(32).setText("Beige")));
@@ -161,16 +158,15 @@ public class LicenseHandlerTest {
         license1.addToTodoDatabaseIds("T1");
         license1.addToTodoDatabaseIds("T2");
         license1.addToTodoDatabaseIds("T5");
-        licenses.put(license1.shortname, license1);
+        licenses.put(license1.id, license1);
 
         License license2 = new License();
-        license2.setId("L2");
-        license2.setShortname("Apache 2.0");
+        license2.setId("Apache 2.0");
         license2.setFullname("The Apache Software License, Version 2.0");
         license2.setReviewdate("12.12.2012");
         license2.addToTodoDatabaseIds("T3");
         license2.addToTodoDatabaseIds("T4");
-        licenses.put(license2.shortname, license2);
+        licenses.put(license2.id, license2);
 
         Todo todo1 = new Todo().setId("T1").setText("You must include the acknowledgement as part of the documentation for the end user. An example looks as following:  This product includes software developed by the Apache Software Foundation (http://www.apache.org/).");
         todo1.addToObligationDatabaseIds("O1");

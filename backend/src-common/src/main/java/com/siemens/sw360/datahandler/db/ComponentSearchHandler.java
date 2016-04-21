@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -71,6 +71,9 @@ public class ComponentSearchHandler {
                     "    }" +
                     "    for(var i in doc.vendorNames) {" +
                     "      ret.add(doc.vendorNames[i], {\"field\": \"vendorNames\"} );" +
+                    "    }" +
+                    "    for(var i in doc.mainLicenseIds) {" +
+                    "      ret.add(doc.mainLicenseIds[i], {\"field\": \"mainLicenseIds\"} );" +
                     "    }" +
                     "        ret.add(doc.componentType, {\"field\": \"componentType\"} );" +
                     "    return ret;" +

@@ -120,5 +120,9 @@
                     $('#licenseEditForm').submit();
                 }
         );
+
+        $('#lic_shortname').autocomplete({
+            source: <%=PortalConstants.LICENSE_IDENTIFIERS%>
+        });
     });
 </script>

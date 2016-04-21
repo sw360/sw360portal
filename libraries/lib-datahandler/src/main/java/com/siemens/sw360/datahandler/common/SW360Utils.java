@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -151,10 +151,10 @@ public class SW360Utils {
     }
 
     public static String printName(License license) {
-        if (license == null || isNullOrEmpty(license.getShortname())) {
+        if (license == null || isNullOrEmpty(license.getId())) {
             return "New License";
         }
-        return license.getShortname();
+        return license.getId();
     }
 
     public static String printName(User user) {
@@ -242,26 +242,6 @@ public class SW360Utils {
             resultList.add(license.getFullname());
         }
         return resultList;
-    }
-
-    public static void setLicenseNames(Release release, Map<String, License> idToLicense) {
-        if (release.isSetMainLicenseIds()) {
-            Set<String> licenseNames = new HashSet<>();
-            for (String licenseId : release.getMainLicenseIds()) {
-                licenseNames.add(idToLicense.get(licenseId).getFullname());
-            }
-            release.setMainLicenseNames(licenseNames);
-        }
-    }
-
-    public static void setLicenseNames(Component component, Map<String, License> idToLicense) {
-        if (component.isSetMainLicenseIds()) {
-            Set<String> licenseNames = new HashSet<>();
-            for (String s : component.getMainLicenseIds()) {
-                licenseNames.add(idToLicense.get(s).getFullname());
-            }
-            component.setMainLicenseNames(licenseNames);
-        }
     }
 
     public static Map<String, License> getStringLicenseMap(User user, Set<String> licenseIds) {
