@@ -56,6 +56,11 @@
             Report available:
             <span class="minWidth">
                 <sw360:out value="${project.releaseClearingStateSummary.reportAvailable}" default="--"/>
+            </span>,
+
+            Approved:
+            <span class="minWidth">
+                <sw360:out value="${project.releaseClearingStateSummary.approved}" default="--"/>
             </span>
         </td>
     </tr>
