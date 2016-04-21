@@ -240,7 +240,7 @@ public class PortalConstants {
         STATE = props.getProperty("state","[ \"Active\", \"Phase out\", \"Unknown\"]");
         PROJECT_TYPE = props.getProperty("project.type","[ \"Customer Project\", \"Internal Project\", \"Product\", \"Service\"]");
         LICENSE_IDENTIFIERS = props.getProperty("license.identifiers", "[]");
-        COMPONENT_CATEGORIES = props.getProperty("component.categories", "[ \"Framework\", \"Library\", \"SDK\", \"big-data\", \"build-management\", \"cloud\", \"content\", \"database\", \"graphics\", \"http\", \"javaee\", \"library\", \"mail\", \"mobile\", \"security\", \"testing\", \"virtual-machine\", \"web-framework\", \"xml\"]");
+        COMPONENT_CATEGORIES = props.getProperty("component.categories", "[ \"framework\", \"SDK\", \"big-data\", \"build-management\", \"cloud\", \"content\", \"database\", \"graphics\", \"http\", \"javaee\", \"library\", \"mail\", \"mobile\", \"security\", \"testing\", \"virtual-machine\", \"web-framework\", \"xml\"]");
     }
 
     private PortalConstants() {
