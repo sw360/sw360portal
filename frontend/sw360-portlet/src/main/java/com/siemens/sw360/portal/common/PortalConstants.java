@@ -89,6 +89,7 @@ public class PortalConstants {
     public static final String COMPONENT_LIST = "componentList";
     public static final String TYPE_MASK = "typeMask";
     public static final String COMPONENT_TYPE_LIST = "componentTypeList";
+    public static final String COMPONENT_CATEGORIES;
 
     //! Specialized keys for releases
     public static final String RELEASE_ID = "releaseId";
@@ -239,11 +240,10 @@ public class PortalConstants {
         STATE = props.getProperty("state","[ \"Active\", \"Phase out\", \"Unknown\"]");
         PROJECT_TYPE = props.getProperty("project.type","[ \"Customer Project\", \"Internal Project\", \"Product\", \"Service\"]");
         LICENSE_IDENTIFIERS = props.getProperty("license.identifiers", "[]");
+        COMPONENT_CATEGORIES = props.getProperty("component.categories", "[ \"framework\", \"SDK\", \"big-data\", \"build-management\", \"cloud\", \"content\", \"database\", \"graphics\", \"http\", \"javaee\", \"library\", \"mail\", \"mobile\", \"security\", \"testing\", \"virtual-machine\", \"web-framework\", \"xml\"]");
     }
 
     private PortalConstants() {
         // Utility class with only static functions
     }
 }
-
-
