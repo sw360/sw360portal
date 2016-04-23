@@ -245,7 +245,7 @@ public class UserUtils {
             case USER:
                 return RoleConstants.USER;
             case CLEARING_ADMIN:
-                return RoleConstants.ORGANIZATION_ADMINISTRATOR;
+                return PortalConstants.ROLENAME_CLEARING_ADMIN;
             case ADMIN:
                 return RoleConstants.ADMINISTRATOR;
         }
