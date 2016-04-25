@@ -97,24 +97,53 @@ struct DatabaseAddress {
 
 service AttachmentService {
 
-    // Returns the URL and database name where to upload the attachment
+    /**
+     * Returns the URL and database name where to upload the attachment
+     * */
     DatabaseAddress getDatabaseAddress();
 
-    // Make a new attachment object
+    /**
+     * Add attachmentContent (= the actual attachment object) object to database,
+     * return attachmentContent as written to database if successful
+     */
     AttachmentContent makeAttachmentContent(1:AttachmentContent attachmentContent);
+
+    /**
+      * Add attachmentContents (= list of the actual attachment objects) to database,
+      * return list of attachmentContents as witten to database if successful
+      */
     list<AttachmentContent> makeAttachmentContents(1:list<AttachmentContent> attachmentContents);
 
-    // Get one or more attachment details
+    /**
+     * get validated attachmentContent by id
+     **/
     AttachmentContent getAttachmentContent(1:string id);
 
-    // Update or delete attachment
+    /**
+     * Update attachmentContent in database, no permission check is necessary
+     **/
     oneway void updateAttachmentContent(1:AttachmentContent attachment);
 
+    /**
+     * delete attachment contents with ids from db,
+     * return RequestStatus together with the total number of elements and the number of successfully removed elements
+     **/
     RequestSummary bulkDelete(1: list<string> ids);
 
+     /**
+      * delete attachment content with id from db
+      **/
     RequestStatus deleteAttachmentContent(1: string attachmentId);
 
+    /**
+     * if user is not admin, FAILURE is returned
+     * checks which attachmentContents in db are unused (not linked to any document) and deletes them
+     * return RequestStatus together with the total number of elements and the number of successfully removed elements
+     **/
     RequestSummary vacuumAttachmentDB(1: User user, 2: set<string > usedIds);
 
+     /**
+      * returns sha1 checksum of file associated with the attachmentContent specified by attachmentContentId
+      **/
     string getSha1FromAttachmentContentId(1: string attachmentContentId);
 }

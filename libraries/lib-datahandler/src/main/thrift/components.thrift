@@ -290,82 +290,290 @@ struct ReleaseLink{
 
 service ComponentService {
 
-    // General information
+    /**
+     * short summary of all components visible to user
+     **/
     list<Component> getComponentSummary(1: User user);
+
+    /**
+     * short summary of all releases visible to user
+     **/
     list<Release> getReleaseSummary(1: User user);
 
-    // Refine search
+    /**
+     * search components in database that match subQueryRestrictions
+     **/
     list<Component> refineSearch(1: string text, 2: map<string ,  set<string > > subQueryRestrictions);
+
+    /**
+     * get short summary of release by release name
+     **/
     list<Release> searchReleaseByName(1: string name);
 
-    // Information for home portlets
+    /**
+     * information for home portlet
+     **/
     list<Component> getMyComponents(1: User user);
+
+    /**
+     * information for home portlet
+     **/
     list<Component> getSubscribedComponents(1: User user);
+
+    /**
+     * information for home portlet
+     **/
     list<Release> getSubscribedReleases(1: User user);
+
+    /**
+     * information for home portlet
+     **/
     list<Component> getRecentComponents();
+
+    /**
+     * information for home portlet
+     **/
     list<Release> getRecentReleases();
 
     // Component CRUD support
+    /**
+     * add component to database with user as creator,
+     * return id
+     **/
     string addComponent(1: Component component, 2: User user);
+
+    /**
+     * get component from database filled with releases and permissions for user
+     **/
     Component getComponentById(1: string id, 2: User user);
+
+    /**
+     * get component from database filled with releases and permissions for user
+     * with moderation request of user applied if such request exists
+     **/
     Component getComponentByIdForEdit(1: string id, 2: User user);
+
+    /**
+     * update component in database if user has permissions
+     * otherwise create moderation request
+     **/
     RequestStatus updateComponent(1: Component component, 2: User user);
+
+    /**
+    * update the bulk of components in database if user is admin
+    **/
     RequestSummary updateComponents(1: set<Component> components, 2: User user);
+
+    /**
+     * delete component from database if user has permissions,
+     * otherwise create moderation request
+     **/
     RequestStatus deleteComponent(1: string id, 2: User user);
+
+    /**
+     * update component in database if user has permissions, additions and deletions are the parts of the moderation request
+     * that specify which properties to add to and which to delete from component
+     **/
     RequestStatus updateComponentFromModerationRequest(1: Component additions, 2: Component deletions, 3: User user);
 
     // Release CRUD support
+    /**
+      * add release to database with user as creator,
+      * return id
+      **/
     string addRelease(1: Release release, 2: User user);
+
+    /**
+      * get release from database filled with vendor and permissions for user
+      **/
     Release getReleaseById(1: string id, 2: User user);
+
+     /**
+       * get release from database filled with vendor and permissions for user
+       * with moderation request of user applied if such request exists
+       **/
     Release getReleaseByIdForEdit(1: string id, 2: User user);
+
+    /**
+      * get short summary of all releases specified by ids
+      **/
     list<Release> getReleasesByIdsForExport(1: set<string> ids);
+
+    /**
+      * get short summary of all releases specified by ids, user is not used
+      **/
     list<Release> getReleasesById(1: set<string> ids, 2: User user);
+
+    /**
+      * get summary of all releases specified by ids, user is not used
+      **/
     list<Release> getFullReleasesById(1: set<string> ids, 2: User user);
+
+     /**
+       * get summary of all releases specified by ids, filled with permissions for user
+       **/
     list<Release> getReleasesWithPermissions(1: set<string> ids, 2: User user);
+
+    /**
+      * get summary of all releases with vendor specified by id, filled with permissions for user
+      **/
     list<Release> getReleasesFromVendorId(1: string id, 2: User user);
+
+    /**
+      * get short summary of all releases with vendor specified by ids
+      **/
     list<Release> getReleasesFromVendorIds(1: set<string> ids);
+
+    /**
+     * update release in database if user has permissions
+     * otherwise create moderation request
+     **/
     RequestStatus updateRelease(1: Release release, 2: User user);
+
+    /**
+     * update release called by fossology service
+     * update release in database if user has permissions
+     * otherwise create moderation request
+     **/
     RequestStatus updateReleaseFossology(1: Release release, 2: User user);
+
+    /**
+     * update the bulk of releases in database if user is admin
+     **/
     RequestSummary updateReleases(1: set<Release> releases, 2: User user);
+
+    /**
+     * delete release from database if user has permissions
+     * otherwise create moderation request
+     **/
     RequestStatus deleteRelease(1: string id, 2: User user);
+
+    /**
+     * update release in database if user has permissions, additions and deletions are the parts of the moderation request
+     * that specify which properties to add to and which to delete from release
+     **/
     RequestStatus updateReleaseFromModerationRequest(1: Release additions, 2: Release deletions, 3: User user);
+
+    /**
+     * get summaries of releases of component specified by id, filled with permissions for user
+     **/
     list<Release> getReleasesByComponentId(1: string id, 2: User user);
 
+    /**
+     * get components belonging to linked releases of the release specified by releaseId
+     **/
     set <Component> getUsingComponentsForRelease(1: string releaseId );
+
+    /**
+     * get components belonging to linked releases of the releases specified by releaseId
+     **/
     set <Component> getUsingComponentsForComponent(1: set <string> releaseId );
 
+    /**
+     * check if release is used by other releases, components or projects
+     **/
     bool releaseIsUsed(1: string releaseId);
+
+     /**
+       * check if one of the releases of the compnent is used by other releases, components or projects
+       **/
     bool componentIsUsed(1: string componentId);
 
+    /**
+     * remove attachment corresponding to attachmentContentId from component specified by componentId,
+     *  if user does not have permissions, moderation request is created
+     **/
     RequestStatus removeAttachmentFromComponent(1: string componentId, 2:User user, 3:string attachmentContentId);
 
+    /**
+     * remove attachment corresponding to attachmentContentId from release specified by releaseId,
+     * if user does not have permissions, moderation request is created
+     **/
     RequestStatus removeAttachmentFromRelease(1: string releaseId, 2:User user, 3:string attachmentContentId);
 
     // These two methods are needed because there is no rights management needed to subscribe
+    /**
+     *   subscribe user for component (no permission necessary)
+     **/
     RequestStatus subscribeComponent(1: string id, 2: User user);
+
+    /**
+     *   subscribe user for release (no permission necessary)
+     **/
     RequestStatus subscribeRelease(1: string id, 2: User user);
+
+    /**
+     *   unsubscribe user from component (no permission necessary)
+     **/
     RequestStatus unsubscribeComponent(1: string id, 2: User user);
+
+    /**
+     *   unsubscribe user from release (no permission necessary)
+     **/
     RequestStatus unsubscribeRelease(1: string id, 2: User user);
-    // Get a summary of release status for a given set of IDs
+
+    /**
+     * Get a summary of release status for a given set of IDs
+     **/
     ReleaseClearingStateSummary getReleaseClearingStateSummary(1: set<string> ids, 2:string clearingTeam);
 
-    // Make a list of components for Excel export
+    /**
+     * Make a list of components for Excel export and component importer
+     **/
     list<Component> getComponentSummaryForExport();
+
+    /**
+     * Make a list of components for component importer
+     **/
     list<Component> getComponentDetailedSummaryForExport();
+
+    /**
+     * get export summary for components whose name is matching parameter name
+     **/
     list<Component> searchComponentForExport(1: string name);
 
+    /**
+     *  get component with fossologyId equal to uploadId, filled with releases and main licenses,
+     *  releases are filled with vendor
+     **/
     Component getComponentForReportFromFossologyUploadId(1: string uploadId );
+
+    /**
+     * get attachments with document type "source" of release with releaseId
+     **/
     set<Attachment> getSourceAttachments(1:string releaseId);
 
-    //Linked Releases
+    /**
+     *  make releaseLinks from linked releases of a project in order to display project moderation request
+     **/
     list<ReleaseLink> getLinkedReleases(1: map<string, string> relations);
+
+    /**
+     *  make releaseLinks from linked releases of a release in order to display in release detail view
+     **/
     list<ReleaseLink> getLinkedReleaseRelations(1: map<string, ReleaseRelationship> relations);
 
+    /**
+     * get all attachmentContentIds of attachments of projects, components and releases
+     * used for attachment cleanup and component import
+     **/
     set<string> getUsedAttachmentContentIds();
 
-    //Methods to ensure uniqueness of Identifiers
+    /**
+     * Method to ensure uniqueness of identifiers, used by database sanitation portlet,
+     * return map of name to ids
+     **/
     map <string, list<string>> getDuplicateComponents();
-    map <string, list<string>> getDuplicateReleases();
-    map <string, list<string>> getDuplicateReleaseSources();
 
+    /**
+     * Method to ensure uniqueness of identifiers, used by database sanitation portlet,
+     * return map of name to ids
+     **/
+    map <string, list<string>> getDuplicateReleases();
+
+    /**
+     * Method to ensure uniqueness of identifiers, used by database sanitation portlet,
+     * return map of name to ids
+     **/
+    map <string, list<string>> getDuplicateReleaseSources();
 }

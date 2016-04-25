@@ -118,34 +118,123 @@ struct ProjectLink {
 service ProjectService {
 
     // Summary getters
+    /**
+     * get projects for user by emailadress
+     */
     list<Project> getMyProjects(1: string user);
+
+    /**
+     * get all projects as project summaries which are visible to user
+     */
     list<Project> getAccessibleProjectsSummary(1: User user);
+
+    /**
+     * get all projects visible to user
+     */
     set<Project> getAccessibleProjects(1: User user);
 
     // Search functions
+
+    /**
+     * returns a list of projects which match `text` and the
+     * `subQueryRestrictions` and are visible to the `user`
+     */
     list<Project> refineSearch(1: string text, 2: map<string,set<string>>  subQueryRestrictions, 3: User user);
+
+    /**
+     * list of projects which are visible to the `user` and match the `name`
+     */
     list<Project> searchByName(1: string name, 2: User user);
+
+    /**
+     * same as `searchByName`, but returns the export summary of projects
+     */
     list<Project> searchByNameForExport(1: string name, 2: User user);
+
+    /**
+     * list of short project summaries which are visible to the `user` and have `id` in releaseIdToUsage
+     */
     set<Project> searchByReleaseId(1: string id, 2: User user);
+
+    /**
+     * list of short project summaries which are visible to the `user` and have one of the `ids` in releaseIdToUsage
+     */
     set<Project> searchByReleaseIds(1: set<string> ids, 2: User user);
+
+    /**
+     * get short summaries of projects linked to the project with the id `id` which are visible
+     * to the user
+     */
     set<Project> searchLinkingProjects(1: string id, 2: User user);
 
-    // Project CRUD support
+    /**
+     * add a project as a user to the db and get the id back
+     * (part of project CRUD support)
+     */
     string addProject(1: Project project, 2: User user);
+
+    /**
+     * get a project by id, if it is visible for the user
+     * (part of project CRUD support)
+     */
     Project getProjectById(1: string id, 2: User user);
+
+    /**
+     * get multiple projects by id, if they are visible to the user
+     * (part of project CRUD support)
+     */
     list<Project> getProjectsById(1: set<string> id, 2: User user);
+
+    /**
+     * get project by id, with moderation requests of user applied
+     */
     Project getProjectByIdForEdit(1: string id, 2: User user);
+
+    /**
+     * try to update a project as a user, if user has no permission, a moderation request is created
+     * (part of project CRUD support)
+     */
     RequestStatus updateProject(1: Project project, 2: User user);
+
+    /**
+     * try to delete a project as a user, if user has no permission, a moderation request is created
+     * (part of project CRUD support)
+     */
     RequestStatus deleteProject(1: string id, 2: User user);
+
+    /**
+     * updateproject in database if user has permissions, additions and deletions are the parts of the moderation request
+     * that specify which properties to add to and which to delete from project
+     **/
     RequestStatus updateProjectFromModerationRequest(1: Project additions, 2: Project deletions, 3: User user);
 
+    /**
+     * try to remove an attachment with the id `attachmentContentId` as `user`
+     * from the project with projectId `projectId`, if user does not have permissions a moderation request is created
+     */
     RequestStatus removeAttachmentFromProject(1: string projectId, 2:User user, 3:string attachmentContentId);
 
+    //Linked Projects
+
+    /**
+     * check if a the project specified by projectId is linked to some other project
+     */
     bool projectIsUsed(1: string projectId);
 
-    //Linked Projects
+    /**
+     * get a list of project links of the project that matches the id `id`
+     */
     list<ProjectLink> getLinkedProjectsById(1: string id, 2: User user);
+
+    /**
+     * get a list of project links from keys of map `relations`
+     */
     list<ProjectLink> getLinkedProjects(1:  map<string, ProjectRelationship> relations);
 
+
+    /**
+     * get a list of duplicated projects matched by `.printName()`
+     * returned as map from pretty printed name to list of matching ids
+     */
     map <string, list<string>> getDuplicateProjects();
 }

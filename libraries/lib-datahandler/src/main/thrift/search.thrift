@@ -37,7 +37,14 @@ struct SearchResult {
 
 service SearchService {
 
-    // Full text search
+    /**
+     * return all documents that have properties starting with text, user is ignored
+     **/
     list<SearchResult> search(1: required string text, 2: User user);
+
+    /**
+     *  return all documents of a type that is in the typeMask list and that have properties starting with text,
+     *  user is ignored
+     **/
     list<SearchResult> searchFiltered(1: required string text, 2: User user, 3: list<string> typeMask);
 }
