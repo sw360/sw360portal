@@ -153,7 +153,7 @@
         result.push({
             "DT_RowId": '${doc.id}',
             "0": '${doc.type}',
-            "1": "<sw360:DisplaySearchResultLink searchResult="${doc}" portletGroupId="${portletGroupId}"/>"
+            "1": "<sw360:DisplaySearchResultLink searchResult="${doc}"/>"
         });
         </core_rt:forEach>
 

@@ -29,7 +29,7 @@ import javax.servlet.jsp.JspException;
 public interface UrlWriter {
     UrlWriter withParam(String name, String value) throws JspException;
 
-    UrlWriter toPortlet(LinkToPortletConfiguration portlet, Long portletGroupId) throws JspException;
+    UrlWriter toPortlet(LinkToPortletConfiguration portlet, Long scopeGroupId) throws JspException;
 
     UrlWriter toPage(PortletPage page) throws JspException;
 

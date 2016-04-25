@@ -56,7 +56,7 @@ public class DisplayLinkToProject extends DisplayLinkAbstract {
     @Override
     protected void writeUrl() throws JspException {
         renderUrl(pageContext)
-                .toPortlet(LinkToPortletConfiguration.PROJECTS, portletGroupId)
+                .toPortlet(LinkToPortletConfiguration.PROJECTS, scopeGroupId)
                 .toPage(PortletDefaultPage.DETAIL)
                 .withParam(PortalConstants.PROJECT_ID, projectId)
                 .writeUrlToJspWriter();

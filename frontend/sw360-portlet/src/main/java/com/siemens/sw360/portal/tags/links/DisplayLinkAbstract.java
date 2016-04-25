@@ -23,24 +23,21 @@ import com.siemens.sw360.portal.tags.OutTag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
 import java.io.IOException;
 
 /**
  * Tag to create a link to a portlet.
- * Can link to portlet on different pages (layouts in liferay terminology)
- * if portletGroupId is set through a parameter in the jsp file.
+ * Can link to portlet on different pages (layouts in liferay terminology).
+ * Sets the current scopeGroupId on doStartTag for derived classes.
  * @author daniele.fognini@tngtech.com
  */
 public abstract class DisplayLinkAbstract extends TagSupport {
     public Boolean bare = false;
-    protected Long portletGroupId;
-    public void setPortletGroupId(Long portletGroupId) {
-        this.portletGroupId = portletGroupId;
-    }
+    protected Long scopeGroupId;
 
     @Override
     public int doStartTag() throws JspException {
+        scopeGroupId = (Long)pageContext.getAttribute("scopeGroupId");
         try {
             JspWriter jspWriter = pageContext.getOut();
             if (!bare) jspWriter.write("<a href='");

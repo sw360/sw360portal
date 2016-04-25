@@ -34,7 +34,7 @@ import java.util.Optional;
  * Portlet names are created internally
  * by concatenating data from the xml configuration file and deployment data.
  * To avoid update efforts (e.g. after increasing the version number of the war file, this is handled here.
- * If portletGroupId is not null,
+ * If scopeGroupId is not null,
  * findPlid searches for a lower case version of the enum instance name to identify a Layout.
  * @author daniele.fognini@tngtech.com
  */

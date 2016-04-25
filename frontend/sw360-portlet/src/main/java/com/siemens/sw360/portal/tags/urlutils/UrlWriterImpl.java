@@ -23,7 +23,6 @@ import com.liferay.taglib.portlet.RenderURLTag;
 import com.liferay.taglib.portlet.ResourceURLTag;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.page.PortletPage;
-import com.siemens.sw360.portal.portlets.PortletProperties;
 import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
 
 import javax.servlet.jsp.JspException;
@@ -50,10 +49,10 @@ public class UrlWriterImpl implements UrlWriter {
     }
 
     @Override
-    public UrlWriter toPortlet(LinkToPortletConfiguration portlet, Long portletGroupId) throws JspException {
+    public UrlWriter toPortlet(LinkToPortletConfiguration portlet, Long scopeGroupId) throws JspException {
         checkNotDone();
         urlTag.setPortletName(portlet.portletName());
-        urlTag.setPlid(portlet.findPlid(portletGroupId));
+        urlTag.setPlid(portlet.findPlid(scopeGroupId));
         return this;
     }
 

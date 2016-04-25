@@ -44,7 +44,7 @@
         <core_rt:forEach items="${projects}" var="project">
         result.push({
             "DT_RowId": "${project.id}",
-            "0": "<sw360:DisplayProjectLink project="${project}" portletGroupId="${portletGroupId}"/>",
+            "0": "<sw360:DisplayProjectLink project="${project}"/>",
             "1": '<sw360:out value="${project.description}" maxChar="30"/>'
         });
         </core_rt:forEach>

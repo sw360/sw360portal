@@ -27,7 +27,7 @@
     <tr>
       <td colspan="2">
         <core_rt:forEach var="project" items="${usingProjects}" varStatus="loop">
-          <sw360:DisplayProjectLink project="${project}" portletGroupId="${portletGroupId}"/>&nbsp;
+          <sw360:DisplayProjectLink project="${project}"/>&nbsp;
         </core_rt:forEach>
       </td>
     </tr>

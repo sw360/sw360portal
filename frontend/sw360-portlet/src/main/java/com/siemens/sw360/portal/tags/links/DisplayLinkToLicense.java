@@ -51,7 +51,7 @@ public class DisplayLinkToLicense extends DisplayLinkAbstract {
     @Override
     protected void writeUrl() throws JspException {
         renderUrl(pageContext)
-                .toPortlet(LinkToPortletConfiguration.LICENSES, portletGroupId)
+                .toPortlet(LinkToPortletConfiguration.LICENSES, scopeGroupId)
                 .toPage(page)
                 .withParam(PortalConstants.LICENSE_ID, licenseId)
                 .writeUrlToJspWriter();
