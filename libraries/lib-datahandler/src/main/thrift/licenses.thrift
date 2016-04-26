@@ -129,8 +129,6 @@ service LicenseService {
     list<License> getLicenseSummaryForExport();
     list<License> getDetailedLicenseSummaryForExport(1: string organisation);
     list<License> getDetailedLicenseSummary(1: string organisation, 2: list<string> identifiers);
-    list<LicenseType> getLicenseTypeSummaryForExport();
-
 
     //Bulk adds
     list<RiskCategory> addRiskCategories(1: list <RiskCategory> riskCategories);

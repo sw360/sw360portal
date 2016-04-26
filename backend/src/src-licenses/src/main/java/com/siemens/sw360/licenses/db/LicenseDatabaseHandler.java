@@ -119,9 +119,6 @@ public class LicenseDatabaseHandler {
         return licenseRepository.getLicenseSummaryForExport();
     }
 
-    public List<LicenseType> getLicenseTypeSummaryForExport() {
-        return licenseTypeRepository.getLicenseTypeSummaryForExport();
-    }
     ////////////////////////////
     // GET INDIVIDUAL OBJECTS //
     ////////////////////////////
@@ -411,12 +408,13 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setId(inputLicense.getShortname());
+        license.setId(inputLicense.getId());
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
         license.setGPLv2Compat(inputLicense.GPLv2Compat);
         license.setGPLv3Compat(inputLicense.GPLv3Compat);
+        license.setExternalLicenseLink(inputLicense.getExternalLicenseLink());
 
         return license;
     }
