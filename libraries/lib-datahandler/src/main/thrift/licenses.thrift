@@ -85,6 +85,7 @@ struct License {
 	 5: required string fullname,
 	 6: optional LicenseType licenseType,
 	 7: optional string licenseTypeDatabaseId,
+   8: optional string externalLicenseLink,
 	 10: optional bool GPLv2Compat,
 	 11: optional bool GPLv3Compat,
 	 12: optional string reviewdate,
@@ -96,7 +97,7 @@ struct License {
 
     90: optional DocumentState documentState,
 
-	200: optional map<RequestedAction, bool> permissions,
+	200: optional map<RequestedAction, bool> permissions
 }
 
 service LicenseService {

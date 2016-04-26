@@ -17,18 +17,17 @@
  */
 package com.siemens.sw360.exporter;
 
-import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.commonIO.ConvertRecord;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseType;
+import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import static com.siemens.sw360.commonIO.ConvertRecord.*;
+
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.google.common.base.Strings.nullToEmpty;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Created by bodet on 10/02/15.
@@ -36,69 +35,63 @@ import static com.google.common.base.Strings.nullToEmpty;
  * @author cedric.bodet@tngtech.com
  */
 public class LicenseExporter extends ExcelExporter<License> {
+    private static final Logger log = Logger.getLogger(LicenseExporter.class);
 
-
-    private List<LicenseType> licenseTypes;
-    private static final List<String> HEADERS = ImmutableList.<String>builder()
-            .add("License Shortname")
-            .add("License Fullame")
-            .add("License Type")
-            .add("GPL v2 Compatibility")
-            .add("GPL v2 Compatibility")
-            .build();
-
-    public LicenseExporter() {
-        super(new LicenseHelper());
+    public LicenseExporter(Function<Logger, List<LicenseType>> getLicenseTypes) {
+        super(new LicenseHelper(() -> getLicenseTypes.apply(log)));
     }
 
-    public InputStream makeExcelExport(List<License> licenses, List<LicenseType> licenseTypes) throws IOException {
-        licenses=fillLicensesWithLicenseTypes(licenses,licenseTypes);
-        return super.makeExcelExport(licenses);
-    }
-    private List<License> fillLicensesWithLicenseTypes(List<License> licenses, List<LicenseType> licenseTypes){
-        Map<String,LicenseType> licenseTypeHashMap = new HashMap<String,LicenseType>();
-        for (LicenseType licenseType : licenseTypes){
-            licenseTypeHashMap.put(licenseType.getId(),licenseType);
-        }
-        for (License license: licenses){
-            license.setLicenseType(licenseTypeHashMap.get(license.getLicenseTypeDatabaseId()));
-        }
-
-        return licenses;
-    }
     private static class LicenseHelper implements ExporterHelper<License> {
+        private final ConvertRecord.Serializer<License> converter;
+        private Supplier<List<LicenseType>> getLicenseTypes;
+        private HashMap<String, String> formattedStringToTypeId = new HashMap<>();
+        int indexOfTypeOrId;
+
+        public LicenseHelper(Supplier<List<LicenseType>> getLicenseTypes) {
+            this.getLicenseTypes = getLicenseTypes;
+            converter = licenseSerializer();
+            indexOfTypeOrId = converter.headers().indexOf("Type");
+        }
+
+        public void fillLicenseTypeIdToFormattedString() {
+            formattedStringToTypeId.put("","");
+            List<LicenseType> licenseTypes = getLicenseTypes.get();
+            for (LicenseType licenseType: licenseTypes) {
+                String formattedLicenseType = getFormattedStringForLicenseType(licenseType);
+                formattedStringToTypeId.put(String.valueOf(licenseType.getLicenseTypeId()),
+                        formattedLicenseType);
+                formattedStringToTypeId.put(String.valueOf(licenseType.getId()),
+                        formattedLicenseType);
+            }
+        }
+
+        private String getFormattedStringForLicenseType(LicenseType licenseType) {
+            return licenseType.getLicenseTypeId() + ": " + licenseType.getLicenseType();
+        }
 
         @Override
         public int getColumns() {
-            return HEADERS.size();
+            return converter.headers().size();
         }
 
         @Override
         public List<String> getHeaders() {
-            return HEADERS;
+            return converter.headers();
+        }
+
+        private List<String> formatRow(List<String> row) {
+            if(formattedStringToTypeId.size() == 0) {
+                fillLicenseTypeIdToFormattedString();
+            }
+
+            row.set(indexOfTypeOrId, formattedStringToTypeId.get(row.get(indexOfTypeOrId)));
+            return row;
         }
 
         @Override
         public List<String> makeRow(License license) {
-            List<String> row = new ArrayList<>(HEADERS.size());
-            row.add(nullToEmpty(license.id));
-            row.add(nullToEmpty(license.fullname));
-            row.add(formatLicenseType(license.licenseType));
-            row.add(formatBoolean(license.GPLv2Compat));
-            row.add(formatBoolean(license.GPLv3Compat));
-
-            return row;
+            return formatRow(converter.transformer().apply(license));
         }
-
-        private static String formatLicenseType(LicenseType type) {
-            if (type == null || type.getLicenseType() == null) return "";
-            return (type.getLicenseTypeId()+": "+type.getLicenseType());
-        }
-
-        private static String formatBoolean(boolean value) {
-            return value ? "yes" : "no";
-        }
-
     }
 
 }

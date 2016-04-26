@@ -23,4 +23,21 @@
   <%--need nested ifs for the yes no because the values can be undefined--%>
   <tr><td>GPL-2.0 compatibility:</td><td><sw360:DisplayBoolean value="${licenseDetail.GPLv2Compat}" defined="${licenseDetail.setGPLv2Compat}"/></td></tr>
   <tr><td>GPL-3.0 compatibility:</td><td><sw360:DisplayBoolean value="${licenseDetail.GPLv3Compat}" defined="${licenseDetail.setGPLv3Compat}"/></td></tr>
+  <tr><td>External link for more information:</td><td>
+
+    <core_rt:choose>
+      <core_rt:when test="${isUserAtLeastClearingAdmin == 'Yes'}" >
+      <form action="<%=editExternalLinkURL%>" method="post" id="ExternalLink">
+        <input style="margin-bottom: 0" id="<portlet:namespace/><%=License._Fields.EXTERNAL_LICENSE_LINK%>"
+               name="<portlet:namespace/><%=License._Fields.EXTERNAL_LICENSE_LINK%>"
+               type="text"
+               value="${licenseDetail.externalLicenseLink}">
+        <input type="submit" id="RemoteLinkSubmit" value="Submit">
+      </form>
+      </core_rt:when>
+      <core_rt:otherwise>
+        <a href="${licenseDetail.externalLicenseLink}">${licenseDetail.externalLicenseLink}</a>
+      </core_rt:otherwise>
+    </core_rt:choose>
+  </td></tr>
 </table>

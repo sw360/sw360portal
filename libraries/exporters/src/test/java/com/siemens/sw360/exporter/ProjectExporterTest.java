@@ -30,6 +30,5 @@ public class ProjectExporterTest {
     @Test
     public void testEveryRenderedFieldHasAHeader() throws Exception {
         assertThat(ProjectExporter.RENDERED_FIELDS.size(), is(ProjectExporter.HEADERS.size()));
-
     }
 }

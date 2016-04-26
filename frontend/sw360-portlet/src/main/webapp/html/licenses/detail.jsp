@@ -44,6 +44,11 @@
 <portlet:actionURL var="changeLicenseTextURL" name="changeText">
     <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}"/>
 </portlet:actionURL>
+
+<portlet:actionURL var="editExternalLinkURL" name="editExternalLink">
+    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
+</portlet:actionURL>
+
 <div id="header"></div>
 <p class="pageHeader"><span
         class="pageHeaderBigSpan">License: ${licenseDetail.fullname} (${licenseDetail.shortname})</span>

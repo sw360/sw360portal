@@ -66,7 +66,7 @@ public class ZipTools {
         zipOutputStream.closeEntry();
     }
 
-    public static void extractZipToImputStreamMap(InputStream in, HashMap<String, InputStream> inputMap) throws IOException {
+    public static void extractZipToInputStreamMap(InputStream in, HashMap<String, InputStream> inputMap) throws IOException {
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(in));
         /** I assume that the license Zip will not be so big and I can keep it in memory with impunity**/
         /** Nevertheless I do not want to go through the file twice, so read first and then check :) **/

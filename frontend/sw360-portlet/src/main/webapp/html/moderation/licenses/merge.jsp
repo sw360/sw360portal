@@ -53,6 +53,10 @@
     <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${actual_license.id}" />
 </portlet:actionURL>
 
+<portlet:actionURL var="editExternalLinkURL" name="editExternalLink">
+    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
+</portlet:actionURL>
+
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change License:  <sw360:LicenseName license="${license}"/></span>
 </p>
