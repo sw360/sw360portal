@@ -19,17 +19,15 @@ package com.siemens.sw360.projects;
 
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import org.apache.thrift.protocol.TCompactProtocol;
-import com.siemens.sw360.projects.Sw360ThriftServlet;
 
-import java.net.MalformedURLException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 /**
  * Thrift Servlet instantiation
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
- * @author Andreas.Reichel@tngtech.com
  */
 public class ProjectServlet extends Sw360ThriftServlet {
 

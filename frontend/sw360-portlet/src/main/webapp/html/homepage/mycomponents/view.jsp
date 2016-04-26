@@ -1,8 +1,6 @@
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.components.ComponentPortlet" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -42,6 +40,7 @@
     $(window).load(function () {
         var result = [];
         var releasesInfo = '';
+
         <core_rt:forEach items="${components}" var="component">
             <core_rt:choose>
                 <core_rt:when test="${component.releases.size() > 1}">

@@ -41,7 +41,7 @@ import static org.apache.log4j.Logger.getLogger;
  *
  * @author cedric.bodet@tngtech.com
  * @author gerrit.grenzebach@tngtech.com
- * @author Andreas.Reichel@tngtech.com
+ * @author andreas.reichel@tngtech.com
  */
 public class MyComponentsPortlet extends Sw360Portlet {
 
@@ -50,7 +50,6 @@ public class MyComponentsPortlet extends Sw360Portlet {
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         List<Component> components;
-
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
             components = thriftClients.makeComponentClient().getMyComponents(user);
