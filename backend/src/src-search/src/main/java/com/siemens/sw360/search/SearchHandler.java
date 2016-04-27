@@ -17,13 +17,11 @@
  */
 package com.siemens.sw360.search;
 
-import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.common.SW360Assert;
 import com.siemens.sw360.datahandler.thrift.search.SearchResult;
 import com.siemens.sw360.datahandler.thrift.search.SearchService;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.search.common.SearchConstants;
 import com.siemens.sw360.search.db.DatabaseSearchHandler;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -54,8 +52,7 @@ public class SearchHandler implements SearchService.Iface {
         SW360Assert.assertNotEmpty(text);
 
         // Query new and old database
-        List<SearchResult> results = db.search(text, typeMask);
-
+        List<SearchResult> results = db.search(text, typeMask, user);
         Collections.sort(results, new SearchResultComparator());
 
         if (log.isTraceEnabled())

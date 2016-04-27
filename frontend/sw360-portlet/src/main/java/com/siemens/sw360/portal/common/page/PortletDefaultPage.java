@@ -24,6 +24,7 @@ import com.siemens.sw360.portal.common.PortalConstants;
  */
 public enum PortletDefaultPage implements PortletPage {
     DETAIL(PortalConstants.PAGENAME_DETAIL),
+    RELEASE_DETAIL(PortalConstants.PAGENAME_RELEASE_DETAIL),
     EDIT(PortalConstants.PAGENAME_EDIT);
 
     private final String pagename;
