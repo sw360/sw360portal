@@ -119,6 +119,7 @@ public class PortalConstants {
     public static final String USING_PROJECTS = "usingProjects";
     public static final String USING_COMPONENTS = "usingComponents";
     public static final String PROJECT_LIST = "projectList";
+    public static final String PROJECT_DEPTH_MAP = "projectDepthMap";
     public static final String RELEASE_LIST = "releaseList";
     public static final String RELEASE_DEPTH_MAP = "releaseDepthMap";
     public static final String PROJECT_SEARCH = "projectSearch";

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -26,41 +26,64 @@
 
 <%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectLink" %>
 <jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
+<jsp:useBean id="projectDepthMap" type="java.util.Map<java.lang.Integer, java.util.Collection<com.siemens.sw360.datahandler.thrift.projects.ProjectLink> >"  scope="request"/>
 
 <table class="table info_table" id="LinkedProjectsInfo" title="Linked Projects">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Linked Projects</th>
     </tr>
-    </thead>
+    <tr>
+        <th>Project name</th>
+        <th>Project version</th>
+        <th>Project relation</th>
+    </tr>    </thead>
     <tbody>
     <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">
         <tr id="projectLinkRow${loop.count}">
             <td width="32%">
                 <input type="hidden" value="${projectLink.id}" name="<portlet:namespace/><%=ProjectLink._Fields.ID%>">
-                <label class="textlabel stackedLabel" for="projectName">Project name</label>
                 <input id="projectName" type="text" class="toplabelledInput" placeholder="Enter project"
                        value="<sw360:out value="${projectLink.name}"/>" readonly onclick="window.location='<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />'" />
             </td>
             <td width="32%">
                 <input type="hidden" value="${projectLink.version}" name="<portlet:namespace/><%=ProjectLink._Fields.VERSION%>">
-                <label class="textlabel stackedLabel" for="projectVersion">Project version</label>
                 <input id="projectVersion" type="text" class="toplabelledInput" placeholder="No project version"
                        value="<sw360:out value="${projectLink.version}"/>" readonly/>
             </td>
             <td width="32%">
-                <label class="textlabel stackedLabel" for="projectRelation">Project relation</label>
-
                  <input id="projectRelation" value="<sw360:DisplayEnum value="${projectLink.relation}"/>" readonly/>
-
             </td>
 
-            <%--<td class="deletor">--%>
-                <%--<img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteProjectLink('projectLinkRow${loop.count}','${projectLink.id}')" alt="Delete">--%>
-            <%--</td>--%>
         </tr>
     </core_rt:forEach>
     <core_rt:if test="${projectList.size() < 1}"> <tr> <td colspan="3"> No linked projects</td></tr> </core_rt:if>
     </tbody>
 </table>
 
+<table class="table info_table" id="inheritedLinkedProjectsInfo" title="Inherited Linked Projects">
+    <thead>
+    <tr>
+        <th colspan="4" class="headlabel"> Inherited Linked Projects</th>
+    </tr>
+    <tr>
+        <th>Project name</th>
+        <th>Project version</th>
+        <th>Project relation</th>
+        <th>Depth</th>
+    </tr>
+    </thead>
+    <tbody>
+    <core_rt:forEach items="${projectDepthMap}" var="projectLinkCollectionEntry" varStatus="loop">
+        <core_rt:forEach items="${projectLinkCollectionEntry.value}" var="projectLink" varStatus="loop">
+            <tr id="inheritedReleaseLinkRow${loop.count}" >
+                <td>${projectLink.name}</td>
+                <td>${projectLink.version}</td>
+                <td><sw360:DisplayEnum value="${projectLink.relation}"/></td>
+                <td>${projectLinkCollectionEntry.key}</td>
+            </tr>
+        </core_rt:forEach>
+    </core_rt:forEach>
+    <core_rt:if test="${projectDepthMap.size() < 1}"> <tr> <td colspan="4"> No inherited linked projects</td></tr> </core_rt:if>
+    </tbody>
+</table>
