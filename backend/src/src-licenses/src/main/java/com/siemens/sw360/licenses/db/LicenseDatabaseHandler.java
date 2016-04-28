@@ -192,6 +192,10 @@ public class LicenseDatabaseHandler {
             final LicenseType licenseType = licenseTypeRepository.get(license.getLicenseTypeDatabaseId());
             license.setLicenseType(licenseType);
         }
+        if(license.isSetRiskDatabaseIds()) {
+            license.setRisks(getRisksByIds(license.riskDatabaseIds));
+            license.unsetRiskDatabaseIds();
+        }
 
     }
 
