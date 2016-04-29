@@ -44,7 +44,6 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.common.SW360Utils.*;
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.prepareProject;
 
 /**
  * Class for accessing the CouchDB database
@@ -150,10 +149,6 @@ public class ProjectDatabaseHandler {
         // Prepare project for database
         prepareProject(project);
 
-        //add sha1 to attachments if necessary
-        if(project.isSetAttachments()) {
-            attachmentConnector.setSha1ForAttachments(project.getAttachments());
-        }
         Project actual = repository.get(project.getId());
 
         if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
@@ -165,6 +160,16 @@ public class ProjectDatabaseHandler {
             return RequestStatus.SUCCESS;
         } else {
             return moderator.updateProject(project, user);
+        }
+    }
+
+    private void prepareProject(Project project) throws SW360Exception {
+        // Prepare project for database
+        ThriftValidate.prepareProject(project);
+
+        //add sha1 to attachments if necessary
+        if(project.isSetAttachments()) {
+            attachmentConnector.setSha1ForAttachments(project.getAttachments());
         }
     }
 
