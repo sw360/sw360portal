@@ -255,7 +255,7 @@ public class ComponentDatabaseHandler {
     public String addRelease(Release release, String user) throws SW360Exception {
 
         // Prepare the release and get underlying component ID
-        ThriftValidate.prepareRelease(release);
+        prepareRelease(release);
         String componentId = release.getComponentId();
 
         // Ensure that component exists
@@ -341,11 +341,6 @@ public class ComponentDatabaseHandler {
         // Prepare component for database
         prepareComponent(component);
 
-        //add sha1 to attachments if necessary
-        if(component.isSetAttachments()) {
-            attachmentConnector.setSha1ForAttachments(component.getAttachments());
-        }
-
         // Get actual document for members that should no change
         Component actual = componentRepository.get(component.getId());
         assertNotNull(actual, "Could not find component to doBulk!");
@@ -367,6 +362,16 @@ public class ComponentDatabaseHandler {
             return moderator.updateComponent(component, user);
         }
         return RequestStatus.SUCCESS;
+    }
+
+    private void prepareComponent(Component component) throws SW360Exception {
+        // Prepare component for database
+        ThriftValidate.prepareComponent(component);
+
+        //add sha1 to attachments if necessary
+        if(component.isSetAttachments()) {
+            attachmentConnector.setSha1ForAttachments(component.getAttachments());
+        }
     }
 
     public RequestSummary updateComponents(Set<Component> components, User user) throws SW360Exception {
@@ -391,10 +396,6 @@ public class ComponentDatabaseHandler {
         // Prepare release for database
         prepareRelease(release);
 
-        //add sha1 to attachments if necessary
-        if(release.isSetAttachments()) {
-            attachmentConnector.setSha1ForAttachments(release.getAttachments());
-        }
         // Get actual document for members that should no change
         Release actual = releaseRepository.get(release.getId());
         assertNotNull(actual, "Could not find release to update");
@@ -414,6 +415,16 @@ public class ComponentDatabaseHandler {
         }
 
         return RequestStatus.SUCCESS;
+    }
+
+    private void prepareRelease(Release release) throws SW360Exception {
+        // Prepare release for database
+        ThriftValidate.prepareRelease(release);
+
+        //add sha1 to attachments if necessary
+        if(release.isSetAttachments()) {
+            attachmentConnector.setSha1ForAttachments(release.getAttachments());
+        }
     }
 
     public RequestSummary updateReleases(Collection<Release> releases, User user) throws SW360Exception {

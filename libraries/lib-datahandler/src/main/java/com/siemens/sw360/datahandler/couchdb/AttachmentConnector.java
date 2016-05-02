@@ -22,14 +22,13 @@ import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
@@ -42,20 +41,21 @@ import org.apache.log4j.Logger;
  * Ektorp connector for uploading attachments
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class AttachmentConnector extends AttachmentStreamConnector {
 
     private static Logger log = Logger.getLogger(AttachmentConnector.class);
 
-    public AttachmentConnector(DatabaseAddress address, Duration downloadTimeout) throws MalformedURLException {
-        super(address, downloadTimeout);
+    public AttachmentConnector(DatabaseConnector connector, Duration downloadTimeout) {
+        super(connector, downloadTimeout);
     }
 
     /**
      * @todo remove this mess of constructors and use dependency injection
      */
     public AttachmentConnector(String url, String dbName, Duration downloadTimeout) throws MalformedURLException {
-        this(new DatabaseAddress(url, dbName), downloadTimeout);
+        this(new DatabaseConnector(url, dbName), downloadTimeout);
     }
 
     /**
@@ -79,20 +79,26 @@ public class AttachmentConnector extends AttachmentStreamConnector {
     }
 
     public void deleteAttachments(Collection<Attachment> attachments) {
-        final Collection<String> attachmentContentIds = new HashSet<>();
+        Set<String> attachmentContentIds = getAttachmentContenIds(attachments);
+        deleteAttachmentsByIds(attachmentContentIds);
+    }
 
-        for (Attachment attachment : nullToEmptyCollection(attachments)) {
-            attachmentContentIds.add(attachment.getAttachmentContentId());
-        }
-
+    private void deleteAttachmentsByIds(Collection<String> attachmentContentIds) {
         connector.deleteIds(attachmentContentIds, AttachmentContent.class);
     }
 
+    private Set<String> getAttachmentContenIds(Collection<Attachment> attachments) {
+        return nullToEmptyCollection(attachments).stream()
+                .map(Attachment::getAttachmentContentId)
+                .collect(Collectors.toSet());
+    }
+
     public void deleteAttachmentDifference(Set<Attachment> before, Set<Attachment> after){
-        if (before == null || before.size() == 0) {
-            return;
-        }
-        deleteAttachments(Sets.difference(before,after));
+        // it is important to take the set difference between sets of ids, not of attachments themselves
+        // otherwise, when `after` contains the same attachment (with the same id), but with one field changed (e.g. sha1),
+        // then they are considered unequal and the set difference will contain this attachment and therefore
+        // deleteAttachments(Collection<Attachment>) will delete an attachment that is present in `after`
+        deleteAttachmentsByIds(Sets.difference(getAttachmentContenIds(before), getAttachmentContenIds(after)));
     }
 
     public String getSha1FromAttachmentContentId(String attachmentContentId) {
