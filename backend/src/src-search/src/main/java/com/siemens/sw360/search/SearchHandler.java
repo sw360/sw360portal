@@ -49,7 +49,7 @@ public class SearchHandler implements SearchService.Iface {
 
     @Override
     public List<SearchResult> searchFiltered(String text, User user, List<String> typeMask) throws TException {
-        SW360Assert.assertNotEmpty(text);
+        if("".equals(text)) return Collections.emptyList();
 
         // Query new and old database
         List<SearchResult> results = db.search(text, typeMask, user);
