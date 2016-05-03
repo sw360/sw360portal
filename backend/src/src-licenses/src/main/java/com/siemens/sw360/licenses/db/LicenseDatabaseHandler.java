@@ -371,7 +371,10 @@ public class LicenseDatabaseHandler {
 
             License dbLicense = new License();
             if(inputLicense.isSetId()) {
-                dbLicense = licenseRepository.get(inputLicense.getId());
+                License dbLicenseTmp = licenseRepository.get(inputLicense.getId());
+                if (dbLicenseTmp != null){
+                    dbLicense = dbLicenseTmp;
+                }
             }
 
             dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit);
@@ -412,7 +415,7 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setId(inputLicense.getId());
+        license.setId(inputLicense.isSetId() ? inputLicense.getId() : inputLicense.getShortname());
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
