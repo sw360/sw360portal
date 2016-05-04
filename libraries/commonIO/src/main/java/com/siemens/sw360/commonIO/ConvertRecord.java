@@ -45,6 +45,7 @@ public class ConvertRecord {
         ArrayList<RiskCategory> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             int id = Integer.parseInt(record.get(0));
             String text = record.get(1);
 
@@ -78,6 +79,7 @@ public class ConvertRecord {
         List<Risk> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 3) break;
             int id = Integer.parseInt(record.get(0));
             int catId = Integer.parseInt(record.get(1));
             String text = record.get(2);
@@ -116,6 +118,7 @@ public class ConvertRecord {
         List<Todo> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             String id = record.get(0);
             String text = record.get(1);
 
@@ -167,6 +170,7 @@ public class ConvertRecord {
         List<Obligation> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             String id = record.get(0);
             String name = record.get(1);
 
@@ -226,6 +230,7 @@ public class ConvertRecord {
         List<LicenseType> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             int id = Integer.parseInt(record.get(0));
             String text = record.get(1);
 
@@ -260,6 +265,7 @@ public class ConvertRecord {
         List<License> licenses = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 7) break;
             String identifier = record.get(0);
             String fullname = record.get(1);
 
@@ -354,6 +360,7 @@ public class ConvertRecord {
         Map<String, Set<Integer>> map = new HashMap<>(records.size());
 
         for (CSVRecord record : records) {
+            if(record.size()<2) break;
             String mainId = record.get(0);
             int otherId = Integer.parseInt(record.get(1));
 
