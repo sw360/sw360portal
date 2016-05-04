@@ -70,6 +70,14 @@
             <td>Main Licenses:</td>
             <td><tags:DisplayLicenseCollection licenseIds="${release.mainLicenseIds}" /></td>
         </tr>
+        <tr>
+            <td>Programming Languages:</td>
+            <td><sw360:DisplayCollection value="${release.languages}"/></td>
+        </tr>
+        <tr>
+            <td>Operating Systems:</td>
+            <td><sw360:DisplayCollection value="${release.operatingSystems}"/></td>
+        </tr>
     </table>
     <table class="table info_table" id="ReleaseRepository" title="Release Repository">
         <core_rt:if test="${release.setRepository}">

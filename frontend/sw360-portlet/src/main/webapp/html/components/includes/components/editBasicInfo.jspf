@@ -63,7 +63,7 @@
 
     <tr>
         <td width="33%">
-            <label class="textlabel stackedLabel" for="comp_homeurl">HomePage URL</label>
+            <label class="textlabel stackedLabel" for="comp_homeurl">Homepage URL</label>
             <input class="toplabelledInput" id="comp_homeurl" name="<portlet:namespace/><%=Component._Fields.HOMEPAGE%>" type="text" align="middle"
                    value="<sw360:out value="${component.homepage}"/>" placeholder="Enter Home Url"/>
         </td>
@@ -73,9 +73,9 @@
                    placeholder="Enter Wiki Url" value="<sw360:out value="${component.wiki}"/>"/>
         </td>
         <td width="33%">
-            <label class="textlabel stackedLabel" for="comp_blogurl">Blogs URL</label>
+            <label class="textlabel stackedLabel" for="comp_blogurl">Blog URL</label>
             <input class="toplabelledInput" id="comp_blogurl" name="<portlet:namespace/><%=Component._Fields.BLOG%>" type="text" align="middle"
-                   placeholder="Enter Blogs Url" value="<sw360:out value="${component.blog}"/>"/>
+                   placeholder="Enter Blog Url" value="<sw360:out value="${component.blog}"/>"/>
         </td>
     </tr>
     <tr>
@@ -87,7 +87,7 @@
         </td>
 
         <td width="33%">
-            <label class="textlabel stackedLabel" for="mailinglist">MailingList URL</label>
+            <label class="textlabel stackedLabel" for="mailinglist">Mailing List URL</label>
             <input class="toplabelledInput" id="mailinglist" name="<portlet:namespace/><%=Component._Fields.MAILINGLIST%>" type="text"
                    placeholder="Enter Mailing List Url" value="<sw360:out value="${component.mailinglist}"/>"/>
         </td>
