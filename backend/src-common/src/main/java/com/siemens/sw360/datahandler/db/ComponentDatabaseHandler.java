@@ -19,10 +19,7 @@
 package com.siemens.sw360.datahandler.db;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
 import com.siemens.sw360.datahandler.common.CommonUtils;
@@ -35,6 +32,7 @@ import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -49,12 +47,11 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.siemens.sw360.datahandler.common.CommonUtils.getBestClearingReport;
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.datahandler.common.Duration.durationOf;
@@ -115,6 +112,20 @@ public class ComponentDatabaseHandler {
 
     public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName, ThriftClients thriftClients) throws MalformedURLException {
         this(url, dbName, attachmentDbName, new ComponentModerator(thriftClients), new ReleaseModerator(thriftClients));
+    }
+
+    private void autosetReleaseClearingState(Release releaseAfter, Release releaseBefore) {
+        Optional<Attachment> oldBestCR = getBestClearingReport(releaseBefore);
+        Optional<Attachment> newBestCR = getBestClearingReport(releaseAfter);
+        if (newBestCR.isPresent()){
+            if (newBestCR.get().getCheckStatus() == CheckStatus.ACCEPTED){
+                releaseAfter.setClearingState(ClearingState.APPROVED);
+            }else{
+                releaseAfter.setClearingState(ClearingState.REPORT_AVAILABLE);
+            }
+        } else {
+            if (oldBestCR.isPresent()) releaseAfter.setClearingState(ClearingState.NEW_CLEARING);
+        }
     }
 
     /////////////////////
@@ -405,6 +416,9 @@ public class ComponentDatabaseHandler {
         }
         if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
             copyFields(actual, release, immutableFields);
+
+            autosetReleaseClearingState(release, actual);
+
             releaseRepository.update(release);
             updateReleaseDependentFieldsForComponentId(release.getComponentId());
             //clean up attachments in database

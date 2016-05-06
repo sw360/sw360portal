@@ -327,43 +327,7 @@ public class ComponentHandler implements ComponentService.Iface {
     public boolean componentIsUsed(String componentId) throws TException {
         return handler.checkIfInUseComponent(componentId);
     }
-
-    @Override
-    public RequestStatus removeAttachmentFromComponent(String componentId, User user, String attachmentContentId) throws TException {
-        Component componentByIdForEdit = getComponentByIdForEdit(componentId, user);
-
-        Set<Attachment> attachments = componentByIdForEdit.getAttachments();
-        Optional<Attachment> attachmentOptional = CommonUtils.getAttachmentOptional(attachmentContentId, attachments);
-        if (attachmentOptional.isPresent()) {
-            attachments.remove(attachmentOptional.get());
-            return updateComponent(componentByIdForEdit, user);
-        } else {
-            return RequestStatus.SUCCESS;
-        }
-    }
-
-    @Override
-    public RequestStatus removeAttachmentFromRelease(String releaseId, User user, String attachmentContentId) throws TException {
-        Release releaseByIdForEdit = getReleaseByIdForEdit(releaseId, user);
-
-        Set<Attachment> attachments = releaseByIdForEdit.getAttachments();
-        Optional<Attachment> attachmentOptional = CommonUtils.getAttachmentOptional(attachmentContentId, attachments);
-        if (attachmentOptional.isPresent()) {
-            final Attachment attachment = attachmentOptional.get();
-
-            if (Objects.equals(releaseByIdForEdit.getAttachmentInFossology(), attachment.getAttachmentContentId())) {
-                return RequestStatus.FAILURE;
-            }
-            attachments.remove(attachment);
-            if (attachment.getAttachmentType() == AttachmentType.CLEARING_REPORT){
-                CommonUtils.setReleaseClearingStateOnClearingReportRemoval(releaseByIdForEdit);
-            }
-            return updateRelease(releaseByIdForEdit, user);
-        } else {
-            return RequestStatus.SUCCESS;
-        }
-    }
-
+    
     //////////////////////////////////
     // SUBSCRIBE INDIVIDUAL OBJECTS //
     //////////////////////////////////

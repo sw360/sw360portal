@@ -64,6 +64,19 @@ public class CommonUtils {
 
     public static final Joiner COMMA_JOINER = Joiner.on(", ");
 
+    private static final Comparator<CheckStatus> CHECK_STATUS_COMPARATOR = Comparator.comparingInt(cs -> {
+        switch (cs){
+            case ACCEPTED:
+                return 2;
+            case NOTCHECKED:
+                return 1;
+            case REJECTED:
+                return 0;
+        }
+        throw new IllegalArgumentException("CheckStatus is unknown to this Comparator: " + cs.name());
+    });
+
+
     public static final String TMP_TODO_ID_PREFIX = "tmp";
 
     private static final Predicate<String> NOT_EMPTY_OR_NULL = new Predicate<String>() {
@@ -462,32 +475,11 @@ public class CommonUtils {
         }
     }
 
-    public static void setReleaseClearingStateOnClearingReportRemoval(Release release) {
-        setReleaseClearingState(release, true);
-    }
-
-    public static void setReleaseClearingStateOnUpdate(Release release) {
-        setReleaseClearingState(release, false);
-    }
-
-    private static void setReleaseClearingState(Release release, boolean maySetToNew) {
-        if (hasClearingReport(release)){
-            if (hasAcceptedClearingReport(release)){
-                release.setClearingState(ClearingState.APPROVED);
-            }else{
-                release.setClearingState(ClearingState.REPORT_AVAILABLE);
-            }
-        }else{
-            if (maySetToNew) release.setClearingState(ClearingState.NEW_CLEARING);
-        }
-    }
-
-    private static boolean hasAcceptedClearingReport(Release release) {
-        return release.getAttachments().stream().anyMatch(att -> att.getAttachmentType()== AttachmentType.CLEARING_REPORT && att.getCheckStatus() == CheckStatus.ACCEPTED);
-    }
-
-    private static boolean hasClearingReport(Release release) {
-        return release.getAttachments().stream().anyMatch(att -> att.getAttachmentType()== AttachmentType.CLEARING_REPORT);
+    public static Optional<Attachment> getBestClearingReport(Release release){
+        return nullToEmptyCollection(release.getAttachments())
+                .stream()
+                .filter(att -> att.getAttachmentType() == AttachmentType.CLEARING_REPORT)
+                .max(Comparator.comparing(Attachment::getCheckStatus, CHECK_STATUS_COMPARATOR));
     }
 
     public static boolean isTemporaryTodo(Todo todo){
