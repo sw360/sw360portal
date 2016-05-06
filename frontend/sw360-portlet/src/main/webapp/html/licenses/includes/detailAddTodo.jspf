@@ -18,10 +18,10 @@
 <form action="<%=addLicenseTodoURL%>" method="post" id="AddTodoModal">
   <table class="table">
     <tr>
-      <td colspan="5">
+      <td colspan="5" class="stackedlabel mandatory">
         <label>
               <textarea name="<portlet:namespace/>todoText" rows="5"  style="width: 100%"
-                        placeholder="Enter the Todo-Text here..."></textarea>
+                        required placeholder="Enter the Todo-Text here..."></textarea>
         </label>
       </td>
       <td colspan="1"></td>
