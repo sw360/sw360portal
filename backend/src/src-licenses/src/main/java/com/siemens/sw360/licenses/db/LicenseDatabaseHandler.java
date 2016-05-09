@@ -119,7 +119,7 @@ public class LicenseDatabaseHandler {
     public List<License> getLicenseSummaryForExport() {
         return licenseRepository.getLicenseSummaryForExport();
     }
-
+    
     ////////////////////////////
     // GET INDIVIDUAL OBJECTS //
     ////////////////////////////
@@ -368,7 +368,6 @@ public class LicenseDatabaseHandler {
 
     public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) {
         if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
-
             String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
 
             License dbLicense = null;
@@ -422,7 +421,8 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setId(inputLicense.isSetId() ? inputLicense.getId() : inputLicense.getShortname());
+        // only a new license gets its id from the shortname. Id of an existing license isn't supposed to be changed anyway
+        if (!license.isSetId()) license.setId(inputLicense.getShortname());
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
