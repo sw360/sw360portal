@@ -60,10 +60,10 @@
 
     <tr>
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="programminglanguages">Programming Languages</label>
+            <label class="textlabel stackedLabel" for="programminglanguages">Programming Languages</label>
             <input class="toplabelledInput" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
                    id="programminglanguages" type="text"
-                   placeholder="e.g., Java,C++, C#,..." required=""
+                   placeholder="e.g., Java,C++, C#,..."
                    value="<sw360:DisplayCollection value='${component.languages}' />"/>
         </td>
         <td width="33%">
