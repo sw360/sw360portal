@@ -24,10 +24,7 @@ import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.google.common.collect.Maps.uniqueIndex;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 
 /**
  * Class for comparing a document with its counterpart in the database
@@ -52,13 +49,10 @@ public class LicenseModerationRequestGenerator extends ModerationRequestGenerato
         documentDeletions.setShortname(actualLicense.getShortname());
         documentDeletions.setId(actualLicense.getId());
 
-        Set<String> actualTodoIds =
-                actualLicense.isSetTodos() ?
-                actualLicense.getTodos().stream().map(Todo::getId).collect(Collectors.toSet()) : new HashSet<>();
-        Map<String, Todo> actualTodos = Maps.uniqueIndex(actualLicense.getTodos(), Todo::getId);
+        Map<String, Todo> actualTodos = Maps.uniqueIndex(nullToEmptyList(actualLicense.getTodos()), Todo::getId);
 
         for (Todo updateTodo : updateLicense.getTodos()) {
-            if(!actualTodoIds.contains(updateTodo.getId())){
+            if(!actualTodos.containsKey(updateTodo.getId())){
                 if(!documentAdditions.isSetTodos()) {
                     documentAdditions.setTodos(new ArrayList<>());
                 }

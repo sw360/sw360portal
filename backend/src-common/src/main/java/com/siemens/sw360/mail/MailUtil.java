@@ -108,10 +108,10 @@ public class MailUtil {
     }
 
     private boolean isMailingEnabledAndValid() {
-        if (host == "") {
+        if ("".equals(host)) {
             return false; //e-mailing is disabled
         }
-        if (isAuthenticationNecessary!="false" && login == "") {
+        if (!"false".equals(isAuthenticationNecessary) && "".equals(login)) {
             log.error("Cannot send emails: authentication necessary, but login is not set.");
             return false;
         }

@@ -411,7 +411,8 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setId(inputLicense.getShortname());
+        // only a new license gets its id from the shortname. Id of an existing license isn't supposed to be changed anyway
+        if (!license.isSetId()) license.setId(inputLicense.getShortname());
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
