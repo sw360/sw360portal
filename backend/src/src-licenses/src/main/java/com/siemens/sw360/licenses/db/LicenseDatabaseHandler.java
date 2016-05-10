@@ -198,6 +198,7 @@ public class LicenseDatabaseHandler {
             license.unsetRiskDatabaseIds();
         }
 
+        license.setShortname(license.getId());
     }
 
     ////////////////////
