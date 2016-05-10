@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.siemens.sw360.datahandler.common.CommonUtils.TMP_TODO_ID_PREFIX;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 
@@ -158,11 +159,11 @@ public class LicensesPortlet extends Sw360Portlet {
                 List<Todo> allTodos = nullToEmptyList(moderationLicense.getTodos());
                 List<Todo> addedTodos = allTodos
                         .stream()
-                        .filter(todo -> todo.id.startsWith("tmp"))
+                        .filter(CommonUtils::isTemporaryTodo)
                         .collect(Collectors.toList());
                 List<Todo> currentTodos = allTodos
                         .stream()
-                        .filter(todo -> !todo.id.startsWith("tmp"))
+                        .filter(t -> !CommonUtils.isTemporaryTodo(t))
                         .collect(Collectors.toList());
 
                 request.setAttribute(ADDED_TODOS_FROM_MODERATION_REQUEST, addedTodos);
@@ -368,7 +369,7 @@ public class LicensesPortlet extends Sw360Portlet {
 
         Todo todo = new Todo();
         //add temporary id
-        todo.setId("tmp" + UUID.randomUUID().toString());
+        todo.setId(TMP_TODO_ID_PREFIX + UUID.randomUUID().toString());
         if (obligationIds != null) {
             for (String obligationId : obligationIds) {
                 if (obligationId != null && !obligationId.isEmpty()) {

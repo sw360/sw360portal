@@ -23,6 +23,7 @@ import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.*;
 import com.siemens.sw360.datahandler.thrift.components.ClearingState;
 import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
@@ -62,6 +63,8 @@ public class CommonUtils {
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
     public static final Joiner COMMA_JOINER = Joiner.on(", ");
+
+    public static final String TMP_TODO_ID_PREFIX = "tmp";
 
     private static final Predicate<String> NOT_EMPTY_OR_NULL = new Predicate<String>() {
         @Override
@@ -485,6 +488,10 @@ public class CommonUtils {
 
     private static boolean hasClearingReport(Release release) {
         return release.getAttachments().stream().anyMatch(att -> att.getAttachmentType()== AttachmentType.CLEARING_REPORT);
+    }
+
+    public static boolean isTemporaryTodo(Todo todo){
+        return todo.isSetId() && todo.getId().startsWith(TMP_TODO_ID_PREFIX);
     }
 
     public static class AfterFunction<T, V> {
