@@ -71,7 +71,6 @@
             <td>
                 <tags:DisplayLicenseCollection licenseIds="${release.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
             </td>
-            <td><tags:DisplayLicenseCollection licenseIds="${release.mainLicenseIds}" /></td>
         </tr>
         <tr>
             <td>Programming Languages:</td>
