@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) Bosch Software Innovations GmbH 2015.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.siemens.sw360</groupId>
+        <artifactId>libraries</artifactId>
+        <version>1.4.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.bosch.osmi</groupId>
+    <artifactId>bdp.access.proxy</artifactId>
+    <packaging>pom</packaging>
+    <version>1.4.0-SNAPSHOT</version>
+    <modules>
+        <module>bdp-access-api</module>
+        <module>bdp-access-impl</module>
+        <module>bdp-access-mock</module>
+        <!-- <module>bdp-access-test</module> -->
+        <module>bdp-access-api-capture</module>
+        <module>bdp-access-log</module>
+    </modules>
+
+    <properties>
+        <test.excludes>**/*schouldNotExist</test.excludes>
+    </properties>
+
+    <scm>
+        <connection>scm:git:https://example.invalid/url/to/bdp-access-proxy.git</connection>
+        <developerConnection>scm:git:https://example.invalid/url/to/bdp-access-proxy.git</developerConnection>
+        <url>https://example.invalid/url/to/bdp-access-proxy</url>
+
+    </scm>
+
+    <repositories>
+        <repository>
+           <id>jcenter</id>
+            <name>JCenter</name>
+            <url>http://jcenter.bintray.com</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>bds-bintray-tools</id>
+            <name>BDS Bintray Tools</name>
+            <url>http://dl.bintray.com/bds/tools</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>bds-bintray-sdk</id>
+            <name>BDS Bintray SDK</name>
+            <url>http://dl.bintray.com/bds/sdk</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.9</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>${test.excludes}</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+                <version>1.0-m5.1</version>
+                <configuration>
+                    <!-- see goals wiki page for configuration options -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+            </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+
+            <plugin>
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>skipSystemTests</id>
+            <properties>
+                <test.excludes>**/*SystemTest.java</test.excludes>
+            </properties>
+        </profile>
+    </profiles>
+</project>
