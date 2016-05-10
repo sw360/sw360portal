@@ -493,7 +493,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             actual_license = client.getByID(moderationRequest.getDocumentId(),requestingUser.getDepartment());
-            request.setAttribute(ACTUAL_LICENSE, actual_license);
+            request.setAttribute(KEY_LICENSE_DETAIL, actual_license);
             List<Obligation> obligations = client.getObligations();
             request.setAttribute(KEY_OBLIGATION_LIST, obligations);
         } catch (TException e) {

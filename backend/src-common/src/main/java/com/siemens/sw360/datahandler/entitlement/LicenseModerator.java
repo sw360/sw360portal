@@ -18,7 +18,6 @@
 package com.siemens.sw360.datahandler.entitlement;
 
 import com.google.common.collect.Maps;
-import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Moderator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 
 /**
@@ -76,7 +76,7 @@ public class LicenseModerator extends Moderator<License._Fields, License> {
                 log.error("Todo id not set in licenseAdditions.");
                 continue;
             }
-            if (added.getId().startsWith("tmp")) {
+            if (isTemporaryTodo(added)) {
                 if(!license.isSetTodos()){
                     license.setTodos(new ArrayList<>());
                 }
