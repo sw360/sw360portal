@@ -153,7 +153,17 @@
         result.push({
             "DT_RowId": '${doc.id}',
             "0": '${doc.type}',
-            "1": "<sw360:DisplaySearchResultLink searchResult="${doc}"/>"
+            <core_rt:choose>
+                <core_rt:when test="${doc.type.equals('project')
+                                   || doc.type.equals('component')
+                                   || doc.type.equals('release')
+                                   || doc.type.equals('license')}">
+                    "1":  "<sw360:DisplaySearchResultLink searchResult="${doc}" />"
+                </core_rt:when>
+                <core_rt:otherwise>
+                    "1":  "<sw360:out value="${doc.name}" />"
+                </core_rt:otherwise>
+            </core_rt:choose>
         });
         </core_rt:forEach>
 
