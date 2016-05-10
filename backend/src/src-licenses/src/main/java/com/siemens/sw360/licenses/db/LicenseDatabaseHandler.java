@@ -196,6 +196,7 @@ public class LicenseDatabaseHandler {
             license.setLicenseType(licenseType);
         }
 
+        license.setShortname(license.getId());
     }
 
     ////////////////////

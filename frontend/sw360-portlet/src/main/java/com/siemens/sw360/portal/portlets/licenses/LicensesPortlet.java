@@ -116,7 +116,6 @@ public class LicensesPortlet extends Sw360Portlet {
         if (id != null) {
             try {
                 License license = client.getByID(id, user.getDepartment());
-                license.setShortname(license.getId());
                 request.setAttribute(KEY_LICENSE_DETAIL, license);
                 addLicenseBreadcrumb(request, response, license);
             } catch (TException e) {
@@ -172,7 +171,6 @@ public class LicensesPortlet extends Sw360Portlet {
                 request.setAttribute(MODERATION_LICENSE_DETAIL, moderationLicense);
 
                 License dbLicense = client.getByID(id, user.getDepartment());
-                dbLicense.setShortname(dbLicense.getId());
                 request.setAttribute(KEY_LICENSE_DETAIL, dbLicense);
 
                 List<Obligation> obligations = client.getObligations();

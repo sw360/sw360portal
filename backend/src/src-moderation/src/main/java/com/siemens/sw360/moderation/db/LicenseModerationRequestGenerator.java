@@ -43,10 +43,8 @@ public class LicenseModerationRequestGenerator extends ModerationRequestGenerato
         documentDeletions = new License();
         //required fields:
         documentAdditions.setFullname(updateLicense.getFullname());
-        documentAdditions.setShortname(updateLicense.getShortname());
         documentAdditions.setId(actualLicense.getId());
         documentDeletions.setFullname(actualLicense.getFullname());
-        documentDeletions.setShortname(actualLicense.getShortname());
         documentDeletions.setId(actualLicense.getId());
 
         Map<String, Todo> actualTodos = Maps.uniqueIndex(nullToEmptyList(actualLicense.getTodos()), Todo::getId);
