@@ -49,6 +49,7 @@ public class SearchHandler implements SearchService.Iface {
 
     @Override
     public List<SearchResult> searchFiltered(String text, User user, List<String> typeMask) throws TException {
+        if(text == null) throw new TException("Search text was null.");
         if("".equals(text)) return Collections.emptyList();
 
         // Query new and old database

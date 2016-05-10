@@ -21,6 +21,9 @@ import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class SearchHandlerTest {
 
     SearchHandler handler;
@@ -35,8 +38,7 @@ public class SearchHandlerTest {
         handler.search(null, null);
     }
 
-    @Test(expected = TException.class)
     public void testSearchEmpty() throws Exception {
-        handler.search("", null);
+        assertThat(handler.search("", null).size(), is(0));
     }
 }
