@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
