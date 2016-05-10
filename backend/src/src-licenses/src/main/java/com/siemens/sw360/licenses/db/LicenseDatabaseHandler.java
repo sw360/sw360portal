@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static com.siemens.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
@@ -225,7 +226,7 @@ public class LicenseDatabaseHandler {
         License license = licenseRepository.get(licenseId);
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
             assertNotNull(license);
-            if(todo.isSetId() && todo.id.startsWith("tmp")){
+            if(isTemporaryTodo(todo)){
                 todo.unsetId();
             }
             todo.unsetObligations();
@@ -399,7 +400,7 @@ public class LicenseDatabaseHandler {
     private License updateLicenseFromInputLicense(License license, License inputLicense, String businessUnit){
         if(inputLicense.isSetTodos()) {
             for (Todo todo : inputLicense.getTodos()) {
-                if (todo.isSetId() && todo.id.startsWith("tmp")) {
+                if (isTemporaryTodo(todo)) {
                     todo.unsetId();
                     try {
                         String todoDatabaseId = addTodo(todo);
