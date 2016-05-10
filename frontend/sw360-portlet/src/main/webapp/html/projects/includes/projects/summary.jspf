@@ -32,8 +32,8 @@
         <td><sw360:out value="${project.version}"/></td>
     </tr>
     <tr>
-        <td>Created on:</td>
-        <td><sw360:out value="${project.createdOn}"/></td>
+        <td>Project state:</td>
+        <td><sw360:DisplayEnum value="${project.state}"/></td>
     </tr>
     <tr>
         <td>Visibility:</td>
@@ -63,6 +63,10 @@
                 <sw360:out value="${project.releaseClearingStateSummary.approved}" default="--"/>
             </span>
         </td>
+    </tr>
+    <tr>
+        <td>Created on:</td>
+        <td><sw360:out value="${project.createdOn}"/></td>
     </tr>
     <tr>
         <td>Created by:</td>
