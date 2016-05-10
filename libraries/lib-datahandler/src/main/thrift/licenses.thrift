@@ -86,10 +86,15 @@ struct License {
 	 5: required string fullname,
 	 6: optional LicenseType licenseType,
 	 7: optional string licenseTypeDatabaseId,
-   8: optional string externalLicenseLink,
-	 10: optional bool GPLv2Compat,
-	 11: optional bool GPLv3Compat,
-	 12: optional string reviewdate,
+     8: optional string externalLicenseLink,
+
+    // Bdp information
+     9: optional string bdpId,
+
+    // Additional informations
+	10: optional bool GPLv2Compat,
+	11: optional bool GPLv3Compat,
+	12: optional string reviewdate,
     20: optional list<Todo> todos,
     21: optional set<string> todoDatabaseIds,
 	22: optional list<Risk> risks,

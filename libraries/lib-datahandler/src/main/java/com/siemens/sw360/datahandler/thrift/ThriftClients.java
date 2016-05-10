@@ -24,11 +24,11 @@ import com.siemens.sw360.datahandler.thrift.fossology.FossologyService;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
+import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
 import com.siemens.sw360.datahandler.thrift.search.SearchService;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
 import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
@@ -61,6 +61,7 @@ public class ThriftClients {
     public static final String SEARCH_SERVICE_URL = "/search/thrift";
     public static final String USER_SERVICE_URL = "/users/thrift";
     public static final String VENDOR_SERVICE_URL = "/vendors/thrift";
+    public static final String BDPIMPORT_SERVICE_URL = "/bdpimport/thrift";
 
     static {
         Properties props = CommonUtils.loadProperties(ThriftClients.class, PROPERTIES_FILE_PATH);
@@ -119,6 +120,10 @@ public class ThriftClients {
 
     public VendorService.Iface makeVendorClient() {
         return new VendorService.Client(makeProtocol(BACKEND_URL, VENDOR_SERVICE_URL));
+    }
+
+    public BdpImportService.Iface makeBdpImportClient() {
+        return new BdpImportService.Client(makeProtocol(BACKEND_URL, BDPIMPORT_SERVICE_URL));
     }
 
 }

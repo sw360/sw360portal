@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications from Bosch Software Innovations GmbH, 2015.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -16,36 +17,27 @@
   ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   ~ 02110-1301, USA.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>sw360</artifactId>
-        <groupId>com.siemens.sw360</groupId>
-        <version>1.4.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <display-name>Bdp Import Service</display-name>
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
 
-    <artifactId>libraries</artifactId>
-    <packaging>pom</packaging>
+    <listener>
+        <listener-class>com.siemens.sw360.SW360ServiceContextListener</listener-class>
+    </listener>
 
-    <modules>
-        <module>lib-datahandler</module>
-        <module>commonIO</module>
-        <module>importers</module>
-        <module>exporters</module>
-        <module>bdp-access-proxy</module>
-    </modules>
+    <servlet>
+        <servlet-name>BdpImportService</servlet-name>
+        <servlet-class>com.bosch.osmi.sw360.bdp.service.BdpImportServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BdpImportService</servlet-name>
+        <url-pattern>/thrift</url-pattern>
+    </servlet-mapping>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+</web-app>

@@ -40,6 +40,7 @@
         <module>src-attachments</module>
         <module>src-moderation</module>
         <module>src-fossology</module>
+        <module>src-bdpimport</module>
     </modules>
 
 

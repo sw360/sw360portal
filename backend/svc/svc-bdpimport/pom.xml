@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications from Bosch Software Innovations GmbH, 2015.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,39 +18,30 @@
   ~ 02110-1301, USA.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
+        <artifactId>backend-svc</artifactId>
         <groupId>com.siemens.sw360</groupId>
-        <artifactId>backend</artifactId>
         <version>1.4.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>backend-svc</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>svc-bdpimport</artifactId>
+    <groupId>com.bosch.osmi</groupId>
+    <packaging>war</packaging>
 
-    <modules>
-        <module>svc-licenses</module>
-        <module>svc-users</module>
-        <module>svc-vendors</module>
-        <module>svc-search</module>
-        <module>svc-components</module>
-        <module>svc-projects</module>
-        <module>svc-attachments</module>
-        <module>svc-moderation</module>
-        <module>svc-fossology</module>
-        <module>svc-bdpimport</module>
-    </modules>
+    <developers>
+        <developer>
+            <name>maximilian.huber@tngtech.com</name>
+        </developer>
+    </developers>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-            </plugin>
+        <finalName>bdpimport</finalName>
 
+        <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -60,10 +52,10 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <artifactItems combine.children="append">
+                            <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.siemens.sw360</groupId>
-                                    <artifactId>src-common</artifactId>
+                                    <groupId>com.bosch.osmi</groupId>
+                                    <artifactId>src-${project.build.finalName}</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -80,10 +72,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.siemens.sw360</groupId>
-            <artifactId>svc-common</artifactId>
+            <artifactId>src-${project.build.finalName}</artifactId>
+            <groupId>com.bosch.osmi</groupId>
             <version>${project.version}</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
-
 </project>

@@ -57,6 +57,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add(BUSINESS_UNIT)
             .add(RELEASE_IDS)
             .add(RELEASE_CLEARING_STATE_SUMMARY)
+            .add(BDP_ID)
             .build();
 
 
@@ -75,6 +76,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add("Business Unit")
             .add("Release IDs")
             .add("ReleaseClearingStateSummary")
+            .add("Bdp Id")
             .build();
 
     public ProjectExporter(ComponentService.Iface client) {
@@ -109,7 +111,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
                 if (renderedField.equals(RELEASE_IDS)) {
                     row.add(joinStrings(getReleases(project.releaseIds)));
                 }
-                else if(fieldValue instanceof TEnum) {
+                else if (fieldValue instanceof TEnum) {
                     row.add(nullToEmpty(ThriftEnumUtils.enumToString((TEnum) fieldValue)));
                 }
                 else if (fieldValue instanceof String ) {

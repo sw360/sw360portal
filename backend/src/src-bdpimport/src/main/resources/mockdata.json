@@ -1,0 +1,524 @@
+{
+  "com.bosch.osmi.bdp.access.api.model.User": {
+    "getEmailAddress": "john@example.com",
+    "getLastName": "Doe",
+    "getFirstName": "John",
+    "getProjectInfos": [
+      {
+        "com.bosch.osmi.bdp.access.api.model.ProjectInfo": {
+          "getProject": {
+            "com.bosch.osmi.bdp.access.api.model.Project": {
+              "getCreatedBy": "john@example.com",
+              "getComponents": [
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "NOT_REVIEWED",
+                    "getComponentKey": "homunculus2081150",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "MIT License",
+                        "getId": "mit2"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "",
+                    "getName": "homunculus"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "NOT_REVIEWED",
+                    "getComponentKey": "undertowdistribution1892341",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "",
+                    "getName": "Undertow: Distribution"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "NOT_REVIEWED",
+                    "getComponentKey": "javaobjectdiff1754052",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Unspecified",
+                        "getId": "unspecified"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "0.13.1",
+                    "getName": "java-object-diff"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "NOT_REVIEWED",
+                    "getComponentKey": "fuchsiaparent1983815",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "0.0.4",
+                    "getName": "Fuchsia Parent"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "NOT_REVIEWED",
+                    "getComponentKey": "rsskicker1902577",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "trunk-20130414-svn",
+                    "getName": "rsskicker"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "NOT_REVIEWED",
+                    "getComponentKey": "sailshookpermitactions2817058",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "MIT License",
+                        "getId": "mit2"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "1.1.6",
+                    "getName": "sails-hook-permit-actions"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "c_bdp-api-access_8104",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "[template] Basic Proprietary Commercial License",
+                        "getId": "acme_proprietary"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "ORIGINAL_CODE",
+                    "getComponentVersion": "",
+                    "getName": "bdp-api-access"
+                  }
+                }
+              ],
+              "getFilesScanned": "162",
+              "getPendingIdentification": "3",
+              "getName": "bdp-api-access"
+            }
+          },
+          "getProjectId": "c_bdp-api-access_8104",
+          "getProjectName": "bdp-api-access"
+        }
+      },
+      {
+        "com.bosch.osmi.bdp.access.api.model.ProjectInfo": {
+          "getProject": {
+            "com.bosch.osmi.bdp.access.api.model.Project": {
+              "getCreatedBy": "john@example.com",
+              "getComponents": [
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-dbtorque",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "3.1.1",
+                    "getName": "Apache Torque"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "jakartacommonslogging178918",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "COMPONENT",
+                    "getComponentVersion": "1.0.4",
+                    "getName": "Apache Jakarta Commons Logging"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "antlranothertoolforlanguagerecognition184934",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "ANTLR Software Rights Notice",
+                        "getId": "ANTLR_License"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "2.7.5",
+                    "getName": "ANTLR, ANother Tool for Language Recognition"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartavalidator",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "COMPONENT",
+                    "getComponentVersion": "1.1.4",
+                    "getName": "Apache Jakarta Commons Validator"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartafileupload",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 1.1",
+                        "getId": "apache11"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "1.0",
+                    "getName": "Apache Commons FileUpload"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "lic_apache20",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "2.0",
+                    "getName": "Apache License 2.0"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartacollections",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 1.1",
+                        "getId": "apache11"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "2.1",
+                    "getName": "Apache Jakarta Commons Collections"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "c_anotherproject_8105",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "[template] Basic Proprietary Commercial License",
+                        "getId": "acme_proprietary"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "ORIGINAL_CODE",
+                    "getComponentVersion": "",
+                    "getName": "Another project"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "commonslang1462598",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "3.4",
+                    "getName": "Apache Commons Lang"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartabeanutils",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "1.7.0",
+                    "getName": "Apache Jakarta Commons BeanUtils"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartastruts",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "COMPONENT",
+                    "getComponentVersion": "1.2.9",
+                    "getName": "Apache Struts"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "commonsmath10",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "SNIPPET",
+                    "getComponentVersion": "3.0",
+                    "getName": "Commons Math"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-xmlxalanjava",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 1.1",
+                        "getId": "apache11"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "COMPONENT",
+                    "getComponentVersion": "2.5.1",
+                    "getName": "Apache XML Xalan-Java"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartadigester",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 2.0",
+                        "getId": "Apache20"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "1.6",
+                    "getName": "Apache Jakarta Commons Digester"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "apache-jakartaoro",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "Apache License 1.1",
+                        "getId": "apache11"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "FILE",
+                    "getComponentVersion": "2.0.7",
+                    "getName": "Apache ORO"
+                  }
+                },
+                {
+                  "com.bosch.osmi.bdp.access.api.model.Component": {
+                    "getApprovalState": "APPROVED",
+                    "getComponentKey": "antlranothertoolforlanguagerecognition184934",
+                    "getComponentHomePage": "https://example.com/project",
+                    "getComponentComment": "",
+                    "getLicense": {
+                      "com.bosch.osmi.bdp.access.api.model.License": {
+                        "getText": "This is a license text",
+                        "hasLicenseTextAttached": true,
+                        "getName": "ANTLR Software Rights Notice",
+                        "getId": "ANTLR_License"
+                      }
+                    },
+                    "getApprovedBy": "",
+                    "getReleaseDate": "2014-05-11",
+                    "getUsageLevel": "COMPONENT",
+                    "getComponentVersion": "2.7.2",
+                    "getName": "ANTLR, ANother Tool for Language Recognition"
+                  }
+                }
+              ],
+              "getFilesScanned": "528",
+              "getPendingIdentification": "0",
+              "getName": "Another project"
+            }
+          },
+          "getProjectId": "c_anotherproject_8105",
+          "getProjectName": "Another project"
+        }
+      }
+    ]
+  }
+}

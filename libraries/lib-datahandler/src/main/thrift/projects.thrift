@@ -64,6 +64,9 @@ struct Project {
     5: optional string description,
     6: optional string version,
 
+    // Bdp information
+    9: optional string bdpId,
+
     // Additional informations
     10: optional set<Attachment> attachments,
     11: optional string createdOn, // Creation date YYYY-MM-dd
