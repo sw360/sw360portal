@@ -277,9 +277,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Error getting releases!", e);
             throw new PortletException("cannot get releases " + Arrays.toString(linkedIds), e);
         }
-
         request.setAttribute(RELEASE_LIST, linkedReleases);
-
         include("/html/utils/ajax/linkedReleasesAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
@@ -399,7 +397,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             prepareStandardView(request);
             super.doView(request, response);
         }
-
     }
 
     private void prepareStandardView(RenderRequest request) throws IOException {
@@ -460,9 +457,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
-
                 Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
-
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
                 addProjectBreadcrumb(request, response, project);

@@ -58,6 +58,10 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.REMOVE_PROJECT%>'/>
 </portlet:resourceURL>
 
+<portlet:renderURL var="impProjectURL">
+    <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_IMPORT%>"/>
+</portlet:renderURL>
+
 <portlet:renderURL var="addProjectURL">
     <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/>
 </portlet:renderURL>
@@ -78,9 +82,11 @@
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Projects</span>
     <span class="pull-right">
+        <input type="button" id="importbutton" class="addButton"
+               value="Import Projects" onclick="window.location.href='/group/guest/import/'" />
         <input type="button" id="exportbutton" class="addButton"
-               value="Export Projects">
-        <input type="button" class="addButton" onclick="window.location.href='<%=addProjectURL%>'" value="Add Project">
+               value="Export Projects" />
+        <input type="button" class="addButton" onclick="window.location.href='<%=addProjectURL%>'" value="Add Project" />
     </span>
 </p>
 

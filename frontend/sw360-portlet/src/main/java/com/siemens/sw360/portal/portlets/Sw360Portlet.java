@@ -65,9 +65,6 @@ abstract public class Sw360Portlet extends MVCPortlet {
 
     private static final Logger log = Logger.getLogger(Sw360Portlet.class);
 
-    private static final Map<Class<? extends Sw360Portlet>, Long> repository = new ConcurrentHashMap<>();
-
-    private boolean registered = false;
     protected final ThriftClients thriftClients;
 
     protected Sw360Portlet() {
@@ -78,31 +75,9 @@ abstract public class Sw360Portlet extends MVCPortlet {
         this.thriftClients = thriftClients;
     }
 
-    static long getPlid(Class<? extends Sw360Portlet> portlet) {
-        Long plid = repository.get(portlet);
-        return plid != null ? plid : 0;
-    }
-
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        if (!registered) {
-            register(request);
-        }
-
         super.doView(request, response);
-    }
-
-
-    private synchronized void register(PortletRequest request) {
-        if (!registered) {
-            ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(THEME_DISPLAY);
-            Layout layout = themeDisplay.getLayout();
-            long plid = layout.getPlid();
-
-            repository.put(this.getClass(), plid);
-
-            registered = true;
-        }
     }
 
     protected void addBreadcrumbEntry(PortletRequest request, String name, PortletURL url) {

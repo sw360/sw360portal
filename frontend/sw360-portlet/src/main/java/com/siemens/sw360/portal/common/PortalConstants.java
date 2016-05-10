@@ -19,8 +19,6 @@
 package com.siemens.sw360.portal.common;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 
 import java.util.Properties;
 import java.util.Set;
@@ -31,6 +29,7 @@ import java.util.Set;
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author gerrit.grenzebach@tngtech.com
+ * @author andreas.reichel@tngtech.com
  */
 public class PortalConstants {
 
@@ -58,6 +57,7 @@ public class PortalConstants {
     public static final String PAGENAME_DETAIL = "detail";
     public static final String PAGENAME_VIEW = "view";
 
+    public static final String PAGENAME_IMPORT = "import";
     public static final String PAGENAME_EDIT = "edit";
     public static final String PAGENAME_ACTION = "action";
     public static final String PAGENAME_DUPLICATE = "duplicate";
@@ -229,6 +229,40 @@ public class PortalConstants {
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
     public static final String EXPORT_ID = "export_id";
+
+    // Import Projects
+    public static final String CHECKED_PROJECT = "checked_project";
+
+    // Import credentials
+    public static final String SESSION_IMPORT_USER = "importProject_import_user";
+    public static final String SESSION_IMPORT_DB = "importProject_import_db";
+    public static final String SESSION_IMPORT_PASS = "importProject_import_pass";
+    public static final String SESSION_IMPORT_URL = "importProject_import_url";
+
+    // Import Actions
+    public static final String IMPORT_USER_ACTION__IMPORTBDP = "importProject_importBdpData";
+
+    public static final String IMPORT_USER_ACTION = "importProject_import_action";
+    public static final String IMPORT_USER_ACTION__DISCONNECT = "importProject_disconnect";
+    public static final String IMPORT_USER_ACTION__NEWIMPORTSOURCE = "importProject_select_new_import_source";
+    public static final String IMPORT_USER_ACTION__UPDATEIMPORTABLES = "importProject_update_importables";
+
+    // Import Status
+    public static final String IMPORT_RESPONSE__IMPORT_BDP_SUCCESS = "importProject_response_bdp_import_success";
+    public static final String IMPORT_RESPONSE__IMPORT_BDP_FAILURE = "importProject_response_bdp_import_failure";
+    public static final String IMPORT_RESPONSE__IMPORT_BDP_GENERAL_FAILURE = "importProject_response_bdp_import_general_failure";
+
+    public static final String IMPORT_RESPONSE__STATUS = "importProject_response_status";
+    public static final String IMPORT_RESPONSE__DBURL = "importProject_response_dburl";
+    public static final String IMPORT_RESPONSE__DB_CHANGED = "importProject_response_db_changed";
+    public static final String IMPORT_RESPONSE__DB_URL_NOTSET = "importProject_response_db_url_notset";
+    public static final String IMPORT_RESPONSE__UNAUTHORIZED = "importProject_response_unauthorized";
+    public static final String IMPORT_RESPONSE__DB_CONNECT_ERROR = "importProject_response_db_connect_error";
+    public static final String IMPORT_RESPONSE__NEW_IMPORTABLES = "importProject_response_new_importables";
+
+    public static final String IMPORT_RESPONSE__SUCCESSFUL_IDS = "importProject_response_successfulIds";
+    public static final String IMPORT_RESPONSE__FAILED_IDS = "importProject_response_failedIds";
+
     //! request status
     public static final String REQUEST_STATUS = "request_status";
 

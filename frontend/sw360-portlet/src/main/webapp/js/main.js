@@ -42,6 +42,27 @@ function openDialog(id, focusId, heightPerc, widthPerc) {
     toJQuery(focusId).focus();
 }
 
+function openDialogAbsolute(id, focusId, widthPx, heightPx) {
+    heightPx = (heightPx !== undefined) ? heightPx : 256;
+    widthPx = (widthPx !== undefined) ? widthPx: 256;
+
+    var $dialogForm = $("#" + id);
+
+    if (!contains(openDialogs, id)) {
+        openDialogs.push(id);
+    }
+
+    $dialogForm.css('visibility', 'visible');
+    $dialogForm.dialog({
+        height: heightPx,
+        width: widthPx,
+        modal: true,
+        resizable: false
+    });
+
+    toJQuery(focusId).focus();
+}
+
 function contains(a, obj) {
     return $.inArray(obj, a) !== -1;
 }
@@ -200,5 +221,24 @@ function loadDataTableExtension() {
             return versionCmp(b, a);
         }
     });
+}
+
+function cleanMessages() {
+    $('.portlet-body .alert').remove();
+}
+
+function flashSuccessMessage(content) {
+    flashMessage(content, 'alert-success');
+}
+
+function flashErrorMessage(content) {
+    flashMessage(content, 'alert-error');
+}
+
+function flashMessage(content, styleClass) {
+    var target = $('.portlet-body');
+
+    var node = $('<div/>');
+    node.addClass('alert ' + styleClass).text(content).prependTo(target);
 }
 

@@ -25,6 +25,7 @@
 		<portlet id="mysubscriptions"/>
 		<portlet id="mycomponents"/>
 		<portlet id="myprojects"/>
+		<portlet id="ProjectImportPortlet"/>
 		<portlet id="mytaskassignments"/>
 		<portlet id="mytasksubmissions"/>
 		<portlet id="fossologyadmin"/>
