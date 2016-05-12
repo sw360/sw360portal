@@ -319,7 +319,7 @@ abstract public class Sw360Portlet extends MVCPortlet {
         SessionMessages.add(request, "request_processed", Joiner.on(" ").join(msgs));
     }
 
-    protected void putLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) throws TException {
+    protected void putLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
         final Map<Integer, Collection<ReleaseLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log));
         putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
     }
@@ -334,12 +334,12 @@ abstract public class Sw360Portlet extends MVCPortlet {
         putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
     }
 
-    protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) throws TException {
+    protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
         final Map<Integer, Collection<ProjectLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log));
         putLinkedObjectsInRequest(request, depthMap, PROJECT_LIST, PROJECT_DEPTH_MAP);
     }
 
-    private <T> void putLinkedObjectsInRequest(RenderRequest request, Map<Integer, Collection<T>> depthMap, String listBeanName, String depthMapBeanName) throws TException {
+    private <T> void putLinkedObjectsInRequest(RenderRequest request, Map<Integer, Collection<T>> depthMap, String listBeanName, String depthMapBeanName) {
         if (depthMap.containsKey(0)) {
             request.setAttribute(listBeanName, Lists.newArrayList(depthMap.get(0)));
             depthMap.remove(0);

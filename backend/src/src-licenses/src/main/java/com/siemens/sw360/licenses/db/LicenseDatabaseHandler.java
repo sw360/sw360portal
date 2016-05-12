@@ -370,12 +370,12 @@ public class LicenseDatabaseHandler {
         if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
             String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
 
-            License dbLicense = new License();
+            License dbLicense = null;
             if(inputLicense.isSetId()) {
-                License dbLicenseTmp = licenseRepository.get(inputLicense.getId());
-                if (dbLicenseTmp != null){
-                    dbLicense = dbLicenseTmp;
-                }
+                dbLicense = licenseRepository.get(inputLicense.getId());
+            }
+            if(dbLicense == null){
+                dbLicense = new License();
             }
 
             dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit);

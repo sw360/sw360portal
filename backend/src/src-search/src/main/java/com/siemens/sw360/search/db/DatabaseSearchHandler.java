@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
+import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.lucene.LuceneSearchView;
@@ -127,7 +128,7 @@ public class DatabaseSearchHandler {
     }
 
     private boolean isVisibleToUser(SearchResult result, User user){
-        if (! result.type.equals("project")){
+        if (! result.type.equals(SW360Constants.TYPE_PROJECT)){
             return true;
         }
         Project project =  projectRepository.get(result.id);

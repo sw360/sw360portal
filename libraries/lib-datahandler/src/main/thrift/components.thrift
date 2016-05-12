@@ -196,8 +196,6 @@ struct Release {
     54: optional COTSDetails cotsDetails,
 
     65: optional set<string> mainLicenseIds,
-    66: optional set<string> mainLicenseNames,
-    67: optional set<License> mainLicenses,
 
     // Urls for the project
     70: optional string downloadurl, // URL for download page for this release
@@ -242,8 +240,6 @@ struct Component {
     33: optional set<string> releaseIds,
 
     35: optional set<string> mainLicenseIds,        //Aggregate of release main licenses
-    36: optional set<string> mainLicenseNames,
-    37: optional set<License> mainLicenses,
 
     // List of keywords
     40: optional set<string> categories,
