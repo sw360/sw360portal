@@ -71,7 +71,7 @@ public class ProjectImpl implements Project {
     }
 
     private Collection<Component> translate(List<BomComponent> bomComponents) {
-        Collection<Component> result = new ArrayList<Component>();
+        Collection<Component> result = new ArrayList<>();
         for (BomComponent source : bomComponents) {
             result.add(new ComponentImpl(source, project.getProjectId(), access));
         }
@@ -85,16 +85,16 @@ public class ProjectImpl implements Project {
 
     @Override
     public String getFilesScanned() {
-        int Filecount = 0;
+        int filecount = 0;
         try {
             AnalysisCodeTreeInfo analysisCodeTreeInfo = access.getDiscoveryApi()
                     .getLastAnalysisCodeTreeInfo(project.getProjectId());
-            Filecount = analysisCodeTreeInfo.getAnalyzedFileCount();
+            filecount = analysisCodeTreeInfo.getAnalyzedFileCount();
         } catch (SdkFault sdkFault) {
             LOGGER.error("Unable to retrieve project data. Reason \n" + sdkFault.getMessage());
             throw new IllegalStateException(sdkFault.getCause());
         }
-        return String.valueOf(Filecount);
+        return String.valueOf(filecount);
     }
 
     @Override
@@ -111,11 +111,19 @@ public class ProjectImpl implements Project {
             codeTreeParameters.getCounts().add(NodeCountType.PENDING_ID_ALL);
             List<CodeTreeNode> nodes = access.getCodeTreeApi().getCodeTreeNodes(project.getProjectId(), root, codeTreeParameters);
 
-            for (CodeTreeNode node : nodes) {
-                Map<NodeCountType, Long> countMap = CodeTreeUtilities
-                        .getNodeCountMap(node);
+            if(!nodes.isEmpty()){
+                Map<NodeCountType, Long> countMap = CodeTreeUtilities.getNodeCountMap(nodes.get(0));
                 fileIdentifiedCount = countMap.get(NodeCountType.PENDING_ID_ALL);
+                if(nodes.size() > 1){
+                    LOGGER.debug("Project " + this.getName() +
+                            " contains more than one root node, which should not happen");
+                }
+            }else{
+                throw new IllegalStateException("The project " +
+                        this.getName() +
+                        " should contain at least on root level in its source tree.");
             }
+
             return String.valueOf(fileIdentifiedCount);
 
         } catch (SdkFault sdkFault) {
