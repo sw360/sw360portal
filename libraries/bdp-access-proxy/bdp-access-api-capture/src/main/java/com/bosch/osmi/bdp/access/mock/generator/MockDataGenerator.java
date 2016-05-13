@@ -88,9 +88,9 @@ public class MockDataGenerator {
     private void writeToJsonFile(JsonObject resultStore) throws IOException {
         String path = Util.getHomeDir() + File.separator + ".bdp-access-files" + File.separator + "mockdata.json";
         File file = new File(path);
-        boolean dirExist = file.getParentFile().mkdirs();
-        if(dirExist){
-            LOGGER.debug("Unable to create directory " + file.getAbsolutePath() + ". Maybe it already exists.");
+        boolean dirCreated = file.getParentFile().mkdirs();
+        if(dirCreated){
+            LOGGER.debug("Unable to create directory " + file.getParentFile().getAbsolutePath() + ". Maybe it already exists.");
         }
 
         try (Writer writer = new FileWriter(file)) {
