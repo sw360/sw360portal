@@ -112,13 +112,16 @@ public class ComponentImpl implements Component {
 
     @Override
     public String getUsageLevel() {
-        String usageLevel = "";
-        //one component is expected to have only one usage
+        String usageLevel = EMPTY;
         List<UsageLevel> usage = source.getUsageLevels();
-        for (UsageLevel u : usage) {
-            usageLevel = u.name();
+        if(!usage.isEmpty()){
+            usageLevel = usage.get(0).name();
+            if(usage.size() > 1){
+                LOGGER.error("Component " + this.getName() + " has more than one usage level but should have only one.");
+            }
+        }else{
+            LOGGER.debug("No usage level present at component " + this.getName() + " but should.");
         }
-
         return usageLevel;
     }
 

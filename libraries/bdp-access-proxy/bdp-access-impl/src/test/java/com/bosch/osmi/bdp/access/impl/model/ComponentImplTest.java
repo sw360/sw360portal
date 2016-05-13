@@ -18,6 +18,7 @@
 package com.bosch.osmi.bdp.access.impl.model;
 
 import com.blackducksoftware.sdk.protex.common.ComponentKey;
+import com.blackducksoftware.sdk.protex.common.UsageLevel;
 import com.blackducksoftware.sdk.protex.component.Component;
 import com.blackducksoftware.sdk.protex.component.ComponentApi;
 import com.blackducksoftware.sdk.protex.project.bom.BomComponent;
@@ -28,7 +29,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -65,5 +68,29 @@ public class ComponentImplTest {
         c.setReleaseDate(d);
         when(componentApi.getComponentByKey(any(ComponentKey.class))).thenReturn(c);
         assertThat(component.getReleaseDate(), is("2014-03-01"));
+    }
+
+
+    @Test
+    public void testGetUsageLevel() throws Exception {
+        when(bomComponent.getUsageLevels()).thenReturn(new ArrayList<UsageLevel>());
+        component = new ComponentImpl(bomComponent, "", bdp);
+        assertThat(component.getUsageLevel(), is(""));
+
+        String expectedResult = "FILE";
+        List<UsageLevel> usages = new ArrayList<>();
+        usages.add(UsageLevel.fromValue(expectedResult));
+        when(bomComponent.getUsageLevels()).thenReturn(usages);
+        component = new ComponentImpl(bomComponent, "", bdp);
+        assertThat(component.getUsageLevel(), is(expectedResult));
+
+        expectedResult = "FILE";
+        usages = new ArrayList<>();
+        usages.add(UsageLevel.fromValue(expectedResult));
+        usages.add(UsageLevel.fromValue("COMPONENT"));
+        when(bomComponent.getUsageLevels()).thenReturn(usages);
+        component = new ComponentImpl(bomComponent, "", bdp);
+        assertThat(component.getUsageLevel(), is(expectedResult));
+
     }
 }
