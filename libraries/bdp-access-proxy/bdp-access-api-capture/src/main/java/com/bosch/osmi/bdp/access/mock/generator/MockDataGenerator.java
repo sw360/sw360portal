@@ -55,12 +55,10 @@ public class MockDataGenerator {
         generator.generateMockData();
     }
 
-    public MockDataGenerator(){
-        try {
-            readProperties();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public MockDataGenerator() throws IOException {
+        readProperties();
+
+
     }
 
     private void readProperties() throws IOException {
