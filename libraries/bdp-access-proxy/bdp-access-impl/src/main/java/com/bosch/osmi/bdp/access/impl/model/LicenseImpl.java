@@ -60,7 +60,7 @@ public class LicenseImpl implements License {
         } catch (SdkFault sdkFault) {
             LOGGER.error("Unable to get license text from Bdp server. Reason: \n" + sdkFault.getMessage());
             LOGGER.debug("License ID: " + getId());
-            throw new IllegalStateException(sdkFault.getCause());
+            return false;
         }
     }
 
