@@ -19,7 +19,7 @@
 package com.bosch.osmi.bdp.access.api.model;
 
 /**
- * Created by muj1be on 11/16/15.
+ * Created by johannes.kristan@bosch-si.com on 11/16/15.
  */
 public interface License extends BdpEntity {
     String getName();

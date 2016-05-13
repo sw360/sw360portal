@@ -41,7 +41,7 @@ import java.util.Map;
  * a user object can be retrieved. The user object is the actual entry point into the whole object net retrieved
  * from Bdp.
  *
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/16/15.
  */
 public class BdpApiAccessMockImpl implements BdpApiAccess {

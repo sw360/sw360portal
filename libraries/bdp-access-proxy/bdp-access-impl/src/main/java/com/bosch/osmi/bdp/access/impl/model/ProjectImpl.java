@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/18/15.
  */
 public class ProjectImpl implements Project {

@@ -27,7 +27,7 @@ import java.util.Properties;
 
 
 /**
- * Created by muj1be on 11/17/15.
+ * Created by johannes.kristan@bosch-si.com on 11/17/15.
  */
 @Ignore("This Test will not run, if connection to BDP Server could not be established.")
 public class BdpApiAccessImplSystemTest extends BdpApiAccessSystemTest {

@@ -20,7 +20,7 @@ package com.bosch.osmi.bdp.access.api;
 import com.bosch.osmi.bdp.access.api.model.User;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/20/15.
  */
 public interface BdpApiAccess {

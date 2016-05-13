@@ -39,7 +39,7 @@ import java.util.Properties;
  * The MockDataGenerator iterates over all public methods of all api entities and stores the return values in a json
  * file. It uses the Java Reflection API to inspect the bdp-access-api and google.gson to serialize the result.
  *
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/19/15.
  */
 public class MockDataGenerator {

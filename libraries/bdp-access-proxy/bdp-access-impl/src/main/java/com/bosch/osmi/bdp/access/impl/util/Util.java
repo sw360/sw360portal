@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/19/15.
  */
 public class Util {

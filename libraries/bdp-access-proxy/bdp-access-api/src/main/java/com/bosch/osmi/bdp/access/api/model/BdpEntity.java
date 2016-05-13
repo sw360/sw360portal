@@ -19,7 +19,7 @@
 package com.bosch.osmi.bdp.access.api.model;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/27/15.
  */
 public interface BdpEntity {

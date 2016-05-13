@@ -28,7 +28,7 @@ import java.util.Collection;
 import static org.hamcrest.Matchers.greaterThan;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/20/15.
  */
 public abstract class BdpApiAccessSystemTest {

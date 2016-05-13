@@ -21,7 +21,7 @@ package com.bosch.osmi.bdp.access.api.model;
 import java.util.Collection;
 
 /**
- * Created by muj1be on 11/16/15.
+ * Created by johannes.kristan@bosch-si.com on 11/16/15.
  */
 public interface User extends BdpEntity {
     String getEmailAddress();

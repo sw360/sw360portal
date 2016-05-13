@@ -23,7 +23,7 @@ import com.bosch.osmi.bdp.access.mock.BdpApiAccessMockImpl;
 import java.io.FileNotFoundException;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/20/15.
  */
 public class BdpApiAccessMockSystemTest extends BdpApiAccessSystemTest{

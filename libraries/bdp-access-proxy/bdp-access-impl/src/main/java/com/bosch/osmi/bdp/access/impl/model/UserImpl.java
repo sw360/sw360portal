@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author muj1be
+ * @author johannes.kristan@bosch-si.com
  * @since 11/17/15.
  */
 public class UserImpl implements User{
