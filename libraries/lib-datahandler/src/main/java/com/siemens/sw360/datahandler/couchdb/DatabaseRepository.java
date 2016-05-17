@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -29,6 +29,7 @@ import java.util.Set;
  * Access the database in a CRUD manner, for a generic class
  *
  * @author cedric.bodet@tngtech.com
+ * @author stefan.jaeger@evosoft.com
  */
 public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
 
@@ -85,6 +86,11 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
         return queryForIdsAsValue(query);
     }
 
+    public Set<String> queryForIdsAsComplexValue(String queryName, String ... keys) {
+        ViewQuery query = createQuery(queryName).key(ComplexKey.of(keys));
+        return queryForIds(query);
+    }
+
     public Set<String> queryForIdsAsValue(String queryName, Set<String> keys) {
         ViewQuery query = createQuery(queryName).keys(keys);
         return queryForIdsAsValue(query);
@@ -98,6 +104,11 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
 
     public Set<String> queryForIds(String queryName, String startKey, String endKey, Integer skip, Integer limit) {
         ViewQuery query = createQuery(queryName).startKey(startKey).endKey(endKey).skip(skip).limit(limit);
+        return queryForIds(query);
+    }
+
+    public Set<String> getAllIdsByView(String queryName, boolean descending) {
+        ViewQuery query = createQuery(queryName).descending(descending);
         return queryForIds(query);
     }
 

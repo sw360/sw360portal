@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -117,6 +117,8 @@ abstract public class Sw360Portlet extends MVCPortlet {
             jsonObject.put("totalAffectedObjects", requestSummary.totalAffectedElements);
         if (requestSummary.isSetTotalElements())
             jsonObject.put("totalObjects", requestSummary.totalElements);
+        if (requestSummary.isSetMessage())
+            jsonObject.put("message", requestSummary.message);
 
         try {
             writeJSON(request, response, jsonObject);

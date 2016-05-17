@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -35,6 +35,10 @@ import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.CVEReference;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VendorAdvisory;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
@@ -63,10 +67,12 @@ public class ThriftUtils {
             .add(Vendor.class) // Vendor service
             .add(ModerationRequest.class) // Moderation service‚
             .add(FossologyHostFingerPrint.class) // Fossology service
+            .add(Vulnerability.class, ReleaseVulnerabilityRelation.class) // Vulnerability Service
             .build();
 
     public static final List<Class> THRIFT_NESTED_CLASSES = ImmutableList.<Class>builder()
             .add(Repository.class).add(ClearingInformation.class) // Component service
+            .add(CVEReference.class, VendorAdvisory.class) // Vulnerability Service
             .build();
 
     private static final Map<Class, Class<? extends DocumentWrapper>> THRIFT_WRAPPED =

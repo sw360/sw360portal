@@ -30,6 +30,7 @@ import java.util.Set;
  * @author Johannes.Najjar@tngtech.com
  * @author gerrit.grenzebach@tngtech.com
  * @author andreas.reichel@tngtech.com
+ * @author stefan.jaeger@evosoft.com
  */
 public class PortalConstants {
 
@@ -139,6 +140,9 @@ public class PortalConstants {
     public static final String DUPLICATE_RELEASE_SOURCES = "duplicateReleaseSources";
     public static final String DUPLICATE_COMPONENTS = "duplicateComponents";
     public static final String DUPLICATE_PROJECTS = "duplicateProjects";
+
+    //! Specialized keys for vulnerability management
+    public static final String VULNERABILITY_LIST = "vulnerabilityList";
 
     //! Specialized keys for account sign-up
     public static final String PASSWORD = "password";

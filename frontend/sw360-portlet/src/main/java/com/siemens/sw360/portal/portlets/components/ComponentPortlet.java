@@ -38,6 +38,8 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import com.siemens.sw360.exporter.ComponentExporter;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.PortletUtils;
@@ -64,6 +66,7 @@ import static com.siemens.sw360.portal.common.PortalConstants.*;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author stefan.jaeger@evosoft.com
  */
 public class ComponentPortlet extends FossologyAwarePortlet {
 
@@ -485,6 +488,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 setUsingDocs(request, user, client, releaseIds);
 
                 addComponentBreadcrumb(request, response, component);
+
+                // get vulnerabilities
+                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByComponentId(id, user);
+                request.setAttribute(VULNERABILITY_LIST, vuls);
             } catch (TException e) {
                 log.error("Error fetching component from backend!", e);
             }
@@ -538,6 +546,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 if (isNullOrEmpty(id)) {
                     id = release.getComponentId();
                 }
+
+                // get vulnerabilities
+                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByReleaseId(releaseId, user);
+                request.setAttribute(VULNERABILITY_LIST, vuls);
             }
 
             component = client.getComponentById(id, user);

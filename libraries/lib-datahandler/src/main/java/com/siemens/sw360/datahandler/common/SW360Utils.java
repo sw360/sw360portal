@@ -37,6 +37,7 @@ import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,12 +45,19 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.transform;
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractId;
+import static org.apache.log4j.Logger.getLogger;
 
 /**
  * @author Cedric.Bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author stefan.jaeger@evosoft.com
  */
 public class SW360Utils {
+
+    private final static Logger log = getLogger(SW360Utils.class);
+
+    public static final String FORMAT_DATE = "yyyy-MM-dd";
+    public static final String FORMAT_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
 
     private static Joiner spaceJoiner = Joiner.on(" ");
 
@@ -61,7 +69,37 @@ public class SW360Utils {
      * Returns a string for the current date in the form "yyyy-MM-dd"
      */
     public static String getCreatedOn() {
-        return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        return new SimpleDateFormat(FORMAT_DATE).format(new Date());
+    }
+
+    /**
+     * Returns a string for the current date in the form "yyyy-MM-dd HH:mm:ss"
+     */
+    public static String getCreatedOnTime() {
+        return new SimpleDateFormat(FORMAT_DATE_TIME).format(new Date());
+    }
+
+    /**
+     * Tries to parse a given date in format "yyyy-MM-dd HH:mm:ss" to a Date, returns null if it fails
+     * @param date in format "yyyy-MM-dd HH:mm:ss"
+     * @return Date
+     */
+    public static Date getDateFromTimeString(String date){
+        try {
+            return new SimpleDateFormat(FORMAT_DATE_TIME).parse(date);
+        } catch (ParseException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * returns a string of a given date in the form "yyyy-MM-dd HH:mm:ss"
+     * @param date
+     * @return {@link String}
+     */
+    public static String getDateTimeString(Date date){
+        return new SimpleDateFormat(FORMAT_DATE_TIME).format(date);
     }
 
     /**

@@ -1,6 +1,6 @@
 /**
 *
-* Modifications applied by Siemens AG 2014.
+* Modifications applied by Siemens AG 2014-2016.
 * Modifications for supporting own application.
 *
 */
@@ -264,6 +264,12 @@ td:nth-of-type(3)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Misc
  */
+.dataTables_cell_nowrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .dataTables_scroll {
 	clear: both;
 }

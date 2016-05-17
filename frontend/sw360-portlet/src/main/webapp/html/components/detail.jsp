@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -67,6 +67,7 @@
                 <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
                 <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
                 <li <core_rt:if test="${selectedTab == 'Wiki'}"> class="active" </core_rt:if>><a href="#tab-Wiki">Wiki</a></li>
+                <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
             </ul>
             <div class="tab-content span10">
                 <div id="tab-Summary" class="tab-pane">
@@ -81,6 +82,9 @@
                 </div>
                 <div id="tab-Wiki" class="tab-pane">
                     <%@include file="/html/components/includes/wiki.jsp" %>
+                </div>
+                <div id="tab-Vulnerabilities">
+                    <%@include file="/html/components/includes/components/vulnerabilities.jspf" %>
                 </div>
             </div>
         </div>
