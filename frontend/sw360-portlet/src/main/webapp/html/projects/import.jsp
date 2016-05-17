@@ -143,8 +143,8 @@
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
-                {"sTitle": "Project Id in BDP"},
-                {"sTitle": "Project Name"}
+                {"sTitle": "Project id in selected data source"},
+                {"sTitle": "Project name"}
             ]
         });
 
@@ -332,8 +332,8 @@
             "bDestroy": true,
             "sPaginationType": "full_numbers",
             "aoColumns": [
-                {"sTitle": "Project Id in BDP"},
-                {"sTitle": "Project Name"}
+                {"sTitle": "Project id in selected data source"},
+                {"sTitle": "Project name"}
             ],
             "aaData": projectList
         });
@@ -375,8 +375,8 @@
                     "bDestroy": true,
                     "sPaginationType": "full_numbers",
                     "aoColumns": [
-                         {"sTitle": "Project Id in BDP"},
-                        {"sTitle": "Project Name"}
+                         {"sTitle": "Project id in selected data source"},
+                        {"sTitle": "Project name"}
                     ],
                     "aaData": []
                 });
