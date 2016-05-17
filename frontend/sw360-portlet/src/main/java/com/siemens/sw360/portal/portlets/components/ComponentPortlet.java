@@ -475,7 +475,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             try {
                 ComponentService.Iface client = thriftClients.makeComponentClient();
                 Component component = client.getComponentById(id, user);
-                final Set<License> licenses = new HashSet<>(SW360Utils.getLicenses(component.getMainLicenseIds(), user.getDepartment()));
 
                 request.setAttribute(COMPONENT, component);
                 request.setAttribute(DOCUMENT_ID, id);
@@ -526,7 +525,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
             if (!isNullOrEmpty(releaseId)) {
                 release = client.getReleaseById(releaseId, user);
-                final Set<License> licenses = new HashSet<>(SW360Utils.getLicenses(release.getMainLicenseIds(), user.getDepartment()));
 
                 request.setAttribute(RELEASE_ID, releaseId);
                 request.setAttribute(RELEASE, release);

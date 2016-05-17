@@ -104,8 +104,8 @@ struct License {
 service LicenseService {
 
     /**
-     * Get a single license by providing its ID, filled with license type and todos containing obligations and whitelists
-     * filtered for the given organisation, risks are not set
+     * Get a single license by providing its ID, filled with license type, risks and todos containing obligations and whitelists
+     * filtered for the given organisation
      **/
     License getByID(1:string id, 2: string organisation);
 
