@@ -23,6 +23,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+
 /**
  * Thrift Servlet instantiation
  *
