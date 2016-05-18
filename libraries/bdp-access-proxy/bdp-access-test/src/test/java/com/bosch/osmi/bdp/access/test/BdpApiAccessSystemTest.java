@@ -51,9 +51,7 @@ public abstract class BdpApiAccessSystemTest {
             }
         }
         Assert.assertTrue(contains);
-        if(!contains){
-            return;
-        }
+
         String projectName = project.getName();
         Assert.assertThat(projectName, CoreMatchers.is("bdp-api-access"));
 
