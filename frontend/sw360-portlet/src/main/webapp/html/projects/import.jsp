@@ -32,6 +32,7 @@
 
 <jsp:useBean id="importables" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.Project>"
              scope="request"/>
+<jsp:useBean id="idName" type="java.lang.String" scope="request"/>
 <jsp:useBean id="loggedIn" type="java.lang.Boolean" scope="request" />
 <jsp:useBean id="loggedInServer" type="java.lang.String" scope="request" />
 
@@ -131,10 +132,10 @@
 
         <core_rt:forEach items="${importables}" var="importable">
 
-        var checkedProjectId = '<%=PortalConstants.CHECKED_PROJECT%>${importable.bdpId}';
+        var checkedProjectId = '<%=PortalConstants.CHECKED_PROJECT%>${importable.externalIds.get(idName)}';
         result.push({
-            "DT_RowId": "${importable.bdpId}",
-            "0": '<span id="' + checkedProjectId + '"><sw360:out value="${importable.bdpId}"/></span>',
+            "DT_RowId": "${importable.externalIds.get(idName)}",
+            "0": '<span id="' + checkedProjectId + '"><sw360:out value="${importable.externalIds.get(idName)}"/></span>',
             "1": '<span id="' + checkedProjectId + 'Name"><sw360:out value="${importable.name}"/></span>'
         });
         </core_rt:forEach>
@@ -320,10 +321,10 @@
 
         importables.forEach(function(el) {
             el = JSON.parse(el);
-            var checkedProjectId = '<%=PortalConstants.CHECKED_PROJECT%>' + el.bdpId;
+            var checkedProjectId = '<%=PortalConstants.CHECKED_PROJECT%>' + el.externalId;
             projectList.push({
-                "DT_RowId": el.bdpId,
-                "0": '<span id="' + checkedProjectId + '">' + el.bdpId + '</span>',
+                "DT_RowId": el.externalId,
+                "0": '<span id="' + checkedProjectId + '">' + el.externalId + '</span>',
                 "1": '<span id="' + checkedProjectId + 'Name">' + el.name + '</span>'
             });
         });

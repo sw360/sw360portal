@@ -88,8 +88,8 @@ struct License {
 	 7: optional string licenseTypeDatabaseId,
      8: optional string externalLicenseLink,
 
-    // Bdp information
-     9: optional string bdpId,
+    // information from external data sources
+     9: optional map<string, string> externalIds,
 
     // Additional informations
 	10: optional bool GPLv2Compat,

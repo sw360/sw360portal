@@ -56,5 +56,7 @@ service BdpImportService {
     *  user in SW360
     **/
    BdpImportStatus importDatasources(1: list<string> bdpProjectIds, 2: User user, 3: RemoteCredentials reCred);
+
+   string getIdName();
 }
 

@@ -32,7 +32,7 @@ import static com.google.common.collect.Sets.newHashSet;
 /**
  * Utility class with definitions for the CouchDB connection
  *
- * @author cedrid.bodet@tngtech.com
+ * @author cedric.bodet@tngtech.com
  */
 public class SW360Constants {
 

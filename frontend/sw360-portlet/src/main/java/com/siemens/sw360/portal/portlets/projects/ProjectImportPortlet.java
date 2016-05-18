@@ -23,11 +23,9 @@ package com.siemens.sw360.portal.portlets.projects;
  */
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.util.PortalUtil;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -36,7 +34,6 @@ import com.siemens.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
 import com.siemens.sw360.datahandler.thrift.bdpimportstatus.BdpImportStatus;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
@@ -49,10 +46,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 
 public class ProjectImportPortlet extends Sw360Portlet {
     private static final Logger log = Logger.getLogger(ProjectImportPortlet.class);
+    private static BdpImportService.Iface bdpImportClient = new ThriftClients().makeBdpImportClient();
 
     static class LoginState {
         private Boolean loggedIn;
@@ -112,6 +111,9 @@ public class ProjectImportPortlet extends Sw360Portlet {
             loggedIn = true;
             loggedInServer = reCred.getServerUrl();
         }
+        String idName = getIdName();
+
+        request.setAttribute("idName", idName);
         request.setAttribute("importables", importables);
         request.setAttribute("loggedIn", loggedIn);
         request.setAttribute("loggedInServer", loggedInServer);
@@ -137,7 +139,6 @@ public class ProjectImportPortlet extends Sw360Portlet {
     private BdpImportStatus importDatasources(List<String> toImport, User user, RemoteCredentials remoteCredentials)  {
         BdpImportStatus importStatus = new BdpImportStatus();
         try {
-            BdpImportService.Iface bdpImportClient = new ThriftClients().makeBdpImportClient();
             importStatus = bdpImportClient.importDatasources(toImport, user, remoteCredentials);
             if (!isImportSuccessful(importStatus)) {
                 if(importStatus.getRequestStatus().equals(RequestStatus.FAILURE)){
@@ -155,7 +156,6 @@ public class ProjectImportPortlet extends Sw360Portlet {
     private List<Project> loadImportables(RemoteCredentials remoteCredentials) {
         List<Project> importable;
 
-        BdpImportService.Iface bdpImportClient = new ThriftClients().makeBdpImportClient();
         try {
             importable = bdpImportClient.loadImportables(remoteCredentials);
         } catch (TException e) {
@@ -164,6 +164,15 @@ public class ProjectImportPortlet extends Sw360Portlet {
         }
 
         return importable;
+    }
+
+    private String getIdName(){
+        try{
+            return bdpImportClient.getIdName();
+        } catch (TException e) {
+            log.error("Thrift failed, (uncaught TException)", e);
+            return "";
+        }
     }
 
     @Override
@@ -215,7 +224,7 @@ public class ProjectImportPortlet extends Sw360Portlet {
 
     private boolean validateCredentials(RemoteCredentials credentials) {
         try {
-            return new ThriftClients().makeBdpImportClient().validateCredentials(credentials);
+            return bdpImportClient.validateCredentials(credentials);
         } catch (TException e) {
             log.error("Thrift failed, (uncaught TException)", e);
             return false;
@@ -264,9 +273,12 @@ public class ProjectImportPortlet extends Sw360Portlet {
             List<Project> importables = loadImportables(remoteCredentials);
 
             JSONArray serializedProjects = JSONFactoryUtil.createJSONArray();
-            ObjectMapper mapper = new ObjectMapper();
             for (Project p : importables) {
-                serializedProjects.put(mapper.writeValueAsString(p));
+                JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+                if (p.isSetExternalIds() && ! isNullOrEmpty(p.getExternalIds().get(getIdName())))
+                jsonObject.put("externalId", p.getExternalIds().get(getIdName()));
+                jsonObject.put("name", p.getName());
+                serializedProjects.put(jsonObject.toString());
             }
             responseData.put(PortalConstants.IMPORT_RESPONSE__NEW_IMPORTABLES, serializedProjects);
         }

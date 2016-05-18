@@ -27,10 +27,8 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
@@ -58,7 +56,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add(BUSINESS_UNIT)
             .add(RELEASE_IDS)
             .add(RELEASE_CLEARING_STATE_SUMMARY)
-            .add(BDP_ID)
+            .add(EXTERNAL_IDS)
             .build();
 
 
@@ -77,7 +75,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add("Business Unit")
             .add("Release IDs")
             .add("ReleaseClearingStateSummary")
-            .add("Bdp Id")
+            .add("External Ids")
             .build();
 
     public ProjectExporter(ComponentService.Iface client) {
@@ -117,7 +115,12 @@ public class ProjectExporter extends ExcelExporter<Project> {
                 }
                 else if (fieldValue instanceof String ) {
                     row.add(nullToEmpty((String) fieldValue));
-                } else {
+                }
+                else if (fieldValue instanceof Map) {
+                    List<String> mapEntriesAsStrings = ((Map <String, String>) fieldValue).entrySet().stream().map(e -> e.getKey() + " : "+ e.getValue()).collect(Collectors.toList());
+                    row.add(joinStrings(mapEntriesAsStrings));
+                }
+                else {
                     row.add("");
                 }
 
