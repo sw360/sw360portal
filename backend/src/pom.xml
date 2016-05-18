@@ -35,6 +35,7 @@
         <module>src-bdpimport</module>
         <module>src-vulnerabilities</module>
         <module>src-licenseinfo</module>
+        <module>src-cvesearch</module>
     </modules>
 
 
