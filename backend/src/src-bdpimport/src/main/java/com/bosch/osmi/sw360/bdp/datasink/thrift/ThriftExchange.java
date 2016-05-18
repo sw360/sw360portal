@@ -90,7 +90,7 @@ public class ThriftExchange {
             logger.error("Could not fetch Release list for name=[" + name + "], version=[" + version + "]:" + e);
         }
 
-        if (!Objects.isNull(releases)) {
+        if (releases != null) {
             return Optional.of(releases.stream()
                     .filter(r -> r.getVersion().equals(version))
                     .collect(Collectors.toList()));
@@ -247,7 +247,7 @@ public class ThriftExchange {
         } catch (TException e) {
             logger.error("Could not add License for user with email=[" + user.getEmail() + "]:" + e);
         }
-        return Objects.isNull(licenses) ? null : licenses.get(0).getId();
+        return licenses == null ? null : licenses.get(0).getId();
     }
 
     private com.siemens.sw360.datahandler.thrift.components.ComponentService.Iface getComponentClient() {

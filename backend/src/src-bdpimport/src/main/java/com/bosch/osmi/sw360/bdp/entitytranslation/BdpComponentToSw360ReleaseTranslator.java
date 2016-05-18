@@ -23,6 +23,8 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.util.*;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 public class BdpComponentToSw360ReleaseTranslator implements EntityTranslator<Component, Release> {
 
     @Override
@@ -33,7 +35,7 @@ public class BdpComponentToSw360ReleaseTranslator implements EntityTranslator<Co
         releaseSW360.setBdpId(componentBdp.getComponentKey());
 
 
-        if (!Objects.isNull(componentBdp.getComponentVersion()) && !componentBdp.getComponentVersion().equals("")) {
+        if (! isNullOrEmpty(componentBdp.getComponentVersion())) {
             releaseSW360.setVersion(componentBdp.getComponentVersion());
         } else {
             // this appears for example, if componentBdp.getUsageLevel() == "ORIGINAL_CODE"

@@ -123,7 +123,7 @@ public class ThriftUploader {
 
     protected Set<String> getOrCreateComponents(ProjectInfo projectBdp, User user) {
         Collection<com.bosch.osmi.bdp.access.api.model.Component> componentsBdp = projectBdp.getProject().getComponents();
-        if (Objects.isNull(componentsBdp)) {
+        if (componentsBdp == null) {
             return Collections.EMPTY_SET;
         }
 
@@ -146,7 +146,7 @@ public class ThriftUploader {
         logger.info("Remote-Credentials: " + bdpApiAccessWrapper.getEmailAddress());
 
         com.bosch.osmi.bdp.access.api.model.ProjectInfo projectBdp = bdpApiAccessWrapper.getProjectInfo(bdpId);
-        if (Objects.isNull(projectBdp)) {
+        if (projectBdp == null) {
             logger.error("Unable to get Project from BDP Server named: " + bdpId);
             return Optional.empty();
         }
@@ -170,12 +170,12 @@ public class ThriftUploader {
     protected Optional<String> getProjectId(String bdpId, String bdpName, User user) throws TException  {
 
         Project existingProject = thriftExchange.getAccessibleProjectByBdpId(bdpId, user);
-        if (!Objects.isNull(existingProject)) {
+        if (existingProject != null) {
             logger.info("Project to import was already imported with bdpId: " + bdpId);
             return Optional.ofNullable(existingProject.getId());
         }
         existingProject = thriftExchange.getAccessibleProject(bdpName, user);
-        if (!Objects.isNull(existingProject)) {
+        if (existingProject != null) {
             logger.info("Project to import already exists in the DB with name: " + bdpName);
             return Optional.ofNullable(existingProject.getId());
         }
@@ -186,8 +186,9 @@ public class ThriftUploader {
         List<String> failedIds = new ArrayList<>();
         List<String> successfulIds = new ArrayList<>();
         BdpImportStatus bdpImportStatus = new BdpImportStatus().setRequestStatus(RequestStatus.SUCCESS);
-        Optional<String> projectId = Optional.empty();
+
         for (String bdpId : bdpProjectIds) {
+            Optional<String> projectId = Optional.empty();
             try{
                 projectId = createProject(bdpId, user);
             } catch (TException e){
