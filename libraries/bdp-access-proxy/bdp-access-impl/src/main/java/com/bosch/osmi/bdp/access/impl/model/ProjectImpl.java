@@ -63,7 +63,6 @@ public class ProjectImpl implements Project {
             Collection<Component> components = translate(bomComponents);
             return components;
         } catch (SdkFault sdkFault) {
-            sdkFault.printStackTrace();
             LOGGER.error("Unable to retrieve components from Bdp server. Reason \n " + sdkFault.getMessage());
             LOGGER.debug("Project name " + getName());
             throw new IllegalStateException(sdkFault.getCause());
