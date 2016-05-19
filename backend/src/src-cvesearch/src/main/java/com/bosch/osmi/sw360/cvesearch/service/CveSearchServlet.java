@@ -18,6 +18,13 @@
  */
 package com.bosch.osmi.sw360.cvesearch.service;
 
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import com.siemens.sw360.projects.Sw360ThriftServlet;
+import org.apache.thrift.protocol.TCompactProtocol;
+
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+
 public class CveSearchServlet extends Sw360ThriftServlet {
     public CveSearchServlet() throws MalformedURLException, FileNotFoundException {
         // Create a service processor using the provided handler

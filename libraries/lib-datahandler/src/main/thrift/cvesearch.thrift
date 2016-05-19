@@ -20,8 +20,8 @@
 
 include "sw360.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.fossology
-namespace php sw360.thrift.fossology
+namespace java com.siemens.sw360.datahandler.thrift.cvesearch
+namespace php sw360.thrift.cvesearch
 
 typedef sw360.RequestStatus RequestStatus
 
