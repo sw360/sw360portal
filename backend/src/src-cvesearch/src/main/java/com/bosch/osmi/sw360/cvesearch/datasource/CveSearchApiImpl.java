@@ -27,18 +27,17 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.List;
 
 public class CveSearchApiImpl implements CveSearchApi {
 
     private String baseURL;
 
-    public CveSearchApiImpl(){
+    public CveSearchApiImpl() {
         baseURL = "https://cve.circl.lu/api/";
     }
 
-    public CveSearchApiImpl(String host){
+    public CveSearchApiImpl(String host) {
         baseURL = host + "/api/";
     }
 

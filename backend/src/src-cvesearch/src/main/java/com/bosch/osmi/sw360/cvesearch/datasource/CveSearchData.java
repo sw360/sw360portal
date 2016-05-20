@@ -18,20 +18,19 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CveSearchData {
 
     private String id;
     private String Modified;
-    private List<String> references;
+    private Set<String> references;
     private String Published;
-    private List<String> acess;
     // private String cvss-time;
-    private List<String> vulnerable_configuration;
-    private float cvss;
-    private List<String> vulnerable_configuration_2_2;
+    private Set<String> vulnerable_configuration;
+    private double cvss;
+    private Set<String> vulnerable_configuration_2_2;
     private Map<String,String> impact;
     private Map<String,String> access;
     private String summary;
@@ -48,7 +47,7 @@ public class CveSearchData {
         return Modified;
     }
 
-    public List<String> getReferences() {
+    public Set<String> getReferences() {
         return references;
     }
 
@@ -56,19 +55,15 @@ public class CveSearchData {
         return Published;
     }
 
-    public List<String> getAcess() {
-        return acess;
-    }
-
-    public List<String> getVulnerable_configuration() {
+    public Set<String> getVulnerable_configuration() {
         return vulnerable_configuration;
     }
 
-    public float getCvss() {
+    public double getCvss() {
         return cvss;
     }
 
-    public List<String> getVulnerable_configuration_2_2() {
+    public Set<String> getVulnerable_configuration_2_2() {
         return vulnerable_configuration_2_2;
     }
 
