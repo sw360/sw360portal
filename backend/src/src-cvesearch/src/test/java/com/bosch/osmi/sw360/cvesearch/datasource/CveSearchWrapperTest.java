@@ -33,23 +33,17 @@ public class CveSearchWrapperTest {
     CveSearchApi cveSearchApi;
     CveSearchWrapper cveSearchWrapper;
 
-    private String vendorName = "zyxel";
-    private String productName = "zywall";
+    String VENDORNAME = "zyxel";
+    String PRODUCTNAME = "zywall";
+    String CPE = "cpe:2.3:a:zyxel:zywall:1050";
 
-    private Release release;
-
-    @Before
-    public void setUp() {
-        // TODO: Mock
-        cveSearchApi = new CveSearchApiImpl("https://cve.circl.lu");
-
-        cveSearchWrapper = new CveSearchWrapper(cveSearchApi);
-
-        release = new Release() {
+    private Release releaseGenerator(String productName, String vendorName, String cpe) {
+        return new Release() {
             @Override
             public String getName() {
                 return productName;
             }
+            @Override
             public Vendor getVendor() {
                 return new Vendor(){
                     @Override
@@ -58,12 +52,26 @@ public class CveSearchWrapperTest {
                     }
                 };
             }
+            @Override
+            public String getCpeid() {
+                return cpe;
+            }
         };
+    }
+
+    @Before
+    public void setUp() {
+        // TODO: Mock
+        cveSearchApi = new CveSearchApiImpl("https://cve.circl.lu");
+
+        cveSearchWrapper = new CveSearchWrapper(cveSearchApi);
     }
 
     @Test
     public void compareToWithoutWrapper() throws IOException {
-        List<CveSearchData> resultDirect = cveSearchApi.search(vendorName, productName);
+        Release release = releaseGenerator(VENDORNAME, PRODUCTNAME, null);
+
+        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
         Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
