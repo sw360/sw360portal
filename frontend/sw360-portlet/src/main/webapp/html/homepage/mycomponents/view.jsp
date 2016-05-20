@@ -42,23 +42,11 @@
         var releasesInfo = '';
 
         <core_rt:forEach items="${components}" var="component">
-            <core_rt:choose>
-                <core_rt:when test="${component.releases.size() > 1}">
-                    releasesInfo = '<sw360:out value="${component.releases.size()} releases"/>';
-                </core_rt:when>
-                <core_rt:otherwise>
-                    releasesInfo = 'no release';
-                    <core_rt:if test="${component.releases.size() == 1}">
-                        releasesInfo = '<sw360:out value="${component.releases[0].name}"/>';
-                    </core_rt:if>
-                </core_rt:otherwise>
-            </core_rt:choose>
 
         result.push({
             "DT_RowId": "${component.id}",
             "0": "<sw360:DisplayComponentLink component="${component}"/>",
-            "1": '<sw360:out value="${component.description}" maxChar="30"/>',
-            "2": releasesInfo
+            "1": '<sw360:out value="${component.description}" maxChar="30"/>'
         });
 
         </core_rt:forEach>
@@ -69,8 +57,7 @@
             "iDisplayLength": 10,
             columns: [
                 {"title": "Component Name"},
-                {"title": "Description"},
-                {"title": "Releases"}
+                {"title": "Description"}
             ]
         });
 
