@@ -21,6 +21,7 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -44,17 +45,29 @@ public class CveSearchWrapperTest {
                 return productName;
             }
             @Override
+            public boolean isSetName() {
+                return productName!=null;
+            }
+            @Override
             public Vendor getVendor() {
-                return new Vendor(){
+                return new Vendor() {
                     @Override
-                    public String getFullname(){
+                    public String getFullname() {
                         return vendorName;
+                    }
+                    @Override
+                    public boolean isSetFullname() {
+                        return vendorName!=null;
                     }
                 };
             }
             @Override
             public String getCpeid() {
                 return cpe;
+            }
+            @Override
+            public boolean isSetCpeid() {
+                return cpe!=null;
             }
         };
     }
@@ -69,7 +82,52 @@ public class CveSearchWrapperTest {
 
     @Test
     public void compareToWithoutWrapper() throws IOException {
-        Release release = releaseGenerator(VENDORNAME, PRODUCTNAME, null);
+        Release release = releaseGenerator(PRODUCTNAME, VENDORNAME, null);
+
+        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
+
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+
+        assert(resultWrapped.isPresent());
+        assert(resultWrapped.get().size() > 0);
+        assert(isEqivalent(resultDirect,resultWrapped.get()));
+    }
+
+    @Ignore
+    @Test
+    public void testLargeData() throws IOException {
+        Release release = releaseGenerator(".*", "apache", null);
+
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        assert(resultWrapped.isPresent());
+    }
+
+    @Ignore
+    @Test
+    public void testVeryLargeData() throws IOException {
+        Release release = releaseGenerator(".*", ".*", null);
+
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        assert(resultWrapped.isPresent());
+    }
+
+    @Test
+    public void compareToSearchByCPE() throws IOException {
+        Release release = releaseGenerator("blindstring", "blindstring", CPE);
+
+        List<CveSearchData> resultDirect = cveSearchApi.cvefor(CPE);
+
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+
+        assert(resultWrapped.isPresent());
+
+        assert(isEqivalent(resultDirect,resultWrapped.get()));
+    }
+
+    @Ignore
+    @Test
+    public void compareToBDPdata() throws IOException {
+        Release release = releaseGenerator(VENDORNAME + " " + PRODUCTNAME, null, null);
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 

@@ -21,8 +21,10 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.apache.log4j.Logger;
 
 public class CveSearchWrapper {
@@ -30,16 +32,79 @@ public class CveSearchWrapper {
     private CveSearchApi cveSearchApi;
     Logger log = Logger.getLogger(CveSearchWrapper.class);
 
+    private List<SearchLevel> searchLevels;
+
+    @FunctionalInterface
+    private interface SearchLevel {
+        List<CveSearchData> apply(Release release) throws IOException;
+    }
+
+    private void setSearchLevels() {
+        // Search patterns are:
+        //    1. search by full cpe
+        //    2. search by: VENDOR_FULL_NAME:NAME::VERSION
+        //    3. search by: VENDOR_SHORT_NAME:NAME:VERSION
+        //    4. search by: VENDOR_FULL_NAME:NAME
+        //    5. search by: VENDOR_SHORT_NAME:NAME
+        //    6. search by: .*:NAME:VERSION
+        //    7. search by: .*:NAME
+        searchLevels = new ArrayList<>();
+        searchLevels.add(r -> {
+            if (r.isSetCpeid()){
+                return cveSearchApi.cvefor(r.getCpeid());
+            }
+            return null;
+        });
+        searchLevels.add(r -> {
+            if (r.isSetVersion()){
+                cveSearchApi.search(r.getVendor().getFullname(), r.getName() + ":" + r.getVersion());
+            }
+            return null;
+        });
+        searchLevels.add(r -> {
+            if (r.isSetVersion()){
+                cveSearchApi.search(r.getVendor().getShortname(), r.getName() + ":" + r.getVersion());
+            }
+            return null;
+        });
+        searchLevels.add(r -> cveSearchApi.search(r.getVendor().getFullname(), r.getName()));
+        searchLevels.add(r -> cveSearchApi.search(r.getVendor().getShortname(), r.getName()));
+        searchLevels.add(r -> {
+            if (r.isSetVersion()) {
+                return cveSearchApi.search(null, r.getName()+ ":" + r.getVersion());
+            }
+            return null;
+        });
+        searchLevels.add(r -> cveSearchApi.search(null, r.getName()));
+    }
+
     public CveSearchWrapper(CveSearchApi cveSearchApi){
         this.cveSearchApi=cveSearchApi;
+        setSearchLevels();
+    }
+
+    public Optional<List<CveSearchData>> searchForRelease(Release release, int maxDepth) {
+        List<CveSearchData> result = null;
+        int level = 0;
+        for(SearchLevel searchLevel : searchLevels){
+            level++;
+            try {
+                result = searchLevel.apply(release);
+            } catch (IOException e) {
+                log.error("IOException in searchlevel=" + level + " for release with id=" + release.getId());
+                //return Optional.empty();
+            }
+            if(null != result && result.size() > 0){
+                return Optional.of(result);
+            }
+            if(level == maxDepth){
+                break;
+            }
+        }
+        return Optional.of(new ArrayList<>());
     }
 
     public Optional<List<CveSearchData>> searchForRelease(Release release) {
-        try {
-            return Optional.of(cveSearchApi.search(release.getVendor().getFullname(), release.getName()));
-        } catch (IOException ioe) {
-            log.error("Could not get vulnerabilities for release with id: " + release.getId(), ioe);
-            return Optional.empty();
-        }
+        return searchForRelease(release, 0);
     }
 }

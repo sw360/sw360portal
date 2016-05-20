@@ -20,6 +20,8 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.json.CveSearchJsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.siemens.sw360.datahandler.common.CommonUtils;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Type;
@@ -31,6 +33,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public class CveSearchApiImpl implements CveSearchApi {
+
+    Logger log = Logger.getLogger(CveSearchApiImpl.class);
 
     private String host;
 
@@ -46,6 +50,7 @@ public class CveSearchApiImpl implements CveSearchApi {
     }
 
     private Object getParsedContentFor(String query, CveSearchJsonParser parser) throws IOException {
+        log.debug("Execute query: " + query);
         InputStream is = new URL(query).openStream();
 
         if (is != null) {
@@ -75,9 +80,16 @@ public class CveSearchApiImpl implements CveSearchApi {
         return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(singleTargetType));
     }
 
+    private String reworkArguments(String argument) {
+        if(argument == null || "".equals(argument)) {
+            return ".*";
+        }
+        return argument.replace(" ","_").toLowerCase();
+    }
+
     @Override
     public List<CveSearchData> search(String vendor, String product) throws IOException {
-        Function<String,String> unifyer = s -> s.replace(" ","_").toLowerCase();
+        Function<String,String> unifyer = s -> CommonUtils.nullToEmptyString(s).replace(" ","_").toLowerCase();
 
         String query = composeQuery(CVE_SEARCH_SEARCH,
                 unifyer.apply(vendor),
