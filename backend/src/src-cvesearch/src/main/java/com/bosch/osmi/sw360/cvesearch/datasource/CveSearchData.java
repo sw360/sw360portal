@@ -18,22 +18,53 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Map;
 import java.util.Set;
 
 public class CveSearchData {
 
+    static public class VulnerableConfigurationEntry {
+        private String title;
+        private String id;
+
+        public VulnerableConfigurationEntry(String title, String id) {
+            this.title = title;
+            this.id = id;
+        }
+
+        public VulnerableConfigurationEntry(String id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            if(title == null) {
+                return id;
+            }
+            return title;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
     private String id;
     private String Modified;
     private Set<String> references;
     private String Published;
-    // private String cvss-time;
-    private Set<String> vulnerable_configuration;
+    @SerializedName("cvss-time") private String cvss_time;
+    private Set<VulnerableConfigurationEntry> vulnerable_configuration;
     private double cvss;
     private Set<String> vulnerable_configuration_2_2;
     private Map<String,String> impact;
     private Map<String,String> access;
     private String summary;
+    private Map<String,String> map_cve_scip;
+    private Map<String,String> map_cve_exploitdb;
+    private Map<String,String> map_cve_bid;
+    private Set<Set<Map<String,Integer>>> ranking;
 
     public Map<String, String> getAccess() {
         return access;
@@ -52,10 +83,15 @@ public class CveSearchData {
     }
 
     public String getPublished() {
+
         return Published;
     }
 
-    public Set<String> getVulnerable_configuration() {
+    public String getCvss_time() {
+        return cvss_time;
+    }
+
+    public Set<VulnerableConfigurationEntry> getVulnerable_configuration() {
         return vulnerable_configuration;
     }
 
@@ -73,6 +109,22 @@ public class CveSearchData {
 
     public String getSummary() {
         return summary;
+    }
+
+    public Map<String, String> getMap_cve_scip() {
+        return map_cve_scip;
+    }
+
+    public Map<String, String> getMap_cve_exploitdb() {
+        return map_cve_exploitdb;
+    }
+
+    public Map<String, String> getMap_cve_bid() {
+        return map_cve_bid;
+    }
+
+    public Set<Set<Map<String, Integer>>> getRanking() {
+        return ranking;
     }
 
 }

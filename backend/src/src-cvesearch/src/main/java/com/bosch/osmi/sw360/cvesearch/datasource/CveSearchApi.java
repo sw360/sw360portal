@@ -24,7 +24,7 @@ import java.util.List;
 public interface CveSearchApi {
 
     public List<CveSearchData> search(String vendor, String product) throws IOException;
-    public List<CveSearchData> cvefor(String cpe);
-    public Object cve(String cve);
+    public List<CveSearchData> cvefor(String cpe) throws IOException;
+    public CveSearchData cve(String cve) throws IOException;
 
 }

@@ -51,7 +51,7 @@ public class CveSearchHandler implements CveSearchService.Iface {
         } catch (IOException ioe) {
             log.error("Exception when creating CveSearchHandler", ioe);
         }
-        cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl());
+        cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl("https://cve.circl.lu"));
     }
 
     @Override

@@ -26,17 +26,37 @@ import java.util.List;
 
 public class CveSearchApiImplTest {
 
+    String HOST = "https://cve.circl.lu";
+    String VENDOR = "zyxel";
+    String PRODUCT = "zywall";
+    String CPE = "cpe:2.3:a:zyxel:zywall:1050";
+    String CVE = "CVE-2008-1160";
+
     private CveSearchApiImpl cveSearchApi;
 
     @Before
     public void setUp() {
-        cveSearchApi = new CveSearchApiImpl("https://cve.circl.lu");
+        cveSearchApi = new CveSearchApiImpl(HOST);
     }
 
     @Test
     public void exactSearchTest() throws IOException {
         List<CveSearchData> result;
-        result = cveSearchApi.search("zyxel","zywall");
+        result = cveSearchApi.search(VENDOR,PRODUCT);
+        assert(result != null);
+    }
+
+    @Test
+    public void exactCveforTest() throws IOException {
+        List<CveSearchData> result;
+        result = cveSearchApi.cvefor(CPE);
+        assert(result != null);
+    }
+
+    @Test
+    public void exactCveTest() throws IOException {
+        CveSearchData result;
+        result = cveSearchApi.cve(CVE);
         assert(result != null);
     }
 }

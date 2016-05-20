@@ -18,42 +18,40 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.bosch.osmi.sw360.cvesearch.datasource.json.CveSearchJsonParser;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.*;
+import java.io.BufferedReader;
 import java.lang.reflect.Type;
+import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.function.Function;
 
 public class CveSearchApiImpl implements CveSearchApi {
 
-    private String baseURL;
+    private String host;
 
-    public CveSearchApiImpl() {
-        baseURL = "https://cve.circl.lu/api/";
-    }
+    private String CVE_SEARCH_SEARCH = "search";
+    private String CVE_SEARCH_CVEFOR = "cvefor";
+    private String CVE_SEARCH_CVE    = "cve";
+
+    Type listTargetType = new TypeToken<List<CveSearchData>>(){}.getType();
+    Type singleTargetType = new TypeToken<CveSearchData>(){}.getType();
 
     public CveSearchApiImpl(String host) {
-        baseURL = host + "/api/";
+        this.host = host;
     }
 
-    private Object parseContent(BufferedReader content, Type type) {
-        final Gson gson = new GsonBuilder().create();
-        return gson.fromJson(content,type);
-    }
-
-    private Object getParsedContentFor(String query, Type type) throws IOException {
-        String fullQuery = baseURL + query;
-        InputStream is = new URL(fullQuery).openStream();
+    private Object getParsedContentFor(String query, CveSearchJsonParser parser) throws IOException {
+        InputStream is = new URL(query).openStream();
 
         if (is != null) {
             try {
                 BufferedReader content = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-                return parseContent(content, type);
+                return parser.parseJsonBuffer(content);
             } finally {
                 is.close();
             }
@@ -61,20 +59,31 @@ public class CveSearchApiImpl implements CveSearchApi {
         return null;
     }
 
+    private String composeQuery(String call, String ... path) throws UnsupportedEncodingException {
+        String query = host + "/api/" + call;
+        for (String p : path){
+            query += "/" + URLEncoder.encode(p,"UTF-8");
+        }
+        return query;
+    }
+
     @Override
     public List<CveSearchData> search(String vendor, String product) throws IOException {
-        String query = "search/" + URLEncoder.encode(vendor,"UTF-8") + "/" + URLEncoder.encode(product,"UTF-8");
-        Type targetType = new TypeToken<List<CveSearchData>>(){}.getType();
-        return (List<CveSearchData>) getParsedContentFor(query, targetType);
+        Function<String,String> unifyer = s -> s.replace(" ","_").toLowerCase();
+        String query = composeQuery(CVE_SEARCH_SEARCH, unifyer.apply(vendor), unifyer.apply(product));
+        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(listTargetType));
     }
 
     @Override
-    public List<CveSearchData> cvefor(String cpe) {
-        return null;
+    public List<CveSearchData> cvefor(String cpe) throws IOException {
+        String query = composeQuery(CVE_SEARCH_CVEFOR, cpe);
+        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(listTargetType));
     }
 
     @Override
-    public Object cve(String cve) {
-        return null;
+    public CveSearchData cve(String cve) throws IOException {
+        String query = composeQuery(CVE_SEARCH_CVE, cve);
+        return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(singleTargetType));
     }
+
 }
