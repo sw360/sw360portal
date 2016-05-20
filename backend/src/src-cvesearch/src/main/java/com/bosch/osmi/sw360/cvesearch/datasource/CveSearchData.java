@@ -20,8 +20,10 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CveSearchData {
 
@@ -35,18 +37,15 @@ public class CveSearchData {
         }
 
         public VulnerableConfigurationEntry(String id) {
+            this.title = id;
             this.id = id;
         }
 
-        public String getTitle() {
-            if(title == null) {
-                return id;
-            }
-            return title;
-        }
-
-        public String getId() {
-            return id;
+        public Map<String,String> getAsMap() {
+            Map<String,String> map = new HashMap<>();
+            map.put("id", id);
+            map.put("title", title);
+            return map;
         }
     }
 
@@ -91,8 +90,10 @@ public class CveSearchData {
         return cvss_time;
     }
 
-    public Set<VulnerableConfigurationEntry> getVulnerable_configuration() {
-        return vulnerable_configuration;
+    public Set<Map<String,String>> getVulnerable_configuration() {
+        return vulnerable_configuration.stream()
+                .map(vce -> vce.getAsMap())
+                .collect(Collectors.toSet());
     }
 
     public double getCvss() {

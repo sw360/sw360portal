@@ -52,11 +52,4 @@ public class CveSearchJsonParser {
         final Gson gson = gsonBuilder.create();
         return gson.fromJson(json,type);
     }
-
-    public Object parseJsonString(String json) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(CveSearchData.VulnerableConfigurationEntry.class, new VulnerableConfigurationEntryDeserializer());
-        final Gson gson = gsonBuilder.create();
-        return gson.fromJson(json,type);
-    }
 }

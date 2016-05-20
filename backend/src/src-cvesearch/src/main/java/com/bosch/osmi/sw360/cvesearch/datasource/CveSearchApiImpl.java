@@ -38,8 +38,8 @@ public class CveSearchApiImpl implements CveSearchApi {
     private String CVE_SEARCH_CVEFOR = "cvefor";
     private String CVE_SEARCH_CVE    = "cve";
 
-    Type listTargetType = new TypeToken<List<CveSearchData>>(){}.getType();
-    Type singleTargetType = new TypeToken<CveSearchData>(){}.getType();
+    private Type listTargetType = new TypeToken<List<CveSearchData>>(){}.getType();
+    private Type singleTargetType = new TypeToken<CveSearchData>(){}.getType();
 
     public CveSearchApiImpl(String host) {
         this.host = host;
@@ -67,23 +67,37 @@ public class CveSearchApiImpl implements CveSearchApi {
         return query;
     }
 
+    private List<CveSearchData> getParsedCveSearchDatas(String query) throws IOException {
+        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(listTargetType));
+    }
+
+    private CveSearchData getParsedCveSearchData(String query) throws IOException {
+        return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(singleTargetType));
+    }
+
     @Override
     public List<CveSearchData> search(String vendor, String product) throws IOException {
         Function<String,String> unifyer = s -> s.replace(" ","_").toLowerCase();
-        String query = composeQuery(CVE_SEARCH_SEARCH, unifyer.apply(vendor), unifyer.apply(product));
-        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(listTargetType));
+
+        String query = composeQuery(CVE_SEARCH_SEARCH,
+                unifyer.apply(vendor),
+                unifyer.apply(product));
+
+        return getParsedCveSearchDatas(query);
     }
 
     @Override
     public List<CveSearchData> cvefor(String cpe) throws IOException {
         String query = composeQuery(CVE_SEARCH_CVEFOR, cpe);
-        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(listTargetType));
+
+        return getParsedCveSearchDatas(query);
     }
 
     @Override
     public CveSearchData cve(String cve) throws IOException {
         String query = composeQuery(CVE_SEARCH_CVE, cve);
-        return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(singleTargetType));
+
+        return getParsedCveSearchData(query);
     }
 
 }
