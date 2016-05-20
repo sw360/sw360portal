@@ -23,8 +23,8 @@ import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApiImpl;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchWrapper;
 import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataToVulnerabilityTranslator;
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
@@ -54,7 +54,11 @@ public class CveSearchHandler implements CveSearchService.Iface {
         } catch (IOException ioe) {
             log.error("Exception when creating CveSearchHandler", ioe);
         }
-        cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl("https://cve.circl.lu"));
+
+        Properties props = CommonUtils.loadProperties(CveSearchHandler.class, "/cvesearch.properties");
+        String host = props.getProperty("cvesearch.host","https://localhost:5000");
+
+        cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl(host));
     }
 
     public VulnerabilityUpdateStatus updateForRelease(Release release) {

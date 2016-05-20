@@ -18,15 +18,16 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 public class CveSearchApiImplTest {
 
-    String HOST    = "https://cve.circl.lu";
     String VENDOR  = "zyxel";
     String PRODUCT = "zywall";
     String CPE     = "cpe:2.3:a:zyxel:zywall:1050";
@@ -36,7 +37,9 @@ public class CveSearchApiImplTest {
 
     @Before
     public void setUp() {
-        cveSearchApi = new CveSearchApiImpl(HOST);
+        Properties props = CommonUtils.loadProperties(CveSearchApiImplTest.class, "/cvesearch.properties");
+        String host = props.getProperty("cvesearch.host","https://localhost:5000");
+        cveSearchApi = new CveSearchApiImpl(host);
     }
 
     @Test
