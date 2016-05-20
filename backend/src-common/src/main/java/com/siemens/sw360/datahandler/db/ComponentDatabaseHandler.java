@@ -213,7 +213,7 @@ public class ComponentDatabaseHandler {
             throw fail("Could not fetch release from database! id=" + id);
         }
 
-        fillVendor(release);
+        vendorRepository.fillVendor(release);
         // Set permissions
         if (user != null) {
             makePermission(release, user).fillPermissions();
@@ -805,7 +805,7 @@ public class ComponentDatabaseHandler {
                 documentState = new DocumentState().setIsOriginalDocument(true).setModerationState(moderationRequestsForDocumentId.get(0).getModerationState());
             }
         }
-        fillVendor(release);
+        vendorRepository.fillVendor(release);
         release.setPermissions(makePermission(release, user).getPermissionMap());
         release.setDocumentState(documentState);
         return release;
@@ -834,7 +834,7 @@ public class ComponentDatabaseHandler {
                 final Set<String> releaseIds = component.getReleaseIds();
                 final List<Release> releases = CommonUtils.nullToEmptyList(releaseRepository.get(releaseIds));
                 for (Release release : releases) {
-                    fillVendor(release);
+                    vendorRepository.fillVendor(release);
                 }
                 component.setReleases(releases);
                 component.unsetReleaseIds();
@@ -843,18 +843,6 @@ public class ComponentDatabaseHandler {
             }
         }
         return component;
-    }
-
-    private void fillVendor(Release release) {
-        if (release.isSetVendorId()) {
-            final String vendorId = release.getVendorId();
-            if (!Strings.isNullOrEmpty(vendorId)) {
-                final Vendor vendor = vendorRepository.get(vendorId);
-                if (vendor != null)
-                    release.setVendor(vendor);
-            }
-            release.unsetVendorId();
-        }
     }
 
     public Set<String> getusedAttachmentContentIds() {

@@ -20,9 +20,11 @@ import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
@@ -44,6 +46,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,6 +114,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             serveUnsubscribeRelease(request, response);
         } else if (PortalConstants.VIEW_LINKED_RELEASES.equals(action)) {
             serveLinkedReleases(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_RELEASE.equals(action)){
+            updateVulnerabilitiesRelease(request,response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_COMPONENT.equals(action)){
+            updateVulnerabilitiesComponent(request,response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
         } else if (isGenericAction(action)) {
@@ -762,4 +769,33 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             response.setRenderParameter(componentFilteredField.toString(), nullToEmpty(request.getParameter(componentFilteredField.toString())));
         }
     }
+
+    private void updateVulnerabilitiesRelease(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            RequestStatus requestStatus = cveClient.updateForRelease(releaseId);
+            JSONObject responseData = JSONFactoryUtil.createJSONObject();
+            responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e){
+            log.error("Error updating CVEs for release in backend.", e);
+        }
+    }
+
+    private void updateVulnerabilitiesComponent(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        String componentId = request.getParameter(PortalConstants.COMPONENT_ID);
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            RequestStatus requestStatus = cveClient.updateForComponent(componentId);
+            JSONObject responseData = JSONFactoryUtil.createJSONObject();
+            responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e){
+            log.error("Error updating CVEs for component in backend.", e);
+        }
+    }
+
 }

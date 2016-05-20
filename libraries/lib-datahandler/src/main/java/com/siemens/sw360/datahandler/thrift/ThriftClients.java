@@ -12,6 +12,7 @@ package com.siemens.sw360.datahandler.thrift;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.fossology.FossologyService;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
@@ -49,6 +50,7 @@ public class ThriftClients {
     //! Service addresses
     public static final String ATTACHMENT_SERVICE_URL = "/attachments/thrift";
     public static final String COMPONENT_SERVICE_URL = "/components/thrift";
+    public static final String CVESEARCH_SERVICE_URL = "/cvesearch/thrift";
     public static final String FOSSOLOGY_SERVICE_URL = "/fossology/thrift";
     public static final String LICENSE_SERVICE_URL = "/licenses/thrift";
     public static final String MODERATION_SERVICE_URL = "/moderation/thrift";
@@ -89,6 +91,10 @@ public class ThriftClients {
 
     public ComponentService.Iface makeComponentClient() {
         return new ComponentService.Client(makeProtocol(BACKEND_URL, COMPONENT_SERVICE_URL));
+    }
+
+    public CveSearchService.Iface makeCvesearchClient() {
+        return new CveSearchService.Client(makeProtocol(BACKEND_URL, CVESEARCH_SERVICE_URL));
     }
 
     public FossologyService.Iface makeFossologyClient() {

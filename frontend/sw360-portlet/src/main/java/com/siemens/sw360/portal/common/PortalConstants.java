@@ -223,6 +223,9 @@ public class PortalConstants {
     public static final String LICENSE_PREFIX = "license";
     public static final String LICENSE_SEARCH = LICENSE_PREFIX + "search";
 
+    //vulnerability actions
+    public static  final String UPDATE_VULNERABILITIES_RELEASE = "updateVulnerabilitiesRelease";
+    public static  final String UPDATE_VULNERABILITIES_COMPONENT = "updateVulnerabilitiesComponent";
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
     public static final String EXPORT_ID = "export_id";

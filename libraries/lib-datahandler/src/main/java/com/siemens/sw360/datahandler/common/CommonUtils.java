@@ -20,6 +20,7 @@ import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
+import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FilenameUtils;
@@ -387,12 +388,20 @@ public class CommonUtils {
     }
 
 
+    public static RequestStatus reduceRequestStatus(RequestStatus ... requestStati){
+        return Arrays.stream(requestStati).
+                reduce(RequestStatus.SUCCESS,
+                        (r1,r2) -> {
+                            if (RequestStatus.SUCCESS.equals(r1) && RequestStatus.SUCCESS.equals(r1)){
+                                return RequestStatus.SUCCESS;
+                            }
+                            return RequestStatus.FAILURE;
+                        });
+    }
+
+
     public static RequestSummary addToMessage(RequestSummary left, RequestSummary right, String info) {
-        if (left.requestStatus.equals(RequestStatus.SUCCESS) && right.requestStatus.equals(RequestStatus.SUCCESS)) {
-            left.setRequestStatus(RequestStatus.SUCCESS);
-        } else {
-            left.setRequestStatus(RequestStatus.FAILURE);
-        }
+        left.setRequestStatus(reduceRequestStatus(left.requestStatus, right.requestStatus));
 
         StringBuilder stringBuilder = new StringBuilder();
         if (left.isSetMessage()) {

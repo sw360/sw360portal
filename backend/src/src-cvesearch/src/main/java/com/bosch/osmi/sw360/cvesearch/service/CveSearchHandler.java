@@ -19,24 +19,26 @@
 package com.bosch.osmi.sw360.cvesearch.service;
 
 import com.bosch.osmi.sw360.cvesearch.datasink.VulnerabilityConnector;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApi;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApiImpl;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchWrapper;
 import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataToVulnerabilityTranslator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
+import org.apache.thrift.Option;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static com.siemens.sw360.datahandler.common.CommonUtils.reduceRequestStatus;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 
@@ -61,7 +63,6 @@ public class CveSearchHandler implements CveSearchService.Iface {
 
     @Override
     public RequestStatus updateForRelease(String releaseId) throws TException {
-
         Optional<Release> release = vulnerabilityConnector.getRelease(releaseId);
 
         Optional<List<CveSearchData>> cveSearchDatas = release
@@ -70,15 +71,31 @@ public class CveSearchHandler implements CveSearchService.Iface {
         Optional<List<Vulnerability>> vulnerabilities = cveSearchDatas
                 .map(cves -> new CveSearchDataToVulnerabilityTranslator().applyToMany(cves));
 
-        if (vulnerabilities.isPresent()){
-            return vulnerabilityConnector.addOrUpdateVulnerabilities(vulnerabilities.get());
+        if (!vulnerabilities.isPresent()) {
+            return RequestStatus.FAILURE;
         }
-        return  RequestStatus.FAILURE;
+
+        List<Vulnerability> inputVulnerabilities = vulnerabilities.get();
+        List<Vulnerability> successfullyImportedVulnerabilities = vulnerabilityConnector.addOrUpdateVulnerabilitiesAndSetIds(inputVulnerabilities);
+        RequestStatus vulnerabilityStatus = successfullyImportedVulnerabilities.size() < inputVulnerabilities.size()
+                ? RequestStatus.FAILURE
+                : RequestStatus.SUCCESS;
+
+        RequestStatus relationStatus = vulnerabilityConnector.addReleaseVulnerabilityRelationsIfNecessary(releaseId, successfullyImportedVulnerabilities);
+
+        return reduceRequestStatus(vulnerabilityStatus, relationStatus);
     }
 
     @Override
     public RequestStatus updateForComponent(String componentId) throws TException {
-        return null;
+        Optional<Component> component = vulnerabilityConnector.getComponent(componentId);
+        RequestStatus requestStatus = RequestStatus.SUCCESS;
+
+        for (String releaseId : component.get().getReleaseIds()){
+            RequestStatus singleOperationStatus = updateForRelease(releaseId);
+            requestStatus = reduceRequestStatus(requestStatus, singleOperationStatus);
+        }
+        return requestStatus;
     }
 
     @Override

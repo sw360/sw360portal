@@ -1,4 +1,5 @@
 <%@ page import="com.siemens.sw360.portal.common.page.PortletReleasePage" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
 <%--
   ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
   ~
@@ -8,6 +9,10 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
+<portlet:resourceURL var="updateVulnerabilitiesURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITIES_RELEASE%>"/>
+</portlet:resourceURL>
+
 <div id="vulnerabilityTableDiv">
     <table id="vulnerabilityTable" cellpadding="0" cellspacing="0" border="0" class="display">
         <tfoot>
@@ -16,10 +21,18 @@
         </tr>
         </tfoot>
     </table>
+    <div class="sw360modal" id="updateModal"></div>
+</div>
+
+<div id="updateButtonDiv">
+     <span class="pull-right">
+        <input type="button" onclick="updateVulnerabilities('${releaseId}')" id="updateVulnerabilities" value="Update Vulnerabilities" class="addButton">
+    </span>
 </div>
 
 <script type="text/javascript">
     var oTable;
+    var modal;
 
     function createVulnerabilityTable() {
 
@@ -54,11 +67,38 @@
 
     }
 
-    //This can not be document ready function as liferay definitions need to be loaded first
+    /*This can not be document ready function as liferay definitions need to be loaded first*/
     $(window).load(function () {
         createVulnerabilityTable();
     });
 
-</script>
+    function updateVulnerabilities(releaseId) {
+        modal = createModal();
 
+        modal.setHeader("Please wait while updating vulnerabilities.");
+        modal.addToolbar();
+
+        $.ajax({
+            url: '<%=updateVulnerabilitiesURL%>',
+            type: 'POST',
+            dataType: 'json',
+            data: {"<%=PortalConstants.RELEASE_ID%>":"${releaseId}" },
+
+            success: function(response) {
+              var header = "Update vulnerabilities result";
+              switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
+                  case '<%=RequestStatus.SUCCESS%>':
+                      showStatusPopup('Vulnerabilities updated successfully. Please reload to see the results.', modal, header);
+                      break;
+                  case '<%=RequestStatus.FAILURE%>':
+                      showStatusPopup('One or more vulnerabilities could not be updated. Please reload to see the results.', modal, header);
+                      break;
+                  default:
+              }
+            }
+        });
+    }
+
+</script>
+<%@include file="/html/components/includes/common/modal.jspf" %>
 
