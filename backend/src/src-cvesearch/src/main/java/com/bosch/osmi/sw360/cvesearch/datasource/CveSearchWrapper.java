@@ -21,8 +21,25 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import org.apache.log4j.Logger;
 
-public interface CveSearchConnector<T> {
+public class CveSearchWrapper {
 
-  T getVulnerabilities(Release needle) throws IOException;
+    private CveSearchApi cveSearchApi;
+    Logger log = Logger.getLogger(CveSearchWrapper.class);
+
+    public CveSearchWrapper(CveSearchApi cveSearchApi){
+        this.cveSearchApi=cveSearchApi;
+    }
+
+    public Optional<List<CveSearchData>> searchForRelease(Release release) {
+        try {
+            return Optional.of(cveSearchApi.search(release.getVendor().getFullname(), release.getName()));
+        } catch (IOException ioe) {
+            log.error("Could not get vulnerabilities for release with id: " + release.getId(), ioe);
+            return Optional.empty();
+        }
+    }
 }

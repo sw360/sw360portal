@@ -16,22 +16,15 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.bosch.osmi.sw360.cvesearch.service;
+package com.bosch.osmi.sw360.cvesearch.datasource;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import java.io.IOException;
+import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+public interface CveSearchApi {
 
-public class CveSearchHandlerTest {
+    public List<CveSearchData> search(String vendor, String product) throws IOException;
+    public List<CveSearchData> cvefor(String cpe);
+    public Object cve(String cve);
 
-	private CveSearchHandler cveSearchHandler;
-
-	@Before
-	public void setUp() throws Exception {
-
-		cveSearchHandler = new CveSearchHandler();
-	}
 }

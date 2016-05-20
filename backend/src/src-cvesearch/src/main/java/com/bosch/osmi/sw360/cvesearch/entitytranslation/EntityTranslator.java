@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * Copyright (c) Bosch Software Innovations GmbH 2015-2016.
  * Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -16,22 +16,17 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-package com.bosch.osmi.sw360.cvesearch.service;
+package com.bosch.osmi.sw360.cvesearch.entitytranslation;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+public interface EntityTranslator<T, R> extends Function<T, R> {
 
-public class CveSearchHandlerTest {
-
-	private CveSearchHandler cveSearchHandler;
-
-	@Before
-	public void setUp() throws Exception {
-
-		cveSearchHandler = new CveSearchHandler();
-	}
+    default List<R> applyToMany(List<T> ts){
+        return ts.stream()
+                .map(this::apply)
+                .collect(Collectors.toList());
+    }
 }

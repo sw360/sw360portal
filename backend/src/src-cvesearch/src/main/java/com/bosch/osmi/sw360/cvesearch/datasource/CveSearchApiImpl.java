@@ -21,33 +21,28 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.siemens.sw360.datahandler.thrift.components.Release;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
 
-public class CveSearchConnectorImpl implements CveSearchConnector<Collection<CveSearchData>> {
+public class CveSearchApiImpl implements CveSearchApi {
 
-    // TODO: move to properties file
     private String baseURL;
 
-    public CveSearchConnectorImpl(){
+    public CveSearchApiImpl(){
         baseURL = "https://cve.circl.lu/api/";
     }
 
-    public CveSearchConnectorImpl(String host){
+    public CveSearchApiImpl(String host){
         baseURL = host + "/api/";
     }
 
     private Object parseContent(BufferedReader content, Type type) {
-        // final Gson gson = new Gson();
         final Gson gson = new GsonBuilder().create();
         return gson.fromJson(content,type);
     }
@@ -67,18 +62,20 @@ public class CveSearchConnectorImpl implements CveSearchConnector<Collection<Cve
         return null;
     }
 
-    protected Collection<CveSearchData> search(String vendor, String product) throws IOException {
+    @Override
+    public List<CveSearchData> search(String vendor, String product) throws IOException {
         String query = "search/" + URLEncoder.encode(vendor,"UTF-8") + "/" + URLEncoder.encode(product,"UTF-8");
-        Type collectionType = new TypeToken<Collection<CveSearchData>>(){}.getType();
-        return (Collection<CveSearchData>) getParsedContentFor(query, collectionType);
-    }
-
-    private Collection<CveSearchData> searchByFullInfo(Release needle) throws IOException {
-        return search(needle.getVendor().getFullname(),needle.getName());
+        Type targetType = new TypeToken<List<CveSearchData>>(){}.getType();
+        return (List<CveSearchData>) getParsedContentFor(query, targetType);
     }
 
     @Override
-    public Collection<CveSearchData> getVulnerabilities(Release needle) throws IOException {
-        return searchByFullInfo(needle);
+    public List<CveSearchData> cvefor(String cpe) {
+        return null;
+    }
+
+    @Override
+    public Object cve(String cve) {
+        return null;
     }
 }

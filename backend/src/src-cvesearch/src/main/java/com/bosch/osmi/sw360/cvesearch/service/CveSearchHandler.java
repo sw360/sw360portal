@@ -19,10 +19,11 @@
 package com.bosch.osmi.sw360.cvesearch.service;
 
 import com.bosch.osmi.sw360.cvesearch.datasink.VulnerabilityConnector;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchConnector;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchConnectorImpl;
-import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveResultToSw360VulnerabilityTranslator;
-import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveResultToSw360VulnerabilityTranslatorImpl;
+import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApi;
+import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApiImpl;
+import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
+import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchWrapper;
+import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataToVulnerabilityTranslator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
@@ -31,14 +32,16 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 
     VulnerabilityConnector vulnerabilityConnector;
-    CveResultToSw360VulnerabilityTranslator translator;
-    CveSearchConnector cveSearchConnector;
+    CveSearchWrapper cveSearchWrapper;
     Logger log = Logger.getLogger(CveSearchHandler.class);
 
 
@@ -48,8 +51,7 @@ public class CveSearchHandler implements CveSearchService.Iface {
         } catch (IOException ioe) {
             log.error("Exception when creating CveSearchHandler", ioe);
         }
-        cveSearchConnector = new CveSearchConnectorImpl();
-        translator = new CveResultToSw360VulnerabilityTranslatorImpl();
+        cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl());
     }
 
     @Override
@@ -59,19 +61,19 @@ public class CveSearchHandler implements CveSearchService.Iface {
 
     @Override
     public RequestStatus updateForRelease(String releaseId) throws TException {
-        Release release = vulnerabilityConnector.getRelease(releaseId);
-        if (release == null) {
-            return RequestStatus.FAILURE;
+
+        Optional<Release> release = vulnerabilityConnector.getRelease(releaseId);
+
+        Optional<List<CveSearchData>> cveSearchDatas = release
+                .flatMap(cveSearchWrapper::searchForRelease);
+
+        Optional<List<Vulnerability>> vulnerabilities = cveSearchDatas
+                .map(cves -> new CveSearchDataToVulnerabilityTranslator().applyToMany(cves));
+
+        if (vulnerabilities.isPresent()){
+            return vulnerabilityConnector.addOrUpdateVulnerabilities(vulnerabilities.get());
         }
-        String cves;
-        try {
-            cves = (String) cveSearchConnector.getVulnerabilities(release);
-        } catch (IOException ioe) {
-            log.error("Could not get vulnerabilities for release with id: " + releaseId, ioe);
-            return  RequestStatus.FAILURE;
-        }
-        List<Vulnerability> vulnerabilities = translator.translate(cves);
-        return vulnerabilityConnector.addOrUpdateVulnerabilities(vulnerabilities);
+        return  RequestStatus.FAILURE;
     }
 
     @Override
