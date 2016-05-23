@@ -38,51 +38,98 @@ public class CveSearchWrapperTest {
     String PRODUCTNAME = "zywall";
     String CPE = "cpe:2.3:a:zyxel:zywall:1050";
 
-    private Release releaseGenerator(String productName, String vendorName, String cpe) {
-        return new Release() {
-            @Override
-            public String getName() {
-                return productName;
-            }
-            @Override
-            public boolean isSetName() {
-                return productName!=null;
-            }
-            @Override
-            public Vendor getVendor() {
-                return new Vendor() {
-                    @Override
-                    public String getFullname() {
-                        return vendorName;
-                    }
-                    @Override
-                    public boolean isSetFullname() {
-                        return vendorName!=null;
-                    }
-                };
-            }
-            @Override
-            public String getCpeid() {
-                return cpe;
-            }
-            @Override
-            public boolean isSetCpeid() {
-                return cpe!=null;
-            }
-        };
+    private class ReleaseGen{
+        private String name, version, cpe, vendorFullname, vendorShortname;
+
+        public ReleaseGen setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ReleaseGen setVersion(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public ReleaseGen setCpe(String cpe) {
+            this.cpe = cpe;
+            return this;
+        }
+
+        public ReleaseGen setVendorFullname(String vendorFullname) {
+            this.vendorFullname = vendorFullname;
+            return this;
+        }
+
+        public ReleaseGen setVendorShortname(String vendorShortname) {
+            this.vendorShortname = vendorShortname;
+            return this;
+        }
+
+        public Release get() {
+            return new Release() {
+                @Override
+                public String getName() {
+                    return name;
+                }
+                @Override
+                public boolean isSetName() {
+                    return name!=null;
+                }
+                @Override
+                public String getVersion() {
+                    return version;
+                }
+                @Override
+                public boolean isSetVersion() {
+                    return version!=null;
+                }
+                @Override
+                public Vendor getVendor() {
+                    return new Vendor() {
+                        @Override
+                        public String getFullname() {
+                            return vendorFullname;
+                        }
+                        @Override
+                        public boolean isSetFullname() {
+                            return vendorFullname!=null;
+                        }
+                        @Override
+                        public String getShortname() {
+                            return vendorShortname;
+                        }
+                        @Override
+                        public boolean isSetShortname() {
+                            return vendorShortname!=null;
+                        }
+                    };
+                }
+                @Override
+                public String getCpeid() {
+                    return cpe;
+                }
+                @Override
+                public boolean isSetCpeid() {
+                    return cpe!=null;
+                }
+            };
+        }
     }
 
     @Before
     public void setUp() {
-        // TODO: Mock
         cveSearchApi = new CveSearchApiImpl("https://cve.circl.lu");
 
         cveSearchWrapper = new CveSearchWrapper(cveSearchApi);
     }
 
     @Test
-    public void compareToWithoutWrapper() throws IOException {
-        Release release = releaseGenerator(PRODUCTNAME, VENDORNAME, null);
+    public  void compareToWithoutWrapper() throws IOException {
+        Release release = new ReleaseGen()
+                .setName(PRODUCTNAME)
+                .setVendorFullname(VENDORNAME)
+                .get();
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
@@ -96,7 +143,9 @@ public class CveSearchWrapperTest {
     @Ignore
     @Test
     public void testLargeData() throws IOException {
-        Release release = releaseGenerator(null, "apache", null);
+        Release release = new ReleaseGen()
+                .setVendorShortname("apache")
+                .get();
 
         List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
         assert(resultWrapped != null);
@@ -105,7 +154,7 @@ public class CveSearchWrapperTest {
     @Ignore
     @Test
     public void testVeryLargeData() throws IOException {
-        Release release = releaseGenerator(null, null, null);
+        Release release = new ReleaseGen().get();
 
         List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
         assert(resultWrapped != null);
@@ -113,7 +162,12 @@ public class CveSearchWrapperTest {
 
     @Test
     public void compareToSearchByCPE() throws IOException {
-        Release release = releaseGenerator("blindstring", "blindstring", CPE);
+        Release release = new ReleaseGen()
+                .setName("blindstring")
+                .setVendorFullname("blindstring")
+                .setVendorShortname("blindstring")
+                .setCpe(CPE)
+                .get();
 
         List<CveSearchData> resultDirect = cveSearchApi.cvefor(CPE);
 
@@ -127,7 +181,9 @@ public class CveSearchWrapperTest {
     @Ignore
     @Test
     public void compareToBDPdata() throws IOException {
-        Release release = releaseGenerator(VENDORNAME + " " + PRODUCTNAME, null, null);
+        Release release = new ReleaseGen()
+                .setName(VENDORNAME + " " + PRODUCTNAME)
+                .get();
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
