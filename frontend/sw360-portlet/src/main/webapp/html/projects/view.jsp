@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -97,10 +98,10 @@
         <tr>
             <td>
                 <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;"
-                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
+                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')" />
                 <br/>
                 <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
-                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
+                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')" />
             </td>
         </tr>
         </tbody>
@@ -184,7 +185,7 @@
             <tbody>
             </tbody>
         </table>
-        <input type="button" onclick="selectAll(this.parentNode)" value="Select all">
+        <input type="button" onclick="selectAll(this.parentNode)" value="Select all"/>
         <input type="button" onclick="closeOpenDialogs()" value="Close"/>
         <input type="submit" value="Send"/>
     </form>

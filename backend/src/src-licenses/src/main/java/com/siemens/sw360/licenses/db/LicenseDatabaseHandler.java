@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -119,9 +120,6 @@ public class LicenseDatabaseHandler {
         return licenseRepository.getLicenseSummaryForExport();
     }
 
-    public List<LicenseType> getLicenseTypeSummaryForExport() {
-        return licenseTypeRepository.getLicenseTypeSummaryForExport();
-    }
     ////////////////////////////
     // GET INDIVIDUAL OBJECTS //
     ////////////////////////////
@@ -194,6 +192,10 @@ public class LicenseDatabaseHandler {
         if (license.isSetLicenseTypeDatabaseId()) {
             final LicenseType licenseType = licenseTypeRepository.get(license.getLicenseTypeDatabaseId());
             license.setLicenseType(licenseType);
+        }
+        if(license.isSetRiskDatabaseIds()) {
+            license.setRisks(getRisksByIds(license.riskDatabaseIds));
+            license.unsetRiskDatabaseIds();
         }
 
     }
@@ -366,19 +368,28 @@ public class LicenseDatabaseHandler {
 
     public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) {
         if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
+
             String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
 
-            License dbLicense = new License();
+            License dbLicense = null;
+            boolean isNewLicense;
+
             if(inputLicense.isSetId()) {
                 dbLicense = licenseRepository.get(inputLicense.getId());
+            }
+            if(dbLicense == null){
+                dbLicense = new License();
+                isNewLicense = true;
+            } else {
+                isNewLicense = false;
             }
 
             dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit);
 
-            if(inputLicense.isSetId()) {
-                licenseRepository.update(dbLicense);
-            } else {
+            if(isNewLicense) {
                 licenseRepository.add(dbLicense);
+            } else {
+                licenseRepository.update(dbLicense);
             }
             return RequestStatus.SUCCESS;
         }
@@ -411,12 +422,13 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setId(inputLicense.getShortname());
+        license.setId(inputLicense.isSetId() ? inputLicense.getId() : inputLicense.getShortname());
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
         license.setGPLv2Compat(inputLicense.GPLv2Compat);
         license.setGPLv3Compat(inputLicense.GPLv3Compat);
+        license.setExternalLicenseLink(inputLicense.getExternalLicenseLink());
 
         return license;
     }

@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -37,7 +38,14 @@ struct SearchResult {
 
 service SearchService {
 
-    // Full text search
+    /**
+     * return all documents that have properties starting with text, user is ignored
+     **/
     list<SearchResult> search(1: required string text, 2: User user);
+
+    /**
+     *  return all documents of a type that is in the typeMask list and that have properties starting with text,
+     *  user is ignored
+     **/
     list<SearchResult> searchFiltered(1: required string text, 2: User user, 3: list<string> typeMask);
 }

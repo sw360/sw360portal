@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -305,7 +306,6 @@ public class ComponentDatabaseHandler {
                 component.setLanguages(new HashSet<String>());
             }
             component.languages.addAll(nullToEmptySet(release.languages));
-
 
             if (!component.isSetOperatingSystems()) {
                 component.setOperatingSystems(new HashSet<String>());
@@ -640,11 +640,16 @@ public class ComponentDatabaseHandler {
                 if (release != null) {
                     final ReleaseLink releaseLink = getReleaseLink(id, release);
                     fillValueFieldInReleaseLink(entry, releaseLink);
+
                     releaseLink.setDepth(depth);
                     if (release.isSetReleaseIdToRelationship()) {
                         addedReleaseRelationShips.putAll(release.getReleaseIdToRelationship());
                     }
+                    if (release.isSetMainLicenseIds()) {
+                        releaseLink.setLicenseIds(release.getMainLicenseIds());
+                    }
                     out.add(releaseLink);
+
                 } else {
                     log.error("Broken ReleaseLink in release with id: " + id + ", was not in DB");
                 }

@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -53,21 +54,45 @@ struct User {
     6: optional string externalid, 
     7: optional string fullname,
     8: optional string givenname, // firstname or given name of the person
-    9: optional string lastname, // Lastname or Surname of the person
+    9: optional string lastname, // lastname or surname of the person
     10: required string department,
     11: optional bool wantsMailNotification,
 }
 
 service UserService {
 
-    // Get user by emails ID
+    /**
+     * returns SW360-user with id equal to emails
+     **/
     User getByEmail(1:string emails);
+
+    /**
+     * get list of all SW360-users in database with name equal to parameter name
+     **/
     list<User> searchUsers(1:string name);
+
+    /**
+     * get list of all SW360-users in database
+     **/
     list<User> getAllUsers();
 
+    /**
+     * add SW360-user to database, user.email is used as id
+     **/
     RequestStatus addUser(1: User user);
+
+    /**
+     * update SW360-user in database
+     **/
     RequestStatus updateUser(1: User user);
+
+    /**
+     * delete user from database, only possible if adminUser has permissions
+     **/
     RequestStatus deleteUser(1: User user, 2: User adminUser);
 
+    /**
+     * send email to userEmail address over acceptance of moderation request
+     **/
     RequestStatus sendMailForAcceptedModerationRequest(1: string userEmail);
 }

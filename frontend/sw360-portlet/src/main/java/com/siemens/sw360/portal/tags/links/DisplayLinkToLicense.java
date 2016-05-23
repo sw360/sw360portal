@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2015-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,10 +18,9 @@
  */
 package com.siemens.sw360.portal.tags.links;
 
-import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.page.PortletDefaultPage;
-import com.siemens.sw360.portal.portlets.PortletProperties;
+import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
 
 import javax.servlet.jsp.JspException;
 
@@ -37,24 +37,21 @@ public class DisplayLinkToLicense extends DisplayLinkAbstract {
     public void setLicenseId(String licenseId) {
         this.licenseId = licenseId;
     }
-
-    public void setPage(PortletDefaultPage page) {
-        this.page = page;
-    }
-
-    public void setShowName(Boolean showName) {
-        this.showName = showName;
+    public void setScopeGroupId(Long scopeGroupId) {
+        if(scopeGroupId != null && scopeGroupId.longValue() != 0) {
+            this.scopeGroupId = scopeGroupId;
+        }
     }
 
     @Override
     protected String getTextDisplay() {
-        return showName ? licenseId : null;
+        return licenseId;
     }
 
     @Override
     protected void writeUrl() throws JspException {
         renderUrl(pageContext)
-                .toPortlet(PortletProperties.LICENSES)
+                .toPortlet(LinkToPortletConfiguration.LICENSES, scopeGroupId)
                 .toPage(page)
                 .withParam(PortalConstants.LICENSE_ID, licenseId)
                 .writeUrlToJspWriter();

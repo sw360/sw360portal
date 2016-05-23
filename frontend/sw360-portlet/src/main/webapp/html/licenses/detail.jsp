@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -44,6 +45,11 @@
 <portlet:actionURL var="changeLicenseTextURL" name="changeText">
     <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}"/>
 </portlet:actionURL>
+
+<portlet:actionURL var="editExternalLinkURL" name="editExternalLink">
+    <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
+</portlet:actionURL>
+
 <div id="header"></div>
 <p class="pageHeader"><span
         class="pageHeaderBigSpan">License: ${licenseDetail.fullname} (${licenseDetail.shortname})</span>

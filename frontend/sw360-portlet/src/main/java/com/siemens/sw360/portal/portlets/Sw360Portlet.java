@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -30,16 +31,20 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseRelationship;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
+import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
+import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -315,21 +320,26 @@ abstract public class Sw360Portlet extends MVCPortlet {
     }
 
     protected void putLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
-        final Map<Integer, Collection<?>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log));
+        final Map<Integer, Collection<ReleaseLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log));
         putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
     }
 
-    protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) {
-        final Map<Integer, Collection<?>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log));
+    protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) throws TException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        final Map<Integer, Collection<ReleaseLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log));
+        Collection<ReleaseLink> ownReleases = CommonUtils.nullToEmptyCollection(depthMap.get(0));
+        for (ReleaseLink rl: ownReleases) {
+            rl.setLicenseNames(new HashSet<>(SW360Utils.getLicenseNamesFromIds(rl.getLicenseIds(), user.getDepartment())));
+        }
         putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
     }
 
     protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
-        final Map<Integer, Collection<?>> depthMap = Maps.newHashMap(SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log));
+        final Map<Integer, Collection<ProjectLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log));
         putLinkedObjectsInRequest(request, depthMap, PROJECT_LIST, PROJECT_DEPTH_MAP);
     }
 
-    private void putLinkedObjectsInRequest(RenderRequest request, Map<Integer, Collection<?>> depthMap, String listBeanName, String depthMapBeanName) {
+    private <T> void putLinkedObjectsInRequest(RenderRequest request, Map<Integer, Collection<T>> depthMap, String listBeanName, String depthMapBeanName) {
         if (depthMap.containsKey(0)) {
             request.setAttribute(listBeanName, Lists.newArrayList(depthMap.get(0)));
             depthMap.remove(0);
@@ -339,5 +349,3 @@ abstract public class Sw360Portlet extends MVCPortlet {
         request.setAttribute(depthMapBeanName, depthMap);
     }
 }
-
-

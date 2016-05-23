@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -85,6 +86,7 @@ struct License {
 	 5: required string fullname,
 	 6: optional LicenseType licenseType,
 	 7: optional string licenseTypeDatabaseId,
+   8: optional string externalLicenseLink,
 	 10: optional bool GPLv2Compat,
 	 11: optional bool GPLv3Compat,
 	 12: optional string reviewdate,
@@ -96,68 +98,181 @@ struct License {
 
     90: optional DocumentState documentState,
 
-	200: optional map<RequestedAction, bool> permissions,
+	200: optional map<RequestedAction, bool> permissions
 }
 
 service LicenseService {
 
-    // Get an map of id/identifier/fullname for all licenses. The other fields will be set to null.
-    list<License> getLicenseSummary();
-
-    // Get a single license by providing its ID, with todos filtered for the given organisation
+    /**
+     * Get a single license by providing its ID, filled with license type, risks and todos containing obligations and whitelists
+     * filtered for the given organisation
+     **/
     License getByID(1:string id, 2: string organisation);
-    //Get a single license by providing its ID, todos filtered for organisation, user's
-    //moderation request with status pending or in progress applied
+
+    /**
+      * Get a single license by providing its ID, filled with license type and todos containing obligations and whitelists
+      * filtered for the given organisation, risks are not set,
+      * user's moderation request with status pending or in progress applied
+      **/
     License getByIDWithOwnModerationRequests(1:string id, 2: string organisation, 3: User user);
 
+    /**
+     * get licenses for ids filled with license types, risks and todos containing obligations
+     * whitelists filtered for organisation
+     **/
     list<License> getByIds(1:set<string> ids, 2: string organisation);
 
-    // Add a new todo object
-    string addTodo(1:Todo todo),
-    // Add an existing todo do a license
+    /**
+     * Add a new todo object to database, return id
+     **/
+    string addTodo(1:Todo todo);
+
+    /**
+    * Add an existing todo to a license or generate moderation request if user has no permission
+    **/
     RequestStatus addTodoToLicense(1: Todo todo, 2: string licenseId, 3: User user);
-    //Update given license, user must have permission to do so,
-    // requestingUser could be same as user or the requesting user from a moderation request
+
+    /**
+     * Update given license,
+     * user is used to check permissions, requesting user's department is used to set whitelists
+     **/
     RequestStatus updateLicense(1: License license, 2: User user, 3: User requestingUser);
+
+     /**
+      * update license in database if user has permissions, additions and deletions are the parts of the moderation request
+      * that specify which properties to add to and which to delete from license
+      **/
     RequestStatus updateLicenseFromModerationRequest(1: License additions, 2: License deletions, 3: User user, 4: User requestingUser);
 
-    // Update the whitelisted todos for an organisation
+    /**
+     * Update the whitelisted todos for an organisation, generate moderation request if user has no permissions
+     **/
     RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);
+
+    /**
+     * delete license from database if user has permissions,
+     * otherwise create moderation request
+     **/
     RequestStatus deleteLicense(1: string licenseId, 2: User user);
 
-    // Get an map of id/identifier/fullname for all licenses. The other fields will be set to null.
+    /**
+     * Get a list of summaries filled with license types for all licenses
+     **/
+    list<License> getLicenseSummary();
+
+    /**
+     * Get a list of export summaries for all licenses
+     **/
     list<License> getLicenseSummaryForExport();
+
+    /**
+     * get a list of all full license documents filled with todos, risks and license types,
+     * todos and risks themselves are not filled
+     **/
     list<License> getDetailedLicenseSummaryForExport(1: string organisation);
+
+    /**
+      * get a list of full documents with ids in identifiers, filled with todos, risks and license types,
+      * todos and risks themselves are also filled, todo whitelists are filtered for organisation
+      **/
     list<License> getDetailedLicenseSummary(1: string organisation, 2: list<string> identifiers);
-    list<LicenseType> getLicenseTypeSummaryForExport();
 
-
-    //Bulk adds
+    /**
+     * bulk add for import of license archive
+     **/
     list<RiskCategory> addRiskCategories(1: list <RiskCategory> riskCategories);
+
+    /**
+     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     **/
     list<Risk> addRisks(1: list <Risk> risks);
+
+    /**
+     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     **/
     list<Obligation> addObligations(1: list <Obligation> obligations);
+
+    /**
+     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     **/
     list<LicenseType> addLicenseTypes(1: list <LicenseType> licenseTypes);
+
+    /**
+     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     **/
     list<License> addLicenses(1: list <License> licenses);
+
+    /**
+     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     **/
     list<Todo> addTodos(1: list <Todo> todos);
 
-    //Complete List getters
+    /**
+     * get complete list of risk categories
+     **/
     list<RiskCategory> getRiskCategories();
+
+    /**
+     * get complete list of filled risks
+     **/
     list<Risk> getRisks();
+
+    /**
+     * get complete list of license types
+     **/
     list<LicenseType> getLicenseTypes();
+
+    /**
+     * get complete list of licenses, completely filled
+     **/
     list<License> getLicenses();
+
+    /**
+     * get complete list of filled todos
+     **/
     list<Todo> getTodos();
-    // Get a list of all obligations
+
+    /**
+     * get complete list of obligations
+     **/
     list<Obligation> getObligations();
 
+    /**
+    * get filled risks with id in ids
+    **/
     list<Risk> getRisksByIds( 1: list<string> ids);
+
+    /**
+     * get risk categories with id in ids
+     **/
     list<RiskCategory> getRiskCategoriesByIds( 1: list<string> ids);
+
+    /**
+     * get obligations with id in ids
+     **/
     list<Obligation> getObligationsByIds( 1: list<string> ids);
+
+    /**
+     * get license types with id in ids
+     **/
     list<LicenseType> getLicenseTypesByIds( 1: list<string> ids);
+
+    /**
+     * get filled todos with id in ids
+     **/
     list<Todo> getTodosByIds( 1: list<string> ids);
 
+    /**
+     * return filled risk
+     **/
     Risk getRiskById( 1: string id);
+
     RiskCategory getRiskCategoryById( 1: string id);
     Obligation getObligationById( 1: string id);
     LicenseType getLicenseTypeById( 1: string id);
+
+    /**
+     * return filled todo
+     **/
     Todo getTodoById( 1: string id);
 }

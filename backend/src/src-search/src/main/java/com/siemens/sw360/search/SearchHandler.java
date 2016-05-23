@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,13 +18,11 @@
  */
 package com.siemens.sw360.search;
 
-import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.common.SW360Assert;
 import com.siemens.sw360.datahandler.thrift.search.SearchResult;
 import com.siemens.sw360.datahandler.thrift.search.SearchService;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.search.common.SearchConstants;
 import com.siemens.sw360.search.db.DatabaseSearchHandler;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -51,11 +50,11 @@ public class SearchHandler implements SearchService.Iface {
 
     @Override
     public List<SearchResult> searchFiltered(String text, User user, List<String> typeMask) throws TException {
-        SW360Assert.assertNotEmpty(text);
+        if(text == null) throw new TException("Search text was null.");
+        if("".equals(text)) return Collections.emptyList();
 
         // Query new and old database
-        List<SearchResult> results = db.search(text, typeMask);
-
+        List<SearchResult> results = db.search(text, typeMask, user);
         Collections.sort(results, new SearchResultComparator());
 
         if (log.isTraceEnabled())

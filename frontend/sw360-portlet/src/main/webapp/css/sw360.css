@@ -1,5 +1,6 @@
 /**
  * Copyright Siemens AG, 2013-2014. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -80,7 +81,7 @@ div.content2 {
     border-spacing: 0;
     table-layout: fixed;
     word-wrap: break-word;
-    font-family: Arial, serif;
+    font-family: Arial, sans-serif;
     font-size: 12px;
     vertical-align: middle;
     padding: 0;
@@ -271,4 +272,12 @@ input[readonly].clickable {
 #attachmentDetail .checksumInput{
     margin-bottom: 0;
     height: 15px;
+}
+
+.release-list-entry-element {
+    width: 18%;
+}
+
+.release-list-entry-element input {
+    width: 100%;
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,35 +18,19 @@
  */
 package com.siemens.sw360.licenses.db;
 
-import com.siemens.sw360.components.summary.LicenseTypeSummary;
-import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.SummaryAwareRepository;
+import com.siemens.sw360.datahandler.couchdb.DatabaseRepository;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseType;
 import org.ektorp.support.View;
 
-import java.util.List;
-
 /**
- * @author birgit.heydenreich@tngtech.com
+ * @author johannes.najjar@tngtech.com
  */
 @View(name = "all", map = "function(doc) { if (doc.type == 'licenseType') emit(null, doc._id) }")
-public class LicenseTypeRepository extends SummaryAwareRepository<LicenseType> {
-
-    private static final String BY_NAME_VIEW = "function(doc) { if(doc.type == 'licenseType') { emit(doc.fullname, doc) } }";
-
+public class LicenseTypeRepository extends DatabaseRepository<LicenseType> {
     public LicenseTypeRepository(DatabaseConnector db) {
-        super(LicenseType.class, db, new LicenseTypeSummary());
+        super(LicenseType.class, db);
 
         initStandardDesignDocument();
-    }
-
-    @View(name = "byname", map = BY_NAME_VIEW)
-    public List<LicenseType> searchByName(String name) {
-        return queryByPrefix("byname", name);
-    }
-
-    public List<LicenseType> getLicenseTypeSummaryForExport() {
-        return makeSummaryFromFullDocs(SummaryType.EXPORT_SUMMARY, queryView("byname"));
     }
 }

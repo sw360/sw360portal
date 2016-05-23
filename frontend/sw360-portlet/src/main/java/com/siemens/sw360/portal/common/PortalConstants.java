@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -42,7 +43,7 @@ public class PortalConstants {
 
     //! Role names
     public static final String ROLENAME_ADMIN = "Administrator";
-    public static final String ROLENAME_CLEARING_ADMIN = "Organization Administrator";
+    public static final String ROLENAME_CLEARING_ADMIN = "Clearing Admin";
 
     //! Standard keys for Lists and their size
     public static final String KEY_SUMMARY = "documents";

@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,6 +18,7 @@
  */
 package com.siemens.sw360.portal.portlets.licenses;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
@@ -38,6 +40,7 @@ import org.apache.thrift.TException;
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -59,8 +62,17 @@ public class LicensesPortlet extends Sw360Portlet {
     private final LicenseExporter exporter;
     private List<LicenseType> licenseTypes;
 
-    public LicensesPortlet() {
-        exporter = new LicenseExporter();
+    public LicensesPortlet() throws TException {
+        Function<Logger,List<LicenseType>> getLicenseTypes = log -> {
+            LicenseService.Iface client = thriftClients.makeLicenseClient();
+            try {
+                return client.getLicenseTypes();
+            } catch (TException e){
+                log.error("Error getting license type list.", e);
+                return Collections.emptyList();
+            }
+        };
+        exporter = new LicenseExporter(getLicenseTypes);
     }
 
     //! Serve resource and helpers
@@ -77,11 +89,10 @@ public class LicensesPortlet extends Sw360Portlet {
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             List<License> licenses = client.getLicenseSummaryForExport();
-            List<LicenseType> licenseTypes = client.getLicenseTypeSummaryForExport();
 
-            PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses, licenseTypes), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         } catch (IOException | TException e) {
-            log.error("An error occured while generating the Excel export", e);
+            log.error("An error occurred while generating the Excel export", e);
         }
     }
 
@@ -426,5 +437,29 @@ public class LicensesPortlet extends Sw360Portlet {
         }
 
         return RequestStatus.FAILURE;
+    }
+
+    @UsedAsLiferayAction
+    public void editExternalLink(ActionRequest request, ActionResponse response) throws PortletException, IOException {
+        String licenseId = request.getParameter(LICENSE_ID);
+        String remoteLink = request.getParameter(License._Fields.EXTERNAL_LICENSE_LINK.name());
+
+        if(!Strings.isNullOrEmpty(licenseId)) {
+            try {
+                User user = UserCacheHolder.getUserFromRequest(request);
+                LicenseService.Iface client = thriftClients.makeLicenseClient();
+                final License license = client.getByID(licenseId,user.getDepartment());
+
+                license.setExternalLicenseLink(CommonUtils.nullToEmptyString(remoteLink));
+                final RequestStatus requestStatus = client.updateLicense(license, user, user);
+
+                renderRequestStatus(request,response,requestStatus);
+            } catch (TException e) {
+                log.error("Error updating license", e);
+            }
+        }
+        response.setRenderParameter(LICENSE_ID, licenseId);
+        response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
+        response.setRenderParameter(SELECTED_TAB, "Details");
     }
 }

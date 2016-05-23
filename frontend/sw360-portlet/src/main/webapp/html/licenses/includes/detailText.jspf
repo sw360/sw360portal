@@ -1,6 +1,7 @@
 <%@ page import="com.siemens.sw360.datahandler.thrift.licenses.License" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -20,15 +21,14 @@
 <table class="table info_table" id="LicenseText" title="License Text">
     <thead>
     <tr>
-        <th colspan="3" class="headlabel">License Text</th>
+        <th class="headlabel">License Text</th>
     </tr>
     </thead>
     <tr>
-        <td colspan="3">
-    <textarea name="<portlet:namespace/><%=License._Fields.TEXT%>" rows="5" style="width: 98.5%"
-              id="<portlet:namespace/><%=License._Fields.TEXT%>"
-              placeholder="No license text..." readonly=""
-    >${licenseDetail.text}</textarea>
+        <td>
+        <pre style="white-space: pre-line;">
+        ${licenseDetail.text}
+        </pre>
         </td>
     </tr>
 </table>

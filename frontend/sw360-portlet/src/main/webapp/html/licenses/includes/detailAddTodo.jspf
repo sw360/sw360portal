@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -18,10 +19,10 @@
 <form action="<%=addLicenseTodoURL%>" method="post" id="AddTodoModal">
   <table class="table">
     <tr>
-      <td colspan="5">
+      <td colspan="5" class="stackedlabel mandatory">
         <label>
               <textarea name="<portlet:namespace/>todoText" rows="5"  style="width: 100%"
-                        placeholder="Enter the Todo-Text here..."></textarea>
+                        required placeholder="Enter the Todo-Text here..."></textarea>
         </label>
       </td>
       <td colspan="1"></td>

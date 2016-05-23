@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -45,6 +46,7 @@ public class ConvertRecord {
         ArrayList<RiskCategory> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             int id = Integer.parseInt(record.get(0));
             String text = record.get(1);
 
@@ -59,14 +61,11 @@ public class ConvertRecord {
         return new Serializer<RiskCategory>() {
             @Override
             public Function<RiskCategory, List<String>> transformer() {
-                return new Function<RiskCategory, List<String>>() {
-                    @Override
-                    public List<String> apply(RiskCategory in) {
+                return riskCategory -> {
                         final ArrayList<String> out = new ArrayList<>(2);
-                        out.add(((Integer)in.getRiskCategoryId()).toString());
-                        out.add(in.getText());
+                        out.add(((Integer)riskCategory.getRiskCategoryId()).toString());
+                        out.add(riskCategory.getText());
                         return out;
-                    }
                 };
             }
 
@@ -81,6 +80,7 @@ public class ConvertRecord {
         List<Risk> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 3) break;
             int id = Integer.parseInt(record.get(0));
             int catId = Integer.parseInt(record.get(1));
             String text = record.get(2);
@@ -98,16 +98,13 @@ public class ConvertRecord {
         return new Serializer<Risk>() {
             @Override
             public Function<Risk, List<String>> transformer() {
-                return new Function<Risk, List<String>>() {
-                    @Override
-                    public List<String> apply(Risk in) {
+                return risk -> {
                         final ArrayList<String> out = new ArrayList<>(3);
 
-                        out.add(((Integer) in.getRiskId()).toString());
-                        out.add(((Integer) in.getCategory().getRiskCategoryId()).toString());
-                        out.add(in.getText());
+                        out.add(((Integer) risk.getRiskId()).toString());
+                        out.add(((Integer) risk.getCategory().getRiskCategoryId()).toString());
+                        out.add(risk.getText());
                         return out;
-                    }
                 };
             }
 
@@ -122,6 +119,7 @@ public class ConvertRecord {
         List<Todo> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             String id = record.get(0);
             String text = record.get(1);
 
@@ -149,17 +147,15 @@ public class ConvertRecord {
         return new Serializer<Todo>() {
             @Override
             public Function<Todo, List<String>> transformer() {
-                return new Function<Todo, List<String>>() {
-                    @Override
-                    public List<String> apply(Todo in) {
+                return todo -> {
+
                         final ArrayList<String> out = new ArrayList<>(4);
 
-                        out.add(((Integer) in.getTodoId()).toString());
-                        out.add(in.getText());
-                        out.add(((Boolean) in.isDevelopment()).toString());
-                        out.add(((Boolean) in.isDistribution()).toString());
+                        out.add(((Integer) todo.getTodoId()).toString());
+                        out.add(todo.getText());
+                        out.add(((Boolean) todo.isDevelopment()).toString());
+                        out.add(((Boolean) todo.isDistribution()).toString());
                         return out;
-                    }
                 };
             }
 
@@ -175,6 +171,7 @@ public class ConvertRecord {
         List<Obligation> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             String id = record.get(0);
             String name = record.get(1);
 
@@ -189,15 +186,12 @@ public class ConvertRecord {
         return new Serializer<Obligation>() {
             @Override
             public Function<Obligation, List<String>> transformer() {
-                return new Function<Obligation, List<String>>() {
-                    @Override
-                    public List<String> apply(Obligation in) {
+                return obligation -> {
                         final ArrayList<String> out = new ArrayList<>(2);
 
-                        out.add(((Integer) in.getObligationId()).toString());
-                        out.add(in.getName());
+                        out.add(((Integer) obligation.getObligationId()).toString());
+                        out.add(obligation.getName());
                         return out;
-                    }
                 };
             }
 
@@ -237,6 +231,7 @@ public class ConvertRecord {
         List<LicenseType> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 2) break;
             int id = Integer.parseInt(record.get(0));
             String text = record.get(1);
 
@@ -251,14 +246,11 @@ public class ConvertRecord {
         return new Serializer<LicenseType>() {
             @Override
             public Function<LicenseType, List<String>> transformer() {
-                return new Function<LicenseType, List<String>>() {
-                    @Override
-                    public List<String> apply(LicenseType in) {
+                return licenseType -> {
                         final ArrayList<String> out = new ArrayList<>(2);
-                        out.add(((Integer) in.getLicenseTypeId()).toString());
-                        out.add(in.getLicenseType());
+                        out.add(((Integer) licenseType.getLicenseTypeId()).toString());
+                        out.add(licenseType.getLicenseType());
                         return out;
-                    }
                 };
             }
 
@@ -274,6 +266,7 @@ public class ConvertRecord {
         List<License> licenses = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
+            if (record.size() < 7) break;
             String identifier = record.get(0);
             String fullname = record.get(1);
 
@@ -288,13 +281,13 @@ public class ConvertRecord {
             }
 
             String gplv2CompatString = record.get(3);
-            if (!Strings.isNullOrEmpty(typeString) && !"NULL".equals(gplv2CompatString)) {
+            if (!Strings.isNullOrEmpty(gplv2CompatString) && !"NULL".equals(gplv2CompatString)) {
                 boolean gplv2Compat = parseBoolean(gplv2CompatString);
                 license.setGPLv2Compat(gplv2Compat);
             }
 
             String gplv3CompatString = record.get(4);
-            if (!Strings.isNullOrEmpty(typeString) && !"NULL".equals(gplv3CompatString)) {
+            if (!Strings.isNullOrEmpty(gplv3CompatString) && !"NULL".equals(gplv3CompatString)) {
                 boolean gplv3Compat = parseBoolean(gplv3CompatString);
                 license.setGPLv3Compat(gplv3Compat);
             }
@@ -304,6 +297,11 @@ public class ConvertRecord {
 
             String text = record.get(6);
             license.setText(text);
+
+            if(record.size() > 7) {
+                String externalLink = record.get(7);
+                license.setExternalLicenseLink(externalLink);
+            }
 
             // Add all risks
             Set<Integer> riskIds = licenseRisk.get(identifier);
@@ -337,25 +335,24 @@ public class ConvertRecord {
         return new Serializer<License>() {
             @Override
             public Function<License, List<String>> transformer() {
-                return new Function<License, List<String>>() {
-                    @Override
-                    public List<String> apply(License in) {
-                        final ArrayList<String> out = new ArrayList<>(7);
-                        out.add(CommonUtils.nullToEmptyString(in.getId()));
-                        out.add(CommonUtils.nullToEmptyString(in.getFullname()));
-                        out.add(in.isSetLicenseType()?((Integer) in.getLicenseType().getLicenseTypeId()).toString():"");
-                        out.add(in.isSetGPLv2Compat()?((Boolean) in.isGPLv2Compat()).toString():"");
-                        out.add(in.isSetGPLv3Compat() ? ((Boolean) in.isGPLv3Compat()).toString() : "");
-                        out.add(CommonUtils.nullToEmptyString(in.getReviewdate()));
-                        out.add(CommonUtils.nullToEmptyString(in.getText()));
-                        return out;
-                    }
+                return license -> {
+                    final ArrayList<String> out = new ArrayList<>(7);
+                    out.add(CommonUtils.nullToEmptyString(license.getId()));
+                    out.add(CommonUtils.nullToEmptyString(license.getFullname()));
+                    out.add(license.isSetLicenseType() ? ((Integer) license.getLicenseType().getLicenseTypeId()).toString() :
+                            CommonUtils.nullToEmptyString(license.getLicenseTypeDatabaseId()));
+                    out.add(license.isSetGPLv2Compat() ? ((Boolean) license.isGPLv2Compat()).toString() : "");
+                    out.add(license.isSetGPLv3Compat() ? ((Boolean) license.isGPLv3Compat()).toString() : "");
+                    out.add(CommonUtils.nullToEmptyString(license.getReviewdate()));
+                    out.add(CommonUtils.nullToEmptyString(license.getText()));
+                    out.add(CommonUtils.nullToEmptyString(license.getExternalLicenseLink()));
+                    return out;
                 };
             }
 
             @Override
             public List<String> headers() {
-                return ImmutableList.of("Identifier", "Fullname", "Type", "Gplv2compat", "Gplv3compat", "reviewdate", "Text");
+                return ImmutableList.of("Identifier", "Fullname", "Type", "Gplv2compat", "Gplv3compat", "reviewdate", "Text", "External Link");
             }
         };
     }
@@ -364,6 +361,7 @@ public class ConvertRecord {
         Map<String, Set<Integer>> map = new HashMap<>(records.size());
 
         for (CSVRecord record : records) {
+            if(record.size()<2) break;
             String mainId = record.get(0);
             int otherId = Integer.parseInt(record.get(1));
 
@@ -430,7 +428,6 @@ public class ConvertRecord {
         }
     }
 
-
     @NotNull
     public static SetMultimap<Integer, Integer> getTodoToObligationMap(List<Todo> todos) {
         SetMultimap<Integer, Integer> obligationTodo = HashMultimap.create();
@@ -494,7 +491,7 @@ public class ConvertRecord {
     }
 
 
-    interface Serializer<T> {
+    public interface Serializer<T> {
         Function<T, List<String>> transformer();
 
         List<String> headers();

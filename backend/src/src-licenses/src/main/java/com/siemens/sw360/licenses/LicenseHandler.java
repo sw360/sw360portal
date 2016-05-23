@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -70,11 +71,6 @@ public class LicenseHandler implements LicenseService.Iface {
     @Override
     public List<License> getLicenseSummaryForExport() throws TException {
         return handler.getLicenseSummaryForExport();
-    }
-
-    @Override
-    public List<LicenseType> getLicenseTypeSummaryForExport() throws TException {
-        return handler.getLicenseTypeSummaryForExport();
     }
 
     @Override

@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -69,57 +70,64 @@ public class ComponentUploadPortlet extends Sw360Portlet {
     private static final Logger log = Logger.getLogger(ComponentUploadPortlet.class);
 
     @Override
-    public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-
-        // Proceed with page rendering
-        super.doView(request, response);
-    }
-
-    @Override
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
-        if (PortalConstants.DOWNLOAD.equals(action)) {
-            try {
-                backUpComponents(request, response);
-            } catch (IOException e) {
-                log.error("Something went wrong with the user backup", e);
-            }
-        } else if (PortalConstants.DOWNLOAD_SAMPLE.equals(action)) {
-            try {
-                generateSampleFile(request, response);
-            } catch (IOException e) {
-                log.error("Something went wrong with the CSV creation", e);
-            }
-        } else if (PortalConstants.DOWNLOAD_SAMPLE_ATTACHMENT_INFO.equals(action)) {
-            try {
-                generateSampleAttachmentsFile(request, response);
-            } catch (IOException e) {
-                log.error("Something went wrong with the CSV creation", e);
-            }
-        } else if (PortalConstants.DOWNLOAD_ATTACHMENT_INFO.equals(action)) {
-            try {
-                generateAttachmentsFile(request, response);
-            } catch (IOException e) {
-                log.error("Something went wrong with the CSV creation", e);
-            }
-        } else if (PortalConstants.DOWNLOAD_RELEASE_LINK_INFO.equals(action)) {
-            try {
-                generateReleaseLinksFile(request, response);
-            } catch (IOException e) {
-                log.error("Something went wrong with the CSV creation", e);
-            }
-        } else if (PortalConstants.DOWNLOAD_SAMPLE_RELEASE_LINK_INFO.equals(action)) {
-            try {
-                generateSampleReleaseLinksFile(request, response);
-            } catch (IOException e) {
-                log.error("Something went wrong with the CSV creation", e);
-            }
-        } else if (PortalConstants.DOWNLOAD_LICENSE_BACKUP.equals(action)) {
-            try {
-                backUpLicenses(request, response);
-            } catch (IOException | TException e) {
-                log.error("Something went wrong with the license zip creation", e);
-            }
+
+        if (action == null) {
+            log.error("Invalid action 'null'");
+            return;
+        }
+
+        switch (action) {
+            case PortalConstants.DOWNLOAD:
+                try {
+                    backUpComponents(request, response);
+                } catch (IOException e) {
+                    log.error("Something went wrong with the user backup", e);
+                }
+                break;
+            case PortalConstants.DOWNLOAD_SAMPLE:
+                try {
+                    generateSampleFile(request, response);
+                } catch (IOException e) {
+                    log.error("Something went wrong with the CSV creation", e);
+                }
+                break;
+            case PortalConstants.DOWNLOAD_SAMPLE_ATTACHMENT_INFO:
+                    try {
+                        generateSampleAttachmentsFile(request, response);
+                    } catch (IOException e) {
+                        log.error("Something went wrong with the CSV creation", e);
+                    }
+                break;
+            case PortalConstants.DOWNLOAD_ATTACHMENT_INFO:
+                try {
+                    generateAttachmentsFile(request, response);
+                } catch (IOException e) {
+                    log.error("Something went wrong with the CSV creation", e);
+                }
+                break;
+            case PortalConstants.DOWNLOAD_RELEASE_LINK_INFO:
+                try {
+                    generateReleaseLinksFile(request, response);
+                } catch (IOException e) {
+                    log.error("Something went wrong with the CSV creation", e);
+                }
+                break;
+            case PortalConstants.DOWNLOAD_SAMPLE_RELEASE_LINK_INFO:
+                try {
+                    generateSampleReleaseLinksFile(request, response);
+                } catch (IOException e) {
+                    log.error("Something went wrong with the CSV creation", e);
+                }
+                break;
+            case PortalConstants.DOWNLOAD_LICENSE_BACKUP:
+                try {
+                    backUpLicenses(request, response);
+                } catch (IOException | TException e) {
+                    log.error("Something went wrong with the license zip creation", e);
+                }
+                break;
         }
     }
 
@@ -444,7 +452,7 @@ public class ComponentUploadPortlet extends Sw360Portlet {
         InputStream in = null;
         try {
             in = getInputStreamFromRequest(request, "file");
-            ZipTools.extractZipToImputStreamMap(in, fileNameToStream);
+            ZipTools.extractZipToInputStreamMap(in, fileNameToStream);
         } finally {
             if (in != null) in.close();
         }

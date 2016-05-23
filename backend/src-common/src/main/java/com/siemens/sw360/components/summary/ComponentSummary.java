@@ -83,11 +83,6 @@ public class ComponentSummary extends DocumentSummary<Component> {
         } else if (type == SummaryType.HOME) {
             copyField(document, copy, Component._Fields.ID);
             copyField(document, copy, Component._Fields.DESCRIPTION);
-
-            ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
-
-            ImmutableList<Release> releases = fullReleases.get(document.getId());
-            copy.setReleases(releases);
         }
 
 

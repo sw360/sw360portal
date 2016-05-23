@@ -1,8 +1,6 @@
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.components.ComponentPortlet" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -42,25 +40,14 @@
     $(window).load(function () {
         var result = [];
         var releasesInfo = '';
-        <core_rt:forEach items="${components}" var="component">
-            <core_rt:choose>
-                <core_rt:when test="${component.releases.size() > 1}">
-                    releasesInfo = '<sw360:out value="${component.releases.size()} releases"/>';
-                </core_rt:when>
-                <core_rt:otherwise>
-                    releasesInfo = 'no release';
-                    <core_rt:if test="${component.releases.size() == 1}">
-                        releasesInfo = '<sw360:out value="${component.releases[0].name}"/>';
-                    </core_rt:if>
-                </core_rt:otherwise>
-            </core_rt:choose>
 
-            result.push({
-                "DT_RowId": "${component.id}",
-                "0": "<sw360:DisplayComponentLink component="${component}"/>",
-                "1": '<sw360:out value="${component.description}" maxChar="30"/>',
-                "2": releasesInfo
-            });
+        <core_rt:forEach items="${components}" var="component">
+
+        result.push({
+            "DT_RowId": "${component.id}",
+            "0": "<sw360:DisplayComponentLink component="${component}"/>",
+            "1": '<sw360:out value="${component.description}" maxChar="30"/>'
+        });
 
         </core_rt:forEach>
 
@@ -70,8 +57,7 @@
             "iDisplayLength": 10,
             columns: [
                 {"title": "Component Name"},
-                {"title": "Description"},
-                {"title": "Releases"}
+                {"title": "Description"}
             ]
         });
 

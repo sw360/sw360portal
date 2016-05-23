@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -22,14 +23,19 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
+import com.siemens.sw360.datahandler.common.SW360Constants;
+import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.lucene.LuceneSearchView;
+import com.siemens.sw360.datahandler.db.ProjectRepository;
+import com.siemens.sw360.datahandler.permissions.ProjectPermissions;
+import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.search.SearchResult;
+import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,9 +71,11 @@ public class DatabaseSearchHandler {
                     "}");
 
     private final LuceneAwareDatabaseConnector connector;
+    private final ProjectRepository projectRepository;
 
     public DatabaseSearchHandler(String url, String dbName) throws IOException {
         // Create the database connector and add the search view to couchDB
+        projectRepository = new ProjectRepository(new DatabaseConnector(url, dbName));
         connector = new LuceneAwareDatabaseConnector(url, dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);
@@ -76,18 +84,18 @@ public class DatabaseSearchHandler {
     /**
      * Search the database for a given string
      */
-    public List<SearchResult> search(String text) {
+    public List<SearchResult> search(String text, User user) {
         String queryString = text + "*";
-        return getSearchResults(queryString);
+        return getSearchResults(queryString, user);
     }
 
     /**
      * Search the database for a given string and types
      */
-    public List<SearchResult> search(String text, final List<String> typeMask) {
+    public List<SearchResult> search(String text, final List<String> typeMask, User user) {
 
         if (typeMask == null || typeMask.isEmpty()) {
-            return search(text);
+            return search(text, user);
         }
 
         final Function<String, String> addType = new Function<String, String>() {
@@ -98,25 +106,33 @@ public class DatabaseSearchHandler {
         };
 
         String query  = "( "+ Joiner.on(" OR ").join(FluentIterable.from(typeMask).transform(addType)) + " ) AND " +text+"*";
-        return getSearchResults(query);
+        return getSearchResults(query, user);
     }
 
-    private List<SearchResult> getSearchResults(String queryString) {
+    private List<SearchResult> getSearchResults(String queryString, User user) {
         LuceneResult queryLucene = connector.searchView(luceneSearchView, queryString);
-        return convertLuceneResult(queryLucene);
+        return convertLuceneResultAndFilterForVisibility(queryLucene, user);
     }
 
-    private static List<SearchResult> convertLuceneResult(LuceneResult queryLucene) {
+    private List<SearchResult> convertLuceneResultAndFilterForVisibility(LuceneResult queryLucene, User user) {
         List<SearchResult> results = new ArrayList<>();
         if (queryLucene != null) {
             for (LuceneResult.Row row : queryLucene.getRows()) {
                 SearchResult result = makeSearchResult(row);
-                if (result != null && !result.getName().isEmpty()) {
+                if (result != null && !result.getName().isEmpty() && isVisibleToUser(result, user)) {
                     results.add(result);
                 }
             }
         }
         return results;
+    }
+
+    private boolean isVisibleToUser(SearchResult result, User user){
+        if (! result.type.equals(SW360Constants.TYPE_PROJECT)){
+            return true;
+        }
+        Project project =  projectRepository.get(result.id);
+        return ProjectPermissions.isVisible(user).apply(project);
     }
 
     /**

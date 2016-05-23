@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -20,7 +21,7 @@ package com.siemens.sw360.portal.tags.links;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.page.PortletDefaultPage;
-import com.siemens.sw360.portal.portlets.PortletProperties;
+import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
 
 import javax.servlet.jsp.JspException;
 
@@ -56,7 +57,7 @@ public class DisplayLinkToComponent extends DisplayLinkAbstract {
     @Override
     protected void writeUrl() throws JspException {
         renderUrl(pageContext)
-                .toPortlet(PortletProperties.COMPONENTS)
+                .toPortlet(LinkToPortletConfiguration.COMPONENTS, scopeGroupId)
                 .toPage(PortletDefaultPage.DETAIL)
                 .withParam(PortalConstants.COMPONENT_ID, componentId)
                 .writeUrlToJspWriter();

@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -77,37 +78,112 @@ struct ModerationRequest {
 
 service ModerationService {
 
-    // Create a new moderation request
+    /**
+     * write moderation request for component to database by comparing component with corresponding document in database
+     * and writing difference as additions and deletions to moderation request,
+     * set requestingUser of moderation request to user
+     **/
     RequestStatus createComponentRequest(1: Component component, 2: User user);
+
+    /**
+      * write moderation request for release to database by comparing release with corresponding document in database
+      * and writing difference as additions and deletions to moderation request,
+      * set requestingUser of moderation request to use
+      **/
     RequestStatus createReleaseRequest(1: Release release, 2: User user);
+
+    /**
+      * write moderation request for project to database by comparing project with corresponding document in database
+      * and writing difference as additions and deletions to moderation request,
+      * set requestingUser of moderation request to user
+      **/
     RequestStatus createProjectRequest(1: Project project, 2: User user);
+
+    /**
+      * write moderation request for license to database,
+      * only todos and whitelists can be moderated, so license todos are compared with corresponding todos in database,
+      * differences are written as additions and deletions to moderation request,
+      * set requestingUser of moderation request to user
+      **/
     RequestStatus createLicenseRequest(1: License license, 2: User user);
+
+    /**
+      * write moderation request for activating a user account to database
+      **/
     oneway void createUserRequest(1: User user);
 
-    // Create a new delete request
+    /**
+      * write moderation request for deleting component to database,
+      * set requestingUser of moderation request to user
+      **/
     oneway void createComponentDeleteRequest(1: Component component, 2: User user);
+
+    /**
+      * write moderation request for deleting release to database,
+      * set requestingUser of moderation request to user
+      **/
     oneway void createReleaseDeleteRequest(1: Release release, 2: User user);
+
+    /**
+      * write moderation request for deleting project to database,
+      * set requestingUser of moderation request to user
+      **/
     oneway void createProjectDeleteRequest(1: Project project, 2: User user);
 
-    // Get the moderation of a given document
+    /**
+     * get list of moderation requests for document with documentId currently present in database
+     **/
     list<ModerationRequest> getModerationRequestByDocumentId(1: string documentId);
 
-    RequestStatus updateModerationRequest(1: ModerationRequest moderationRequest);
     ModerationRequest getModerationRequestById(1: string id);
 
+   /**
+    * update moderationRequest in database
+    **/
+    RequestStatus updateModerationRequest(1: ModerationRequest moderationRequest);
+
+    /**
+     * set moderation state of moderation request specified by requestId to REJECTED
+     * and sendMail to requestingUser about decline
+     **/
     oneway void refuseRequest(1: string requestId);
 
-    // Refuse to work on moderation request, but keep it open for other moderators
+    /**
+     * remove user from moderators of moderation request specified by requestId,
+     * set moderation state to PENDING,
+     * unset reviewer
+     **/
     oneway void removeUserFromAssignees(1: string requestId, 2:User user);
+
+    /**
+     * set moderation state to PENDING of moderation request spedified by requestId,
+     * unset reviewer
+     **/
     oneway void cancelInProgress(1: string requestId);
+
+    /**
+     * set moderation state of moderation request specified by requestId to IN PROGRESS,
+     * set reviewer to user
+     **/
     oneway void setInProgress(1: string requestId, 2:User user);
 
-    // Delete request when project was updated otherwise
+    /**
+     * delete moderation requests for document specified by documentId from database
+     **/
     oneway void deleteRequestsOnDocument(1: string documentId);
 
-    // Get moderation requests relevant to a given user
+    /**
+     * get list of moderation requests where user is one of the moderators
+     **/
     list<ModerationRequest> getRequestsByModerator(1: User user);
+
+    /**
+     * get list of moderation requests where user is requesting user
+     **/
     list<ModerationRequest> getRequestsByRequestingUser(1: User user);
 
+    /**
+     * delete moderation request specified by id if user is requesting user of moderation request
+     **/
     RequestStatus deleteModerationRequest(1: string id, 2: User user);
 }

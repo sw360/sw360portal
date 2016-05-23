@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -22,7 +23,8 @@ import com.siemens.sw360.datahandler.thrift.search.SearchResult;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.page.PortletDefaultPage;
 import com.siemens.sw360.portal.common.page.PortletReleasePage;
-import com.siemens.sw360.portal.portlets.PortletProperties;
+import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
+import com.siemens.sw360.portal.tags.urlutils.UrlWriter;
 
 import javax.servlet.jsp.JspException;
 
@@ -47,31 +49,35 @@ public class DisplayLinkToSearchResult extends DisplayLinkAbstract {
     protected void writeUrl() throws JspException {
         String searchResultType = searchResult.getType();
         String searchResultId = searchResult.getId();
-
-        if (SW360Constants.TYPE_RELEASE.equals(searchResultType)) {
-            renderUrl(pageContext)
-                    .toPortlet(PortletProperties.COMPONENTS)
-                    .toPage(PortletReleasePage.DETAIL)
-                    .withParam(PortalConstants.RELEASE_ID, searchResultId)
-                    .writeUrlToJspWriter();
-        } else if (SW360Constants.TYPE_PROJECT.equals(searchResultType)) {
-            renderUrl(pageContext)
-                    .toPortlet(PortletProperties.PROJECTS)
+        UrlWriter writer;
+        switch (searchResultType) {
+            case SW360Constants.TYPE_RELEASE:
+                writer = renderUrl(pageContext)
+                        .toPortlet(LinkToPortletConfiguration.COMPONENTS, scopeGroupId)
+                        .toPage(PortletDefaultPage.RELEASE_DETAIL)
+                        .withParam(PortalConstants.RELEASE_ID, searchResultId);
+                break;
+            case SW360Constants.TYPE_PROJECT:
+                writer =renderUrl(pageContext)
+                    .toPortlet(LinkToPortletConfiguration.PROJECTS, scopeGroupId)
                     .toPage(PortletDefaultPage.DETAIL)
-                    .withParam(PortalConstants.PROJECT_ID, searchResultId)
-                    .writeUrlToJspWriter();
-        } else if (SW360Constants.TYPE_COMPONENT.equals(searchResultType)) {
-            renderUrl(pageContext)
-                    .toPortlet(PortletProperties.COMPONENTS)
+                    .withParam(PortalConstants.PROJECT_ID, searchResultId);
+                break;
+            case SW360Constants.TYPE_COMPONENT:
+                writer =renderUrl(pageContext)
+                    .toPortlet(LinkToPortletConfiguration.COMPONENTS, scopeGroupId)
                     .toPage(PortletDefaultPage.DETAIL)
-                    .withParam(PortalConstants.COMPONENT_ID, searchResultId)
-                    .writeUrlToJspWriter();
-        } else if (SW360Constants.TYPE_LICENSE.equals(searchResultType)) {
-            renderUrl(pageContext)
-                    .toPortlet(PortletProperties.LICENSES)
+                    .withParam(PortalConstants.COMPONENT_ID, searchResultId);
+                break;
+            case SW360Constants.TYPE_LICENSE:
+                writer =renderUrl(pageContext)
+                    .toPortlet(LinkToPortletConfiguration.LICENSES, scopeGroupId)
                     .toPage(PortletDefaultPage.DETAIL)
-                    .withParam(PortalConstants.LICENSE_ID, searchResultId)
-                    .writeUrlToJspWriter();
+                    .withParam(PortalConstants.LICENSE_ID, searchResultId);
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected searchResultType " + searchResultType);
         }
+        writer.writeUrlToJspWriter();
     }
 }
