@@ -65,7 +65,7 @@ public class CveSearchHandler implements CveSearchService.Iface {
         Optional<Release> release = vulnerabilityConnector.getRelease(releaseId);
 
         Optional<List<CveSearchData>> cveSearchDatas = release
-                .flatMap(cveSearchWrapper::searchForRelease);
+                .map(cveSearchWrapper::searchForRelease);
 
         Optional<List<Vulnerability>> vulnerabilities = cveSearchDatas
                 .map(cves -> new CveSearchDataToVulnerabilityTranslator().applyToMany(cves));

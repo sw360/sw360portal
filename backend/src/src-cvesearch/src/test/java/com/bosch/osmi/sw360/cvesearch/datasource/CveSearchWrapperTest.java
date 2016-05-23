@@ -86,29 +86,29 @@ public class CveSearchWrapperTest {
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
-        assert(resultWrapped.isPresent());
-        assert(resultWrapped.get().size() > 0);
-        assert(isEqivalent(resultDirect,resultWrapped.get()));
+        assert(resultWrapped != null);
+        assert(resultWrapped.size() > 0);
+        assert(isEqivalent(resultDirect,resultWrapped));
     }
 
     @Ignore
     @Test
     public void testLargeData() throws IOException {
-        Release release = releaseGenerator(".*", "apache", null);
+        Release release = releaseGenerator(null, "apache", null);
 
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
-        assert(resultWrapped.isPresent());
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        assert(resultWrapped != null);
     }
 
     @Ignore
     @Test
     public void testVeryLargeData() throws IOException {
-        Release release = releaseGenerator(".*", ".*", null);
+        Release release = releaseGenerator(null, null, null);
 
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
-        assert(resultWrapped.isPresent());
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        assert(resultWrapped != null);
     }
 
     @Test
@@ -117,11 +117,11 @@ public class CveSearchWrapperTest {
 
         List<CveSearchData> resultDirect = cveSearchApi.cvefor(CPE);
 
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
-        assert(resultWrapped.isPresent());
+        assert(resultWrapped != null);
 
-        assert(isEqivalent(resultDirect,resultWrapped.get()));
+        assert(isEqivalent(resultDirect,resultWrapped));
     }
 
     @Ignore
@@ -131,10 +131,10 @@ public class CveSearchWrapperTest {
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
-        assert(resultWrapped.isPresent());
+        assert(resultWrapped != null);
 
-        assert(isEqivalent(resultDirect,resultWrapped.get()));
+        assert(isEqivalent(resultDirect,resultWrapped));
     }
 }

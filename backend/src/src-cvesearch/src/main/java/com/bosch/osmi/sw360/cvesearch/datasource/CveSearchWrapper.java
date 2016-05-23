@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.apache.log4j.Logger;
 
@@ -39,6 +40,23 @@ public class CveSearchWrapper {
         List<CveSearchData> apply(Release release) throws IOException;
     }
 
+    private void searchLevelAdd(Function<Release,Boolean> isAplicable,
+                                Function<Release,String> queryGenerator) {
+        Function<String,String> cveWrapper = c -> {
+            if (c.contains("cpe:")){
+                return "cpe:2.3:.*:" + c + ".*";
+            }
+            return c;
+        };
+        searchLevels.add(r -> {
+            if(isAplicable.apply(r)){
+                return cveSearchApi.cvefor(cveWrapper.apply(queryGenerator.apply(r)));
+            }
+            return null;
+        });
+
+    }
+
     private void setSearchLevels() {
         // Search patterns are:
         //    1. search by full cpe
@@ -50,25 +68,36 @@ public class CveSearchWrapper {
         //    7. search by: .*:NAME
         searchLevels = new ArrayList<>();
         searchLevels.add(r -> {
-            if (r.isSetCpeid()){
+            if (r.isSetCpeid() &&
+                    r.getCpeid().toLowerCase().startsWith("cpe:")){
                 return cveSearchApi.cvefor(r.getCpeid());
             }
             return null;
         });
         searchLevels.add(r -> {
-            if (r.isSetVersion()){
-                cveSearchApi.search(r.getVendor().getFullname(), r.getName() + ":" + r.getVersion());
+            if (r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname()){
+                return cveSearchApi.search(r.getVendor().getFullname(), r.getName() + ":" + r.getVersion());
             }
             return null;
         });
         searchLevels.add(r -> {
-            if (r.isSetVersion()){
-                cveSearchApi.search(r.getVendor().getShortname(), r.getName() + ":" + r.getVersion());
+            if (r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetShortname()){
+                return cveSearchApi.search(r.getVendor().getShortname(), r.getName() + ":" + r.getVersion());
             }
             return null;
         });
-        searchLevels.add(r -> cveSearchApi.search(r.getVendor().getFullname(), r.getName()));
-        searchLevels.add(r -> cveSearchApi.search(r.getVendor().getShortname(), r.getName()));
+        searchLevels.add(r -> {
+            if (r.isSetVendor() && r.getVendor().isSetFullname()){
+                return cveSearchApi.search(r.getVendor().getFullname(), r.getName());
+            }
+            return null;
+        });
+        searchLevels.add(r -> {
+            if (r.isSetVendor() && r.getVendor().isSetShortname()){
+                return cveSearchApi.search(r.getVendor().getShortname(), r.getName());
+            }
+            return null;
+        });
         searchLevels.add(r -> {
             if (r.isSetVersion()) {
                 return cveSearchApi.search(null, r.getName()+ ":" + r.getVersion());
@@ -83,7 +112,7 @@ public class CveSearchWrapper {
         setSearchLevels();
     }
 
-    public Optional<List<CveSearchData>> searchForRelease(Release release, int maxDepth) {
+    public List<CveSearchData> searchForRelease(Release release, int maxDepth) {
         List<CveSearchData> result = null;
         int level = 0;
         for(SearchLevel searchLevel : searchLevels){
@@ -91,20 +120,19 @@ public class CveSearchWrapper {
             try {
                 result = searchLevel.apply(release);
             } catch (IOException e) {
-                log.error("IOException in searchlevel=" + level + " for release with id=" + release.getId());
-                //return Optional.empty();
+                log.error("IOException in searchlevel=" + level + " for release with id=" + release.getId() + " with msg=" + e.getMessage());
             }
             if(null != result && result.size() > 0){
-                return Optional.of(result);
+                return result;
             }
             if(level == maxDepth){
                 break;
             }
         }
-        return Optional.of(new ArrayList<>());
+        return new ArrayList<>();
     }
 
-    public Optional<List<CveSearchData>> searchForRelease(Release release) {
+    public List<CveSearchData> searchForRelease(Release release) {
         return searchForRelease(release, 0);
     }
 }

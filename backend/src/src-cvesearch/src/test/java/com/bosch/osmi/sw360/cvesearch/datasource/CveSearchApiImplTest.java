@@ -26,11 +26,11 @@ import java.util.List;
 
 public class CveSearchApiImplTest {
 
-    String HOST = "https://cve.circl.lu";
-    String VENDOR = "zyxel";
+    String HOST    = "https://cve.circl.lu";
+    String VENDOR  = "zyxel";
     String PRODUCT = "zywall";
-    String CPE = "cpe:2.3:a:zyxel:zywall:1050";
-    String CVE = "CVE-2008-1160";
+    String CPE     = "cpe:2.3:a:zyxel:zywall:1050";
+    String CVE     = "CVE-2008-1160";
 
     private CveSearchApiImpl cveSearchApi;
 

@@ -38,9 +38,10 @@ public class CveSearchApiImpl implements CveSearchApi {
 
     private String host;
 
-    private String CVE_SEARCH_SEARCH = "search";
-    private String CVE_SEARCH_CVEFOR = "cvefor";
-    private String CVE_SEARCH_CVE    = "cve";
+    private String CVE_SEARCH_SEARCH  = "search";
+    private String CVE_SEARCH_CVEFOR  = "cvefor";
+    private String CVE_SEARCH_CVE     = "cve";
+    public String CVE_SEARCH_WILDCARD = ".*";
 
     private Type listTargetType = new TypeToken<List<CveSearchData>>(){}.getType();
     private Type singleTargetType = new TypeToken<CveSearchData>(){}.getType();
@@ -80,16 +81,14 @@ public class CveSearchApiImpl implements CveSearchApi {
         return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(singleTargetType));
     }
 
-    private String reworkArguments(String argument) {
-        if(argument == null || "".equals(argument)) {
-            return ".*";
-        }
-        return argument.replace(" ","_").toLowerCase();
-    }
-
     @Override
     public List<CveSearchData> search(String vendor, String product) throws IOException {
-        Function<String,String> unifyer = s -> CommonUtils.nullToEmptyString(s).replace(" ","_").toLowerCase();
+        Function<String,String> unifyer = s -> {
+            if(s == null || "".equals(s)) {
+                return CVE_SEARCH_WILDCARD;
+            }
+            return CommonUtils.nullToEmptyString(s).replace(" ", "_").toLowerCase();
+        };
 
         String query = composeQuery(CVE_SEARCH_SEARCH,
                 unifyer.apply(vendor),
@@ -100,14 +99,14 @@ public class CveSearchApiImpl implements CveSearchApi {
 
     @Override
     public List<CveSearchData> cvefor(String cpe) throws IOException {
-        String query = composeQuery(CVE_SEARCH_CVEFOR, cpe);
+        String query = composeQuery(CVE_SEARCH_CVEFOR, cpe.toLowerCase());
 
         return getParsedCveSearchDatas(query);
     }
 
     @Override
     public CveSearchData cve(String cve) throws IOException {
-        String query = composeQuery(CVE_SEARCH_CVE, cve);
+        String query = composeQuery(CVE_SEARCH_CVE, cve.toUpperCase());
 
         return getParsedCveSearchData(query);
     }
