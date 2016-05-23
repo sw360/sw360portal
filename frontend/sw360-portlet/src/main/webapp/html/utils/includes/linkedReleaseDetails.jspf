@@ -47,21 +47,21 @@
     <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
         <tr id="releaseLinkRow${loop.count}" >
             <td class="release-list-entry-element">
-                <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
+                <input width="100%" id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
                        value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
             </td>
             <td class="release-list-entry-element">
                 <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.ID%>">
-                <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
+                <input width="100%" id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
                        value="<sw360:out value="${releaseLink.name}"/>" readonly/>
             </td>
             <td class="release-list-entry-element">
-                <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
+                <input width="100%" id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
                        value="<sw360:out value="${releaseLink.version}"/>" readonly/>
             </td>
             <td class="release-list-entry-element">
                 <core_rt:if test="${!releaseLink.setReleaseRelationship}" >
-                <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
+                <input width="100%" id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
                        value="<sw360:out value="${releaseLink.comment}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>" readonly/>
                 </core_rt:if>
                 <core_rt:if test="${releaseLink.setReleaseRelationship}" >
@@ -70,7 +70,7 @@
                 </core_rt:if>
             </td>
             <td class="release-list-entry-element">
-                    <input id="releaseLicenseType" type="text" class="toplabelledInput"
+                    <input width="100%" id="releaseLicenseType" type="text" class="toplabelledInput"
                            placeholder="License Name" value='${releaseLink.licenseNames.toString().replaceAll("[\\[\\]]", "")}' readonly />
             </td>
         </tr>

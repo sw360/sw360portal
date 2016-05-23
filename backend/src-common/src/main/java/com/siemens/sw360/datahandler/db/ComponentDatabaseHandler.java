@@ -476,7 +476,7 @@ public class ComponentDatabaseHandler {
 
     }
 
-    public Component updateReleaseDependentFieldsForComponentId(String componentId) {
+    protected Component updateReleaseDependentFieldsForComponentId(String componentId) {
         Component component = componentRepository.get(componentId);
         recomputeReleaseDependentFields(component, null);
         componentRepository.update(component);

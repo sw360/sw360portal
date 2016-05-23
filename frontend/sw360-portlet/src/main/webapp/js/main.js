@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -35,6 +36,27 @@ function openDialog(id, focusId, heightPerc, widthPerc) {
     $dialogForm.dialog({
         height: dlgHeight,
         width: dlgWidth,
+        modal: true,
+        resizable: false
+    });
+
+    toJQuery(focusId).focus();
+}
+
+function openDialogAbsolute(id, focusId, widthPx, heightPx) {
+    heightPx = (heightPx !== undefined) ? heightPx : 256;
+    widthPx = (widthPx !== undefined) ? widthPx: 256;
+
+    var $dialogForm = $("#" + id);
+
+    if (!contains(openDialogs, id)) {
+        openDialogs.push(id);
+    }
+
+    $dialogForm.css('visibility', 'visible');
+    $dialogForm.dialog({
+        height: heightPx,
+        width: widthPx,
         modal: true,
         resizable: false
     });
@@ -200,5 +222,24 @@ function loadDataTableExtension() {
             return versionCmp(b, a);
         }
     });
+}
+
+function cleanMessages() {
+    $('.portlet-body .alert').remove();
+}
+
+function flashSuccessMessage(content) {
+    flashMessage(content, 'alert-success');
+}
+
+function flashErrorMessage(content) {
+    flashMessage(content, 'alert-error');
+}
+
+function flashMessage(content, styleClass) {
+    var target = $('.portlet-body');
+
+    var node = $('<div/>');
+    node.addClass('alert ' + styleClass).text(content).prependTo(target);
 }
 

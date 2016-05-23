@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ Copying and distribution of this file, with or without modification,
   ~ are permitted in any medium without royalty provided the copyright
@@ -25,6 +26,7 @@
 		<portlet id="mysubscriptions"/>
 		<portlet id="mycomponents"/>
 		<portlet id="myprojects"/>
+		<portlet id="ProjectImportPortlet"/>
 		<portlet id="mytaskassignments"/>
 		<portlet id="mytasksubmissions"/>
 		<portlet id="fossologyadmin"/>

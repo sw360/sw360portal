@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -33,7 +34,6 @@
         <private-request-attributes>false</private-request-attributes>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <!--<header-portlet-css>/css/dataTable_Siemens.css</header-portlet-css>-->
-        <!--<header-portlet-css>/css/sw360.css</header-portlet-css>-->
         <!--<header-portlet-css>/css/licenses.css</header-portlet-css>-->
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
         <!--<header-portlet-javascript>/js/jquery-1.11.1.min.js</header-portlet-javascript>-->
@@ -265,6 +265,15 @@
 
     <portlet>
         <portlet-name>signup</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>ProjectImportPortlet</portlet-name>
         <icon>/icon.png</icon>
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>

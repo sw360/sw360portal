@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -57,6 +58,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add(BUSINESS_UNIT)
             .add(RELEASE_IDS)
             .add(RELEASE_CLEARING_STATE_SUMMARY)
+            .add(BDP_ID)
             .build();
 
 
@@ -75,6 +77,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add("Business Unit")
             .add("Release IDs")
             .add("ReleaseClearingStateSummary")
+            .add("Bdp Id")
             .build();
 
     public ProjectExporter(ComponentService.Iface client) {
@@ -109,7 +112,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
                 if (renderedField.equals(RELEASE_IDS)) {
                     row.add(joinStrings(getReleases(project.releaseIds)));
                 }
-                else if(fieldValue instanceof TEnum) {
+                else if (fieldValue instanceof TEnum) {
                     row.add(nullToEmpty(ThriftEnumUtils.enumToString((TEnum) fieldValue)));
                 }
                 else if (fieldValue instanceof String ) {

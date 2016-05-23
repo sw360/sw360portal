@@ -21,6 +21,7 @@ package com.siemens.sw360.datahandler.common;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.siemens.sw360.datahandler.thrift.datasources.SourceDatabase;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
@@ -39,6 +40,7 @@ import java.util.Map;
  * @author Cedric.Bodet@tngtech.com
  * @author Gerrit.Grenzebach@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author Andreas.Reichel@tngtech.com
  */
 
 public class ThriftEnumUtils {
@@ -47,6 +49,9 @@ public class ThriftEnumUtils {
         // Utility class with only static functions
     }
 
+    private static final ImmutableMap<SourceDatabase, String> MAP_SOURCE_DATABASE_STRING = ImmutableMap.of(
+            SourceDatabase.BDP, "BDP"
+    );
     //! Enumeration "fancy name" mappings
     private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.of(
             ComponentType.OSS, "Open Source Software" ,
@@ -178,6 +183,7 @@ public class ThriftEnumUtils {
 
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
+            .put(SourceDatabase.class, MAP_SOURCE_DATABASE_STRING)
             .put(ComponentType.class, MAP_COMPONENT_TYPE_STRING)
             .put(ProjectType.class, MAP_PROJECT_TYPE_STRING)
             .put(AttachmentType.class, MAP_ATTACHMENT_TYPE_STRING)
