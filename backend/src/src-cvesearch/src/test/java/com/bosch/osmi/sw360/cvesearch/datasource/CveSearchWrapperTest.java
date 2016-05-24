@@ -38,16 +38,32 @@ public class CveSearchWrapperTest {
     String PRODUCTNAME = "zywall";
     String CPE = "cpe:2.3:a:zyxel:zywall:1050";
 
-    private class ReleaseGen{
-        private String name, version, cpe, vendorFullname, vendorShortname;
 
-        public ReleaseGen setName(String name) {
-            this.name = name;
+    private class ReleaseGen{
+    @Test
+    public  void compareToWithoutWrapper() throws IOException {
+        Release release = new ReleaseGen()
+                .setName(PRODUCTNAME)
+                .setVendorFullname(VENDORNAME)
+                .get();
+
+        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
+
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+
+        assert(resultWrapped != null);
+        assert(resultWrapped.size() > 0);
+        assert(isEqivalent(resultDirect,resultWrapped));
+    }
+        private String releaseName, releaseVersion, cpe, vendorFullname, vendorShortname;
+
+        public ReleaseGen setName(String releaseName) {
+            this.releaseName = releaseName;
             return this;
         }
 
-        public ReleaseGen setVersion(String version) {
-            this.version = version;
+        public ReleaseGen setVersion(String releaseVersion) {
+            this.releaseVersion = releaseVersion;
             return this;
         }
 
@@ -70,7 +86,7 @@ public class CveSearchWrapperTest {
             return new Release() {
                 @Override
                 public String getName() {
-                    return name;
+                    return releaseName;
                 }
                 @Override
                 public boolean isSetName() {
@@ -78,11 +94,11 @@ public class CveSearchWrapperTest {
                 }
                 @Override
                 public String getVersion() {
-                    return version;
+                    return releaseVersion;
                 }
                 @Override
                 public boolean isSetVersion() {
-                    return version!=null;
+                    return releaseVersion!=null;
                 }
                 @Override
                 public Vendor getVendor() {
@@ -124,22 +140,6 @@ public class CveSearchWrapperTest {
         cveSearchWrapper = new CveSearchWrapper(cveSearchApi);
     }
 
-    @Test
-    public  void compareToWithoutWrapper() throws IOException {
-        Release release = new ReleaseGen()
-                .setName(PRODUCTNAME)
-                .setVendorFullname(VENDORNAME)
-                .get();
-
-        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
-
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
-
-        assert(resultWrapped != null);
-        assert(resultWrapped.size() > 0);
-        assert(isEqivalent(resultDirect,resultWrapped));
-    }
-
     @Ignore
     @Test
     public void testLargeData() throws IOException {
@@ -178,7 +178,6 @@ public class CveSearchWrapperTest {
         assert(isEqivalent(resultDirect,resultWrapped));
     }
 
-    @Ignore
     @Test
     public void compareToBDPdata() throws IOException {
         Release release = new ReleaseGen()
@@ -192,5 +191,53 @@ public class CveSearchWrapperTest {
         assert(resultWrapped != null);
 
         assert(isEqivalent(resultDirect,resultWrapped));
+    }
+
+    @Test
+    public void isCpeTestNull() {
+        assert(new CveSearchWrapper(null).isCpe(null) == false);
+    }
+
+    @Test
+    public void isCpeTestEmpty() {
+        assert(new CveSearchWrapper(null).isCpe("") == false);
+    }
+
+    @Test
+    public void isCpeTest_cpe() {
+        assert(new CveSearchWrapper(null).isCpe("cpe") == false);
+    }
+
+    @Test
+    public void isCpeTestTrue() {
+        assert(new CveSearchWrapper(null).isCpe("cpe:2.3:a:vendor:product:version"));
+    }
+
+    @Test
+    public void implodeTestSimple() {
+        assert(new CveSearchWrapper(null).implode(r -> "a")
+                .apply(new ReleaseGen().get())
+                .equals("a"));
+    }
+
+    @Test
+    public void implodeTestThree() {
+        assert(new CveSearchWrapper(null).implode(r -> "a", r -> "b", r ->"c")
+                .apply(new ReleaseGen().get())
+                .equals("a.*b.*c"));
+    }
+
+    @Test
+    public void implodeTestReal() {
+        assert(new CveSearchWrapper(null)
+                .implode(r ->r.getVendor().getShortname(),
+                        Release::getName,
+                        Release::getVersion)
+                .apply(new ReleaseGen()
+                        .setVendorShortname("vendorShortname")
+                        .setName("name")
+                        .setVersion("1.2.3")
+                        .get())
+                .equals("vendorShortname.*name.*1.2.3"));
     }
 }

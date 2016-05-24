@@ -18,12 +18,13 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import org.apache.log4j.Logger;
@@ -35,76 +36,88 @@ public class CveSearchWrapper {
 
     private List<SearchLevel> searchLevels;
 
+    protected boolean isCpe(String potentialCpe){
+        if(null == potentialCpe){
+            return false;
+        }
+        return potentialCpe.startsWith("cpe:") && potentialCpe.length() > 10;
+    }
+
     @FunctionalInterface
     private interface SearchLevel {
         List<CveSearchData> apply(Release release) throws IOException;
     }
 
-    private void searchLevelAdd(Function<Release,Boolean> isAplicable,
-                                Function<Release,String> queryGenerator) {
-        Function<String,String> cveWrapper = c -> {
-            if (c.contains("cpe:")){
-                return "cpe:2.3:.*:" + c + ".*";
+    private SearchLevel mkSearchLevel(Function<Release,String> genNeedle){
+        Function<String,String> cveWrapper = needle -> {
+            if (isCpe(needle)){
+                return needle;
             }
-            return c;
+            return "cpe:2.3:.*:.*" + CommonUtils.nullToEmptyString(needle).replace(" ", ".*").toLowerCase() + ".*";
         };
-        searchLevels.add(r -> {
-            if(isAplicable.apply(r)){
-                return cveSearchApi.cvefor(cveWrapper.apply(queryGenerator.apply(r)));
+        return r -> {
+            String needle = genNeedle.apply(r);
+            if (needle != null){
+                return cveSearchApi.cvefor(cveWrapper.apply(needle));
             }
             return null;
-        });
+        };
+    }
 
+    protected Function<Release, String> implode(Function<Release,String> prt, Function<Release,String> ... prts){
+        return Arrays.stream(prts)
+                .reduce(prt,
+                        (s1,s2) -> r -> s1.apply(r) + ".*" + s2.apply(r));
+    }
+
+    private void addSearchLevel(Function<Release,Boolean> isPossible, Function<Release,String> prt, Function<Release,String> ... prts){
+        Function<Release,String> implodedParts = implode(prt, prts);
+
+        searchLevels.add(mkSearchLevel(r -> {
+            if(isPossible.apply(r)){
+                return implodedParts.apply(r);
+            }
+            return null;
+        }));
     }
 
     private void setSearchLevels() {
-        // Search patterns are:
-        //    1. search by full cpe
-        //    2. search by: VENDOR_FULL_NAME:NAME::VERSION
-        //    3. search by: VENDOR_SHORT_NAME:NAME:VERSION
-        //    4. search by: VENDOR_FULL_NAME:NAME
-        //    5. search by: VENDOR_SHORT_NAME:NAME
-        //    6. search by: .*:NAME:VERSION
-        //    7. search by: .*:NAME
         searchLevels = new ArrayList<>();
-        searchLevels.add(r -> {
-            if (r.isSetCpeid() &&
-                    r.getCpeid().toLowerCase().startsWith("cpe:")){
-                return cveSearchApi.cvefor(r.getCpeid());
-            }
-            return null;
-        });
-        searchLevels.add(r -> {
-            if (r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname()){
-                return cveSearchApi.search(r.getVendor().getFullname(), r.getName() + ":" + r.getVersion());
-            }
-            return null;
-        });
-        searchLevels.add(r -> {
-            if (r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetShortname()){
-                return cveSearchApi.search(r.getVendor().getShortname(), r.getName() + ":" + r.getVersion());
-            }
-            return null;
-        });
-        searchLevels.add(r -> {
-            if (r.isSetVendor() && r.getVendor().isSetFullname()){
-                return cveSearchApi.search(r.getVendor().getFullname(), r.getName());
-            }
-            return null;
-        });
-        searchLevels.add(r -> {
-            if (r.isSetVendor() && r.getVendor().isSetShortname()){
-                return cveSearchApi.search(r.getVendor().getShortname(), r.getName());
-            }
-            return null;
-        });
-        searchLevels.add(r -> {
-            if (r.isSetVersion()) {
-                return cveSearchApi.search(null, r.getName()+ ":" + r.getVersion());
-            }
-            return null;
-        });
-        searchLevels.add(r -> cveSearchApi.search(null, r.getName()));
+
+        // Level 1. search by full cpe
+        addSearchLevel(r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
+                Release::getCpeid);
+
+        // Level 2. search by: VENDOR_FULL_NAME:NAME:VERSION
+        addSearchLevel(r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname(),
+                r -> r.getVendor().getFullname(),
+                Release::getName,
+                Release::getVersion);
+
+        // Level 3. search by: VENDOR_SHORT_NAME:NAME:VERSION
+        addSearchLevel(r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetShortname(),
+                r ->r.getVendor().getShortname(),
+                Release::getName,
+                Release::getVersion);
+
+        // Level 4. search by: VENDOR_FULL_NAME:NAME
+        addSearchLevel(r -> r.isSetVendor() && r.getVendor().isSetFullname(),
+                r ->r.getVendor().getFullname(),
+                Release::getName);
+
+        // Level 5. search by: VENDOR_SHORT_NAME:NAME
+        addSearchLevel(r -> r.isSetVendor() && r.getVendor().isSetShortname(),
+                r -> r.getVendor().getShortname(),
+                Release::getName);
+
+        // Level 6. search by: .*:NAME:VERSION
+        addSearchLevel(r -> r.isSetVersion(),
+                Release::getName,
+                Release::getVersion);
+
+        // Level 7. search by: .*:NAME
+        addSearchLevel(r -> true,
+                Release::getName);
     }
 
     public CveSearchWrapper(CveSearchApi cveSearchApi){
@@ -115,6 +128,8 @@ public class CveSearchWrapper {
     public List<CveSearchData> searchForRelease(Release release, int maxDepth) {
         List<CveSearchData> result = null;
         int level = 0;
+
+        // use the basic search levels
         for(SearchLevel searchLevel : searchLevels){
             level++;
             try {
@@ -129,6 +144,7 @@ public class CveSearchWrapper {
                 break;
             }
         }
+
         return new ArrayList<>();
     }
 
