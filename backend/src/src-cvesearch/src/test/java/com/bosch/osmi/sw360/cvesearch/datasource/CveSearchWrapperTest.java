@@ -38,23 +38,7 @@ public class CveSearchWrapperTest {
     String PRODUCTNAME = "zywall";
     String CPE = "cpe:2.3:a:zyxel:zywall:1050";
 
-
     private class ReleaseGen{
-    @Test
-    public  void compareToWithoutWrapper() throws IOException {
-        Release release = new ReleaseGen()
-                .setName(PRODUCTNAME)
-                .setVendorFullname(VENDORNAME)
-                .get();
-
-        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
-
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
-
-        assert(resultWrapped != null);
-        assert(resultWrapped.size() > 0);
-        assert(isEqivalent(resultDirect,resultWrapped));
-    }
         private String releaseName, releaseVersion, cpe, vendorFullname, vendorShortname;
 
         public ReleaseGen setName(String releaseName) {
@@ -225,6 +209,22 @@ public class CveSearchWrapperTest {
         assert(new CveSearchWrapper(null).implode(r -> "a", r -> "b", r ->"c")
                 .apply(new ReleaseGen().get())
                 .equals("a.*b.*c"));
+    }
+
+    @Test
+    public  void compareToWithoutWrapper() throws IOException {
+        Release release = new ReleaseGen()
+                .setName(PRODUCTNAME)
+                .setVendorFullname(VENDORNAME)
+                .get();
+
+        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
+
+        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+
+        assert(resultWrapped != null);
+        assert(resultWrapped.size() > 0);
+        assert(isEqivalent(resultDirect,resultWrapped));
     }
 
     @Test
