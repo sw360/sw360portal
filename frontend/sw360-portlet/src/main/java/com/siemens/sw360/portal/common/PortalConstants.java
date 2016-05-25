@@ -226,6 +226,8 @@ public class PortalConstants {
     //vulnerability actions
     public static  final String UPDATE_VULNERABILITIES_RELEASE = "updateVulnerabilitiesRelease";
     public static  final String UPDATE_VULNERABILITIES_COMPONENT = "updateVulnerabilitiesComponent";
+    public static  final String UPDATE_ALL_VULNERABILITIES = "updateAllVulnerabilities";
+
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
     public static final String EXPORT_ID = "export_id";
@@ -251,6 +253,8 @@ public class PortalConstants {
     public static final String IMPORT_RESPONSE__IMPORT_BDP_SUCCESS = "importProject_response_bdp_import_success";
     public static final String IMPORT_RESPONSE__IMPORT_BDP_FAILURE = "importProject_response_bdp_import_failure";
     public static final String IMPORT_RESPONSE__IMPORT_BDP_GENERAL_FAILURE = "importProject_response_bdp_import_general_failure";
+    public static final String RESPONSE__IMPORT_GENERAL_FAILURE = "response_import_general_failure";
+
 
     public static final String IMPORT_RESPONSE__STATUS = "importProject_response_status";
     public static final String IMPORT_RESPONSE__DBURL = "importProject_response_dburl";
@@ -262,6 +266,9 @@ public class PortalConstants {
 
     public static final String IMPORT_RESPONSE__SUCCESSFUL_IDS = "importProject_response_successfulIds";
     public static final String IMPORT_RESPONSE__FAILED_IDS = "importProject_response_failedIds";
+    public static final String UPDATE_VULNERABILITIES__FAILED_IDS = "updateVulnerabilities_failedIds";
+    public static final String UPDATE_VULNERABILITIES__NEW_IDS = "updateVulnerabilities_newIds";
+    public static final String UPDATE_VULNERABILITIES__UPDATED_IDS = "updateVulnerabilities_updatedIds";
 
     //! request status
     public static final String REQUEST_STATUS = "request_status";

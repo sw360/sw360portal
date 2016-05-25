@@ -1,6 +1,52 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 
 <script>
+    function displayResponse(response) {
+        var failedText = "";
+        var newText="";
+        var updateText="";
+        var noChangesText="";
+        var reloadText="Please reload to see the results.";
+        var statusText = "";
+        if(response.<%=PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS%>.length != 0) {
+            failedText = '<li><b> The vulnerabilities with the following ids could not be imported: </b>' +
+                    "<div>" + response.<%=PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS%> + "</div></li>";
+        }
+        if(response.<%=PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS%>.length != 0) {
+            newText = '<li><b> The vulnerabilities with the following ids were added: </b>' +
+                    "<div>" + response.<%=PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS%> + "</div></li>";
+        }
+        if(response.<%=PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS%>.length != 0) {
+            updateText = '<li><b> The vulnerabilities with the following ids were updated: </b>' +
+                    "<div>" + response.<%=PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS%> + "</div></li>";
+        }
+        if(newText === "" && updateText === ""){
+            noChangesText = "No changes were necessary.";
+            reloadText = "";
+        }
+        switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
+            case '<%=RequestStatus.SUCCESS%>':
+                statusText = "Vulnerabilities updated successfully.";
+                break;
+            case '<%=RequestStatus.FAILURE%>':
+                statusText = "There were some failures.";
+                break;
+            case '<%=PortalConstants.RESPONSE__IMPORT_GENERAL_FAILURE%>':
+                statusText = "The update failed.";
+                break;
+            default:
+        }
+        showStatusPopup('<ul>' +
+                         failedText +
+                         newText +
+                         updateText +
+                        '</ul>' +
+                        noChangesText +
+                        '<br>' +
+                        reloadText, modal, statusText);
+
+    }
+
     function showStatusPopup(text, modal, header) {
         if (!header) {
             header = "Notice";
@@ -16,13 +62,6 @@
                 on: {
                     click: function () {
                         modal.hide();
-                        /*var portletURL = Liferay.PortletURL.createURL(baseUrl).setParameter('
-                        <%=PortalConstants.PAGENAME%>', '
-                        <%=PortalConstants.PAGENAME_RELEASE_DETAIL%>').setParameter('
-                        <%=PortalConstants.RELEASE_ID%>', releaseId)
-                         .setParameter('
-                        <%=PortalConstants.COMPONENT_ID%>', componentId);
-                         window.location.href=portletURL.toString();*/
                     }
                 }
             }

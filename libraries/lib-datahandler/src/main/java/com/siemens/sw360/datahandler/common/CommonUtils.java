@@ -20,7 +20,6 @@ import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FilenameUtils;
@@ -394,7 +393,6 @@ public class CommonUtils {
         }
         return RequestStatus.FAILURE;
     }
-
 
     public static RequestSummary addToMessage(RequestSummary left, RequestSummary right, String info) {
         left.setRequestStatus(reduceRequestStatus(left.requestStatus, right.requestStatus));

@@ -27,18 +27,17 @@ import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.UpdateType;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
-import org.apache.thrift.Option;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.reduceRequestStatus;
+import static com.bosch.osmi.sw360.cvesearch.helper.VulnerabilityUtils.*;
+import static com.siemens.sw360.datahandler.common.CommonUtils.*;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 
@@ -56,71 +55,43 @@ public class CveSearchHandler implements CveSearchService.Iface {
         cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl("https://cve.circl.lu"));
     }
 
-    @Override
-    public RequestStatus updateForCPE(String cpe) throws TException {
-        return null;
+    public VulnerabilityUpdateStatus updateForRelease(Release release) {
+        List<CveSearchData> cveSearchDatas = cveSearchWrapper.searchForRelease(release);
+        List<Vulnerability> vulnerabilities = new CveSearchDataToVulnerabilityTranslator().applyToMany(cveSearchDatas);
+
+        Map<UpdateType, List<Vulnerability>> statusToVulnerabilities = vulnerabilityConnector.addOrUpdateVulnerabilitiesAndSetIds(vulnerabilities);
+        VulnerabilityUpdateStatus status = getUpdateStatusFromUpdateMap(statusToVulnerabilities);
+
+        RequestStatus relationStatus = vulnerabilityConnector.addReleaseVulnerabilityRelationsIfNecessary(release.getId(),
+                successIdsFromUpdateMap(statusToVulnerabilities));
+        return status.setRequestStatus(reduceRequestStatus(status.getRequestStatus(), relationStatus));
     }
 
     @Override
-    public RequestStatus updateForRelease(String releaseId) throws TException {
+    public VulnerabilityUpdateStatus updateForRelease(String releaseId) {
         Optional<Release> release = vulnerabilityConnector.getRelease(releaseId);
-
-        Optional<List<CveSearchData>> cveSearchDatas = release
-                .map(cveSearchWrapper::searchForRelease);
-
-        Optional<List<Vulnerability>> vulnerabilities = cveSearchDatas
-                .map(cves -> new CveSearchDataToVulnerabilityTranslator().applyToMany(cves));
-
-        if (!vulnerabilities.isPresent()) {
-            return RequestStatus.FAILURE;
-        }
-
-        List<Vulnerability> inputVulnerabilities = vulnerabilities.get();
-        List<Vulnerability> successfullyImportedVulnerabilities = vulnerabilityConnector.addOrUpdateVulnerabilitiesAndSetIds(inputVulnerabilities);
-        RequestStatus vulnerabilityStatus = successfullyImportedVulnerabilities.size() < inputVulnerabilities.size()
-                ? RequestStatus.FAILURE
-                : RequestStatus.SUCCESS;
-
-        RequestStatus relationStatus = vulnerabilityConnector.addReleaseVulnerabilityRelationsIfNecessary(releaseId, successfullyImportedVulnerabilities);
-
-        return reduceRequestStatus(vulnerabilityStatus, relationStatus);
+        Optional<VulnerabilityUpdateStatus> updateStatus = release.map(this::updateForRelease);
+        return updateStatus.orElse(getEmptyVulnerabilityUpdateStatus(RequestStatus.FAILURE));
     }
 
     @Override
-    public RequestStatus updateForComponent(String componentId) throws TException {
+    public VulnerabilityUpdateStatus updateForComponent(String componentId) throws TException {
         Optional<Component> component = vulnerabilityConnector.getComponent(componentId);
-        RequestStatus requestStatus = RequestStatus.SUCCESS;
 
-        for (String releaseId : component.get().getReleaseIds()){
-            RequestStatus singleOperationStatus = updateForRelease(releaseId);
-            requestStatus = reduceRequestStatus(requestStatus, singleOperationStatus);
-        }
-        return requestStatus;
+        return component.get().getReleaseIds().stream()
+                .map(this::updateForRelease)
+                .reduce(getEmptyVulnerabilityUpdateStatus(),
+                        (r1, r2) -> reduceVulnerabilityUpdateStatus(r1,r2));
     }
 
     @Override
-    public RequestStatus updateForVendor(String vendorId) throws TException {
-        return null;
-    }
+    public VulnerabilityUpdateStatus fullUpdate() throws TException {
+        List<Release> allReleases = vulnerabilityConnector.getAllReleases();
 
-    @Override
-    public RequestStatus fullUpdate() throws TException {
-        return null;
-    }
-
-    @Override
-    public RequestStatus fullUpdateLastMonth() throws TException {
-        return null;
-    }
-
-    @Override
-    public RequestStatus fullUpdateLastWeek() throws TException {
-        return null;
-    }
-
-    @Override
-    public RequestStatus fullUpdateLastDay() throws TException {
-        return null;
+        return allReleases.stream()
+                .map(this::updateForRelease)
+                .reduce(getEmptyVulnerabilityUpdateStatus(),
+                        (r1, r2) -> reduceVulnerabilityUpdateStatus(r1,r2));
     }
 
     @Override

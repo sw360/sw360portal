@@ -210,6 +210,7 @@ public class CveSearchWrapperTest {
                 .equals("a.*b.*c"));
     }
 
+    @Ignore("meanwhile cveSearchWrapper implementation changed, test maybe suitable for later use")
     @Test
     public  void compareToWithoutWrapper() throws IOException {
         Release release = new ReleaseBuilder()

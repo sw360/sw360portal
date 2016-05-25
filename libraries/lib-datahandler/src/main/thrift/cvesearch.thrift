@@ -25,17 +25,22 @@ namespace php sw360.thrift.cvesearch
 
 typedef sw360.RequestStatus RequestStatus
 
-service CveSearchService{
-    RequestStatus updateForCPE(1: string cpe);
-    RequestStatus updateForRelease(1: string ReleaseId);
-    RequestStatus updateForComponent(1: string ComponentId);
-    RequestStatus updateForVendor(1: string vendorId);
+enum UpdateType {
+    NEW = 0,
+    UPDATED = 1,
+    OLD = 2,
+    FAILED = 3,
+}
 
-    RequestStatus fullUpdate();
+struct VulnerabilityUpdateStatus {
+    1: map<UpdateType, list<string>> statusToVulnerabilityIds;
+    2: RequestStatus requestStatus;
+}
 
-    RequestStatus fullUpdateLastMonth();
-    RequestStatus fullUpdateLastWeek();
-    RequestStatus fullUpdateLastDay();
+service CveSearchService {
+    VulnerabilityUpdateStatus updateForRelease(1: string ReleaseId);
+    VulnerabilityUpdateStatus updateForComponent(1: string ComponentId);
+    VulnerabilityUpdateStatus fullUpdate();
 
     set<string> findCpes(1: string vendor, 2: string product, 3:string version);
 }

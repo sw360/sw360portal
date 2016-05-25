@@ -15,6 +15,7 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
 
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
@@ -49,6 +50,10 @@
 
 <portlet:actionURL var="applyFiltersURL" name="applyFilters">
 </portlet:actionURL>
+
+<portlet:resourceURL var="updateVulnerabilitiesURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_ALL_VULNERABILITIES%>"/>
+</portlet:resourceURL>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
@@ -180,10 +185,15 @@
         </tr>
         </tfoot>
     </table>
+    <div class="sw360modal" id="updateModal"></div>
 </div>
-
+<div style="clear:both"></div>
+<span class="pull-right">
+    <input type="button" onclick="updateVulnerabilities()" id="updateVulnerabilities" value="CVE-search for all components" class="addButton">
+</span>
 <script>
     var oTable;
+    var modal;
 
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
@@ -288,6 +298,24 @@
         }
 
     }
+
+    function updateVulnerabilities() {
+        modal = createModal();
+
+        modal.setHeader("Please wait while updating vulnerabilities.");
+        modal.addToolbar();
+
+        $.ajax({
+            url: '<%=updateVulnerabilitiesURL%>',
+            type: 'POST',
+            dataType: 'json',
+            data: {},
+
+            success: function(response) {
+                displayResponse(response);
+            }
+        });
+    }
+
 </script>
-
-
+<%@include file="/html/components/includes/common/modal.jspf" %>

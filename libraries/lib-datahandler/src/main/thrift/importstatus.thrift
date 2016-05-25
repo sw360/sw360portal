@@ -14,13 +14,13 @@
 
 include "sw360.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.bdpimportstatus
-namespace php sw360.datahandler.thrift.bdpimportstatus
+namespace java com.siemens.sw360.datahandler.thrift.importstatus
+namespace php sw360.datahandler.thrift.importstatus
 
 typedef sw360.RequestStatus RequestStatus
 
 
-struct BdpImportStatus {
+struct ImportStatus {
     1: list<string> successfulIds;
     2: list<string> failedIds;
     3: RequestStatus requestStatus;

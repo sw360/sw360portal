@@ -16,14 +16,14 @@
 include "projects.thrift"
 include "sw360.thrift"
 include "users.thrift"
-include "bdpimportstatus.thrift"
+include "importstatus.thrift"
 
 namespace java com.siemens.sw360.datahandler.thrift.bdpimport
 namespace php sw360.thrift.bdpimport
 
 typedef projects.Project Project
 typedef users.User User
-typedef bdpimportstatus.BdpImportStatus BdpImportStatus
+typedef importstatus.ImportStatus ImportStatus
 
 struct RemoteCredentials {
 1:  string username,
@@ -46,7 +46,7 @@ service BdpImportService {
     *  imports projects from bdp specified by `bdpProjectIds` with credentials `reCred` and set user as creating
     *  user in SW360
     **/
-   BdpImportStatus importDatasources(1: list<string> bdpProjectIds, 2: User user, 3: RemoteCredentials reCred);
+   ImportStatus importDatasources(1: list<string> bdpProjectIds, 2: User user, 3: RemoteCredentials reCred);
 
    string getIdName();
 }

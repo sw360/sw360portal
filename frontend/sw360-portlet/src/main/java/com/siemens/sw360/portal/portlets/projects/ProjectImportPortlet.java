@@ -22,7 +22,7 @@ import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
 import com.siemens.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
-import com.siemens.sw360.datahandler.thrift.bdpimportstatus.BdpImportStatus;
+import com.siemens.sw360.datahandler.thrift.importstatus.ImportStatus;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
@@ -123,12 +123,12 @@ public class ProjectImportPortlet extends Sw360Portlet {
         return checkedIds;
     }
 
-    private boolean isImportSuccessful(BdpImportStatus importStatus) {
+    private boolean isImportSuccessful(ImportStatus importStatus) {
         return (importStatus.isSetRequestStatus() && importStatus.getRequestStatus().equals(RequestStatus.SUCCESS) && importStatus.getFailedIds().isEmpty());
     }
 
-    private BdpImportStatus importDatasources(List<String> toImport, User user, RemoteCredentials remoteCredentials)  {
-        BdpImportStatus importStatus = new BdpImportStatus();
+    private ImportStatus importDatasources(List<String> toImport, User user, RemoteCredentials remoteCredentials)  {
+        ImportStatus importStatus = new ImportStatus();
         try {
             importStatus = bdpImportClient.importDatasources(toImport, user, remoteCredentials);
             if (!isImportSuccessful(importStatus)) {
@@ -223,7 +223,7 @@ public class ProjectImportPortlet extends Sw360Portlet {
     }
 
     private void importBdpProjects(User user, List<String> selectedIds, JSONObject responseData, RemoteCredentials remoteCredentials) throws PortletException, IOException {
-        BdpImportStatus importStatus = importDatasources(selectedIds, user, remoteCredentials);
+        ImportStatus importStatus = importDatasources(selectedIds, user, remoteCredentials);
         JSONArray jsonFailedIds = JSONFactoryUtil.createJSONArray();
         JSONArray jsonSuccessfulIds = JSONFactoryUtil.createJSONArray();
         if(importStatus.isSetRequestStatus() && importStatus.getRequestStatus().equals(RequestStatus.SUCCESS)) {

@@ -23,12 +23,11 @@
     </table>
     <div class="sw360modal" id="updateModal"></div>
 </div>
+<div style="clear:both"></div>
+<span class="pull-right">
+    <input type="button" onclick="updateVulnerabilities('${releaseId}')" id="updateVulnerabilities" value="Update by CVE-search" class="addButton">
+</span>
 
-<div id="updateButtonDiv">
-     <span class="pull-right">
-        <input type="button" onclick="updateVulnerabilities('${releaseId}')" id="updateVulnerabilities" value="Update Vulnerabilities" class="addButton">
-    </span>
-</div>
 
 <script type="text/javascript">
     var oTable;
@@ -85,16 +84,7 @@
             data: {"<%=PortalConstants.RELEASE_ID%>":"${releaseId}" },
 
             success: function(response) {
-              var header = "Update vulnerabilities result";
-              switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
-                  case '<%=RequestStatus.SUCCESS%>':
-                      showStatusPopup('Vulnerabilities updated successfully. Please reload to see the results.', modal, header);
-                      break;
-                  case '<%=RequestStatus.FAILURE%>':
-                      showStatusPopup('One or more vulnerabilities could not be updated. Please reload to see the results.', modal, header);
-                      break;
-                  default:
-              }
+                displayResponse(response);
             }
         });
     }

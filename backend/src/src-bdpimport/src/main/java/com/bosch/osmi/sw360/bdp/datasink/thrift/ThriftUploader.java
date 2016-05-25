@@ -21,7 +21,7 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.bdpimportstatus.BdpImportStatus;
+import com.siemens.sw360.datahandler.thrift.importstatus.ImportStatus;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -173,10 +173,10 @@ public class ThriftUploader {
         return Optional.empty();
     }
 
-    public BdpImportStatus importBdpProjects(Collection<String> bdpProjectIds, User user) {
+    public ImportStatus importBdpProjects(Collection<String> bdpProjectIds, User user) {
         List<String> failedIds = new ArrayList<>();
         List<String> successfulIds = new ArrayList<>();
-        BdpImportStatus bdpImportStatus = new BdpImportStatus().setRequestStatus(RequestStatus.SUCCESS);
+        ImportStatus bdpImportStatus = new ImportStatus().setRequestStatus(RequestStatus.SUCCESS);
 
         for (String bdpId : bdpProjectIds) {
             Optional<String> projectId = Optional.empty();
