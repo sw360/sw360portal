@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static com.siemens.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
@@ -119,7 +120,7 @@ public class LicenseDatabaseHandler {
     public List<License> getLicenseSummaryForExport() {
         return licenseRepository.getLicenseSummaryForExport();
     }
-
+    
     ////////////////////////////
     // GET INDIVIDUAL OBJECTS //
     ////////////////////////////
@@ -198,6 +199,7 @@ public class LicenseDatabaseHandler {
             license.unsetRiskDatabaseIds();
         }
 
+        license.setShortname(license.getId());
     }
 
     ////////////////////
@@ -224,7 +226,7 @@ public class LicenseDatabaseHandler {
         License license = licenseRepository.get(licenseId);
         if (makePermission(license, user).isActionAllowed(RequestedAction.WRITE)) {
             assertNotNull(license);
-            if(todo.isSetId() && todo.id.startsWith("tmp")){
+            if(isTemporaryTodo(todo)){
                 todo.unsetId();
             }
             todo.unsetObligations();
@@ -368,7 +370,6 @@ public class LicenseDatabaseHandler {
 
     public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) {
         if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
-
             String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
 
             License dbLicense = null;
@@ -399,7 +400,7 @@ public class LicenseDatabaseHandler {
     private License updateLicenseFromInputLicense(License license, License inputLicense, String businessUnit){
         if(inputLicense.isSetTodos()) {
             for (Todo todo : inputLicense.getTodos()) {
-                if (todo.isSetId() && todo.id.startsWith("tmp")) {
+                if (isTemporaryTodo(todo)) {
                     todo.unsetId();
                     try {
                         String todoDatabaseId = addTodo(todo);
@@ -422,7 +423,8 @@ public class LicenseDatabaseHandler {
         }
         license.setText(inputLicense.getText());
         license.setFullname(inputLicense.getFullname());
-        license.setId(inputLicense.isSetId() ? inputLicense.getId() : inputLicense.getShortname());
+        // only a new license gets its id from the shortname. Id of an existing license isn't supposed to be changed anyway
+        if (!license.isSetId()) license.setId(inputLicense.getShortname());
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();

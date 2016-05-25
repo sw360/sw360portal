@@ -48,17 +48,14 @@ public class LicenseModerationRequestGenerator extends ModerationRequestGenerato
         documentDeletions = new License();
         //required fields:
         documentAdditions.setFullname(updateLicense.getFullname());
-        documentAdditions.setShortname(updateLicense.getShortname());
         documentAdditions.setId(actualLicense.getId());
         documentDeletions.setFullname(actualLicense.getFullname());
-        documentDeletions.setShortname(actualLicense.getShortname());
         documentDeletions.setId(actualLicense.getId());
 
-        Set<String> actualTodoIds = nullToEmptyList(actualLicense.getTodos()).stream().map(Todo::getId).collect(Collectors.toSet());
         Map<String, Todo> actualTodos = Maps.uniqueIndex(nullToEmptyList(actualLicense.getTodos()), Todo::getId);
 
-        for (Todo updateTodo : nullToEmptyList(updateLicense.getTodos())) {
-            if(!actualTodoIds.contains(updateTodo.getId())){
+        for (Todo updateTodo : updateLicense.getTodos()) {
+            if(!actualTodos.containsKey(updateTodo.getId())){
                 if(!documentAdditions.isSetTodos()) {
                     documentAdditions.setTodos(new ArrayList<>());
                 }
@@ -81,7 +78,7 @@ public class LicenseModerationRequestGenerator extends ModerationRequestGenerato
                 }
             }
         }
-        
+
         request.setLicenseAdditions(documentAdditions);
         request.setLicenseDeletions(documentDeletions);
         return request;

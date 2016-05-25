@@ -20,6 +20,7 @@ package com.siemens.sw360.portal.tags;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import org.apache.thrift.meta_data.FieldMetaData;
@@ -101,7 +102,7 @@ public class CompareTodos extends NameSpaceAwareTag {
     private void renderTodos(StringBuilder display, List<Todo> current, List<Todo> update, List<Todo> delete) {
         List<Todo> newWhitelistedTodos = update
                 .stream()
-                .filter(todo -> todo.getId().startsWith("tmp"))
+                .filter(CommonUtils::isTemporaryTodo)
                 .filter(todo -> todo.isSetWhitelist() && todo.getWhitelist().contains(department))
                 .collect(Collectors.toList());
         Map<String, Todo> newWhitelistedTodosById = getTodosById(newWhitelistedTodos);
@@ -110,7 +111,7 @@ public class CompareTodos extends NameSpaceAwareTag {
 
         List<Todo> newBlacklistedTodos = update
                 .stream()
-                .filter(todo -> todo.getId().startsWith("tmp"))
+                .filter(CommonUtils::isTemporaryTodo)
                 .filter(todo -> !todo.isSetWhitelist() || !todo.getWhitelist().contains(department))
                 .collect(Collectors.toList());
         Map<String, Todo> newBlacklistedTodosById = getTodosById(newBlacklistedTodos);
@@ -121,7 +122,7 @@ public class CompareTodos extends NameSpaceAwareTag {
         Set<String> currentTodoIds = currentTodosById.keySet();
         List<Todo> whitelistedTodos = update
                 .stream()
-                .filter(todo -> !todo.getId().startsWith("tmp"))
+                .filter(todo -> !CommonUtils.isTemporaryTodo(todo))
                 .filter(todo -> todo.isSetWhitelist() && todo.getWhitelist().contains(department))
                 .filter(todo -> currentTodoIds.contains(todo.getId()))
                 .filter(todo -> !(currentTodosById.get(todo.getId()).isSetWhitelist() &&

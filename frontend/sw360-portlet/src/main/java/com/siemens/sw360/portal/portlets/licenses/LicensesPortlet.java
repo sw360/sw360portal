@@ -44,6 +44,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.siemens.sw360.datahandler.common.CommonUtils.TMP_TODO_ID_PREFIX;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 
@@ -127,7 +128,6 @@ public class LicensesPortlet extends Sw360Portlet {
         if (id != null) {
             try {
                 License license = client.getByID(id, user.getDepartment());
-                license.setShortname(license.getId());
                 request.setAttribute(KEY_LICENSE_DETAIL, license);
                 addLicenseBreadcrumb(request, response, license);
             } catch (TException e) {
@@ -170,11 +170,11 @@ public class LicensesPortlet extends Sw360Portlet {
                 List<Todo> allTodos = nullToEmptyList(moderationLicense.getTodos());
                 List<Todo> addedTodos = allTodos
                         .stream()
-                        .filter(todo -> todo.id.startsWith("tmp"))
+                        .filter(CommonUtils::isTemporaryTodo)
                         .collect(Collectors.toList());
                 List<Todo> currentTodos = allTodos
                         .stream()
-                        .filter(todo -> !todo.id.startsWith("tmp"))
+                        .filter(t -> !CommonUtils.isTemporaryTodo(t))
                         .collect(Collectors.toList());
 
                 request.setAttribute(ADDED_TODOS_FROM_MODERATION_REQUEST, addedTodos);
@@ -183,7 +183,6 @@ public class LicensesPortlet extends Sw360Portlet {
                 request.setAttribute(MODERATION_LICENSE_DETAIL, moderationLicense);
 
                 License dbLicense = client.getByID(id, user.getDepartment());
-                dbLicense.setShortname(dbLicense.getId());
                 request.setAttribute(KEY_LICENSE_DETAIL, dbLicense);
 
                 List<Obligation> obligations = client.getObligations();
@@ -381,7 +380,7 @@ public class LicensesPortlet extends Sw360Portlet {
 
         Todo todo = new Todo();
         //add temporary id
-        todo.setId("tmp" + UUID.randomUUID().toString());
+        todo.setId(TMP_TODO_ID_PREFIX + UUID.randomUUID().toString());
         if (obligationIds != null) {
             for (String obligationId : obligationIds) {
                 if (obligationId != null && !obligationId.isEmpty()) {
