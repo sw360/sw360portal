@@ -26,10 +26,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.apache.log4j.Logger;
 
 public class CveSearchWrapper {
+
+    private String CPE_NEEDLE_PREFIX ="cpe:2.3:.*:.*";
+    private String CPE_WILDCARD = ".*";
 
     private CveSearchApi cveSearchApi;
     Logger log = Logger.getLogger(CveSearchWrapper.class);
@@ -53,7 +57,7 @@ public class CveSearchWrapper {
             if (isCpe(needle)){
                 return needle;
             }
-            return "cpe:2.3:.*:.*" + CommonUtils.nullToEmptyString(needle).replace(" ", ".*").toLowerCase() + ".*";
+            return CPE_NEEDLE_PREFIX + CommonUtils.nullToEmptyString(needle).replace(" ", CPE_WILDCARD).toLowerCase() + CPE_WILDCARD;
         };
         return r -> {
             String needle = genNeedle.apply(r);
@@ -64,17 +68,17 @@ public class CveSearchWrapper {
         };
     }
 
-    protected Function<Release, String> implode(Function<Release,String> prt, Function<Release,String> ... prts){
-        return Arrays.stream(prts)
-                .reduce(prt,
-                        (s1,s2) -> r -> s1.apply(r) + ".*" + s2.apply(r));
+    protected Function<Release, String> implodeSearchNeedleGenerators(Function<Release,String> generator, Function<Release,String> ... generators){
+        return Arrays.stream(generators)
+                .reduce(generator,
+                        (s1,s2) -> r -> s1.apply(r) + CPE_WILDCARD + s2.apply(r));
     }
 
-    private void addSearchLevel(Function<Release,Boolean> isPossible, Function<Release,String> prt, Function<Release,String> ... prts){
-        Function<Release,String> implodedParts = implode(prt, prts);
+    private void addSearchLevel(Predicate<Release> isPossible, Function<Release,String> generator, Function<Release,String> ... generators){
+        Function<Release,String> implodedParts = implodeSearchNeedleGenerators(generator, generators);
 
         searchLevels.add(mkSearchLevel(r -> {
-            if(isPossible.apply(r)){
+            if(isPossible.test(r)){
                 return implodedParts.apply(r);
             }
             return null;
@@ -126,19 +130,18 @@ public class CveSearchWrapper {
     }
 
     public List<CveSearchData> searchForRelease(Release release, int maxDepth) {
-        List<CveSearchData> result = null;
         int level = 0;
 
         // use the basic search levels
         for(SearchLevel searchLevel : searchLevels){
             level++;
             try {
-                result = searchLevel.apply(release);
+                List<CveSearchData> result = searchLevel.apply(release);
+                if(null != result && result.size() > 0){
+                    return result;
+                }
             } catch (IOException e) {
                 log.error("IOException in searchlevel=" + level + " for release with id=" + release.getId() + " with msg=" + e.getMessage());
-            }
-            if(null != result && result.size() > 0){
-                return result;
             }
             if(level == maxDepth){
                 break;

@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 public class CveSearchDataTestHelper {
 
 
-    public static boolean isEqivalent(List<CveSearchData> l1, List<CveSearchData> l2){
+    public static boolean isEquivalent(List<CveSearchData> l1, List<CveSearchData> l2){
         int s = l1.size();
         if(s != l2.size()) return false;
 

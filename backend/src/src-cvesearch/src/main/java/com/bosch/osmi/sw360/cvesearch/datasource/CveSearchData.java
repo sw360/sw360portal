@@ -50,9 +50,9 @@ public class CveSearchData {
     }
 
     private String id;
-    private String Modified;
+    @SerializedName("Modified") private String modified;
     private Set<String> references;
-    private String Published;
+    @SerializedName("Published") private String published;
     @SerializedName("cvss-time") private String cvss_time;
     private Set<VulnerableConfigurationEntry> vulnerable_configuration;
     private double cvss;
@@ -74,7 +74,7 @@ public class CveSearchData {
     }
 
     public String getModified() {
-        return Modified;
+        return modified;
     }
 
     public Set<String> getReferences() {
@@ -82,8 +82,7 @@ public class CveSearchData {
     }
 
     public String getPublished() {
-
-        return Published;
+        return published;
     }
 
     public String getCvss_time() {
@@ -92,7 +91,7 @@ public class CveSearchData {
 
     public Set<Map<String,String>> getVulnerable_configuration() {
         return vulnerable_configuration.stream()
-                .map(vce -> vce.getAsMap())
+                .map(VulnerableConfigurationEntry::getAsMap)
                 .collect(Collectors.toSet());
     }
 

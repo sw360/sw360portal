@@ -26,9 +26,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
-import static com.bosch.osmi.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEqivalent;
+import static com.bosch.osmi.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEquivalent;
 
 public class CveSearchWrapperTest {
     CveSearchApi cveSearchApi;
@@ -38,30 +37,30 @@ public class CveSearchWrapperTest {
     String PRODUCTNAME = "zywall";
     String CPE = "cpe:2.3:a:zyxel:zywall:1050";
 
-    private class ReleaseGen{
+    private class ReleaseBuilder {
         private String releaseName, releaseVersion, cpe, vendorFullname, vendorShortname;
 
-        public ReleaseGen setName(String releaseName) {
+        public ReleaseBuilder setName(String releaseName) {
             this.releaseName = releaseName;
             return this;
         }
 
-        public ReleaseGen setVersion(String releaseVersion) {
+        public ReleaseBuilder setVersion(String releaseVersion) {
             this.releaseVersion = releaseVersion;
             return this;
         }
 
-        public ReleaseGen setCpe(String cpe) {
+        public ReleaseBuilder setCpe(String cpe) {
             this.cpe = cpe;
             return this;
         }
 
-        public ReleaseGen setVendorFullname(String vendorFullname) {
+        public ReleaseBuilder setVendorFullname(String vendorFullname) {
             this.vendorFullname = vendorFullname;
             return this;
         }
 
-        public ReleaseGen setVendorShortname(String vendorShortname) {
+        public ReleaseBuilder setVendorShortname(String vendorShortname) {
             this.vendorShortname = vendorShortname;
             return this;
         }
@@ -127,26 +126,26 @@ public class CveSearchWrapperTest {
     @Ignore
     @Test
     public void testLargeData() throws IOException {
-        Release release = new ReleaseGen()
-                .setVendorShortname("apache")
+        Release release = new ReleaseBuilder()
+                .setName("server")
                 .get();
 
         List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
         assert(resultWrapped != null);
     }
 
-    @Ignore
     @Test
-    public void testVeryLargeData() throws IOException {
-        Release release = new ReleaseGen().get();
+    public void testVeryEmptyData() throws IOException {
+        Release release = new ReleaseBuilder().get();
 
         List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
         assert(resultWrapped != null);
+        assert(resultWrapped.size() == 0);
     }
 
     @Test
     public void compareToSearchByCPE() throws IOException {
-        Release release = new ReleaseGen()
+        Release release = new ReleaseBuilder()
                 .setName("blindstring")
                 .setVendorFullname("blindstring")
                 .setVendorShortname("blindstring")
@@ -159,12 +158,12 @@ public class CveSearchWrapperTest {
 
         assert(resultWrapped != null);
 
-        assert(isEqivalent(resultDirect,resultWrapped));
+        assert(isEquivalent(resultDirect,resultWrapped));
     }
 
     @Test
     public void compareToBDPdata() throws IOException {
-        Release release = new ReleaseGen()
+        Release release = new ReleaseBuilder()
                 .setName(VENDORNAME + " " + PRODUCTNAME)
                 .get();
 
@@ -174,7 +173,7 @@ public class CveSearchWrapperTest {
 
         assert(resultWrapped != null);
 
-        assert(isEqivalent(resultDirect,resultWrapped));
+        assert(isEquivalent(resultDirect,resultWrapped));
     }
 
     @Test
@@ -198,22 +197,22 @@ public class CveSearchWrapperTest {
     }
 
     @Test
-    public void implodeTestSimple() {
-        assert(new CveSearchWrapper(null).implode(r -> "a")
-                .apply(new ReleaseGen().get())
+    public void implodeTestOneGenerator() {
+        assert(new CveSearchWrapper(null).implodeSearchNeedleGenerators(r -> "a")
+                .apply(new ReleaseBuilder().get())
                 .equals("a"));
     }
 
     @Test
-    public void implodeTestThree() {
-        assert(new CveSearchWrapper(null).implode(r -> "a", r -> "b", r ->"c")
-                .apply(new ReleaseGen().get())
+    public void implodeTestThreeGenerators() {
+        assert(new CveSearchWrapper(null).implodeSearchNeedleGenerators(r -> "a", r -> "b", r ->"c")
+                .apply(new ReleaseBuilder().get())
                 .equals("a.*b.*c"));
     }
 
     @Test
     public  void compareToWithoutWrapper() throws IOException {
-        Release release = new ReleaseGen()
+        Release release = new ReleaseBuilder()
                 .setName(PRODUCTNAME)
                 .setVendorFullname(VENDORNAME)
                 .get();
@@ -224,16 +223,16 @@ public class CveSearchWrapperTest {
 
         assert(resultWrapped != null);
         assert(resultWrapped.size() > 0);
-        assert(isEqivalent(resultDirect,resultWrapped));
+        assert(isEquivalent(resultDirect,resultWrapped));
     }
 
     @Test
     public void implodeTestReal() {
         assert(new CveSearchWrapper(null)
-                .implode(r ->r.getVendor().getShortname(),
+                .implodeSearchNeedleGenerators(r ->r.getVendor().getShortname(),
                         Release::getName,
                         Release::getVersion)
-                .apply(new ReleaseGen()
+                .apply(new ReleaseBuilder()
                         .setVendorShortname("vendorShortname")
                         .setName("name")
                         .setVersion("1.2.3")

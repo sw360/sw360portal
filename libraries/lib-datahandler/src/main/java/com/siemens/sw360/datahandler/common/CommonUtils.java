@@ -388,15 +388,11 @@ public class CommonUtils {
     }
 
 
-    public static RequestStatus reduceRequestStatus(RequestStatus ... requestStati){
-        return Arrays.stream(requestStati).
-                reduce(RequestStatus.SUCCESS,
-                        (r1,r2) -> {
-                            if (RequestStatus.SUCCESS.equals(r1) && RequestStatus.SUCCESS.equals(r1)){
-                                return RequestStatus.SUCCESS;
-                            }
-                            return RequestStatus.FAILURE;
-                        });
+    public static RequestStatus reduceRequestStatus(RequestStatus r1, RequestStatus r2){
+        if (RequestStatus.SUCCESS.equals(r1) && RequestStatus.SUCCESS.equals(r2)){
+            return RequestStatus.SUCCESS;
+        }
+        return RequestStatus.FAILURE;
     }
 
 

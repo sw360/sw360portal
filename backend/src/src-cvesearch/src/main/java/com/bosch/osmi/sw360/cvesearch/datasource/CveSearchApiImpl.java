@@ -19,6 +19,7 @@
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.json.CveSearchJsonParser;
+import com.google.common.base.Strings;
 import com.google.gson.reflect.TypeToken;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import org.apache.log4j.Logger;
@@ -43,8 +44,8 @@ public class CveSearchApiImpl implements CveSearchApi {
     private String CVE_SEARCH_CVE     = "cve";
     public String CVE_SEARCH_WILDCARD = ".*";
 
-    private Type listTargetType = new TypeToken<List<CveSearchData>>(){}.getType();
-    private Type singleTargetType = new TypeToken<CveSearchData>(){}.getType();
+    private Type LIST_TARGET_TYPE = new TypeToken<List<CveSearchData>>(){}.getType();
+    private Type SINGLE_TARGET_TYPE = new TypeToken<CveSearchData>(){}.getType();
 
     public CveSearchApiImpl(String host) {
         this.host = host;
@@ -55,11 +56,8 @@ public class CveSearchApiImpl implements CveSearchApi {
         InputStream is = new URL(query).openStream();
 
         if (is != null) {
-            try {
-                BufferedReader content = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            try (BufferedReader content = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")))) {
                 return parser.parseJsonBuffer(content);
-            } finally {
-                is.close();
             }
         }
         return null;
@@ -74,17 +72,17 @@ public class CveSearchApiImpl implements CveSearchApi {
     }
 
     private List<CveSearchData> getParsedCveSearchDatas(String query) throws IOException {
-        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(listTargetType));
+        return (List<CveSearchData>) getParsedContentFor(query, new CveSearchJsonParser(LIST_TARGET_TYPE));
     }
 
     private CveSearchData getParsedCveSearchData(String query) throws IOException {
-        return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(singleTargetType));
+        return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(SINGLE_TARGET_TYPE));
     }
 
     @Override
     public List<CveSearchData> search(String vendor, String product) throws IOException {
         Function<String,String> unifyer = s -> {
-            if(s == null || "".equals(s)) {
+            if(Strings.isNullOrEmpty(s)) {
                 return CVE_SEARCH_WILDCARD;
             }
             return CommonUtils.nullToEmptyString(s).replace(" ", "_").toLowerCase();
