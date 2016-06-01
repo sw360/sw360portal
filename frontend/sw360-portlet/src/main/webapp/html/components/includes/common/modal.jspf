@@ -9,15 +9,21 @@
         var reloadText="Please reload to see the results.";
         var statusText = "";
         if(response.<%=PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS%>.length != 0) {
-            failedText = '<li><b> The vulnerabilities with the following ids could not be imported: </b>' +
+            failedText = '<li><b>' +
+                    response.<%=PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS%>.length +
+                    '&nbsp vulnerabilities could not be imported: </b>' +
                     "<div>" + response.<%=PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS%> + "</div></li>";
         }
         if(response.<%=PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS%>.length != 0) {
-            newText = '<li><b> The vulnerabilities with the following ids were added: </b>' +
+            newText = '<li><b>' +
+                    response.<%=PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS%>.length +
+                    '&nbsp vulnerabilities were added: </b>' +
                     "<div>" + response.<%=PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS%> + "</div></li>";
         }
         if(response.<%=PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS%>.length != 0) {
-            updateText = '<li><b> The vulnerabilities with the following ids were updated: </b>' +
+            updateText = '<li><b>' +
+                    response.<%=PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS%>.length +
+                    '&nbsp vulnerabilities were updated: </b>' +
                     "<div>" + response.<%=PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS%> + "</div></li>";
         }
         if(newText === "" && updateText === ""){
