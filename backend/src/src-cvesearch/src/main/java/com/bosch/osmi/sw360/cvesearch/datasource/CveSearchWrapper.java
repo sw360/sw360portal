@@ -40,6 +40,11 @@ public class CveSearchWrapper {
 
     private List<SearchLevel> searchLevels;
 
+    public CveSearchWrapper(CveSearchApi cveSearchApi){
+        this.cveSearchApi=cveSearchApi;
+        setSearchLevels();
+    }
+
     protected boolean isCpe(String potentialCpe){
         if(null == potentialCpe){
             return false;
@@ -122,11 +127,6 @@ public class CveSearchWrapper {
         // Level 7. search by: .*:NAME
         addSearchLevel(r -> true,
                 Release::getName);
-    }
-
-    public CveSearchWrapper(CveSearchApi cveSearchApi){
-        this.cveSearchApi=cveSearchApi;
-        setSearchLevels();
     }
 
     public List<CveSearchData> searchForRelease(Release release, int maxDepth) {

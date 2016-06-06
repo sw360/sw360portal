@@ -20,6 +20,8 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.json.CveSearchJsonParser;
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import org.apache.log4j.Logger;
@@ -30,7 +32,10 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class CveSearchApiImpl implements CveSearchApi {
@@ -41,23 +46,25 @@ public class CveSearchApiImpl implements CveSearchApi {
 
     private String CVE_SEARCH_SEARCH  = "search";
     private String CVE_SEARCH_CVEFOR  = "cvefor";
+    private String CVE_SEARCH_BROWSE  = "browse";
     private String CVE_SEARCH_CVE     = "cve";
     public String CVE_SEARCH_WILDCARD = ".*";
 
     private Type LIST_TARGET_TYPE = new TypeToken<List<CveSearchData>>(){}.getType();
     private Type SINGLE_TARGET_TYPE = new TypeToken<CveSearchData>(){}.getType();
+    private Type META_TARGET_TYPE = new TypeToken<Map<String,Object>>(){}.getType();
 
     public CveSearchApiImpl(String host) {
         this.host = host;
     }
 
-    private Object getParsedContentFor(String query, CveSearchJsonParser parser) throws IOException {
+    private Object getParsedContentFor(String query, Function<BufferedReader,Object> parser) throws IOException {
         log.debug("Execute query: " + query);
         InputStream is = new URL(query).openStream();
 
         if (is != null) {
             try (BufferedReader content = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")))) {
-                return parser.parseJsonBuffer(content);
+                return parser.apply(content);
             }
         }
         return null;
@@ -77,6 +84,14 @@ public class CveSearchApiImpl implements CveSearchApi {
 
     private CveSearchData getParsedCveSearchData(String query) throws IOException {
         return (CveSearchData) getParsedContentFor(query, new CveSearchJsonParser(SINGLE_TARGET_TYPE));
+    }
+
+    private List<String> getParsedCveSearchMetadata(String query, String key) throws IOException {
+        Map<String,Object> rawMap = (Map<String,Object>) getParsedContentFor(query, json -> new Gson().fromJson(json, META_TARGET_TYPE));
+        if(rawMap.containsKey(key)){
+            return (List<String>) rawMap.get(key);
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -107,6 +122,20 @@ public class CveSearchApiImpl implements CveSearchApi {
         String query = composeQuery(CVE_SEARCH_CVE, cve.toUpperCase());
 
         return getParsedCveSearchData(query);
+    }
+
+    @Override
+    public List<String> allVendorNames() throws IOException {
+        String query = composeQuery(CVE_SEARCH_BROWSE);
+
+        return getParsedCveSearchMetadata(query, "vendor");
+    }
+
+    @Override
+    public List<String> allProductsOfVendor(String vendorName) throws IOException {
+        String query = composeQuery(CVE_SEARCH_BROWSE,vendorName);
+
+        return getParsedCveSearchMetadata(query, "product");
     }
 
 }

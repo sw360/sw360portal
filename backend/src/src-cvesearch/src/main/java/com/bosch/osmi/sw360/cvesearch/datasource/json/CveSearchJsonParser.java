@@ -23,12 +23,17 @@ import com.google.gson.*;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Type;
+import java.util.function.Function;
 
-public class CveSearchJsonParser {
-    Type type;
+public class CveSearchJsonParser implements Function<BufferedReader, Object> {
+    private Type type;
+    private Gson gson;
 
     public CveSearchJsonParser(Type type) {
         this.type = type;
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(CveSearchData.VulnerableConfigurationEntry.class, new VulnerableConfigurationEntryDeserializer());
+        gson = gsonBuilder.create();
     }
 
     private class VulnerableConfigurationEntryDeserializer implements JsonDeserializer<CveSearchData.VulnerableConfigurationEntry> {
@@ -46,10 +51,8 @@ public class CveSearchJsonParser {
         }
     }
 
-    public Object parseJsonBuffer(BufferedReader json) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(CveSearchData.VulnerableConfigurationEntry.class, new VulnerableConfigurationEntryDeserializer());
-        final Gson gson = gsonBuilder.create();
+    @Override
+    public Object apply(BufferedReader json) {
         return gson.fromJson(json,type);
     }
 }

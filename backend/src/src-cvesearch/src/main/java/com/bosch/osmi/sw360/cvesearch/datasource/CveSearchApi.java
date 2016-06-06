@@ -20,11 +20,15 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public interface CveSearchApi {
 
     public List<CveSearchData> search(String vendor, String product) throws IOException;
     public List<CveSearchData> cvefor(String cpe) throws IOException;
     public CveSearchData cve(String cve) throws IOException;
+
+    public List<String> allVendorNames() throws IOException;
+    public List<String> allProductsOfVendor(String vendorName) throws IOException;
 
 }

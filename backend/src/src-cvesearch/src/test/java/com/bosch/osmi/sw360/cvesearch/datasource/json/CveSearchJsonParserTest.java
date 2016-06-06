@@ -132,19 +132,19 @@ public class CveSearchJsonParserTest {
 
     @Test
     public void singleEmpty() {
-        Object resultO = cveSearchJsonParserSingle.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_EMPTY));
+        Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(SEARCH_RESULT_EMPTY));
         CveSearchData result = (CveSearchData) resultO;
     }
 
     @Test
     public void singleEmptyObj() {
-        Object resultO = cveSearchJsonParserSingle.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_EMPTYOBJ));
+        Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(SEARCH_RESULT_EMPTYOBJ));
         CveSearchData result = (CveSearchData) resultO;
     }
 
     @Test
     public void singleFull_A() {
-        Object resultO = cveSearchJsonParserSingle.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_SINGLE_A));
+        Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(SEARCH_RESULT_SINGLE_A));
         CveSearchData result = (CveSearchData) resultO;
         assert(result.getCvss() == 5.0);
         assert("CVE-2002-0438".equals(result.getId()));
@@ -157,7 +157,7 @@ public class CveSearchJsonParserTest {
 
     @Test
     public void singleFull_B() {
-        Object resultO = cveSearchJsonParserSingle.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_SINGLE_B));
+        Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(SEARCH_RESULT_SINGLE_B));
         CveSearchData result = (CveSearchData) resultO;
         assert(result.getCvss() == 5.0);
         assert("CVE-2002-0438".equals(result.getId()));
@@ -173,28 +173,28 @@ public class CveSearchJsonParserTest {
 
     @Test
     public void listEmpty() {
-        Object resultO = cveSearchJsonParserList.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_EMPTY));
+        Object resultO = cveSearchJsonParserList.apply(toBufferedReader(SEARCH_RESULT_EMPTY));
         List<CveSearchData> result = (List<CveSearchData>) resultO;
         assert(result==null);
     }
 
     @Test
     public void listEmptyList() {
-        Object resultO = cveSearchJsonParserList.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_EMPTYLIST));
+        Object resultO = cveSearchJsonParserList.apply(toBufferedReader(SEARCH_RESULT_EMPTYLIST));
         List<CveSearchData> result = (List<CveSearchData>) resultO;
         assert(result.size()==0);
     }
 
     @Test
     public void listSingletonList() {
-        Object resultO = cveSearchJsonParserList.parseJsonBuffer(toBufferedReader("[" + SEARCH_RESULT_SINGLE_A + "]"));
+        Object resultO = cveSearchJsonParserList.apply(toBufferedReader("[" + SEARCH_RESULT_SINGLE_A + "]"));
         List<CveSearchData> result = (List<CveSearchData>) resultO;
         assert(result.size()==1);
     }
 
     @Test
     public void listFullList() {
-        Object resultO = cveSearchJsonParserList.parseJsonBuffer(toBufferedReader(SEARCH_RESULT_FULL));
+        Object resultO = cveSearchJsonParserList.apply(toBufferedReader(SEARCH_RESULT_FULL));
         List<CveSearchData> result = (List<CveSearchData>) resultO;
         assert(result.size()==3);
     }
