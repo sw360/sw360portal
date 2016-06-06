@@ -61,7 +61,6 @@ public class UserImpl implements User{
         }
     }
 
-
     @Override
     public Collection<ProjectInfo> getProjectInfos() {
         try {

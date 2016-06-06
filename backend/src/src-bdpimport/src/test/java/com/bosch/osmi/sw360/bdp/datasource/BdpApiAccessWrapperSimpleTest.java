@@ -41,7 +41,10 @@ public class BdpApiAccessWrapperSimpleTest {
     @Test
     public void testGetUserProjectInfos() {
         Collection<ProjectInfo> userProjectInfos = this.bdpApiAccessWrapper.getUserProjectInfos();
-        assertThat(userProjectInfos.size(), is(2));
+        assertThat(userProjectInfos.size(), is(3));
+
+        ((List) userProjectInfos).remove(0);//c_bdp-api-access_8104 is third project
+        ((List) userProjectInfos).remove(0);
         Assertions.assertProjectInfo(firstOf(userProjectInfos));
     }
 
@@ -50,9 +53,10 @@ public class BdpApiAccessWrapperSimpleTest {
         Collection<ProjectInfo> allProjectInfos = this.bdpApiAccessWrapper.getUserProjectInfos();
         TreeSet<ProjectInfo> sortedProjects = new TreeSet<>(Comparator.comparing(ProjectInfo::getProjectId).reversed());
         sortedProjects.addAll(allProjectInfos);
-        assertThat(sortedProjects.size(), is(2));
+        assertThat(sortedProjects.size(), is(3));
 
-        Assertions.assertProject(firstOf(sortedProjects));
+        sortedProjects.pollFirst();//c_bdp-api-access_8104 is second project
+        Assertions.assertProject((ProjectInfo) sortedProjects.first());
     }
 
     @Test
@@ -61,8 +65,9 @@ public class BdpApiAccessWrapperSimpleTest {
 
         TreeMap<ProjectInfo, Collection<Component>> sortedProjectMapComponents = new TreeMap<>(Comparator.comparing(ProjectInfo::getProjectId).reversed());
         sortedProjectMapComponents.putAll(projectInfoMapComponents);
-        assertThat(sortedProjectMapComponents.size(), is(2));
+        assertThat(sortedProjectMapComponents.size(), is(3));
 
+        sortedProjectMapComponents.pollFirstEntry();
         Entry<ProjectInfo, Collection<Component>> entry = firstOf(sortedProjectMapComponents);
         Assertions.assertProject(entry.getKey());
 
