@@ -24,21 +24,31 @@ import com.bosch.osmi.sw360.cvesearch.datasource.matcher.Match;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
-public class GuessingSearchLevels implements SearchLevelGenerator{
+public class GuessingSearchLevels extends BaseSearchLevel{
 
-    private final CveSearchApi cveSearchApi;
     private final CveSearchGuesser cveSearchGuesser;
     private static final String CPE_NEEDLE_PREFIX  = "cpe:2.3:.:";
-    private static final String CPE_NEEDLE_POSTFIX = ":.*";
 
     public GuessingSearchLevels(CveSearchApi cveSearchApi) {
-        this.cveSearchApi = cveSearchApi;
+        super();
         this.cveSearchGuesser = new CveSearchGuesser(cveSearchApi);
+
+        setupSearchlevels();
+    }
+
+    private void setupSearchlevels() {
+        // Level 2. search by guessed vendors and products with version
+        searchLevels.add(r -> this.guessForRelease(r, true));
+
+        // Level 3. search by guessed vendors and products without version
+        searchLevels.add(r -> this.guessForRelease(r, false));
     }
 
     public GuessingSearchLevels setVendorThreshold(int vendorThreshold) {
@@ -51,12 +61,16 @@ public class GuessingSearchLevels implements SearchLevelGenerator{
         return this;
     }
 
-    @Override
-    public List<String> apply(Release release) throws IOException {
+    protected List<String> guessForRelease(Release release, boolean useVersionInformation) throws IOException {
+        if(useVersionInformation && !release.isSetVersion()){
+            return Collections.EMPTY_LIST;
+        }
+
         List<Match> vendorProductList;
 
         String productHaystack = release.getName();
-        if (release.getVendor().isSetShortname() || release.getVendor().isSetFullname()) {
+        if (release.isSetVendor() &&
+                (release.getVendor().isSetShortname() || release.getVendor().isSetFullname())) {
             String vendorHaystack = nullToEmptyString(release.getVendor().getShortname()) + " " +
                     nullToEmptyString(release.getVendor().getFullname());
             vendorProductList = cveSearchGuesser.guessVendorAndProducts(vendorHaystack, productHaystack);
@@ -64,9 +78,12 @@ public class GuessingSearchLevels implements SearchLevelGenerator{
             vendorProductList = cveSearchGuesser.guessVendorAndProducts(productHaystack);
         }
 
+        String cpeNeedlePostfix = ":" + (useVersionInformation ? release.getVersion() : "") + ".*";
+        Function<String,String> cpeBuilder = cpeNeedle -> CPE_NEEDLE_PREFIX + cpeNeedle + cpeNeedlePostfix;
+
         return vendorProductList.stream()
                 .map(Match::getNeedle)
-                .map(cpeNeedle -> CPE_NEEDLE_PREFIX + cpeNeedle + CPE_NEEDLE_POSTFIX)
+                .map(cpeBuilder)
                 .collect(Collectors.toList());
     }
 }

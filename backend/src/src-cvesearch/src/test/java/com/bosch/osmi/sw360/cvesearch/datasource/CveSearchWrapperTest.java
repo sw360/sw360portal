@@ -155,21 +155,6 @@ public class CveSearchWrapperTest {
         assert(isEquivalent(resultDirect,resultWrapped.get()));
     }
 
-    @Test
-    public void compareToBDPdata() throws IOException {
-        Release release = new ReleaseBuilder()
-                .setName(VENDORNAME + " " + PRODUCTNAME)
-                .get();
-
-        List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
-
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
-
-        assert(resultWrapped.isPresent());
-        assert(resultWrapped.get() != null);
-        assert(isEquivalent(resultDirect,resultWrapped.get()));
-    }
-
     @Ignore("meanwhile cveSearchWrapper implementation changed, test maybe suitable for later use")
     @Test
     public  void compareToWithoutWrapper() throws IOException {

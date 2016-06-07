@@ -21,15 +21,30 @@ package com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@FunctionalInterface
-public interface SearchLevelGenerator {
+import static com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelsHelper.isCpe;
+import static com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelsHelper.mkSearchLevel;
 
-    List<List<String>> apply(Release release) throws IOException;
+public class BaseSearchLevel implements SearchLevelGenerator{
+    List<SearchLevel> searchLevels;
 
-    @FunctionalInterface
-    interface SearchLevel {
-        List<String> apply(Release release) throws IOException;
+    public BaseSearchLevel() {
+        searchLevels = new ArrayList<>();
+
+        // Level 1. search by full cpe
+        searchLevels.add(mkSearchLevel(r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
+                Release::getCpeid));
+    }
+
+    @Override
+    public List<List<String>> apply(Release release) throws IOException {
+        List<List<String>> result = new ArrayList<>();
+        for(SearchLevel searchLevel : searchLevels){
+            result.add(searchLevel.apply(release));
+        }
+        return result;
     }
 }

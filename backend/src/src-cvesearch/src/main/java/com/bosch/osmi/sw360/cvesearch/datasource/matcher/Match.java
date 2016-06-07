@@ -27,8 +27,6 @@ public class Match {
     }
 
     public Match concat(Match otherMatch) {
-        this.needle += ":" + otherMatch.getNeedle();
-        this.distance += otherMatch.getDistance();
-        return this;
+        return new Match(this.needle + ":" + otherMatch.getNeedle(), this.distance + otherMatch.getDistance());
     }
 }

@@ -61,18 +61,21 @@ public class Heuristic {
     public List<CveSearchData> run(Release release) throws IOException {
         int level = 0;
 
-        List<String> cpeNeedles = searchLevelGenerator.apply(release);
+        List<List<String>> cpeNeedless = searchLevelGenerator.apply(release);
         List<CveSearchData> result = new ArrayList<>();
 
-        for(String cpeNeedle: cpeNeedles){
+        for(List<String> cpeNeedles: cpeNeedless){
             level++;
-            try {
-                result.addAll(cveSearchApi.cvefor(cpeNeedle));
-                if(result.size() > 0 && !greedy){
-                    return result;
+
+            for(String cpeNeedle: cpeNeedles){
+                try {
+                    result.addAll(cveSearchApi.cvefor(cpeNeedle));
+                } catch (IOException e) {
+                    log.error("IOException in searchlevel=" + level + " with needle=" + cpeNeedle + " with msg=" + e.getMessage());
                 }
-            } catch (IOException e) {
-                log.error("IOException in searchlevel=" + level + " with needle=" + cpeNeedle + " with msg=" + e.getMessage());
+            }
+            if(result.size() > 0){
+                return result;
             }
             if(level == maxDepth){
                 log.info("reached maximal level.");

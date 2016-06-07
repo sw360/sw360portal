@@ -40,7 +40,7 @@ public class CveSearchWrapper {
     public CveSearchWrapper(CveSearchApi cveSearchApi) {
         this.cveSearchApi=cveSearchApi;
 
-        if (true) {
+        if (false) {
             heuristic = new Heuristic(new BasicSearchLevels(), cveSearchApi);
         }else {
             SearchLevelGenerator searchLevelGenerator = new GuessingSearchLevels(cveSearchApi)

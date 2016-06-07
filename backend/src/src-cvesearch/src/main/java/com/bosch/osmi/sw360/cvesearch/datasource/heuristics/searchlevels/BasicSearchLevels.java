@@ -20,28 +20,16 @@ package com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels;
 
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelsHelper.isCpe;
 import static com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelsHelper.mkSearchLevel;
 
-public class BasicSearchLevels implements SearchLevelGenerator{
-
-    List<SearchLevel> searchLevels;
+public class BasicSearchLevels extends BaseSearchLevel{
 
     public BasicSearchLevels() {
-        searchLevels = setupSearchlevels();
+        super();
+        setupSearchlevels();
     }
 
-    private List<SearchLevel> setupSearchlevels() {
-        List<SearchLevel> searchLevels = new ArrayList<>();
-
-        // Level 1. search by full cpe
-        searchLevels.add(mkSearchLevel(r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
-                Release::getCpeid));
-
+    private void setupSearchlevels() {
         // Level 2. search by: VENDOR_FULL_NAME:NAME:VERSION
         searchLevels.add(mkSearchLevel(r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname(),
                 r -> r.getVendor().getFullname(),
@@ -72,13 +60,5 @@ public class BasicSearchLevels implements SearchLevelGenerator{
         // Level 7. search by: .*:NAME
         searchLevels.add(mkSearchLevel(r -> true,
                 Release::getName));
-        return searchLevels;
-    }
-
-    @Override
-    public List<String> apply(Release release) {
-        return searchLevels.stream()
-                .flatMap(f -> f.apply(release).stream())
-                .collect(Collectors.toList());
     }
 }
