@@ -29,6 +29,8 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -37,6 +39,8 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import com.siemens.sw360.exporter.ProjectExporter;
 import com.siemens.sw360.portal.common.*;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
@@ -52,6 +56,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.io.PrintWriter;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -118,6 +123,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveRemoveProject(request, response);
         } else if (PortalConstants.VIEW_LINKED_RELEASES.equals(action)) {
             serveLinkedReleases(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_PROJECT.equals(action)){
+            updateVulnerabilitiesProject(request,response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
@@ -498,6 +505,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
                 addProjectBreadcrumb(request, response, project);
+
+                // get vulnerabilities
+                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
+                request.setAttribute(VULNERABILITY_LIST, vuls);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
             }
@@ -694,4 +706,16 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
+    private void updateVulnerabilitiesProject(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            VulnerabilityUpdateStatus importStatus = cveClient.updateForProject(projectId);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e) {
+            log.error("Error updating CVEs for project in backend.", e);
+        }
+    }
 }

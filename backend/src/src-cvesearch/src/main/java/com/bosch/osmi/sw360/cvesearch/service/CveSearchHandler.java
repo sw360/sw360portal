@@ -29,6 +29,7 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.UpdateType;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
+import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -78,10 +79,28 @@ public class CveSearchHandler implements CveSearchService.Iface {
     public VulnerabilityUpdateStatus updateForComponent(String componentId) throws TException {
         Optional<Component> component = vulnerabilityConnector.getComponent(componentId);
 
-        return component.get().getReleaseIds().stream()
-                .map(this::updateForRelease)
-                .reduce(getEmptyVulnerabilityUpdateStatus(),
-                        (r1, r2) -> reduceVulnerabilityUpdateStatus(r1,r2));
+        return component.map(
+                c -> c.isSetReleaseIds()
+                        ? c.getReleaseIds().stream()
+                                .map(this::updateForRelease)
+                                .reduce(getEmptyVulnerabilityUpdateStatus(),
+                                        (r1, r2) -> reduceVulnerabilityUpdateStatus(r1,r2))
+                        : getEmptyVulnerabilityUpdateStatus()
+            ).orElse(getEmptyVulnerabilityUpdateStatus(RequestStatus.FAILURE));
+    }
+
+    @Override
+    public VulnerabilityUpdateStatus updateForProject(String projectId) throws TException {
+        Optional<Project> project = vulnerabilityConnector.getProject(projectId);
+
+        return project.map(
+                r -> r.isSetReleaseIdToUsage()
+                        ? r.getReleaseIdToUsage().keySet().stream()
+                                .map(this::updateForRelease)
+                                .reduce(getEmptyVulnerabilityUpdateStatus(),
+                                    (r1, r2) -> reduceVulnerabilityUpdateStatus(r1,r2))
+                        : getEmptyVulnerabilityUpdateStatus()
+            ).orElse(getEmptyVulnerabilityUpdateStatus(RequestStatus.FAILURE));
     }
 
     @Override

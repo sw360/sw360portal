@@ -227,6 +227,7 @@ public class PortalConstants {
     public static  final String UPDATE_VULNERABILITIES_RELEASE = "updateVulnerabilitiesRelease";
     public static  final String UPDATE_VULNERABILITIES_COMPONENT = "updateVulnerabilitiesComponent";
     public static  final String UPDATE_ALL_VULNERABILITIES = "updateAllVulnerabilities";
+    public static  final String UPDATE_VULNERABILITIES_PROJECT = "updateVulnerabilitiesProject";
 
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";

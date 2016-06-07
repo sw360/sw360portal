@@ -326,3 +326,18 @@ input[readonly].clickable {
     word-break: break-all;
     font-family: monospace;
 }
+
+.notificationBulletSpan {
+    min-width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    font-size: 11px;
+    padding: 0 4px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 25px;
+    text-align: center;
+    background: #f00;
+    display: inline-block;
+    float: right;
+}

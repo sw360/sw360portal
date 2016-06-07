@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.service.persistence.PortletUtil;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
@@ -779,7 +780,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
         try {
             VulnerabilityUpdateStatus importStatus = cveClient.updateForRelease(releaseId);
-            JSONObject responseData = importStatusToJSON(importStatus);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e){
@@ -792,7 +793,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
         try {
             VulnerabilityUpdateStatus importStatus = cveClient.updateForComponent(componentId);
-            JSONObject responseData = importStatusToJSON(importStatus);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {
@@ -804,37 +805,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
         try {
             VulnerabilityUpdateStatus importStatus = cveClient.fullUpdate();
-            JSONObject responseData = importStatusToJSON(importStatus);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {
             log.error("Error occured with full update of CVEs in backend.", e);
         }
-    }
-
-    private JSONObject importStatusToJSON(VulnerabilityUpdateStatus updateStatus) {
-        JSONObject responseData = JSONFactoryUtil.createJSONObject();
-        if(! updateStatus.isSetStatusToVulnerabilityIds() || ! updateStatus.isSetRequestStatus()){
-            responseData.put(PortalConstants.REQUEST_STATUS, PortalConstants.RESPONSE__IMPORT_GENERAL_FAILURE);
-            return responseData;
-        }
-        if (updateStatus.getRequestStatus().equals(RequestStatus.FAILURE)
-                && nullToEmptyList(updateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED)).size() == 0) {
-            responseData.put(PortalConstants.REQUEST_STATUS, PortalConstants.RESPONSE__IMPORT_GENERAL_FAILURE);
-            return responseData;
-        }
-        responseData.put(PortalConstants.REQUEST_STATUS, updateStatus.getRequestStatus().toString());
-        JSONArray jsonFailedIds = JSONFactoryUtil.createJSONArray();
-        JSONArray jsonNewIds = JSONFactoryUtil.createJSONArray();
-        JSONArray jsonUpdatedIds = JSONFactoryUtil.createJSONArray();
-
-        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED).forEach(id -> jsonFailedIds.put(id));
-        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.NEW).forEach(id -> jsonNewIds.put(id));
-        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.UPDATED).forEach(id -> jsonUpdatedIds.put(id));
-
-        responseData.put(PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS, jsonFailedIds);
-        responseData.put(PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS, jsonNewIds);
-        responseData.put(PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS, jsonUpdatedIds);
-        return responseData;
     }
 }

@@ -40,6 +40,7 @@ struct VulnerabilityUpdateStatus {
 service CveSearchService {
     VulnerabilityUpdateStatus updateForRelease(1: string ReleaseId);
     VulnerabilityUpdateStatus updateForComponent(1: string ComponentId);
+    VulnerabilityUpdateStatus updateForProject(1: string ProjectId);
     VulnerabilityUpdateStatus fullUpdate();
 
     set<string> findCpes(1: string vendor, 2: string product, 3:string version);

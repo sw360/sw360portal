@@ -106,4 +106,5 @@ service VulnerabilityService {
     // General information
     list<VulnerabilityDTO> getVulnerabilitiesByReleaseId(1: string releaseId, 2: User user);
     list<VulnerabilityDTO> getVulnerabilitiesByComponentId(1: string componentId, 2: User user);
+    list<VulnerabilityDTO> getVulnerabilitiesByProjectId(1: string projectId, 2: User user);
 }
