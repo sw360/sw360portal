@@ -19,7 +19,7 @@
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.matcher.ListMatcher;
-import com.bosch.osmi.sw360.cvesearch.datasource.matcher.StringMatch;
+import com.bosch.osmi.sw360.cvesearch.datasource.matcher.Match;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,10 +31,21 @@ public class CveSearchGuesser {
     private ListMatcher vendorMatcher;
     private Map<String,ListMatcher> productMatchers;
 
+    private int vendorThreshold = 0;
+    private int productThreshold = 0;
+
     public CveSearchGuesser(CveSearchApi cveSearchApi) {
         this.cveSearchApi=cveSearchApi;
         vendorMatcher = null;
         productMatchers = new HashMap<>();
+    }
+
+    public void setVendorThreshold(int vendorThreshold) {
+        this.vendorThreshold = vendorThreshold;
+    }
+
+    public void setProductThreshold(int productThreshold) {
+        this.productThreshold = productThreshold;
     }
 
     public void addVendorGuesserIfNeeded() throws IOException {
@@ -49,67 +60,69 @@ public class CveSearchGuesser {
         }
     }
 
-    public List<String> getBest(List<StringMatch> matches) {
-        List<String> bestMatches = new ArrayList<>();
+    public List<Match> getBest(List<Match> matches, int threshold) {
+        List<Match> bestMatches = new ArrayList<>();
         int minDistance = matches.get(0).getDistance();
 
-        Iterator<StringMatch> matchesIterator = matches.iterator();
-        StringMatch current;
+        Iterator<Match> matchesIterator = matches.iterator();
+        Match current;
         do{
             current = matchesIterator.next();
-            if(current.getDistance() > minDistance){
+            if(current.getDistance() > minDistance + threshold){
                 break;
             }
-            bestMatches.add(current.getNeedle());
+            bestMatches.add(current);
         }while(matchesIterator.hasNext());
 
         return bestMatches;
     }
 
-    public List<String> guessVendors(String vendorHaystack) throws IOException {
+    public List<Match> guessVendors(String vendorHaystack) throws IOException {
         addVendorGuesserIfNeeded();
-        return getBest(vendorMatcher.getMatches(vendorHaystack));
+        return getBest(vendorMatcher.getMatches(vendorHaystack), vendorThreshold);
     }
 
-    public String guessVendor(String vendorHaystack) throws IOException {
+    public Match guessVendor(String vendorHaystack) throws IOException {
         addVendorGuesserIfNeeded();
         return vendorMatcher.getMatches(vendorHaystack)
-                .get(0)
-                .getNeedle();
+                .get(0);
     }
 
-    public List<String> guessProducts(String vendor, String productHaystack) throws IOException {
+    public List<Match> guessProducts(String vendor, String productHaystack) throws IOException {
         addProductGuesserIfNeeded(vendor);
-        return getBest(productMatchers.get(vendor).getMatches(productHaystack));
+        return getBest(productMatchers.get(vendor).getMatches(productHaystack), productThreshold);
     }
 
-    public String guessProduct(String vendor, String productHaystack) throws IOException {
+    public Match guessProduct(String vendor, String productHaystack) throws IOException {
         addProductGuesserIfNeeded(vendor);
         return productMatchers.get(vendor)
                 .getMatches(productHaystack)
-                .get(0)
-                .getNeedle();
+                .get(0);
     }
 
-    public List<String> guessVendorAndProducts(String haystack) throws IOException {
+    public List<Match> guessVendorAndProducts(String haystack) throws IOException {
         return guessVendorAndProducts(haystack, haystack);
     }
 
-    public List<String> guessVendorAndProducts(String vendorHaystack, String productHaystack) throws IOException {
-        List<String> result = new ArrayList<>();
-        List<String> vendors = guessVendors(vendorHaystack);
-        for (String vendor :vendors) {
-            result.addAll(guessProducts(vendor, productHaystack).stream()
-                    .map(product -> vendor + ":" + product)
+    public List<Match> guessVendorAndProducts(String vendorHaystack, String productHaystack) throws IOException {
+        List<Match> result = new ArrayList<>();
+        List<Match> vendors = guessVendors(vendorHaystack);
+
+        for (Match vendor : vendors) {
+            result.addAll(guessProducts(vendor.getNeedle(), productHaystack).stream()
+                    .map(product -> vendor.concat(product))
                     .collect(Collectors.toList()));
         }
-        return result;
+
+        result.sort((sm1,sm2) -> sm1.compareTo(sm2));
+        return getBest(result, 0);
+
     }
 
-    public String guessVendorAndProduct(String vendorHaystack, String productHaystack) throws IOException {
-        String vendor = guessVendor(vendorHaystack);
-        String product = guessProduct(vendor, productHaystack);
+    public Match guessVendorAndProduct(String vendorHaystack, String productHaystack) throws IOException {
+        Match vendor = guessVendor(vendorHaystack);
+        Match product = guessProduct(vendor.getNeedle(), productHaystack);
 
-        return vendor + ":" + product;
+        return vendor.concat(product);
     }
 }

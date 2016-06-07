@@ -18,7 +18,6 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels;
 
-import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelGenerator;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 

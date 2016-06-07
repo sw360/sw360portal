@@ -20,10 +20,11 @@ package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
-public class StringMatch extends Match{
+public class ModifiedLevenshteinDistance {
 
-    public StringMatch(String needle, String haystack){
-        super(needle, calculateModifiedLevenshteinDistance(needle, nullToEmptyString(haystack).toLowerCase().replace(' ', '_')));
+    protected static Match levenshteinMatch(String needle, String haystack){
+        return new Match(needle,
+                calculateModifiedLevenshteinDistance(needle,nullToEmptyString(haystack).toLowerCase().replace(' ', '_')));
     }
 
     /**

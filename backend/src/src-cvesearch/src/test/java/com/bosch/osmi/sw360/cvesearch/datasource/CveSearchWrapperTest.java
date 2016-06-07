@@ -137,16 +137,6 @@ public class CveSearchWrapperTest {
     }
 
     @Test
-    public void testVeryEmptyData() throws IOException {
-        Release release = new ReleaseBuilder().get();
-
-        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
-        assert(resultWrapped.isPresent());
-        assert(resultWrapped.get() != null);
-        assert(resultWrapped.get().size() == 0);
-    }
-
-    @Test
     public void compareToSearchByCPE() throws IOException {
         Release release = new ReleaseBuilder()
                 .setName("blindstring")

@@ -44,7 +44,7 @@ public class ListMatcherTest {
     @Test
     public void getMatchTestFullMatch() {
 
-        List<StringMatch> matches = listMatcher.getMatches(needle2);
+        List<Match> matches = listMatcher.getMatches(needle2);
 
         assert(matches.get(0).getNeedle().equals(needle2));
         assert(matches.get(0).getDistance() == 0);

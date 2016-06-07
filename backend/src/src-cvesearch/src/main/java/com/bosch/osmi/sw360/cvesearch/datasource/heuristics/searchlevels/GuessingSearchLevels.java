@@ -20,6 +20,7 @@ package com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApi;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchGuesser;
+import com.bosch.osmi.sw360.cvesearch.datasource.matcher.Match;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
@@ -40,9 +41,19 @@ public class GuessingSearchLevels implements SearchLevelGenerator{
         this.cveSearchGuesser = new CveSearchGuesser(cveSearchApi);
     }
 
+    public GuessingSearchLevels setVendorThreshold(int vendorThreshold) {
+        cveSearchGuesser.setVendorThreshold(vendorThreshold);
+        return this;
+    }
+
+    public GuessingSearchLevels setProductThreshold(int productThreshold) {
+        cveSearchGuesser.setProductThreshold(productThreshold);
+        return this;
+    }
+
     @Override
     public List<String> apply(Release release) throws IOException {
-        List<String> vendorProductList;
+        List<Match> vendorProductList;
 
         String productHaystack = release.getName();
         if (release.getVendor().isSetShortname() || release.getVendor().isSetFullname()) {
@@ -54,6 +65,7 @@ public class GuessingSearchLevels implements SearchLevelGenerator{
         }
 
         return vendorProductList.stream()
+                .map(Match::getNeedle)
                 .map(cpeNeedle -> CPE_NEEDLE_PREFIX + cpeNeedle + CPE_NEEDLE_POSTFIX)
                 .collect(Collectors.toList());
     }

@@ -21,9 +21,10 @@ package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.bosch.osmi.sw360.cvesearch.datasource.matcher.ModifiedLevenshteinDistance.levenshteinMatch;
 
 public class ListMatcher {
     private Collection<String> needleList;
@@ -33,13 +34,10 @@ public class ListMatcher {
         this.needleList = needleList;
     }
 
-    public List<StringMatch> getMatches(String haystack){
-        Comparator<StringMatch> byDistance     = (sm1,sm2) -> Integer.compare(sm1.getDistance(), sm2.getDistance());
-        Comparator<StringMatch> byNeedleLength = (sm1,sm2) -> Integer.compare(sm2.getNeedle().length(), sm1.getNeedle().length());
-
+    public List<Match> getMatches(String haystack){
         return needleList.stream()
-                .map(needle -> new StringMatch(needle, haystack))
-                .sorted(byDistance.thenComparing(byNeedleLength))
+                .map(needle -> levenshteinMatch(needle, haystack))
+                .sorted((sm1,sm2) -> sm1.compareTo(sm2))
                 .collect(Collectors.toList());
     }
 }

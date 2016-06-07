@@ -20,7 +20,9 @@ package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
 
 import org.junit.Test;
 
-public class StringMatchTest {
+import static com.bosch.osmi.sw360.cvesearch.datasource.matcher.ModifiedLevenshteinDistance.levenshteinMatch;
+
+public class ModifiedLevenshteinDistanceTest {
 
     @Test
     public void testBasicRules() {
@@ -29,52 +31,52 @@ public class StringMatchTest {
         String needDle = "needDle";
 
         // equal strings have distance 0
-        assert(new StringMatch(needle,needle).getDistance() == 0);
+        assert(levenshteinMatch(needle,needle).getDistance() == 0);
 
         // appending or prepending adds 1 to the distance
-        assert(new StringMatch(needle,needle + "a").getDistance() == 1);
-        assert(new StringMatch(needle, "a" + needle ).getDistance() == 1);
-        assert(new StringMatch(needle, "a" + needle + "a").getDistance() == 2);
-        assert(new StringMatch(needle, needDle).getDistance() == 1);
-        assert(new StringMatch(needDle, needle).getDistance() == 1);
+        assert(levenshteinMatch(needle,needle + "a").getDistance() == 1);
+        assert(levenshteinMatch(needle, "a" + needle ).getDistance() == 1);
+        assert(levenshteinMatch(needle, "a" + needle + "a").getDistance() == 2);
+        assert(levenshteinMatch(needle, needDle).getDistance() == 1);
+        assert(levenshteinMatch(needDle, needle).getDistance() == 1);
 
         // dropping adds 1 to the distance
-        assert(new StringMatch(needle, neele).getDistance() == 1);
-        assert(new StringMatch(neele, needle).getDistance() == 1);
+        assert(levenshteinMatch(needle, neele).getDistance() == 1);
+        assert(levenshteinMatch(neele, needle).getDistance() == 1);
 
         // should be able to find the best match
-        assert(new StringMatch(needle, needle + " " + neele).getDistance() == 0);
-        assert(new StringMatch(needle, neele + " " + needle).getDistance() == 0);
+        assert(levenshteinMatch(needle, needle + " " + neele).getDistance() == 0);
+        assert(levenshteinMatch(needle, neele + " " + needle).getDistance() == 0);
 
         // seperated by spaces does not change distance
-        assert(new StringMatch(needle,needle + " a").getDistance() == 0);
-        assert(new StringMatch(needle, "a " + needle ).getDistance() == 0);
-        assert(new StringMatch(needle, "a" + needle + " a").getDistance() == 1);
-        assert(new StringMatch(needle, "a " + needle + "a").getDistance() == 1);
-        assert(new StringMatch(needle, "a " + needle + " a").getDistance() == 0);
+        assert(levenshteinMatch(needle,needle + " a").getDistance() == 0);
+        assert(levenshteinMatch(needle, "a " + needle ).getDistance() == 0);
+        assert(levenshteinMatch(needle, "a" + needle + " a").getDistance() == 1);
+        assert(levenshteinMatch(needle, "a " + needle + "a").getDistance() == 1);
+        assert(levenshteinMatch(needle, "a " + needle + " a").getDistance() == 0);
     }
 
     @Test
     public void getDistancesEmptyNeedle(){
-        assert(new StringMatch("", "haystack").getDistance() == Integer.MAX_VALUE);
+        assert(levenshteinMatch("", "haystack").getDistance() == Integer.MAX_VALUE);
     }
 
     @Test
     public void getDistancesEmptyHaystack(){
-        assert(new StringMatch("needle", "").getDistance() == Integer.MAX_VALUE);
+        assert(levenshteinMatch("needle", "").getDistance() == Integer.MAX_VALUE);
     }
 
     @Test
     public void getDistanceApacheToX() {
-        assert(new StringMatch("x","lorem ipsum").getDistance() > 0);
+        assert(levenshteinMatch("x","lorem ipsum").getDistance() > 0);
     }
 
     @Test
     public void getDistanceXToXX() {
-        assert(new StringMatch("xx","x").getDistance() == 1);
-        assert(new StringMatch("xx","x ").getDistance() == 1);
-        assert(new StringMatch("xx"," x").getDistance() == 1);
-        assert(new StringMatch("xx"," x ").getDistance() == 1);
+        assert(levenshteinMatch("xx","x").getDistance() == 1);
+        assert(levenshteinMatch("xx","x ").getDistance() == 1);
+        assert(levenshteinMatch("xx"," x").getDistance() == 1);
+        assert(levenshteinMatch("xx"," x ").getDistance() == 1);
     }
 
     @Test
@@ -82,7 +84,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "haystack";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getNeedle().equals(needle));
         assert(match.getDistance() > 0);
@@ -93,7 +95,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "needle";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getDistance() == 0);
     }
@@ -103,7 +105,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "ndle";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getDistance() == 2);
     }
@@ -113,7 +115,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "prefix needle";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getDistance() == 0);
     }
@@ -123,7 +125,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "needle postfix";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getDistance() == 0);
     }
@@ -133,7 +135,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "prefix needle bla postfix";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getDistance() == 0);
     }
@@ -143,7 +145,7 @@ public class StringMatchTest {
         String needle = "needle";
         String haystack = "prefix needlebla postfix";
 
-        StringMatch match = new StringMatch(needle,haystack);
+        Match match = levenshteinMatch(needle,haystack);
 
         assert(match.getDistance() == 3) ;
     }
