@@ -57,8 +57,13 @@ public class CveSearchHandler implements CveSearchService.Iface {
     }
 
     public VulnerabilityUpdateStatus updateForRelease(Release release) {
-        List<CveSearchData> cveSearchDatas = cveSearchWrapper.searchForRelease(release);
-        List<Vulnerability> vulnerabilities = new CveSearchDataToVulnerabilityTranslator().applyToMany(cveSearchDatas);
+        Optional<List<CveSearchData>> cveSearchDatas = cveSearchWrapper.searchForRelease(release);
+        if(!cveSearchDatas.isPresent()) {
+            return new VulnerabilityUpdateStatus().setRequestStatus(RequestStatus.FAILURE);
+        }
+
+        List<Vulnerability> vulnerabilities = new CveSearchDataToVulnerabilityTranslator()
+                .applyToMany(cveSearchDatas.get());
 
         Map<UpdateType, List<Vulnerability>> statusToVulnerabilities = vulnerabilityConnector.addOrUpdateVulnerabilitiesAndSetIds(vulnerabilities);
         VulnerabilityUpdateStatus status = getUpdateStatusFromUpdateMap(statusToVulnerabilities);

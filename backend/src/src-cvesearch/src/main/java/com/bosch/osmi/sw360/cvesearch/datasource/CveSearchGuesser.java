@@ -31,15 +31,21 @@ public class CveSearchGuesser {
     private ListMatcher vendorMatcher;
     private Map<String,ListMatcher> productMatchers;
 
-    public CveSearchGuesser(CveSearchApi cveSearchApi) throws IOException {
+    public CveSearchGuesser(CveSearchApi cveSearchApi) {
         this.cveSearchApi=cveSearchApi;
-        vendorMatcher = new ListMatcher(this.cveSearchApi.allVendorNames());
+        vendorMatcher = null;
         productMatchers = new HashMap<>();
+    }
+
+    public void addVendorGuesserIfNeeded() throws IOException {
+        if(vendorMatcher == null) {
+            vendorMatcher = new ListMatcher(cveSearchApi.allVendorNames());
+        }
     }
 
     public void addProductGuesserIfNeeded(String vendor) throws IOException {
         if(! productMatchers.containsKey(vendor)) {
-            productMatchers.put(vendor, new ListMatcher(this.cveSearchApi.allProductsOfVendor(vendor)));
+            productMatchers.put(vendor, new ListMatcher(cveSearchApi.allProductsOfVendor(vendor)));
         }
     }
 
@@ -60,11 +66,13 @@ public class CveSearchGuesser {
         return bestMatches;
     }
 
-    public List<String> guessVendors(String vendorHaystack) {
+    public List<String> guessVendors(String vendorHaystack) throws IOException {
+        addVendorGuesserIfNeeded();
         return getBest(vendorMatcher.getMatches(vendorHaystack));
     }
 
-    public String guessVendor(String vendorHaystack) {
+    public String guessVendor(String vendorHaystack) throws IOException {
+        addVendorGuesserIfNeeded();
         return vendorMatcher.getMatches(vendorHaystack)
                 .get(0)
                 .getNeedle();

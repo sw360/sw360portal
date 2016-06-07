@@ -65,6 +65,19 @@ public class StringMatchTest {
     }
 
     @Test
+    public void getDistanceApacheToX() {
+        assert(new StringMatch("x","lorem ipsum").getDistance() > 0);
+    }
+
+    @Test
+    public void getDistanceXToXX() {
+        assert(new StringMatch("xx","x").getDistance() == 1);
+        assert(new StringMatch("xx","x ").getDistance() == 1);
+        assert(new StringMatch("xx"," x").getDistance() == 1);
+        assert(new StringMatch("xx"," x ").getDistance() == 1);
+    }
+
+    @Test
     public void getDistanceTest() {
         String needle = "needle";
         String haystack = "haystack";
@@ -118,7 +131,7 @@ public class StringMatchTest {
     @Test
     public void getDistanceTestFullSubstringMatch() {
         String needle = "needle";
-        String haystack = "prefix needle _bla postfix";
+        String haystack = "prefix needle bla postfix";
 
         StringMatch match = new StringMatch(needle,haystack);
 

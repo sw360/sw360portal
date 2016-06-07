@@ -18,81 +18,74 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
 
-public class StringMatch {
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
-    private String needle;
-    private int distance;
+public class StringMatch extends Match{
 
     public StringMatch(String needle, String haystack){
-        this.needle = needle;
-
-        this.distance = getDistance(needle, haystack.toLowerCase().replace(' ', '_'));
+        super(needle, calculateModifiedLevenshteinDistance(needle, nullToEmptyString(haystack).toLowerCase().replace(' ', '_')));
     }
 
-    public String getNeedle() {
-        return needle;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    // This is a modified Levenstein distance in which
-    // - skipping prefixes and postfixes of the haystack does not cost anything
-    // - if one of the strings is empty the distance Integer.MAX_VALUE is returned
-    protected int getDistance(String needle, String haystack){
+    /**
+     * This is a modified Levenshtein distance in which
+     * - skipping prefixes and postfixes of the haystack does not cost anything
+     * - if one of the strings is empty the distance Integer.MAX_VALUE is returned
+     *
+     * @param needle
+     * @param haystack
+     * @return the modified Levenshtein distance between the needle and the haystack
+     */
+    protected static int calculateModifiedLevenshteinDistance(String needle, String haystack){
 
         if (needle.length() == 0 || haystack.length() == 0){
             return Integer.MAX_VALUE;
         }
 
-        // see: https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance
-
         int needleLength = needle.length() + 1;
         int haystackLength = haystack.length() + 1;
 
-        int[] cost = new int[needleLength];
-        int[] newcost = new int[needleLength];
+        int[] oldcost = new int[needleLength];
+        int[] curcost = new int[needleLength];
 
-        for (int i = 0; i < needleLength; i++) cost[i] = i;
+        for (int i = 0; i < needleLength; i++) oldcost[i] = i;
 
-        int savedCostsWhenSippedSpaceSeperatedPrefix     = 0;
-        int maximalCostsWhenSkippedSpaceSeperatedPostfix = Integer.MAX_VALUE;
+        int savedCostsWhenSippedSpaceSeparatedPrefix     = 0;
+        int minimalCostsWhenSkippedSpaceSeperatedPostfix = Integer.MAX_VALUE;
         for (int j = 1; j < haystackLength; j++) {
             //=========================================================================================================
             if (j > 0 && haystack.charAt(j - 1) == '_') {
-                savedCostsWhenSippedSpaceSeperatedPrefix = j;
-                newcost[0] = 0; // skipping prefix of haystack does not cost anything, if it ends with a space
-            }else{
-                newcost[0] = j - savedCostsWhenSippedSpaceSeperatedPrefix;
+                // skipping prefix of haystack does not cost anything, if it ends with a space
+                savedCostsWhenSippedSpaceSeparatedPrefix = j;
             }
+            curcost[0] = j - savedCostsWhenSippedSpaceSeparatedPrefix;
 
             //=========================================================================================================
             for(int i = 1; i < needleLength; i++) {
                 int match = (needle.charAt(i - 1) == haystack.charAt(j - 1)) ? 0 : 1;
 
-                int cost_replace = cost[i - 1] + match;
-                int cost_insert  = cost[i] + 1;
-                int cost_delete  = newcost[i - 1] + 1;
+                int costReplace = oldcost[i - 1] + match;
+                int costInsert  = oldcost[i] + 1;
+                int costDelete  = curcost[i - 1] + 1;
 
-                newcost[i] = minimum(cost_insert, cost_delete, cost_replace);
+                curcost[i] = minimum(costInsert, costDelete, costReplace);
             }
 
             //=========================================================================================================
             if(haystack.charAt(j - 1) == '_') {
-                maximalCostsWhenSkippedSpaceSeperatedPostfix = Math.min(
-                        maximalCostsWhenSkippedSpaceSeperatedPostfix,
-                        newcost[needleLength - 1] - 1);
+                // skipping postfix of haystack does not cost anything, if it starts with a space
+                minimalCostsWhenSkippedSpaceSeperatedPostfix = Math.min(
+                        minimalCostsWhenSkippedSpaceSeperatedPostfix,
+                        oldcost[needleLength - 1]);
             }
 
             //=========================================================================================================
-            int[] swap = cost; cost = newcost; newcost = swap;
+            int[] swap = oldcost; oldcost = curcost; curcost = swap;
         }
 
-        return Math.min(cost[needleLength - 1], maximalCostsWhenSkippedSpaceSeperatedPostfix);
+        return Math.min(oldcost[needleLength - 1], minimalCostsWhenSkippedSpaceSeperatedPostfix);
     }
 
-    private int minimum(int a, int b, int c) {
+    private static int minimum(int a, int b, int c) {
         return Math.min(Math.min(a, b), c);
     }
 }

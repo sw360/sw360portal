@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import static com.bosch.osmi.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEquivalent;
 
@@ -130,17 +131,19 @@ public class CveSearchWrapperTest {
                 .setName("server")
                 .get();
 
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
-        assert(resultWrapped != null);
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        assert(resultWrapped.isPresent());
+        assert(resultWrapped.get() != null);
     }
 
     @Test
     public void testVeryEmptyData() throws IOException {
         Release release = new ReleaseBuilder().get();
 
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
-        assert(resultWrapped != null);
-        assert(resultWrapped.size() == 0);
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        assert(resultWrapped.isPresent());
+        assert(resultWrapped.get() != null);
+        assert(resultWrapped.get().size() == 0);
     }
 
     @Test
@@ -154,11 +157,12 @@ public class CveSearchWrapperTest {
 
         List<CveSearchData> resultDirect = cveSearchApi.cvefor(CPE);
 
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
-        assert(resultWrapped != null);
+        assert(resultWrapped.isPresent());
+        assert(resultWrapped.get() != null);
 
-        assert(isEquivalent(resultDirect,resultWrapped));
+        assert(isEquivalent(resultDirect,resultWrapped.get()));
     }
 
     @Test
@@ -169,45 +173,11 @@ public class CveSearchWrapperTest {
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
-        assert(resultWrapped != null);
-
-        assert(isEquivalent(resultDirect,resultWrapped));
-    }
-
-    @Test
-    public void isCpeTestNull() {
-        assert(new CveSearchWrapper(null).isCpe(null) == false);
-    }
-
-    @Test
-    public void isCpeTestEmpty() {
-        assert(new CveSearchWrapper(null).isCpe("") == false);
-    }
-
-    @Test
-    public void isCpeTest_cpe() {
-        assert(new CveSearchWrapper(null).isCpe("cpe") == false);
-    }
-
-    @Test
-    public void isCpeTestTrue() {
-        assert(new CveSearchWrapper(null).isCpe("cpe:2.3:a:vendor:product:version"));
-    }
-
-    @Test
-    public void implodeTestOneGenerator() {
-        assert(new CveSearchWrapper(null).implodeSearchNeedleGenerators(r -> "a")
-                .apply(new ReleaseBuilder().get())
-                .equals("a"));
-    }
-
-    @Test
-    public void implodeTestThreeGenerators() {
-        assert(new CveSearchWrapper(null).implodeSearchNeedleGenerators(r -> "a", r -> "b", r ->"c")
-                .apply(new ReleaseBuilder().get())
-                .equals("a.*b.*c"));
+        assert(resultWrapped.isPresent());
+        assert(resultWrapped.get() != null);
+        assert(isEquivalent(resultDirect,resultWrapped.get()));
     }
 
     @Ignore("meanwhile cveSearchWrapper implementation changed, test maybe suitable for later use")
@@ -220,24 +190,11 @@ public class CveSearchWrapperTest {
 
         List<CveSearchData> resultDirect = cveSearchApi.search(VENDORNAME, PRODUCTNAME);
 
-        List<CveSearchData> resultWrapped = cveSearchWrapper.searchForRelease(release);
+        Optional<List<CveSearchData>> resultWrapped = cveSearchWrapper.searchForRelease(release);
 
-        assert(resultWrapped != null);
-        assert(resultWrapped.size() > 0);
-        assert(isEquivalent(resultDirect,resultWrapped));
-    }
-
-    @Test
-    public void implodeTestReal() {
-        assert(new CveSearchWrapper(null)
-                .implodeSearchNeedleGenerators(r ->r.getVendor().getShortname(),
-                        Release::getName,
-                        Release::getVersion)
-                .apply(new ReleaseBuilder()
-                        .setVendorShortname("vendorShortname")
-                        .setName("name")
-                        .setVersion("1.2.3")
-                        .get())
-                .equals("vendorShortname.*name.*1.2.3"));
+        assert(resultWrapped.isPresent());
+        assert(resultWrapped.get() != null);
+        assert(resultWrapped.get().size() > 0);
+        assert(isEquivalent(resultDirect,resultWrapped.get()));
     }
 }
