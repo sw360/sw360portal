@@ -20,48 +20,36 @@ package com.bosch.osmi.sw360.cvesearch.datasource.heuristics;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApi;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
-import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelGenerator;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Heuristic {
 
-    private final SearchLevelGenerator searchLevelGenerator;
+    private final SearchLevels searchLevels;
     private final CveSearchApi cveSearchApi;
-    private final boolean greedy;
     private final int maxDepth;
     private Logger log = Logger.getLogger(Heuristic.class);
 
-    public Heuristic(SearchLevelGenerator searchLevelGenerator, CveSearchApi cveSearchApi) {
-        this.searchLevelGenerator = searchLevelGenerator;
+    public Heuristic(SearchLevels searchLevels, CveSearchApi cveSearchApi) {
+        this.searchLevels = searchLevels;
         this.cveSearchApi = cveSearchApi;
-        this.greedy = false;
         this.maxDepth = 0;
     }
 
-    public Heuristic(SearchLevelGenerator searchLevelGenerator, CveSearchApi cveSearchApi, boolean greedy) {
-        this.searchLevelGenerator = searchLevelGenerator;
+    public Heuristic(SearchLevels searchLevels, CveSearchApi cveSearchApi, int maxDepth) {
+        this.searchLevels = searchLevels;
         this.cveSearchApi = cveSearchApi;
-        this.greedy = greedy;
-        this.maxDepth = 0;
-    }
-
-    public Heuristic(SearchLevelGenerator searchLevelGenerator, CveSearchApi cveSearchApi, boolean greedy, int maxDepth) {
-        this.searchLevelGenerator = searchLevelGenerator;
-        this.cveSearchApi = cveSearchApi;
-        this.greedy = greedy;
         this.maxDepth = maxDepth;
     }
 
     public List<CveSearchData> run(Release release) throws IOException {
         int level = 0;
 
-        List<List<String>> cpeNeedless = searchLevelGenerator.apply(release);
+        List<List<String>> cpeNeedless = searchLevels.apply(release);
         List<CveSearchData> result = new ArrayList<>();
 
         for(List<String> cpeNeedles: cpeNeedless){

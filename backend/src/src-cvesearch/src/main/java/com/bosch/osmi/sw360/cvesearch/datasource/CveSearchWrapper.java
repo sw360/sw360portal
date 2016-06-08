@@ -19,9 +19,7 @@
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.Heuristic;
-import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.BasicSearchLevels;
-import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.GuessingSearchLevels;
-import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.searchlevels.SearchLevelGenerator;
+import com.bosch.osmi.sw360.cvesearch.datasource.heuristics.SearchLevels;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 
 import java.io.IOException;
@@ -32,22 +30,17 @@ import org.apache.log4j.Logger;
 
 public class CveSearchWrapper {
 
-    private CveSearchApi cveSearchApi;
     Logger log = Logger.getLogger(CveSearchWrapper.class);
 
     private Heuristic heuristic;
 
     public CveSearchWrapper(CveSearchApi cveSearchApi) {
-        this.cveSearchApi=cveSearchApi;
-
+        SearchLevels searchLevels = new SearchLevels();
         if (false) {
-            heuristic = new Heuristic(new BasicSearchLevels(), cveSearchApi);
-        }else {
-            SearchLevelGenerator searchLevelGenerator = new GuessingSearchLevels(cveSearchApi)
-                    .setVendorThreshold(1)
-                    .setProductThreshold(0);
-            heuristic = new Heuristic(searchLevelGenerator, cveSearchApi, true);
+            searchLevels.addBasicSearchlevels();
         }
+        searchLevels.addGuessingSearchLevels(cveSearchApi);
+        heuristic = new Heuristic(searchLevels, cveSearchApi);
     }
 
     public Optional<List<CveSearchData>> searchForRelease(Release release) {

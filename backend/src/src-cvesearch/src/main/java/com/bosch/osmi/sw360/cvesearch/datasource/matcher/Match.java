@@ -29,4 +29,9 @@ public class Match {
     public Match concat(Match otherMatch) {
         return new Match(this.needle + ":" + otherMatch.getNeedle(), this.distance + otherMatch.getDistance());
     }
+
+    @Override
+    public String toString() {
+        return "[" + this.needle + ":" + this.distance + "]";
+    }
 }
