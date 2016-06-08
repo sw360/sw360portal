@@ -33,6 +33,7 @@ public class CveSearchGuesser {
 
     private int vendorThreshold = 0;
     private int productThreshold = 0;
+    private int cutoff = Integer.MAX_VALUE;
 
     public CveSearchGuesser(CveSearchApi cveSearchApi) {
         this.cveSearchApi=cveSearchApi;
@@ -46,6 +47,10 @@ public class CveSearchGuesser {
 
     public void setProductThreshold(int productThreshold) {
         this.productThreshold = productThreshold;
+    }
+
+    public void setCutoff(int cutoff) {
+        this.cutoff = cutoff;
     }
 
     public void addVendorGuesserIfNeeded() throws IOException {
@@ -68,7 +73,7 @@ public class CveSearchGuesser {
         Match current;
         do{
             current = matchesIterator.next();
-            if(current.getDistance() > minDistance + threshold){
+            if(current.getDistance() > minDistance + threshold || current.getDistance() >= cutoff){
                 break;
             }
             bestMatches.add(current);
@@ -114,9 +119,10 @@ public class CveSearchGuesser {
                     .collect(Collectors.toList()));
         }
 
-        result.sort((sm1,sm2) -> sm1.compareTo(sm2));
-        return getBest(result, 0);
-
+        return result.stream()
+                .sorted((sm1,sm2) -> sm1.compareTo(sm2))
+                .filter(sm -> cutoff == 0 || cutoff > sm.getDistance())
+                .collect(Collectors.toList());
     }
 
     public Match guessVendorAndProduct(String vendorHaystack, String productHaystack) throws IOException {

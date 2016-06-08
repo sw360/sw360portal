@@ -82,15 +82,16 @@ public class SearchLevels {
 
     //==================================================================================================================
     public SearchLevels addGuessingSearchLevels(CveSearchApi cveSearchApi) {
-        addGuessingSearchLevels(cveSearchApi, 0, 0);
+        addGuessingSearchLevels(cveSearchApi, 0, 0, 0);
         return this;
     }
 
 
-    public SearchLevels addGuessingSearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold) {
+    public SearchLevels addGuessingSearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
         CveSearchGuesser cveSearchGuesser = new CveSearchGuesser(cveSearchApi);
         cveSearchGuesser.setVendorThreshold(vendorThreshold);
         cveSearchGuesser.setProductThreshold(productThreshold);
+        cveSearchGuesser.setCutoff(cutoff);
 
         // Level 2. search by guessed vendors and products with version
         searchLevels.add(r -> guessForRelease(cveSearchGuesser, r, true));
