@@ -330,7 +330,7 @@ input[readonly].clickable {
 .notificationBulletSpan {
     min-width: 25px;
     height: 25px;
-    border-radius: 50%;
+    border-radius: 5px;
     font-size: 11px;
     padding: 0 4px;
     font-weight: bold;

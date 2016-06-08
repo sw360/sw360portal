@@ -8,6 +8,9 @@
  */
 package com.siemens.sw360.portal.portlets.projects;
 
+import com.siemens.sw360.datahandler.common.SW360Utils;
+import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
+import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -29,12 +32,22 @@ import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityLink;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
+import com.siemens.sw360.portal.common.PortalConstants;
+import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.PortletUtils;
+import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
+import javax.portlet.ResourceRequest;
 import javax.portlet.RenderRequest;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import static com.siemens.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
@@ -97,6 +110,30 @@ public class ProjectPortletUtils {
 
     private static void setFieldValue(PortletRequest request, Project project, Project._Fields field) {
         PortletUtils.setFieldValue(request, project, field, Project.metaDataMap.get(field), "");
+    }
+
+    public static ProjectVulnerabilityLink updateProjectVulnerabilityLinkFromRequest(List<ProjectVulnerabilityLink> projectVulnerabilityLinks, ResourceRequest request){
+
+        ProjectVulnerabilityLink link;
+        if(projectVulnerabilityLinks.size() == 0){
+            link = new ProjectVulnerabilityLink().setProjectId(request.getParameter(PortalConstants.PROJECT_ID));
+            link.setVulnerabilityIdToStatus(new HashMap<>());
+        } else {
+            link = projectVulnerabilityLinks.get(0);
+        }
+        VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
+        link.vulnerabilityIdToStatus.put(request.getParameter(PortalConstants.VULNERABILITY_ID), vulnerabilityCheckStatus);
+        return link;
+    }
+
+    private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request){
+
+        VulnerabilityCheckStatus vulnerabilityCheckStatus = new VulnerabilityCheckStatus()
+                .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
+                .setCheckedOn(SW360Utils.getCreatedOn())
+                .setComment(request.getParameter(PortalConstants.COMMENT))
+                .setVulnerabilityRating(VulnerabilityRatingForProject.valueOf(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
+        return vulnerabilityCheckStatus;
     }
 
     private static com.liferay.portal.model.User getLiferayUser(RenderRequest request, User user) throws PortalException, SystemException {

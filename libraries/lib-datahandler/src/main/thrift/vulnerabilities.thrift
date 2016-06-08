@@ -14,6 +14,7 @@ namespace php sw360.thrift.vulnerabilities
 
 typedef sw360.RequestSummary RequestSummary
 typedef users.User User
+typedef sw360.RequestStatus RequestStatus
 
 struct ReleaseVulnerabilityRelation{
     // Basic information
@@ -102,9 +103,42 @@ struct VendorAdvisory{
     12: required string url
 }
 
+enum VulnerabilityRatingForProject {
+    NOT_CHECKED = 0,
+    IRRELEVANT = 1,
+    RESOLVED = 2,
+    APPLICABLE = 3,
+}
+
+struct VulnerabilityCheckStatus{
+    1: required string checkedOn,
+    2: required string checkedBy,
+    3: optional string comment,
+    4: required VulnerabilityRatingForProject vulnerabilityRating,
+}
+
+struct ProjectVulnerabilityLink{
+
+    1: optional string id,
+    2: optional string revision,
+    3: optional string type = "projectvulnerabilitylink",
+
+    4: required string projectId,
+    //keys are the externalIds of the vulnerabilities
+    5: required map<string, VulnerabilityCheckStatus> vulnerabilityIdToStatus,
+}
+
 service VulnerabilityService {
     // General information
     list<VulnerabilityDTO> getVulnerabilitiesByReleaseId(1: string releaseId, 2: User user);
     list<VulnerabilityDTO> getVulnerabilitiesByComponentId(1: string componentId, 2: User user);
     list<VulnerabilityDTO> getVulnerabilitiesByProjectId(1: string projectId, 2: User user);
+
+    /**
+     * returns list with one ProjectVulnerabilityLink for given projectId
+     * returns emptyList if none is found
+     **/
+    list<ProjectVulnerabilityLink> getProjectVulnerabilityLinkByProjectId(1: string projectId, 2: User user);
+
+    RequestStatus updateProjectVulnerabilityLink(1: ProjectVulnerabilityLink link, 2: User user);
 }

@@ -95,4 +95,50 @@
         );
         return modal;
     }
+
+    function createModalWithInput(vulnerabilityId, oldValue, select) {
+        var inputmodal;
+        var inputcomment;
+        AUI().use(
+                'aui-modal',
+                function (Y) {
+                    inputmodal = new Y.Modal(
+                            Object.assign({
+                                bodyContent:'<input class="toplabelledInput" id="commentInput" name="<portlet:namespace/>comment" type="text" placeholder="Enter comment"/>',
+                                centered: true,
+                                destroyOnHide: true,
+                                modal: true,
+                                render: '#updateModal',
+                                width: 450
+                            })
+                    );
+                    inputmodal.setHeader = function (content) {
+                        this.set('headerContent', '<h5>' + content + '</h5>');
+                    };
+                    inputmodal.addToolbar([
+                        {
+                            label: 'Cancel',
+                            on: {
+                                click: function () {
+                                    cancelRatingChange(oldValue);
+                                    inputmodal.hide();
+                                }
+                            }
+                        },
+                        {
+                            label: 'OK',
+                            on: {
+                                click: function () {
+                                    inputcomment = document.getElementById("commentInput").value;
+                                    executeRatingChange(vulnerabilityId, select, inputcomment, oldValue);
+                                    inputmodal.hide();
+                                }
+                            }
+                        }
+                    ]);
+                    inputmodal.render();
+                }
+        );
+        return inputmodal;
+    }
 </script>

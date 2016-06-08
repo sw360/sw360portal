@@ -16,6 +16,7 @@
 <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
 <jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request" />
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
+<jsp:useBean id="numberOfUncheckedVulnerabilities" type="java.lang.Integer" scope="request"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
@@ -46,7 +47,7 @@
                     <a href="#tab-Vulnerabilites">
                         Vulnerabilities
                         <div class="notificationBulletSpan">
-                            ${vulnerabilityList.size()} / ${vulnerabilityList.size()}
+                            ${numberOfUncheckedVulnerabilities} / ${vulnerabilityList.size()}
                         </div>
                     </a>
                 </li>

@@ -27,6 +27,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityLink;
 import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
@@ -53,6 +54,7 @@ public class ProjectDatabaseHandler {
     private static final Logger log = Logger.getLogger(ProjectDatabaseHandler.class);
 
     private final ProjectRepository repository;
+    private final ProjectVulnerabilityLinkRepository pvrRepository;
     private final ProjectModerator moderator;
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
@@ -65,9 +67,11 @@ public class ProjectDatabaseHandler {
     public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(url, dbName);
 
-        // Create the repository
+        // Create the repositories
         repository = new ProjectRepository(db);
+        pvrRepository = new ProjectVulnerabilityLinkRepository(db);
 
+        // Create the moderator
         this.moderator = moderator;
 
         // Create the attachment connector
@@ -336,5 +340,18 @@ public class ProjectDatabaseHandler {
         }
 
         return CommonUtils.getIdentifierToListOfDuplicates(projectIdentifierToReleaseId);
+    }
+
+    public List<ProjectVulnerabilityLink> getProjectVulnerabilityLinkByProjectId(String projectId){
+        return pvrRepository.getProjectVulnerabilityLink(projectId);
+    }
+
+    public RequestStatus updateProjectVulnerabilityLink(ProjectVulnerabilityLink link) {
+        if( ! link.isSetId()){
+            pvrRepository.add(link);
+        } else {
+            pvrRepository.update(link);
+        }
+        return RequestStatus.SUCCESS;
     }
 }

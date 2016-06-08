@@ -26,10 +26,7 @@ import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.CVEReference;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VendorAdvisory;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.*;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
@@ -58,12 +55,12 @@ public class ThriftUtils {
             .add(Vendor.class) // Vendor service
             .add(ModerationRequest.class) // Moderation service‚
             .add(FossologyHostFingerPrint.class) // Fossology service
-            .add(Vulnerability.class, ReleaseVulnerabilityRelation.class) // Vulnerability Service
+            .add(Vulnerability.class, ReleaseVulnerabilityRelation.class, ProjectVulnerabilityLink.class) // Vulnerability Service
             .build();
 
     public static final List<Class> THRIFT_NESTED_CLASSES = ImmutableList.<Class>builder()
             .add(Repository.class).add(ClearingInformation.class) // Component service
-            .add(CVEReference.class, VendorAdvisory.class) // Vulnerability Service
+            .add(CVEReference.class, VendorAdvisory.class, VulnerabilityCheckStatus.class) // Vulnerability Service
             .build();
 
     private static final Map<Class, Class<? extends DocumentWrapper>> THRIFT_WRAPPED =

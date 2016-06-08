@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
@@ -20,6 +21,7 @@ import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.Visibility;
@@ -39,8 +41,7 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.*;
 import com.siemens.sw360.exporter.ProjectExporter;
 import com.siemens.sw360.portal.common.*;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
@@ -125,6 +126,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveLinkedReleases(request, response);
         } else if (PortalConstants.UPDATE_VULNERABILITIES_PROJECT.equals(action)){
             updateVulnerabilitiesProject(request,response);
+        } else if (PortalConstants.UPDATE_VULNERABILITY_RATING.equals(action)){
+            updateVulnerabilityRating(request,response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
@@ -504,16 +507,47 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
+                putVulnerabilitiesInRequest(request, id, user);
+                if(PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE)){
+                    request.setAttribute(VULNERABILITY_RATING_EDITABLE, true);
+                } else {
+                    request.setAttribute(VULNERABILITY_RATING_EDITABLE, false);
+                }
+
                 addProjectBreadcrumb(request, response, project);
 
-                // get vulnerabilities
-                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
-                request.setAttribute(VULNERABILITY_LIST, vuls);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
             }
         }
+    }
+
+    private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+        List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
+        request.setAttribute(VULNERABILITY_LIST, vuls);
+        List<ProjectVulnerabilityLink> projectVulnerabilityLinks = vulClient.getProjectVulnerabilityLinkByProjectId(id, user);
+        log.info("Ratings: " + projectVulnerabilityLinks);
+        Map<String, VulnerabilityRatingForProject> vulnerabilityRating = new HashMap<>();
+        if (projectVulnerabilityLinks.size()>0){
+            projectVulnerabilityLinks
+                    .get(0)
+                    .getVulnerabilityIdToStatus()
+                    .entrySet()
+                    .stream()
+                    .forEach(e -> vulnerabilityRating.put(e.getKey(), e.getValue().getVulnerabilityRating()));
+        }
+        vuls.stream()
+                .filter(v -> ! vulnerabilityRating.containsKey(v.externalId))
+                .forEach(v -> vulnerabilityRating.put(v.externalId, VulnerabilityRatingForProject.NOT_CHECKED));
+        int numberOfUncheckedVulnerabilities =
+                Collections.frequency(
+                        new ArrayList<VulnerabilityRatingForProject>(vulnerabilityRating.values()),
+                        VulnerabilityRatingForProject.NOT_CHECKED);
+
+        request.setAttribute(PortalConstants.VULNERABILITY_RATING, vulnerabilityRating);
+        request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
+
     }
 
     private void setClearingStateSummary(Project project) {
@@ -712,6 +746,31 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         try {
             VulnerabilityUpdateStatus importStatus = cveClient.updateForProject(projectId);
             JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e) {
+            log.error("Error updating CVEs for project in backend.", e);
+        }
+    }
+
+    private void updateVulnerabilityRating(ResourceRequest request, ResourceResponse response) throws IOException{
+        String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
+        String comment = request.getParameter(PortalConstants.COMMENT);
+        String rating = request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE);
+        User user = UserCacheHolder.getUserFromRequest(request);
+
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+
+        log.info("called with projectId " + projectId + " vulnerabilityId " + vulnerabilityExternalId + " value " + rating + " comment " + comment);
+        try {
+            List<ProjectVulnerabilityLink> projectVulnerabilityLinks = vulClient.getProjectVulnerabilityLinkByProjectId(projectId, user);
+            ProjectVulnerabilityLink link = ProjectPortletUtils.updateProjectVulnerabilityLinkFromRequest(projectVulnerabilityLinks, request);
+            RequestStatus requestStatus = vulClient.updateProjectVulnerabilityLink(link, user);
+
+            JSONObject responseData = JSONFactoryUtil.createJSONObject();
+            responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+            responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {
