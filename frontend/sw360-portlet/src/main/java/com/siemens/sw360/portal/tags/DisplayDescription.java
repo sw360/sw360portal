@@ -1,6 +1,6 @@
 
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -18,31 +18,11 @@
  */
 package com.siemens.sw360.portal.tags;
 
-import com.google.common.base.Strings;
-import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.portal.common.JsonHelpers;
-import com.siemens.sw360.portal.common.ThriftJsonSerializer;
-import com.siemens.sw360.portal.users.UserUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.taglibs.standard.tag.common.core.OutSupport;
-import org.apache.thrift.TException;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import static java.util.regex.Matcher.quoteReplacement;
 
@@ -50,6 +30,7 @@ import static java.util.regex.Matcher.quoteReplacement;
  * This prepares the description for display
  *
  * @author birgit.heydenreich@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 
 public class DisplayDescription extends SimpleTagSupport {
@@ -69,22 +50,34 @@ public class DisplayDescription extends SimpleTagSupport {
     }
 
     public void doTag() throws JspException, IOException {
-        if (maxChar > 4) {
-            description = StringUtils.abbreviate(description, maxChar);
+        abbreviateDescription();
+        if (!"".equals(jsQuoting)){
+            sanitizeDescriptionForJavascriptStringLiteral();
         }
+        getJspContext().getOut().print(description);
+
+    }
+
+    private void sanitizeDescriptionForJavascriptStringLiteral() {
+        description = description.replaceAll("[\r\n]+", "");
         if ("'".equals(jsQuoting)) {
             this.description = escapeInSingleQuote(description);
         } else if ("\"".equals(jsQuoting)) {
             this.description = escapeInDoubleQuote(description);
         }
-        getJspContext().getOut().print(description);
-
     }
+
+    private void abbreviateDescription() {
+        if (maxChar > 4) {
+            description = StringUtils.abbreviate(description, maxChar);
+        }
+    }
+
     private String escapeInDoubleQuote(String value) {
         return value.replaceAll("\"", quoteReplacement("\\\""));
     }
 
-    protected String escapeInSingleQuote(String value) {
+    private String escapeInSingleQuote(String value) {
         return value.replaceAll("'", quoteReplacement("\\\'"));
     }
 }

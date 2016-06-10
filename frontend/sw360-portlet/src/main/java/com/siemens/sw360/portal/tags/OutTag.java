@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -29,9 +29,11 @@ import static java.util.regex.Matcher.quoteReplacement;
  *
  * @author Daniele.Fognini@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class OutTag extends OutSupport {
     private String jsQuoting = null;
+    private boolean stripNewlines = true;
 
     public OutTag() {
     }
@@ -47,7 +49,10 @@ public class OutTag extends OutSupport {
                 candidate = StringUtils.abbreviate(candidate, maxChar);
             }
 
-            this.value = candidate.replaceAll("[\r\n]+", " ");
+            if (stripNewlines){
+                candidate = candidate.replaceAll("[\r\n]+", " ");
+            }
+            this.value = candidate;
         } else {
             this.value = value;
         }
@@ -90,6 +95,10 @@ public class OutTag extends OutSupport {
 
     public void setJsQuoting(String jsQuoting) {
         this.jsQuoting = jsQuoting;
+    }
+
+    public void setStripNewlines(boolean stripNewlines) {
+        this.stripNewlines = stripNewlines;
     }
 }
 
