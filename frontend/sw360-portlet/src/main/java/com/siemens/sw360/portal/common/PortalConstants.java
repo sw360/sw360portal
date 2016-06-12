@@ -132,12 +132,13 @@ public class PortalConstants {
 
     //! Specialized keys for vulnerability management
     public static final String VULNERABILITY_LIST = "vulnerabilityList";
-    public static final String VULNERABILITY_RATING = "vulnerabilityRating";
+    public static final String VULNERABILITY_RATINGS = "vulnerabilityRating";
     public static final String VULNERABILITY_RATING_EDITABLE = "vulnerabilityRatingEditable";
     public static final String VULNERABILITY_ID = "vulnerabilityId";
     public static final String VULNERABILITY_RATING_VALUE = "vulnerabilityRatingValue";
     public static final String COMMENT = "comment";
     public static final String NUMBER_OF_UNCHECKED_VULNERABILITIES = "numberOfUncheckedVulnerabilities";
+    public static final String VULNERABILITY_CHECKSTATUS_TOOLTIPS = "vulnerabilityCheckstatusTooltips";
 
     //! Specialized keys for account sign-up
     public static final String PASSWORD = "password";

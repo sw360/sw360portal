@@ -25,8 +25,10 @@
 <portlet:resourceURL var="updateVulnerabilityRating">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITY_RATING%>"/>
 </portlet:resourceURL>
-<jsp:useBean id="vulnerabilityRating" type="java.util.Map<java.lang.String, com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityLink>" scope="request"/>
+<jsp:useBean id="vulnerabilityRating" type="java.util.Map<java.lang.String, com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject>" scope="request"/>
 <jsp:useBean id="vulnerabilityRatingEditable" type="java.lang.Boolean" scope="request"/>
+<jsp:useBean id="vulnerabilityCheckstatusTooltips" type="java.util.Map<java.lang.String, java.lang.String>" scope="request"/>
+
 
 <div id="vulnerabilityTableDiv">
     <table id="vulnerabilityTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -67,12 +69,13 @@
                     'id="ratingChangeSelectFor${vulnerability.externalId}" '+
                     'name="<portlet:namespace/><%=VulnerabilityRatingForProject.class%>" '+
                     'onchange="changeRating(this, `${vulnerability.externalId}`,`${vulnerabilityRating.get(vulnerability.externalId)}`)" '+
+                    'title = "${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"'+
                     'style="min-width: 90px; min-height: 28px;">'+
                    <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRating.get(vulnerability.externalId)}" inQuotes="true" useStringValues="true"/> +
                 '</select>',
                 </core_rt:when>
                 <core_rt:otherwise>
-                    '<sw360:DisplayEnum value="${vulnerabilityRating.get(vulnerability.externalId)}"/>',
+                    '<div title="${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"><sw360:DisplayEnum value="${vulnerabilityRating.get(vulnerability.externalId)}"/></div>',
                 </core_rt:otherwise>
             </core_rt:choose>
             "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
@@ -147,13 +150,17 @@
             dataType: 'json',
             data: data,
             success: function(response){
+                var selectId = "ratingChangeSelectFor"+response.<%=PortalConstants.VULNERABILITY_ID%>;
                 switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
                     case '<%=RequestStatus.FAILURE%>':
                         showStatusPopup("",modal,"Update failed.");
-                        var selectId = "ratingChangeSelectFor"+response.<%=PortalConstants.VULNERABILITY_ID%>;
                         document.getElementById(selectId).value = oldValue;
                         break;
-                    default: //todo: adjust number of unchecked immediately
+                    case '<%=RequestStatus.SUCCESS%>':
+                        document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='...';
+                        document.getElementById(selectId).title = "You just changed this value.";
+                        break;
+                    default:
                 }
             },
         });

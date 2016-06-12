@@ -526,9 +526,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
         List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
         request.setAttribute(VULNERABILITY_LIST, vuls);
+
         List<ProjectVulnerabilityLink> projectVulnerabilityLinks = vulClient.getProjectVulnerabilityLinkByProjectId(id, user);
-        log.info("Ratings: " + projectVulnerabilityLinks);
+
         Map<String, VulnerabilityRatingForProject> vulnerabilityRating = new HashMap<>();
+        Map<String, String> vulnerabilityTooltips = new HashMap<>();
         if (projectVulnerabilityLinks.size()>0){
             projectVulnerabilityLinks
                     .get(0)
@@ -536,16 +538,31 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     .entrySet()
                     .stream()
                     .forEach(e -> vulnerabilityRating.put(e.getKey(), e.getValue().getVulnerabilityRating()));
+            projectVulnerabilityLinks
+                    .get(0)
+                    .getVulnerabilityIdToStatus()
+                    .entrySet()
+                    .stream()
+                    .forEach(e -> vulnerabilityTooltips.put(e.getKey(),
+                            "Checked By: " + e.getValue().getCheckedBy() + ", "+
+                            "Checked On: " + e.getValue().getCheckedOn()+ ", " +
+                            "Rating: " + e.getValue().getVulnerabilityRating().name() + ", "+
+                            "Comment: " + e.getValue().getComment()));
         }
         vuls.stream()
                 .filter(v -> ! vulnerabilityRating.containsKey(v.externalId))
                 .forEach(v -> vulnerabilityRating.put(v.externalId, VulnerabilityRatingForProject.NOT_CHECKED));
+        vuls.stream()
+                .filter(v -> ! vulnerabilityTooltips.containsKey(v.externalId))
+                .forEach(v -> vulnerabilityTooltips.put(v.externalId,"not checked yet"));
+
         int numberOfUncheckedVulnerabilities =
                 Collections.frequency(
-                        new ArrayList<VulnerabilityRatingForProject>(vulnerabilityRating.values()),
+                        new ArrayList<>(vulnerabilityRating.values()),
                         VulnerabilityRatingForProject.NOT_CHECKED);
 
-        request.setAttribute(PortalConstants.VULNERABILITY_RATING, vulnerabilityRating);
+        request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRating);
+        request.setAttribute(PortalConstants.VULNERABILITY_CHECKSTATUS_TOOLTIPS, vulnerabilityTooltips);
         request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
 
     }
@@ -771,6 +788,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             JSONObject responseData = JSONFactoryUtil.createJSONObject();
             responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
             responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
+
+
+
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {

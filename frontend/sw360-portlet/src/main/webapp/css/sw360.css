@@ -337,7 +337,14 @@ input[readonly].clickable {
     color: #fff;
     line-height: 25px;
     text-align: center;
-    background: #f00;
     display: inline-block;
     float: right;
+}
+
+.backgroundRed {
+    background: #f00;
+}
+
+.backgroundGrey {
+    background: #aaaaaa;
 }
