@@ -157,7 +157,8 @@
                         document.getElementById(selectId).value = oldValue;
                         break;
                     case '<%=RequestStatus.SUCCESS%>':
-                        document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='...';
+                        document.getElementById("numberOfVulnerabilitiesDiv").style.fontSize="16px";
+                        document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='&#8634;';
                         document.getElementById(selectId).title = "You just changed this value.";
                         break;
                     default:

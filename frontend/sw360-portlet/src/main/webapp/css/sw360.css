@@ -348,3 +348,8 @@ input[readonly].clickable {
 .backgroundGrey {
     background: #aaaaaa;
 }
+
+.commentArea {
+    width: 95% !important;
+    height: 90% !important;
+}
