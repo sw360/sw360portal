@@ -19,34 +19,34 @@
 
 
 include "sw360.thrift"
+include "users.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.cvesearch
-namespace php sw360.thrift.cvesearch
+namespace java com.siemens.sw360.datahandler.thrift.schedule
+namespace php sw360.thrift.schedule
 
 typedef sw360.RequestStatus RequestStatus
+typedef sw360.RequestSummary RequestSummary
+typedef users.User User
 
-enum UpdateType {
-    NEW = 0,
-    UPDATED = 1,
-    OLD = 2,
-    FAILED = 3,
-}
+service ScheduleService {
+    /*
+     * a service with service name is scheduled
+     * serviceName has to be registered in ThriftClients
+     * service must provide an "update" method
+     *
+     * user has to be admin, otherwise FAILURE is returned
+     */
+    RequestSummary scheduleService(1: string serviceName, 2: User user);
 
-struct VulnerabilityUpdateStatus {
-    1: map<UpdateType, list<string>> statusToVulnerabilityIds;
-    2: RequestStatus requestStatus;
-}
+    /*
+     * all tasks with  name serviceName are cancelled
+     * user has to be admin, otherwise FAILURE is returned
+     */
+    RequestStatus unscheduleService(1: string serviceName, 2: User user);
 
-service CveSearchService {
-    VulnerabilityUpdateStatus updateForRelease(1: string ReleaseId);
-    VulnerabilityUpdateStatus updateForComponent(1: string ComponentId);
-    VulnerabilityUpdateStatus updateForProject(1: string ProjectId);
-    VulnerabilityUpdateStatus fullUpdate();
-
-    /**
-     * method called by ScheduleService
-     **/
-   RequestStatus update();
-
-    set<string> findCpes(1: string vendor, 2: string product, 3:string version);
+    /*
+     * all scheduled tasks are cancelled
+     * user has to be admin, otherwise FAILURE is returned
+     */
+    RequestStatus unscheduleAllServices(1: User user);
 }

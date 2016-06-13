@@ -51,10 +51,6 @@
 <portlet:actionURL var="applyFiltersURL" name="applyFilters">
 </portlet:actionURL>
 
-<portlet:resourceURL var="updateVulnerabilitiesURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_ALL_VULNERABILITIES%>"/>
-</portlet:resourceURL>
-
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
@@ -188,9 +184,7 @@
     <div class="sw360modal" id="updateModal"></div>
 </div>
 <div style="clear:both"></div>
-<span class="pull-right">
-    <input type="button" onclick="updateVulnerabilities()" id="updateVulnerabilities" value="CVE-search for all components" class="addButton">
-</span>
+
 <script>
     var oTable;
     var modal;
@@ -297,24 +291,6 @@
             });
         }
 
-    }
-
-    function updateVulnerabilities() {
-        modal = createModal();
-
-        modal.setHeader("Please wait while updating vulnerabilities.");
-        modal.addToolbar();
-
-        $.ajax({
-            url: '<%=updateVulnerabilitiesURL%>',
-            type: 'POST',
-            dataType: 'json',
-            data: {},
-
-            success: function(response) {
-                displayResponse(response);
-            }
-        });
     }
 
 </script>

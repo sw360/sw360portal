@@ -19,6 +19,7 @@ import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
+import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
 import com.siemens.sw360.datahandler.thrift.search.SearchService;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
@@ -61,6 +62,11 @@ public class ThriftClients {
     public static final String VENDOR_SERVICE_URL = "/vendors/thrift";
     public static final String BDPIMPORT_SERVICE_URL = "/bdpimport/thrift";
     public static final String VULNERABILITY_SERVICE_URL = "/vulnerabilities/thrift";
+    public static final String SCHEDULE_SERVICE_URL = "/schedule/thrift";
+
+    // A service which has to be scheduled by the scheduler should be registered here!
+    // names of services that can be scheduled by the schedule service, i.e. that have an "update" method
+    public static final String CVESEARCH_SERVICE = "cvesearchService";
 
     static {
         Properties props = CommonUtils.loadProperties(ThriftClients.class, PROPERTIES_FILE_PATH);
@@ -135,5 +141,9 @@ public class ThriftClients {
 
     public LicenseInfoService.Client makeLicenseInfoClient() {
         return new LicenseInfoService.Client(makeProtocol(BACKEND_URL, LICENSEINFO_SERVICE_URL));
+    }
+
+    public ScheduleService.Iface makeScheduleClient() {
+        return new ScheduleService.Client(makeProtocol(BACKEND_URL, SCHEDULE_SERVICE_URL));
     }
 }

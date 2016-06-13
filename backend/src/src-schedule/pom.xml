@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) Bosch Software Innovations GmbH 2016.
+  ~ Part of the SW360 Portal Project.
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License Version 2.0 as published by the
+  ~ Free Software Foundation with classpath exception.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2.0 for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program (please see the COPYING file); if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  ~ 02110-1301, USA.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <dependencies>
+        <dependency>
+            <groupId>com.siemens.sw360</groupId>
+            <artifactId>datahandler</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>portal-service</artifactId>
+            <version>${liferay.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <parent>
+        <groupId>com.siemens.sw360</groupId>
+        <artifactId>backend-src</artifactId>
+        <version>1.4.0-SNAPSHOT</version>
+    </parent>
+
+    <developers>
+        <developer>
+            <name>birgit.heydenreich@tngtech.com</name>
+        </developer>
+        <developer>
+            <name>maximilian.huber@tngtech.com</name>
+        </developer>
+    </developers>
+
+    <artifactId>src-schedule</artifactId>
+    <groupId>com.bosch.osmi</groupId>
+    <packaging>jar</packaging>
+    <name>src-schedule</name>
+</project>

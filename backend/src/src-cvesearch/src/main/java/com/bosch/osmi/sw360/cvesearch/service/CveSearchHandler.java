@@ -24,6 +24,7 @@ import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchWrapper;
 import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataToVulnerabilityTranslator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
@@ -116,6 +117,17 @@ public class CveSearchHandler implements CveSearchService.Iface {
                 .map(this::updateForRelease)
                 .reduce(getEmptyVulnerabilityUpdateStatus(),
                         (r1, r2) -> reduceVulnerabilityUpdateStatus(r1,r2));
+    }
+
+    @Override
+    public RequestStatus update() throws TException {
+        VulnerabilityUpdateStatus vulnerabilityUpdateStatus = fullUpdate();
+        log.info("CveSearch update finished with status:" + vulnerabilityUpdateStatus.getRequestStatus());
+        log.info("The following vulnerability/ies could not be imported:" + vulnerabilityUpdateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED) + "\n"+
+                        "The following vulnerability/ies were updated:" + vulnerabilityUpdateStatus.getStatusToVulnerabilityIds().get(UpdateType.UPDATED) + "\n"+
+                        "The following vulnerability/ies were added:" + vulnerabilityUpdateStatus.getStatusToVulnerabilityIds().get(UpdateType.NEW));
+
+        return vulnerabilityUpdateStatus.getRequestStatus();
     }
 
     @Override

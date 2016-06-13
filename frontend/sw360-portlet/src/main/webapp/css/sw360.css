@@ -353,3 +353,7 @@ input[readonly].clickable {
     width: 95% !important;
     height: 90% !important;
 }
+
+.withTopMargin {
+    margin-top: 2em !important;
+}
