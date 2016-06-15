@@ -86,15 +86,15 @@ public class Scheduler {
         calendar.add(GregorianCalendar.SECOND, firstRunOffset);//today with offset time as specified
 
         // ensure that "missed" task will not be executed at once
-        while (calendar.getTime().getTime() < now) {
+        /*while (calendar.getTime().getTime() < now) {
             calendar.add(GregorianCalendar.SECOND, interval);
-        };
-
-        // if firstRunOffset is in the past compute next run - does not work
-       /* if(calendar.getTime().getTime() < now) {
-            long timeLeftToNextRunInMilliSeconds = (now-calendar.getTime().getTime()) % (interval*1000);
-            calendar.getTime().setTime(now + timeLeftToNextRunInMilliSeconds);
         };*/
+
+        // if firstRunOffset is in the past compute next run
+        if(calendar.getTime().getTime() < now) {
+            long timeLeftToNextRunInMilliSeconds = interval*1000 - ((now-calendar.getTime().getTime()) % (interval*1000));
+            calendar.setTimeInMillis(now + timeLeftToNextRunInMilliSeconds);
+        };
         return calendar;
     }
 
