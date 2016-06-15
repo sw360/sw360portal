@@ -117,11 +117,11 @@ struct VulnerabilityCheckStatus{
     4: required VulnerabilityRatingForProject vulnerabilityRating,
 }
 
-struct ProjectVulnerabilityLink{
+struct ProjectVulnerabilityRating{
 
     1: optional string id,
     2: optional string revision,
-    3: optional string type = "projectvulnerabilitylink",
+    3: optional string type = "projectvulnerabilityrating",
 
     4: required string projectId,
     //keys are the externalIds of the vulnerabilities
@@ -135,10 +135,10 @@ service VulnerabilityService {
     list<VulnerabilityDTO> getVulnerabilitiesByProjectId(1: string projectId, 2: User user);
 
     /**
-     * returns list with one ProjectVulnerabilityLink for given projectId
+     * returns list with one ProjectVulnerabilityRating for given projectId
      * returns emptyList if none is found
      **/
-    list<ProjectVulnerabilityLink> getProjectVulnerabilityLinkByProjectId(1: string projectId, 2: User user);
+    list<ProjectVulnerabilityRating> getProjectVulnerabilityRatingByProjectId(1: string projectId, 2: User user);
 
-    RequestStatus updateProjectVulnerabilityLink(1: ProjectVulnerabilityLink link, 2: User user);
+    RequestStatus updateProjectVulnerabilityRating(1: ProjectVulnerabilityRating link, 2: User user);
 }

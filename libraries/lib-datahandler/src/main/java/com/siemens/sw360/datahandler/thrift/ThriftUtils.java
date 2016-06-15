@@ -55,7 +55,7 @@ public class ThriftUtils {
             .add(Vendor.class) // Vendor service
             .add(ModerationRequest.class) // Moderation service‚
             .add(FossologyHostFingerPrint.class) // Fossology service
-            .add(Vulnerability.class, ReleaseVulnerabilityRelation.class, ProjectVulnerabilityLink.class) // Vulnerability Service
+            .add(Vulnerability.class, ReleaseVulnerabilityRelation.class, ProjectVulnerabilityRating.class) // Vulnerability Service
             .build();
 
     public static final List<Class> THRIFT_NESTED_CLASSES = ImmutableList.<Class>builder()

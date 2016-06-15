@@ -29,8 +29,8 @@ import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityLink;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
 import com.siemens.sw360.portal.common.PortalConstants;
@@ -107,20 +107,20 @@ public class ProjectPortletUtils {
         PortletUtils.setFieldValue(request, project, field, Project.metaDataMap.get(field), "");
     }
 
-    public static ProjectVulnerabilityLink updateProjectVulnerabilityLinkFromRequest(List<ProjectVulnerabilityLink> projectVulnerabilityLinks, ResourceRequest request){
+    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(List<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request){
 
-        ProjectVulnerabilityLink projectVulnerabilityLink;
-        if(projectVulnerabilityLinks.size() == 0){
+        ProjectVulnerabilityRating projectVulnerabilityRating;
+        if(projectVulnerabilityRatings.size() == 0){
             String projectId = request.getParameter(PortalConstants.PROJECT_ID);
-            projectVulnerabilityLink = new ProjectVulnerabilityLink().setProjectId(projectId);
-            projectVulnerabilityLink.setVulnerabilityIdToStatus(new HashMap<>());
+            projectVulnerabilityRating = new ProjectVulnerabilityRating().setProjectId(projectId);
+            projectVulnerabilityRating.setVulnerabilityIdToStatus(new HashMap<>());
         } else {
-            projectVulnerabilityLink = projectVulnerabilityLinks.get(0);
+            projectVulnerabilityRating = projectVulnerabilityRatings.get(0);
         }
         VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
         String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
-        projectVulnerabilityLink.vulnerabilityIdToStatus.put(vulnerabilityId, vulnerabilityCheckStatus);
-        return projectVulnerabilityLink;
+        projectVulnerabilityRating.vulnerabilityIdToStatus.put(vulnerabilityId, vulnerabilityCheckStatus);
+        return projectVulnerabilityRating;
     }
 
     private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request){

@@ -527,12 +527,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
-        List<ProjectVulnerabilityLink> projectVulnerabilityLinks = vulClient.getProjectVulnerabilityLinkByProjectId(id, user);
+        List<ProjectVulnerabilityRating> projectVulnerabilityRatings = vulClient.getProjectVulnerabilityRatingByProjectId(id, user);
 
         Map<String, VulnerabilityRatingForProject> vulnerabilityRating = new HashMap<>();
         Map<String, String> vulnerabilityTooltips = new HashMap<>();
-        if (projectVulnerabilityLinks.size()>0){
-            projectVulnerabilityLinks
+        if (projectVulnerabilityRatings.size()>0){
+            projectVulnerabilityRatings
                     .get(0)
                     .getVulnerabilityIdToStatus()
                     .entrySet()
@@ -775,9 +775,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
 
         try {
-            List<ProjectVulnerabilityLink> projectVulnerabilityLinks = vulClient.getProjectVulnerabilityLinkByProjectId(projectId, user);
-            ProjectVulnerabilityLink link = ProjectPortletUtils.updateProjectVulnerabilityLinkFromRequest(projectVulnerabilityLinks, request);
-            RequestStatus requestStatus = vulClient.updateProjectVulnerabilityLink(link, user);
+            List<ProjectVulnerabilityRating> projectVulnerabilityRatings = vulClient.getProjectVulnerabilityRatingByProjectId(projectId, user);
+            ProjectVulnerabilityRating link = ProjectPortletUtils.updateProjectVulnerabilityRatingFromRequest(projectVulnerabilityRatings, request);
+            RequestStatus requestStatus = vulClient.updateProjectVulnerabilityRating(link, user);
 
             JSONObject responseData = JSONFactoryUtil.createJSONObject();
             responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
