@@ -48,7 +48,7 @@
                         Vulnerabilities
                         <div id="numberOfVulnerabilitiesDiv"
                                 <core_rt:if test="${numberOfUncheckedVulnerabilities.intValue() == 0}"> class="notificationBulletSpan backgroundGrey" </core_rt:if>
-                                <core_rt:if test="${numberOfUncheckedVulnerabilities.intValue() > 0}"> class="notificationBulletSpan backgroundRed" </core_rt:if>>
+                                <core_rt:if test="${numberOfUncheckedVulnerabilities.intValue() > 0}"> class="notificationBulletSpan backgroundAlert" </core_rt:if>>
                             ${numberOfUncheckedVulnerabilities} / ${vulnerabilityList.size()}
                         </div>
                     </a>

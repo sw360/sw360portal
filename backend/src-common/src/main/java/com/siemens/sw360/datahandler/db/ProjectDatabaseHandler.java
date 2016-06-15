@@ -14,6 +14,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Duration;
+import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
@@ -348,6 +349,7 @@ public class ProjectDatabaseHandler {
 
     public RequestStatus updateProjectVulnerabilityLink(ProjectVulnerabilityLink link) {
         if( ! link.isSetId()){
+            link.setId(SW360Constants.PROJECT_VULNERABILITY_RATING_ID_PREFIX + link.getProjectId());
             pvrRepository.add(link);
         } else {
             pvrRepository.update(link);

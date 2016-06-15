@@ -537,17 +537,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     .getVulnerabilityIdToStatus()
                     .entrySet()
                     .stream()
-                    .forEach(e -> vulnerabilityRating.put(e.getKey(), e.getValue().getVulnerabilityRating()));
-            projectVulnerabilityLinks
-                    .get(0)
-                    .getVulnerabilityIdToStatus()
-                    .entrySet()
-                    .stream()
-                    .forEach(e -> vulnerabilityTooltips.put(e.getKey(),
-                            "Checked By: " + e.getValue().getCheckedBy() + ", "+
-                            "Checked On: " + e.getValue().getCheckedOn()+ ", " +
-                            "Rating: " + e.getValue().getVulnerabilityRating().name() + ", "+
-                            "Comment: " + e.getValue().getComment()));
+                    .forEach(e -> {
+                        vulnerabilityRating.put(e.getKey(), e.getValue().getVulnerabilityRating());
+                        vulnerabilityTooltips.put(e.getKey(),
+                                "Checked By: " + e.getValue().getCheckedBy() + ", "+
+                                        "Checked On: " + e.getValue().getCheckedOn()+ ", " +
+                                        "Rating: " + e.getValue().getVulnerabilityRating().name() + ", "+
+                                        "Comment: " + e.getValue().getComment());
+                    });
         }
         vuls.stream()
                 .filter(v -> ! vulnerabilityRating.containsKey(v.externalId))
@@ -773,13 +770,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void updateVulnerabilityRating(ResourceRequest request, ResourceResponse response) throws IOException{
         String projectId = request.getParameter(PortalConstants.PROJECT_ID);
         String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
-        String comment = request.getParameter(PortalConstants.COMMENT);
-        String rating = request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE);
         User user = UserCacheHolder.getUserFromRequest(request);
 
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
 
-        log.info("called with projectId " + projectId + " vulnerabilityId " + vulnerabilityExternalId + " value " + rating + " comment " + comment);
         try {
             List<ProjectVulnerabilityLink> projectVulnerabilityLinks = vulClient.getProjectVulnerabilityLinkByProjectId(projectId, user);
             ProjectVulnerabilityLink link = ProjectPortletUtils.updateProjectVulnerabilityLinkFromRequest(projectVulnerabilityLinks, request);
@@ -788,9 +782,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             JSONObject responseData = JSONFactoryUtil.createJSONObject();
             responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
             responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
-
-
-
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {

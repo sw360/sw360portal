@@ -142,7 +142,7 @@
         data["<portlet:namespace/><%=PortalConstants.PROJECT_ID%>"] = "${projectId}";
         data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_ID%>"] = vulnerabilityId;
         data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_VALUE%>"] = newValue;
-        data["<portlet:namespace/><%=PortalConstants.COMMENT%>"] = comment;
+        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_COMMENT%>"] = comment;
 
         $.ajax({
             url: '<%=updateVulnerabilityRating%>',

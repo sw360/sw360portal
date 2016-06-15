@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,8 +9,6 @@
 package com.siemens.sw360.portal.portlets.projects;
 
 import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -33,11 +31,9 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityLink;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
 import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.PortletUtils;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
@@ -46,7 +42,6 @@ import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.RenderRequest;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -114,16 +109,18 @@ public class ProjectPortletUtils {
 
     public static ProjectVulnerabilityLink updateProjectVulnerabilityLinkFromRequest(List<ProjectVulnerabilityLink> projectVulnerabilityLinks, ResourceRequest request){
 
-        ProjectVulnerabilityLink link;
+        ProjectVulnerabilityLink projectVulnerabilityLink;
         if(projectVulnerabilityLinks.size() == 0){
-            link = new ProjectVulnerabilityLink().setProjectId(request.getParameter(PortalConstants.PROJECT_ID));
-            link.setVulnerabilityIdToStatus(new HashMap<>());
+            String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+            projectVulnerabilityLink = new ProjectVulnerabilityLink().setProjectId(projectId);
+            projectVulnerabilityLink.setVulnerabilityIdToStatus(new HashMap<>());
         } else {
-            link = projectVulnerabilityLinks.get(0);
+            projectVulnerabilityLink = projectVulnerabilityLinks.get(0);
         }
         VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
-        link.vulnerabilityIdToStatus.put(request.getParameter(PortalConstants.VULNERABILITY_ID), vulnerabilityCheckStatus);
-        return link;
+        String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
+        projectVulnerabilityLink.vulnerabilityIdToStatus.put(vulnerabilityId, vulnerabilityCheckStatus);
+        return projectVulnerabilityLink;
     }
 
     private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request){
@@ -131,7 +128,7 @@ public class ProjectPortletUtils {
         VulnerabilityCheckStatus vulnerabilityCheckStatus = new VulnerabilityCheckStatus()
                 .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
                 .setCheckedOn(SW360Utils.getCreatedOn())
-                .setComment(request.getParameter(PortalConstants.COMMENT))
+                .setComment(request.getParameter(PortalConstants.VULNERABILITY_RATING_COMMENT))
                 .setVulnerabilityRating(VulnerabilityRatingForProject.valueOf(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
         return vulnerabilityCheckStatus;
     }

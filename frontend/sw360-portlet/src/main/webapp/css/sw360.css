@@ -341,15 +341,15 @@ input[readonly].clickable {
     float: right;
 }
 
-.backgroundRed {
+.backgroundAlert {
     background: #f00;
 }
 
 .backgroundGrey {
-    background: #aaaaaa;
+    background: #999999;
 }
 
-.commentArea {
+.vulnerabilityRatingCommentArea {
     width: 95% !important;
     height: 90% !important;
 }
