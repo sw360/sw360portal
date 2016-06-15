@@ -41,10 +41,13 @@ public class OutTag extends OutSupport {
     private Integer maxChar = -1;
 
     public void setValue(Object value) {
+        this.value = value;
+    }
+
+    @Override
+    public int doStartTag() throws JspException {
         if (value instanceof String) {
-
-            String candidate = ((String) value);
-
+            String candidate = (String) this.value;
             if (maxChar > 4) {
                 candidate = StringUtils.abbreviate(candidate, maxChar);
             }
@@ -52,21 +55,12 @@ public class OutTag extends OutSupport {
             if (stripNewlines){
                 candidate = candidate.replaceAll("[\r\n]+", " ");
             }
-            this.value = candidate;
-        } else {
-            this.value = value;
-        }
-    }
-
-    @Override
-    public int doStartTag() throws JspException {
-        if (value instanceof String) {
-            String value = (String) this.value; //TODO remove uneeded...
             if ("'".equals(jsQuoting)) {
-                this.value = escapeInSingleQuote(value);
+                candidate = escapeInSingleQuote(candidate);
             } else if ("\"".equals(jsQuoting)) {
-                this.value = escapeInDoubleQuote(value);
+                candidate = escapeInDoubleQuote(candidate);
             }
+            this.value = candidate;
         }
         return super.doStartTag();
     }
