@@ -508,11 +508,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
                 putVulnerabilitiesInRequest(request, id, user);
-                if(PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE)){
-                    request.setAttribute(VULNERABILITY_RATING_EDITABLE, true);
-                } else {
-                    request.setAttribute(VULNERABILITY_RATING_EDITABLE, false);
-                }
+                request.setAttribute(
+                        VULNERABILITY_RATING_EDITABLE,
+                        PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE));
 
                 addProjectBreadcrumb(request, response, project);
 
@@ -785,7 +783,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {
-            log.error("Error updating CVEs for project in backend.", e);
+            log.error("Error updating vulnerability ratings for project in backend.", e);
         }
     }
 }

@@ -15,6 +15,7 @@ namespace php sw360.thrift.vulnerabilities
 typedef sw360.RequestSummary RequestSummary
 typedef users.User User
 typedef sw360.RequestStatus RequestStatus
+typedef sw360.VerificationStateInfo VerificationStateInfo
 
 struct ReleaseVulnerabilityRelation{
     // Basic information
@@ -25,6 +26,7 @@ struct ReleaseVulnerabilityRelation{
     // Additional information
     10: required string releaseId,
     11: required string vulnerabilityId,
+    12: optional VerificationStateInfo verificationStateInfo,
 }
 
 struct Vulnerability{
@@ -141,4 +143,10 @@ service VulnerabilityService {
     list<ProjectVulnerabilityRating> getProjectVulnerabilityRatingByProjectId(1: string projectId, 2: User user);
 
     RequestStatus updateProjectVulnerabilityRating(1: ProjectVulnerabilityRating link, 2: User user);
+
+    RequestStatus updateReleaseVulnerabilityRelation(1: ReleaseVulnerabilityRelation relation, 2: User user);
+
+    ReleaseVulnerabilityRelation getRelationByIds(1: string releaseId, 2: string vulnerabilityId, 3: User user);
+
+    Vulnerability getVulnerabilityByExternalId(1: string externalId, 2: User user);
 }

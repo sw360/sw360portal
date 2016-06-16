@@ -61,6 +61,7 @@ public class ThriftUtils {
     public static final List<Class> THRIFT_NESTED_CLASSES = ImmutableList.<Class>builder()
             .add(Repository.class).add(ClearingInformation.class) // Component service
             .add(CVEReference.class, VendorAdvisory.class, VulnerabilityCheckStatus.class) // Vulnerability Service
+            .add(VerificationStateInfo.class)
             .build();
 
     private static final Map<Class, Class<? extends DocumentWrapper>> THRIFT_WRAPPED =

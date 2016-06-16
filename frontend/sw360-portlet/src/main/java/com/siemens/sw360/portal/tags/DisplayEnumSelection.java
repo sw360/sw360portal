@@ -88,8 +88,7 @@ public class DisplayEnumSelection extends SimpleTagSupport {
                 jspWriter.write("\'"+ result+ "\' +");
             } else if (inQuotes) {
                 jspWriter.write("\'"+ result+ "\'");
-            }
-            else {
+            } else {
                 jspWriter.write(result);
             }
         }

@@ -12,6 +12,7 @@ package com.siemens.sw360.datahandler.common;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.siemens.sw360.datahandler.thrift.VerificationState;
 import com.siemens.sw360.datahandler.thrift.datasources.SourceDatabase;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.Visibility;
@@ -179,6 +180,12 @@ public class ThriftEnumUtils {
             VulnerabilityRatingForProject.APPLICABLE, "Applicable"
     );
 
+    private static final ImmutableMap<VerificationState, String> MAP_VERIFICATION_STATUS_STRING = ImmutableMap.of(
+            VerificationState.NOT_CHECKED, "Not Checked" ,
+            VerificationState.CHECKED, "Checked" ,
+            VerificationState.INCORRECT, "Incorrect"
+    );
+
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
             .put(SourceDatabase.class, MAP_SOURCE_DATABASE_STRING)
@@ -196,6 +203,7 @@ public class ThriftEnumUtils {
             .put(Visibility.class, MAP_VISIBILITY_STRING)
             .put(ProjectState.class, MAP_PROJECT_STATE_STRING)
             .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
+            .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
             .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)
             .build();
 

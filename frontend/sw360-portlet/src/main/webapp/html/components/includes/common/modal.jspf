@@ -96,7 +96,7 @@
         return modal;
     }
 
-    function createModalWithInput(vulnerabilityId, oldValue, select) {
+    function createModalWithInput(vulnerabilityId, oldValue, newValue) {
         var inputmodal;
         var inputcomment;
         AUI().use(
@@ -131,7 +131,7 @@
                             on: {
                                 click: function () {
                                     inputcomment = document.getElementById("commentInput").value;
-                                    executeRatingChange(vulnerabilityId, select, inputcomment, oldValue);
+                                    executeRatingChange(vulnerabilityId, newValue, inputcomment, oldValue);
                                     inputmodal.hide();
                                 }
                             }

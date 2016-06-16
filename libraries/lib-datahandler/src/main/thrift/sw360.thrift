@@ -35,6 +35,19 @@ enum Visibility {
     EVERYONE = 3
 }
 
+enum VerificationState {
+    NOT_CHECKED = 0,
+    CHECKED = 1,
+    INCORRECT = 2,
+}
+
+struct VerificationStateInfo {
+    1: required string checkedOn,
+    2: required string checkedBy,
+    3: optional string comment,
+    4: required VerificationState verificationState,
+}
+
 struct DocumentState {
   1: required bool isOriginalDocument;
   2: optional ModerationState moderationState;

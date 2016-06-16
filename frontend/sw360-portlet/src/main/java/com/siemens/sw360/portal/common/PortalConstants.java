@@ -139,6 +139,11 @@ public class PortalConstants {
     public static final String VULNERABILITY_RATING_COMMENT = "vulnerabilityRatingComment";
     public static final String NUMBER_OF_UNCHECKED_VULNERABILITIES = "numberOfUncheckedVulnerabilities";
     public static final String VULNERABILITY_CHECKSTATUS_TOOLTIPS = "vulnerabilityCheckstatusTooltips";
+    public static final String VULNERABILITY_VERIFICATION_VALUE = "vulnerabilityVerificationValue";
+    public static final String VULNERABILITY_VERIFICATION_COMMENT = "vulnerabilityVerificationComment";
+    public static final String VULNERABILITY_VERIFICATION_EDITABLE = "vulnerabilityVerificationEditable";
+    public static final String VULNERABILITY_VERIFICATION_TOOLTIPS = "vulnerabilityVerificationTooltips";
+    public static final String VULNERABILITY_VERIFICATIONS = "vulnerabilityVerifications";
 
     //! Specialized keys for account sign-up
     public static final String PASSWORD = "password";
@@ -236,6 +241,7 @@ public class PortalConstants {
     public static  final String UPDATE_ALL_VULNERABILITIES = "updateAllVulnerabilities";
     public static  final String UPDATE_VULNERABILITIES_PROJECT = "updateVulnerabilitiesProject";
     public static  final String UPDATE_VULNERABILITY_RATING = "updateVulnerabilityRating";
+    public static  final String UPDATE_VULNERABILITY_VERIFICATION = "updateVulnerabilityVerification";
 
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
