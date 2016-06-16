@@ -67,8 +67,12 @@ public class ModifiedLevenshteinDistanceTest {
     }
 
     @Test
-    public void getDistanceApacheToX() {
+    public void getDistanceXtoSomethingWithoutX() {
         assert(levenshteinMatch("x","lorem ipsum").getDistance() > 0);
+        assert(levenshteinMatch("x","y").getDistance() > 0);
+        assert(levenshteinMatch("x","y ").getDistance() > 0);
+        assert(levenshteinMatch("x"," y").getDistance() > 0);
+        assert(levenshteinMatch("x"," y ").getDistance() > 0);
     }
 
     @Test
@@ -77,6 +81,9 @@ public class ModifiedLevenshteinDistanceTest {
         assert(levenshteinMatch("xx","x ").getDistance() == 1);
         assert(levenshteinMatch("xx"," x").getDistance() == 1);
         assert(levenshteinMatch("xx"," x ").getDistance() == 1);
+        assert(levenshteinMatch("xx","y x ").getDistance() == 1);
+        assert(levenshteinMatch("xx"," x y").getDistance() == 1);
+        assert(levenshteinMatch("xx","y x y").getDistance() == 1);
     }
 
     @Test
@@ -133,7 +140,8 @@ public class ModifiedLevenshteinDistanceTest {
     @Test
     public void getDistanceTestFullSubstringMatch() {
         String needle = "needle";
-        String haystack = "prefix needle bla postfix";
+        String noise = "bla";
+        String haystack = "prefix needle " + noise + " postfix";
 
         Match match = levenshteinMatch(needle,haystack);
 
@@ -143,10 +151,11 @@ public class ModifiedLevenshteinDistanceTest {
     @Test
     public void getDistanceTestPartialSubstringMatch() {
         String needle = "needle";
-        String haystack = "prefix needlebla postfix";
+        String noise = "bla";
+        String haystack = "prefix needle" + noise + " postfix";
 
         Match match = levenshteinMatch(needle,haystack);
 
-        assert(match.getDistance() == 3) ;
+        assert(match.getDistance() == noise.length()) ;
     }
 }

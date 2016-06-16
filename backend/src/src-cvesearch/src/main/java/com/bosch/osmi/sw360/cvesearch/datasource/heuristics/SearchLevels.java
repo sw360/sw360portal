@@ -33,7 +33,7 @@ public class SearchLevels {
 
         // Level 1. search by full cpe
         searchLevels.add(mkSearchLevel(r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
-                Release::getCpeid));
+                r -> r.getCpeid().toLowerCase()));
     }
 
     public List<List<String>> apply(Release release) throws IOException {
@@ -81,12 +81,6 @@ public class SearchLevels {
     }
 
     //==================================================================================================================
-    public SearchLevels addGuessingSearchLevels(CveSearchApi cveSearchApi) {
-        addGuessingSearchLevels(cveSearchApi, 0, 0, 0);
-        return this;
-    }
-
-
     public SearchLevels addGuessingSearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
         CveSearchGuesser cveSearchGuesser = new CveSearchGuesser(cveSearchApi);
         cveSearchGuesser.setVendorThreshold(vendorThreshold);
@@ -129,24 +123,40 @@ public class SearchLevels {
     }
 
     //==================================================================================================================
+    protected Function<Release,String> escapeGeneratorResult(Function<Release,String> generator) {
+        return r -> generator.apply(r)
+                .replace('/','.')
+                .replace('\\','.')
+                .replace('*','.')
+                .replace('+','.')
+                .replace('!','.')
+                .replace('?','.')
+                .replace('^','.')
+                .replace('$','.')
+                .replace('[','.')
+                .replace(']','.')
+                .replace(" ", CPE_WILDCARD)
+                .toLowerCase();
+    }
+
     protected Function<Release, String> implodeSearchNeedleGenerators(Function<Release,String> generator, Function<Release,String> ... generators){
         return Arrays.stream(generators)
+                .map(this::escapeGeneratorResult)
                 .reduce(generator,
-                        (s1,s2) -> r -> s1.apply(r) + CPE_WILDCARD + s2.apply(r));
+                        (g1,g2) -> r -> g1.apply(r) + CPE_WILDCARD + g2.apply(r));
     }
 
     protected boolean isCpe(String potentialCpe){
-        if(null == potentialCpe){
-            return false;
-        }
-        return potentialCpe.startsWith("cpe:") && potentialCpe.length() > 10;
+        return (! (null == potentialCpe))
+                && potentialCpe.startsWith("cpe:")
+                && potentialCpe.length() > 10;
     }
 
     protected String cpeWrapper(String needle) {
         if (isCpe(needle)){
             return needle;
         }
-        return CPE_NEEDLE_PREFIX + CPE_WILDCARD + nullToEmptyString(needle).replace(" ", CPE_WILDCARD).toLowerCase() + CPE_WILDCARD;
+        return CPE_NEEDLE_PREFIX + CPE_WILDCARD + nullToEmptyString(needle) + CPE_WILDCARD;
     }
 
     protected SearchLevel mkSearchLevel(Predicate<Release> isPossible, Function<Release,String> generator, Function<Release,String> ... generators){

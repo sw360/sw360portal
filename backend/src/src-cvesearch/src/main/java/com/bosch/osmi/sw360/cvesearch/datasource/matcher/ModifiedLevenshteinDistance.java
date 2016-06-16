@@ -22,7 +22,7 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString
 
 public class ModifiedLevenshteinDistance {
 
-    protected static Match levenshteinMatch(String needle, String haystack){
+    public static Match levenshteinMatch(String needle, String haystack){
         return new Match(needle,
                 calculateModifiedLevenshteinDistance(needle,nullToEmptyString(haystack).toLowerCase().replace(' ', '_')));
     }
@@ -36,7 +36,21 @@ public class ModifiedLevenshteinDistance {
      * @param haystack
      * @return the modified Levenshtein distance between the needle and the haystack
      */
-    protected static int calculateModifiedLevenshteinDistance(String needle, String haystack){
+    public static int calculateModifiedLevenshteinDistance(String needle, String haystack) {
+        return calculateModifiedLevenshteinDistance(needle, haystack,'_');
+    }
+
+    /**
+     * This is a modified Levenshtein distance in which
+     * - skipping prefixes and postfixes of the haystack does not cost anything
+     * - if one of the strings is empty the distance Integer.MAX_VALUE is returned
+     *
+     * @param needle
+     * @param haystack
+     * @param space the chosen representation of the separator
+     * @return the modified Levenshtein distance between the needle and the haystack
+     */
+    public static int calculateModifiedLevenshteinDistance(String needle, String haystack, char space){
 
         if (needle.length() == 0 || haystack.length() == 0){
             return Integer.MAX_VALUE;
@@ -54,7 +68,7 @@ public class ModifiedLevenshteinDistance {
         int minimalCostsWhenSkippedSpaceSeperatedPostfix = Integer.MAX_VALUE;
         for (int j = 1; j < haystackLength; j++) {
             //=========================================================================================================
-            if (j > 0 && haystack.charAt(j - 1) == '_') {
+            if (j > 0 && haystack.charAt(j - 1) == space) {
                 // skipping prefix of haystack does not cost anything, if it ends with a space
                 savedCostsWhenSippedSpaceSeparatedPrefix = j;
             }
@@ -62,9 +76,9 @@ public class ModifiedLevenshteinDistance {
 
             //=========================================================================================================
             for(int i = 1; i < needleLength; i++) {
-                int match = (needle.charAt(i - 1) == haystack.charAt(j - 1)) ? 0 : 1;
+                int costReplaceCurChar = (needle.charAt(i - 1) == haystack.charAt(j - 1)) ? 0 : 1;
 
-                int costReplace = oldcost[i - 1] + match;
+                int costReplace = oldcost[i - 1] + costReplaceCurChar;
                 int costInsert  = oldcost[i] + 1;
                 int costDelete  = curcost[i - 1] + 1;
 
@@ -72,7 +86,7 @@ public class ModifiedLevenshteinDistance {
             }
 
             //=========================================================================================================
-            if(haystack.charAt(j - 1) == '_') {
+            if(haystack.charAt(j - 1) == space) {
                 // skipping postfix of haystack does not cost anything, if it starts with a space
                 minimalCostsWhenSkippedSpaceSeperatedPostfix = Math.min(
                         minimalCostsWhenSkippedSpaceSeperatedPostfix,
