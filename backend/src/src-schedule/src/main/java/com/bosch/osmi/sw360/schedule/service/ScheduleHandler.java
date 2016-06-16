@@ -19,7 +19,6 @@
 package com.bosch.osmi.sw360.schedule.service;
 
 import com.bosch.osmi.sw360.schedule.timer.Scheduler;
-import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -42,30 +41,38 @@ public class ScheduleHandler implements ScheduleService.Iface {
         log = Logger.getLogger(ScheduleHandler.class);
     }
 
+    @FunctionalInterface
+    public interface SupplierThrowingTException {
+        RequestStatus get() throws TException;
+    }
+
+    private boolean wrapSupplierException(SupplierThrowingTException body, String serviceName){
+        Supplier<RequestStatus> wrappedBody = () -> {
+            try {
+                return body.get();
+            } catch (TException e) {
+                log.error("was not able to schedule sync for client with name:" + serviceName + " message:" + e.getMessage(), e);
+                return RequestStatus.FAILURE;
+            }
+        };
+        return Scheduler.scheduleNextSync(wrappedBody, serviceName);
+    }
+
     @Override
     public RequestSummary scheduleService(String serviceName, User user) throws TException {
         if (!PermissionUtils.isAdmin(user)){
             return new RequestSummary(RequestStatus.FAILURE);
         }
 
-        Scheduler.cancelAllSyncJobsOfService(serviceName);
+        Scheduler.cancelSyncJobOfService(serviceName);
 
-        Supplier<RequestStatus> updateMethod = null;
-
+        boolean successSync = false;
         switch (serviceName) {
             case ThriftClients.CVESEARCH_SERVICE:
-                updateMethod = () -> {
-                    try {
-                        return thriftClients.makeCvesearchClient().update();
-                    } catch (TException e) {
-                        log.error(e);
-                        return RequestStatus.FAILURE;
-                    }
-                };
+                successSync = wrapSupplierException(() ->thriftClients.makeCvesearchClient().update(), serviceName);
                 break;
             default:
         }
-        boolean successSync = Scheduler.scheduleNextSync(updateMethod, serviceName);
 
         if (successSync){
             RequestSummary summary = new RequestSummary(RequestStatus.SUCCESS);
@@ -81,7 +88,7 @@ public class ScheduleHandler implements ScheduleService.Iface {
         if (!PermissionUtils.isAdmin(user)) {
             return RequestStatus.FAILURE;
         }
-        return Scheduler.cancelAllSyncJobsOfService(serviceName);
+        return Scheduler.cancelSyncJobOfService(serviceName);
     }
 
     @Override

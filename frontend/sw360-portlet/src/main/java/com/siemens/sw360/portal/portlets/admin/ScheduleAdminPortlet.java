@@ -21,8 +21,6 @@ package com.siemens.sw360.portal.portlets.admin;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
-import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.portal.common.UsedAsLiferayAction;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
@@ -32,7 +30,6 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.List;
 
 public class ScheduleAdminPortlet extends Sw360Portlet {
 
@@ -41,8 +38,6 @@ public class ScheduleAdminPortlet extends Sw360Portlet {
 
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        List<FossologyHostFingerPrint> fingerPrints;
-
         super.doView(request, response);
     }
 

@@ -21,11 +21,11 @@ package com.bosch.osmi.sw360.schedule.timer;
 
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
-        import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 
-        import java.util.Properties;
+import java.util.Properties;
 
-        import static org.apache.log4j.Logger.getLogger;
+import static org.apache.log4j.Logger.getLogger;
 
 /**
  * @author stefan.jaeger@evosoft.com
@@ -44,8 +44,8 @@ public class ScheduleConstants {
     static {
         Properties props = CommonUtils.loadProperties(ScheduleConstants.class, PROPERTIES_FILE_PATH);
 
-        SYNC_FIRST_RUN_OFFSET_SEC  = props.getProperty("svm.sync.firstOffset.seconds", (0*60*60)+""); // default 00:00 am
-        SYNC_INTERVAL_SEC  = props.getProperty("svm.sync.interval.seconds", (24*60*60)+""); // default 24h
+        SYNC_FIRST_RUN_OFFSET_SEC  = props.getProperty("schedule.firstOffset.seconds", (0*60*60)+""); // default 00:00 am
+        SYNC_INTERVAL_SEC  = props.getProperty("schedule.interval.seconds", (24*60*60)+""); // default 24h
     }
 
 }

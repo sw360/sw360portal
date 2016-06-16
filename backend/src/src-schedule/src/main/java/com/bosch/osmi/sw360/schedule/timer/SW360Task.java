@@ -40,10 +40,6 @@ public abstract class SW360Task extends TimerTask {
     private String id = UUID.randomUUID().toString();
     private String name;
 
-    public SW360Task (){
-        this("");
-    }
-
     public SW360Task (String name){
         this.name = name;
     }

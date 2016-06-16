@@ -18,6 +18,7 @@
  */
 package com.bosch.osmi.sw360.schedule.timer;
 
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import org.apache.log4j.Logger;
@@ -39,7 +40,7 @@ import static org.apache.log4j.Logger.getLogger;
 public class Scheduler {
     private static final Logger log = getLogger(Scheduler.class);
     private static Date nextSync = null;
-    private static final ConcurrentHashMap<String, TimerTask> scheduledJobs = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, SW360Task> scheduledJobs = new ConcurrentHashMap<>();
 
     private static Timer timer = null;
     private static final int syncFirstRunOffset = Integer.parseInt(ScheduleConstants.SYNC_FIRST_RUN_OFFSET_SEC);
@@ -54,30 +55,27 @@ public class Scheduler {
     }
 
     public static synchronized boolean scheduleNextSync(Supplier<RequestStatus> body, String serviceName) {
+        if (timer == null) {
+            timer = new Timer();
+        }
+        ScheduleSyncTask syncTask = new ScheduleSyncTask(body, serviceName);
+        nextSync = getNextSyncDate(syncFirstRunOffset, syncInterval);
+
         try {
-            if (timer == null) {
-                timer = new Timer();
-            }
-            ScheduleSyncTask syncTask = new ScheduleSyncTask(body, serviceName);
-
-            GregorianCalendar calendar = getNextRun(syncFirstRunOffset, syncInterval);
-
-            nextSync = calendar.getTime();
             timer.scheduleAtFixedRate(syncTask, nextSync, syncInterval * 1000);
-            scheduledJobs.put(syncTask.getId(), syncTask);
-            log.info("New task scheduled. Interval=" + syncInterval + "sec " + syncTask.toString());
-            return true;
-
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             log.error(e.getMessage(), e);
             return false;
         }
+
+        scheduledJobs.put(syncTask.getId(), syncTask);
+        log.info("New task scheduled. Interval=" + syncInterval + "sec " + syncTask.toString());
+        return true;
     }
 
-    private static GregorianCalendar getNextRun(int firstRunOffset, int interval) {
-        long now = new Date().getTime();
-
+    private static Date getNextSyncDate(int firstRunOffset, int interval) {
         GregorianCalendar calendar = new GregorianCalendar(); // use today 00:00:00.000 as base date
+        long now = calendar.getTime().getTime();
         calendar.set(GregorianCalendar.HOUR_OF_DAY, 0);
         calendar.set(GregorianCalendar.MINUTE, 0);
         calendar.set(GregorianCalendar.SECOND, 0);
@@ -85,51 +83,37 @@ public class Scheduler {
 
         calendar.add(GregorianCalendar.SECOND, firstRunOffset);//today with offset time as specified
 
-        // ensure that "missed" task will not be executed at once
-        /*while (calendar.getTime().getTime() < now) {
-            calendar.add(GregorianCalendar.SECOND, interval);
-        };*/
-
         // if firstRunOffset is in the past compute next run
         if(calendar.getTime().getTime() < now) {
             long timeLeftToNextRunInMilliSeconds = interval*1000 - ((now-calendar.getTime().getTime()) % (interval*1000));
             calendar.setTimeInMillis(now + timeLeftToNextRunInMilliSeconds);
         };
-        return calendar;
+        return calendar.getTime();
     }
 
     public static synchronized RequestStatus cancelAllSyncJobs() {
-        try {
-            for (TimerTask job : scheduledJobs.values()) {
-                if (job instanceof SW360Task) {
-                    cancelJob((SW360Task) job);
-                }
-            }
-            return RequestStatus.SUCCESS;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return RequestStatus.FAILURE;
-        }
+        return scheduledJobs.values().stream()
+                .map(Scheduler::cancelJob)
+                .reduce(RequestStatus.SUCCESS, CommonUtils::reduceRequestStatus);
     }
 
-    public static synchronized RequestStatus cancelAllSyncJobsOfService(String serviceName) {
-        try {
-            for (TimerTask job : scheduledJobs.values()) {
-                if (job instanceof SW360Task && serviceName.equals(((SW360Task) job).getName()) ){
-                    cancelJob((SW360Task) job);
-                }
-            }
-            return RequestStatus.SUCCESS;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return RequestStatus.FAILURE;
-        }
+    public static synchronized RequestStatus cancelSyncJobOfService(String serviceName) {
+        return scheduledJobs.values().stream()
+                .filter(job -> serviceName.equals(job.getName()))
+                .map(Scheduler::cancelJob)
+                .reduce(RequestStatus.SUCCESS, CommonUtils::reduceRequestStatus);
     }
 
-    private static synchronized void cancelJob(SW360Task job){
+    private static synchronized RequestStatus cancelJob(SW360Task job){
         long executionTime = job.scheduledExecutionTime();
-        job.cancel();
+        try{
+            job.cancel();
+        } catch (IllegalStateException e) {
+            log.error(e.getMessage(), e);
+            return RequestStatus.FAILURE;
+        }
         scheduledJobs.remove(job.getId());
         log.info("Task " + job.getClass().getSimpleName() + " for " + SW360Utils.getDateTimeString(new Date(executionTime)) + " cancelled. " + job.toString());
+        return RequestStatus.SUCCESS;
     }
 }
