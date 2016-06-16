@@ -522,7 +522,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-        List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
+        List<VulnerabilityDTO> vuls;
+        if (PermissionUtils.isAdmin(user)) {
+            vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
+        } else {
+            vuls = vulClient.getVulnerabilitiesByProjectIdWithoutIncorrect(id, user);
+        }
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
         List<ProjectVulnerabilityRating> projectVulnerabilityRatings = vulClient.getProjectVulnerabilityRatingByProjectId(id, user);
@@ -549,7 +554,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 .forEach(v -> vulnerabilityRating.put(v.externalId, VulnerabilityRatingForProject.NOT_CHECKED));
         vuls.stream()
                 .filter(v -> ! vulnerabilityTooltips.containsKey(v.externalId))
-                .forEach(v -> vulnerabilityTooltips.put(v.externalId,"not checked yet"));
+                .forEach(v -> vulnerabilityTooltips.put(v.externalId,"Not checked yet."));
 
         int numberOfUncheckedVulnerabilities =
                 Collections.frequency(
@@ -559,7 +564,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRating);
         request.setAttribute(PortalConstants.VULNERABILITY_CHECKSTATUS_TOOLTIPS, vulnerabilityTooltips);
         request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
-
     }
 
     private void setClearingStateSummary(Project project) {

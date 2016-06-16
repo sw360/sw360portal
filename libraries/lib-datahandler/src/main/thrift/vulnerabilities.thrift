@@ -80,6 +80,7 @@ struct VulnerabilityDTO{
     32: optional string intReleaseName
     33: optional string intComponentId
     34: optional string intComponentName
+    35: optional ReleaseVulnerabilityRelation releaseVulnerabilityRelation
 }
 
 struct CVEReference{
@@ -135,6 +136,10 @@ service VulnerabilityService {
     list<VulnerabilityDTO> getVulnerabilitiesByReleaseId(1: string releaseId, 2: User user);
     list<VulnerabilityDTO> getVulnerabilitiesByComponentId(1: string componentId, 2: User user);
     list<VulnerabilityDTO> getVulnerabilitiesByProjectId(1: string projectId, 2: User user);
+
+    list<VulnerabilityDTO> getVulnerabilitiesByReleaseIdWithoutIncorrect(1: string releaseId, 2: User user);
+    list<VulnerabilityDTO> getVulnerabilitiesByComponentIdWithoutIncorrect(1: string componentId, 2: User user);
+    list<VulnerabilityDTO> getVulnerabilitiesByProjectIdWithoutIncorrect(1: string projectId, 2: User user);
 
     /**
      * returns list with one ProjectVulnerabilityRating for given projectId

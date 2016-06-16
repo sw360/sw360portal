@@ -496,9 +496,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 setUsingDocs(request, user, client, releaseIds);
 
                 // get vulnerabilities
-                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByComponentId(id, user);
-                request.setAttribute(VULNERABILITY_LIST, vuls);
+                putVulnerabilitiesInRequestComponent(request, id, user);
 
                 addComponentBreadcrumb(request, response, component);
             } catch (TException e) {
@@ -556,7 +554,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 }
 
                 // get vulnerabilities
-                putVulnerabilitiesInRequest(request, releaseId, user);
+                putVulnerabilitiesInRequestRelease(request, releaseId, user);
                 request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
             }
 
@@ -575,39 +573,50 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     }
 
-    private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
+    private void putVulnerabilitiesInRequestRelease(RenderRequest request, String releaseId, User user) throws TException {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-        List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByReleaseId(id, user);
-        boolean displayForAdmin = PermissionUtils.isAdmin(user);
+        List<VulnerabilityDTO> vuls;
+        if (PermissionUtils.isAdmin(user)) {
+            vuls = vulClient.getVulnerabilitiesByReleaseId(releaseId, user);
+        } else {
+            vuls = vulClient.getVulnerabilitiesByReleaseIdWithoutIncorrect(releaseId, user);
+        }
 
-        List<VulnerabilityDTO> vulnerabilitiesForDisplay = new ArrayList<>();
         Map<String, String> vulnerabilityTooltips = new HashMap<>();
         Map<String, VerificationState> vulnerabilityVerifications = new HashMap<>();
 
-        for(VulnerabilityDTO vulnerability : vuls){
-            ReleaseVulnerabilityRelation relation =  vulClient.getRelationByIds(id, vulnerability.getId(), user);
+        for (VulnerabilityDTO vulnerability : vuls) {
+            ReleaseVulnerabilityRelation relation = vulnerability.getReleaseVulnerabilityRelation();
             if (!relation.isSetVerificationStateInfo()) {
-                vulnerabilitiesForDisplay.add(vulnerability);
                 vulnerabilityVerifications.put(vulnerability.externalId, VerificationState.NOT_CHECKED);
-                vulnerabilityTooltips.put(vulnerability.externalId,"not checked yet");
+                vulnerabilityTooltips.put(vulnerability.externalId, "Not checked yet.");
             } else {
                 VerificationStateInfo info = relation.getVerificationStateInfo();
-                if(displayForAdmin || ! VerificationState.INCORRECT.equals(info.getVerificationState())) {
-                    vulnerabilitiesForDisplay.add(vulnerability);
-                    vulnerabilityVerifications.put(vulnerability.externalId, info.getVerificationState());
-                    vulnerabilityTooltips.put(vulnerability.externalId,
-                            "Checked By: " + info.getCheckedBy() + ", " +
-                                    "Checked On: " + info.getCheckedOn() + ", " +
-                                    "State: " + info.getVerificationState().name() + ", " +
-                                    "Comment: " + info.getComment());
-                }
+                vulnerabilityVerifications.put(vulnerability.externalId, info.getVerificationState());
+                vulnerabilityTooltips.put(vulnerability.externalId,
+                        "Checked By: " + info.getCheckedBy() + ", " +
+                                "Checked On: " + info.getCheckedOn() + ", " +
+                                "State: " + info.getVerificationState().name() + ", " +
+                                "Comment: " + info.getComment());
             }
         }
 
-        request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS, vulnerabilityVerifications);
-        request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS, vulnerabilityTooltips);
+    request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
+    request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);
+    request.setAttribute(VULNERABILITY_LIST,vuls);
+}
+
+    private void putVulnerabilitiesInRequestComponent(RenderRequest request, String componentId, User user) throws TException{
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+        List<VulnerabilityDTO> vuls;
+        if (PermissionUtils.isAdmin(user)) {
+            vuls = vulClient.getVulnerabilitiesByComponentId(componentId, user);
+        } else {
+            vuls = vulClient.getVulnerabilitiesByComponentIdWithoutIncorrect(componentId, user);
+        }
         request.setAttribute(VULNERABILITY_LIST, vuls);
     }
+
 
     private void setUsingDocs(RenderRequest request, String releaseId, User user, ComponentService.Iface client) throws TException {
         if (releaseId != null) {
