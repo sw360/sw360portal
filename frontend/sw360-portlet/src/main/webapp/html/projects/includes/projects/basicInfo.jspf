@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -73,7 +73,7 @@
                 <textarea class="toplabelledInput" id="proj_desc"
                           name="<portlet:namespace/><%=Project._Fields.DESCRIPTION%>" rows="4" cols="30"
                           style="width:200px; height: 25px; resize:both;"
-                          placeholder="Enter Description"><sw360:out value="${project.description}"/></textarea>
+                          placeholder="Enter Description"><sw360:out value="${project.description}" stripNewlines="false"/></textarea>
         </td>
 
         <td width="33%">

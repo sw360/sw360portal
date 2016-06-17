@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -29,9 +29,11 @@ import static java.util.regex.Matcher.quoteReplacement;
  *
  * @author Daniele.Fognini@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class OutTag extends OutSupport {
     private String jsQuoting = null;
+    private boolean stripNewlines = true;
 
     public OutTag() {
     }
@@ -39,29 +41,26 @@ public class OutTag extends OutSupport {
     private Integer maxChar = -1;
 
     public void setValue(Object value) {
-        if (value instanceof String) {
-
-            String candidate = ((String) value);
-
-            if (maxChar > 4) {
-                candidate = StringUtils.abbreviate(candidate, maxChar);
-            }
-
-            this.value = candidate.replaceAll("[\r\n]+", " ");
-        } else {
-            this.value = value;
-        }
+        this.value = value;
     }
 
     @Override
     public int doStartTag() throws JspException {
         if (value instanceof String) {
-            String value = (String) this.value; //TODO remove uneeded...
-            if ("'".equals(jsQuoting)) {
-                this.value = escapeInSingleQuote(value);
-            } else if ("\"".equals(jsQuoting)) {
-                this.value = escapeInDoubleQuote(value);
+            String candidate = (String) this.value;
+            if (maxChar > 4) {
+                candidate = StringUtils.abbreviate(candidate, maxChar);
             }
+
+            if (stripNewlines){
+                candidate = candidate.replaceAll("[\r\n]+", " ");
+            }
+            if ("'".equals(jsQuoting)) {
+                candidate = escapeInSingleQuote(candidate);
+            } else if ("\"".equals(jsQuoting)) {
+                candidate = escapeInDoubleQuote(candidate);
+            }
+            this.value = candidate;
         }
         return super.doStartTag();
     }
@@ -90,6 +89,10 @@ public class OutTag extends OutSupport {
 
     public void setJsQuoting(String jsQuoting) {
         this.jsQuoting = jsQuoting;
+    }
+
+    public void setStripNewlines(boolean stripNewlines) {
+        this.stripNewlines = stripNewlines;
     }
 }
 
