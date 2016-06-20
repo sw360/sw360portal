@@ -17,6 +17,7 @@
 <jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request" />
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
 <jsp:useBean id="numberOfUncheckedVulnerabilities" type="java.lang.Integer" scope="request"/>
+<jsp:useBean id="numberOfVulnerabilities" type="java.lang.Integer" scope="request"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
@@ -49,7 +50,7 @@
                         <div id="numberOfVulnerabilitiesDiv"
                                 <core_rt:if test="${numberOfUncheckedVulnerabilities.intValue() == 0}"> class="notificationBulletSpan backgroundGrey" </core_rt:if>
                                 <core_rt:if test="${numberOfUncheckedVulnerabilities.intValue() > 0}"> class="notificationBulletSpan backgroundAlert" </core_rt:if>>
-                            ${numberOfUncheckedVulnerabilities} / ${vulnerabilityList.size()}
+                            ${numberOfUncheckedVulnerabilities} / ${numberOfVulnerabilities}
                         </div>
                     </a>
                 </li>

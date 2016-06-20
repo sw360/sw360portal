@@ -23,11 +23,11 @@
 <portlet:resourceURL var="updateProjectVulnerabilitiesURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITIES_PROJECT%>"/>
 </portlet:resourceURL>
-<portlet:resourceURL var="updateVulnerabilityRating">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITY_RATING%>"/>
+<portlet:resourceURL var="updateVulnerabilityRatings">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITY_RATINGS%>"/>
 </portlet:resourceURL>
-<jsp:useBean id="vulnerabilityRating" type="java.util.Map<java.lang.String, com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject>" scope="request"/>
-<jsp:useBean id="vulnerabilityRatingEditable" type="java.lang.Boolean" scope="request"/>
+<jsp:useBean id="vulnerabilityRatings" type="java.util.Map<java.lang.String, com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject>" scope="request"/>
+<jsp:useBean id="vulnerabilityRatingsEditable" type="java.lang.Boolean" scope="request"/>
 <jsp:useBean id="vulnerabilityCheckstatusTooltips" type="java.util.Map<java.lang.String, java.lang.String>" scope="request"/>
 
 
@@ -65,18 +65,18 @@
             "4": '<div class="dataTables_cell_nowrap" style="max-width:450px;" title="${vulnerability.title}">${vulnerability.title}</div>',
             "5":
             <core_rt:choose>
-                <core_rt:when test="${vulnerabilityRatingEditable}">
+                <core_rt:when test="${vulnerabilityRatingsEditable}">
                 '<select class="toplabelledInput" '+
                     'id="ratingChangeSelectFor${vulnerability.externalId}" '+
                     'name="<portlet:namespace/><%=VulnerabilityRatingForProject.class%>" '+
-                    'onchange="changeRating(this, `${vulnerability.externalId}`,`${vulnerabilityRating.get(vulnerability.externalId)}`)" '+
+                    'onchange="changeRating(this, `${vulnerability.externalId}`,`${vulnerabilityRatings.get(vulnerability.externalId)}`)" '+
                     'title = "${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"'+
                     'style="min-width: 90px; min-height: 28px;">'+
-                   <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRating.get(vulnerability.externalId)}" inQuotes="true" useStringValues="true"/> +
+                   <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId)}" inQuotes="true" useStringValues="true"/> +
                 '</select>',
                 </core_rt:when>
                 <core_rt:otherwise>
-                    '<div title="${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"><sw360:DisplayEnum value="${vulnerabilityRating.get(vulnerability.externalId)}"/></div>',
+                    '<div title="${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId)}"/></div>',
                 </core_rt:otherwise>
             </core_rt:choose>
             "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
@@ -146,7 +146,7 @@
         data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_COMMENT%>"] = comment;
 
         $.ajax({
-            url: '<%=updateVulnerabilityRating%>',
+            url: '<%=updateVulnerabilityRatings%>',
             type: 'POST',
             dataType: 'json',
             data: data,

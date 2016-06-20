@@ -77,6 +77,9 @@ import static org.apache.commons.lang.StringUtils.abbreviate;
  */
 public class ProjectPortlet extends FossologyAwarePortlet {
 
+
+    private final String NOT_CHECKED_YET = "Not checked yet.";
+
     private static final Logger log = Logger.getLogger(ProjectPortlet.class);
 
     private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(
@@ -126,7 +129,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveLinkedReleases(request, response);
         } else if (PortalConstants.UPDATE_VULNERABILITIES_PROJECT.equals(action)){
             updateVulnerabilitiesProject(request,response);
-        } else if (PortalConstants.UPDATE_VULNERABILITY_RATING.equals(action)){
+        } else if (PortalConstants.UPDATE_VULNERABILITY_RATINGS.equals(action)){
             updateVulnerabilityRating(request,response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
@@ -509,7 +512,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
                 putVulnerabilitiesInRequest(request, id, user);
                 request.setAttribute(
-                        VULNERABILITY_RATING_EDITABLE,
+                        VULNERABILITY_RATINGS_EDITABLE,
                         PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE));
 
                 addProjectBreadcrumb(request, response, project);
@@ -518,6 +521,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 log.error("Error fetching project from backend!", e);
             }
         }
+    }
+
+    private String formatedMessageForVul(VulnerabilityCheckStatus status){
+        StringBuffer sb = new StringBuffer();
+        sb.append("Checked By: "); sb.append(status.getCheckedBy()); sb.append(", ");
+        sb.append("Rating: "); sb.append(status.getVulnerabilityRating().name()); sb.append(", ");
+        sb.append("Comment: "); sb.append(status.getComment());
+        return sb.toString();
     }
 
     private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
@@ -531,38 +542,37 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
         List<ProjectVulnerabilityRating> projectVulnerabilityRatings = vulClient.getProjectVulnerabilityRatingByProjectId(id, user);
+        Map<String, VulnerabilityCheckStatus> vulnerabilityIdToStatus = (projectVulnerabilityRatings.size()>0)
+                        ? projectVulnerabilityRatings.get(0).getVulnerabilityIdToStatus()
+                        : new HashMap<>();
 
-        Map<String, VulnerabilityRatingForProject> vulnerabilityRating = new HashMap<>();
+        int numberOfVulnerabilities = 0;
+        int numberOfCheckedVulnerabilities = 0;
         Map<String, String> vulnerabilityTooltips = new HashMap<>();
-        if (projectVulnerabilityRatings.size()>0){
-            projectVulnerabilityRatings
-                    .get(0)
-                    .getVulnerabilityIdToStatus()
-                    .entrySet()
-                    .stream()
-                    .forEach(e -> {
-                        vulnerabilityRating.put(e.getKey(), e.getValue().getVulnerabilityRating());
-                        vulnerabilityTooltips.put(e.getKey(),
-                                "Checked By: " + e.getValue().getCheckedBy() + ", "+
-                                        "Checked On: " + e.getValue().getCheckedOn()+ ", " +
-                                        "Rating: " + e.getValue().getVulnerabilityRating().name() + ", "+
-                                        "Comment: " + e.getValue().getComment());
-                    });
+        Map<String, VulnerabilityRatingForProject> vulnerabilityRatings = new HashMap<>();
+        for (VulnerabilityDTO vul: vuls) {
+            numberOfVulnerabilities++;
+            String externalId = vul.getExternalId();
+
+            VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityIdToStatus.get(externalId);
+            if (vulnerabilityCheckStatus != null){
+                vulnerabilityTooltips.put(externalId, formatedMessageForVul(vulnerabilityCheckStatus));
+                VulnerabilityRatingForProject rating = vulnerabilityCheckStatus.getVulnerabilityRating();
+                vulnerabilityRatings.put(externalId, rating);
+                if (rating != VulnerabilityRatingForProject.NOT_CHECKED){
+                    numberOfCheckedVulnerabilities++;
+                }
+            }else{
+                vulnerabilityTooltips.put(externalId, NOT_CHECKED_YET);
+                vulnerabilityRatings.put(externalId, VulnerabilityRatingForProject.NOT_CHECKED);
+            }
         }
-        vuls.stream()
-                .filter(v -> ! vulnerabilityRating.containsKey(v.externalId))
-                .forEach(v -> vulnerabilityRating.put(v.externalId, VulnerabilityRatingForProject.NOT_CHECKED));
-        vuls.stream()
-                .filter(v -> ! vulnerabilityTooltips.containsKey(v.externalId))
-                .forEach(v -> vulnerabilityTooltips.put(v.externalId,"Not checked yet."));
 
-        int numberOfUncheckedVulnerabilities =
-                Collections.frequency(
-                        new ArrayList<>(vulnerabilityRating.values()),
-                        VulnerabilityRatingForProject.NOT_CHECKED);
+        int numberOfUncheckedVulnerabilities = numberOfVulnerabilities - numberOfCheckedVulnerabilities;
 
-        request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRating);
+        request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRatings);
         request.setAttribute(PortalConstants.VULNERABILITY_CHECKSTATUS_TOOLTIPS, vulnerabilityTooltips);
+        request.setAttribute(PortalConstants.NUMBER_OF_VULNERABILITIES, numberOfVulnerabilities);
         request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
     }
 
@@ -570,7 +580,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         ComponentService.Iface componentClient = thriftClients.makeComponentClient();
 
         setClearingStateSummary(componentClient, project);
-
     }
 
     private Collection<Project> setClearingStateSummary(Collection<Project> projects) {

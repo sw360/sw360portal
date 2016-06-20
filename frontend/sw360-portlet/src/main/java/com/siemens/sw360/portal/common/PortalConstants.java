@@ -132,11 +132,12 @@ public class PortalConstants {
 
     //! Specialized keys for vulnerability management
     public static final String VULNERABILITY_LIST = "vulnerabilityList";
-    public static final String VULNERABILITY_RATINGS = "vulnerabilityRating";
-    public static final String VULNERABILITY_RATING_EDITABLE = "vulnerabilityRatingEditable";
+    public static final String VULNERABILITY_RATINGS = "vulnerabilityRatings";
+    public static final String VULNERABILITY_RATINGS_EDITABLE = "vulnerabilityRatingsEditable";
     public static final String VULNERABILITY_ID = "vulnerabilityId";
     public static final String VULNERABILITY_RATING_VALUE = "vulnerabilityRatingValue";
     public static final String VULNERABILITY_RATING_COMMENT = "vulnerabilityRatingComment";
+    public static final String NUMBER_OF_VULNERABILITIES = "numberOfVulnerabilities";
     public static final String NUMBER_OF_UNCHECKED_VULNERABILITIES = "numberOfUncheckedVulnerabilities";
     public static final String VULNERABILITY_CHECKSTATUS_TOOLTIPS = "vulnerabilityCheckstatusTooltips";
     public static final String VULNERABILITY_VERIFICATION_VALUE = "vulnerabilityVerificationValue";
@@ -240,7 +241,7 @@ public class PortalConstants {
     public static  final String UPDATE_VULNERABILITIES_COMPONENT = "updateVulnerabilitiesComponent";
     public static  final String UPDATE_ALL_VULNERABILITIES = "updateAllVulnerabilities";
     public static  final String UPDATE_VULNERABILITIES_PROJECT = "updateVulnerabilitiesProject";
-    public static  final String UPDATE_VULNERABILITY_RATING = "updateVulnerabilityRating";
+    public static  final String UPDATE_VULNERABILITY_RATINGS = "updateVulnerabilityRatings";
     public static  final String UPDATE_VULNERABILITY_VERIFICATION = "updateVulnerabilityVerification";
 
     // Excel export
@@ -304,4 +305,5 @@ public class PortalConstants {
     private PortalConstants() {
         // Utility class with only static functions
     }
+
 }
