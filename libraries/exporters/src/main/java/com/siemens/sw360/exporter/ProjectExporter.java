@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -34,7 +34,6 @@ import java.util.Set;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
 import static com.siemens.sw360.datahandler.thrift.projects.Project._Fields.*;
 
@@ -74,7 +73,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add("Project Responsible")
             .add("Project Lead Architect")
             .add("Project Tag")
-            .add("Business Unit")
+            .add("Group")
             .add("Release IDs")
             .add("ReleaseClearingStateSummary")
             .add("Bdp Id")

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
@@ -21,11 +21,8 @@
 
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="com.siemens.sw360.portal.common.JsonHelpers" %>
-<%@ page import="com.siemens.sw360.portal.common.ThriftJsonSerializer" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -146,9 +143,18 @@
             </tr>
             <tr>
                 <td>
-                    <label for="business_unit">Business Unit</label>
-                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
-                           value="${businessUnit}" id="business_unit">
+                    <label for="group">Group</label>
+                    <select class="toplabelledInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
+                            style="width: 90%; padding: 5px; color: gray; min-height: 28px;">
+                        <option value="" class="textlabel stackedLabel"
+                                <core_rt:if test="${empty businessUnit}"> selected="selected"</core_rt:if>
+                        ></option>
+                        <core_rt:forEach items="${organizations}" var="org">
+                            <option value="${org.name}" class="textlabel stackedLabel"
+                                    <core_rt:if test="${org.name == businessUnit}"> selected="selected"</core_rt:if>
+                            >${org.name}</option>
+                        </core_rt:forEach>
+                    </select>
                 </td>
             </tr>
             <tr>
