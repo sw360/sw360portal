@@ -93,19 +93,6 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>tomcat-backend</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <tomcat-backend-server>localtomcat</tomcat-backend-server>
-                <tomcat-backend-url>http://localhost:8080/manager/text</tomcat-backend-url>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -114,17 +101,6 @@
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.tomcat.maven</groupId>
-                    <artifactId>tomcat7-maven-plugin</artifactId>
-                    <version>2.2</version>
-                    <configuration>
-                        <server>localtomcat</server>
-                        <path>/${project.build.finalName}</path>
-                        <url>${tomcat-backend-url}</url>
-                    </configuration>
-                </plugin>
-
             </plugins>
         </pluginManagement>
 
