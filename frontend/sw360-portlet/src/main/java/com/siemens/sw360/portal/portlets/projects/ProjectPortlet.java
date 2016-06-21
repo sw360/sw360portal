@@ -526,6 +526,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private String formatedMessageForVul(VulnerabilityCheckStatus status){
         StringBuffer sb = new StringBuffer();
         sb.append("Checked By: "); sb.append(status.getCheckedBy()); sb.append(", ");
+        sb.append("Checked On: ");  sb.append(status.getCheckedOn()); sb.append(", ");
         sb.append("Rating: "); sb.append(status.getVulnerabilityRating().name()); sb.append(", ");
         sb.append("Comment: "); sb.append(status.getComment());
         return sb.toString();
