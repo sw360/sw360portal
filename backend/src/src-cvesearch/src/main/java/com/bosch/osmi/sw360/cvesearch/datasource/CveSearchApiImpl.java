@@ -21,7 +21,6 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 import com.bosch.osmi.sw360.cvesearch.datasource.json.CveSearchJsonParser;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import org.apache.log4j.Logger;
@@ -35,7 +34,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 public class CveSearchApiImpl implements CveSearchApi {

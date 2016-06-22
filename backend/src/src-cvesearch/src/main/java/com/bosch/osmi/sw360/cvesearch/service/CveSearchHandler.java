@@ -22,7 +22,7 @@ import com.bosch.osmi.sw360.cvesearch.datasink.VulnerabilityConnector;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApiImpl;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchWrapper;
-import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataToVulnerabilityTranslator;
+import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataTranslator;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.components.Component;
@@ -31,15 +31,14 @@ import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.UpdateType;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.bosch.osmi.sw360.cvesearch.helper.VulnerabilityUtils.*;
-import static com.siemens.sw360.datahandler.common.CommonUtils.*;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 
@@ -67,15 +66,23 @@ public class CveSearchHandler implements CveSearchService.Iface {
             return new VulnerabilityUpdateStatus().setRequestStatus(RequestStatus.FAILURE);
         }
 
-        List<Vulnerability> vulnerabilities = new CveSearchDataToVulnerabilityTranslator()
-                .applyToMany(cveSearchDatas.get());
+        CveSearchDataTranslator cveSearchDataTranslator = new CveSearchDataTranslator();
+        List<CveSearchDataTranslator.VulnerabilityWithRelation> translated = cveSearchDatas.get().stream()
+                .map(cveSearchData -> cveSearchDataTranslator.apply(cveSearchData))
+                .map(vulnerabilityWithRelation -> {
+                    vulnerabilityWithRelation.relation.setReleaseId(release.getId());
+                    return vulnerabilityWithRelation;
+                })
+                .collect(Collectors.toList());
 
-        Map<UpdateType, List<Vulnerability>> statusToVulnerabilities = vulnerabilityConnector.addOrUpdateVulnerabilitiesAndSetIds(vulnerabilities);
-        VulnerabilityUpdateStatus status = getUpdateStatusFromUpdateMap(statusToVulnerabilities);
+        VulnerabilityUpdateStatus updateStatus = getEmptyVulnerabilityUpdateStatus();
+        for (CveSearchDataTranslator.VulnerabilityWithRelation vulnerabilityWithRelation : translated) {
+            updateStatus = vulnerabilityConnector.addOrUpdate(vulnerabilityWithRelation.vulnerability,
+                    vulnerabilityWithRelation.relation,
+                    updateStatus);
+        }
 
-        RequestStatus relationStatus = vulnerabilityConnector.addReleaseVulnerabilityRelationsIfNecessary(release.getId(),
-                successIdsFromUpdateMap(statusToVulnerabilities));
-        return status.setRequestStatus(reduceRequestStatus(status.getRequestStatus(), relationStatus));
+        return updateStatus;
     }
 
     @Override

@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="com.siemens.sw360.portal.common.page.PortletReleasePage" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability" %>
@@ -61,8 +62,9 @@
             "0": "${vulnerability.intReleaseName}",
             "1": "${vulnerability.externalId}",
             "2": '<div class="dataTables_cell_nowrap" title="${vulnerability.priorityToolTip}">${vulnerability.priority}<img class="infopic" src="/sw360-portlet/images/ic_info.png"/></div>',
-            "3": "${vulnerability.publishDate}",
-            "4": '<div class="dataTables_cell_nowrap" style="max-width:450px;" title="${vulnerability.title}">${vulnerability.title}</div>',
+            "3": '<span title="Found with needle: <sw360:out value='${vulnerability.usedNeedle}'/>"><sw360:out value='${vulnerability.matchedBy}'/></span>',
+            "4": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<c:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
+                    '<c:out value='${vulnerability.title}'/></div>',
             "5":
             <core_rt:choose>
                 <core_rt:when test="${vulnerabilityRatingsEditable}">
@@ -90,7 +92,7 @@
                 {"sTitle": "Release"},
                 {"sTitle": "External id"},
                 {"sTitle": "Priority"},
-                {"sTitle": "Publish date"},
+                {"sTitle": "Matched by"},
                 {"sTitle": "Title"},
                 {"sTitle": "Relevance for project"},
                 {"sTitle": "Action"}

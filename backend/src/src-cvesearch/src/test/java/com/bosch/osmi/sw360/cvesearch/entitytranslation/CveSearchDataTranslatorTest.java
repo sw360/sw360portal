@@ -28,8 +28,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class CveSearchDataToVulnerabilityTranslatorTest {
+public class CveSearchDataTranslatorTest {
+
+    String HOST = "https://cve.circl.lu";
 
     CveSearchData cveSearchData;
     String host;
@@ -38,6 +41,9 @@ public class CveSearchDataToVulnerabilityTranslatorTest {
     String CVEYEAR = "2007";
     String CVENUMBER = "5432";
     String CVE = "CVE-" + CVEYEAR + "-" + CVENUMBER;
+
+    private CveSearchDataTranslator cveSearchDataTranslator;
+    private CveSearchDataToVulnerabilityTranslator cveSearchDataToVulnerabilityTranslator;
 
     private CveSearchData generateCveSearchData(String id) {
         return new CveSearchData() {
@@ -95,15 +101,16 @@ public class CveSearchDataToVulnerabilityTranslatorTest {
     @Before
     public void setUp() {
         cveSearchData = generateCveSearchData("1");
+        cveSearchDataTranslator = new CveSearchDataTranslator();
+        cveSearchDataToVulnerabilityTranslator = new CveSearchDataToVulnerabilityTranslator();
 
-        Properties props = CommonUtils.loadProperties(CveSearchDataToVulnerabilityTranslatorTest.class, "/cvesearch.properties");
+        Properties props = CommonUtils.loadProperties(CveSearchDataTranslatorTest.class, "/cvesearch.properties");
         host = props.getProperty("cvesearch.host","http://localhost:5000");
     }
 
     @Test
     public void getCVEReferenceForCveSearchdataTest(){
-        CveSearchDataToVulnerabilityTranslator t = new CveSearchDataToVulnerabilityTranslator();
-        Set<CVEReference> cveReferences = t.getCVEReferencesForCVE(CVE);
+        Set<CVEReference> cveReferences = cveSearchDataToVulnerabilityTranslator.getCVEReferencesForCVE(CVE);
 
         assert(1 == cveReferences.size());
         CVEReference cveReference = cveReferences.stream()
@@ -115,7 +122,7 @@ public class CveSearchDataToVulnerabilityTranslatorTest {
 
     @Test
     public void testIdTranslation() {
-        Vulnerability v = new CveSearchDataToVulnerabilityTranslator().apply(cveSearchData);
+        Vulnerability v = cveSearchDataTranslator.apply(cveSearchData).vulnerability;
 
         Set<CVEReference> cveReferences = v.getCveReferences();
 
@@ -131,22 +138,29 @@ public class CveSearchDataToVulnerabilityTranslatorTest {
 
     @Test
     public void testSummaryTranslation() {
-        Vulnerability v = new CveSearchDataToVulnerabilityTranslator().apply(cveSearchData);
+        Vulnerability v = cveSearchDataTranslator.apply(cveSearchData).vulnerability;
         assert(v.getDescription().equals(cveSearchData.getSummary()));
     }
 
     @Test
     public void testWithRealData() throws IOException {
         List<CveSearchData> cveSearchDatas = new CveSearchApiImpl(host).search("zyxel","zywall");
-        List<Vulnerability> vs = new CveSearchDataToVulnerabilityTranslator().applyToMany(cveSearchDatas);
-        assert(vs != null);
+        List<CveSearchDataTranslator.VulnerabilityWithRelation> vms = cveSearchDatas.stream()
+                .map(cveSearchData -> cveSearchDataTranslator.apply(cveSearchData))
+                .collect(Collectors.toList());
+        assert(vms != null);
     }
 
     @Test
     public void testWithApacheData() throws IOException {
         List<CveSearchData> cveSearchDatas = new CveSearchApiImpl(host).search("apache",".*");
-        List<Vulnerability> vs = new CveSearchDataToVulnerabilityTranslator().applyToMany(cveSearchDatas);
-        assert(vs != null);
+        List<CveSearchDataTranslator.VulnerabilityWithRelation> vms = cveSearchDatas.stream()
+                .map(cveSearchData -> cveSearchDataTranslator.apply(cveSearchData))
+                .collect(Collectors.toList());
+        assert(vms != null);
+        List<Vulnerability> vs = vms.stream()
+                .map(vm -> vm.vulnerability)
+                .collect(Collectors.toList());
         assert(vs.size() > 700);
     }
 }

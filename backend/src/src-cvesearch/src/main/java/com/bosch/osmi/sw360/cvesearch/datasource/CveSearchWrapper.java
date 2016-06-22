@@ -33,7 +33,7 @@ public class CveSearchWrapper {
     // TODO: finetuning of these parameters
     private final int VENDOR_THRESHOLD  = 1;
     private final int PRODUCT_THRESHOLD = 0;
-    private final int CUTOFF            = 10;
+    private final int CUTOFF            = 6;
 
     Logger log = Logger.getLogger(CveSearchWrapper.class);
 

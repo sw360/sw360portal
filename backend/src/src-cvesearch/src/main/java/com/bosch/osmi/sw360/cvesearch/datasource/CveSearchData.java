@@ -75,6 +75,8 @@ public class CveSearchData {
         }
     }
 
+    //==================================================================================================================
+    // Data extracted from raw cve-search result
     private String id;
     private Set<String> references;
     @SerializedName("Modified") private DateTimeObject modified;
@@ -102,8 +104,15 @@ public class CveSearchData {
     private Map<String,String> map_cve_suse;
     private Map<String,String> map_cve_vmware;
     private Map<String,String> map_redhat_bugzilla;
-    private Set<Set<Map<String,Integer>>> ranking;
+    private Set<Set<Map<String,Integer>>> ranking; // only filled, when `cve`-api is used, not `cvefor`
 
+    //==================================================================================================================
+    // Other metadata
+    private String matchedBy;
+    private String usedNeedle;
+
+    //==================================================================================================================
+    // getter and setter
     public Map<String, String> getAccess() {
         return access;
     }
@@ -181,4 +190,21 @@ public class CveSearchData {
         return ranking;
     }
 
+    public CveSearchData setMatchedBy(String matchedBy) {
+        this.matchedBy = matchedBy;
+        return this;
+    }
+
+    public String getMatchedBy() {
+        return matchedBy;
+    }
+
+    public CveSearchData setUsedNeedle(String usedNeedle) {
+        this.usedNeedle = usedNeedle;
+        return this;
+    }
+
+    public String getUsedNeedle() {
+        return usedNeedle;
+    }
 }

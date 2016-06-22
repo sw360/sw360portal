@@ -23,21 +23,31 @@ public class SearchLevels {
 
     private List<SearchLevel> searchLevels;
 
+    public class NeedleWithMeta {
+        public String needle;
+        public String description;
+        public NeedleWithMeta(String needle, String description){
+            this.needle = needle;
+            this.description = description;
+        }
+    }
+
     @FunctionalInterface
     public interface SearchLevel {
-        List<String> apply(Release release) throws IOException;
+        List<NeedleWithMeta> apply(Release release) throws IOException;
     }
 
     public SearchLevels() {
         searchLevels = new ArrayList<>();
 
         // Level 1. search by full cpe
-        searchLevels.add(mkSearchLevel(r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
+        searchLevels.add(mkSearchLevel("by CPE",
+                r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
                 r -> r.getCpeid().toLowerCase()));
     }
 
-    public List<List<String>> apply(Release release) throws IOException {
-        List<List<String>> result = new ArrayList<>();
+    public List<List<NeedleWithMeta>> apply(Release release) throws IOException {
+        List<List<NeedleWithMeta>> result = new ArrayList<>();
         for(SearchLevel searchLevel : searchLevels){
             result.add(searchLevel.apply(release));
         }
@@ -46,35 +56,41 @@ public class SearchLevels {
 
     //==================================================================================================================
     public SearchLevels addBasicSearchlevels() {
-        // Level 2. search by: VENDOR_FULL_NAME:NAME:VERSION
-        searchLevels.add(mkSearchLevel(r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname(),
+        // Level 2.
+        searchLevels.add(mkSearchLevel("by VENDOR_FULL_NAME:NAME:VERSION",
+                r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname(),
                 r -> r.getVendor().getFullname(),
                 Release::getName,
                 Release::getVersion));
 
-        // Level 3. search by: VENDOR_SHORT_NAME:NAME:VERSION
-        searchLevels.add(mkSearchLevel(r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetShortname(),
+        // Level 3.
+        searchLevels.add(mkSearchLevel("by VENDOR_SHORT_NAME:NAME:VERSION",
+                r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetShortname(),
                 r ->r.getVendor().getShortname(),
                 Release::getName,
                 Release::getVersion));
 
-        // Level 4. search by: VENDOR_FULL_NAME:NAME
-        searchLevels.add(mkSearchLevel(r -> r.isSetVendor() && r.getVendor().isSetFullname(),
+        // Level 4.
+        searchLevels.add(mkSearchLevel("by VENDOR_FULL_NAME:NAME",
+                r -> r.isSetVendor() && r.getVendor().isSetFullname(),
                 r ->r.getVendor().getFullname(),
                 Release::getName));
 
-        // Level 5. search by: VENDOR_SHORT_NAME:NAME
-        searchLevels.add(mkSearchLevel(r -> r.isSetVendor() && r.getVendor().isSetShortname(),
+        // Level 5.
+        searchLevels.add(mkSearchLevel("by VENDOR_SHORT_NAME:NAME",
+                r -> r.isSetVendor() && r.getVendor().isSetShortname(),
                 r -> r.getVendor().getShortname(),
                 Release::getName));
 
-        // Level 6. search by: .*:NAME:VERSION
-        searchLevels.add(mkSearchLevel(r -> r.isSetVersion(),
+        // Level 6.
+        searchLevels.add(mkSearchLevel("by .*:NAME:VERSION",
+                r -> r.isSetVersion(),
                 Release::getName,
                 Release::getVersion));
 
-        // Level 7. search by: .*:NAME
-        searchLevels.add(mkSearchLevel(r -> true,
+        // Level 7.
+        searchLevels.add(mkSearchLevel("by .*:NAME",
+                r -> true,
                 Release::getName));
 
         return this;
@@ -88,15 +104,18 @@ public class SearchLevels {
         cveSearchGuesser.setCutoff(cutoff);
 
         // Level 2. search by guessed vendors and products with version
-        searchLevels.add(r -> guessForRelease(cveSearchGuesser, r, true));
+        //private String description = "Guessing Heuristic (lvl 2)";
+        searchLevels.add(release -> guessForRelease(cveSearchGuesser, release, true));
 
         // Level 3. search by guessed vendors and products without version
-        searchLevels.add(r -> guessForRelease(cveSearchGuesser, r, false));
+        //private String description = "Guessing Heuristic (lvl 3)";
+        searchLevels.add(release -> guessForRelease(cveSearchGuesser, release, false));
 
         return this;
     }
 
-    protected List<String> guessForRelease(CveSearchGuesser cveSearchGuesser, Release release, boolean useVersionInformation) throws IOException {
+
+    protected List<NeedleWithMeta> guessForRelease(CveSearchGuesser cveSearchGuesser, Release release, boolean useVersionInformation) throws IOException {
         if(useVersionInformation && !release.isSetVersion()){
             return EMPTY_LIST;
         }
@@ -117,8 +136,8 @@ public class SearchLevels {
         Function<String,String> cpeBuilder = cpeNeedle -> CPE_NEEDLE_PREFIX + cpeNeedle + cpeNeedlePostfix;
 
         return vendorProductList.stream()
-                .map(Match::getNeedle)
-                .map(cpeBuilder)
+                .map(match -> new NeedleWithMeta(cpeBuilder.apply(match.getNeedle()),
+                        "heuristic (distance " + match.getDistance() + ")"))
                 .collect(Collectors.toList());
     }
 
@@ -159,12 +178,15 @@ public class SearchLevels {
         return CPE_NEEDLE_PREFIX + CPE_WILDCARD + nullToEmptyString(needle) + CPE_WILDCARD;
     }
 
-    protected SearchLevel mkSearchLevel(Predicate<Release> isPossible, Function<Release,String> generator, Function<Release,String> ... generators){
+    protected SearchLevel mkSearchLevel(String description,
+                                        Predicate<Release> isPossible,
+                                        Function<Release,String> generator,
+                                        Function<Release,String> ... generators){
         Function<Release,String> implodedGenerators = implodeSearchNeedleGenerators(generator, generators);
 
         return r -> {
             if(isPossible.test(r)){
-                return singletonList(cpeWrapper(implodedGenerators.apply(r)));
+                return singletonList(new NeedleWithMeta(cpeWrapper(implodedGenerators.apply(r)), description));
             }
             return EMPTY_LIST;
         };

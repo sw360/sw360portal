@@ -27,6 +27,10 @@ struct ReleaseVulnerabilityRelation{
     10: required string releaseId,
     11: required string vulnerabilityId,
     12: optional VerificationStateInfo verificationStateInfo,
+
+    // meta information
+   100: optional string matchedBy,
+   101: optional string usedNeedle,
 }
 
 struct Vulnerability{
@@ -81,6 +85,10 @@ struct VulnerabilityDTO{
     33: optional string intComponentId
     34: optional string intComponentName
     35: optional ReleaseVulnerabilityRelation releaseVulnerabilityRelation
+
+    // meta information
+   100: optional string matchedBy,
+   101: optional string usedNeedle,
 }
 
 struct CVEReference{

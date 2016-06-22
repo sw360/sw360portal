@@ -18,6 +18,7 @@
  */
 package com.bosch.osmi.sw360.cvesearch.datasource;
 
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.Before;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import static com.bosch.osmi.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEquivalent;
 
@@ -119,7 +121,9 @@ public class CveSearchWrapperTest {
 
     @Before
     public void setUp() {
-        cveSearchApi = new CveSearchApiImpl("https://cve.circl.lu");
+        Properties props = CommonUtils.loadProperties(CveSearchWrapperTest.class, "/cvesearch.properties");
+        String host = props.getProperty("cvesearch.host","https://cve.circl.lu");
+        cveSearchApi = new CveSearchApiImpl(host);
 
         cveSearchWrapper = new CveSearchWrapper(cveSearchApi);
     }

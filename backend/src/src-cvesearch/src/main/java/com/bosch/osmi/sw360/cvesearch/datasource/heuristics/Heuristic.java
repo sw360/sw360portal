@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Heuristic {
 
@@ -49,17 +50,24 @@ public class Heuristic {
     public List<CveSearchData> run(Release release) throws IOException {
         int level = 0;
 
-        List<List<String>> cpeNeedless = searchLevels.apply(release);
+        List<List<SearchLevels.NeedleWithMeta>> evaluatedSearchLevels = searchLevels.apply(release);
         List<CveSearchData> result = new ArrayList<>();
 
-        for(List<String> cpeNeedles: cpeNeedless){
+        for(List<SearchLevels.NeedleWithMeta> evaluatedSearchLevel: evaluatedSearchLevels){
             level++;
 
-            for(String cpeNeedle: cpeNeedles){
+            for(SearchLevels.NeedleWithMeta needleWithMeta: evaluatedSearchLevel){
                 try {
-                    result.addAll(cveSearchApi.cvefor(cpeNeedle));
+                    result.addAll(cveSearchApi.cvefor(needleWithMeta.needle).stream()
+                            .map(cveSearchData -> cveSearchData
+                                    .setUsedNeedle(needleWithMeta.needle)
+                                    .setMatchedBy(needleWithMeta.description))
+                            .collect(Collectors.toList()));
                 } catch (IOException e) {
-                    log.error("IOException in searchlevel=" + level + " with needle=" + cpeNeedle + " with msg=" + e.getMessage());
+                    log.error("IOException in searchlevel=" + level +
+                            "\n\twith description=" + needleWithMeta.description +
+                            "\n\twith needle=" + needleWithMeta.needle +
+                            "\n\twith msg=" + e.getMessage());
                 }
             }
             if(result.size() > 0){
