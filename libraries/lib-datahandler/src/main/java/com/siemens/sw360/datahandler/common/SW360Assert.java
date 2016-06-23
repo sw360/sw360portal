@@ -127,7 +127,7 @@ public class SW360Assert {
     }
 
     public static void assertEquals(Object expected, Object actual) throws SW360Exception {
-        assertEquals(expected, actual, "Objects do not compare equal! Expected: "+expected+" Actual: "+actual);
+        assertEquals(expected, actual, "Objects do not compare equal!");
     }
 
     public static void assertEquals(Object expected, Object actual, String message) throws SW360Exception {
