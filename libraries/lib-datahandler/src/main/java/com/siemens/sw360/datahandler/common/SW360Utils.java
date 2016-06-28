@@ -11,7 +11,9 @@ package com.siemens.sw360.datahandler.common;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimaps;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.components.*;
@@ -23,6 +25,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
@@ -185,6 +188,13 @@ public class SW360Utils {
             return "New License";
         }
         return license.getId();
+    }
+
+    public static String printName(Vulnerability vulnerability) {
+        if (vulnerability == null || isNullOrEmpty(vulnerability.getId())) {
+            return "";
+        }
+        return vulnerability.getExternalId();
     }
 
     public static String printName(User user) {

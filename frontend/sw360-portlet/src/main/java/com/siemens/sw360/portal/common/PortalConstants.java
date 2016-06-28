@@ -131,6 +131,7 @@ public class PortalConstants {
     public static final String DUPLICATE_PROJECTS = "duplicateProjects";
 
     //! Specialized keys for vulnerability management
+    public static final String VULNERABILITY = "vulnerability";
     public static final String VULNERABILITY_LIST = "vulnerabilityList";
     public static final String VULNERABILITY_RATINGS = "vulnerabilityRatings";
     public static final String VULNERABILITY_RATINGS_EDITABLE = "vulnerabilityRatingsEditable";
