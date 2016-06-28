@@ -80,6 +80,14 @@ div.content2 {
     width: 100%;
 }
 
+.info_table_left_column {
+    width: 30%;
+}
+
+.info_table_right_column {
+    width: 70%;
+}
+
 .info_table > thead > tr > th {
     background-color: rgb(178, 224, 224);
     border: medium none;
@@ -342,11 +350,11 @@ input[readonly].clickable {
 }
 
 .backgroundAlert {
-    background: #f00;
+    background: #e95850;
 }
 
 .backgroundGrey {
-    background: #333333;
+    background: #aaaaaa;
 }
 
 .vulnerabilityRatingCommentArea {

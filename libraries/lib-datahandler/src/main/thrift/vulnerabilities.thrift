@@ -49,13 +49,22 @@ struct Vulnerability{
     15: optional string priority,
     16: optional string priorityText,
     17: optional string action,
-    19: optional string impact,
+    19: optional map<string, string> impact,
     20: optional string legalNotice,
     21: optional set<string> assignedExtComponentIds,
     22: optional set<CVEReference> cveReferences,
     23: optional set<VendorAdvisory> vendorAdvisories,
     24: optional string extendedDescription,
     25: optional set<string> references,
+
+    //additional from CVE earch data
+    30: optional double cvss,
+    31: optional bool isSetCvss,
+    32: optional string cvssTime,
+    33: optional map<string,string> vulnerableConfiguration,
+    34: optional map<string,string> access,
+    35: optional string cwe,
+    36: optional map<string, map<string, string>> cveFurtherMetaDataPerSource;
 }
 
 struct VulnerabilityDTO{
@@ -74,7 +83,7 @@ struct VulnerabilityDTO{
     15: optional string priority,
     16: optional string priorityToolTip,
     17: optional string action,
-    19: optional string impact,
+    19: optional map<string,string> impact,
     20: optional string legalNotice,
     22: optional set<CVEReference> cveReferences,
     25: optional set<string> references,

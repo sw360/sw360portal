@@ -46,6 +46,40 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayMap</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayMap</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>java.util.Map</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>autoFillValue</name>
+            <required>false</required>
+            <type>java.util.Map</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplayMapOfMaps</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayMapOfMaps</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>java.util.Map</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>autoFillValue</name>
+            <required>false</required>
+            <type>java.util.Map</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplayEnum</name>
         <tag-class>com.siemens.sw360.portal.tags.DisplayEnum</tag-class>
         <body-content>empty</body-content>
@@ -634,6 +668,29 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayVulnerabilityLink</name>
+        <tag-class>com.siemens.sw360.portal.tags.links.DisplayLinkToVulnerability</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>vulnerabilityId</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>scopeGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplaySearchResultLink</name>
         <tag-class>com.siemens.sw360.portal.tags.links.DisplayLinkToSearchResult</tag-class>
         <body-content>empty</body-content>
@@ -698,7 +755,6 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
-
     <tag>
         <name>out</name>
         <tag-class>com.siemens.sw360.portal.tags.OutTag</tag-class>
@@ -777,6 +833,40 @@
             <name>maxChar</name>
             <required>false</required>
             <type>int</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplayCVEReferences</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayCVEReferences</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>java.util.Set</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>autoFillValue</name>
+            <required>false</required>
+            <type>java.util.Set</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplayVendorAdvisories</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayVendorAdvisories</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>java.util.Set</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>autoFillValue</name>
+            <required>false</required>
+            <type>java.util.Set</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

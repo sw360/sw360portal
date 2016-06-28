@@ -47,7 +47,7 @@
         result.push({
             "DT_RowId": "${vulnerability.id}",
             "0": "${vulnerability.intReleaseName}",
-            "1": "${vulnerability.externalId}",
+            "1": "<sw360:DisplayVulnerabilityLink vulnerabilityId="${vulnerability.externalId}"/>",
             "2": '<div class="dataTables_cell_nowrap" title="${vulnerability.priorityToolTip}">${vulnerability.priority}<img class="infopic" src="/sw360-portlet/images/ic_info.png"/></div>',
             "3": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<c:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
                     '<c:out value='${vulnerability.title}'/></div>',

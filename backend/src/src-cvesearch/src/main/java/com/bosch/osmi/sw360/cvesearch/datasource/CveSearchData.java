@@ -188,7 +188,7 @@ public class CveSearchData {
     public Map<String,Map<String,String>> getMap_cve_all(){
         Map<String,Map<String,String>> mapOfAll = new HashMap<>();
 
-        BiConsumer<String, Map<String,String>> f = (title, map) -> mapOfAll.put(title, map);
+        BiConsumer<String, Map<String,String>> f = (title, map) -> {if(map != null) mapOfAll.put(title, map);};
 
         f.accept("bid"            , map_cve_bid);
         f.accept("debian"         , map_cve_debian);

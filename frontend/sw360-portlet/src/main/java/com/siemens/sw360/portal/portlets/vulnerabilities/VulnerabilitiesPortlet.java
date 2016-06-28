@@ -21,13 +21,15 @@ package com.siemens.sw360.portal.portlets.vulnerabilities;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
-import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
-import javax.portlet.*;
+import javax.portlet.PortletException;
+import javax.portlet.PortletURL;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -48,50 +50,10 @@ public class VulnerabilitiesPortlet extends Sw360Portlet{
     private void addVulnerabilityBreadcrumb(RenderRequest request, RenderResponse response, Vulnerability vulnerability) {
         PortletURL url = response.createRenderURL();
         url.setParameter(PAGENAME, PAGENAME_DETAIL);
-        url.setParameter(VULNERABILITY_ID, vulnerability.getId());
+        url.setParameter(VULNERABILITY_ID, vulnerability.getExternalId());
 
         addBreadcrumbEntry(request, printName(vulnerability), url);
     }
-
-    @SuppressWarnings("Duplicates")
-    @Override
-    public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
-        String action = request.getParameter(PortalConstants.ACTION);
-        /*if (PortalConstants.VULNERABILITY_LIST.equals(action)) {
-            serveListVulnerabilities(request, response);
-        }*/
-    }
-
-    //Todo
-    /*private void serveListVulnerabilities(ResourceRequest request, ResourceResponse response) throws IOException {
-        User user = UserCacheHolder.getUserFromRequest(request);
-        Collection<Project> projects = setClearingStateSummary(getAccessibleProjects(user));
-
-        JSONObject jsonResponse = createJSONObject();
-        JSONArray data = createJSONArray();
-        ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
-
-        for (Project project : projects) {
-            try {
-                JSONObject row = createJSONObject();
-                row.put("id", project.getId());
-                row.put("name", printName(project));
-                String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
-                row.put("state", ThriftEnumUtils.enumToString(project.getState()));
-                row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
-                row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
-
-                data.put(row);
-            } catch (JSONException e) {
-                log.error("cannot serialize json", e);
-            }
-        }
-
-        jsonResponse.put("data", data);
-
-        writeJSON(request, response, jsonResponse);
-    }*/
 
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
@@ -105,7 +67,6 @@ public class VulnerabilitiesPortlet extends Sw360Portlet{
         }
     }
 
-    //Todo
     private void prepareStandardView(RenderRequest request) throws IOException {
 
         List<Vulnerability> allVulnerabilities;
@@ -114,6 +75,8 @@ public class VulnerabilitiesPortlet extends Sw360Portlet{
             final User user = UserCacheHolder.getUserFromRequest(request);
             VulnerabilityService.Iface vulnerabilityClient = thriftClients.makeVulnerabilityClient();
             allVulnerabilities = vulnerabilityClient.getVulnerabilities(user);
+            shortenTimeStampsToDates(allVulnerabilities);
+
         } catch (TException e) {
             log.error("Could not search vulnerabilities in backend ", e);
             allVulnerabilities = Collections.emptyList();
@@ -121,11 +84,23 @@ public class VulnerabilitiesPortlet extends Sw360Portlet{
         request.setAttribute(VULNERABILITY_LIST, allVulnerabilities);
     }
 
-    //Todo
+    private void shortenTimeStampsToDates(List<Vulnerability> vulnerabilities){
+        vulnerabilities.stream().forEach(v-> {
+            if (v.getPublishDate().matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*")) {
+                v.setPublishDate(v.getPublishDate().substring(0,10));
+            }
+            if (v.getLastExternalUpdate().matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*")) {
+                v.setLastExternalUpdate(v.getLastExternalUpdate().substring(0,10));
+            }
+            if (v.isSetCvssTime() && v.getCvssTime().matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*")) {
+                v.setCvssTime(v.getCvssTime().substring(0,10));
+            }
+        });
+    }
+
     private void prepareDetailView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);
         String externalId = request.getParameter(VULNERABILITY_ID);
-        //request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_VULNERABILITY);
         if (externalId != null) {
             try {
                 VulnerabilityService.Iface client = thriftClients.makeVulnerabilityClient();
@@ -136,7 +111,7 @@ public class VulnerabilitiesPortlet extends Sw360Portlet{
                 addVulnerabilityBreadcrumb(request, response, vulnerability);
 
             } catch (TException e) {
-                log.error("Error fetching project from backend!", e);
+                log.error("Error fetching vulnerability from backend!", e);
             }
         }
     }

@@ -17,6 +17,7 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.siemens.sw360.portal.portlets.components.ComponentPortlet;
 import com.siemens.sw360.portal.portlets.licenses.LicensesPortlet;
 import com.siemens.sw360.portal.portlets.projects.ProjectPortlet;
+import com.siemens.sw360.portal.portlets.vulnerabilities.VulnerabilitiesPortlet;
 
 import java.util.Optional;
 
@@ -32,7 +33,8 @@ import java.util.Optional;
 public enum LinkToPortletConfiguration {
     COMPONENTS(ComponentPortlet.class),
     PROJECTS(ProjectPortlet.class),
-    LICENSES(LicensesPortlet.class);
+    LICENSES(LicensesPortlet.class),
+    VULNERABILITIES(VulnerabilitiesPortlet.class);
 
     private final Class<? extends Sw360Portlet> portletClass;
 
