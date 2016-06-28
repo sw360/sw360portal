@@ -23,7 +23,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
 
 public class CveSearchData {
 
@@ -41,11 +41,8 @@ public class CveSearchData {
             this.id = id;
         }
 
-        public Map<String,String> getAsMap() {
-            Map<String,String> map = new HashMap<>();
-            map.put("id", id);
-            map.put("title", title);
-            return map;
+        public Map.Entry<String,String> getAsMapEntry() {
+            return new HashMap.SimpleImmutableEntry<>(id,title);
         }
     }
 
@@ -55,15 +52,28 @@ public class CveSearchData {
     @SerializedName("Published") private String published;
     @SerializedName("cvss-time") private String cvss_time;
     private Set<VulnerableConfigurationEntry> vulnerable_configuration;
-    private double cvss;
-    private Set<String> vulnerable_configuration_2_2;
+    private Double cvss;
+    private String cwe;
     private Map<String,String> impact;
     private Map<String,String> access;
     private String summary;
-    private Map<String,String> map_cve_scip;
-    private Map<String,String> map_cve_exploitdb;
     private Map<String,String> map_cve_bid;
-    private Set<Set<Map<String,Integer>>> ranking;
+    private Map<String,String> map_cve_debian;
+    private Map<String,String> map_cve_exploitdb;
+    private Map<String,String> map_cve_gedora;
+    private Map<String,String> map_cve_hp;
+    private Map<String,String> map_cve_iavm;
+    private Map<String,String> map_cve_msf;
+    private Map<String,String> map_cve_nessus;
+    private Map<String,String> map_cve_openvas;
+    private Map<String,String> map_cve_osvdb;
+    private Map<String,String> map_cve_oval;
+    private Map<String,String> map_cve_saint;
+    private Map<String,String> map_cve_scip;
+    private Map<String,String> map_cve_suse;
+    private Map<String,String> map_cve_vmware;
+    private Map<String,String> map_redhat_bugzilla;
+    private Set<Set<Map<String,Integer>>> ranking; // only filled, when `cve`-api is used, not `cvefor`
 
     public Map<String, String> getAccess() {
         return access;
@@ -89,18 +99,20 @@ public class CveSearchData {
         return cvss_time;
     }
 
-    public Set<Map<String,String>> getVulnerable_configuration() {
-        return vulnerable_configuration.stream()
-                .map(VulnerableConfigurationEntry::getAsMap)
-                .collect(Collectors.toSet());
+    public Map<String,String> getVulnerable_configuration() {
+        Map<String,String> toReturn = new HashMap<>();
+        vulnerable_configuration.stream()
+                .map(VulnerableConfigurationEntry::getAsMapEntry)
+                .forEach(entry -> toReturn.put(entry.getKey(), entry.getValue()));
+        return toReturn;
     }
 
-    public double getCvss() {
+    public Double getCvss() {
         return cvss;
     }
 
-    public Set<String> getVulnerable_configuration_2_2() {
-        return vulnerable_configuration_2_2;
+    public String getCwe() {
+        return cwe;
     }
 
     public Map<String, String> getImpact() {
@@ -111,16 +123,29 @@ public class CveSearchData {
         return summary;
     }
 
-    public Map<String, String> getMap_cve_scip() {
-        return map_cve_scip;
-    }
+    public Map<String,Map<String,String>> getMap_cve_all(){
+        Map<String,Map<String,String>> mapOfAll = new HashMap<>();
 
-    public Map<String, String> getMap_cve_exploitdb() {
-        return map_cve_exploitdb;
-    }
+        BiConsumer<String, Map<String,String>> f = (title, map) -> mapOfAll.put(title, map);
 
-    public Map<String, String> getMap_cve_bid() {
-        return map_cve_bid;
+        f.accept("bid"            , map_cve_bid);
+        f.accept("debian"         , map_cve_debian);
+        f.accept("exploitdb"      , map_cve_exploitdb);
+        f.accept("gedora"         , map_cve_gedora);
+        f.accept("hp"             , map_cve_hp);
+        f.accept("iavm"           , map_cve_iavm);
+        f.accept("msf"            , map_cve_msf);
+        f.accept("nessus"         , map_cve_nessus);
+        f.accept("openvas"        , map_cve_openvas);
+        f.accept("osvdb"          , map_cve_osvdb);
+        f.accept("oval"           , map_cve_oval);
+        f.accept("saint"          , map_cve_saint);
+        f.accept("scip"           , map_cve_scip);
+        f.accept("suse"           , map_cve_suse);
+        f.accept("vmware"         , map_cve_vmware);
+        f.accept("redhat_bugzilla", map_redhat_bugzilla);
+
+        return mapOfAll;
     }
 
     public Set<Set<Map<String, Integer>>> getRanking() {
