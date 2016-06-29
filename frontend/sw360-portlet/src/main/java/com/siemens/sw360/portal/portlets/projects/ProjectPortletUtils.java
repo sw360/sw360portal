@@ -26,6 +26,7 @@ import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -41,9 +42,7 @@ import org.apache.log4j.Logger;
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.RenderRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.siemens.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
 
@@ -107,19 +106,27 @@ public class ProjectPortletUtils {
         PortletUtils.setFieldValue(request, project, field, Project.metaDataMap.get(field), "");
     }
 
-    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(List<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request){
+    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request){
+        String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        ProjectVulnerabilityRating projectVulnerabilityRating = projectVulnerabilityRatings.orElse(
+                new ProjectVulnerabilityRating()
+                        .setProjectId(projectId)
+                        .setVulnerabilityIdToStatus(new HashMap<>()));
 
-        ProjectVulnerabilityRating projectVulnerabilityRating;
-        if(projectVulnerabilityRatings.size() == 0){
-            String projectId = request.getParameter(PortalConstants.PROJECT_ID);
-            projectVulnerabilityRating = new ProjectVulnerabilityRating().setProjectId(projectId);
-            projectVulnerabilityRating.setVulnerabilityIdToStatus(new HashMap<>());
-        } else {
-            projectVulnerabilityRating = projectVulnerabilityRatings.get(0);
-        }
-        VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
         String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
-        projectVulnerabilityRating.vulnerabilityIdToStatus.put(vulnerabilityId, vulnerabilityCheckStatus);
+        if(!projectVulnerabilityRating.isSetVulnerabilityIdToStatus()){
+            projectVulnerabilityRating.setVulnerabilityIdToStatus(new HashMap<>());
+        }
+
+        Map<String,List<VulnerabilityCheckStatus>> vulnerabilityIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToStatus();
+        if(!vulnerabilityIdToStatus.containsKey(vulnerabilityId)){
+            vulnerabilityIdToStatus.put(vulnerabilityId, new ArrayList<>());
+        }
+
+        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToStatus.get(vulnerabilityId);
+        VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
+        vulnerabilityCheckStatusHistory.add(vulnerabilityCheckStatus);
+
         return projectVulnerabilityRating;
     }
 

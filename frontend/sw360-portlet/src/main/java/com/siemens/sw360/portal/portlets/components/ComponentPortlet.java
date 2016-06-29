@@ -609,7 +609,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 vulnerabilityVerifications.put(vulnerability.externalId, VerificationState.NOT_CHECKED);
                 vulnerabilityTooltips.put(vulnerability.externalId, "Not checked yet.");
             } else {
-                VerificationStateInfo info = relation.getVerificationStateInfo();
+                List<VerificationStateInfo> infos = relation.getVerificationStateInfo();
+                VerificationStateInfo info = infos.get(infos.size() - 1);
                 vulnerabilityVerifications.put(vulnerability.externalId, info.getVerificationState());
                 vulnerabilityTooltips.put(vulnerability.externalId,
                         "Checked By: " + info.getCheckedBy() + ", " +

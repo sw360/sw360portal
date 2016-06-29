@@ -30,10 +30,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -297,16 +294,19 @@ public abstract class ComponentPortletUtils {
     }
 
     public static ReleaseVulnerabilityRelation updateReleaseVulnerabilityRelationFromRequest(ReleaseVulnerabilityRelation dbRelation, ResourceRequest request){
-        VerificationStateInfo resultInfo;
-        if(dbRelation.isSetVerificationStateInfo()){
-            resultInfo = dbRelation.getVerificationStateInfo();
-        } else {
-            resultInfo = new VerificationStateInfo();
+
+        if(!dbRelation.isSetVerificationStateInfo()){
+            dbRelation.setVerificationStateInfo(new ArrayList<>());
         }
-        resultInfo.setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail());
-        resultInfo.setCheckedOn(SW360Utils.getCreatedOn());
-        resultInfo.setComment(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_COMMENT));
-        resultInfo.setVerificationState(VerificationState.valueOf(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_VALUE)));
-        return  dbRelation.setVerificationStateInfo(resultInfo);
+        List<VerificationStateInfo> verificationStateHistory = dbRelation.getVerificationStateInfo();
+
+        VerificationStateInfo resultInfo = new VerificationStateInfo()
+                .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
+                .setCheckedOn(SW360Utils.getCreatedOn())
+                .setComment(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_COMMENT))
+                .setVerificationState(VerificationState.valueOf(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_VALUE)));
+        verificationStateHistory.add(resultInfo);
+
+        return dbRelation;
     }
 }

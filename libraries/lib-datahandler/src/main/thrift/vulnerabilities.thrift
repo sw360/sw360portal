@@ -26,7 +26,7 @@ struct ReleaseVulnerabilityRelation{
     // Additional information
     10: required string releaseId,
     11: required string vulnerabilityId,
-    12: optional VerificationStateInfo verificationStateInfo,
+    12: optional list<VerificationStateInfo> verificationStateInfo,
 
     // meta information
    100: optional string matchedBy,
@@ -136,7 +136,7 @@ struct ProjectVulnerabilityRating{
 
     4: required string projectId,
     //keys are the externalIds of the vulnerabilities
-    5: required map<string, VulnerabilityCheckStatus> vulnerabilityIdToStatus,
+    5: required map<string, list<VulnerabilityCheckStatus>> vulnerabilityIdToStatus,
 }
 
 service VulnerabilityService {

@@ -64,6 +64,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
+import static com.siemens.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
 import static org.apache.commons.lang.StringUtils.abbreviate;
@@ -558,10 +559,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
-        List<ProjectVulnerabilityRating> projectVulnerabilityRatings = vulClient.getProjectVulnerabilityRatingByProjectId(id, user);
-        Map<String, VulnerabilityCheckStatus> vulnerabilityIdToStatus = (projectVulnerabilityRatings.size()>0)
-                        ? projectVulnerabilityRatings.get(0).getVulnerabilityIdToStatus()
-                        : new HashMap<>();
+        Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
+
+        Map<String, List<VulnerabilityCheckStatus>> vulnerabilityIdToStatusHistory;
+        if(projectVulnerabilityRatings.isPresent()){
+            vulnerabilityIdToStatusHistory = projectVulnerabilityRatings.get().getVulnerabilityIdToStatus();
+        } else {
+            vulnerabilityIdToStatusHistory = new HashMap<>();
+        }
 
         int numberOfVulnerabilities = 0;
         int numberOfCheckedVulnerabilities = 0;
@@ -572,8 +577,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             numberOfVulnerabilities++;
             String externalId = vul.getExternalId();
 
-            VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityIdToStatus.get(externalId);
-            if (vulnerabilityCheckStatus != null){
+            List<VulnerabilityCheckStatus> vulnerabilityCheckStatuses = vulnerabilityIdToStatusHistory.get(externalId);
+            if (vulnerabilityCheckStatuses != null && vulnerabilityCheckStatuses.size() > 0){
+                VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityCheckStatuses.get(vulnerabilityCheckStatuses.size() - 1);
                 vulnerabilityTooltips.put(externalId, formatedMessageForVul(vulnerabilityCheckStatus));
                 VulnerabilityRatingForProject rating = vulnerabilityCheckStatus.getVulnerabilityRating();
                 vulnerabilityRatings.put(externalId, rating);
@@ -806,18 +812,19 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
 
+        RequestStatus requestStatus = RequestStatus.FAILURE;
         try {
-            List<ProjectVulnerabilityRating> projectVulnerabilityRatings = vulClient.getProjectVulnerabilityRatingByProjectId(projectId, user);
+            Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(projectId, user));
             ProjectVulnerabilityRating link = ProjectPortletUtils.updateProjectVulnerabilityRatingFromRequest(projectVulnerabilityRatings, request);
-            RequestStatus requestStatus = vulClient.updateProjectVulnerabilityRating(link, user);
-
-            JSONObject responseData = JSONFactoryUtil.createJSONObject();
-            responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
-            responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
-            PrintWriter writer = response.getWriter();
-            writer.write(responseData.toString());
+            requestStatus = vulClient.updateProjectVulnerabilityRating(link, user);
         } catch (TException e) {
             log.error("Error updating vulnerability ratings for project in backend.", e);
         }
+
+        JSONObject responseData = JSONFactoryUtil.createJSONObject();
+        responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+        responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
+        PrintWriter writer = response.getWriter();
+        writer.write(responseData.toString());
     }
 }
