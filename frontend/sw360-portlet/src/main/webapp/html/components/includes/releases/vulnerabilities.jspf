@@ -32,7 +32,7 @@
         </tr>
         </tfoot>
     </table>
-    <div class="sw360modal" id="updateModal"></div>
+    <div class="sw360modal" id="vulnerabilityModal"></div>
 </div>
 <div style="clear:both"></div>
 <span class="pull-right">
@@ -102,7 +102,7 @@
     });
 
     function updateVulnerabilities(releaseId) {
-        modal = createModal();
+        modal = createModal('#vulnerabilityModal');
 
         modal.setHeader("Please wait while updating vulnerabilities.");
         modal.addToolbar();
@@ -160,5 +160,6 @@
     }
 
 </script>
-<%@include file="/html/components/includes/common/modal.jspf" %>
+<%@include file="/html/utils/includes/modal.jspf" %>
+<%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
 

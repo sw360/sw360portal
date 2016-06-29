@@ -39,7 +39,7 @@
         </tr>
         </tfoot>
     </table>
-    <div class="sw360modal" id="updateModal"></div>
+    <div class="sw360modal" id="vulnerabilityModal"></div>
 </div>
 <div style="clear:both"></div>
 <span class="pull-right">
@@ -110,7 +110,7 @@
     });
 
     function updateVulnerabilities(projectId) {
-        modal = createModal();
+        modal = createModal('#vulnerabilityModal');
 
         modal.setHeader("Please wait while updating vulnerabilities.");
         modal.addToolbar();
@@ -121,7 +121,9 @@
             dataType: 'json',
             data: {"<%=PortalConstants.PROJECT_ID%>":"${projectId}" },
             success: function(response){
-                displayResponse(response)
+                displayResponse(response);
+                document.getElementById("numberOfVulnerabilitiesDiv").style.fontSize="16px";
+                document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='&#8634;';
             },
         });
     }
@@ -169,5 +171,6 @@
     }
 
 </script>
-<%@include file="/html/components/includes/common/modal.jspf" %>
+<%@include file="/html/utils/includes/modal.jspf" %>
+<%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
 

@@ -164,7 +164,7 @@
         });
         bodyContent += "</ol>";
 
-        var modal = createModal(
+        var modal = createModal('#importOverview',
                 {
                     bodyContent: bodyContent
                 });
@@ -189,50 +189,6 @@
                 }
             ]);
         modal.render();
-    }
-
-    function createModal(config) {
-        var modal;
-        AUI().use(
-                'aui-modal',
-                function (Y) {
-                    modal = new Y.Modal(
-                            Object.assign({
-                                centered: true,
-                                destroyOnHide: true,
-                                modal: true,
-                                render: '#importOverview',
-                                width: 450
-                            }, config)
-                    );
-                    modal.setHeader = function (content) {
-                        this.set('headerContent', '<h5>' + content + '</h5>');
-                    };
-                    modal.render();
-                }
-        );
-        return modal;
-    }
-
-    function showStatusPopup(text, modal, header) {
-        if (!header) {
-            header = "Notice";
-        }
-        if (!modal) {
-            modal = createModal();
-        }
-        modal.setHeader(header);
-        modal.set("bodyContent", text);
-        modal.addToolbar([
-            {
-                label: 'Close',
-                on: {
-                    click: function() {
-                        modal.hide();
-                    }
-                }
-            }
-        ]);
     }
 
     function importProjectsData(modal) {
@@ -405,6 +361,8 @@
         }
     }
 </script>
+
+<%@include file="/html/utils/includes/modal.jspf" %>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

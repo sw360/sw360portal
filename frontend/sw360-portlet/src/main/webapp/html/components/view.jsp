@@ -181,7 +181,7 @@
         </tr>
         </tfoot>
     </table>
-    <div class="sw360modal" id="updateModal"></div>
+    <div class="sw360modal" id="vulnerabilityModal"></div>
 </div>
 <div style="clear:both"></div>
 
@@ -294,4 +294,5 @@
     }
 
 </script>
-<%@include file="/html/components/includes/common/modal.jspf" %>
+<%@include file="/html/utils/includes/modal.jspf" %>
+<%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
