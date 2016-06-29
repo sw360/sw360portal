@@ -514,4 +514,14 @@ public class CommonUtils {
             return Predicates.compose(predicate, transformer);
         }
     }
+
+    public static <T> Optional<T> wrapThriftOptionalReplacement(List<T> thriftOutput){
+        if (thriftOutput == null || thriftOutput.size() == 0){
+            return Optional.empty();
+        }
+        if (thriftOutput.size() > 1){
+            getLogger(CommonUtils.class).error("List contained more then one item but was treated as \"Optional\".");
+        }
+        return Optional.of(thriftOutput.get(0));
+    }
 }

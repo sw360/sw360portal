@@ -27,6 +27,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class CveSearchJsonParserTest {
 
@@ -149,10 +150,13 @@ public class CveSearchJsonParserTest {
         assert(result.getCvss() == 5.0);
         assert("CVE-2002-0438".equals(result.getId()));
 
-        Map<String, String> vce = result.getVulnerable_configuration().stream()
-                .findAny()
-                .get();
-        assert(vce.get("id").length() > 2);
+        Optional<Map.Entry<String, String>> vce = result.getVulnerable_configuration()
+                .entrySet()
+                .stream()
+                .findAny();
+        assert(vce.isPresent());
+        assert(vce.get().getKey().length() > 2);
+        assert(vce.get().getValue().length() > 2);
     }
 
     @Test
@@ -163,12 +167,14 @@ public class CveSearchJsonParserTest {
         assert("CVE-2002-0438".equals(result.getId()));
         assert(result.getVulnerable_configuration().size() == 6);
 
-        Map<String, String> vce = result.getVulnerable_configuration().stream()
-                .findAny()
-                .get();
-        assert(vce.get("id").length() > 2);
-        assert(vce.get("title").length() > 2);
-        assert(! vce.get("id").equals(vce.get("title")));
+        Optional<Map.Entry<String, String>> vce = result.getVulnerable_configuration()
+                .entrySet()
+                .stream()
+                .findAny();
+        assert(vce.isPresent());
+        assert(vce.get().getKey().length() > 2);
+        assert(vce.get().getValue().length() > 2);
+        assert(! vce.get().getKey().equals(vce.get().getValue()));
     }
 
     @Test
