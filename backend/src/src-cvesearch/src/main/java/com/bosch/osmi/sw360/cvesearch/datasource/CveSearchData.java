@@ -21,10 +21,7 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 import com.google.gson.annotations.SerializedName;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class CveSearchData {
@@ -82,8 +79,19 @@ public class CveSearchData {
     @SerializedName("Modified") private DateTimeObject modified;
     @SerializedName("Published") private DateTimeObject published;
     private Set<VulnerableConfigurationEntry> vulnerable_configuration;
+    /**
+     * Common Vulnerability Scoring System
+     */
     private Double cvss;
     @SerializedName("cvss-time") private DateTimeObject cvss_time;
+    /**
+     * CWE™ International in scope and free for public use, CWE provides a unified, measurable set of software
+     * weaknesses that is enabling more effective discussion, description, selection, and use of software security tools
+     * and services that can find these weaknesses in source code and operational systems as well as better
+     * understanding and management of software weaknesses related to architecture and design.
+     *
+     * see: https://cwe.mitre.org/
+     */
     private String cwe;
     private Map<String,String> impact;
     private Map<String,String> access;
@@ -105,6 +113,13 @@ public class CveSearchData {
     private Map<String,String> map_cve_vmware;
     private Map<String,String> map_redhat_bugzilla;
     private Set<Set<Map<String,Integer>>> ranking; // only filled, when `cve`-api is used, not `cvefor`
+    /**
+     * CAPEC™ is a comprehensive dictionary and classification taxonomy of known attacks that can be used by analysts,
+     * developers, testers, and educators to advance community understanding and enhance defenses.
+     *
+     * see: https://capec.mitre.org/
+     */
+    private Set<Map<String,List<String>>> capec;
 
     //==================================================================================================================
     // Other metadata
@@ -193,6 +208,24 @@ public class CveSearchData {
         f.accept("redhat_bugzilla", map_redhat_bugzilla);
 
         return mapOfAll;
+    }
+
+    public Set<Map<String,String>> getCapec() {
+        Set<Map<String,String>> capecToReturn = new HashSet<>();
+
+        for(Map<String,List<String>> rawCapecData : capec){
+            Map<String,String> capecData = new HashMap<>();
+            for(Map.Entry<String,List<String>> rawCapecDataEntry : rawCapecData.entrySet()){
+                StringBuilder sb = new StringBuilder();
+                for(String line : rawCapecDataEntry.getValue()){
+                    sb.append(line);
+                    sb.append("\\n");
+                }
+                capecData.put(rawCapecDataEntry.getKey(), sb.toString());
+            }
+        }
+
+        return capecToReturn;
     }
 
     public Set<Set<Map<String, Integer>>> getRanking() {
