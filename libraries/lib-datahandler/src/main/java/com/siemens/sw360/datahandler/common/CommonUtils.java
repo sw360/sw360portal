@@ -18,6 +18,8 @@
 package com.siemens.sw360.datahandler.common;
 
 import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.*;
@@ -35,12 +37,15 @@ import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Optional;
+import java.util.function.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.log4j.LogManager.getLogger;
@@ -51,7 +56,8 @@ import static org.apache.log4j.LogManager.getLogger;
  */
 public class CommonUtils {
 
-    private static Logger log = Logger.getLogger(CommonUtils.class);
+    private static String SYSTEM_CONFIGURATION_PATH = "/etc/sw360";
+
     private CommonUtils() {
         // Utility class with only static functions
     }
@@ -452,16 +458,33 @@ public class CommonUtils {
     }
 
     public static Properties loadProperties(Class<?> clazz, String propertiesFilePath) {
-        Properties props = new Properties();
-        try {
-            try (InputStream resourceAsStream = clazz.getResourceAsStream(propertiesFilePath)) {
-                if (resourceAsStream == null)
-                    throw new IOException("cannot open " + propertiesFilePath);
+        return loadProperties(clazz, propertiesFilePath, true);
+    }
 
-                props.load(resourceAsStream);
-            }
+    public static Properties loadProperties(Class<?> clazz, String propertiesFilePath, boolean useSystemConfig) {
+        Properties props = new Properties();
+
+        try (InputStream resourceAsStream = clazz.getResourceAsStream(propertiesFilePath)) {
+            if (resourceAsStream == null)
+                throw new IOException("cannot open " + propertiesFilePath);
+
+            props.load(resourceAsStream);
         } catch (IOException e) {
-            getLogger(clazz).error("Error opening resource " + propertiesFilePath + ", switching to default.", e);
+            getLogger(clazz).error("Error opening resources " + propertiesFilePath + ".", e);
+        }
+
+        if(useSystemConfig){
+            File systemPropertiesFile = new File(SYSTEM_CONFIGURATION_PATH, propertiesFilePath);
+            if(systemPropertiesFile.exists()){
+                try (InputStream resourceAsStream = new FileInputStream(systemPropertiesFile.getPath())) {
+                    if (resourceAsStream == null)
+                        throw new IOException("cannot open " + systemPropertiesFile.getPath());
+
+                    props.load(resourceAsStream);
+                } catch (IOException e) {
+                    getLogger(clazz).error("Error opening resources " + systemPropertiesFile.getPath() + ".", e);
+                }
+            }
         }
         return props;
     }
