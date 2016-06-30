@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
-  ~ With modifications by Bosch Software Innovations GmbH, 2016.
+  ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -17,44 +16,30 @@
   ~ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   ~ 02110-1301, USA.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.siemens.sw360</groupId>
-        <artifactId>backend</artifactId>
+        <artifactId>backend-svc</artifactId>
         <version>1.4.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>backend-src</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>svc-vulnerabilities</artifactId>
+    <packaging>war</packaging>
+    <name>svc-vulnerabilities</name>
 
-    <modules>
-        <module>src-licenses</module>
-        <module>src-users</module>
-        <module>src-vendors</module>
-        <module>src-search</module>
-        <module>src-components</module>
-        <module>src-projects</module>
-        <module>src-attachments</module>
-        <module>src-moderation</module>
-        <module>src-fossology</module>
-        <module>src-bdpimport</module>
-        <module>src-vulnerabilities</module>
-    </modules>
-
-
-    <dependencies>
-        <dependency>
-            <groupId>com.siemens.sw360</groupId>
-            <artifactId>src-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <developers>
+        <developer>
+            <name>stefan.jaeger@evosoft.com</name>
+        </developer>
+    </developers>
 
     <build>
+        <finalName>vulnerabilities</finalName>
+
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -66,10 +51,10 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <artifactItems combine.children="append">
+                            <artifactItems>
                                 <artifactItem>
                                     <groupId>com.siemens.sw360</groupId>
-                                    <artifactId>src-common</artifactId>
+                                    <artifactId>src-${project.build.finalName}</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -83,4 +68,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.siemens.sw360</groupId>
+            <artifactId>src-${project.build.finalName}</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+
 </project>

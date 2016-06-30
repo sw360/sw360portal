@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -24,11 +24,13 @@ import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 
 /**
  * Created by bodet on 16/02/15.
  *
  * @author cedric.bodet@tngtech.com
+ * @author stefan.jaeger@evosoft.com
  */
 public class PermissionUtils {
 
@@ -75,6 +77,8 @@ public class PermissionUtils {
             return (DocumentPermissions<T>) new VendorPermissions((Vendor) document, user);
         } else if (document instanceof User) {
             return (DocumentPermissions<T>) new UserPermissions((User) document, user);
+        } else if (document instanceof Vulnerability) {
+            return (DocumentPermissions<T>) new VulnerabilityPermissions((Vulnerability) document, user);
         } else {
             throw new IllegalArgumentException("Invalid input type!");
         }

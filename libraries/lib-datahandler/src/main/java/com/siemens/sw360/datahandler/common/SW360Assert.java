@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License Version 2.0 as published by the
@@ -30,6 +30,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Assertion utilities, throwing thrift exception.
  *
  * @author cedric.bodet@tngtech.com
+ * @author stefan.jaeger@evosoft.com
  */
 public class SW360Assert {
     private static final Logger log = getLogger(SW360Assert.class);
@@ -45,6 +46,18 @@ public class SW360Assert {
 
     public static <T> T assertNotNull(T object, String messageFormat, Object... args) throws SW360Exception {
         if (object == null) {
+            throw fail(messageFormat, args);
+        }
+        return object;
+    }
+
+    public static <T> T assertNull(T object) throws SW360Exception {
+        assertNull(object, "Invalid null input!");
+        return object;
+    }
+
+    public static <T> T assertNull(T object, String messageFormat, Object... args) throws SW360Exception {
+        if (object != null) {
             throw fail(messageFormat, args);
         }
         return object;
@@ -132,5 +145,9 @@ public class SW360Assert {
         if (!CommonUtils.isValidUrl(url)) {
             throw fail("not a valid url: '%s'", url);
         }
+    }
+
+    public static void assertTrue(boolean condition) throws SW360Exception {
+        failIf(!condition, "condition not fulfilled");
     }
 }

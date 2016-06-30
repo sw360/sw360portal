@@ -1,6 +1,6 @@
 <%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -87,6 +87,7 @@
                 <core_rt:if test="${cotsMode}">
                     <li <core_rt:if test="${selectedTab == 'COTSDetails'}"> class="active" </core_rt:if>  ><a href="#tab-CommercialDetails">Commercial Details</a></li>
                 </core_rt:if>
+                <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}">              class="active" </core_rt:if>  >                <a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
             </ul>
             <div class="tab-content span10">
                 <div id="tab-Summary" class="tab-pane">
@@ -108,6 +109,9 @@
                         <%@include file="/html/components/includes/releases/commercialDetails.jspf" %>
                     </div>
                 </core_rt:if>
+                <div id="tab-Vulnerabilities">
+                    <%@include file="/html/components/includes/releases/vulnerabilities.jspf" %>
+                </div>
             </div>
         </div>
     </div>
