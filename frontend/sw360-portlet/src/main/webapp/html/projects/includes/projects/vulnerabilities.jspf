@@ -30,6 +30,7 @@
 <jsp:useBean id="vulnerabilityRatings" type="java.util.Map<java.lang.String, com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject>" scope="request"/>
 <jsp:useBean id="vulnerabilityRatingsEditable" type="java.lang.Boolean" scope="request"/>
 <jsp:useBean id="vulnerabilityCheckstatusTooltips" type="java.util.Map<java.lang.String, java.lang.String>" scope="request"/>
+<jsp:useBean id="vulnerabilityMatchedByHistogram" type="java.util.Map<java.lang.String, java.lang.Integer>" scope="request"/>
 
 
 <div id="vulnerabilityTableDiv">
@@ -43,6 +44,17 @@
     <div class="sw360modal" id="vulnerabilityModal"></div>
 </div>
 <div style="clear:both"></div>
+<div class="pull-left">
+    <ul>
+        <core_rt:forEach items="${vulnerabilityMatchedByHistogram.keySet()}" var="matchedBy">
+            <li>
+                <b><sw360:out value='${vulnerabilityMatchedByHistogram.get(matchedBy)}'/></b>
+                of the vulnerabilities were matched by
+                <b><sw360:out value='${matchedBy}'/></b>
+            </li>
+        </core_rt:forEach>
+    </ul>
+</div>
 <span class="pull-right">
     <input type="button" onclick="updateVulnerabilities('${project.id}')" id="updateVulnerabilities" value="Update by CVE-search" class="addButton">
 </span>

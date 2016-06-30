@@ -145,6 +145,7 @@ public class PortalConstants {
     public static final String VULNERABILITY_VERIFICATION_EDITABLE = "vulnerabilityVerificationEditable";
     public static final String VULNERABILITY_VERIFICATION_TOOLTIPS = "vulnerabilityVerificationTooltips";
     public static final String VULNERABILITY_VERIFICATIONS = "vulnerabilityVerifications";
+    public static final String VULNERABILITY_MATCHED_BY_HISTOGRAM = "vulnerabilityMatchedByHistogram";
 
     //! Specialized keys for account sign-up
     public static final String PASSWORD = "password";

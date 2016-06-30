@@ -532,6 +532,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         return sb.toString();
     }
 
+    private void addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, String matchedBy){
+        if (matchedByHistogram.containsKey(matchedBy)){
+            matchedByHistogram.put(matchedBy, matchedByHistogram.get(matchedBy) + 1);
+        }else{
+            matchedByHistogram.put(matchedBy, 1);
+        }
+    }
+
+    private void addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, VulnerabilityDTO vul){
+        if (vul.isSetMatchedBy()) {
+            addToMatchedByHistogram(matchedByHistogram, vul.getMatchedBy());
+        } else {
+            addToMatchedByHistogram(matchedByHistogram, "UNKNOWN");
+        }
+    }
+
     private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
         List<VulnerabilityDTO> vuls;
@@ -551,6 +567,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         int numberOfCheckedVulnerabilities = 0;
         Map<String, String> vulnerabilityTooltips = new HashMap<>();
         Map<String, VulnerabilityRatingForProject> vulnerabilityRatings = new HashMap<>();
+        Map<String, Integer> matchedByHistogram = new HashMap<>();
         for (VulnerabilityDTO vul: vuls) {
             numberOfVulnerabilities++;
             String externalId = vul.getExternalId();
@@ -567,10 +584,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 vulnerabilityTooltips.put(externalId, NOT_CHECKED_YET);
                 vulnerabilityRatings.put(externalId, VulnerabilityRatingForProject.NOT_CHECKED);
             }
+
+            addToMatchedByHistogram(matchedByHistogram, vul);
         }
 
         int numberOfUncheckedVulnerabilities = numberOfVulnerabilities - numberOfCheckedVulnerabilities;
 
+        request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
         request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRatings);
         request.setAttribute(PortalConstants.VULNERABILITY_CHECKSTATUS_TOOLTIPS, vulnerabilityTooltips);
         request.setAttribute(PortalConstants.NUMBER_OF_VULNERABILITIES, numberOfVulnerabilities);
