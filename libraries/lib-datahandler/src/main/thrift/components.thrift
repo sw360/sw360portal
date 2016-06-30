@@ -478,18 +478,6 @@ service ComponentService {
        **/
     bool componentIsUsed(1: string componentId);
 
-    /**
-     * remove attachment corresponding to attachmentContentId from component specified by componentId,
-     *  if user does not have permissions, moderation request is created
-     **/
-    RequestStatus removeAttachmentFromComponent(1: string componentId, 2:User user, 3:string attachmentContentId);
-
-    /**
-     * remove attachment corresponding to attachmentContentId from release specified by releaseId,
-     * if user does not have permissions, moderation request is created
-     **/
-    RequestStatus removeAttachmentFromRelease(1: string releaseId, 2:User user, 3:string attachmentContentId);
-
     // These two methods are needed because there is no rights management needed to subscribe
     /**
      *   subscribe user for component (no permission necessary)

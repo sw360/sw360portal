@@ -71,6 +71,7 @@ public abstract class ComponentPortletUtils {
                     setFieldValue(request, release, field);
                     break;
                 case ATTACHMENTS:
+                    release.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments()));
                     break;
                 case RELEASE_ID_TO_RELATIONSHIP:
                     if (!release.isSetReleaseIdToRelationship())
@@ -81,9 +82,6 @@ public abstract class ComponentPortletUtils {
                     setFieldValue(request, release, field);
             }
         }
-        // ensure ATTACHMENTS are processed after CLEARING_STATE so that automatic asignment of CLEARING_STATE will not get overwritten by the clearing state from request
-        release.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, release.getAttachments()));
-        CommonUtils.setReleaseClearingStateOnUpdate(release);
     }
 
     private static ClearingInformation getClearingInformationFromRequest(PortletRequest request) {
