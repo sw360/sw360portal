@@ -19,14 +19,15 @@
 package com.siemens.sw360.portal.portlets.projects;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -48,6 +49,7 @@ import com.siemens.sw360.portal.common.*;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
 import com.siemens.sw360.portal.users.LifeRayUserSession;
 import com.siemens.sw360.portal.users.UserCacheHolder;
+import com.siemens.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -68,6 +70,7 @@ import static org.apache.commons.lang.StringUtils.abbreviate;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ProjectPortlet extends FossologyAwarePortlet {
 
@@ -420,6 +423,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             final User user = UserCacheHolder.getUserFromRequest(request);
             ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
+            String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
+            if (null == groupFilterValue) {
+                addStickyProjectGroupToFilters(request, user, filterMap);
+            } else {
+                ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
+            }
+
             if (isNullOrEmpty(searchtext) && filterMap.isEmpty()) {
                 projectList = projectClient.getAccessibleProjectsSummary(user);
             } else {
@@ -437,9 +447,19 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(PROJECT_LIST, projectList);
         request.setAttribute(KEY_SEARCH_TEXT, searchtext);
         request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
+        List<Organization> organizations = UserUtils.getOrganizations(request);
+        request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
 
     }
 
+    private void addStickyProjectGroupToFilters(RenderRequest request, User user, Map<String, Set<String>> filterMap){
+        String stickyGroupFilter = ProjectPortletUtils.loadStickyProjectGroup(request, user);
+        if (!isNullOrEmpty(stickyGroupFilter)){
+            String groupFieldName = Project._Fields.BUSINESS_UNIT.getFieldName();
+            filterMap.put(groupFieldName, Sets.newHashSet(stickyGroupFilter));
+            request.setAttribute(groupFieldName, stickyGroupFilter);
+        }
+    }
 
     private void prepareDetailView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);

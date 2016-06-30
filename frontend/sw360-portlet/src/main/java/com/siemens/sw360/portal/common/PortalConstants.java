@@ -148,6 +148,9 @@ public class PortalConstants {
     public static final String ORGANIZATIONS = "organizations";
     public static final String PAGENAME_SUCCESS = "success";
 
+    //! Specialized keys for users
+    public static final String CUSTOM_FIELD_PROJECT_GROUP_FILTER = "ProjectGroupFilter";
+
     //! Serve resource generic keywords
     public static final String ACTION = "action";
     public static final String ACTION_CANCEL = "action_cancel";

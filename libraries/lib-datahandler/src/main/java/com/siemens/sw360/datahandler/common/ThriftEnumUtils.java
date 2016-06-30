@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -165,7 +165,7 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<Visibility, String> MAP_VISIBILITY_STRING = ImmutableMap.of(
             Visibility.PRIVATE, "Private" ,
             Visibility.ME_AND_MODERATORS, "Me and Moderators",
-            Visibility.BUISNESSUNIT_AND_MODERATORS, "Business Unit and Moderators",
+            Visibility.BUISNESSUNIT_AND_MODERATORS, "Group and Moderators",
             Visibility.EVERYONE, "Everyone"
     );
 

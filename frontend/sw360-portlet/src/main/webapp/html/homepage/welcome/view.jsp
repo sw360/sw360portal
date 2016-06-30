@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ This program is free software; you can redistribute it and/or modify it under
   ~ the terms of the GNU General Public License Version 2.0 as published by the
@@ -155,7 +155,7 @@
         <li/>
         <b>Project state</b>: possible values are <i>Active</i>, <i>Phase out</i>, <i>Unknown</i>
         <li/>
-        <b>Business unit</b>
+        <b>Group</b>
         <li/>
         <b>Clearing team</b><br/>
     </ul>
@@ -460,7 +460,7 @@
     Project manager/ component owner<br/>
     Moderator<br/>
     Contributor / developer / lead architect<br/>
-    User in business unit<br/>
+    User in Group<br/>
     <br/>
     <span class="wikidpad wiki-name-ref">[<a name="Glossary" class="wikidpad">Glossary</a>]<br/><br/></span><span
         class="wikidpad parent-nodes">parent nodes: <span class="wikidpad parent-node"><a
@@ -522,7 +522,7 @@
         tbd<br/>
 
     <p><br/>
-    <i><b>User in Business Unit</b></i><br/>
+    <i><b>User in Group</b></i><br/>
     tbd<br/>
 
 </core_rt:if>

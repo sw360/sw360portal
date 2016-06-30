@@ -171,9 +171,9 @@
     <tr>
 
         <td width="33%">
-            <label class="textlabel stackedLabel mandatory" for="business_unit">Business unit</label>
-            <input id="business_unit" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>" type="text"
-                   placeholder="Enter Business Unit" required=""
+            <label class="textlabel stackedLabel mandatory" for="group">Group</label>
+            <input id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>" type="text"
+                   placeholder="Enter Group" required=""
                    value="<sw360:out value="${project.businessUnit}"/>"/>
         </td>
 
