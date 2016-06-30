@@ -20,6 +20,8 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +29,11 @@ import java.util.function.BiConsumer;
 
 public class CveSearchData {
 
+    /**
+     * wrapper around entries of the vulnerable configuration list, since
+     * - sometimes they are plain strings containing the cpe
+     * - sometimes they are objects containing an "id" which is the cpe and an "title" which is the human readeable name of an release
+     */
     static public class VulnerableConfigurationEntry {
         private String title;
         private String id;
@@ -46,13 +53,35 @@ public class CveSearchData {
         }
     }
 
+    /**
+     * wrapper for date fields in Object, since
+     * - the api of version <=2.1 returns a date as formatted string
+     * - the api of version >=2.2 returns a object which contains the field "$date" which contains a long
+     */
+    public static class DateTimeObject {
+        private String formattedDate;
+
+        public DateTimeObject(String formattedDate) {
+            this.formattedDate = formattedDate;
+        }
+
+        public DateTimeObject(long dateAsLong) {
+            this.formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                          .format(new Date(dateAsLong));
+        }
+
+        public String getFormattedDate() {
+            return formattedDate;
+        }
+    }
+
     private String id;
-    @SerializedName("Modified") private String modified;
     private Set<String> references;
-    @SerializedName("Published") private String published;
-    @SerializedName("cvss-time") private String cvss_time;
+    @SerializedName("Modified") private DateTimeObject modified;
+    @SerializedName("Published") private DateTimeObject published;
     private Set<VulnerableConfigurationEntry> vulnerable_configuration;
     private Double cvss;
+    @SerializedName("cvss-time") private DateTimeObject cvss_time;
     private String cwe;
     private Map<String,String> impact;
     private Map<String,String> access;
@@ -73,7 +102,7 @@ public class CveSearchData {
     private Map<String,String> map_cve_suse;
     private Map<String,String> map_cve_vmware;
     private Map<String,String> map_redhat_bugzilla;
-    private Set<Set<Map<String,Integer>>> ranking; // only filled, when `cve`-api is used, not `cvefor`
+    private Set<Set<Map<String,Integer>>> ranking;
 
     public Map<String, String> getAccess() {
         return access;
@@ -84,7 +113,7 @@ public class CveSearchData {
     }
 
     public String getModified() {
-        return modified;
+        return modified.getFormattedDate();
     }
 
     public Set<String> getReferences() {
@@ -92,11 +121,11 @@ public class CveSearchData {
     }
 
     public String getPublished() {
-        return published;
+        return published.getFormattedDate();
     }
 
     public String getCvss_time() {
-        return cvss_time;
+        return cvss_time.getFormattedDate();
     }
 
     public Map<String,String> getVulnerable_configuration() {

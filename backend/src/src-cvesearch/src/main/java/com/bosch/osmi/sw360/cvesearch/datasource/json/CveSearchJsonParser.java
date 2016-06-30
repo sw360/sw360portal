@@ -32,6 +32,7 @@ public class CveSearchJsonParser implements Function<BufferedReader, Object> {
     public CveSearchJsonParser(Type type) {
         this.type = type;
         GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(CveSearchData.DateTimeObject.class, new DateTimeObjectDeserializer());
         gsonBuilder.registerTypeAdapter(CveSearchData.VulnerableConfigurationEntry.class, new VulnerableConfigurationEntryDeserializer());
         gson = gsonBuilder.create();
     }
@@ -47,6 +48,22 @@ public class CveSearchJsonParser implements Function<BufferedReader, Object> {
                 final String title = jsonObject.get("title").getAsString();
                 final String id = jsonObject.get("id").getAsString();
                 return new CveSearchData.VulnerableConfigurationEntry(title, id);
+            }
+        }
+    }
+
+    private class DateTimeObjectDeserializer implements JsonDeserializer<CveSearchData.DateTimeObject> {
+        @Override
+        public CveSearchData.DateTimeObject deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            if (jsonElement.isJsonPrimitive()){
+                final String formattedDate = jsonElement.getAsString();
+                return new CveSearchData.DateTimeObject(formattedDate);
+            }else{
+                final JsonObject jsonObject = jsonElement.getAsJsonObject();
+                if (jsonObject.has("$date")){
+                    return new CveSearchData.DateTimeObject(jsonObject.get("$date").getAsLong());
+                }
+                return null;
             }
         }
     }

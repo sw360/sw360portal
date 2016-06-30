@@ -144,6 +144,28 @@ public class CveSearchJsonParserTest {
     }
 
     @Test
+    public void testDateParser2_1(){
+        String date = "2011-03-07T21:50:16.563-05:00";
+        String json = "{\"Modified\": \"" + date + "\"}";
+        Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(json));
+        CveSearchData result = (CveSearchData) resultO;
+        assert(result.getModified() != null);
+        assert(result.getModified().length()>0);
+        assert(date.equals(result.getModified()));
+    }
+
+    @Test
+    public void testDateParser2_2(){
+        long dateAsLong = 1299534616563L;
+        String json = "{\"Modified\": { \"$date\": " + dateAsLong + "}}";
+        Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(json));
+        CveSearchData result = (CveSearchData) resultO;
+        assert(result.getModified() != null);
+        assert(result.getModified().length()>0);
+        assert(result.getModified().startsWith("2011-03-07T"));
+    }
+
+    @Test
     public void singleFull_A() {
         Object resultO = cveSearchJsonParserSingle.apply(toBufferedReader(SEARCH_RESULT_SINGLE_A));
         CveSearchData result = (CveSearchData) resultO;
