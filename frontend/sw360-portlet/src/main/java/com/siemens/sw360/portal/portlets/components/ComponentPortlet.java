@@ -581,7 +581,25 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         } else {
             vuls = vulClient.getVulnerabilitiesByReleaseIdWithoutIncorrect(releaseId, user);
         }
+        request.setAttribute(VULNERABILITY_LIST,vuls);
 
+        putVulnerabilityMetadatasInRequest(request, vuls);
+    }
+
+    private void putVulnerabilitiesInRequestComponent(RenderRequest request, String componentId, User user) throws TException{
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+        List<VulnerabilityDTO> vuls;
+        if (PermissionUtils.isAdmin(user)) {
+            vuls = vulClient.getVulnerabilitiesByComponentId(componentId, user);
+        } else {
+            vuls = vulClient.getVulnerabilitiesByComponentIdWithoutIncorrect(componentId, user);
+        }
+        request.setAttribute(VULNERABILITY_LIST, vuls);
+
+        putVulnerabilityMetadatasInRequest(request, vuls);
+    }
+
+    private void putVulnerabilityMetadatasInRequest(RenderRequest request, List<VulnerabilityDTO> vuls) {
         Map<String, String> vulnerabilityTooltips = new HashMap<>();
         Map<String, VerificationState> vulnerabilityVerifications = new HashMap<>();
 
@@ -601,20 +619,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             }
         }
 
-    request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
-    request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);
-    request.setAttribute(VULNERABILITY_LIST,vuls);
-}
-
-    private void putVulnerabilitiesInRequestComponent(RenderRequest request, String componentId, User user) throws TException{
-        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-        List<VulnerabilityDTO> vuls;
-        if (PermissionUtils.isAdmin(user)) {
-            vuls = vulClient.getVulnerabilitiesByComponentId(componentId, user);
-        } else {
-            vuls = vulClient.getVulnerabilitiesByComponentIdWithoutIncorrect(componentId, user);
-        }
-        request.setAttribute(VULNERABILITY_LIST, vuls);
+        request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
+        request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);
     }
 
 

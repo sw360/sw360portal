@@ -41,7 +41,7 @@ public class SearchLevels {
         searchLevels = new ArrayList<>();
 
         // Level 1. search by full cpe
-        searchLevels.add(mkSearchLevel("by CPE",
+        searchLevels.add(mkSearchLevel("CPE",
                 r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
                 r -> r.getCpeid().toLowerCase()));
     }

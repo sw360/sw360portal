@@ -54,9 +54,9 @@
             "DT_RowId": "${vulnerability.id}",
             "0": "${vulnerability.externalId}",
             "1": '<div class="dataTables_cell_nowrap" title="${vulnerability.priorityToolTip}">${vulnerability.priority}<img class="infopic" src="/sw360-portlet/images/ic_info.png"/></div>',
-            "2": '<span title="Found with needle: <sw360:out value='${vulnerability.usedNeedle}'/>"><sw360:out value='${vulnerability.matchedBy}'/></span>',
-            "3": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<sw360:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
+            "2": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<sw360:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
                     '<sw360:out value='${vulnerability.title}'/></div>',
+            "3": '<span title="Found with needle: <sw360:out value='${vulnerability.usedNeedle}'/>"><sw360:out value='${vulnerability.matchedBy}'/></span>',
             "4":
             <core_rt:choose>
             <core_rt:when test="${vulnerabilityVerificationEditable}">
@@ -83,8 +83,8 @@
             "aoColumns": [
                 {"sTitle": "External id"},
                 {"sTitle": "Priority"},
-                {"sTitle": "Matched by"},
                 {"sTitle": "Title"},
+                {"sTitle": "Matched by"},
                 {"sTitle": "Verification"},
                 {"sTitle": "Action"}
             ],
