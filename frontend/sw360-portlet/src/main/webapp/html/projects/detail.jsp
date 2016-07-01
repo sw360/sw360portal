@@ -24,6 +24,7 @@
 <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js" type="text/javascript"></script>
 
 <jsp:include page="/html/utils/includes/attachmentsDelete.jsp" />
 

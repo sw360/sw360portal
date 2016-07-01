@@ -85,7 +85,14 @@
                 {"sTitle": "Priority"},
                 {"sTitle": "Title"},
                 {"sTitle": "Matched by"},
-                {"sTitle": "Verification"},
+                <core_rt:choose>
+                    <core_rt:when test="${vulnerabilityVerificationEditable}">
+                        {"sTitle": "Verification", "orderDataType": "sort-select" },
+                    </core_rt:when>
+                    <core_rt:otherwise>
+                        {"sTitle": "Verification"},
+                    </core_rt:otherwise>
+                </core_rt:choose>
                 {"sTitle": "Action"}
             ],
             "order": [[1, 'asc'], [2, 'desc']]
@@ -101,6 +108,7 @@
 
         $('#vulnerabilityTable_first').hide();
         $('#vulnerabilityTable_last').hide();
+
     }
 
     /*This can not be document ready function as liferay definitions need to be loaded first*/
@@ -167,6 +175,7 @@
     }
 
 </script>
+<%@include file="/html/utils/includes/sortSelect.jspf" %>
 <%@include file="/html/utils/includes/modal.jspf" %>
 <%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
 
