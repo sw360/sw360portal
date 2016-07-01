@@ -64,8 +64,8 @@ struct Project {
     5: optional string description,
     6: optional string version,
 
-    // Bdp information
-    9: optional string bdpId,
+    // information from external data sources
+    9: optional map<string, string> externalIds,
 
     // Additional informations
     10: optional set<Attachment> attachments,

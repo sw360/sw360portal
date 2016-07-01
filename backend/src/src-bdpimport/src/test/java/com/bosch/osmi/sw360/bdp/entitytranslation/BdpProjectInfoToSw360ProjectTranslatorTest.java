@@ -87,7 +87,7 @@ public class BdpProjectInfoToSw360ProjectTranslatorTest {
 	
 	@Test
 	public void testGetProjectId() {
-		assertThat(project.getBdpId(), is(projectInfoBdp.getProjectId()));
+		assertThat(project.getExternalIds().get(TranslationConstants.BDP_ID), is(projectInfoBdp.getProjectId()));
 	}
 	
 	@Test

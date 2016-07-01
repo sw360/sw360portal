@@ -20,6 +20,7 @@ package com.bosch.osmi.sw360.bdp.entitytranslation;
 
 import com.bosch.osmi.bdp.access.api.model.ProjectInfo;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
+import java.util.HashMap;
 
 public class BdpProjectInfoToSw360ProjectTranslator implements EntityTranslator<ProjectInfo, Project> {
 
@@ -27,7 +28,8 @@ public class BdpProjectInfoToSw360ProjectTranslator implements EntityTranslator<
     public Project apply(com.bosch.osmi.bdp.access.api.model.ProjectInfo projectInfoBdp) {
         Project projectSW360 = new Project();
 
-        projectSW360.setBdpId(projectInfoBdp.getProjectId());
+        projectSW360.setExternalIds(new HashMap<>());
+        projectSW360.getExternalIds().put(TranslationConstants.BDP_ID, projectInfoBdp.getProjectId());
 
         projectSW360.setDescription("");
 

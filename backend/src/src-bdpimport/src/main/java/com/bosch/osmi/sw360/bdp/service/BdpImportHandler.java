@@ -23,6 +23,7 @@ import com.bosch.osmi.sw360.bdp.datasink.thrift.ThriftExchange;
 import com.bosch.osmi.sw360.bdp.datasink.thrift.ThriftUploader;
 import com.bosch.osmi.sw360.bdp.datasource.BdpApiAccessWrapperSimple;
 import com.bosch.osmi.sw360.bdp.entitytranslation.BdpProjectInfoToSw360ProjectTranslator;
+import com.bosch.osmi.sw360.bdp.entitytranslation.TranslationConstants;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
 import com.siemens.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
@@ -60,6 +61,11 @@ public class BdpImportHandler implements BdpImportService.Iface {
                 .stream()
                 .map(new BdpProjectInfoToSw360ProjectTranslator())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getIdName(){
+        return TranslationConstants.BDP_ID;
     }
 
 }

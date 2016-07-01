@@ -30,9 +30,10 @@ public class BdpComponentToSw360ReleaseTranslator implements EntityTranslator<Co
     @Override
     public Release apply(com.bosch.osmi.bdp.access.api.model.Component componentBdp) {
         Release releaseSW360 = new Release();
+        releaseSW360.setExternalIds(new HashMap<>());
 
         releaseSW360.setName(componentBdp.getName());
-        releaseSW360.setBdpId(componentBdp.getComponentKey());
+        releaseSW360.getExternalIds().put(TranslationConstants.BDP_ID,componentBdp.getComponentKey());
 
 
         if (! isNullOrEmpty(componentBdp.getComponentVersion())) {
@@ -47,7 +48,6 @@ public class BdpComponentToSw360ReleaseTranslator implements EntityTranslator<Co
         releaseSW360.setModerators(new HashSet<>());
 // Problem: Can not set mail address when no corresponding user is registered
 // releaseSW360.getModerators().add(componentBdp.getApprovedBy());
-
 // Not yet used:
 // componentBdp.getComponentComment();
 // componentBdp.getUsageLevel();

@@ -19,16 +19,18 @@
 package com.bosch.osmi.sw360.bdp.entitytranslation;
 
 import com.siemens.sw360.datahandler.thrift.licenses.License;
+import java.util.HashMap;
 
 public class BdpLicenseToSw360LicenseTranslator implements EntityTranslator<com.bosch.osmi.bdp.access.api.model.License, License> {
 
     @Override
     public License apply(com.bosch.osmi.bdp.access.api.model.License licenseBdp) {
         com.siemens.sw360.datahandler.thrift.licenses.License licenseSW360 = new License();
+        licenseSW360.setExternalIds(new HashMap<>());
 
         licenseSW360.setId(licenseBdp.getId());
         licenseSW360.setShortname(licenseBdp.getId());
-        licenseSW360.setBdpId(licenseBdp.getId());
+        licenseSW360.getExternalIds().put(TranslationConstants.BDP_ID, licenseBdp.getId());
         licenseSW360.setFullname(licenseBdp.getName());
         licenseSW360.setText(licenseBdp.getText());
 

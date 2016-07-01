@@ -169,8 +169,8 @@ struct Release {
     7: required string componentId, // Id of the parent component
     8: optional string releaseDate,
 
-    // Bdp information
-    9: optional string bdpId,
+    // information from external data sources
+    9: optional  map<string, string> externalIds,
 
     // Additional informations
     10: optional set<Attachment> attachments,

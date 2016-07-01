@@ -118,7 +118,7 @@ public class BdpComponentToSw360ReleaseTranslatorTest {
 
 	@Test
 	public void testGetBdpId() {
-		assertThat(release.getBdpId(), is(componentBdp.getComponentKey()));
+		assertThat(release.getExternalIds().get(TranslationConstants.BDP_ID), is(componentBdp.getComponentKey()));
 	}
 
 	@Test

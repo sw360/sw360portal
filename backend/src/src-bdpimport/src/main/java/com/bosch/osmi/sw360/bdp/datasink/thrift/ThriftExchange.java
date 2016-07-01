@@ -18,6 +18,7 @@
  */
 package com.bosch.osmi.sw360.bdp.datasink.thrift;
 
+import com.bosch.osmi.sw360.bdp.entitytranslation.TranslationConstants;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
@@ -33,6 +34,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 
 public class ThriftExchange {
@@ -64,7 +66,9 @@ public class ThriftExchange {
     public Project getAccessibleProjectByBdpId(String bdpId, User user) throws TException{
         return nullToEmptyList(getAccessibleProjectsSummary(user))
                 .stream()
-                .collect(Collectors.toMap(Project::getBdpId, Function.identity()))
+                .filter(project -> project.isSetExternalIds())
+                .filter(project -> ! isNullOrEmpty(project.getExternalIds().get(TranslationConstants.BDP_ID)))
+                .collect(Collectors.toMap(project -> project.getExternalIds().get(TranslationConstants.BDP_ID), Function.identity()))
                 .get(bdpId);
     }
 
@@ -124,7 +128,10 @@ public class ThriftExchange {
     }
 
     public Optional<List<License>> searchLicenseByBdpId(String bdpId) {
-        return getFilteredLicenseList(license -> CommonUtils.nullToEmptyString(license.getBdpId()).equals(bdpId),
+        return getFilteredLicenseList(license ->
+                        license.isSetExternalIds() ?
+                                CommonUtils.nullToEmptyString(license.getExternalIds().get(TranslationConstants.BDP_ID)).equals(bdpId) :
+                                false,
                 "bdpId=[" + bdpId + "]:"
         );
     }
