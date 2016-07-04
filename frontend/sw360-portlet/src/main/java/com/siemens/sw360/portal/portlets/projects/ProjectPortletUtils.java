@@ -26,7 +26,6 @@ import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;

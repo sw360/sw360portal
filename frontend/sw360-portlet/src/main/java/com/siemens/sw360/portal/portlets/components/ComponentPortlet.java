@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -553,7 +554,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     id = release.getComponentId();
                 }
 
-                // get vulnerabilities
                 putVulnerabilitiesInRequestRelease(request, releaseId, user);
                 request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
             }
@@ -571,6 +571,24 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             throw new PortletException("backend not available", e);
         }
 
+    }
+
+    private String formatedMessageForVul(List<VerificationStateInfo> infoHistory){
+        StringBuffer sb = new StringBuffer();
+        sb.append("<ol reversed>");
+        int sizeOfHistory = infoHistory.size() - 1;
+        IntStream.rangeClosed(0, sizeOfHistory)
+                .mapToObj(i -> infoHistory.get(sizeOfHistory-i))
+                .forEach(
+                        info -> {
+                            sb.append("<li>Checked by: <b>"); sb.append(info.getCheckedBy());
+                            sb.append("</b><br/>Checked on: <b>"); sb.append(info.getCheckedOn());
+                            sb.append("</b><br/>State: <b>"); sb.append(info.getVerificationState().name());
+                            sb.append("</b><br/>Comment: <b>"); sb.append(info.getComment());
+                            sb.append("</b></li>");
+                        });
+        sb.append("</ol>");
+        return sb.toString();
     }
 
     private void putVulnerabilitiesInRequestRelease(RenderRequest request, String releaseId, User user) throws TException {
@@ -609,14 +627,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 vulnerabilityVerifications.put(vulnerability.externalId, VerificationState.NOT_CHECKED);
                 vulnerabilityTooltips.put(vulnerability.externalId, "Not checked yet.");
             } else {
-                List<VerificationStateInfo> infos = relation.getVerificationStateInfo();
-                VerificationStateInfo info = infos.get(infos.size() - 1);
+                List<VerificationStateInfo> infoHistory = relation.getVerificationStateInfo();
+                VerificationStateInfo info = infoHistory.get(infoHistory.size() - 1);
                 vulnerabilityVerifications.put(vulnerability.externalId, info.getVerificationState());
-                vulnerabilityTooltips.put(vulnerability.externalId,
-                        "Checked By: " + info.getCheckedBy() + ", " +
-                                "Checked On: " + info.getCheckedOn() + ", " +
-                                "State: " + info.getVerificationState().name() + ", " +
-                                "Comment: " + info.getComment());
+                vulnerabilityTooltips.put(vulnerability.externalId, formatedMessageForVul(infoHistory));
             }
         }
 

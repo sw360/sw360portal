@@ -65,7 +65,14 @@
             ],
             "order": [[ 2, 'asc' ], [ 3, 'desc' ]]
         });
-        oTable.$('td').tooltip( {"delay": 0, "track": true,"fade": 250} );
+        oTable.$('td').tooltip({
+            "delay": 0,
+            "track": true,
+            "fade": 250,
+            "content": function () {
+                return $(this).prop('title');
+            }
+        });
 
         $('#vulnerabilityTable_first').hide();
         $('#vulnerabilityTable_last').hide();

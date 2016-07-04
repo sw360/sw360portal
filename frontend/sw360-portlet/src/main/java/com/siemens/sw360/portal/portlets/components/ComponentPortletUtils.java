@@ -8,14 +8,11 @@
  */
 package com.siemens.sw360.portal.portlets.components;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.VerificationState;
 import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;

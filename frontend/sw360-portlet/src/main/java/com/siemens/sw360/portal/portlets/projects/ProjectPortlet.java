@@ -59,6 +59,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -524,12 +525,21 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private String formatedMessageForVul(VulnerabilityCheckStatus status){
+    private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory){
         StringBuffer sb = new StringBuffer();
-        sb.append("Checked By: "); sb.append(status.getCheckedBy()); sb.append(", ");
-        sb.append("Checked On: ");  sb.append(status.getCheckedOn()); sb.append(", ");
-        sb.append("Rating: "); sb.append(status.getVulnerabilityRating().name()); sb.append(", ");
-        sb.append("Comment: "); sb.append(status.getComment());
+        sb.append("<ol reversed>");
+        int sizeOfHistory = statusHistory.size() - 1;
+        IntStream.rangeClosed(0, sizeOfHistory)
+                .mapToObj(i -> statusHistory.get(sizeOfHistory-i))
+                .forEach(
+                        status -> {
+                            sb.append("<li>Checked by: <b>"); sb.append(status.getCheckedBy());
+                            sb.append("</b><br/>Checked on: <b>"); sb.append(status.getCheckedOn());
+                            sb.append("</b><br/>Rating: <b>"); sb.append(status.getVulnerabilityRating().name());
+                            sb.append("</b><br/>Comment: <b>"); sb.append(status.getComment());
+                            sb.append("</b></li>");
+                        });
+        sb.append("</ol>");
         return sb.toString();
     }
 
@@ -559,11 +569,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
-        Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
+        Optional<ProjectVulnerabilityRating> projectVulnerabilityRating = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
 
         Map<String, List<VulnerabilityCheckStatus>> vulnerabilityIdToStatusHistory;
-        if(projectVulnerabilityRatings.isPresent()){
-            vulnerabilityIdToStatusHistory = projectVulnerabilityRatings.get().getVulnerabilityIdToStatus();
+        if(projectVulnerabilityRating.isPresent()){
+            vulnerabilityIdToStatusHistory = projectVulnerabilityRating.get().getVulnerabilityIdToStatus();
         } else {
             vulnerabilityIdToStatusHistory = new HashMap<>();
         }
@@ -577,11 +587,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             numberOfVulnerabilities++;
             String externalId = vul.getExternalId();
 
-            List<VulnerabilityCheckStatus> vulnerabilityCheckStatuses = vulnerabilityIdToStatusHistory.get(externalId);
-            if (vulnerabilityCheckStatuses != null && vulnerabilityCheckStatuses.size() > 0){
-                VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityCheckStatuses.get(vulnerabilityCheckStatuses.size() - 1);
-                vulnerabilityTooltips.put(externalId, formatedMessageForVul(vulnerabilityCheckStatus));
+            List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToStatusHistory.get(externalId);
+            if (vulnerabilityCheckStatusHistory != null && vulnerabilityCheckStatusHistory.size() > 0){
+                vulnerabilityTooltips.put(externalId, formatedMessageForVul(vulnerabilityCheckStatusHistory));
+
+                VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityCheckStatusHistory.get(vulnerabilityCheckStatusHistory.size() - 1);
                 VulnerabilityRatingForProject rating = vulnerabilityCheckStatus.getVulnerabilityRating();
+
                 vulnerabilityRatings.put(externalId, rating);
                 if (rating != VulnerabilityRatingForProject.NOT_CHECKED){
                     numberOfCheckedVulnerabilities++;
