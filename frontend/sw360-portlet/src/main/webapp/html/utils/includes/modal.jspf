@@ -43,7 +43,7 @@
                 function (Y) {
                     modal = new Y.Modal(
                             Object.assign({
-                                centered: true,
+                                xy: [parent.innerWidth*0.5-225,100],
                                 destroyOnHide: true,
                                 modal: true,
                                 render: modalid,
