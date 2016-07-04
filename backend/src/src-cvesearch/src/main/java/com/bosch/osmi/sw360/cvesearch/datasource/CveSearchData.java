@@ -122,6 +122,9 @@ public class CveSearchData {
     }
 
     public String getModified() {
+        if(modified == null){
+            return null;
+        }
         return modified.getFormattedDate();
     }
 
@@ -130,10 +133,16 @@ public class CveSearchData {
     }
 
     public String getPublished() {
+        if(published == null){
+            return null;
+        }
         return published.getFormattedDate();
     }
 
     public String getCvss_time() {
+        if(cvss_time == null){
+            return null;
+        }
         return cvss_time.getFormattedDate();
     }
 
