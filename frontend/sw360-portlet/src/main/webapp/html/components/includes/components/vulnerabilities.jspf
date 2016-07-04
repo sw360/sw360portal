@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="com.siemens.sw360.portal.common.page.PortletReleasePage" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.VerificationState" %>
 <%--
   ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
   ~ With modifications from Bosch Software Innovations GmbH, 2016.
@@ -13,6 +13,12 @@
 <portlet:resourceURL var="updateVulnerabilitiesURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITIES_COMPONENT%>"/>
 </portlet:resourceURL>
+<portlet:resourceURL var="updateVulnerabilityVerification">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITY_VERIFICATION%>"/>
+</portlet:resourceURL>
+<jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
+<jsp:useBean id="vulnerabilityVerificationTooltips" type="java.util.Map<java.lang.String, java.lang.String>"
+             scope="request"/>
 
 <div id="vulnerabilityTableDiv">
     <table id="vulnerabilityTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -46,7 +52,22 @@
             "3": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<c:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
                     '<c:out value='${vulnerability.title}'/></div>',
             "4": '<span title="Found with needle: <sw360:out value='${vulnerability.usedNeedle}'/>"><sw360:out value='${vulnerability.matchedBy}'/></span>',
-            "5": '<div title="${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}"><sw360:DisplayEnum value="${vulnerabilityVerifications.get(vulnerability.externalId)}"/></div>',
+            "5":
+            <core_rt:choose>
+            <core_rt:when test="${vulnerabilityVerificationEditable}">
+                    '<select class="toplabelledInput" ' +
+                    'id="verificationChangeSelectFor${vulnerability.externalId}" ' +
+                    'name="<portlet:namespace/><%=VerificationState.class%>" ' +
+                    'onchange="changeVerification(this, `${vulnerability.externalId}`,`${vulnerabilityVerifications.get(vulnerability.externalId)}`, `${vulnerability.intReleaseId}`)" ' +
+                    'title = "${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}"' +
+                    'style="min-width: 90px; min-height: 28px;">' +
+                     <sw360:DisplayEnumOptions type="<%=VerificationState.class%>" selected="${vulnerabilityVerifications.get(vulnerability.externalId)}" inQuotes="true" useStringValues="true"/> +
+                    '</select>',
+            </core_rt:when>
+            <core_rt:otherwise>
+                    '<div title="${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}"><sw360:DisplayEnum value="${vulnerabilityVerifications.get(vulnerability.externalId)}"/></div>',
+            </core_rt:otherwise>
+            </core_rt:choose>
             "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
         });
         </core_rt:forEach>
@@ -60,7 +81,14 @@
                 {"sTitle": "Priority"},
                 {"sTitle": "Title"},
                 {"sTitle": "Matched by"},
+                <core_rt:choose>
+                <core_rt:when test="${vulnerabilityVerificationEditable}">
+                {"sTitle": "Verification", "orderDataType": "sort-select" },
+                </core_rt:when>
+                <core_rt:otherwise>
                 {"sTitle": "Verification"},
+                </core_rt:otherwise>
+                </core_rt:choose>
                 {"sTitle": "Action"}
             ],
             "order": [[ 2, 'asc' ], [ 3, 'desc' ]]
@@ -101,7 +129,48 @@
         });
     }
 
+    function changeVerification(currentselect, vulnerabilityId, oldValue, releaseId) {
+        releaseVerificationChangeSelect = currentselect;
+        var newValue = currentselect.value;
+        ratingModal = createModalWithInput(vulnerabilityId, oldValue, newValue, releaseId);
+
+        ratingModal.setHeader("If you want to change the verification of " + vulnerabilityId + " to " + newValue +
+                " enter a comment and press OK.");
+    }
+
+    function  cancelRatingChange(oldValue){
+        releaseVerificationChangeSelect.value = oldValue;
+    }
+    function executeRatingChange(vulnerabilityId, newValue, comment, oldValue, releaseId){
+        var data = new Object();
+        data["<portlet:namespace/><%=PortalConstants.RELEASE_ID%>"] = releaseId;
+        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_ID%>"] = vulnerabilityId;
+        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_VERIFICATION_VALUE%>"] = newValue;
+        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_VERIFICATION_COMMENT%>"] = comment;
+
+        $.ajax({
+            url: '<%=updateVulnerabilityVerification%>',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function(response){
+                var selectId = "verificationChangeSelectFor"+response.<%=PortalConstants.VULNERABILITY_ID%>;
+                switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
+                    case '<%=RequestStatus.FAILURE%>':
+                        showStatusPopup("",modal,"Update failed.");
+                        document.getElementById(selectId).value = oldValue;
+                        break;
+                    case '<%=RequestStatus.SUCCESS%>':
+                        document.getElementById(selectId).title = "You just changed this value.";
+                        break;
+                    default:
+                }
+            },
+        });
+    }
+
 </script>
+<%@include file="/html/utils/includes/sortSelect.jspf" %>
 <%@include file="/html/utils/includes/modal.jspf" %>
 <%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
 

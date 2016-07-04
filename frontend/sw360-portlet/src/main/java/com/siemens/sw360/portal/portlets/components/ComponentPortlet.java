@@ -498,6 +498,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
                 // get vulnerabilities
                 putVulnerabilitiesInRequestComponent(request, id, user);
+                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
 
                 addComponentBreadcrumb(request, response, component);
             } catch (TException e) {
