@@ -36,6 +36,7 @@ public class DisplayMap extends SimpleTagSupport {
     public void setValue(Map<String, String> value) {
         this.value = value;
     }
+
     public void setAutoFillValue(Map<String, String> autoFillValue) {
         this.autoFillValue = autoFillValue;
     }
@@ -43,18 +44,25 @@ public class DisplayMap extends SimpleTagSupport {
     public void doTag() throws JspException, IOException {
         Map<String, String> fullValue;
 
-        if (value == null)
+        if (value == null) {
             fullValue = autoFillValue;
-        else {
+        } else {
             fullValue = value;
         }
 
         if (null != fullValue && !fullValue.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            fullValue.entrySet().stream().forEach(e -> sb.append(
-                    "<b>"+e.getKey()+"</b> "+ e.getValue()+"<br/>"
-            ));
-            getJspContext().getOut().print(sb.toString());
+            String result = getMapAsString(fullValue);
+            getJspContext().getOut().print(result);
         }
+    }
+
+    public static String getMapAsString(Map<String, String> map) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<ul style=\"list-style-type: none; padding:0; margin:0;\">");
+        map.entrySet().stream().forEach(e -> sb.append(
+                "<li><b>" + e.getKey() + "</b> " + e.getValue() + "</li>"
+        ));
+        sb.append("</ul>");
+        return sb.toString();
     }
 }

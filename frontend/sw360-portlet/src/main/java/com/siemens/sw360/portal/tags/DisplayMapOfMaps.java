@@ -43,30 +43,20 @@ public class DisplayMapOfMaps extends SimpleTagSupport {
     public void doTag() throws JspException, IOException {
         Map<String, Map<String, String>> fullValue;
 
-        if (value == null)
+        if (value == null) {
             fullValue = autoFillValue;
-        else {
+        } else {
             fullValue = value;
         }
 
-        if (null != fullValue && !fullValue.isEmpty()) {
+        if (null != fullValue && ! fullValue.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             sb.append("<ul>");
             fullValue.entrySet().stream().forEach(e -> sb.append(
-                    "<li><b>"+e.getKey()+"</b>:"+ getMapAsString(e.getValue())+"</li>"
+                    "<li><b>"+e.getKey()+"</b>:<div style=\"padding:0 0 0 1em;\">"+ DisplayMap.getMapAsString(e.getValue()) + "</div></li>"
             ));
             sb.append("</ul>");
             getJspContext().getOut().print(sb.toString());
         }
-    }
-
-    private String getMapAsString(Map<String, String> map){
-        StringBuilder sb = new StringBuilder();
-        sb.append("<ul style=\"list-style-type: none;\">");
-        map.entrySet().stream().forEach(e -> sb.append(
-                "<li>"+ e.getKey()+": "+ e.getValue()+"</li>"
-        ));
-        sb.append("</ul>");
-        return sb.toString();
     }
 }

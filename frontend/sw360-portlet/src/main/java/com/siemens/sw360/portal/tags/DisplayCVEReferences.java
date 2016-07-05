@@ -24,6 +24,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This displays a set of CVEReferences
@@ -45,22 +46,19 @@ public class DisplayCVEReferences extends SimpleTagSupport {
     public void doTag() throws JspException, IOException {
         Set<CVEReference> fullValue;
 
-        if (value == null)
+        if (value == null) {
             fullValue = autoFillValue;
-        else {
+        } else {
             fullValue = value;
         }
 
         if (null != fullValue && !fullValue.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            fullValue.stream().forEach(r -> sb.append(toString(r)));
-            String resultWithLastCommaAndSpace = sb.toString();
-            String result = resultWithLastCommaAndSpace.substring(0, resultWithLastCommaAndSpace.length()-3);
+            String result = String.join(",", fullValue.stream().map(this::toString).collect(Collectors.toList()));
             getJspContext().getOut().print(result);
         }
     }
 
     private String toString(CVEReference reference){
-        return "CVE-"+reference.getYear() +"-"+ reference.getNumber()+", ";
+        return "CVE-" + reference.getYear() + "-" + reference.getNumber();
     }
 }

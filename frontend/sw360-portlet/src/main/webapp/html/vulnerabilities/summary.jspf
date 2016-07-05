@@ -80,7 +80,7 @@
         <td><sw360:DisplayVendorAdvisories value="${vulnerability.vendorAdvisories}"/></td>
     </tr>
     <tr>
-        <td>Cvss:</td>
+        <td>Vulnerability scoring (CVSS):</td>
         <td>
             <core_rt:if test="${vulnerability.isSetCvss}">
                 <sw360:out value="${vulnerability.cvss}"/>&nbsp;(as&nbsp;of:&nbsp;<sw360:out value="${vulnerability.cvssTime}" default="--"/>)
@@ -92,7 +92,7 @@
         <td><sw360:DisplayMap value ="${vulnerability.access}"/></td>
     </tr>
     <tr>
-        <td>CWE:</td>
+        <td>Common weakness enumeration:</td>
         <td><sw360:DisplayLink target="https://cve.circl.lu/cwe/${vulnerability.cwe.substring(4)}" text ="${vulnerability.cwe}"/></td>
     </tr>
     <tr>

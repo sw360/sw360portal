@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+
 public class CveSearchData {
 
     /**
@@ -163,7 +165,7 @@ public class CveSearchData {
 
     public Map<String,String> getVulnerable_configuration() {
         Map<String,String> toReturn = new HashMap<>();
-        vulnerable_configuration.stream()
+        nullToEmptySet(vulnerable_configuration).stream()
                 .map(VulnerableConfigurationEntry::getAsMapEntry)
                 .forEach(entry -> toReturn.put(entry.getKey(), entry.getValue()));
         return toReturn;

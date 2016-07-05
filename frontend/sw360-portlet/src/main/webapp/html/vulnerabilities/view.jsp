@@ -101,14 +101,14 @@
             "0": "<a href='" + createDetailURLFromVulnerabilityId("${vulnerability.externalId}") + "' target='_self'><sw360:out value="${vulnerability.externalId}"/></a>",
             "1": "<span title='<sw360:out value='${vulnerability.description}'/>'><sw360:out value='${vulnerability.title}'/></span>",
             "2": <core_rt:if test="${vulnerability.isSetCvss}">
-                    "<div><sw360:out value="cvss: ${vulnerability.cvss}"/>"+
+                    "<div>cvss: <sw360:out value="${vulnerability.cvss}"/>"+
                         <core_rt:if test="${not empty vulnerability.cvssTime}">
                             " (as of: <sw360:out value="${vulnerability.cvssTime}" default="not set"/>)"+
                         </core_rt:if>
                     "</div>"+
                  </core_rt:if>
                  <core_rt:if test="${not empty vulnerability.priority}">
-                    "<div title='<sw360:out value='${vulnerability.priorityText}'/>'><sw360:out value='priority: ${vulnerability.priority}'/><img class='infopic' src='/sw360-portlet/images/ic_info.png'/></div>"+
+                    "<div title='<sw360:out value='${vulnerability.priorityText}'/>'>priority: <sw360:out value='${vulnerability.priority}'/><img class='infopic' src='/sw360-portlet/images/ic_info.png'/></div>"+
                  </core_rt:if>
                     "",
             "3": "<sw360:out value='${vulnerability.publishDate}'/>",
@@ -136,10 +136,10 @@
     }
 
     function createDetailURLFromVulnerabilityId(paramVal) {
-        return createUrl_comp('<%=PortalConstants.VULNERABILITY_ID%>', paramVal);
+        return createCompositeUrl('<%=PortalConstants.VULNERABILITY_ID%>', paramVal);
     }
 
-    function createUrl_comp(paramId, paramVal) {
+    function createCompositeUrl(paramId, paramVal) {
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
                  .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
          return portletURL.toString();

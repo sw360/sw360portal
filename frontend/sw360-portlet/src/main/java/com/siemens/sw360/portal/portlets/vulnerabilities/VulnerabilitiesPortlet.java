@@ -45,6 +45,7 @@ import static com.siemens.sw360.portal.common.PortalConstants.*;
 public class VulnerabilitiesPortlet extends Sw360Portlet{
 
     private static final Logger log = Logger.getLogger(VulnerabilitiesPortlet.class);
+    private static final String YEAR_MONTH_DAY_REGEX = "\\d\\d\\d\\d-\\d\\d-\\d\\d.*";
 
     //Helper methods
     private void addVulnerabilityBreadcrumb(RenderRequest request, RenderResponse response, Vulnerability vulnerability) {
@@ -86,16 +87,24 @@ public class VulnerabilitiesPortlet extends Sw360Portlet{
 
     private void shortenTimeStampsToDates(List<Vulnerability> vulnerabilities){
         vulnerabilities.stream().forEach(v-> {
-            if (v.getPublishDate().matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*")) {
-                v.setPublishDate(v.getPublishDate().substring(0,10));
+            if (isFormattedTimeStamp(v.getPublishDate())) {
+                v.setPublishDate(getDateFromFormattedTimeStamp(v.getPublishDate()));
             }
-            if (v.getLastExternalUpdate().matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*")) {
-                v.setLastExternalUpdate(v.getLastExternalUpdate().substring(0,10));
+            if (isFormattedTimeStamp(v.getLastExternalUpdate())) {
+                v.setLastExternalUpdate(getDateFromFormattedTimeStamp(v.getLastExternalUpdate()));
             }
-            if (v.isSetCvssTime() && v.getCvssTime().matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*")) {
-                v.setCvssTime(v.getCvssTime().substring(0,10));
+            if (v.isSetCvssTime() && isFormattedTimeStamp(v.getCvssTime())) {
+                v.setCvssTime(getDateFromFormattedTimeStamp(v.getCvssTime()));
             }
         });
+    }
+
+    private String getDateFromFormattedTimeStamp(String formattedTimeStamp){
+        return formattedTimeStamp.substring(0,10);
+    }
+
+    private boolean isFormattedTimeStamp(String potentialTimestamp){
+        return potentialTimestamp.matches(YEAR_MONTH_DAY_REGEX);
     }
 
     private void prepareDetailView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
