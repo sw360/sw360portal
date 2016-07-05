@@ -58,10 +58,10 @@
                     '<select class="toplabelledInput" ' +
                     'id="verificationChangeSelectFor${vulnerability.externalId}" ' +
                     'name="<portlet:namespace/><%=VerificationState.class%>" ' +
-                    'onchange="changeVerification(this, `${vulnerability.externalId}`,`${vulnerabilityVerifications.get(vulnerability.externalId)}`, `${vulnerability.intReleaseId}`)" ' +
+                    'onchange="changeVerification(this, `${vulnerability.externalId}`,`${vulnerabilityVerifications.get(vulnerability.externalId).ordinal()}`, `${vulnerability.intReleaseId}`)" ' +
                     'title = "${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}"' +
                     'style="min-width: 90px; min-height: 28px;">' +
-                     <sw360:DisplayEnumOptions type="<%=VerificationState.class%>" selected="${vulnerabilityVerifications.get(vulnerability.externalId)}" inQuotes="true" useStringValues="true"/> +
+                     <sw360:DisplayEnumOptions type="<%=VerificationState.class%>" selected="${vulnerabilityVerifications.get(vulnerability.externalId)}" inQuotes="true"/> +
                     '</select>',
             </core_rt:when>
             <core_rt:otherwise>
@@ -134,8 +134,9 @@
         var newValue = currentselect.value;
         ratingModal = createModalWithInput(vulnerabilityId, oldValue, newValue, releaseId);
 
-        ratingModal.setHeader("If you want to change the verification of " + vulnerabilityId + " to " + newValue +
-                " enter a comment and press OK.");
+        var newValueText = $(currentselect).children("option:selected").text();
+        ratingModal.setHeader("If you want to change the verification of " + vulnerabilityId + " to &raquo;" + newValueText +
+                "&laquo; enter a comment and press OK.");
     }
 
     function  cancelRatingChange(oldValue){

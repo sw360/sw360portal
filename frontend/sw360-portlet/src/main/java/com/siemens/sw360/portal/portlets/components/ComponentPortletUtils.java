@@ -297,11 +297,14 @@ public abstract class ComponentPortletUtils {
         }
         List<VerificationStateInfo> verificationStateHistory = dbRelation.getVerificationStateInfo();
 
+        VerificationState verificationState = VerificationState.findByValue(
+                Integer.parseInt(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_VALUE)));
+
         VerificationStateInfo resultInfo = new VerificationStateInfo()
                 .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
                 .setCheckedOn(SW360Utils.getCreatedOn())
                 .setComment(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_COMMENT))
-                .setVerificationState(VerificationState.valueOf(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_VALUE)));
+                .setVerificationState(verificationState);
         verificationStateHistory.add(resultInfo);
 
         return dbRelation;

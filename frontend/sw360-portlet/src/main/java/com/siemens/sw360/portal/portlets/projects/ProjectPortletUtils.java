@@ -130,12 +130,14 @@ public class ProjectPortletUtils {
     }
 
     private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request){
+        VulnerabilityRatingForProject vulnerabilityRatingForProject = VulnerabilityRatingForProject.findByValue(
+                        Integer.parseInt(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
 
         VulnerabilityCheckStatus vulnerabilityCheckStatus = new VulnerabilityCheckStatus()
                 .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
                 .setCheckedOn(SW360Utils.getCreatedOn())
                 .setComment(request.getParameter(PortalConstants.VULNERABILITY_RATING_COMMENT))
-                .setVulnerabilityRating(VulnerabilityRatingForProject.valueOf(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
+                .setVulnerabilityRating(vulnerabilityRatingForProject);
         return vulnerabilityCheckStatus;
     }
 

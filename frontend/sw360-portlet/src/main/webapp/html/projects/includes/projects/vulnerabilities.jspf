@@ -82,10 +82,10 @@
                 '<select class="toplabelledInput" '+
                     'id="ratingChangeSelectFor${vulnerability.externalId}" '+
                     'name="<portlet:namespace/><%=VulnerabilityRatingForProject.class%>" '+
-                    'onchange="changeRating(this, `${vulnerability.externalId}`,`${vulnerabilityRatings.get(vulnerability.externalId)}`)" '+
+                    'onchange="changeRating(this, `${vulnerability.externalId}`,`${vulnerabilityRatings.get(vulnerability.externalId).ordinal()}`)" '+
                     'title = "${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"'+
                     'style="min-width: 90px; min-height: 28px;">'+
-                   <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId)}" inQuotes="true" useStringValues="true"/> +
+                   <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId)}" inQuotes="true"/> +
                 '</select>',
                 </core_rt:when>
                 <core_rt:otherwise>
@@ -126,10 +126,8 @@
             }
         });
 
-
         $('#vulnerabilityTable_first').hide();
         $('#vulnerabilityTable_last').hide();
-
     }
 
     /*This can not be document ready function as liferay definitions need to be loaded first*/
@@ -161,8 +159,9 @@
         var newValue = currentselect.value;
         ratingModal = createModalWithInput(vulnerabilityId, oldValue, newValue);
 
-        ratingModal.setHeader("If you want to change the vulnerability rating of " + vulnerabilityId + " to " + newValue +
-                " enter a comment and press OK.");
+        var newValueText = $(currentselect).children("option:selected").text();
+        ratingModal.setHeader("If you want to change the verification of " + vulnerabilityId + " to &raquo;" + newValueText +
+                "&laquo; enter a comment and press OK.");
     }
 
     function  cancelRatingChange(oldValue){
