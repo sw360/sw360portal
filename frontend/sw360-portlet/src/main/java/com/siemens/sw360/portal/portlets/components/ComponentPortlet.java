@@ -582,11 +582,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 .mapToObj(i -> infoHistory.get(sizeOfHistory-i))
                 .forEach(
                         info -> {
-                            sb.append("<li>Checked by: <b>"); sb.append(info.getCheckedBy());
-                            sb.append("</b><br/>Checked on: <b>"); sb.append(info.getCheckedOn());
-                            sb.append("</b><br/>State: <b>"); sb.append(info.getVerificationState().name());
-                            sb.append("</b><br/>Comment: <b>"); sb.append(info.getComment());
-                            sb.append("</b></li>");
+                            sb.append("<li><b>"); sb.append(info.getVerificationState().name());
+                            sb.append("</b> ("); sb.append(info.getCheckedOn());
+                            sb.append(")<br/>Checked by: <b>"); sb.append(info.getCheckedBy());
+                            sb.append("</b><br/>Comment: "); sb.append(info.getComment());
+                            sb.append("</li>");
                         });
         sb.append("</ol>");
         return sb.toString();

@@ -533,11 +533,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 .mapToObj(i -> statusHistory.get(sizeOfHistory-i))
                 .forEach(
                         status -> {
-                            sb.append("<li>Checked by: <b>"); sb.append(status.getCheckedBy());
-                            sb.append("</b><br/>Checked on: <b>"); sb.append(status.getCheckedOn());
-                            sb.append("</b><br/>Rating: <b>"); sb.append(status.getVulnerabilityRating().name());
-                            sb.append("</b><br/>Comment: <b>"); sb.append(status.getComment());
-                            sb.append("</b></li>");
+                            sb.append("<li><b>"); sb.append(status.getVulnerabilityRating().name());
+                            sb.append("</b> ("); sb.append(status.getCheckedOn());
+                            sb.append(")<br/>Checked by: <b>"); sb.append(status.getCheckedBy());
+                            sb.append("</b><br/>Comment: "); sb.append(status.getComment());
+                            sb.append("</li>");
                         });
         sb.append("</ol>");
         return sb.toString();
