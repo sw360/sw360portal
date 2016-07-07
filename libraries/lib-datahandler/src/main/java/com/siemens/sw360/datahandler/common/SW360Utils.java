@@ -42,6 +42,7 @@ import static org.apache.log4j.Logger.getLogger;
  * @author Cedric.Bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class SW360Utils {
 
@@ -193,57 +194,82 @@ public class SW360Utils {
         return user.getEmail();
     }
 
-    public static Map<Integer, Collection<ProjectLink>> getLinkedProjects(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
+    public static Collection<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
         if (in != null) {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 List<ProjectLink> linkedProjects = client.getLinkedProjects(in);
-                return getDepthMap(linkedProjects);
+                return linkedProjects;
             } catch (TException e) {
                 log.error("Could not get linked projects", e);
             }
         }
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
-    public static Map<Integer, Collection<ReleaseLink>> getLinkedReleases(Map<String, String> releaseUsage, ThriftClients thriftClients, Logger log) {
+    public static Collection<ProjectLink> getLinkedProjectsAsFlatList(Map<String, ProjectRelationship> in, ThriftClients thriftClients, Logger log) {
+        return flattenProjectLinkTree(getLinkedProjects(in, thriftClients, log));
+    }
+
+    public static Collection<ProjectLink> flattenProjectLinkTree(Collection<ProjectLink> linkedProjects) {
+        List<ProjectLink> result = new ArrayList<>();
+
+        for (ProjectLink projectLink : linkedProjects) {
+            result.add(projectLink);
+            if (projectLink.isSetSubprojects()){
+                result.addAll(flattenProjectLinkTree(projectLink.getSubprojects()));
+            }
+        }
+
+        return result;
+    }
+
+    public static Collection<ReleaseLink> flattenReleaseLinkTree(Collection<ReleaseLink> linkedReleases) {
+        List<ReleaseLink> result = new ArrayList<>();
+
+        for (ReleaseLink releaseLink : linkedReleases) {
+            result.add(releaseLink);
+            if (releaseLink.isSetSubreleases()){
+                result.addAll(flattenReleaseLinkTree(releaseLink.getSubreleases()));
+            }
+        }
+
+        return result;
+    }
+
+    public static Collection<ReleaseLink> getLinkedReleaseRelationsAsFlatList(Map<String, ReleaseRelationship> in, ThriftClients thriftClients, Logger log) {
+        return flattenReleaseLinkTree(getLinkedReleaseRelations(in, thriftClients, log));
+    }
+
+    public static Collection<ReleaseLink> getLinkedReleasesAsFlatList(Map<String, String> in, ThriftClients thriftClients, Logger log) {
+        return flattenReleaseLinkTree(getLinkedReleases(in, thriftClients, log));
+    }
+
+    public static List<ReleaseLink> getLinkedReleases(Map<String, String> releaseUsage, ThriftClients thriftClients, Logger log) {
         if (releaseUsage != null) {
             try {
                 ComponentService.Iface componentClient = thriftClients.makeComponentClient();
                 final List<ReleaseLink> linkedReleases = componentClient.getLinkedReleases(releaseUsage);
-                return getDepthMap(linkedReleases);
+                return linkedReleases;
             } catch (TException e) {
                 log.error("Could not get linked releases", e);
             }
         }
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
 
-    public static Map<Integer, Collection<ReleaseLink>> getLinkedReleaseRelations(Map<String, ReleaseRelationship> releaseUsage, ThriftClients thriftClients, Logger log) {
+    public static List<ReleaseLink> getLinkedReleaseRelations(Map<String, ReleaseRelationship> releaseUsage, ThriftClients thriftClients, Logger log) {
         if (releaseUsage != null) {
             try {
                 ComponentService.Iface componentClient = thriftClients.makeComponentClient();
                 final List<ReleaseLink> linkedReleases = componentClient.getLinkedReleaseRelations(releaseUsage);
-                return getDepthMap(linkedReleases);
+                return linkedReleases;
             } catch (TException e) {
                 log.error("Could not get linked releases", e);
             }
         }
-        return Collections.emptyMap();
-    }
-
-    private static <T> ImmutableMap<Integer, Collection<T>> getDepthMap(List<T> links) {
-        return Multimaps.index(links, input -> {
-            // duck typed ReleaseLink and ProjectLink, because Thrift types do not support inheritance
-            // and therefore a common ancestor could not be extracted
-            try {
-                Object depthObj = input.getClass().getMethod("getDepth", new Class[]{}).invoke(input);
-                return (Integer) depthObj;
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
-                throw new IllegalStateException("Links MUST have a method `public int getDepth()`", e);
-            }
-        }).asMap();
+        return Collections.emptyList();
     }
 
     public static Predicate<String> startsWith(final String prefix) {

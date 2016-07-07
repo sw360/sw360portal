@@ -506,6 +506,12 @@
             <type>com.siemens.sw360.portal.common.page.PortletReleasePage</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>ProjectName</name>

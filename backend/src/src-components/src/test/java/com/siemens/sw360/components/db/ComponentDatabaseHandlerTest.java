@@ -9,21 +9,17 @@
 
 package com.siemens.sw360.components.db;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.TestUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseInstance;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.entitlement.ComponentModerator;
 import com.siemens.sw360.datahandler.entitlement.ReleaseModerator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.ThriftUtilsTest;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -333,7 +329,7 @@ public class ComponentDatabaseHandlerTest {
         handler.updateRelease(r1A, user1, ThriftUtils.immutableOfRelease());
 
         final Release r1B = handler.getRelease("R1B", user2);
-        r1B.setReleaseIdToRelationship(ImmutableMap.of("R2A", ReleaseRelationship.CONTAINED));
+        r1B.setReleaseIdToRelationship(ImmutableMap.of("R2A", ReleaseRelationship.REFERRED));
         handler.updateRelease(r1B,user2, ThriftUtils.immutableOfRelease());
 
         final Release r2A = handler.getRelease("R2A", user1);
@@ -361,12 +357,23 @@ public class ComponentDatabaseHandlerTest {
 
         final List<ReleaseLink> linkedReleases = completionFuture.get();
 
-        ReleaseLink releaseLink = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion()).setComment("Important linked release").setDepth(0);
-        ReleaseLink releaseLink1 = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion()).setReleaseRelationship(ReleaseRelationship.REFERRED).setDepth(1);
-        ReleaseLink releaseLink2 = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion()).setReleaseRelationship(ReleaseRelationship.CONTAINED).setDepth(1);
-        ReleaseLink releaseLink3 = new ReleaseLink("R2B", vendors.get(r2B.getVendorId()).getFullname(), componentMap.get(r2B.getComponentId()).getName(), r2B.getVersion()).setReleaseRelationship(ReleaseRelationship.CONTAINED).setDepth(2);
+        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", vendors.get(r2B.getVendorId()).getFullname(), componentMap.get(r2B.getComponentId()).getName(), r2B.getVersion())
+                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
+                .setParentId("R2A")
+                .setSubreleases(new ArrayList<>());
+        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
+                .setReleaseRelationship(ReleaseRelationship.REFERRED)
+                .setParentId("R1B")
+                .setSubreleases(Arrays.asList(releaseLinkR2B));
+        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
+                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
+                .setParentId("R1A")
+                .setSubreleases(Arrays.asList(releaseLinkR2A));
+        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
+                .setComment("Important linked release")
+                .setSubreleases(Arrays.asList(releaseLinkR1B));
 
-        assertThat(linkedReleases, containsInAnyOrder(releaseLink, releaseLink1, releaseLink2, releaseLink3));
+        assertThat(linkedReleases, contains(releaseLinkR1A));
     }
 
     @Test

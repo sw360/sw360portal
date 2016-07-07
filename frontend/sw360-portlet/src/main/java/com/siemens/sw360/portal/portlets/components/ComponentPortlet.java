@@ -397,7 +397,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 request.setAttribute(DOCUMENT_ID, releaseId);
                 setAttachmentsInRequest(request, release.getAttachments());
 
-                putLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+                putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
                 Map<RequestedAction, Boolean> permissions = release.getPermissions();
                 DocumentState documentState = release.getDocumentState();
                 setUsingDocs(request, releaseId, user, client);
@@ -411,7 +411,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 release = new Release();
                 release.setComponentId(id);
                 request.setAttribute(RELEASE, release);
-                putLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+                putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
                 setAttachmentsInRequest(request, release.getAttachments());
                 setUsingDocs(request, null, user, client);
                 SessionMessages.add(request, "request_processed", "New Release");

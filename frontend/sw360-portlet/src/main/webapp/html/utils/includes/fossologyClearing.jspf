@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -61,7 +61,6 @@
 
 </div>
 
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/external/additional-methods.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>

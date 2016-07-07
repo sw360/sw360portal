@@ -13,16 +13,11 @@ package com.siemens.sw360.portal.portlets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.servlet.SessionMessages;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
-import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
@@ -35,20 +30,15 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.liferay.portal.kernel.util.WebKeys.THEME_DISPLAY;
-import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_DEPTH_MAP;
 import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_LIST;
-import static com.siemens.sw360.portal.common.PortalConstants.PROJECT_DEPTH_MAP;
 import static com.siemens.sw360.portal.common.PortalConstants.PROJECT_LIST;
 
 
@@ -288,32 +278,32 @@ abstract public class Sw360Portlet extends MVCPortlet {
     }
 
     protected void putLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
-        final Map<Integer, Collection<ReleaseLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log));
-        putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
+        Collection<ReleaseLink> linkedReleaseRelations = SW360Utils.getLinkedReleaseRelationsAsFlatList(releaseIdToRelationship, thriftClients, log);
+        request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
+    }
+
+    protected void putDirectlyLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
+        List<ReleaseLink> linkedReleaseRelations = SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log);
+        request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
     }
 
     protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) throws TException {
-        User user = UserCacheHolder.getUserFromRequest(request);
-        final Map<Integer, Collection<ReleaseLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log));
-        Collection<ReleaseLink> ownReleases = CommonUtils.nullToEmptyCollection(depthMap.get(0));
-        for (ReleaseLink rl: ownReleases) {
-            rl.setLicenseNames(new HashSet<>(SW360Utils.getLicenseNamesFromIds(rl.getLicenseIds(), user.getDepartment())));
-        }
-        putLinkedObjectsInRequest(request, depthMap, RELEASE_LIST, RELEASE_DEPTH_MAP);
+        Collection<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleasesAsFlatList(releaseIdToRelationship, thriftClients, log);
+        request.setAttribute(RELEASE_LIST, linkedReleases);
+    }
+
+    protected void putDirectlyLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) throws TException {
+        List<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log);
+        request.setAttribute(RELEASE_LIST, linkedReleases);
     }
 
     protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
-        final Map<Integer, Collection<ProjectLink>> depthMap = Maps.newHashMap(SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log));
-        putLinkedObjectsInRequest(request, depthMap, PROJECT_LIST, PROJECT_DEPTH_MAP);
+        final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjectsAsFlatList(projectIdToRelationship, thriftClients, log);
+        request.setAttribute(PROJECT_LIST, linkedProjects);
     }
 
-    private <T> void putLinkedObjectsInRequest(RenderRequest request, Map<Integer, Collection<T>> depthMap, String listBeanName, String depthMapBeanName) {
-        if (depthMap.containsKey(0)) {
-            request.setAttribute(listBeanName, Lists.newArrayList(depthMap.get(0)));
-            depthMap.remove(0);
-        } else {
-            request.setAttribute(listBeanName, Collections.emptyList());
-        }
-        request.setAttribute(depthMapBeanName, depthMap);
+    protected void putDirectlyLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
+        final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log);
+        request.setAttribute(PROJECT_LIST, linkedProjects);
     }
 }
