@@ -29,15 +29,15 @@ This is a multi module maven file. please consider that we have the following mo
 
 * frontend: for portlets, themes and layouts, the liferay part.
 * backend: for the thrift based services.
-* libraries for general stuff that is reused among the above, for example, couchdb access.
-* importers for provisioning tasks.
-* scripts for deploying either inside the vagrant or on your development machine.
+* libraries: for general stuff that is reused among the above, for example, couchdb access.
+* importers: for provisioning tasks.
+* scripts: for deploying either inside the vagrant or on your development machine.
 
 ### Required software
 
 * Java 1.8.X
 * CouchDB, at least 1.5
-* Liferay Portal CE 6.2 GA4
+* Liferay Portal CE 6.2 GA5
 * Apache Tomcat 8.0.X
 
 In order to build you will need:
@@ -54,7 +54,7 @@ The software is tested with
 
 * Maven 3.0.4 / 3.0.5
 * Apache Tomcat 8.0.26 / 7.0.54 / 7.0.61
-* Liferay 6.2 GA4
+* Liferay GA5
 * CouchDB 1.5 / 1.5.1
 * OpenJDK Java 1.8.0_45 (64-bit) 
 * Tested with windows 7 SP1, ubuntu 14.04, macosx 10.8, 10.9 10.10
@@ -86,11 +86,6 @@ Actually, there is a hierarchy of maven files, in general
 You will find more details on the scripts and deployment in the shell
 script in the scripts folder. There is the ```dirs.conf``` for the directories
 or file paths used by the scripts.
-
-Note that in general
-
-* Backend: Tomcat must run on order to deploy using ```mvn tomcat7:deploy```
-* Frontend: Liferay must not run in order to deploy using ```mvn install -Pdeploy```
 
 ### Liferay Configuration
 
@@ -181,27 +176,9 @@ This should be in the file $M2_HOME/conf/settings.xml:
 
 ### License
 
-This software project is distributed under the terms of the
-GNU General Public License v2.0 w/Classpath exception
-(SPDX:GPL-2.0-with-classpath-exception) with the following
-clarification and special exception:
+SPDX Short Identifier: http://spdx.org/licenses/EPL-1.0
 
-Linking this library statically or dynamically with other modules
-is making a combined work based on this library. Thus, the terms
-and conditions of the GNU General Public License cover the whole
-combination.
-
-As a special exception, the copyright holders of this library
-give you permission to link this library with independent modules
-to produce an executable, regardless of the license terms of these
-independent modules, and to copy and distribute the resulting
-executable under terms of your choice, provided that you also
-meet, for each linked independent module, the terms and conditions
-of the license of that module. An independent module is a module
-which is not derived from or based on this library. If you modify
-this library, you may extend this exception to your version of the
-library, but you are not obliged to do so. If you do not wish to
-do so, delete this exception statement from your version.
-
-See the link http://www.gnu.org/software/classpath/license.html
-(accessed in Jan 2014) for more details.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html

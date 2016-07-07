@@ -37,7 +37,7 @@ pass a file path to another json file. E.g.
 com.bosch.osmi.bdp.access.mock.BdpApiAccessMockImpl.BdpApiAccessMockImpl(<homedir>/.bdp-access-files/mockdata.json)
 ```
 
-# Howto add ...
+# How to add ...
 
 ## a new Property to an existing Entity
 
