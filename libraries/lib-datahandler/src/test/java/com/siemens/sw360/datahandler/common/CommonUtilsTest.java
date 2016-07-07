@@ -10,6 +10,7 @@ package com.siemens.sw360.datahandler.common;
 
 import org.junit.Test;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.formatTime;
 import static com.siemens.sw360.datahandler.common.CommonUtils.getTargetNameOfUrl;
 import static com.siemens.sw360.datahandler.common.CommonUtils.isValidUrl;
 import static org.hamcrest.core.Is.is;
@@ -19,7 +20,6 @@ import static org.junit.Assert.assertThat;
  * @author daniele.fognini@tngtech.com
  */
 public class CommonUtilsTest {
-
 
     @Test
     public void testIsUrl() throws Exception {
@@ -94,6 +94,31 @@ public class CommonUtilsTest {
     @Test
     public void testNameOfUrl7() throws Exception {
         assertThat(getTargetNameOfUrl("http://www.google.com/dir/file.ext?cookie=14&cr=345"), is("file.ext"));
+    }
+
+    @Test
+    public void testFormatTime0() throws Exception {
+        assertThat(formatTime(0), is("00:00:00"));
+    }
+
+    @Test
+    public void testFormatTimeSecond() throws Exception {
+        assertThat(formatTime(1), is("00:00:01"));
+    }
+
+    @Test
+    public void testFormatTimeMinute() throws Exception {
+        assertThat(formatTime(60), is("00:01:00"));
+    }
+
+    @Test
+    public void testFormatTimeHour() throws Exception {
+        assertThat(formatTime(3600), is("01:00:00"));
+    }
+
+    @Test
+    public void testFormatTime24Hours() throws Exception {
+        assertThat(formatTime(86400), is("24:00:00"));
     }
 
 }

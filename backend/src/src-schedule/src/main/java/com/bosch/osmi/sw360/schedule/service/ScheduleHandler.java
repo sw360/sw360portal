@@ -9,10 +9,12 @@
  */
 package com.bosch.osmi.sw360.schedule.service;
 
+import com.bosch.osmi.sw360.schedule.timer.ScheduleConstants;
 import com.bosch.osmi.sw360.schedule.timer.Scheduler;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.RequestStatusWithBoolean;
 import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
@@ -20,6 +22,8 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
+import java.util.Date;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ScheduleHandler implements ScheduleService.Iface {
@@ -42,7 +46,7 @@ public class ScheduleHandler implements ScheduleService.Iface {
             try {
                 return body.get();
             } catch (TException e) {
-                log.error("was not able to schedule sync for client with name:" + serviceName + " message:" + e.getMessage(), e);
+                log.error("Was not able to schedule sync for client with name:" + serviceName + " message:" + e.getMessage(), e);
                 return RequestStatus.FAILURE;
             }
         };
@@ -50,8 +54,9 @@ public class ScheduleHandler implements ScheduleService.Iface {
     }
 
     @Override
-    public RequestSummary scheduleService(String serviceName, User user) throws TException {
-        if (!PermissionUtils.isAdmin(user)){
+    public RequestSummary scheduleService(String serviceName) throws TException {
+        if(ScheduleConstants.invalidConfiguredServices.contains(serviceName)){
+            log.info("Could not schedule " + serviceName + " because of invalid configuration.");
             return new RequestSummary(RequestStatus.FAILURE);
         }
 
@@ -60,9 +65,10 @@ public class ScheduleHandler implements ScheduleService.Iface {
         boolean successSync = false;
         switch (serviceName) {
             case ThriftClients.CVESEARCH_SERVICE:
-                successSync = wrapSupplierException(() ->thriftClients.makeCvesearchClient().update(), serviceName);
+                successSync = wrapSupplierException(() -> thriftClients.makeCvesearchClient().update(), serviceName);
                 break;
             default:
+                log.error("Could not schedule service: " + serviceName + ". Reason: service is not registered in ThriftClients.");
         }
 
         if (successSync){
@@ -88,5 +94,47 @@ public class ScheduleHandler implements ScheduleService.Iface {
             return RequestStatus.FAILURE;
         }
         return Scheduler.cancelAllSyncJobs();
+    }
+
+    @Override
+    public RequestStatusWithBoolean isServiceScheduled(String serviceName, User user) {
+        if (!PermissionUtils.isAdmin(user)) {
+            return failedRequestStatusWithBoolean();
+        }
+        boolean answer = Scheduler.isServiceScheduled(serviceName);
+        return new RequestStatusWithBoolean()
+                .setRequestStatus(RequestStatus.SUCCESS)
+                .setAnswerPositive(answer);
+    }
+
+    @Override
+    public RequestStatusWithBoolean isAnyServiceScheduled(User user) {
+        if (!PermissionUtils.isAdmin(user)) {
+            return failedRequestStatusWithBoolean();
+        }
+        boolean answer = Scheduler.isAnyServiceScheduled();
+        return new RequestStatusWithBoolean()
+                .setRequestStatus(RequestStatus.SUCCESS)
+                .setAnswerPositive(answer);
+    }
+
+    private RequestStatusWithBoolean failedRequestStatusWithBoolean(){
+        return new RequestStatusWithBoolean().setRequestStatus(RequestStatus.FAILURE);
+    }
+
+    @Override
+    public int getFirstRunOffset(String serviceName){
+        return ScheduleConstants.SYNC_FIRST_RUN_OFFSET_SEC.get(serviceName) != null ? ScheduleConstants.SYNC_FIRST_RUN_OFFSET_SEC.get(serviceName) : -1;
+    }
+
+    @Override
+    public String getNextSync(String serviceName){
+        Optional<Date> syncDate = Scheduler.getNextSync(serviceName);
+        return syncDate.isPresent() ? syncDate.get().toString() : "";
+    }
+
+    @Override
+    public int getInterval(String serviceName){
+        return ScheduleConstants.SYNC_INTERVAL_SEC.get(serviceName) != null ? ScheduleConstants.SYNC_INTERVAL_SEC.get(serviceName) : -1 ;
     }
 }

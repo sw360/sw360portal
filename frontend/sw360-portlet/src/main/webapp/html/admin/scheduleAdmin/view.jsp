@@ -1,4 +1,4 @@
-<%--
+<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %><%--
   ~ Copyright (c) Bosch Software Innovations GmbH 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
@@ -11,6 +11,12 @@
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+<jsp:useBean id='cveSearchIsScheduled' type="java.lang.Boolean" scope="request"/>
+<jsp:useBean id='anyServiceIsScheduled' type="java.lang.Boolean" scope="request"/>
+<jsp:useBean id='cvesearchOffset' type="java.lang.String" scope="request"/>
+<jsp:useBean id='cvesearchInterval' type="java.lang.String" scope="request"/>
+<jsp:useBean id='cvesearchNextSync' type="java.lang.String" scope="request"/>
+
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -28,11 +34,26 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Schedule Task Administration</span> </p>
 
 <h4 class="withTopMargin">CVE Search: </h4>
-<input type="button" class="addButton" onclick="window.location.href='<%=scheduleCvesearchURL%>'" value="Schedule CveSearch Updates">
+<br/>
+<b>Settings for scheduling the CVE search service:</b><br/>
+Offset: ${cvesearchOffset} (hh:mm:ss)<br/>
+Interval: ${cvesearchInterval} (hh:mm:ss)<br/>
+Next Synchronization: ${cvesearchNextSync}<br/>
+<br/>
+<input type="button"
+       <core_rt:if test="${cveSearchIsScheduled}">class="notApplicableButton"</core_rt:if>
+       <core_rt:if test="${not cveSearchIsScheduled}">class="addButton" onclick="window.location.href='<%=scheduleCvesearchURL%>'"</core_rt:if>
+       value="Schedule CveSearch Updates">
 
-<input type="button" class="addButton" onclick="window.location.href='<%=unscheduleCvesearchURL%>'" value="Cancel Scheduled CveSearch Updates">
+<input type="button"
+       <core_rt:if test="${cveSearchIsScheduled}">class="addButton"  onclick="window.location.href='<%=unscheduleCvesearchURL%>'"</core_rt:if>
+       <core_rt:if test="${not cveSearchIsScheduled}">class="notApplicableButton"</core_rt:if>
+       value="Cancel Scheduled CveSearch Updates">
 
 <h4 class="withTopMargin">All Services:</h4>
 
-<input type="button" class="addButton" onclick="window.location.href='<%=unscheduleAllServicesURL%>'" value="Cancel All Scheduled Tasks">
+<input type="button"
+       <core_rt:if test="${anyServiceIsScheduled}">class="addButton" onclick="window.location.href='<%=unscheduleAllServicesURL%>'" </core_rt:if>
+       <core_rt:if test="${not anyServiceIsScheduled}">class="notApplicableButton" </core_rt:if>
+       value="Cancel All Scheduled Tasks">
 

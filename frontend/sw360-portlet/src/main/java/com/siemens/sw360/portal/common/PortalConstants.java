@@ -161,6 +161,13 @@ public class PortalConstants {
     //! Specialized keys for users
     public static final String CUSTOM_FIELD_PROJECT_GROUP_FILTER = "ProjectGroupFilter";
 
+    //! Specialized keys for scheduling
+    public static final String CVESEARCH_IS_SCHEDULED = "cveSearchIsScheduled";
+    public static final String ANY_SERVICE_IS_SCHEDULED = "anyServiceIsScheduled";
+    public static final String CVESEARCH_OFFSET = "cvesearchOffset";
+    public static final String CVESEARCH_INTERVAL = "cvesearchInterval";
+    public static final String CVESEARCH_NEXT_SYNC = "cvesearchNextSync";
+    
     //! Specialized keys for licenseInfo
     public static final String LICENSE_INFO_OUTPUT_FORMATS = "licenseInfoOutputFormats";
     public static final String LICENSE_INFO_SELECTED_OUTPUT_FORMAT = "licenseInfoSelectedOutputFormat";
@@ -178,8 +185,6 @@ public class PortalConstants {
     public static final String WHERE = "where";
     public static final String WHERE_ARRAY = "where[]";
     public static final String HOW = "how";
-
-
 
     //! Serve resource keywords
 

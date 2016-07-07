@@ -49,10 +49,10 @@ enum VerificationState {
 }
 
 struct VerificationStateInfo {
-    1: required string checkedOn,
-    2: required string checkedBy,
-    3: optional string comment,
-    4: required VerificationState verificationState,
+  1: required string checkedOn,
+  2: required string checkedBy,
+  3: optional string comment,
+  4: required VerificationState verificationState,
 }
 
 struct DocumentState {
@@ -73,4 +73,9 @@ struct CustomProperties {
     3: optional string type = "customproperties",
     4: optional string documentType,
     5: map<string, set<string>> propertyToValues;
+}
+
+struct RequestStatusWithBoolean {
+  1: required RequestStatus requestStatus;
+  2: optional bool answerPositive;
 }

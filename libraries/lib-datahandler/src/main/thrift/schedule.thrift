@@ -16,6 +16,7 @@ namespace java com.siemens.sw360.datahandler.thrift.schedule
 namespace php sw360.thrift.schedule
 
 typedef sw360.RequestStatus RequestStatus
+typedef sw360.RequestStatusWithBoolean RequestStatusWithBoolean
 typedef sw360.RequestSummary RequestSummary
 typedef users.User User
 
@@ -27,7 +28,7 @@ service ScheduleService {
      *
      * user has to be admin, otherwise FAILURE is returned
      */
-    RequestSummary scheduleService(1: string serviceName, 2: User user);
+    RequestSummary scheduleService(1: string serviceName);
 
     /*
      * all tasks with  name serviceName are cancelled
@@ -40,4 +41,15 @@ service ScheduleService {
      * user has to be admin, otherwise FAILURE is returned
      */
     RequestStatus unscheduleAllServices(1: User user);
+
+
+    RequestStatusWithBoolean isServiceScheduled(1: string serviceName, 2: User user);
+
+    RequestStatusWithBoolean isAnyServiceScheduled(1: User user);
+
+    i32 getFirstRunOffset(string serviceName);
+
+    string getNextSync(string serviceName);
+
+    i32 getInterval(string serviceName);
 }
