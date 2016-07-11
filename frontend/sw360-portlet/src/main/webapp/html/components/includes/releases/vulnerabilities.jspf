@@ -1,6 +1,7 @@
 <%@ page import="com.siemens.sw360.portal.common.page.PortletReleasePage" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.VerificationState" %>
+<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%--
   ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
   ~ With modifications from Bosch Software Innovations GmbH, 2016.
@@ -23,6 +24,7 @@
 <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
 <jsp:useBean id="vulnerabilityVerificationTooltips" type="java.util.Map<java.lang.String, java.lang.String>"
              scope="request"/>
+<jsp:useBean id="vulnerabilityMatchedByHistogram" type="java.util.Map<java.lang.String, java.lang.Integer>" scope="request"/>
 
 <div id="vulnerabilityTableDiv">
     <table id="vulnerabilityTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -35,6 +37,17 @@
     <div class="sw360modal" id="vulnerabilityModal"></div>
 </div>
 <div style="clear:both"></div>
+<div class="pull-left">
+    <ul>
+        <core_rt:forEach items="${vulnerabilityMatchedByHistogram.keySet()}" var="matchedBy">
+            <li>
+                <b><sw360:out value='${vulnerabilityMatchedByHistogram.get(matchedBy)}'/></b>
+                of the vulnerabilities were matched by
+                <b><sw360:out value='${matchedBy}'/></b>
+            </li>
+        </core_rt:forEach>
+    </ul>
+</div>
 <span class="pull-right">
     <input type="button" onclick="updateVulnerabilities('${releaseId}')" id="updateVulnerabilities"
            value="Update by CVE-search" class="addButton">
@@ -61,10 +74,10 @@
             <core_rt:choose>
             <core_rt:when test="${vulnerabilityVerificationEditable}">
                 '<select class="toplabelledInput" ' +
-                'id="verificationChangeSelectFor${vulnerability.externalId}" ' +
+                'id="verificationChangeSelectFor<sw360:out value='${vulnerability.externalId}'/>" ' +
                 'name="<portlet:namespace/><%=VerificationState.class%>" ' +
-                'onchange="changeVerification(this, `${vulnerability.externalId}`,`${vulnerabilityVerifications.get(vulnerability.externalId).ordinal()}`)" ' +
-                'title = "<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}'/>"' +
+                'onchange="changeVerification(this, `<sw360:out value='${vulnerability.externalId}'/>`,`${vulnerabilityVerifications.get(vulnerability.externalId).ordinal()}`)" ' +
+                'title="<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}'/>"'+
                 'style="min-width: 90px; min-height: 28px;">' +
                 <sw360:DisplayEnumOptions type="<%=VerificationState.class%>" selected="${vulnerabilityVerifications.get(vulnerability.externalId)}" inQuotes="true"/> +
                 '</select>',

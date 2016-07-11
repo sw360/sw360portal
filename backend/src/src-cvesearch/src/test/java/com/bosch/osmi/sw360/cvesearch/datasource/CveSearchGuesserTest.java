@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -21,11 +22,13 @@ public class CveSearchGuesserTest {
     }
 
     @Test
+    public void getBestZERO() throws Exception {
+        assert(cveSearchGuesser.getBest(Collections.emptyList(), Integer.MAX_VALUE).size() == 0);
+    }
+
+    @Test
     public void guessVendorTestApacheFullMatch() throws Exception {
         String apache = "apache";
-
-        String result = this.cveSearchGuesser.guessVendor(apache).getNeedle();
-        assert(result.equals(apache));
 
         String result2 = this.cveSearchGuesser.guessVendors(apache).get(0).getNeedle();
         assert(result2.equals(apache));
@@ -35,9 +38,6 @@ public class CveSearchGuesserTest {
     public void guessProductTestMavenFullMatch() throws Exception {
         String apache = "apache";
         String maven  = "maven";
-
-        String result = this.cveSearchGuesser.guessProduct(apache,maven).getNeedle();
-        assert(result.equals(maven));
 
         String result2 = this.cveSearchGuesser.guessProducts(apache,maven).get(0).getNeedle();
         assert(result2.equals(maven));

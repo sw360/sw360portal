@@ -29,6 +29,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
@@ -273,5 +274,24 @@ public class PortletUtils {
         responseData.put(PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS, jsonNewIds);
         responseData.put(PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS, jsonUpdatedIds);
         return responseData;
+    }
+
+    private static Map<String, Integer> addToMatchedByHistogram(Map<String, Integer> matchedByHistogram, String matchedBy){
+        if (matchedByHistogram.containsKey(matchedBy)){
+            matchedByHistogram.put(matchedBy, matchedByHistogram.get(matchedBy) + 1);
+        }else{
+            matchedByHistogram.put(matchedBy, 1);
+        }
+        return matchedByHistogram;
+    }
+
+    public static Map<String, Integer> addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, VulnerabilityDTO vul){
+        final String isMatchedByUnknown = "UNKNOWN";
+
+        if (vul.isSetMatchedBy()) {
+            return addToMatchedByHistogram(matchedByHistogram, vul.getMatchedBy());
+        } else {
+            return addToMatchedByHistogram(matchedByHistogram, isMatchedByUnknown);
+        }
     }
 }

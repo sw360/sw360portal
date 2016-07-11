@@ -365,3 +365,26 @@ input[readonly].clickable {
 .withTopMargin {
     margin-top: 2em !important;
 }
+
+.formatedMessageForVulItem {
+    list-style: none;
+}
+
+.formatedMessageForVulItem:not(:last-of-type) {
+    margin-bottom: 10px;
+}
+
+.formatedMessageForVulDate, .formatedMessageForVulPrefix {
+    font-size: small;
+}
+
+.formatedMessageForVulCheckedBy:before, .formatedMessageForVulComment:before{
+    font-size: small;
+}
+.formatedMessageForVulCheckedBy:before {
+    content: "Checked by: ";
+}
+
+.formatedMessageForVulComment:before {
+    content: "Comment: ";
+}

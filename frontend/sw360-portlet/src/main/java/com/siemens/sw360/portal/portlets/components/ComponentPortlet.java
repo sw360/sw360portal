@@ -38,10 +38,7 @@ import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import com.siemens.sw360.exporter.ComponentExporter;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.PortletUtils;
-import com.siemens.sw360.portal.common.ThriftJsonSerializer;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
+import com.siemens.sw360.portal.common.*;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
 import com.siemens.sw360.portal.users.LifeRayUserSession;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -60,6 +57,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 
 /**
  * Component portlet implementation
@@ -575,21 +573,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private String formatedMessageForVul(List<VerificationStateInfo> infoHistory){
-        StringBuffer sb = new StringBuffer();
-        sb.append("<ol reversed>");
-        int sizeOfHistory = infoHistory.size() - 1;
-        IntStream.rangeClosed(0, sizeOfHistory)
-                .mapToObj(i -> infoHistory.get(sizeOfHistory-i))
-                .forEach(
-                        info -> {
-                            sb.append("<li><b>"); sb.append(info.getVerificationState().name());
-                            sb.append("</b> ("); sb.append(info.getCheckedOn());
-                            sb.append(")<br/>Checked by: <b>"); sb.append(info.getCheckedBy());
-                            sb.append("</b><br/>Comment: "); sb.append(info.getComment());
-                            sb.append("</li>");
-                        });
-        sb.append("</ol>");
-        return sb.toString();
+        return CommonVulnerabilityPortletUtils.formatedMessageForVul(infoHistory,
+                e -> e.getVerificationState().name(),
+                e -> e.getCheckedOn(),
+                e -> e.getCheckedBy(),
+                e -> e.getComment());
     }
 
     private void putVulnerabilitiesInRequestRelease(RenderRequest request, String releaseId, User user) throws TException {
@@ -616,12 +604,13 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
         putVulnerabilityMetadatasInRequest(request, vuls);
+
     }
 
     private void putVulnerabilityMetadatasInRequest(RenderRequest request, List<VulnerabilityDTO> vuls) {
         Map<String, String> vulnerabilityTooltips = new HashMap<>();
         Map<String, VerificationState> vulnerabilityVerifications = new HashMap<>();
-
+        Map<String, Integer> matchedByHistogram = new HashMap<>();
         for (VulnerabilityDTO vulnerability : vuls) {
             ReleaseVulnerabilityRelation relation = vulnerability.getReleaseVulnerabilityRelation();
             if (!relation.isSetVerificationStateInfo()) {
@@ -633,8 +622,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 vulnerabilityVerifications.put(vulnerability.externalId, info.getVerificationState());
                 vulnerabilityTooltips.put(vulnerability.externalId, formatedMessageForVul(infoHistory));
             }
+            addToMatchedByHistogram(matchedByHistogram, vulnerability);
         }
 
+        request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
         request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
         request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);
     }

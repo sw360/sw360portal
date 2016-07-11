@@ -20,6 +20,7 @@ package com.bosch.osmi.sw360.cvesearch.datasource;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.matcher.ListMatcher;
 import com.bosch.osmi.sw360.cvesearch.datasource.matcher.Match;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,6 +35,8 @@ public class CveSearchGuesser {
     private int vendorThreshold = 0;
     private int productThreshold = 0;
     private int cutoff = Integer.MAX_VALUE;
+
+    Logger log = Logger.getLogger(CveSearchGuesser.class);
 
     public CveSearchGuesser(CveSearchApi cveSearchApi) {
         this.cveSearchApi=cveSearchApi;
@@ -53,19 +56,34 @@ public class CveSearchGuesser {
         this.cutoff = cutoff;
     }
 
-    public void addVendorGuesserIfNeeded() throws IOException {
+    public boolean addVendorGuesserIfNeeded() {
         if(vendorMatcher == null) {
-            vendorMatcher = new ListMatcher(cveSearchApi.allVendorNames());
+            try {
+                vendorMatcher = new ListMatcher(cveSearchApi.allVendorNames());
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                return false;
+            }
         }
+        return true;
     }
 
-    public void addProductGuesserIfNeeded(String vendor) throws IOException {
+    public boolean addProductGuesserIfNeeded(String vendor) {
         if(! productMatchers.containsKey(vendor)) {
-            productMatchers.put(vendor, new ListMatcher(cveSearchApi.allProductsOfVendor(vendor)));
+            try {
+                productMatchers.put(vendor, new ListMatcher(cveSearchApi.allProductsOfVendor(vendor)));
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                return false;
+            }
         }
+        return true;
     }
 
     public List<Match> getBest(List<Match> matches, int threshold) {
+        if(matches.size() == 0){
+            return Collections.EMPTY_LIST;
+        }
         List<Match> bestMatches = new ArrayList<>();
         int minDistance = matches.get(0).getDistance();
 
@@ -82,27 +100,18 @@ public class CveSearchGuesser {
         return bestMatches;
     }
 
-    public List<Match> guessVendors(String vendorHaystack) throws IOException {
-        addVendorGuesserIfNeeded();
+    public List<Match> guessVendors(String vendorHaystack) {
+        if (!addVendorGuesserIfNeeded()){
+            return Collections.EMPTY_LIST;
+        }
         return getBest(vendorMatcher.getMatches(vendorHaystack), vendorThreshold);
     }
 
-    public Match guessVendor(String vendorHaystack) throws IOException {
-        addVendorGuesserIfNeeded();
-        return vendorMatcher.getMatches(vendorHaystack)
-                .get(0);
-    }
-
-    public List<Match> guessProducts(String vendor, String productHaystack) throws IOException {
-        addProductGuesserIfNeeded(vendor);
+    public List<Match> guessProducts(String vendor, String productHaystack) {
+        if (!addProductGuesserIfNeeded(vendor)) {
+            return Collections.EMPTY_LIST;
+        }
         return getBest(productMatchers.get(vendor).getMatches(productHaystack), productThreshold);
-    }
-
-    public Match guessProduct(String vendor, String productHaystack) throws IOException {
-        addProductGuesserIfNeeded(vendor);
-        return productMatchers.get(vendor)
-                .getMatches(productHaystack)
-                .get(0);
     }
 
     public List<Match> guessVendorAndProducts(String haystack) throws IOException {
@@ -123,12 +132,5 @@ public class CveSearchGuesser {
                 .sorted((sm1,sm2) -> sm1.compareTo(sm2))
                 .filter(sm -> cutoff == 0 || cutoff > sm.getDistance())
                 .collect(Collectors.toList());
-    }
-
-    public Match guessVendorAndProduct(String vendorHaystack, String productHaystack) throws IOException {
-        Match vendor = guessVendor(vendorHaystack);
-        Match product = guessProduct(vendor.getNeedle(), productHaystack);
-
-        return vendor.concat(product);
     }
 }

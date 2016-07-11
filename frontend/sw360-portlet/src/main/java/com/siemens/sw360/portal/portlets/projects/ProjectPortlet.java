@@ -59,7 +59,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.stream.IntStream;
+
+import com.siemens.sw360.portal.common.CommonVulnerabilityPortletUtils;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -68,6 +69,7 @@ import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
 import static com.siemens.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 
 /**
@@ -526,37 +528,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory){
-        StringBuffer sb = new StringBuffer();
-        sb.append("<ol reversed>");
-        int sizeOfHistory = statusHistory.size() - 1;
-        IntStream.rangeClosed(0, sizeOfHistory)
-                .mapToObj(i -> statusHistory.get(sizeOfHistory-i))
-                .forEach(
-                        status -> {
-                            sb.append("<li><b>"); sb.append(status.getVulnerabilityRating().name());
-                            sb.append("</b> ("); sb.append(status.getCheckedOn());
-                            sb.append(")<br/>Checked by: <b>"); sb.append(status.getCheckedBy());
-                            sb.append("</b><br/>Comment: "); sb.append(status.getComment());
-                            sb.append("</li>");
-                        });
-        sb.append("</ol>");
-        return sb.toString();
-    }
-
-    private void addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, String matchedBy){
-        if (matchedByHistogram.containsKey(matchedBy)){
-            matchedByHistogram.put(matchedBy, matchedByHistogram.get(matchedBy) + 1);
-        }else{
-            matchedByHistogram.put(matchedBy, 1);
-        }
-    }
-
-    private void addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, VulnerabilityDTO vul){
-        if (vul.isSetMatchedBy()) {
-            addToMatchedByHistogram(matchedByHistogram, vul.getMatchedBy());
-        } else {
-            addToMatchedByHistogram(matchedByHistogram, "UNKNOWN");
-        }
+        return CommonVulnerabilityPortletUtils.formatedMessageForVul(statusHistory,
+                e -> e.getVulnerabilityRating().name(),
+                e -> e.getCheckedOn(),
+                e -> e.getCheckedBy(),
+                e -> e.getComment());
     }
 
     private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
