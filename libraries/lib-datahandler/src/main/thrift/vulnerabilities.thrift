@@ -150,26 +150,70 @@ struct ProjectVulnerabilityRating{
 
 service VulnerabilityService {
     // General information
+     /**
+       * returns a list with all vulnerabilites in the SW360 database if the user is valid
+       * returns empty list if user is not valid
+       **/
     list<Vulnerability> getVulnerabilities(1: User user);
-    list<VulnerabilityDTO> getVulnerabilitiesByReleaseId(1: string releaseId, 2: User user);
-    list<VulnerabilityDTO> getVulnerabilitiesByComponentId(1: string componentId, 2: User user);
-    list<VulnerabilityDTO> getVulnerabilitiesByProjectId(1: string projectId, 2: User user);
-
-    list<VulnerabilityDTO> getVulnerabilitiesByReleaseIdWithoutIncorrect(1: string releaseId, 2: User user);
-    list<VulnerabilityDTO> getVulnerabilitiesByComponentIdWithoutIncorrect(1: string componentId, 2: User user);
-    list<VulnerabilityDTO> getVulnerabilitiesByProjectIdWithoutIncorrect(1: string projectId, 2: User user);
 
     /**
+      * if the user is valid: returns a list with all vulnerability linked to the release with id releaseId as DTOs
+      * returns empty list if user is not valid
+      **/
+    list<VulnerabilityDTO> getVulnerabilitiesByReleaseId(1: string releaseId, 2: User user);
+
+    /**
+      * see getVulnerabilitiesByReleaseId for all releases that belong to the component with componentId
+      **/
+    list<VulnerabilityDTO> getVulnerabilitiesByComponentId(1: string componentId, 2: User user);
+
+     /**
+       * see getVulnerabilitiesByReleaseId for all releases that are directly linked to the project with projectId
+       **/
+    list<VulnerabilityDTO> getVulnerabilitiesByProjectId(1: string projectId, 2: User user);
+
+     /**
+       * see getVulnerabilitiesByReleaseId, but except vulnerabilities marked as incorrect for that release
+       **/
+    list<VulnerabilityDTO> getVulnerabilitiesByReleaseIdWithoutIncorrect(1: string releaseId, 2: User user);
+
+    /**
+      * see getVulnerabilitiesByComponentId, but except vulnerabilities marked as incorrect for the respective release
+      **/
+    list<VulnerabilityDTO> getVulnerabilitiesByComponentIdWithoutIncorrect(1: string componentId, 2: User user);
+
+    /**
+      * see getVulnerabilitiesByProjectId, but except vulnerabilities marked as incorrect for the respective release
+      **/
+    list<VulnerabilityDTO> getVulnerabilitiesByProjectIdWithoutIncorrect(1: string projectId, 2: User user);
+
+   /**
      * returns list with one ProjectVulnerabilityRating for given projectId
      * returns emptyList if none is found
      **/
     list<ProjectVulnerabilityRating> getProjectVulnerabilityRatingByProjectId(1: string projectId, 2: User user);
 
+   /**
+     * updates the link in the database if user is allowed to edit corresponding project and returns SUCCESS
+     * if user is not allowed to edit project - FAILURE is returned
+     **/
     RequestStatus updateProjectVulnerabilityRating(1: ProjectVulnerabilityRating link, 2: User user);
 
+   /**
+     * updates the relation in the database if user is ADMIN, returns SUCCESS
+     * if user is not ADMIN - FAILURE is returned
+     **/
     RequestStatus updateReleaseVulnerabilityRelation(1: ReleaseVulnerabilityRelation relation, 2: User user);
 
+   /**
+     * returns ReleaseVulnerabilityRelation with vulnerabilityId and releaseId as given (if present in db) for a valid user
+     * returns null if user is not valid
+     */
     ReleaseVulnerabilityRelation getRelationByIds(1: string releaseId, 2: string vulnerabilityId, 3: User user);
 
+    /**
+      * returns the vulnerability with given externalId if it exists in the database and if user is valid
+      * returns null otherwise
+      **/
     Vulnerability getVulnerabilityByExternalId(1: string externalId, 2: User user);
 }
