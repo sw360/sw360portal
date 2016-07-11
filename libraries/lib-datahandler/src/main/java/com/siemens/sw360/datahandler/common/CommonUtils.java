@@ -9,15 +9,12 @@
 package com.siemens.sw360.datahandler.common;
 
 import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.thrift.DocumentState;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
+import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.attachments.*;
+import com.siemens.sw360.datahandler.thrift.components.ClearingState;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -39,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Optional;
+import java.util.function.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.log4j.LogManager.getLogger;
@@ -531,5 +529,23 @@ public class CommonUtils {
             getLogger(CommonUtils.class).error("List contained more then one item but was treated as \"Optional\".");
         }
         return Optional.of(thriftOutput.get(0));
+    }
+
+    public static Map<String, Set<String>> mergeMapIntoMap(Map<String, Set<String>> source, Map<String, Set<String>> destination) {
+        if (destination == null) {
+            return source;
+        }
+        if (source == null) {
+            return destination;
+        }
+        source.keySet().stream().forEach(k -> {
+                    if (destination.containsKey(k)) {
+                        destination.get(k).addAll(source.get(k));
+                    } else {
+                        destination.put(k, source.get(k));
+                    }
+                }
+        );
+        return destination;
     }
 }

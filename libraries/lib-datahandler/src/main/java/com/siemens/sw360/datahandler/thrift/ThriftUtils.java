@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -50,6 +51,7 @@ public class ThriftUtils {
             .add(Component.class).add(Release.class) // Component service
             .add(License.class).add(Todo.class).add(Obligation.class) // License service
             .add(LicenseType.class).add(Risk.class).add(RiskCategory.class) // License service
+            .add(CustomProperties.class) // License service
             .add(Project.class) // Project service
             .add(User.class) // User service
             .add(Vendor.class) // Vendor service

@@ -11,7 +11,9 @@ package com.siemens.sw360.portal.portlets.admin;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.SetMultimap;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.util.PortalUtil;
@@ -220,7 +222,6 @@ public class ComponentUploadPortlet extends Sw360Portlet {
         }
     }
 
-
     private void printReleaseAttachments(Release release, List<Iterable<String>> csvRows) throws IOException {
         final Set<Attachment> attachments = release.getAttachments();
 
@@ -303,6 +304,11 @@ public class ComponentUploadPortlet extends Sw360Portlet {
         fileNameToStreams.put(ZipTools.OBLIGATION_FILE, getCsvStream(serialize(client.getObligations(), obligationSerializer())));
 
         final List<Todo> todos = client.getTodos();
+        List<PropertyWithValueAndId> customProperties = new ArrayList<>();
+        SetMultimap<Integer, Integer> todoCustomPropertyMap = HashMultimap.create();
+        ConvertRecord.fillTodoCustomPropertyInfo(todos, customProperties, todoCustomPropertyMap);
+        fileNameToStreams.put(ZipTools.TODO_CUSTOM_PROPERTIES_FILE, getCsvStream(serialize(todoCustomPropertyMap, ImmutableList.of("T_ID", "P_ID"))));
+        fileNameToStreams.put(ZipTools.CUSTOM_PROPERTIES_FILE, getCsvStream(serialize(customProperties, customPropertiesSerializer())));
         fileNameToStreams.put(ZipTools.OBLIGATION_TODO_FILE, getCsvStream(serialize(getTodoToObligationMap(todos), ImmutableList.of("O_ID", "T_ID"))));
         fileNameToStreams.put(ZipTools.TODO_FILE, getCsvStream(serialize(todos, todoSerializer())));
 
@@ -385,13 +391,14 @@ public class ComponentUploadPortlet extends Sw360Portlet {
     @UsedAsLiferayAction
     public void updateLicenses(ActionRequest request, ActionResponse response) throws PortletException, IOException, TException {
         final HashMap<String, InputStream> inputMap = new HashMap<>();
+        User user = UserCacheHolder.getUserFromRequest(request);
         try {
             fillFilenameInputStreamMap(request, inputMap);
             if (ZipTools.isValidLicenseArchive(inputMap)) {
 
                 final LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
 
-                log.debug("Parsing risk Categories ...");
+                log.debug("Parsing risk categories ...");
                 Map<Integer, RiskCategory> riskCategoryMap = getIdentifierToTypeMapAndWriteMissingToDatabase(licenseClient,
                         inputMap.get(RISK_CATEGORY_FILE), RiskCategory.class, Integer.class);
 
@@ -404,15 +411,26 @@ public class ComponentUploadPortlet extends Sw360Portlet {
 
                 log.debug("Parsing obligation todos ...");
                 List<CSVRecord> obligationTodoRecords = readAsCSVRecords(inputMap.get(OBLIGATION_TODO_FILE));
-                Map<Integer, Set<Integer>> obligationTodoMapping = convertObligationTodo(obligationTodoRecords);
-
-
-                log.debug("Parsing todos ...");
-                Map<Integer, Todo> todoMap = getTodoMap(licenseClient, obligationMap, obligationTodoMapping, inputMap.get(TODO_FILE));
+                Map<Integer, Set<Integer>> obligationTodoMapping = convertRelationalTableWithIntegerKeys(obligationTodoRecords);
 
                 log.debug("Parsing license types ...");
                 Map<Integer, LicenseType> licenseTypeMap = getIdentifierToTypeMapAndWriteMissingToDatabase(licenseClient,
                         inputMap.get(LICENSETYPE_FILE), LicenseType.class, Integer.class);
+
+                log.debug("Parsing todos ...");
+                Map<Integer, Todo> todoMap = getTodoMapAndWriteMissingToDatabase(licenseClient, obligationMap, obligationTodoMapping, inputMap.get(TODO_FILE));
+
+                if(inputMap.containsKey(CUSTOM_PROPERTIES_FILE)) {
+                    log.debug("Parsing custom properties ...");
+                    Map<Integer, PropertyWithValue> customPropertiesMap =
+                            getCustomPropertiesWithValuesByIdAndWriteMissingToDatabase(licenseClient, inputMap.get(CUSTOM_PROPERTIES_FILE), user);
+
+                    log.debug("Parsing todo custom properties relation ...");
+                    List<CSVRecord> todoPropertiesRecord = readAsCSVRecords(inputMap.get(TODO_CUSTOM_PROPERTIES_FILE));
+                    Map<Integer, Set<Integer>> todoPropertiesMap = convertRelationalTableWithIntegerKeys(todoPropertiesRecord);
+
+                    todoMap = updateTodoMapWithCustomPropertiesAndWriteToDatabase(licenseClient, todoMap, customPropertiesMap, todoPropertiesMap);
+                }
 
                 log.debug("Parsing license todos ...");
                 List<CSVRecord> licenseTodoRecord = readAsCSVRecords(inputMap.get(LICENSE_TODO_FILE));

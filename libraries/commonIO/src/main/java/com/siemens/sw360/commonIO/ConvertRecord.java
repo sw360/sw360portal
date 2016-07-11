@@ -15,9 +15,9 @@ import com.google.common.collect.*;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.licenses.*;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
-import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -106,6 +106,93 @@ public class ConvertRecord {
         };
     }
 
+    public static Map<String, Set<String>> convertCustomProperties(List<CSVRecord> records){
+        Map<String, Set<String>> resultProperties = new HashMap<>();
+        for (CSVRecord record : records){
+            if(! isValidPropertyRecord(record)){
+                break;
+            }
+            String property = record.get(1);
+            String value = record.get(2);
+            addPropertyAndValueToMap(property, value, resultProperties);
+        }
+        return resultProperties;
+    }
+
+    private static void addPropertyAndValueToMap(String property, String value, Map<String, Set<String>> propertyMap){
+        if (propertyMap.containsKey(property)) {
+            propertyMap.get(property).add(value);
+        } else {
+            Set<String> values = new HashSet<>();
+            values.add(value);
+            propertyMap.put(property, values);
+        }
+    }
+
+    public static Map<Integer, PropertyWithValue> convertCustomPropertiesById(List<CSVRecord> records){
+        Map<Integer, PropertyWithValue> resultPropertiesById = new HashMap<>();
+        for (CSVRecord record : records){
+            if(! isValidPropertyRecord(record)){
+                break;
+            }
+            Integer id = Integer.parseInt(record.get(0));
+            String property = record.get(1);
+            String value = record.get(2);
+            resultPropertiesById.put(id, new PropertyWithValue(property, value));
+        }
+        return resultPropertiesById;
+    }
+
+    private static boolean isValidPropertyRecord(CSVRecord record){
+        if(record.size() < 3 ||
+                "".equals(record.get(1)) ||
+                "".equals(record.get(2))){
+            return  false;
+        }
+        try {
+            Integer.parseInt(record.get(0));
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void fillTodoCustomPropertyInfo(List<Todo> todos, List<PropertyWithValueAndId> customProperties, SetMultimap<Integer, Integer> todoCustomPropertyMap) {
+        int nextPropertyId = 0;
+        for(Todo todo : todos){
+            if(todo.isSetCustomPropertyToValue()){
+                for(Map.Entry<String, String> entry : todo.getCustomPropertyToValue().entrySet()){
+                    customProperties.add(new PropertyWithValueAndId(nextPropertyId, entry.getKey(), entry.getValue()));
+                    todoCustomPropertyMap.put(todo.getTodoId(), nextPropertyId);
+                    nextPropertyId++;
+                }
+            }
+        }
+    }
+
+    public static Serializer<PropertyWithValueAndId> customPropertiesSerializer() {
+        return new Serializer<PropertyWithValueAndId>() {
+            @Override
+            public Function<PropertyWithValueAndId, List<String>> transformer() {
+                return e -> {
+
+                    final ArrayList<String> out = new ArrayList<>(3);
+
+                    out.add(e.getId().toString());
+                    out.add(e.getProperty());
+                    out.add(e.getValue());
+                    return out;
+                };
+            }
+
+            @Override
+            public List<String> headers() {
+                return ImmutableList.of("ID", "Property", "Value");
+            }
+
+        };
+    }
+
     public static List<Todo> convertTodos(List<CSVRecord> records) {
         List<Todo> list = new ArrayList<>(records.size());
 
@@ -157,8 +244,7 @@ public class ConvertRecord {
         };
     }
 
-
-    public static List<Obligation> convertObligation(List<CSVRecord> records) {
+   public static List<Obligation> convertObligation(List<CSVRecord> records) {
         List<Obligation> list = new ArrayList<>(records.size());
 
         for (CSVRecord record : records) {
@@ -327,7 +413,7 @@ public class ConvertRecord {
             @Override
             public Function<License, List<String>> transformer() {
                 return license -> {
-                    final ArrayList<String> out = new ArrayList<>(7);
+                    final ArrayList<String> out = new ArrayList<>(8);
                     out.add(CommonUtils.nullToEmptyString(license.getId()));
                     out.add(CommonUtils.nullToEmptyString(license.getFullname()));
                     out.add(license.isSetLicenseType() ? ((Integer) license.getLicenseType().getLicenseTypeId()).toString() :
@@ -363,13 +449,12 @@ public class ConvertRecord {
                 ids.add(otherId);
                 map.put(mainId, ids);
             }
-
         }
 
         return map;
     }
 
-    public static Map<Integer, Set<Integer>> convertObligationTodo(List<CSVRecord> records) {
+    public static Map<Integer, Set<Integer>> convertRelationalTableWithIntegerKeys(List<CSVRecord> records) {
         Map<String, Set<Integer>> stringMap = convertRelationalTable(records);
         Map<Integer, Set<Integer>> intMap = new HashMap<>();
 
@@ -481,7 +566,6 @@ public class ConvertRecord {
         }
     }
 
-
     public interface Serializer<T> {
         Function<T, List<String>> transformer();
 
@@ -514,6 +598,52 @@ public class ConvertRecord {
             mapEntryList.add(entry);
         }
         return mapEntryList;
+    }
+
+    public static class PropertyWithValue{
+        public String property;
+        public String value;
+
+        public PropertyWithValue(String property, String value){
+            this.property = property;
+            this.value = value;
+        }
+
+        public String getProperty() {
+            return property;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class PropertyWithValueAndId {
+        public PropertyWithValue propertyWithValue;
+        public Integer id;
+
+        public PropertyWithValueAndId(Integer id, PropertyWithValue propertyWithValue){
+            this.propertyWithValue = propertyWithValue;
+            this.id = id;
+        }
+
+        public PropertyWithValueAndId(Integer id, String property, String value){
+            this.propertyWithValue = new PropertyWithValue(property, value);
+            this.id = id;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public String getProperty() {
+            return propertyWithValue.getProperty();
+        }
+
+        public String getValue() {
+            return propertyWithValue.getValue();
+        }
+
     }
 
 }

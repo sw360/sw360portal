@@ -14,6 +14,7 @@ import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
+import com.siemens.sw360.datahandler.db.CustomPropertiesRepository;
 import com.siemens.sw360.datahandler.db.ReleaseRepository;
 import com.siemens.sw360.datahandler.db.VendorRepository;
 import com.siemens.sw360.datahandler.entitlement.LicenseModerator;
@@ -63,6 +64,7 @@ public class LicenseDatabaseHandler {
     private final RiskCategoryRepository riskCategoryRepository;
     private final LicenseTypeRepository licenseTypeRepository;
     private final LicenseModerator moderator;
+    private final CustomPropertiesRepository customPropertiesRepository;
 
     private final Logger log = Logger.getLogger(LicenseDatabaseHandler.class);
 
@@ -77,6 +79,7 @@ public class LicenseDatabaseHandler {
         riskRepository = new RiskRepository(db);
         riskCategoryRepository = new RiskCategoryRepository(db);
         licenseTypeRepository = new LicenseTypeRepository(db);
+        customPropertiesRepository = new CustomPropertiesRepository(db);
 
         moderator = new LicenseModerator();
     }
@@ -746,5 +749,18 @@ public class LicenseDatabaseHandler {
         ReleaseRepository releaseRepository = new ReleaseRepository(db,new VendorRepository(db));
         final List<Release> usingReleases = releaseRepository.searchReleasesByUsingLicenseId(licenseId);
         return !usingReleases.isEmpty();
+    }
+
+    public List<CustomProperties> getCustomProperties(String documentType){
+        return customPropertiesRepository.getCustomProperties(documentType);
+    }
+
+    public RequestStatus addOrUpdateCustomProperties(CustomProperties customProperties){
+        if(customProperties.isSetId()){
+            customPropertiesRepository.update(customProperties);
+        } else {
+            customPropertiesRepository.add(customProperties);
+        }
+        return RequestStatus.SUCCESS;
     }
 }
