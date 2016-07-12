@@ -91,16 +91,16 @@ public class CveSearchGuesser {
         return bestMatches;
     }
 
-    public List<Match> guessVendors(String vendorHaystack) {
+    public List<Match> guessVendors(String vendorHaystack) throws IOException {
         if (!addVendorGuesserIfNeeded()){
-            return Collections.EMPTY_LIST;
+            throw new IOException("Was not able to instantiate vendor guesser");
         }
         return getBest(vendorMatcher.getMatches(vendorHaystack), vendorThreshold);
     }
 
-    public List<Match> guessProducts(String vendor, String productHaystack) {
+    public List<Match> guessProducts(String vendor, String productHaystack) throws IOException {
         if (!addProductGuesserIfNeeded(vendor)) {
-            return Collections.EMPTY_LIST;
+            throw new IOException("Was not able to instantiate product guesser for vendor " + vendor);
         }
         return getBest(productMatchers.get(vendor).getMatches(productHaystack), productThreshold);
     }
