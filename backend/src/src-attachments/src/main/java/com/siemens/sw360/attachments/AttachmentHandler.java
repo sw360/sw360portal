@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,29 +8,20 @@
  */
 package com.siemens.sw360.attachments;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.attachments.db.AttachmentRepository;
-import com.siemens.sw360.datahandler.common.CommonUtils;
+import com.siemens.sw360.attachments.db.AttachmentDatabaseHandler;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.ektorp.DocumentOperationResult;
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 import static com.siemens.sw360.datahandler.thrift.ThriftValidate.validateAttachment;
 
@@ -39,29 +30,19 @@ import static com.siemens.sw360.datahandler.thrift.ThriftValidate.validateAttach
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class AttachmentHandler implements AttachmentService.Iface {
 
-    public static final String ATTACHMENTS_FIELD_NAME = "attachments";
-    private static final Logger log = Logger.getLogger(AttachmentHandler.class);
-
-    private final AttachmentRepository repository;
-    private final AttachmentConnector attachmentConnector;
-
-    private final DatabaseAddress address;
-
+    private final AttachmentDatabaseHandler handler;
 
     public AttachmentHandler() throws MalformedURLException {
-        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_ATTACHMENTS);
-        attachmentConnector = new AttachmentConnector(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_ATTACHMENTS, durationOf(30, TimeUnit.SECONDS));
-        repository = new AttachmentRepository(databaseConnector);
-
-        address = databaseConnector.getAddress();
+        handler = new AttachmentDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
     }
 
     @Override
     public DatabaseAddress getDatabaseAddress() throws TException {
-        return address;
+        return handler.getDatabaseAddress();
     }
 
     @Override
@@ -69,64 +50,44 @@ public class AttachmentHandler implements AttachmentService.Iface {
         validateAttachment(attachmentContent);
         assertIdUnset(attachmentContent.getId());
 
-        repository.add(attachmentContent);
-        return attachmentContent;
-
+        return handler.add(attachmentContent);
     }
 
     @Override
     public List<AttachmentContent> makeAttachmentContents(List<AttachmentContent> attachmentContents) throws TException {
-        final List<DocumentOperationResult> documentOperationResults = repository.executeBulk(attachmentContents);
-        if (!documentOperationResults.isEmpty())
-            log.error("Failed Attachment store results " + documentOperationResults);
-
-        return FluentIterable.from(attachmentContents).filter(new Predicate<AttachmentContent>() {
-            @Override
-            public boolean apply(AttachmentContent input) {
-                return input.isSetId();
-            }
-        }).toList();
+        return handler.makeAttachmentContents(attachmentContents);
     }
 
     @Override
     public AttachmentContent getAttachmentContent(String id) throws TException {
         assertNotEmpty(id);
-
-        AttachmentContent attachment = repository.get(id);
-        assertNotNull(attachment, "Cannot find "+ id + " in database.");
-        validateAttachment(attachment);
-
-        return attachment;
+        return handler.getAttachmentContent(id);
     }
 
     @Override
     public void updateAttachmentContent(AttachmentContent attachment) throws TException {
         validateAttachment(attachment);
-        attachmentConnector.updateAttachmentContent(attachment);
+        handler.updateAttachmentContent(attachment);
     }
 
     @Override
     public RequestSummary bulkDelete(List<String> ids) throws TException {
-        final List<DocumentOperationResult> documentOperationResults = repository.deleteIds(ids);
-        return CommonUtils.getRequestSummary(ids, documentOperationResults);
-
+        return handler.bulkDelete(ids);
     }
 
     @Override
     public RequestStatus deleteAttachmentContent(String attachmentId) throws TException {
-        attachmentConnector.deleteAttachment(attachmentId);
-
-        return RequestStatus.SUCCESS;
+        return handler.deleteAttachmentContent(attachmentId);
     }
 
     @Override
     public RequestSummary vacuumAttachmentDB(User user, Set<String> usedIds) throws TException {
         assertUser(user);
-        return repository.vacuumAttachmentDB(user, usedIds);
+        return handler.vacuumAttachmentDB(user, usedIds);
     }
 
     @Override
     public String getSha1FromAttachmentContentId(String attachmentContentId){
-        return attachmentConnector.getSha1FromAttachmentContentId(attachmentContentId);
+        return handler.getSha1FromAttachmentContentId(attachmentContentId);
     }
 }
