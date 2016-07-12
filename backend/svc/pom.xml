@@ -34,6 +34,7 @@
         <module>svc-fossology</module>
         <module>svc-bdpimport</module>
         <module>svc-vulnerabilities</module>
+        <module>svc-cliservice</module>
     </modules>
 
     <build>
