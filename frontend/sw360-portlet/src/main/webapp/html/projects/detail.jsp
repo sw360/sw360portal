@@ -37,8 +37,8 @@
         <div id="myTab" class="row-fluid">
             <ul class="nav nav-tabs span2">
                 <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
-                <li <core_rt:if test="${selectedTab == 'Linked Projects'}"> class="active" </core_rt:if>><a href="#tab-linkedProjects">Linked Projects</a></li>
-                <li <core_rt:if test="${selectedTab == 'Linked Releases'}"> class="active" </core_rt:if>><a href="#tab-linkedReleases">Linked Releases</a></li>
+                <li <core_rt:if test="${selectedTab == 'Linked Projects'}"> class="active" </core_rt:if>><a href="#tab-linkedProjects">Linked Releases And Projects</a></li>
+                <li <core_rt:if test="${selectedTab == 'Linked Releases'}"> class="active" </core_rt:if>><a href="#tab-linkedReleases">Linked Releases Hierarchy</a></li>
                 <li <core_rt:if test="${selectedTab == 'Clearing Status'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Clearing Status</a></li>
                 <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
                 <li <core_rt:if test="${selectedTab == 'Wiki'}"> class="active" </core_rt:if>><a href="#tab-Wiki">Wiki</a></li>

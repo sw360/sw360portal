@@ -21,10 +21,10 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>
 <script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
 
-<table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases">
+<table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases Hierarchy">
     <thead>
     <tr>
-        <th colspan="5" class="headlabel">Linked Releases</th>
+        <th colspan="5" class="headlabel">Linked Releases Hierarchy</th>
     </tr>
     <tr>
         <th>Release name</th>
