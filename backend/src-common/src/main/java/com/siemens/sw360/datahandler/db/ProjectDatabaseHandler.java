@@ -18,6 +18,7 @@ import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
 import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
@@ -31,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.common.SW360Utils.*;
@@ -39,7 +41,9 @@ import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePerm
 /**
  * Class for accessing the CouchDB database
  *
- * @author cedric.bodet@tngtech.com, daniele.fognini@tngtech.com
+ * @author cedric.bodet@tngtech.com
+ * @author daniele.fognini@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ProjectDatabaseHandler {
 
@@ -48,22 +52,14 @@ public class ProjectDatabaseHandler {
     private final ProjectRepository repository;
     private final ProjectModerator moderator;
     private final AttachmentConnector attachmentConnector;
+    private final ComponentDatabaseHandler componentDatabaseHandler;
 
     public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        DatabaseConnector db = new DatabaseConnector(url, dbName);
-
-        // Create the repository
-        repository = new ProjectRepository(db);
-
-        // Create the moderator
-        moderator = new ProjectModerator();
-
-        // Create the attachment connector
-        attachmentConnector = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
+        this(url, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(url,dbName,attachmentDbName));
     }
 
     @VisibleForTesting
-    public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator) throws MalformedURLException {
+    public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(url, dbName);
 
         // Create the repository
@@ -73,6 +69,8 @@ public class ProjectDatabaseHandler {
 
         // Create the attachment connector
         attachmentConnector = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
+
+        this.componentDatabaseHandler = componentDatabaseHandler;
     }
 
     /////////////////////
@@ -219,42 +217,53 @@ public class ProjectDatabaseHandler {
     //////////////////////
 
     public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations) {
-        List<ProjectLink> out = new ArrayList<>();
+        List<ProjectLink> out;
         final List<Project> projects = repository.getAll();
         final Map<String, Project> projectMap = ThriftUtils.getIdMap(projects);
 
         Set<String> visitedIds = new HashSet<>();
-        int depth = 0;
 
-        Map<String, ProjectRelationship> addedProjectRelationships = iterateProjectRelationShips(relations, out, projectMap, visitedIds, depth);
+        out = iterateProjectRelationShips(relations, projectMap, visitedIds, null);
 
-        while (!addedProjectRelationships.isEmpty()) {
-            addedProjectRelationships = iterateProjectRelationShips(addedProjectRelationships, out, projectMap, visitedIds, ++depth);
+        return out;
+    }
+
+
+    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, Map<String, Project> projectMap, Set<String> visitedIds, String parentId) {
+        List<ProjectLink> out = new ArrayList<>();
+        for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
+            String id = entry.getKey();
+            Optional<ProjectLink> projectLinkOptional = createProjectLink(projectMap, visitedIds, id, entry.getValue(), parentId);
+            if (projectLinkOptional.isPresent()) {
+                out.add(projectLinkOptional.get());
+            }
         }
         return out;
     }
 
-    private Map<String, ProjectRelationship> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, List<ProjectLink> out, Map<String, Project> projectMap, Set<String> visitedIds, int depth) {
-        Map<String, ProjectRelationship> addedProjectRelationShips = new HashMap<>();
-
-        for (Map.Entry<String, ?> entry : relations.entrySet()) {
-            String id = entry.getKey();
-            if (visitedIds.add(id)) {
-                Project project = projectMap.get(id);
-                if (project != null) {
-                    final ProjectLink projectLink = new ProjectLink(id, project.name);
-                    projectLink.setRelation(((Map.Entry<String, ProjectRelationship>) entry).getValue());
-                    projectLink.setDepth(depth);
-                    if (project.isSetLinkedProjects()) {
-                        addedProjectRelationShips.putAll(project.getLinkedProjects());
-                    }
-                    out.add(projectLink);
-                } else {
-                    log.error("Broken ProjectLink in project with id: " + entry.getKey() + ", received null from DB");
+    private Optional<ProjectLink> createProjectLink(Map<String, Project> projectMap, Set<String> visitedIds, String id, ProjectRelationship relationship, String parentId) {
+        if (visitedIds.add(id)) {
+            Project project = projectMap.get(id);
+            if (project != null) {
+                final ProjectLink projectLink = new ProjectLink(id, project.name);
+                if (project.isSetReleaseIdToUsage()){
+                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage());
+                    projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
+
+                projectLink.setParentId(parentId);
+                projectLink.setRelation(relationship);
+                projectLink.setVersion(project.getVersion());
+                if (project.isSetLinkedProjects()) {
+                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), projectMap, visitedIds, id);
+                    projectLink.setSubprojects(subprojectLinks);
+                }
+                return Optional.of(projectLink);
+            } else {
+                log.error("Broken ProjectLink in project with id: " + id + ", received null from DB");
             }
         }
-        return addedProjectRelationShips;
+        return Optional.empty();
     }
 
     public Set<Project> searchByReleaseId(String id, User user) {

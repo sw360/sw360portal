@@ -7,7 +7,6 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@include file="/html/init.jsp" %>
 
 
@@ -16,10 +15,11 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ReleaseLink" %>
-<jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
-<jsp:useBean id="releaseDepthMap" type="java.util.Map<java.lang.Integer, java.util.Collection<com.siemens.sw360.datahandler.thrift.components.ReleaseLink> >"  scope="request"/>
+<jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.ReleaseLink>"
+             scope="request"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>
+<script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
 
 <table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases">
     <thead>
@@ -27,8 +27,8 @@
         <th colspan="5" class="headlabel">Linked Releases</th>
     </tr>
     <tr>
-        <th>Vendor</th>
         <th>Release name</th>
+        <th>Vendor</th>
         <th>Release version</th>
         <th>Release relation</th>
         <th>License names</th>
@@ -36,65 +36,49 @@
     </thead>
     <tbody>
     <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
-        <tr id="releaseLinkRow${loop.count}" >
-            <td class="release-list-entry-element">
-                <input width="100%" id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
-                       value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
+        <tr id="releaseLinkRow${loop.count}" data-tt-id="${releaseLink.id}"
+            <core_rt:if
+                    test="${not empty releaseLink.parentId}">data-tt-parent-id="${releaseLink.parentId}"</core_rt:if>
+        >
+            <td>
+                <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
+                    <sw360:out value="${releaseLink.name}"/>
+                </a>
             </td>
-            <td class="release-list-entry-element">
-                <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.ID%>">
-                <input width="100%" id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
-                       value="<sw360:out value="${releaseLink.name}"/>" readonly/>
+            <td>
+                <sw360:out value="${releaseLink.vendor}"/>
             </td>
-            <td class="release-list-entry-element">
-                <input width="100%" id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
-                       value="<sw360:out value="${releaseLink.version}"/>" readonly/>
+            <td>
+                <sw360:out value="${releaseLink.version}"/>
             </td>
-            <td class="release-list-entry-element">
-                <core_rt:if test="${!releaseLink.setReleaseRelationship}" >
-                <input width="100%" id="releaseRelation" type="text" class="toplabelledInput" placeholder="No release usage"
-                       value="<sw360:out value="${releaseLink.comment}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.COMMENT%>" readonly/>
+            <td>
+                <core_rt:if test="${!releaseLink.setReleaseRelationship}">
+                    <sw360:out value="${releaseLink.comment}"/>
                 </core_rt:if>
-                <core_rt:if test="${releaseLink.setReleaseRelationship}" >
-                    <input id="releaseRelation" type="text" class="toplabelledInput" placeholder="Enter release usage"
-                           value="<sw360:out value="${releaseLink.releaseRelationship}"/>" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.RELEASE_RELATIONSHIP%>" readonly/>
+                <core_rt:if test="${releaseLink.setReleaseRelationship}">
+                    <sw360:out value="${releaseLink.releaseRelationship}"/>
                 </core_rt:if>
             </td>
-            <td class="release-list-entry-element">
-                    <input width="100%" id="releaseLicenseType" type="text" class="toplabelledInput"
-                           placeholder="License Name" value='${releaseLink.licenseNames.toString().replaceAll("[\\[\\]]", "")}' readonly />
+            <td>
+                <core_rt:if test="${releaseLink.setLicenseIds}">
+                    <tags:DisplayLicenseCollection licenseIds="${releaseLink.licenseIds}"
+                                                   scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
+                </core_rt:if>
             </td>
         </tr>
     </core_rt:forEach>
 
-    <core_rt:if test="${releaseList.size() < 1}"> <tr> <td colspan="4"> No linked releases</td></tr> </core_rt:if>
-
-    </tbody>
-</table>
-
-<table class="table info_table" id="inheritedLinkedReleasesInfo" title="Inherited linked Releases">
-    <thead>
-    <tr>
-        <th colspan="4" class="headlabel"> Inherited Linked Releases</th>
-    </tr>
-    <tr>
-        <th>Vendor</th>
-        <th>Release name</th>
-        <th>Release version</th>
-        <th>Depth</th>
-    </tr>
-    </thead>
-    <tbody>
-    <core_rt:forEach items="${releaseDepthMap}" var="releaseLinkCollectionEntry" varStatus="loop">
-        <core_rt:forEach items="${releaseLinkCollectionEntry.value}" var="releaseLink" varStatus="loop">
-        <tr id="inheritedReleaseLinkRow${loop.count}" >
-            <td>${releaseLink.vendor}</td>
-            <td>${releaseLink.name}</td>
-            <td>${releaseLink.version}</td>
-            <td>${releaseLinkCollectionEntry.key}</td>
+    <core_rt:if test="${releaseList.size() < 1}">
+        <tr>
+            <td colspan="5"> No linked releases</td>
         </tr>
-    </core_rt:forEach>
-  </core_rt:forEach>
-    <core_rt:if test="${releaseDepthMap.size() < 1}"> <tr> <td colspan="4"> No inherited linked releases</td></tr> </core_rt:if>
+    </core_rt:if>
+
     </tbody>
 </table>
+
+<script>
+    $(window).load(function () {
+        $("#LinkedReleasesInfo").treetable({expandable: true});
+    });
+</script>

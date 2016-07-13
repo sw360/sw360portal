@@ -11,70 +11,88 @@
 
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectLink" %>
-<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
-<jsp:useBean id="projectDepthMap" type="java.util.Map<java.lang.Integer, java.util.Collection<com.siemens.sw360.datahandler.thrift.projects.ProjectLink> >"  scope="request"/>
+<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"
+             scope="request"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>
+<script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
 
 <table class="table info_table" id="LinkedProjectsInfo" title="Linked Projects">
     <thead>
     <tr>
-        <th colspan="3" class="headlabel">Linked Projects</th>
+        <th colspan="4" class="headlabel">Linked Projects</th>
     </tr>
     <tr>
-        <th>Project name</th>
-        <th>Project version</th>
-        <th>Project relation</th>
-    </tr>    </thead>
-    <tbody>
-    <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">
-        <tr id="projectLinkRow${loop.count}">
-            <td width="32%">
-                <input type="hidden" value="${projectLink.id}" name="<portlet:namespace/><%=ProjectLink._Fields.ID%>">
-                <input id="projectName" type="text" class="toplabelledInput" placeholder="Enter project"
-                       value="<sw360:out value="${projectLink.name}"/>" readonly onclick="window.location='<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />'" />
-            </td>
-            <td width="32%">
-                <input type="hidden" value="${projectLink.version}" name="<portlet:namespace/><%=ProjectLink._Fields.VERSION%>">
-                <input id="projectVersion" type="text" class="toplabelledInput" placeholder="No project version"
-                       value="<sw360:out value="${projectLink.version}"/>" readonly/>
-            </td>
-            <td width="32%">
-                 <input id="projectRelation" value="<sw360:DisplayEnum value="${projectLink.relation}"/>" readonly/>
-            </td>
-
-        </tr>
-    </core_rt:forEach>
-    <core_rt:if test="${projectList.size() < 1}"> <tr> <td colspan="3"> No linked projects</td></tr> </core_rt:if>
-    </tbody>
-</table>
-
-<table class="table info_table" id="inheritedLinkedProjectsInfo" title="Inherited Linked Projects">
-    <thead>
-    <tr>
-        <th colspan="4" class="headlabel"> Inherited Linked Projects</th>
-    </tr>
-    <tr>
-        <th>Project name</th>
-        <th>Project version</th>
-        <th>Project relation</th>
-        <th>Depth</th>
+        <th width="25%">Name</th>
+        <th width="25%">Version</th>
+        <th width="25%">Relation</th>
+        <th width="25%">Main Licenses</th>
     </tr>
     </thead>
     <tbody>
-    <core_rt:forEach items="${projectDepthMap}" var="projectLinkCollectionEntry" varStatus="loop">
-        <core_rt:forEach items="${projectLinkCollectionEntry.value}" var="projectLink" varStatus="loop">
-            <tr id="inheritedReleaseLinkRow${loop.count}" >
-                <td>${projectLink.name}</td>
-                <td>${projectLink.version}</td>
-                <td><sw360:DisplayEnum value="${projectLink.relation}"/></td>
-                <td>${projectLinkCollectionEntry.key}</td>
+    <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">
+        <tr id="projectLinkRow${loop.count}" data-tt-id="${projectLink.id}"
+            <core_rt:if
+                    test="${not empty projectLink.parentId}">data-tt-parent-id="${projectLink.parentId}"</core_rt:if>
+        >
+            <td>
+                <a href="<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />"><sw360:out
+                        value="${projectLink.name}"/></a>
+            </td>
+            <td>
+                <sw360:out value="${projectLink.version}"/>
+            </td>
+            <td>
+                <sw360:DisplayEnum value="${projectLink.relation}"/>
+            </td>
+            <td>
+            </td>
+        </tr>
+        <core_rt:forEach items="${projectLink.linkedReleases}" var="releaseLink" varStatus="releaseloop">
+            <tr id="releaseLinkRow${loop.count}_${releaseloop.count}" data-tt-id="${releaseLink.id}"
+                data-tt-parent-id="${projectLink.id}">
+                <td>
+                    <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
+                        <sw360:out value="${releaseLink.vendor}"/><core_rt:if
+                            test="${not empty releaseLink.vendor}">&nbsp;</core_rt:if><sw360:out
+                            value="${releaseLink.name}"/>
+                    </a>
+                </td>
+                <td>
+                    <sw360:out value="${releaseLink.version}"/>
+                </td>
+                <td>
+                    <core_rt:if test="${!releaseLink.setReleaseRelationship}">
+                        <sw360:out value="${releaseLink.comment}"/>
+                    </core_rt:if>
+                    <core_rt:if test="${releaseLink.setReleaseRelationship}">
+                        <sw360:out value="${releaseLink.releaseRelationship}"/>
+                    </core_rt:if>
+                </td>
+                <td>
+                    <core_rt:if test="${releaseLink.setLicenseIds}">
+                        <tags:DisplayLicenseCollection licenseIds="${releaseLink.licenseIds}"
+                                                       scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
+                    </core_rt:if>
+                </td>
             </tr>
         </core_rt:forEach>
     </core_rt:forEach>
-    <core_rt:if test="${projectDepthMap.size() < 1}"> <tr> <td colspan="4"> No inherited linked projects</td></tr> </core_rt:if>
+    <core_rt:if test="${projectList.size() < 1}">
+        <tr>
+            <td colspan="4">No linked projects</td>
+        </tr>
+    </core_rt:if>
     </tbody>
 </table>
+
+<script>
+    $(window).load(function () {
+        $("#LinkedProjectsInfo").treetable({expandable: true});
+    });
+</script>

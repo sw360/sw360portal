@@ -14,6 +14,7 @@ import com.siemens.sw360.datahandler.TestUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
+import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -215,7 +216,7 @@ public class ProjectHandlerTest {
     public void testUpdateProject2_1() throws Exception {
         ProjectModerator moderator = Mockito.mock(ProjectModerator.class);
 
-        ProjectDatabaseHandler handler = new ProjectDatabaseHandler(url, dbName,attachmentDbName, moderator);
+        ProjectDatabaseHandler handler = new ProjectDatabaseHandler(url, dbName, attachmentDbName, moderator, new ComponentDatabaseHandler(url, dbName, attachmentDbName));
         Project project2 = handler.getProjectById("P2", user1);
         project2.setName("Project2new");
 

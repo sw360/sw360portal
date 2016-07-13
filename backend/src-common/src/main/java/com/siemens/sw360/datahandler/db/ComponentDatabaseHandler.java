@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -10,7 +10,8 @@
 package com.siemens.sw360.datahandler.db;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
 import com.siemens.sw360.datahandler.common.CommonUtils;
@@ -51,13 +52,15 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyFields;
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.*;
+import static com.siemens.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
+import static com.siemens.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
 
 /**
  * Class for accessing Component information from the database
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentDatabaseHandler {
 
@@ -616,51 +619,53 @@ public class ComponentDatabaseHandler {
     }
 
     public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations) {
-
-
-        List<ReleaseLink> out = new ArrayList<>();
+        List<ReleaseLink> out;
 
         final List<Release> releases = releaseRepository.getAll();
         final Map<String, Release> releaseMap = ThriftUtils.getIdMap(releases);
 
         Set<String> visitedIds = new HashSet<>();
-        int depth = 0;
 
-        Map<String, ReleaseRelationship> addedReleaseRelationShips = iterateReleaseRelationShips(relations, out, releaseMap, visitedIds, depth);
+        out = iterateReleaseRelationShips(relations, releaseMap, visitedIds, null);
 
-        while (!addedReleaseRelationShips.isEmpty()) {
-            addedReleaseRelationShips = iterateReleaseRelationShips(addedReleaseRelationShips, out, releaseMap, visitedIds, ++depth);
-        }
         return out;
     }
 
     @NotNull
-    private Map<String, ReleaseRelationship> iterateReleaseRelationShips(Map<String, ?> relations, List<ReleaseLink> out, Map<String, Release> releaseMap, Set<String> visitedIds, int depth) {
-        Map<String, ReleaseRelationship> addedReleaseRelationShips = new HashMap<>();
+    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, Map<String, Release> releaseMap, Set<String> visitedIds, String parentId) {
+        List<ReleaseLink> out = new ArrayList<>();
 
         for (Map.Entry<String, ?> entry : relations.entrySet()) {
             String id = entry.getKey();
-            if (visitedIds.add(id)) {
-                Release release = releaseMap.get(id);
-                if (release != null) {
-                    final ReleaseLink releaseLink = getReleaseLink(id, release);
-                    fillValueFieldInReleaseLink(entry, releaseLink);
-
-                    releaseLink.setDepth(depth);
-                    if (release.isSetReleaseIdToRelationship()) {
-                        addedReleaseRelationShips.putAll(release.getReleaseIdToRelationship());
-                    }
-                    if (release.isSetMainLicenseIds()) {
-                        releaseLink.setLicenseIds(release.getMainLicenseIds());
-                    }
-                    out.add(releaseLink);
-
-                } else {
-                    log.error("Broken ReleaseLink in release with id: " + id + ", was not in DB");
-                }
+            Release release = releaseMap.get(id);
+            Optional<ReleaseLink> releaseLinkOptional = createReleaseLink(visitedIds, entry, id, release, releaseMap, parentId);
+            if (releaseLinkOptional.isPresent()) {
+                out.add(releaseLinkOptional.get());
             }
         }
-        return addedReleaseRelationShips;
+        return out;
+    }
+
+    private Optional<ReleaseLink> createReleaseLink(Set<String> visitedIds, Map.Entry<String, ?> entry, String id, Release release, Map<String, Release> releaseMap, String parentId) {
+        if (visitedIds.add(id)) {
+            if (release != null) {
+                final ReleaseLink releaseLink = getReleaseLink(release);
+                fillValueFieldInReleaseLink(entry, releaseLink);
+                releaseLink.setParentId(parentId);
+                if (release.isSetMainLicenseIds()) {
+                    releaseLink.setLicenseIds(release.getMainLicenseIds());
+                }
+
+                if (release.isSetReleaseIdToRelationship()) {
+                    List<ReleaseLink> subreleaseLinks = iterateReleaseRelationShips(release.getReleaseIdToRelationship(), releaseMap, visitedIds, id);
+                    releaseLink.setSubreleases(subreleaseLinks);
+                }
+                return Optional.of(releaseLink);
+            } else {
+                log.error("Broken ReleaseLink in release with id: " + id + ", was not in DB");
+            }
+        }
+        return Optional.empty();
     }
 
 
@@ -674,13 +679,13 @@ public class ComponentDatabaseHandler {
     }
 
     @NotNull
-    public ReleaseLink getReleaseLink(String id, Release release) {
+    private ReleaseLink getReleaseLink(Release release) {
         String fullname = "";
         if (!isNullOrEmpty(release.getVendorId())) {
             final Vendor vendor = vendorRepository.get(release.getVendorId());
             fullname = vendor != null ? vendor.getFullname() : "";
         }
-        return new ReleaseLink(id, fullname, release.name, release.version);
+        return new ReleaseLink(release.id, fullname, release.name, release.version);
     }
 
     public List<Release> searchReleaseByName(String name) {

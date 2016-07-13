@@ -271,8 +271,8 @@ struct ReleaseLink{
     10: required string version,
     15: optional string comment,
     16: optional ReleaseRelationship releaseRelationship,
-    //This is to indicate the depth of the link (I link to a, a links to b, so b has depth 2)
-    25: optional i32 depth,
+    20: optional string parentId,
+    21: optional list<ReleaseLink> subreleases,
 
     100: optional set<string> licenseIds,
     101: optional set<string> licenseNames

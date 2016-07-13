@@ -24,6 +24,7 @@ typedef components.ReleaseClearingStateSummary ReleaseClearingStateSummary
 typedef users.User User
 typedef users.RequestedAction RequestedAction
 typedef attachments.Attachment Attachment
+typedef components.ReleaseLink ReleaseLink
 
 enum ProjectState {
     ACTIVE = 0,
@@ -106,8 +107,9 @@ struct ProjectLink {
     2: required string name,
     3: optional ProjectRelationship relation,
     4: optional string version,
-    //This is to indicate the depth of the link (I link to a, a links to b, so b has depth 2)
-    20: optional i32 depth,
+    5: optional string parentId,
+    10: optional list<ReleaseLink> linkedReleases,
+    11: optional list<ProjectLink> subprojects,
 }
 
 service ProjectService {

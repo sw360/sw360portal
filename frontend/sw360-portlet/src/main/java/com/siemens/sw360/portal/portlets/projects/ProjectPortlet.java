@@ -534,8 +534,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             setAttachmentsInRequest(request, project.getAttachments());
             try {
-                putLinkedProjectsInRequest(request, project.getLinkedProjects());
-                putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
+                putDirectlyLinkedProjectsInRequest(request, project.getLinkedProjects());
+                putDirectlyLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
             } catch (TException e) {
                 log.error("Could not fetch linked projects or linked releases in projects view.", e);
                 return;
