@@ -34,7 +34,7 @@
         <module>src-fossology</module>
         <module>src-bdpimport</module>
         <module>src-vulnerabilities</module>
-        <module>src-cliservice</module>
+        <module>src-licenseinfo</module>
     </modules>
 
 
