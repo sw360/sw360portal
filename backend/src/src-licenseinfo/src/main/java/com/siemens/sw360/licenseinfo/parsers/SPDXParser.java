@@ -39,7 +39,7 @@ import java.util.function.Function;
 public class SPDXParser extends LicenseInfoParser {
     public static final String FILETYPE_SPDX_EXTERNAL = "SPDX";
     protected static final String FILETYPE_SPDX_INTERNAL = "RDF/XML";
-    private static final List<String> ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS = ImmutableList.of(
+    protected static final List<String> ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS = ImmutableList.of(
             "rdf",
             "spdx"
     );
