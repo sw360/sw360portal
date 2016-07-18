@@ -25,8 +25,8 @@ import com.siemens.sw360.datahandler.thrift.VerificationState;
 import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -607,21 +606,36 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     }
 
+    private void addToVulnerabilityVerifications(Map<String, Map<String, VerificationState>> vulnerabilityVerifications,
+                                                 Map<String, Map<String, String>> vulnerabilityTooltips,
+                                                 VulnerabilityDTO vulnerability){
+        String vulnerabilityId = vulnerability.getExternalId();
+        String releaseId = vulnerability.getIntReleaseId();
+        if(! vulnerabilityVerifications.containsKey(vulnerabilityId)){
+            vulnerabilityVerifications.put(vulnerabilityId, new HashMap<>());
+        }
+        if(! vulnerabilityTooltips.containsKey(vulnerabilityId)){
+            vulnerabilityTooltips.put(vulnerabilityId, new HashMap<>());
+        }
+        ReleaseVulnerabilityRelation relation = vulnerability.getReleaseVulnerabilityRelation();
+
+        if (! relation.isSetVerificationStateInfo()) {
+            vulnerabilityVerifications.get(vulnerabilityId).put(releaseId, VerificationState.NOT_CHECKED);
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, "Not checked yet.");
+        } else {
+            List<VerificationStateInfo> infoHistory = relation.getVerificationStateInfo();
+            VerificationStateInfo info = infoHistory.get(infoHistory.size() - 1);
+            vulnerabilityVerifications.get(vulnerabilityId).put(releaseId, info.getVerificationState());
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, formatedMessageForVul(infoHistory));
+        }
+    }
+
     private void putVulnerabilityMetadatasInRequest(RenderRequest request, List<VulnerabilityDTO> vuls) {
-        Map<String, String> vulnerabilityTooltips = new HashMap<>();
-        Map<String, VerificationState> vulnerabilityVerifications = new HashMap<>();
+        Map<String, Map<String, String>> vulnerabilityTooltips = new HashMap<>();
+        Map<String, Map<String, VerificationState>> vulnerabilityVerifications = new HashMap<>();
         Map<String, Integer> matchedByHistogram = new HashMap<>();
         for (VulnerabilityDTO vulnerability : vuls) {
-            ReleaseVulnerabilityRelation relation = vulnerability.getReleaseVulnerabilityRelation();
-            if (!relation.isSetVerificationStateInfo()) {
-                vulnerabilityVerifications.put(vulnerability.externalId, VerificationState.NOT_CHECKED);
-                vulnerabilityTooltips.put(vulnerability.externalId, "Not checked yet.");
-            } else {
-                List<VerificationStateInfo> infoHistory = relation.getVerificationStateInfo();
-                VerificationStateInfo info = infoHistory.get(infoHistory.size() - 1);
-                vulnerabilityVerifications.put(vulnerability.externalId, info.getVerificationState());
-                vulnerabilityTooltips.put(vulnerability.externalId, formatedMessageForVul(infoHistory));
-            }
+            addToVulnerabilityVerifications(vulnerabilityVerifications, vulnerabilityTooltips, vulnerability);
             addToMatchedByHistogram(matchedByHistogram, vulnerability);
         }
 

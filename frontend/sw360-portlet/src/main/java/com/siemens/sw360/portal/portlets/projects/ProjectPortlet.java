@@ -60,8 +60,6 @@ import java.time.format.DateTimeFormatter;
 import java.io.PrintWriter;
 import java.util.*;
 
-import com.siemens.sw360.portal.common.CommonVulnerabilityPortletUtils;
-
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
@@ -131,10 +129,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveRemoveProject(request, response);
         } else if (PortalConstants.VIEW_LINKED_RELEASES.equals(action)) {
             serveLinkedReleases(request, response);
-        } else if (PortalConstants.UPDATE_VULNERABILITIES_PROJECT.equals(action)){
-            updateVulnerabilitiesProject(request,response);
-        } else if (PortalConstants.UPDATE_VULNERABILITY_RATINGS.equals(action)){
-            updateVulnerabilityRating(request,response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_PROJECT.equals(action)) {
+            updateVulnerabilitiesProject(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITY_RATINGS.equals(action)) {
+            updateVulnerabilityRating(request, response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
@@ -174,7 +172,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 row.put("id", project.getId());
                 row.put("name", printName(project));
                 String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
+                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A." : pDesc);
                 row.put("state", ThriftEnumUtils.enumToString(project.getState()));
                 row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
                 row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
@@ -230,7 +228,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         try {
-            deleteUnneededAttachments(user.getEmail(),projectId);
+            deleteUnneededAttachments(user.getEmail(), projectId);
             ProjectService.Iface client = thriftClients.makeProjectClient();
             return client.deleteProject(projectId, user);
         } catch (TException e) {
@@ -305,7 +303,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
-                final String fullname = vendor!=null?vendor.getFullname():"";
+                final String fullname = vendor != null ? vendor.getFullname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(),
                         fullname, release.getName(), release.getVersion());
                 linkedReleases.add(linkedRelease);
@@ -469,7 +467,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             } else {
                 projectList = projectClient.refineSearch(searchtext, filterMap, user);
             }
-            for(Project project:projectList){
+            for (Project project : projectList) {
                 setClearingStateSummary(project);
             }
 
@@ -486,9 +484,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     }
 
-    private void addStickyProjectGroupToFilters(RenderRequest request, User user, Map<String, Set<String>> filterMap){
+    private void addStickyProjectGroupToFilters(RenderRequest request, User user, Map<String, Set<String>> filterMap) {
         String stickyGroupFilter = ProjectPortletUtils.loadStickyProjectGroup(request, user);
-        if (!isNullOrEmpty(stickyGroupFilter)){
+        if (!isNullOrEmpty(stickyGroupFilter)) {
             String groupFieldName = Project._Fields.BUSINESS_UNIT.getFieldName();
             filterMap.put(groupFieldName, Sets.newHashSet(stickyGroupFilter));
             request.setAttribute(groupFieldName, stickyGroupFilter);
@@ -527,7 +525,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory){
+    private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory) {
         return CommonVulnerabilityPortletUtils.formatedMessageForVul(statusHistory,
                 e -> e.getVulnerabilityRating().name(),
                 e -> e.getCheckedOn(),
@@ -535,7 +533,40 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 e -> e.getComment());
     }
 
-    private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException{
+    private boolean addToVulnerabilityRatings(Map<String, Map<String, VulnerabilityRatingForProject>> vulnerabilityRatings,
+                                              Map<String, Map<String, String>> vulnerabilityTooltips,
+                                              Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus,
+                                              VulnerabilityDTO vulnerability) {
+
+        String vulnerabilityId = vulnerability.getExternalId();
+        String releaseId = vulnerability.getIntReleaseId();
+        if (!vulnerabilityTooltips.containsKey(vulnerabilityId)) {
+            vulnerabilityTooltips.put(vulnerabilityId, new HashMap<>());
+        }
+        if (!vulnerabilityRatings.containsKey(vulnerabilityId)) {
+            vulnerabilityRatings.put(vulnerabilityId, new HashMap<>());
+        }
+        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = null;
+        if(vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId) && vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)) {
+            vulnerabilityCheckStatusHistory = vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).get(releaseId);
+        }
+        if (vulnerabilityCheckStatusHistory != null && vulnerabilityCheckStatusHistory.size() > 0) {
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, formatedMessageForVul(vulnerabilityCheckStatusHistory));
+
+            VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityCheckStatusHistory.get(vulnerabilityCheckStatusHistory.size() - 1);
+            VulnerabilityRatingForProject rating = vulnerabilityCheckStatus.getVulnerabilityRating();
+            vulnerabilityRatings.get(vulnerabilityId).put(releaseId, rating);
+            if (rating != VulnerabilityRatingForProject.NOT_CHECKED) {
+                return true;
+            }
+        } else {
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, NOT_CHECKED_YET);
+            vulnerabilityRatings.get(vulnerabilityId).put(releaseId, VulnerabilityRatingForProject.NOT_CHECKED);
+        }
+        return false;
+    }
+
+    private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
         List<VulnerabilityDTO> vuls;
         if (PermissionUtils.isAdmin(user)) {
@@ -547,38 +578,24 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         Optional<ProjectVulnerabilityRating> projectVulnerabilityRating = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
 
-        Map<String, List<VulnerabilityCheckStatus>> vulnerabilityIdToStatusHistory;
-        if(projectVulnerabilityRating.isPresent()){
-            vulnerabilityIdToStatusHistory = projectVulnerabilityRating.get().getVulnerabilityIdToStatus();
+        Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToStatusHistory;
+        if (projectVulnerabilityRating.isPresent()) {
+            vulnerabilityIdToStatusHistory = projectVulnerabilityRating.get().getVulnerabilityIdToReleaseIdToStatus();
         } else {
             vulnerabilityIdToStatusHistory = new HashMap<>();
         }
 
         int numberOfVulnerabilities = 0;
         int numberOfCheckedVulnerabilities = 0;
-        Map<String, String> vulnerabilityTooltips = new HashMap<>();
-        Map<String, VulnerabilityRatingForProject> vulnerabilityRatings = new HashMap<>();
+        Map<String, Map<String, String>> vulnerabilityTooltips = new HashMap<>();
+        Map<String, Map<String, VulnerabilityRatingForProject>> vulnerabilityRatings = new HashMap<>();
         Map<String, Integer> matchedByHistogram = new HashMap<>();
-        for (VulnerabilityDTO vul: vuls) {
+        for (VulnerabilityDTO vul : vuls) {
             numberOfVulnerabilities++;
-            String externalId = vul.getExternalId();
-
-            List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToStatusHistory.get(externalId);
-            if (vulnerabilityCheckStatusHistory != null && vulnerabilityCheckStatusHistory.size() > 0){
-                vulnerabilityTooltips.put(externalId, formatedMessageForVul(vulnerabilityCheckStatusHistory));
-
-                VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityCheckStatusHistory.get(vulnerabilityCheckStatusHistory.size() - 1);
-                VulnerabilityRatingForProject rating = vulnerabilityCheckStatus.getVulnerabilityRating();
-
-                vulnerabilityRatings.put(externalId, rating);
-                if (rating != VulnerabilityRatingForProject.NOT_CHECKED){
-                    numberOfCheckedVulnerabilities++;
-                }
-            }else{
-                vulnerabilityTooltips.put(externalId, NOT_CHECKED_YET);
-                vulnerabilityRatings.put(externalId, VulnerabilityRatingForProject.NOT_CHECKED);
+            boolean wasAddedVulChecked = addToVulnerabilityRatings(vulnerabilityRatings, vulnerabilityTooltips, vulnerabilityIdToStatusHistory, vul);
+            if (wasAddedVulChecked) {
+                numberOfCheckedVulnerabilities++;
             }
-
             addToMatchedByHistogram(matchedByHistogram, vul);
         }
 
@@ -609,7 +626,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void setClearingStateSummary(ComponentService.Iface componentClient, Project project) {
         try {
             final Set<String> releaseIds;
-            if(project.isSetReleaseIds()){
+            if (project.isSetReleaseIds()) {
                 releaseIds = project.getReleaseIds();
             } else {
                 releaseIds = CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
@@ -747,7 +764,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
                 requestStatus = client.updateProject(project, user);
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
-                cleanUploadHistory(user.getEmail(),id);
+                cleanUploadHistory(user.getEmail(), id);
                 response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
                 response.setRenderParameter(PROJECT_ID, request.getParameter(PROJECT_ID));
             } else {
@@ -771,6 +788,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Error updating project in backend!", e);
         }
     }
+
     @UsedAsLiferayAction
     public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
         response.setRenderParameter(KEY_SEARCH_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_TEXT)));
@@ -793,7 +811,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void updateVulnerabilityRating(ResourceRequest request, ResourceResponse response) throws IOException{
+    private void updateVulnerabilityRating(ResourceRequest request, ResourceResponse response) throws IOException {
         String projectId = request.getParameter(PortalConstants.PROJECT_ID);
         String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
         User user = UserCacheHolder.getUserFromRequest(request);

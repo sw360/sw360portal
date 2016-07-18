@@ -145,7 +145,7 @@ struct ProjectVulnerabilityRating{
 
     4: required string projectId,
     //keys are the externalIds of the vulnerabilities
-    5: required map<string, list<VulnerabilityCheckStatus>> vulnerabilityIdToStatus,
+    5: required map<string, map<string, list<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus,
 }
 
 service VulnerabilityService {

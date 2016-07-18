@@ -19,7 +19,7 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITY_VERIFICATION%>"/>
 </portlet:resourceURL>
 <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
-<jsp:useBean id="vulnerabilityVerificationTooltips" type="java.util.Map<java.lang.String, java.lang.String>"
+<jsp:useBean id="vulnerabilityVerificationTooltips" type="java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>"
              scope="request"/>
 <jsp:useBean id="vulnerabilityMatchedByHistogram" type="java.util.Map<java.lang.String, java.lang.Integer>" scope="request"/>
 
@@ -72,14 +72,16 @@
                     '<select class="toplabelledInput" ' +
                     'id="verificationChangeSelectFor${vulnerability.externalId}" ' +
                     'name="<portlet:namespace/><%=VerificationState.class%>" ' +
-                    'onchange="changeVerification(this, `${vulnerability.externalId}`,`${vulnerabilityVerifications.get(vulnerability.externalId).ordinal()}`, `${vulnerability.intReleaseId}`)" ' +
-                    'title="<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}'/>"'+
+                    'onchange="changeVerification(this, `${vulnerability.externalId}`,`${vulnerabilityVerifications.get(vulnerability.externalId).get(vulnerability.intReleaseId).ordinal()}`, `${vulnerability.intReleaseId}`)" ' +
+                    'title="<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"'+
                     'style="min-width: 90px; min-height: 28px;">' +
-                     <sw360:DisplayEnumOptions type="<%=VerificationState.class%>" selected="${vulnerabilityVerifications.get(vulnerability.externalId)}" inQuotes="true"/> +
+                    <sw360:DisplayEnumOptions type="<%=VerificationState.class%>" selected="${vulnerabilityVerifications.get(vulnerability.externalId).get(vulnerability.intReleaseId)}" inQuotes="true"/> +
                     '</select>',
             </core_rt:when>
             <core_rt:otherwise>
-                    '<div title="<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId)}'/>"><sw360:DisplayEnum value="${vulnerabilityVerifications.get(vulnerability.externalId)}"/></div>',
+                    '<div title="<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>">'+
+                    '<sw360:DisplayEnum value="${vulnerabilityVerifications.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/>'+
+                    '</div>',
             </core_rt:otherwise>
             </core_rt:choose>
             "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'

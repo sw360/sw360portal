@@ -110,19 +110,23 @@ public class ProjectPortletUtils {
         ProjectVulnerabilityRating projectVulnerabilityRating = projectVulnerabilityRatings.orElse(
                 new ProjectVulnerabilityRating()
                         .setProjectId(projectId)
-                        .setVulnerabilityIdToStatus(new HashMap<>()));
+                        .setVulnerabilityIdToReleaseIdToStatus(new HashMap<>()));
 
         String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
-        if(!projectVulnerabilityRating.isSetVulnerabilityIdToStatus()){
-            projectVulnerabilityRating.setVulnerabilityIdToStatus(new HashMap<>());
+        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
+        if(! projectVulnerabilityRating.isSetVulnerabilityIdToReleaseIdToStatus()){
+            projectVulnerabilityRating.setVulnerabilityIdToReleaseIdToStatus(new HashMap<>());
         }
 
-        Map<String,List<VulnerabilityCheckStatus>> vulnerabilityIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToStatus();
-        if(!vulnerabilityIdToStatus.containsKey(vulnerabilityId)){
-            vulnerabilityIdToStatus.put(vulnerabilityId, new ArrayList<>());
+        Map<String, Map <String, List<VulnerabilityCheckStatus>>>  vulnerabilityIdToReleaseIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToReleaseIdToStatus();
+        if(! vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId)){
+            vulnerabilityIdToReleaseIdToStatus.put(vulnerabilityId, new HashMap<>());
+        }
+        if(! vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)){
+            vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).put(releaseId, new ArrayList<>());
         }
 
-        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToStatus.get(vulnerabilityId);
+        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).get(releaseId);
         VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
         vulnerabilityCheckStatusHistory.add(vulnerabilityCheckStatus);
 
