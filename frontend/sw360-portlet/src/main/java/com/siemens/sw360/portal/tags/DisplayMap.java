@@ -49,9 +49,13 @@ public class DisplayMap extends SimpleTagSupport {
 
     public static String getMapAsString(Map<String, String> map) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<ul style=\"list-style-type: none; padding:0; margin:0;\">");
+        sb.append("<ul class=\"mapDisplayRootItem\">");
         map.entrySet().stream().forEach(e -> sb.append(
-                "<li><b>" + e.getKey() + "</b> " + e.getValue() + "</li>"
+                "<li><span class=\"mapDisplayChildItemLeft\">"
+                        + e.getKey()
+                        + "</span><span class=\"mapDisplayChildItemRight\"> "
+                        + e.getValue()
+                        + "</span></li>"
         ));
         sb.append("</ul>");
         return sb.toString();

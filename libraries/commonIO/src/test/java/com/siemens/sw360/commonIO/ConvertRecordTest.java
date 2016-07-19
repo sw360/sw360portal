@@ -37,7 +37,9 @@ public class ConvertRecordTest {
     private List<CSVRecord> smallestPossibleRecord;
     private List<CSVRecord> fullRecord;
     private List<CSVRecord> emptyPropRecord;
+    private List<CSVRecord> whitePropRecord;
     private List<CSVRecord> emptyValRecord;
+    private List<CSVRecord> whiteValRecord;
     private List<Todo> todos;
     private List<CSVRecord> fullTodoRecord;
 
@@ -51,8 +53,14 @@ public class ConvertRecordTest {
         String emptyProp = "header\n 1,,val";
         emptyPropRecord = readToRecord(emptyProp);
 
+        String whiteProp = "header\n 1,  ,val";
+        whitePropRecord = readToRecord(whiteProp);
+
         String emptyValue = "header\n 1,prop,";
         emptyValRecord = readToRecord(emptyValue);
+
+        String whiteValue = "header\n 1,prop, ";
+        whiteValRecord = readToRecord(whiteValue);
 
         String smallestPossible = "headers\n 1,prop1,val1";
         smallestPossibleRecord = readToRecord(smallestPossible);
@@ -93,10 +101,24 @@ public class ConvertRecordTest {
     }
 
     @Test
-    public void testConvertCustomPropertiesEmptyValue() throws Exception {
-        Map<String, Set<String>> properties = convertCustomProperties(emptyValRecord);
+    public void testConvertCustomPropertiesWhitespaceProp() throws Exception {
+        Map<String, Set<String>> properties = convertCustomProperties(whitePropRecord);
         assertThat(properties.keySet().size(), is(0));
         assertThat(properties.values().size(), is(0));
+    }
+
+    @Test
+    public void testConvertCustomPropertiesEmptyValue() throws Exception {
+        Map<String, Set<String>> properties = convertCustomProperties(emptyValRecord);
+        assertThat(properties.keySet().size(), is(1));
+        assertThat(properties.values().size(), is(1));
+    }
+
+    @Test
+    public void testConvertCustomPropertiesWhiteValue() throws Exception {
+        Map<String, Set<String>> properties = convertCustomProperties(whiteValRecord);
+        assertThat(properties.keySet().size(), is(1));
+        assertThat(properties.values().size(), is(1));
     }
 
     @Test

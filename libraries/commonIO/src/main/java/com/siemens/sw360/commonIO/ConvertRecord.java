@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
+
 /**
  * Convert CSV Record to license objects
  *
@@ -112,8 +114,8 @@ public class ConvertRecord {
             if(! isValidPropertyRecord(record)){
                 break;
             }
-            String property = record.get(1);
-            String value = record.get(2);
+            String property = record.get(1).trim();
+            String value = record.get(2).trim();
             addPropertyAndValueToMap(property, value, resultProperties);
         }
         return resultProperties;
@@ -136,8 +138,8 @@ public class ConvertRecord {
                 break;
             }
             Integer id = Integer.parseInt(record.get(0));
-            String property = record.get(1);
-            String value = record.get(2);
+            String property = record.get(1).trim();
+            String value = record.get(2).trim();
             resultPropertiesById.put(id, new PropertyWithValue(property, value));
         }
         return resultPropertiesById;
@@ -145,8 +147,7 @@ public class ConvertRecord {
 
     private static boolean isValidPropertyRecord(CSVRecord record){
         if(record.size() < 3 ||
-                "".equals(record.get(1)) ||
-                "".equals(record.get(2))){
+                isNullEmptyOrWhitespace(record.get(1))){
             return  false;
         }
         try {
@@ -174,13 +175,13 @@ public class ConvertRecord {
         return new Serializer<PropertyWithValueAndId>() {
             @Override
             public Function<PropertyWithValueAndId, List<String>> transformer() {
-                return e -> {
+                return propertyWithValueAndId -> {
 
                     final ArrayList<String> out = new ArrayList<>(3);
 
-                    out.add(e.getId().toString());
-                    out.add(e.getProperty());
-                    out.add(e.getValue());
+                    out.add(propertyWithValueAndId.getId().toString());
+                    out.add(propertyWithValueAndId.getProperty());
+                    out.add(propertyWithValueAndId.getValue());
                     return out;
                 };
             }
@@ -601,8 +602,8 @@ public class ConvertRecord {
     }
 
     public static class PropertyWithValue{
-        public String property;
-        public String value;
+        private String property;
+        private String value;
 
         public PropertyWithValue(String property, String value){
             this.property = property;
@@ -619,8 +620,8 @@ public class ConvertRecord {
     }
 
     public static class PropertyWithValueAndId {
-        public PropertyWithValue propertyWithValue;
-        public Integer id;
+        private PropertyWithValue propertyWithValue;
+        private Integer id;
 
         public PropertyWithValueAndId(Integer id, PropertyWithValue propertyWithValue){
             this.propertyWithValue = propertyWithValue;

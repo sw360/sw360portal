@@ -9,12 +9,15 @@
 package com.siemens.sw360.datahandler.common;
 
 import com.google.common.base.*;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.attachments.*;
-import com.siemens.sw360.datahandler.thrift.components.ClearingState;
+import com.siemens.sw360.datahandler.thrift.DocumentState;
+import com.siemens.sw360.datahandler.thrift.ModerationState;
+import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.RequestSummary;
+import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.Todo;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -36,7 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Optional;
-import java.util.function.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.log4j.LogManager.getLogger;
@@ -547,5 +549,9 @@ public class CommonUtils {
                 }
         );
         return destination;
+    }
+
+    public static boolean isNullEmptyOrWhitespace(String string){
+        return string==null || string.trim().length() == 0;
     }
 }
