@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.attachments.db;
+package com.siemens.sw360.datahandler.db;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;

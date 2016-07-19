@@ -27,6 +27,11 @@ struct LicenseInfo {
 
     20: optional set<string> copyrights,
     21: optional set<string> licenseTexts,
+
+    // identifying data of the scanned release, if applicable
+    30: optional string vendor,
+    31: optional string name,
+    32: optional string version,
 }
 
 struct LicenseInfoParsingResult {

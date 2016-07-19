@@ -24,6 +24,7 @@ import org.apache.thrift.TException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;
@@ -208,6 +209,12 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public Map<String, List<String>> getDuplicateProjects() throws TException {
         return handler.getDuplicateProjects();
+    }
+
+    @Override
+    public String getLicenseInformationFile(String projectId, User user) throws TException {
+        assertId(projectId);
+        return handler.getLicenseInfoFile(projectId, user);
     }
 
     @Override

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo.parsers;
+package com.siemens.sw360.datahandler.licenseinfo.parsers;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -93,7 +93,8 @@ public class CLIParser extends LicenseInfoParser {
     }
 
     @Override
-    public LicenseInfoParsingResult getLicenseInfo(AttachmentContent attachmentContent) {
+    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) {
+        AttachmentContent attachmentContent = attachmentContentProvider.apply(attachment);
         LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename())).setFiletype(FILETYPE_CLI);
         LicenseInfoParsingResult result = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
 

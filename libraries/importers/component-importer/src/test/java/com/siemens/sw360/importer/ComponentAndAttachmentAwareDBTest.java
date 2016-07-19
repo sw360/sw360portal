@@ -11,7 +11,7 @@ package com.siemens.sw360.importer;
 
 import com.google.common.collect.FluentIterable;
 import com.siemens.sw360.attachments.AttachmentHandler;
-import com.siemens.sw360.attachments.db.AttachmentRepository;
+import com.siemens.sw360.datahandler.db.AttachmentRepository;
 import com.siemens.sw360.components.ComponentHandler;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.common.ImportCSV;

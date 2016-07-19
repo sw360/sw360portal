@@ -8,7 +8,7 @@
  */
 package com.siemens.sw360.attachments;
 
-import com.siemens.sw360.attachments.db.AttachmentDatabaseHandler;
+import com.siemens.sw360.datahandler.db.AttachmentDatabaseHandler;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.RequestSummary;
