@@ -112,8 +112,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveLinkedReleases(request, response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
+        } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
+            downloadLicenseInfo(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
+        }
+    }
+
+    private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        ProjectService.Iface client = thriftClients.makeProjectClient();
+
+        String projectId = request.getParameter(PROJECT_ID);
+        try {
+            PortletResponseUtil.sendFile(request, response, "ComponentLicenseInfo.txt", client.getLicenseInformationFile(projectId, user).getBytes(), "text/plain");
+        } catch (TException e) {
+            log.error("Error getting LicenseInfo file", e);
         }
     }
 

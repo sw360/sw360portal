@@ -25,7 +25,13 @@
 <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects">
     <thead>
     <tr>
-        <th colspan="4" class="headlabel">Linked Releases And Projects</th>
+        <th colspan="4" class="headlabel">Linked Releases And Projects
+        <span class="pull-right"><a href="<portlet:resourceURL>
+                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_LICENSE_INFO%>'/>
+                <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${requestScope.project.id}"/>
+                                </portlet:resourceURL>" title="Download License Information">
+            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download"></a></span>
+        </th>
     </tr>
     <tr>
         <th width="25%">Name</th>

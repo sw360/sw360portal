@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo.parsers;
+package com.siemens.sw360.datahandler.licenseinfo.parsers;
 
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
@@ -27,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
 /**
@@ -93,8 +94,8 @@ public class CLIParserTest {
 
     @Test
     public void testGetCLI() throws Exception {
-        AttachmentContent cliAttachment = new AttachmentContent().setId("A1").setFilename("a.xml").setContentType("application/xml");
-        when(connector.getAttachmentStream(cliAttachment)).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
+        Attachment cliAttachment = new Attachment("A1", "a.xml");
+        when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
         LicenseInfoParsingResult res = parser.getLicenseInfo(cliAttachment);
         assertThat(res.getStatus(), is(LicenseInfoRequestStatus.SUCCESS));
         assertThat(res.getLicenseInfo(), notNullValue());
@@ -109,8 +110,8 @@ public class CLIParserTest {
 
     @Test
     public void testGetCLIFailsOnMalformedXML() throws Exception {
-        AttachmentContent cliAttachment = new AttachmentContent().setId("A1").setFilename("a.xml").setContentType("application/xml");
-        when(connector.getAttachmentStream(cliAttachment)).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE.replaceAll("</Content>", "</Broken>"))));
+        Attachment cliAttachment = new Attachment("A1", "a.xml");
+        when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE.replaceAll("</Content>", "</Broken>"))));
         LicenseInfoParsingResult res = parser.getLicenseInfo(cliAttachment);
         assertThat(res.getStatus(), is(LicenseInfoRequestStatus.FAILURE));
         assertThat(res.getLicenseInfo(), notNullValue());

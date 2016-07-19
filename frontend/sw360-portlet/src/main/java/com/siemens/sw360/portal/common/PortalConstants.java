@@ -188,6 +188,7 @@ public class PortalConstants {
     public static final String LIST_NEW_LINKED_PROJECTS = "add_to_linked_projects";
     public static final String VIEW_LINKED_RELEASES = "view_linked_releases";
     public static final String LIST_NEW_LINKED_RELEASES = "add_to_linked_releases";
+    public static final String DOWNLOAD_LICENSE_INFO = "DownloadLicenseInfo";
 
     //component actions
     public static final String ADD_VENDOR = "add_vendor";

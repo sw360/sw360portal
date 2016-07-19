@@ -9,7 +9,7 @@
 
 package com.siemens.sw360.licenseinfo;
 
-import com.siemens.sw360.attachments.db.AttachmentDatabaseHandler;
+import com.siemens.sw360.datahandler.db.AttachmentDatabaseHandler;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import org.apache.thrift.TException;
 import org.junit.After;

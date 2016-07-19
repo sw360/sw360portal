@@ -234,4 +234,9 @@ service ProjectService {
      * returned as map from pretty printed name to list of matching ids
      */
     map <string, list<string>> getDuplicateProjects();
+
+    /**
+     * get a copyright and license information file on all linked releases and linked releases of linked projects (recursively)
+     */
+    string getLicenseInformationFile(1:  string projectId, 2: User user);
 }
