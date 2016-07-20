@@ -67,16 +67,11 @@
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_id">CPE ID</label>
             <input id="comp_id" name="<portlet:namespace/><%=Release._Fields.CPEID%>" type="text"
-            <core_rt:if test="${addMode}">
                    class="toplabelledInput followedByImg"
+                   value="<sw360:out value="${release.cpeid}"/>"
                    placeholder="Enter CPE ID" required="" />
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
-                 title="The formula for CPE ID creation is &#13;'cpe:2.3:a:+vendorname+componentname'  "/>
-            </core_rt:if>
-            <core_rt:if test="${not addMode}">
-                class="toplabelledInput"
-                value="<sw360:out value="${release.cpeid}"/>" readonly/>
-            </core_rt:if>
+                 title="The formula for CPE ID creation is &#13;'cpe:2.3:a:VENDORNAME:COMPONENTNAME:VERSION'  "/>
         </td>
     </tr>
 
