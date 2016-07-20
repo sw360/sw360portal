@@ -40,7 +40,7 @@ public class LicenseInfoHandlerTest {
     @Before
     public void setUp() throws Exception {
         when(attachmentDatabaseHandler.getAttachmentConnector()).thenReturn(connector);
-        handler = new LicenseInfoHandler(attachmentDatabaseHandler);
+        handler = new LicenseInfoHandler(attachmentDatabaseHandler, null, null);
     }
 
     @After

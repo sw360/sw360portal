@@ -7,6 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+include "users.thrift"
 include "components.thrift"
 
 namespace java com.siemens.sw360.datahandler.thrift.licenseinfo
@@ -14,6 +15,7 @@ namespace php sw360.thrift.licenseinfo
 
 typedef components.Release Release
 typedef components.Attachment Attachment
+typedef users.User User
 
 enum LicenseInfoRequestStatus{
     SUCCESS = 0,
@@ -52,4 +54,8 @@ service LicenseInfoService {
      * */
     LicenseInfoParsingResult getLicenseInfoForRelease(1: Release release);
 
+    /**
+     * get a copyright and license information file on all linked releases and linked releases of linked projects (recursively)
+     */
+    string getLicenseInfoFileForProject(1:  string projectId, 2: User user);
 }

@@ -13,6 +13,7 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.fossology.FossologyService;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
@@ -125,4 +126,7 @@ public class ThriftClients {
         return new VulnerabilityService.Client(makeProtocol(BACKEND_URL, VULNERABILITY_SERVICE_URL));
     }
 
+    public LicenseInfoService.Client makeLicenseInfoClient() {
+        return new LicenseInfoService.Client(makeProtocol(BACKEND_URL, PROJECT_SERVICE_URL));
+    }
 }

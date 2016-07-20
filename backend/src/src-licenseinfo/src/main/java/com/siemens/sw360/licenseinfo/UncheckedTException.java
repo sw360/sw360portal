@@ -1,4 +1,4 @@
-package com.siemens.sw360.datahandler.licenseinfo;
+package com.siemens.sw360.licenseinfo;
 
 import org.apache.thrift.TException;
 

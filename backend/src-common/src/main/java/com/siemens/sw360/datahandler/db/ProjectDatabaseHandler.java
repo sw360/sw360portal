@@ -12,18 +12,15 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
-import com.siemens.sw360.datahandler.licenseinfo.LicenseInfoBackendHandler;
 import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
@@ -31,13 +28,11 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.*;
@@ -56,22 +51,18 @@ import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePerm
 public class ProjectDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(ProjectDatabaseHandler.class);
-    public static final String LICENSE_INFOS_CONTEXT_PROPERTY = "licenseInfos";
-    public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
-    public static final String LICENSE_INFO_TEMPLATE_FILE = "licenseInfoFile.vm";
 
     private final ProjectRepository repository;
     private final ProjectModerator moderator;
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
-    private final LicenseInfoBackendHandler licenseInfoBackendHandler;
 
     public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        this(url, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(url,dbName,attachmentDbName), new LicenseInfoBackendHandler(new AttachmentDatabaseHandler(url,dbName,attachmentDbName)));
+        this(url, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(url,dbName,attachmentDbName));
     }
 
     @VisibleForTesting
-    public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler, LicenseInfoBackendHandler licenseInfoBackendHandler) throws MalformedURLException {
+    public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(url, dbName);
 
         // Create the repository
@@ -83,8 +74,6 @@ public class ProjectDatabaseHandler {
         attachmentConnector = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
 
         this.componentDatabaseHandler = componentDatabaseHandler;
-
-        this.licenseInfoBackendHandler = licenseInfoBackendHandler;
     }
 
     /////////////////////
@@ -347,71 +336,5 @@ public class ProjectDatabaseHandler {
         }
 
         return CommonUtils.getIdentifierToListOfDuplicates(projectIdentifierToReleaseId);
-    }
-
-    public String getLicenseInfoFile(String projectId, User user) throws SW360Exception {
-        Project project = getProjectById(projectId, user);
-        assertNotNull(project);
-
-        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(projectId, user);
-
-        return generateLicenseInfoFile(projectLicenseInfoResults);
-    }
-
-    private String generateLicenseInfoFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) throws SW360Exception {
-        try {
-            Properties p = new Properties();
-            p.setProperty("resource.loader", "class");
-            p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-            Velocity.init(p);
-            VelocityContext vc = new VelocityContext();
-
-            Map<String, LicenseInfo> licenseInfos = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
-            Set<String> licenses = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
-                    .map(LicenseInfo::getLicenseTexts)
-                    .filter(Objects::nonNull)
-                    .reduce(Sets::union)
-                    .orElse(Collections.emptySet());
-
-            vc.put(LICENSE_INFOS_CONTEXT_PROPERTY, licenseInfos);
-            vc.put(LICENSES_CONTEXT_PROPERTY, licenses);
-
-            StringWriter sw = new StringWriter();
-            Velocity.mergeTemplate(LICENSE_INFO_TEMPLATE_FILE, "utf-8", vc, sw);
-            sw.close();
-            return sw.toString();
-        } catch (Exception e) {
-            log.error("Could not generate licenseinfo file", e);
-            return "License information could not be generated.\nAn exception occured: " + e.toString();
-        }
-    }
-
-    private String getComponentLongName(LicenseInfo li) {
-        return String.format("%s %s %s", li.getVendor(), li.getName(), li.getVersion()).trim();
-    }
-
-    private Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(String projectId, User user) {
-        Map<String, ProjectRelationship> fakeRelations = Maps.newHashMap();
-        fakeRelations.put(projectId, ProjectRelationship.UNKNOWN);
-        List<ProjectLink> linkedProjects = getLinkedProjects(fakeRelations);
-        Collection<ProjectLink> flatProjectLinkList = flattenProjectLinkTree(linkedProjects);
-        return flatProjectLinkList.stream()
-                .flatMap(pl -> nullToEmptyCollection(pl.getLinkedReleases()).stream())
-                .map(rl -> {
-                    try {
-                        return componentDatabaseHandler.getRelease(rl.getId(), user);
-                    } catch (SW360Exception e) {
-                        log.error("Cannot read release with id: "+ rl.getId(), e);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .map(licenseInfoBackendHandler::getLicenseInfoForRelease)
-                .collect(Collectors.toList());
     }
 }

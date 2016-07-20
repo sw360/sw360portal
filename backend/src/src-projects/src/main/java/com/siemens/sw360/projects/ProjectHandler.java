@@ -12,7 +12,9 @@ import com.siemens.sw360.attachments.AttachmentHandler;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -209,12 +211,6 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public Map<String, List<String>> getDuplicateProjects() throws TException {
         return handler.getDuplicateProjects();
-    }
-
-    @Override
-    public String getLicenseInformationFile(String projectId, User user) throws TException {
-        assertId(projectId);
-        return handler.getLicenseInfoFile(projectId, user);
     }
 
     @Override
