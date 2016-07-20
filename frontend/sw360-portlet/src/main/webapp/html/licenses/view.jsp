@@ -100,9 +100,9 @@
 
     <core_rt:forEach items="${licenseList}" var="license">
         result.push({
-            "DT_RowId": '${license.id}',
+            <%-- "DT_RowId": '${license.id}',--%>
             "0": "<sw360:DisplayLicenseLink licenseId="${license.id}"/>",
-            "1": '${license.fullname}',
+            "1": '<sw360:out value="${license.fullname}"/>',
             "2": '<sw360:out value="${license.licenseType.licenseType}" default="--"/>'
         });
     </core_rt:forEach>
