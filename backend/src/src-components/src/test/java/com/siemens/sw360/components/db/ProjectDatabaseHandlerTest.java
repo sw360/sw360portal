@@ -16,7 +16,6 @@ import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
-import com.siemens.sw360.datahandler.licenseinfo.LicenseInfoBackendHandler;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -59,8 +58,6 @@ public class ProjectDatabaseHandlerTest {
 
     @Mock
     private ProjectModerator moderator;
-    @Mock
-    private LicenseInfoBackendHandler licenseInfoHandler;
 
     @Before
     public void setUp() throws Exception {
@@ -107,7 +104,7 @@ public class ProjectDatabaseHandlerTest {
         }
 
         ComponentDatabaseHandler componentHandler = new ComponentDatabaseHandler(url, dbName, attachmentsDbName);
-        handler = new ProjectDatabaseHandler(url, dbName, attachmentsDbName, moderator, componentHandler, licenseInfoHandler);
+        handler = new ProjectDatabaseHandler(url, dbName, attachmentsDbName, moderator, componentHandler);
     }
 
     @After

@@ -27,6 +27,8 @@ import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -121,11 +123,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        ProjectService.Iface client = thriftClients.makeProjectClient();
+        LicenseInfoService.Iface client = thriftClients.makeLicenseInfoClient();
 
         String projectId = request.getParameter(PROJECT_ID);
         try {
-            PortletResponseUtil.sendFile(request, response, "ComponentLicenseInfo.txt", client.getLicenseInformationFile(projectId, user).getBytes(), "text/plain");
+            PortletResponseUtil.sendFile(request, response, "ComponentLicenseInfo.txt", client.getLicenseInfoFileForProject(projectId, user).getBytes(), "text/plain");
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
         }
