@@ -23,6 +23,9 @@ import org.apache.thrift.protocol.TType;
 
 import java.util.*;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.addAll;
+import static com.siemens.sw360.datahandler.common.CommonUtils.removeAll;
+
 
 /**
  * Base class for Moderators
@@ -59,48 +62,59 @@ public abstract class Moderator<U extends TFieldIdEnum, T extends TBase<T, U>> {
         return Collections.emptyList();
     }
 
-    protected T updateBasicField(U field, FieldMetaData fieldMetaData, T project, T projectAdditions, T projectDeletions) {
+    protected T updateBasicField(U field, FieldMetaData fieldMetaData, T document, T documentAdditions, T documentDeletions) {
         switch (fieldMetaData.valueMetaData.type) {
             case TType.SET:
-                Set<String> originalSet = (Set<String>) project.getFieldValue(field);
-                originalSet.removeAll((Set<String>) projectDeletions.getFieldValue(field));
-                originalSet.addAll((Set<String>) projectAdditions.getFieldValue(field));
+                Set<String> originalSet = document.getFieldValue(field)==null
+                        ? new HashSet<>()
+                        : (Set<String>) document.getFieldValue(field);
+                removeAll(originalSet, (Set<String>) documentDeletions.getFieldValue(field));
+                addAll(originalSet,(Set<String>) documentAdditions.getFieldValue(field));
+                document.setFieldValue(field, originalSet);
                 break;
-
             case TType.STRING:
             case TType.ENUM:
-                project.setFieldValue(field, projectAdditions.getFieldValue(field));
+                document.setFieldValue(field, documentAdditions.getFieldValue(field));
                 break;
 
             default:
                 log.error("Unknown project field in ProjectModerator: " + field.getFieldName());
         }
-        return project;
+        return document;
     }
 
     protected Set<Attachment> updateAttachments(Set<Attachment> attachments,
-                                              Set<Attachment> attachmentAdditions,
-                                              Set<Attachment> attachmentDeletions) {
+                                                Set<Attachment> attachmentAdditions,
+                                                Set<Attachment> attachmentDeletions) {
+        if (attachments == null) {
+            attachments = new HashSet<>();
+        }
         Map<String, Attachment> attachmentMap = Maps.uniqueIndex(attachments, Attachment::getAttachmentContentId);
-
-        for(Attachment update : attachmentAdditions){
-            String id = update.getAttachmentContentId();
-            if(attachmentMap.containsKey(id)){
-                Attachment actual = attachmentMap.get(id);
-                for(Attachment._Fields field : Attachment._Fields.values()){
-                    if (update.isSet(field)) {
-                        actual.setFieldValue(field, update.getFieldValue(field));
+        if (attachmentAdditions != null) {
+            for (Attachment update : attachmentAdditions) {
+                String id = update.getAttachmentContentId();
+                if (attachmentMap.containsKey(id)) {
+                    Attachment actual = attachmentMap.get(id);
+                    for (Attachment._Fields field : Attachment._Fields.values()) {
+                        if (update.isSet(field)) {
+                            actual.setFieldValue(field, update.getFieldValue(field));
+                        }
                     }
+                } else {
+                    attachments.add(update);
                 }
-            } else {
-                attachments.add(update);
             }
         }
 
-        Map<String, Attachment> additionsMap = Maps.uniqueIndex(attachmentAdditions, Attachment::getAttachmentContentId);
-        for (Attachment delete : attachmentDeletions) {
-            if (!additionsMap.containsKey(delete.getAttachmentContentId())) {
-                attachments.remove(delete);
+        Map<String, Attachment> additionsMap = attachmentAdditions != null
+                ? Maps.uniqueIndex(attachmentAdditions, Attachment::getAttachmentContentId)
+                : new HashMap<>();
+
+        if (attachmentDeletions != null) {
+            for (Attachment delete : attachmentDeletions) {
+                if (!additionsMap.containsKey(delete.getAttachmentContentId())) {
+                    attachments.remove(delete);
+                }
             }
         }
 

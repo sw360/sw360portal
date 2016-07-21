@@ -25,8 +25,9 @@ public class ClearingInformationModerationRequestGenerator extends ModerationReq
 
     @Override
     public ModerationRequest setAdditionsAndDeletions(ModerationRequest request, ClearingInformation updateCI, ClearingInformation actualCI){
-        updateDocument = updateCI;
-        actualDocument = actualCI;
+
+        this.updateDocument = updateCI == null ? new ClearingInformation() : updateCI;
+        this.actualDocument = actualCI == null ? new ClearingInformation() : actualCI;
 
         documentAdditions = null;
         documentDeletions = null;
@@ -34,48 +35,48 @@ public class ClearingInformationModerationRequestGenerator extends ModerationReq
         for(ClearingInformation._Fields field : ClearingInformation._Fields.values()){
             if(ClearingInformation.metaDataMap.get(field).valueMetaData.type == TType.BOOL ||
                     ClearingInformation.metaDataMap.get(field).valueMetaData.type == TType.I32){
-                if(actualCI.getFieldValue(field) != updateCI.getFieldValue(field)){
+                if(actualDocument.getFieldValue(field) != updateDocument.getFieldValue(field)){
                     if(documentAdditions == null){
                         documentAdditions = new ClearingInformation();
                     }
                     if(documentDeletions == null){
                         documentDeletions = new ClearingInformation();
                     }
-                    documentAdditions.setFieldValue(field, updateCI.getFieldValue(field));
-                    documentDeletions.setFieldValue(field, actualCI.getFieldValue(field));
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
                 }
                 continue;
             }
 
             if(ClearingInformation.metaDataMap.get(field).valueMetaData.type == TType.STRING) {
-                if (isNullOrEmpty((String) actualCI.getFieldValue(field))
-                        && isNullOrEmpty((String) updateCI.getFieldValue(field))) {
+                if (isNullOrEmpty((String) actualDocument.getFieldValue(field))
+                        && isNullOrEmpty((String) updateDocument.getFieldValue(field))) {
                     continue;
                 }
 
-                if (actualCI.isSet(field) && !updateCI.isSet(field)) {
+                if (actualDocument.isSet(field) && !updateDocument.isSet(field)) {
                     if (documentDeletions == null) {
                         documentDeletions = new ClearingInformation();
                     }
-                    documentDeletions.setFieldValue(field, actualCI.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
                     continue;
                 }
-                if (updateCI.isSet(field) && !actualCI.isSet(field)) {
+                if (updateDocument.isSet(field) && !actualDocument.isSet(field)) {
                     if (documentAdditions == null) {
                         documentAdditions = new ClearingInformation();
                     }
-                    documentAdditions.setFieldValue(field, updateCI.getFieldValue(field));
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
                     continue;
                 }
-                if (!(actualCI.getFieldValue(field).equals(updateCI.getFieldValue(field)))) {
+                if (!(actualDocument.getFieldValue(field).equals(updateDocument.getFieldValue(field)))) {
                     if (documentAdditions == null) {
                         documentAdditions = new ClearingInformation();
                     }
                     if (documentDeletions == null) {
                         documentDeletions = new ClearingInformation();
                     }
-                    documentAdditions.setFieldValue(field, updateCI.getFieldValue(field));
-                    documentDeletions.setFieldValue(field, actualCI.getFieldValue(field));
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
                 }
             }
         }

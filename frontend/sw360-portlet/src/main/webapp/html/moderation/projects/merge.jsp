@@ -13,6 +13,7 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 

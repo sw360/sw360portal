@@ -11,8 +11,6 @@ package com.siemens.sw360.portal.tags;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -26,10 +24,10 @@ import org.apache.thrift.meta_data.FieldMetaData;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static com.siemens.sw360.portal.tags.TagUtils.*;
 
 /**
@@ -132,11 +130,12 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
 
             Set<String> changedProjectIds = Sets.intersection(additions.getLinkedProjects().keySet(),
                                                               deletions.getLinkedProjects().keySet());
-           //remove projects already deleted in database;
-            changedProjectIds = Sets.intersection(changedProjectIds, actual.getLinkedProjects().keySet());
+            Set<String> linkedProjectsInDb = nullToEmptyMap(actual.getLinkedProjects()).keySet();
+            //keep only projects that are still in the database
+            changedProjectIds = Sets.intersection(changedProjectIds, linkedProjectsInDb );
 
             Set<String> removedProjectIds = Sets.difference(deletions.getLinkedProjects().keySet(), changedProjectIds);
-            removedProjectIds = Sets.intersection(removedProjectIds, actual.getLinkedProjects().keySet());
+            removedProjectIds = Sets.intersection(removedProjectIds, linkedProjectsInDb);
 
             Set<String> addedProjectIds = Sets.difference(additions.getLinkedProjects().keySet(), changedProjectIds);
 

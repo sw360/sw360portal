@@ -12,20 +12,17 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.thrift.components.COTSDetails;
 import com.siemens.sw360.datahandler.thrift.components.ClearingInformation;
-import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
-import com.sun.org.apache.regexp.internal.RE;
-import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-
 import java.util.HashMap;
 import java.util.Set;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static com.siemens.sw360.portal.tags.TagUtils.*;
 
 /**
@@ -129,11 +126,12 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             Set<String> changedReleaseIds = Sets.intersection(
                     additions.getReleaseIdToRelationship().keySet(),
                     deletions.getReleaseIdToRelationship().keySet());
-            //remove projects already deleted in database
-            changedReleaseIds = Sets.intersection(changedReleaseIds, actual.getReleaseIdToRelationship().keySet());
+            Set<String> releaseIdsInDb = nullToEmptyMap(actual.getReleaseIdToRelationship()).keySet();
+            //keep only releases that are still in the database
+            changedReleaseIds = Sets.intersection(changedReleaseIds, releaseIdsInDb);
 
             Set<String> removedReleaseIds = Sets.difference(deletions.getReleaseIdToRelationship().keySet(), changedReleaseIds);
-            removedReleaseIds = Sets.intersection(removedReleaseIds, actual.getReleaseIdToRelationship().keySet());
+            removedReleaseIds = Sets.intersection(removedReleaseIds, releaseIdsInDb);
 
             Set<String> addedReleaseIds = Sets.difference(additions.getReleaseIdToRelationship().keySet(), changedReleaseIds);
 
@@ -184,6 +182,9 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             return "";
         }
         StringBuilder display = new StringBuilder();
+        if (! actual.isSet(Release._Fields.CLEARING_INFORMATION)){
+            actual.clearingInformation = new ClearingInformation();
+        }
         for (ClearingInformation._Fields field : ClearingInformation._Fields.values()) {
             FieldMetaData fieldMetaData = ClearingInformation.metaDataMap.get(field);
             displaySimpleFieldOrSet(
@@ -207,6 +208,9 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             return "";
         }
         StringBuilder display = new StringBuilder();
+        if (! actual.isSet(Release._Fields.COTS_DETAILS)){
+            actual.cotsDetails = new COTSDetails();
+        }
         for (COTSDetails._Fields field : COTSDetails._Fields.values()) {
             FieldMetaData fieldMetaData = COTSDetails.metaDataMap.get(field);
             displaySimpleFieldOrSet(
