@@ -45,7 +45,7 @@ public class SPDXParser extends LicenseInfoParser {
     protected static final List<String> ACCEPTABLE_ATTACHMENT_CONTENT_TYPES = ImmutableList.of(
             "application/rdf+xml",
             "application/xml",
-            "plian/text"
+            "text/plain"
     );
 
     private static final Logger log = Logger.getLogger(CLIParser.class);

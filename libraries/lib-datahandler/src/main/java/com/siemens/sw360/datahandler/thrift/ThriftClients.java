@@ -53,6 +53,7 @@ public class ThriftClients {
     public static final String LICENSE_SERVICE_URL = "/licenses/thrift";
     public static final String MODERATION_SERVICE_URL = "/moderation/thrift";
     public static final String PROJECT_SERVICE_URL = "/projects/thrift";
+    public static final String LICENSEINFO_SERVICE_URL = "/licenseinfo/thrift";
     public static final String SEARCH_SERVICE_URL = "/search/thrift";
     public static final String USER_SERVICE_URL = "/users/thrift";
     public static final String VENDOR_SERVICE_URL = "/vendors/thrift";
@@ -127,6 +128,6 @@ public class ThriftClients {
     }
 
     public LicenseInfoService.Client makeLicenseInfoClient() {
-        return new LicenseInfoService.Client(makeProtocol(BACKEND_URL, PROJECT_SERVICE_URL));
+        return new LicenseInfoService.Client(makeProtocol(BACKEND_URL, LICENSEINFO_SERVICE_URL));
     }
 }

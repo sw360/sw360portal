@@ -55,7 +55,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
     public static final String LICENSE_INFOS_CONTEXT_PROPERTY = "licenseInfos";
     public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
-    public static final String LICENSE_INFO_TEMPLATE_FILE = "src/main/resources/licenseInfoFile.vm";
+    public static final String LICENSE_INFO_TEMPLATE_FILE = "licenseInfoFile.vm";
 
     private final LicenseInfoParser[] parsers;
 
