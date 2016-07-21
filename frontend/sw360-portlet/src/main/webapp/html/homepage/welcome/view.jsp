@@ -300,8 +300,6 @@
         <li/>
         <b>Attachments</b>: show the attachments of the component; attachments can be source code, documents,
         clearing reports, ...
-        <li/>
-        <b>Wiki</b>: a link to the component wiki<br/>
     </ul>
     <img src="<%=request.getContextPath()%>/images/welcome/Components-SW360ComponentDetails.png" alt=""
          border="0" width="640"/><br/>

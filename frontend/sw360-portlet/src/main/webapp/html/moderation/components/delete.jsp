@@ -50,7 +50,6 @@
                 <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
                 <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
                 <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
-                <li <core_rt:if test="${selectedTab == 'Wiki'}"> class="active" </core_rt:if>><a href="#tab-Wiki">Wiki</a></li>
             </ul>
             <div class="tab-content span10">
                 <div id="tab-Summary" class="tab-pane">
@@ -61,9 +60,6 @@
                 </div>
                 <div id="tab-Attachments">
                     <jsp:include page="/html/utils/includes/attachmentsDetail.jsp"/>
-                </div>
-                <div id="tab-Wiki" class="tab-pane">
-                    <%@include file="/html/components/includes/wiki.jsp" %>
                 </div>
             </div>
         </div>
