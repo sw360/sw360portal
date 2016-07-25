@@ -11,13 +11,12 @@ package com.siemens.sw360.licenseinfo;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.db.AttachmentDatabaseHandler;
+import com.siemens.sw360.attachments.db.AttachmentDatabaseHandler;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
@@ -27,6 +26,7 @@ import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.licenseinfo.parsers.AttachmentContentProvider;
 import com.siemens.sw360.licenseinfo.parsers.CLIParser;
 import com.siemens.sw360.licenseinfo.parsers.LicenseInfoParser;
 import com.siemens.sw360.licenseinfo.parsers.SPDXParser;
@@ -38,7 +38,6 @@ import org.apache.velocity.app.Velocity;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.*;
@@ -78,13 +77,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         this.projectDatabaseHandler = projectDatabaseHandler;
         this.componentDatabaseHandler = componentDatabaseHandler;
 
-        Function<Attachment, AttachmentContent> contentProvider = attachment -> {
-            try {
-                return attachmentDatabaseHandler.getAttachmentContent(attachment.getAttachmentContentId());
-            } catch (TException e) {
-                throw new UncheckedTException(e);
-            }
-        };
+        AttachmentContentProvider contentProvider = attachment -> attachmentDatabaseHandler.getAttachmentContent(attachment.getAttachmentContentId());
 
         parsers = new LicenseInfoParser[]{
                 new SPDXParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
@@ -104,40 +97,62 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     }
 
     @Override
-    public LicenseInfoParsingResult getLicenseInfoForRelease(Release release) {
+    public LicenseInfoParsingResult getLicenseInfoForRelease(Release release) throws TException{
         if(release == null){
             return noSourceParsingResult();
         }
 
-        Optional<LicenseInfoParser> parserOptional = Arrays.asList(parsers).stream()
-                .filter(p -> !getApplicableAttachments(release, p).isEmpty())
-                .findFirst();
+        try {
+            Optional<LicenseInfoParser> parserOptional = Arrays.asList(parsers).stream().filter(p -> {
+                try {
+                    return !getApplicableAttachments(release, p).isEmpty();
+                } catch (TException e) {
+                    throw new UncheckedTException(e);
+                }
+            }).findFirst();
 
-        if (parserOptional.isPresent()) {
-            LicenseInfoParsingResult result = getApplicableAttachments(release, parserOptional.get()).stream()
-                    .map(attachment -> parserOptional.get().getLicenseInfo(attachment))
-                    .reduce(this::mergeLicenseInfos)
-                    //this could only be returned if there is a parser which found applicable sources,
-                    // but there are no attachments in the release. That would be so inexplicable as to warrant
-                    // throwing an exception, actually.
-                    .orElse(noSourceParsingResult());
-            LicenseInfo resultLI = result.getLicenseInfo();
-            if (null != resultLI){
-                resultLI.setVendor(release.isSetVendor()?release.getVendor().getShortname():"");
-                resultLI.setName(release.getName());
-                resultLI.setVersion(release.getVersion());
+            if (parserOptional.isPresent()) {
+                LicenseInfoParsingResult result = getApplicableAttachments(release, parserOptional.get()).stream().map(attachment -> {
+                    try {
+                        return parserOptional.get().getLicenseInfo(attachment);
+                    } catch (TException e) {
+                        throw new UncheckedTException(e);
+                    }
+                }).reduce(this::mergeLicenseInfos)
+                        //this could only be returned if there is a parser which found applicable sources,
+                        // but there are no attachments in the release. That would be so inexplicable as to warrant
+                        // throwing an exception, actually.
+                        .orElse(noSourceParsingResult());
+                LicenseInfo resultLI = result.getLicenseInfo();
+                if (null != resultLI) {
+                    resultLI.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
+                    resultLI.setName(release.getName());
+                    resultLI.setVersion(release.getVersion());
+                }
+                return result;
+            } else {
+                // not a single parser has found applicable attachments
+                return noSourceParsingResult();
             }
-            return result;
-        } else {
-            // not a single parser has found applicable attachments
-            return noSourceParsingResult();
+        } catch (UncheckedTException e) {
+            throw e.getTExceptionCause();
         }
     }
 
-    private List<Attachment> getApplicableAttachments(Release release, LicenseInfoParser parser) {
-        return nullToEmptySet(release.getAttachments()).stream()
-                .filter(parser::isApplicableTo)
-                .collect(Collectors.toList());
+    private List<Attachment> getApplicableAttachments(Release release, LicenseInfoParser parser) throws TException {
+        try {
+            return nullToEmptySet(release.getAttachments()).stream()
+                    .filter((attachmentContent) -> {
+                        try {
+                            return parser.isApplicableTo(attachmentContent);
+                        } catch (TException e) {
+                            throw new UncheckedTException(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }catch (UncheckedTException e){
+            throw e.getTExceptionCause();
+        }
     }
 
     @Override
@@ -152,25 +167,31 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     }
 
 
-    public Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(String projectId, User user) {
+    public Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(String projectId, User user) throws TException {
         Map<String, ProjectRelationship> fakeRelations = Maps.newHashMap();
         fakeRelations.put(projectId, ProjectRelationship.UNKNOWN);
         List<ProjectLink> linkedProjects = projectDatabaseHandler.getLinkedProjects(fakeRelations);
         Collection<ProjectLink> flatProjectLinkList = flattenProjectLinkTree(linkedProjects);
-        return flatProjectLinkList.stream()
-                .flatMap(pl -> nullToEmptyCollection(pl.getLinkedReleases()).stream())
-                .map(rl -> {
-                    try {
-                        return componentDatabaseHandler.getRelease(rl.getId(), user);
-                    } catch (SW360Exception e) {
-                        log.error("Cannot read release with id: "+ rl.getId(), e);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                // public LicenseInfoParsingResult getLicenseInfoForRelease(Release release) throws TException {
-                .map(this::getLicenseInfoForRelease)
-                .collect(Collectors.toList());
+        try {
+            return flatProjectLinkList.stream().flatMap(pl -> nullToEmptyCollection(pl.getLinkedReleases()).stream()).map(rl -> {
+                try {
+                    return componentDatabaseHandler.getRelease(rl.getId(), user);
+                } catch (SW360Exception e) {
+                    log.error("Cannot read release with id: " + rl.getId(), e);
+                    return null;
+                }
+            }).filter(Objects::nonNull)
+                    // public LicenseInfoParsingResult getLicenseInfoForRelease(Release release) throws TException {
+                    .map((release) -> {
+                        try {
+                            return getLicenseInfoForRelease(release);
+                        } catch (TException e) {
+                            throw new UncheckedTException(e);
+                        }
+                    }).collect(Collectors.toList());
+        }catch(UncheckedTException e){
+            throw e.getTExceptionCause();
+        }
     }
 
     private LicenseInfoParsingResult mergeLicenseInfos(LicenseInfoParsingResult lir1, LicenseInfoParsingResult lir2){
@@ -240,5 +261,15 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
     private LicenseInfoParsingResult noSourceParsingResult() {
         return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE);
+    }
+
+    private static class UncheckedTException extends RuntimeException {
+        public UncheckedTException(TException te) {
+            super(te);
+        }
+
+        TException getTExceptionCause() {
+            return (TException) getCause();
+        }
     }
 }

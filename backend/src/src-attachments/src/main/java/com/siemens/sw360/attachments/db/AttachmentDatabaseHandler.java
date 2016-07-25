@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.db;
+package com.siemens.sw360.attachments.db;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;

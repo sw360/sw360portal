@@ -18,6 +18,7 @@ import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SPDXDocumentFactory;
 import org.spdx.rdfparser.model.SpdxDocument;
@@ -50,13 +51,13 @@ public class SPDXParser extends LicenseInfoParser {
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
-    public SPDXParser(AttachmentConnector attachmentConnector, Function<Attachment, AttachmentContent> attachmentContentProvider) {
+    public SPDXParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
         super(attachmentConnector, attachmentContentProvider);
     }
 
     @Override
-    public boolean isApplicableTo(Attachment attachment) {
-        AttachmentContent attachmentContent = attachmentContentProvider.apply(attachment);
+    public boolean isApplicableTo(Attachment attachment) throws TException {
+        AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         String lowerFileName = attachmentContent.getFilename().toLowerCase();
 
         boolean isFiletypeAcceptable = ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
@@ -70,8 +71,8 @@ public class SPDXParser extends LicenseInfoParser {
     }
 
     @Override
-    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) {
-        AttachmentContent attachmentContent = attachmentContentProvider.apply(attachment);
+    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
+        AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         LicenseInfo emptyResult = new LicenseInfo()
                 .setFilenames(Arrays.asList(attachmentContent.getFilename()));
 

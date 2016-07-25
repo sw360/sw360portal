@@ -12,9 +12,7 @@ import com.siemens.sw360.attachments.AttachmentHandler;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -26,7 +24,6 @@ import org.apache.thrift.TException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;

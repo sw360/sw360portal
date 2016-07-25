@@ -13,7 +13,6 @@ import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.AttachmentRepository;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.apache.log4j.Logger;

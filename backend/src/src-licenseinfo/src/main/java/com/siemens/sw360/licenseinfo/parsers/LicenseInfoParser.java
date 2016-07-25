@@ -10,23 +10,21 @@ package com.siemens.sw360.licenseinfo.parsers;
 
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-
-import java.util.function.Function;
+import org.apache.thrift.TException;
 
 /**
  * @author: alex.borodin@evosoft.com
  */
 public abstract class LicenseInfoParser {
     protected final AttachmentConnector attachmentConnector;
-    protected Function<Attachment, AttachmentContent> attachmentContentProvider;
+    protected AttachmentContentProvider attachmentContentProvider;
 
-    protected LicenseInfoParser(AttachmentConnector attachmentConnector, Function<Attachment, AttachmentContent> attachmentContentProvider){
+    protected LicenseInfoParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider){
         this.attachmentConnector = attachmentConnector;
         this.attachmentContentProvider = attachmentContentProvider;
     }
 
-    public abstract boolean isApplicableTo(Attachment attachmentContent);
-    public abstract LicenseInfoParsingResult getLicenseInfo(Attachment attachment);
+    public abstract boolean isApplicableTo(Attachment attachmentContent) throws TException;
+    public abstract LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException;
 }

@@ -19,6 +19,7 @@ import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -56,16 +57,16 @@ public class CLIParser extends LicenseInfoParser {
             AttachmentType.COMPONENT_LICENSE_INFO_COMBINED,
             AttachmentType.OTHER);
 
-    public CLIParser(AttachmentConnector attachmentConnector, Function<Attachment, AttachmentContent> attachmentContentProvider) {
+    public CLIParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
         super(attachmentConnector, attachmentContentProvider);
     }
 
     @Override
-    public boolean isApplicableTo(Attachment attachment) {
+    public boolean isApplicableTo(Attachment attachment) throws TException {
         if (!ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType())){
             return false;
         }
-        AttachmentContent attachmentContent = attachmentContentProvider.apply(attachment);
+        AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         return attachmentContent.getFilename().endsWith(XML_FILE_EXTENSION) && hasCLIRootElement(attachmentContent);
     }
 
@@ -93,8 +94,8 @@ public class CLIParser extends LicenseInfoParser {
     }
 
     @Override
-    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) {
-        AttachmentContent attachmentContent = attachmentContentProvider.apply(attachment);
+    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
+        AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename())).setFiletype(FILETYPE_CLI);
         LicenseInfoParsingResult result = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
 
