@@ -6,20 +6,24 @@ You are permitted to modify proprietary components and to engage in reverse engi
 
 Open Source Software Contained in this Product/Device:
 
-#foreach($compName in $licenseInfos.keySet())
+#foreach($compName in $licenseInfoResults.keySet())
 ###[[List of Involved Open Source (!!!!! Check Component type !!!!!) Components]]
-$compName
+$compName#if (${licenseInfoResults.get($compName).status.name()} != "SUCCESS") (No license information available)#end
+
 #end
 
 Copyright Notices
 
-#foreach($compName in $licenseInfos.keySet())
+#foreach($compName in $licenseInfoResults.keySet())
 $compName
 
-###set($li = $licenseInfos.get($compName))
-#foreach($copyright in ${licenseInfos.get($compName).copyrights})
+#set($copyrights = [])
+#if(${licenseInfoResults.get($compName).licenseInfo})
+#set($copyrights = $licenseInfoResults.get($compName).licenseInfo.copyrights)
+#foreach($copyright in ${copyrights})
 $copyright##[[Copyright Holders Of the Open Source Component#1]]
 
+#end
 #end
 
 #end

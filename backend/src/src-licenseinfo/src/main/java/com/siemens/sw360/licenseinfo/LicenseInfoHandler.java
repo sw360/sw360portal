@@ -52,7 +52,7 @@ import static com.siemens.sw360.datahandler.common.SW360Utils.flattenProjectLink
  */
 public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
-    public static final String LICENSE_INFOS_CONTEXT_PROPERTY = "licenseInfos";
+    public static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
     public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
     public static final String LICENSE_INFO_TEMPLATE_FILE = "licenseInfoFile.vm";
 
@@ -123,16 +123,10 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                         // but there are no attachments in the release. That would be so inexplicable as to warrant
                         // throwing an exception, actually.
                         .orElse(noSourceParsingResult());
-                LicenseInfo resultLI = result.getLicenseInfo();
-                if (null != resultLI) {
-                    resultLI.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
-                    resultLI.setName(release.getName());
-                    resultLI.setVersion(release.getVersion());
-                }
-                return result;
+                return assignReleaseToLicenseInfoParsingResult(result, release);
             } else {
                 // not a single parser has found applicable attachments
-                return noSourceParsingResult();
+                return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
             }
         } catch (UncheckedTException e) {
             throw e.getTExceptionCause();
@@ -204,7 +198,11 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         if (!lir1.isSetLicenseInfo() || !lir2.isSetLicenseInfo() || !lir1.getLicenseInfo().getFiletype().equals(lir2.getLicenseInfo().getFiletype())) {
             throw new IllegalArgumentException("LicenseInfo filetypes must be equal");
         }
-        //use copy constructor to copy filetype, vendor, name, and version
+
+        if (!Objects.equals(lir1.getName(), lir2.getName()) || !Objects.equals(lir1.getVendor(), lir2.getVendor()) || !Objects.equals(lir1.getVersion(), lir2.getVersion())){
+            throw new IllegalArgumentException("Method is not intended to merge across releases. Release data must be equal");
+        }
+        //use copy constructor to copy filetype
         LicenseInfo mergedLi = new LicenseInfo(lir1.getLicenseInfo());
         //merging filenames
         Set<String> filenames = new HashSet<>();
@@ -216,10 +214,11 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         //merging licenses
         mergedLi.setLicenseTexts(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getLicenseTexts()), nullToEmptySet(lir2.getLicenseInfo().getLicenseTexts())));
 
-        return new LicenseInfoParsingResult()
+        //use copy constructor to copy vendor, name, and version
+        return new LicenseInfoParsingResult(lir1)
                 .setStatus(LicenseInfoRequestStatus.SUCCESS)
                 .setLicenseInfo(mergedLi)
-                .setMessage(nullToEmptyString(lir1.getMessage()) + nullToEmptyString(lir1.getMessage()));
+                .setMessage((nullToEmptyString(lir1.getMessage()) + "\n" + nullToEmptyString(lir2.getMessage())).trim());
     }
 
     private String generateLicenseInfoFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) throws SW360Exception {
@@ -230,9 +229,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
             Velocity.init(p);
             VelocityContext vc = new VelocityContext();
 
-            Map<String, LicenseInfo> licenseInfos = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
+            Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
                     .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
             Set<String> licenses = projectLicenseInfoResults.stream()
                     .map(LicenseInfoParsingResult::getLicenseInfo)
@@ -242,7 +239,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                     .reduce(Sets::union)
                     .orElse(Collections.emptySet());
 
-            vc.put(LICENSE_INFOS_CONTEXT_PROPERTY, licenseInfos);
+            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
             vc.put(LICENSES_CONTEXT_PROPERTY, licenses);
 
             StringWriter sw = new StringWriter();
@@ -255,12 +252,19 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         }
     }
 
-    private String getComponentLongName(LicenseInfo li) {
+    private String getComponentLongName(LicenseInfoParsingResult li) {
         return String.format("%s %s %s", li.getVendor(), li.getName(), li.getVersion()).trim();
     }
 
     private LicenseInfoParsingResult noSourceParsingResult() {
         return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE);
+    }
+
+    private LicenseInfoParsingResult assignReleaseToLicenseInfoParsingResult(LicenseInfoParsingResult result, Release release) {
+        result.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
+        result.setName(release.getName());
+        result.setVersion(release.getVersion());
+        return result;
     }
 
     private static class UncheckedTException extends RuntimeException {
