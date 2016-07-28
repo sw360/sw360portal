@@ -32,7 +32,6 @@ import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
@@ -155,10 +154,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         String projectId = request.getParameter(PROJECT_ID);
         try {
-            String projectName = projectClient.getProjectById(projectId, user).getName();
-            String timestamp = SW360Utils.getCreatedOnTime();
+            Project project = projectClient.getProjectById(projectId, user);
+            String projectName = project != null ? project.getName() : "Unknown-Project";
+            String timestamp = SW360Utils.getCreatedOn();
             String fileExtension = licenseInfoClient.getFileExtensionFromGeneratorClass(generatorClassName);
-            String filename = "LicenseInfoForProject_" + projectName + "_" + timestamp + "." + fileExtension;
+            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + fileExtension;
 
             PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
         } catch (TException e) {

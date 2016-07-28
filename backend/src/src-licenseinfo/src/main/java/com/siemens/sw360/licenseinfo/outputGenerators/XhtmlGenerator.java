@@ -11,7 +11,6 @@
 package com.siemens.sw360.licenseinfo.outputGenerators;
 
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
@@ -20,18 +19,17 @@ import org.apache.velocity.app.Velocity;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.LICENSE_INFOS_CONTEXT_PROPERTY;
+import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.LICENSE_INFO_RESULTS_CONTEXT_PROPERTY;
 
 public class XhtmlGenerator extends OutputGenerator {
 
-    public static final String XML_TEMPLATE_FILE = "xhtmlFile.vm";
+    public static final String XHTML_TEMPLATE_FILE = "xhtmlFile.vm";
     Logger log = Logger.getLogger(XhtmlGenerator.class);
 
     public XhtmlGenerator() {
-        super("html", "LicenseInfo as xhtml");
+        super("html", "License Information as xhtml");
     }
 
     @Override
@@ -39,15 +37,13 @@ public class XhtmlGenerator extends OutputGenerator {
         try {
             VelocityContext vc = getConfiguredVelocityContext();
 
-            Map<String, LicenseInfo> licenseInfos = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
+            Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
                     .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
 
-            vc.put(LICENSE_INFOS_CONTEXT_PROPERTY, licenseInfos);
+            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
 
             StringWriter sw = new StringWriter();
-            Velocity.mergeTemplate(XML_TEMPLATE_FILE, "utf-8", vc, sw);
+            Velocity.mergeTemplate(XHTML_TEMPLATE_FILE, "utf-8", vc, sw);
             sw.close();
             return sw.toString();
         } catch (Exception e) {

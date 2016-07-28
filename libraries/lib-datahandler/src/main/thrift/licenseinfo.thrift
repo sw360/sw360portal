@@ -29,6 +29,11 @@ struct OutputFormatInfo{
     3: optional string generatorClassName
 }
 
+struct LicenseNameWithText{
+    1: optional string licenseName,
+    2: optional string licenseText
+}
+
 struct LicenseInfo {
     10: optional list<string> filenames, // actual sources used
     11: required string filetype, // actual parser type used

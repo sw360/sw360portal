@@ -77,29 +77,37 @@
 
 <h2 id="releases">Releases</h2>
 <ul>
-    #foreach($releaseName in $licenseInfos.keySet())
+    #foreach($releaseName in $licenseInfoResults.keySet())
         <li>
             <a href="#$esc.xml($releaseName)">$esc.xml($releaseName)</a>
         </li>
     #end
 </ul>
-    #foreach($releaseName in $licenseInfos.keySet())
+
+    #foreach($releaseName in $licenseInfoResults.keySet())
     <div class="inset">
         <h3 id="$esc.xml($releaseName)">$esc.xml($releaseName)
             <a class="top" href="#releases">&#8679;</a>
         </h3>
     </div>
-
-        #foreach($copyright in ${licenseInfos.get($releaseName).copyrights})
-        <p>
-            $esc.xml($copyright)
-        </p>
+        #set($copyrights = [])
+        #if(${licenseInfoResults.get($releaseName).licenseInfo})
+            #set($copyrights = $licenseInfoResults.get($releaseName).licenseInfo.copyrights)
+            #foreach($copyright in ${copyrights})
+            <p>
+                $esc.xml($copyright)
+            </p>
+            #end
         #end
 
-        #foreach($licenseText in ${licenseInfos.get($releaseName).licenseTexts})
-        <p>
-            $esc.xml($licenseText)
-        </p>
+        #set($licenseTexts = [])
+        #if(${licenseInfoResults.get($releaseName).licenseInfo})
+            #set($licenseTexts = $licenseInfoResults.get($releaseName).licenseInfo.licenseTexts)
+            #foreach($licenseText in ${licenseTexts})
+            <p>
+                $esc.xml($licenseText)
+            </p>
+            #end
         #end
     #end
 </body>

@@ -17,7 +17,6 @@ import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -33,13 +32,9 @@ import com.siemens.sw360.licenseinfo.parsers.LicenseInfoParser;
 import com.siemens.sw360.licenseinfo.parsers.SPDXParser;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.*;
@@ -56,7 +51,6 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
     public static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
     public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
-    public static final String LICENSE_INFO_TEMPLATE_FILE = "licenseInfoFile.vm";
 
     private final LicenseInfoParser[] parsers;
 
