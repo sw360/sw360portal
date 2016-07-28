@@ -77,10 +77,6 @@
         <td><sw360:DisplayUserEmailCollection value="${project.moderators}"/></td>
     </tr>
     <tr>
-        <td>Comoderators:</td>
-        <td><sw360:DisplayUserEmailCollection value="${project.comoderators}"/></td>
-    </tr>
-    <tr>
         <td>Contributors:</td>
         <td><sw360:DisplayUserEmailCollection value="${project.contributors}"/></td>
     </tr>

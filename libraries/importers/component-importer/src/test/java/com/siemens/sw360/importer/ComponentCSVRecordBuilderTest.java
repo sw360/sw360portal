@@ -48,7 +48,7 @@ public class ComponentCSVRecordBuilderTest {
                 .setVersion("6").setCpeid("cpe2.3://///***").setReleaseDate("theDayOfTheRelease")
                 .setDownloadurl("http://www.siemens.com").setMainlineState(MainlineState.MAINLINE)
                 .setClearingState(ClearingState.NEW_CLEARING)
-                .setContacts(ImmutableSet.of("me", "myself", "and", "I")).setContacts(ImmutableSet.of("are", "singing"))
+                .setContributors(ImmutableSet.of("me", "myself", "and", "I", "are", "singing"))
                 .setModerators(ImmutableSet.of("and", "dancing")).setSubscribers(ImmutableSet.of("to", "a"))
                 .setLanguages(ImmutableSet.of("silent", "tune")).setOperatingSystems(ImmutableSet.of("which", "is", "licensed"))
                 .setMainLicenseIds(ImmutableSet.of("under", "GPL"));

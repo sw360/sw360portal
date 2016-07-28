@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -44,7 +44,6 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
                 .addAll(toSingletonSet(document.getCreatedBy()))
                 .addAll(toSingletonSet(document.getProjectResponsible()))
                 .addAll(CommonUtils.nullToEmptySet(document.getModerators()))
-                .addAll(CommonUtils.nullToEmptySet(document.getComoderators()))
                 .build();
         contributors = new ImmutableSet.Builder<String>()
                 .addAll(moderators)
@@ -65,7 +64,6 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
         if (input.isSetLeadArchitect()) allowedUsers.add(input.getLeadArchitect());
         if (input.isSetProjectResponsible()) allowedUsers.add(input.getProjectResponsible());
         if (input.isSetModerators()) allowedUsers.addAll(input.getModerators());
-        if (input.isSetComoderators()) allowedUsers.addAll(input.getComoderators());
         if (input.isSetContributors()) allowedUsers.addAll(input.getContributors());
 
         return allowedUsers.contains(user);

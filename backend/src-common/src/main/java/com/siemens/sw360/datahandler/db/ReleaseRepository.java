@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,6 @@
  */
 package com.siemens.sw360.datahandler.db;
 
-import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableListMultimap;
 import com.siemens.sw360.components.summary.ReleaseSummary;
@@ -73,8 +72,8 @@ public class ReleaseRepository extends SummaryAwareRepository<Release> {
             "function(doc) {" +
                     " if (doc.type == 'release'){" +
                     "    emit(doc.createdBy, doc.componentId);" +
-                    "    for(var i in doc.contacts) {" +
-                    "      emit(doc.contacts[i], doc.componentId);" +
+                    "    for(var i in doc.contributors) {" +
+                    "      emit(doc.contributors[i], doc.componentId);" +
                     "    }" +
                     "    for(var i in doc.moderators) {" +
                     "      emit(doc.moderators[i], doc.componentId);" +

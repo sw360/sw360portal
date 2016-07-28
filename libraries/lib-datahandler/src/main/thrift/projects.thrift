@@ -72,7 +72,7 @@ struct Project {
     22: optional string projectResponsible,
     23: optional string leadArchitect,
     25: optional set<string> moderators,
-    26: optional set<string> comoderators,
+//    26: optional set<string> comoderators, //deleted
     27: optional set<string> contributors,
     28: optional Visibility visbility,
 

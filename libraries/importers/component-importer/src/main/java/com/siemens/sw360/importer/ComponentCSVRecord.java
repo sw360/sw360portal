@@ -56,7 +56,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
     private final String releaseRepostitoryType;
     private final String releaseMainlineState;
     private final String releaseClearingState;
-    private final String releaseContacts;
+    private final String releaseContributors;
     private final String releaseModerators;
     private final String releaseSubscribers;
     private final String releaseLanguages;
@@ -96,26 +96,26 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
 
 
     ComponentCSVRecord(String componentName, String componentDescription, String componentCreatedOn,
-                              String componentType, String componentCreatedBy, String componentSubscribers,
-                              String categories, String softwarePlatforms, String componentHomePage,
-                              String componentMailingList, String componentWiki, String componentBlog,
-                              String componentWikipedia, String componentOpenHub,
-                              String releaseName, String releaseVersion, String releaseDate, String CPEId,
-                              String releaseCreatedOn, String releaseCreatedBy, String releaseRepostitoryURL,
-                              String releaseRepostitoryType, String releaseMainlineState, String releaseClearingState,
-                              String releaseContacts, String releaseModerators, String releaseSubscribers,
-                              String releaseLanguages, String releaseOperatingSystems, String releaseMainLicenseIds,
-                              String releaseDownloadURL, String vendorName, String vendorShortname, String vendorUrl,
-                              String cIAL, String cIECCN, String cIExternalSupplierID, String cIAssessorContactPerson,
-                              String cIAssessorDepartment, String cIAdditionalInfo, String cIEvaluated,
-                              String cIProcStart, String cIRequestId, String cIScanned, String cIClearingStandard,
-                              String cIComment, String cIExternalUrl, Boolean cIBinariesOriginalFromCommunity,
-                              Boolean cIBinariesSelfMade, Boolean cIComponentLicenseInformation,
-                              Boolean cISourceCodeDelivery, Boolean cISourceCodeOriginalFromCommunity,
-                              Boolean cISourceCodeToolMade, Boolean cISourceCodeSelfMade, Boolean cIScreenshotOfWebSite,
-                              Boolean cIFinalizedLicenseScanReport, Boolean cILicenseScanReportResult, Boolean cILegalEvaluation,
-                              Boolean cILicenseAgreement, Boolean cIComponentClearingReport,
-                              Integer cICountOfSecurityVn) {
+                       String componentType, String componentCreatedBy, String componentSubscribers,
+                       String categories, String softwarePlatforms, String componentHomePage,
+                       String componentMailingList, String componentWiki, String componentBlog,
+                       String componentWikipedia, String componentOpenHub,
+                       String releaseName, String releaseVersion, String releaseDate, String CPEId,
+                       String releaseCreatedOn, String releaseCreatedBy, String releaseRepostitoryURL,
+                       String releaseRepostitoryType, String releaseMainlineState, String releaseClearingState,
+                       String releaseContributors, String releaseModerators, String releaseSubscribers,
+                       String releaseLanguages, String releaseOperatingSystems, String releaseMainLicenseIds,
+                       String releaseDownloadURL, String vendorName, String vendorShortname, String vendorUrl,
+                       String cIAL, String cIECCN, String cIExternalSupplierID, String cIAssessorContactPerson,
+                       String cIAssessorDepartment, String cIAdditionalInfo, String cIEvaluated,
+                       String cIProcStart, String cIRequestId, String cIScanned, String cIClearingStandard,
+                       String cIComment, String cIExternalUrl, Boolean cIBinariesOriginalFromCommunity,
+                       Boolean cIBinariesSelfMade, Boolean cIComponentLicenseInformation,
+                       Boolean cISourceCodeDelivery, Boolean cISourceCodeOriginalFromCommunity,
+                       Boolean cISourceCodeToolMade, Boolean cISourceCodeSelfMade, Boolean cIScreenshotOfWebSite,
+                       Boolean cIFinalizedLicenseScanReport, Boolean cILicenseScanReportResult, Boolean cILegalEvaluation,
+                       Boolean cILicenseAgreement, Boolean cIComponentClearingReport,
+                       Integer cICountOfSecurityVn) {
 //        this.componentName = componentName;
 //        this.releaseName = releaseName;
 //        this.releaseVersion = releaseVersion;
@@ -143,7 +143,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         this.releaseRepostitoryType = releaseRepostitoryType;
         this.releaseMainlineState = releaseMainlineState;
         this.releaseClearingState = releaseClearingState;
-        this.releaseContacts = releaseContacts;
+        this.releaseContributors = releaseContributors;
         this.releaseModerators = releaseModerators;
         this.releaseSubscribers = releaseSubscribers;
         this.releaseLanguages = releaseLanguages;
@@ -396,8 +396,8 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         }
 
 
-        if (!isNullOrEmpty(releaseContacts)) {
-            release.setContacts(CommonUtils.splitToSet(releaseContacts));
+        if (!isNullOrEmpty(releaseContributors)) {
+            release.setContributors(CommonUtils.splitToSet(releaseContributors));
         }
         if (!isNullOrEmpty(releaseModerators)) {
             release.setModerators(CommonUtils.splitToSet(releaseModerators));
@@ -603,7 +603,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add(nullToEmptyString(releaseRepostitoryType));
         elements.add(nullToEmptyString(releaseMainlineState));
         elements.add(nullToEmptyString(releaseClearingState));
-        elements.add(nullToEmptyString(releaseContacts));
+        elements.add(nullToEmptyString(releaseContributors));
         elements.add(nullToEmptyString(releaseModerators));
         elements.add(nullToEmptyString(releaseSubscribers));
         elements.add(nullToEmptyString(releaseLanguages));
@@ -741,7 +741,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add("releaseRepostitoryType");
         elements.add("releaseMainlineState");
         elements.add("releaseClearingState");
-        elements.add("releaseContacts");
+        elements.add("releaseContributors");
         elements.add("releaseModerators");
         elements.add("releaseSubscribers");
         elements.add("releaseLanguages");
@@ -817,7 +817,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                 ", releaseRepostitoryType='" + releaseRepostitoryType + '\'' +
                 ", releaseMainlineState='" + releaseMainlineState + '\'' +
                 ", releaseClearingState='" + releaseClearingState + '\'' +
-                ", releaseContacts='" + releaseContacts + '\'' +
+                ", releaseContributors='" + releaseContributors + '\'' +
                 ", releaseModerators='" + releaseModerators + '\'' +
                 ", releaseSubscribers='" + releaseSubscribers + '\'' +
                 ", releaseLanguages='" + releaseLanguages + '\'' +

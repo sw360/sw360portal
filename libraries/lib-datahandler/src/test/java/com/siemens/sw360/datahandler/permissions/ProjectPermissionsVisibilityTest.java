@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -133,18 +133,6 @@ public class ProjectPermissionsVisibilityTest extends ScenarioTest<GivenProject,
                 { ME_AND_MODERATORS, theBu, MODERATOR, theUser, theOtherUser, false },
                 { BUISNESSUNIT_AND_MODERATORS, theBu, MODERATOR, theUser, theOtherUser, false },
                 { EVERYONE, theBu, MODERATOR, theUser, theOtherUser, true },
-
-                //CoModerator
-                //test same User
-                { PRIVATE, theBu, CO_MODERATOR, theUser, theUser, false },
-                { ME_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theUser, true },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theUser, true },
-                { EVERYONE, theBu, CO_MODERATOR, theUser, theUser, true },
-                //test different User
-                { PRIVATE, theBu, CO_MODERATOR, theUser, theOtherUser, false },
-                { ME_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theOtherUser, false },
-                { BUISNESSUNIT_AND_MODERATORS, theBu, CO_MODERATOR, theUser, theOtherUser, false },
-                { EVERYONE, theBu, CO_MODERATOR, theUser, theOtherUser, true },
 
                 //Contributor
                 //test same User

@@ -32,6 +32,10 @@
         <td><sw360:DisplayUserEmail email="${component.createdBy}"/></td>
     </tr>
     <tr>
+        <td>Moderators:</td>
+        <td><sw360:DisplayUserEmailCollection value="${component.moderators}"/></td>
+    </tr>
+    <tr>
         <td>Subscribers:</td>
         <td><sw360:DisplayUserEmailCollection value="${component.subscribers}"/></td>
     </tr>
