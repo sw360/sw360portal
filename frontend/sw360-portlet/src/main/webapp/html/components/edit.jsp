@@ -118,9 +118,16 @@
     function cancel() {
         deleteAttachmentsOnCancel();
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
-        var portletURL = Liferay.PortletURL.createURL(baseUrl)
-                .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
+        var portletURL = Liferay.PortletURL.createURL(baseUrl);
+<core_rt:choose>
+    <core_rt:when test="${not empty component.id}">
+        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
                 .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
+    </core_rt:when>
+    <core_rt:otherwise>
+        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>')
+    </core_rt:otherwise>
+</core_rt:choose>
         window.location = portletURL.toString();
     }
 
