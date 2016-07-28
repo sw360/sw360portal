@@ -144,6 +144,10 @@ public class PortalConstants {
     //! Specialized keys for users
     public static final String CUSTOM_FIELD_PROJECT_GROUP_FILTER = "ProjectGroupFilter";
 
+    //! Specialized keys for licenseInfo
+    public static final String LICENSE_INFO_OUTPUT_FORMATS = "licenseInfoOutputFormats";
+    public static final String LICENSE_INFO_SELECTED_OUTPUT_FORMAT = "licenseInfoSelectedOutputFormat";
+
     //! Serve resource generic keywords
     public static final String ACTION = "action";
     public static final String ACTION_CANCEL = "action_cancel";
@@ -156,6 +160,8 @@ public class PortalConstants {
     public static final String WHERE = "where";
     public static final String WHERE_ARRAY = "where[]";
     public static final String HOW = "how";
+
+
 
     //! Serve resource keywords
 
