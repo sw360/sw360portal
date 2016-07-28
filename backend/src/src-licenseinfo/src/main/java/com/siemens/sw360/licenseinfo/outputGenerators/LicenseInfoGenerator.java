@@ -30,7 +30,7 @@ public class LicenseInfoGenerator extends OutputGenerator {
     Logger log = Logger.getLogger(LicenseInfoGenerator.class);
 
     public LicenseInfoGenerator() {
-        super("txt", "ComponentLicenseInfo");
+        super("txt", "License Information as textfile");
     }
 
     @Override
@@ -38,9 +38,7 @@ public class LicenseInfoGenerator extends OutputGenerator {
         try {
             VelocityContext vc = getConfiguredVelocityContext();
 
-            Map<String, LicenseInfo> licenseInfos = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
+            Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
                     .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
             Set<String> licenses = projectLicenseInfoResults.stream()
                     .map(LicenseInfoParsingResult::getLicenseInfo)
@@ -50,7 +48,7 @@ public class LicenseInfoGenerator extends OutputGenerator {
                     .reduce(Sets::union)
                     .orElse(Collections.emptySet());
 
-            vc.put(LICENSE_INFOS_CONTEXT_PROPERTY, licenseInfos);
+            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
             vc.put(LICENSES_CONTEXT_PROPERTY, licenses);
 
             StringWriter sw = new StringWriter();

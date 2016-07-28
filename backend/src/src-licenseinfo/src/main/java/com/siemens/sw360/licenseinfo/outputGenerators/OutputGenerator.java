@@ -12,7 +12,6 @@ package com.siemens.sw360.licenseinfo.outputGenerators;
 
 
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -43,7 +42,7 @@ public abstract class OutputGenerator {
         return OUTPUT_DESCRIPTION;
     }
 
-    public String getComponentLongName(LicenseInfo li) {
+    public String getComponentLongName(LicenseInfoParsingResult li) {
         return String.format("%s %s %s", li.getVendor(), li.getName(), li.getVersion()).trim();
     }
 
