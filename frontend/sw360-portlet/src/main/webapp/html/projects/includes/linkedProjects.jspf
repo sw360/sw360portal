@@ -133,10 +133,10 @@
 </table>
 <form  id="downloadLicenseInfoForm" name="downloadLicenseInfoForm" action="<%=downloadLicenseInfoURL%>" method="post" >
 <span class="pull-right">
-    <select class="toplabelledInput" id="<%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>" name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>">
+    <select class="toplabelledInput, formatSelect" id="<%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>" name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>">
                         <sw360:DisplayOutputFormats options='${licenseInfoOutputFormats}'/>
     </select>
-    <input type="submit" id="downloadLicenseInfoButton" value="Download License Information" class="addButton"/>
+    <input type="submit" id="downloadLicenseInfoButton" value="Download File" class="addButton"/>
 </span>
 </form>
 

@@ -40,10 +40,7 @@ public class DisplayOutputFormats extends SimpleTagSupport {
     private void writeOptions(Collection<OutputFormatInfo> options) throws IOException {
         JspWriter jspWriter = getJspContext().getOut();
         for (OutputFormatInfo outputOption : options) {
-            String formattedOutputOption = outputOption.getDescription()
-                    + " ("
-                    + outputOption.getFileExtension()
-                    + ")";
+            String formattedOutputOption = outputOption.getDescription();
             jspWriter.write(String.format(
                     "<option value=\"%s\" class=\"textlabel stackedLabel\" \" +\n" +
                             "                            (selected ? \"selected=\\\"selected\\\" \" : \"\") +\n" +

@@ -10,18 +10,21 @@
 
 package com.siemens.sw360.licenseinfo.outputGenerators;
 
+import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.LICENSE_INFO_RESULTS_CONTEXT_PROPERTY;
+import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.ALL_LICENSE_NAMES_WITH_TEXTS;
 
 public class XhtmlGenerator extends OutputGenerator {
 
@@ -29,7 +32,7 @@ public class XhtmlGenerator extends OutputGenerator {
     Logger log = Logger.getLogger(XhtmlGenerator.class);
 
     public XhtmlGenerator() {
-        super("html", "License Information as xhtml");
+        super("html", "License information as XHTML");
     }
 
     @Override
@@ -37,10 +40,31 @@ public class XhtmlGenerator extends OutputGenerator {
         try {
             VelocityContext vc = getConfiguredVelocityContext();
 
+            int id = 1;
+            for(LicenseInfoParsingResult parsingResult : projectLicenseInfoResults){
+                if(parsingResult.isSetLicenseInfo()) {
+                    Set<LicenseNameWithText> licenseNamesWithTexts = parsingResult.getLicenseInfo().getLicenseNamesWithTexts();
+                    for (LicenseNameWithText licenseNameWithText : licenseNamesWithTexts) {
+                        licenseNameWithText.setId(id);
+                        id++;
+                    }
+                }
+            }
+
             Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
                     .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
 
             vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
+
+            Set<LicenseNameWithText> licenseNamesWithTexts = projectLicenseInfoResults.stream()
+                    .map(LicenseInfoParsingResult::getLicenseInfo)
+                    .filter(Objects::nonNull)
+                    .map(LicenseInfo::getLicenseNamesWithTexts)
+                    .filter(Objects::nonNull)
+                    .reduce(Sets::union)
+                    .orElse(Collections.emptySet());
+
+            vc.put(ALL_LICENSE_NAMES_WITH_TEXTS, licenseNamesWithTexts);
 
             StringWriter sw = new StringWriter();
             Velocity.mergeTemplate(XHTML_TEMPLATE_FILE, "utf-8", vc, sw);

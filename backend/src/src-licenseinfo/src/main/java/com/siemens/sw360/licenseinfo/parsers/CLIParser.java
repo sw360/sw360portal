@@ -18,6 +18,7 @@ import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.w3c.dom.Document;
@@ -36,7 +37,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Class for extracting copyright and license information from a simple XML file
@@ -109,7 +109,7 @@ public class CLIParser extends LicenseInfoParser {
             NodeList copyrightNodes = (NodeList) copyrightsExpr.evaluate(doc, XPathConstants.NODESET);
             NodeList licenseNodes = (NodeList) licensesExpr.evaluate(doc, XPathConstants.NODESET);
             licenseInfo.setCopyrights(nodeListToStringSet(copyrightNodes));
-            licenseInfo.setLicenseTexts(nodeListToStringSet(licenseNodes));
+            licenseInfo.setLicenseNamesWithTexts(nodeListToLicenseNamesWithTextsSet(licenseNodes));
             result.setStatus(LicenseInfoRequestStatus.SUCCESS);
         } catch (ParserConfigurationException | IOException | XPathExpressionException | SAXException | SW360Exception e) {
             log.error(e);
@@ -124,5 +124,17 @@ public class CLIParser extends LicenseInfoParser {
             strings.add(nodes.item(i).getTextContent().trim());
         }
         return strings;
+    }
+
+    private Set<LicenseNameWithText> nodeListToLicenseNamesWithTextsSet(NodeList nodes){
+        Set<LicenseNameWithText> licenseNamesWithTexts= Sets.newHashSet();
+        for (int i = 0; i < nodes.getLength(); i++){
+            licenseNamesWithTexts.add(
+                    new LicenseNameWithText()
+                    .setLicenseText(nodes.item(i).getTextContent().trim())
+                    .setLicenseName("")//TODO Alex: fill appropriately
+            );
+        }
+        return licenseNamesWithTexts;
     }
 }

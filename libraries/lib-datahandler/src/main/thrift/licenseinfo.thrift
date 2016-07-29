@@ -31,7 +31,8 @@ struct OutputFormatInfo{
 
 struct LicenseNameWithText{
     1: optional string licenseName,
-    2: optional string licenseText
+    2: optional string licenseText,
+    3: optional i32 id,
 }
 
 struct LicenseInfo {
@@ -39,7 +40,7 @@ struct LicenseInfo {
     11: required string filetype, // actual parser type used
 
     20: optional set<string> copyrights,
-    21: optional set<string> licenseTexts,
+    21: optional set<LicenseNameWithText> licenseNamesWithTexts,
 }
 
 struct LicenseInfoParsingResult {

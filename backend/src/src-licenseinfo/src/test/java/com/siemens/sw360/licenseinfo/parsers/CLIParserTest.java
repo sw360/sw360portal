@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,6 +16,7 @@ import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.StringReader;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -101,11 +105,11 @@ public class CLIParserTest {
         assertThat(res.getLicenseInfo(), notNullValue());
         assertThat(res.getLicenseInfo().getFilenames(), contains("a.xml"));
         assertThat(res.getLicenseInfo().getFiletype(), is(CLIParser.FILETYPE_CLI));
-        assertThat(res.getLicenseInfo().getLicenseTexts().size(), is(1));
-        assertThat(res.getLicenseInfo().getLicenseTexts(), containsInAnyOrder("jQuery projects are released under the terms of the MIT license."));
+        assertThat(res.getLicenseInfo().getLicenseNamesWithTexts().size(), is(1));
+        assertThat(res.getLicenseInfo().getLicenseNamesWithTexts().stream().map(LicenseNameWithText::getLicenseText).collect(Collectors.toSet()),
+                containsInAnyOrder("jQuery projects are released under the terms of the MIT license."));
         assertThat(res.getLicenseInfo().getCopyrights().size(), is(2));
         assertThat(res.getLicenseInfo().getCopyrights(), containsInAnyOrder("Copyrights", "(c) jQuery Foundation, Inc. | jquery.org"));
-
     }
 
     @Test

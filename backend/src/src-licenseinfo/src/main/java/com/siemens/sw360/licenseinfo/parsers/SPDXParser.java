@@ -17,6 +17,7 @@ import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
@@ -28,9 +29,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * @author: alex.borodin@evosoft.com
@@ -79,11 +80,11 @@ public class SPDXParser extends LicenseInfoParser {
         Optional<LicenseInfo> licenseInfo = parseAsSpdx(attachmentContent)
                 .flatMap(d -> addSpdxContentToCLI(emptyResult, d));
 
-        if(licenseInfo.isPresent()){
+        if (licenseInfo.isPresent()) {
             return new LicenseInfoParsingResult()
                     .setLicenseInfo(licenseInfo.get())
                     .setStatus(LicenseInfoRequestStatus.SUCCESS);
-        }else{
+        } else {
             return new LicenseInfoParsingResult()
                     .setStatus(LicenseInfoRequestStatus.FAILURE);
         }
@@ -96,9 +97,17 @@ public class SPDXParser extends LicenseInfoParser {
     }
 
     protected Optional<LicenseInfo> addSpdxContentToCLI(LicenseInfo result, SpdxDocument doc) {
+        if(! result.isSetLicenseNamesWithTexts()){
+            result.setLicenseNamesWithTexts(new HashSet<>());
+        }
         try {
             Arrays.stream(doc.getExtractedLicenseInfos()).forEach(
-                    extractedLicenseInfo -> result.addToLicenseTexts(extractedLicenseInfo.getExtractedText())
+                    extractedLicenseInfo ->
+                            result.getLicenseNamesWithTexts()
+                                    .add(new LicenseNameWithText()
+                                            .setLicenseText(extractedLicenseInfo.getExtractedText())
+                                            .setLicenseName(extractedLicenseInfo.getName())
+                                    )
             );
             Arrays.stream(doc.getDocumentDescribes()).forEach(
                     spdxItem -> result.addToCopyrights(spdxItem.getCopyrightText())
@@ -110,7 +119,7 @@ public class SPDXParser extends LicenseInfoParser {
         return Optional.of(result.setFiletype(FILETYPE_SPDX_EXTERNAL));
     }
 
-    protected Optional<SpdxDocument> parseAsSpdx(AttachmentContent attachmentContent){
+    protected Optional<SpdxDocument> parseAsSpdx(AttachmentContent attachmentContent) {
         try {
             InputStream attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
             SpdxDocument doc = SPDXDocumentFactory.createSpdxDocument(attachmentStream,
