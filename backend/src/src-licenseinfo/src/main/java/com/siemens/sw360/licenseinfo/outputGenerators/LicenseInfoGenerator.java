@@ -14,6 +14,7 @@ import com.google.common.collect.Sets;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -30,7 +31,7 @@ public class LicenseInfoGenerator extends OutputGenerator {
     Logger log = Logger.getLogger(LicenseInfoGenerator.class);
 
     public LicenseInfoGenerator() {
-        super("txt", "License Information as textfile");
+        super("txt", "License information as TEXT");
     }
 
     @Override
@@ -43,10 +44,14 @@ public class LicenseInfoGenerator extends OutputGenerator {
             Set<String> licenses = projectLicenseInfoResults.stream()
                     .map(LicenseInfoParsingResult::getLicenseInfo)
                     .filter(Objects::nonNull)
-                    .map(LicenseInfo::getLicenseTexts)
+                    .map(LicenseInfo::getLicenseNamesWithTexts)
                     .filter(Objects::nonNull)
                     .reduce(Sets::union)
-                    .orElse(Collections.emptySet());
+                    .orElse(Collections.emptySet())
+                    .stream()
+                    .map(LicenseNameWithText::getLicenseText)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
 
             vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
             vc.put(LICENSES_CONTEXT_PROPERTY, licenses);

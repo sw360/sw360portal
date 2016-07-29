@@ -23,6 +23,7 @@ import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.licenseinfo.outputGenerators.DocxGenerator;
 import com.siemens.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
 import com.siemens.sw360.licenseinfo.outputGenerators.OutputGenerator;
 import com.siemens.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
@@ -51,6 +52,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
     public static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
     public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
+    public static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
 
     private final LicenseInfoParser[] parsers;
 
@@ -85,6 +87,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         outputGenerators = new OutputGenerator[]{
                 new LicenseInfoGenerator(),
                 new XhtmlGenerator(),
+                new DocxGenerator()
         };
     }
 
@@ -241,7 +244,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         //merging copyrights
         mergedLi.setCopyrights(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getCopyrights()), nullToEmptySet(lir2.getLicenseInfo().getCopyrights())));
         //merging licenses
-        mergedLi.setLicenseTexts(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getLicenseTexts()), nullToEmptySet(lir2.getLicenseInfo().getLicenseTexts())));
+        mergedLi.setLicenseNamesWithTexts(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getLicenseNamesWithTexts()), nullToEmptySet(lir2.getLicenseInfo().getLicenseNamesWithTexts())));
 
         //use copy constructor to copy vendor, name, and version
         return new LicenseInfoParsingResult(lir1)

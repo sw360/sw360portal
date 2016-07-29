@@ -309,10 +309,6 @@ input[readonly].clickable {
     padding: 0.5px !important;
 }
 
-#attachmentDetail .checksumInput{
-    margin-bottom: 0;
-    height: 15px;
-}
 
 .sw360modal button:last-of-type {
     float: right;
@@ -328,6 +324,12 @@ input[readonly].clickable {
 
 .release-list-entry-element input {
     width: 100%;
+}
+
+.formatSelect {
+    width: 20em !important;
+    height: 25px !important;
+    margin-bottom: 0 !important;
 }
 
 .hashvalue {
