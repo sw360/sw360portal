@@ -32,7 +32,6 @@
         <module>src-attachments</module>
         <module>src-moderation</module>
         <module>src-fossology</module>
-        <module>src-bdpimport</module>
         <module>src-vulnerabilities</module>
         <module>src-licenseinfo</module>
         <module>src-cvesearch</module>
