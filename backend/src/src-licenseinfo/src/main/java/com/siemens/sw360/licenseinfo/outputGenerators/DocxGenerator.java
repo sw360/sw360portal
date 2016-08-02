@@ -30,7 +30,7 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
     @Override
     public byte[] generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
         try {
-            XWPFDocument document = new XWPFDocument(this.getClass().getResourceAsStream("/blank.docx"));
+            XWPFDocument document = new XWPFDocument(this.getClass().getResourceAsStream("/templateFrontpageContent.docx"));
 
             fillDocument(document, projectLicenseInfoResults, projectName);
 
@@ -45,39 +45,24 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
 
     private void fillDocument(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws IOException {
 
+        cleanUpTemplate(document);
+
         String header = "OSS Attributions for " + projectName;
         addHeader(document, header);
-        addFooter(document);
 
-        String title = "Open Source Software Attributions for project\n \"" + projectName + "\"";
-        addTitle(document, title);
+        setProjectNameInDocument(document, projectName);
 
-        String subtitle = "This document is provided as part of the fulfillment of OSS license conditions and does not require " +
-                "users to take any action before or while using the product.";
-        addSubtitle(document, subtitle);
-
-        String notice = "Notice: "
-                + "This is a draft copy of the attribution document. The project team shall fill-in the information wherever required and also verifies the document for completeness."
-                + " This notice shall be removed once the document is finalized. ";
-        addNotice(document, notice);
-        addTableOfContent(document);
-        addListParagraph(document, "List of used Open Source Components");
-
-        String listNotice =
-                "This document contains a list of open source software (OSS) components used within the product under the terms "
-                        + "of the respective licenses. The source code corresponding to the open source components is also provided along "
-                        + "with the product wherever mandated by the respective OSS license.";
-        addListNotice(document, listNotice);
         String[] tableHeaders = {"Name of OSS Component",
                 "Version of OSS Component",
                 "Name and Version of License (see Appendix for License Text)",
                 "More Information"};
         XWPFTable table = createTableAndAddReleasesTableHeaders(document, tableHeaders);
+
         fillReleasesTable(table, projectLicenseInfoResults);
+
         addLicenseTextsHeader(document, "Appendix - License Texts");
+
         addLicenseTexts(document, projectLicenseInfoResults);
     }
-
-
 }
 
