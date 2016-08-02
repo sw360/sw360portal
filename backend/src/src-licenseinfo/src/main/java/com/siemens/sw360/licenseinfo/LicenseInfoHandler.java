@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,10 +165,25 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(projectId, user);
         for (OutputGenerator generator : outputGenerators) {
             if (outputGeneratorClassName.equals(generator.getClass().getName())) {
-                return generator.generateOutputFile(projectLicenseInfoResults);
+                return (String) generator.generateOutputFile(projectLicenseInfoResults, project.getName());
             }
         }
-        throw new TException("Unknown output format: " + outputGeneratorClassName);
+        throw new TException("Unknown output generator for String output: " + outputGeneratorClassName);
+    }
+
+    @Override
+    public ByteBuffer getLicenseInfoFileForProjectAsBinary(String projectId, User user, String outputGeneratorClassName) throws TException {
+        assertId(projectId);
+        Project project = projectDatabaseHandler.getProjectById(projectId, user);
+        assertNotNull(project);
+
+        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(projectId, user);
+        for (OutputGenerator generator : outputGenerators) {
+            if (outputGeneratorClassName.equals(generator.getClass().getName())) {
+                return ByteBuffer.wrap((byte[]) generator.generateOutputFile(projectLicenseInfoResults, project.getName()));
+            }
+        }
+        throw new TException("Unknown output generator for binary output: " + outputGeneratorClassName);
     }
 
     @Override
@@ -175,20 +191,17 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         List<OutputFormatInfo> outputPossibilities = new ArrayList<>();
         for (OutputGenerator generator : outputGenerators) {
             outputPossibilities.add(
-                   new OutputFormatInfo()
-                    .setFileExtension(generator.getOutputType())
-                    .setDescription(generator.getOutputDescription())
-                    .setGeneratorClassName(generator.getClass().getName())
+                    generator.getOutputFormatInfo()
             );
         }
         return outputPossibilities;
     }
 
     @Override
-    public String getFileExtensionFromGeneratorClass(String generatorClassName) throws TException{
+    public OutputFormatInfo getOutputFormatInfoForGeneratorClass(String generatorClassName) throws TException{
         for (OutputGenerator generator : outputGenerators) {
             if (generatorClassName.equals(generator.getClass().getName())) {
-                return generator.getOutputType();
+                return generator.getOutputFormatInfo();
             }
         }
         throw new TException("Unknown output format: " + generatorClassName);

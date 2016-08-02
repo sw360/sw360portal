@@ -25,17 +25,17 @@ import java.util.stream.Collectors;
 
 import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.*;
 
-public class LicenseInfoGenerator extends OutputGenerator {
+public class LicenseInfoGenerator extends OutputGenerator<String> {
 
     public static final String LICENSE_INFO_TEMPLATE_FILE = "licenseInfoFile.vm";
     Logger log = Logger.getLogger(LicenseInfoGenerator.class);
 
     public LicenseInfoGenerator() {
-        super("txt", "License information as TEXT");
+        super("txt", "License information as TEXT",false);
     }
 
     @Override
-    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) throws SW360Exception {
+    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
         try {
             VelocityContext vc = getConfiguredVelocityContext();
 

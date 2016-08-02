@@ -50,6 +50,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -137,10 +138,16 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project project = projectClient.getProjectById(projectId, user);
             String projectName = project != null ? project.getName() : "Unknown-Project";
             String timestamp = SW360Utils.getCreatedOn();
-            String fileExtension = licenseInfoClient.getFileExtensionFromGeneratorClass(generatorClassName);
-            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + fileExtension;
-
-            PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+            OutputFormatInfo outputFormatInfo = licenseInfoClient.getOutputFormatInfoForGeneratorClass(generatorClassName);
+            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + outputFormatInfo.getFileExtension();
+            if(outputFormatInfo.isOutputBinary){
+                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName);
+                byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
+                licenseInfoByteBuffer.get(licenseInfoByteArray);
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, "text/plain");
+            } else {
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+            }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
         }
