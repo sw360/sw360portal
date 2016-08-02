@@ -13,6 +13,7 @@ package com.siemens.sw360.licenseinfo.outputGenerators;
 
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.tools.ToolManager;
@@ -20,19 +21,20 @@ import org.apache.velocity.tools.ToolManager;
 import java.util.Collection;
 import java.util.Properties;
 
-public abstract class OutputGenerator {
+public abstract class OutputGenerator<T> {
 
     public static final String VELOCITY_TOOLS_FILE = "velocity-tools.xml";
     private final String OUTPUT_TYPE;
     private final String OUTPUT_DESCRIPTION;
+    private final boolean IS_OUTPUT_BINARY;
 
-    OutputGenerator(String outputType, String outputDescription){
+    OutputGenerator(String outputType, String outputDescription, boolean isOutputBinary){
         OUTPUT_TYPE = outputType;
         OUTPUT_DESCRIPTION = outputDescription;
+        IS_OUTPUT_BINARY = isOutputBinary;
     }
 
-    //Todo: output format for docx-file?
-    public abstract String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) throws SW360Exception;
+    public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception;
 
     public String getOutputType() {
         return OUTPUT_TYPE;
@@ -40,6 +42,18 @@ public abstract class OutputGenerator {
 
     public String getOutputDescription() {
         return OUTPUT_DESCRIPTION;
+    }
+
+    public boolean isOutputBinary() {
+        return IS_OUTPUT_BINARY;
+    }
+
+    public OutputFormatInfo getOutputFormatInfo() {
+        return new OutputFormatInfo()
+                .setFileExtension(getOutputType())
+                .setDescription(getOutputDescription())
+                .setIsOutputBinary(isOutputBinary())
+                .setGeneratorClassName(this.getClass().getName());
     }
 
     public String getComponentLongName(LicenseInfoParsingResult li) {

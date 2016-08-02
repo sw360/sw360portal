@@ -63,23 +63,7 @@
     </title>
 </head>
 <body>
-<h1>Open Source Software</h1>
-#*<p> Dieses Produkt enth&#228;lt Open-Source-Software. Im Folgenden finden Sie die &#220;bersicht der verwendeten
-    freien Software. Vielen Dank an alle Beteiligten f&#252;r die Erstellung der Software.
-</p>
-<p>Einige Lizenzen erfordern die Ver&#246;ffentlichung des Quellcodes, bitte schreiben Sie bei Interesse an:</p>
-
-<p>
-    ????<br/>
-    ?????<br/>
-    Strasse<br/>
-    Ort<br/>
-    Deutschland
-</p>
-
-<p>Bitte geben Sie ebenfalls Ihre Softwareversion, Ihre E-Mail-Adresse f&#252;r R&#252;ckfragen und Ihre
-    Postanschrift f&#252;r die Zustellung an.
-</p>*#
+<h1>Open Source Software</h
 
 <h2 id="releaseHeader">Releases</h2>
 #if($licenseInfoResults.keySet().size() > 0)

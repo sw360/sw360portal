@@ -26,17 +26,17 @@ import java.util.stream.Collectors;
 import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.LICENSE_INFO_RESULTS_CONTEXT_PROPERTY;
 import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.ALL_LICENSE_NAMES_WITH_TEXTS;
 
-public class XhtmlGenerator extends OutputGenerator {
+public class XhtmlGenerator extends OutputGenerator<String> {
 
     public static final String XHTML_TEMPLATE_FILE = "xhtmlFile.vm";
     Logger log = Logger.getLogger(XhtmlGenerator.class);
 
     public XhtmlGenerator() {
-        super("html", "License information as XHTML");
+        super("html", "License information as XHTML", false);
     }
 
     @Override
-    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) throws SW360Exception {
+    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
         try {
             VelocityContext vc = getConfiguredVelocityContext();
 

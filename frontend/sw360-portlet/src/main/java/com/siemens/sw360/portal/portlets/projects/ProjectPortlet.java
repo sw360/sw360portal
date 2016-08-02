@@ -56,6 +56,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -157,10 +158,16 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project project = projectClient.getProjectById(projectId, user);
             String projectName = project != null ? project.getName() : "Unknown-Project";
             String timestamp = SW360Utils.getCreatedOn();
-            String fileExtension = licenseInfoClient.getFileExtensionFromGeneratorClass(generatorClassName);
-            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + fileExtension;
-
-            PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+            OutputFormatInfo outputFormatInfo = licenseInfoClient.getOutputFormatInfoForGeneratorClass(generatorClassName);
+            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + outputFormatInfo.getFileExtension();
+            if(outputFormatInfo.isOutputBinary){
+                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName);
+                byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
+                licenseInfoByteBuffer.get(licenseInfoByteArray);
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, "text/plain");
+            } else {
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+            }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
         }
@@ -180,7 +187,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 row.put("id", project.getId());
                 row.put("name", printName(project));
                 String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A." : pDesc);
+                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
                 row.put("state", ThriftEnumUtils.enumToString(project.getState()));
                 row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
                 row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
