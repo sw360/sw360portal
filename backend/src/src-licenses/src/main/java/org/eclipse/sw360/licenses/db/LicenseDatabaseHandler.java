@@ -15,6 +15,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.CustomPropertiesRepository;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseRepository;
 import org.eclipse.sw360.datahandler.db.ReleaseRepository;
 import org.eclipse.sw360.datahandler.db.VendorRepository;
 import org.eclipse.sw360.datahandler.entitlement.LicenseModerator;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
@@ -67,6 +69,7 @@ public class LicenseDatabaseHandler {
     private final LicenseTypeRepository licenseTypeRepository;
     private final LicenseModerator moderator;
     private final CustomPropertiesRepository customPropertiesRepository;
+    private final DatabaseRepository[] repositories;
 
     private final Logger log = Logger.getLogger(LicenseDatabaseHandler.class);
 
@@ -82,6 +85,16 @@ public class LicenseDatabaseHandler {
         riskCategoryRepository = new RiskCategoryRepository(db);
         licenseTypeRepository = new LicenseTypeRepository(db);
         customPropertiesRepository = new CustomPropertiesRepository(db);
+
+        repositories = new DatabaseRepository[]{
+                licenseRepository,
+                licenseTypeRepository,
+                todoRepository,
+                obligationRepository,
+                riskRepository,
+                riskCategoryRepository,
+                customPropertiesRepository
+        };
 
         moderator = new LicenseModerator();
     }
@@ -138,7 +151,7 @@ public class LicenseDatabaseHandler {
     public License getLicenseForOrganisationWithOwnModerationRequests(String id, String organisation, User user) throws SW360Exception {
         List<ModerationRequest> moderationRequestsForDocumentId = moderator.getModerationRequestsForDocumentId(id);
 
-        License license = getLicenseForOrganisation(id, organisation);;
+        License license = getLicenseForOrganisation(id, organisation);
         DocumentState documentState;
 
         if (moderationRequestsForDocumentId.isEmpty()) {
@@ -764,5 +777,22 @@ public class LicenseDatabaseHandler {
             customPropertiesRepository.add(customProperties);
         }
         return RequestStatus.SUCCESS;
+    }
+
+public RequestSummary deleteAllLicenseInformation() {
+        RequestSummary result = new RequestSummary()
+                .setRequestStatus(RequestStatus.SUCCESS)
+                .setTotalElements(0)
+                .setTotalAffectedElements(0);
+        for(DatabaseRepository repository : repositories) {
+            result = addRequestSummaries(result, deleteAllDocuments(repository));
+        }
+        return result;
+    }
+
+    private RequestSummary deleteAllDocuments(DatabaseRepository repository) {
+        Set<String> allIds = repository.getAllIds();
+        List<DocumentOperationResult> operationResults = repository.deleteIds(allIds);
+        return getRequestSummary(allIds.size(), operationResults.size());
     }
 }

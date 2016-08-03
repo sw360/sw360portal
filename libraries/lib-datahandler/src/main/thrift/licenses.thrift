@@ -18,6 +18,7 @@ typedef users.RequestedAction RequestedAction
 typedef sw360.RequestStatus RequestStatus
 typedef sw360.DocumentState DocumentState
 typedef sw360.CustomProperties CustomProperties
+typedef sw360.RequestSummary RequestSummary
 
 struct Obligation {
 	1: optional string id,
@@ -276,5 +277,10 @@ service LicenseService {
 
     list<CustomProperties> getCustomProperties(1: string documentType);
 
-    RequestStatus updateCustomProperties(1: CustomProperties customProperties, 2: User user )
+    RequestStatus updateCustomProperties(1: CustomProperties customProperties, 2: User user );
+
+   /**
+    * removes all licenses, license types, todos, obligations, risks, risk categories from db
+    **/
+    RequestSummary deleteAllLicenseInformation(1: User user);
 }

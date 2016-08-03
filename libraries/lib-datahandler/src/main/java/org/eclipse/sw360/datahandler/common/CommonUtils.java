@@ -59,7 +59,7 @@ public class CommonUtils {
     public static final Joiner COMMA_JOINER = Joiner.on(", ");
 
     private static final Comparator<CheckStatus> CHECK_STATUS_COMPARATOR = Comparator.comparingInt(cs -> {
-        switch (cs){
+        switch (cs) {
             case ACCEPTED:
                 return 2;
             case NOTCHECKED:
@@ -195,21 +195,21 @@ public class CommonUtils {
 
     public static boolean atLeastOneIsNotEmpty(Collection... collections) {
         for (Collection collection : collections) {
-                if(collection!=null && !collection.isEmpty()) return true;
+            if (collection != null && !collection.isEmpty()) return true;
         }
         return false;
     }
 
     public static boolean atLeastOneIsNotEmpty(Map... maps) {
         for (Map map : maps) {
-            if(map!=null && !map.isEmpty()) return true;
+            if (map != null && !map.isEmpty()) return true;
         }
         return false;
     }
 
     public static boolean atLeastOneIsNotEmpty(String... strings) {
         for (String string : strings) {
-            if(!Strings.isNullOrEmpty(string)) return true;
+            if (!Strings.isNullOrEmpty(string)) return true;
         }
         return false;
     }
@@ -224,7 +224,7 @@ public class CommonUtils {
 
         for (Object object : objects) {
             if (object instanceof Collection)
-                if(!((Collection) object).isEmpty()) return true;
+                if (!((Collection) object).isEmpty()) return true;
         }
 
         return false;
@@ -273,8 +273,8 @@ public class CommonUtils {
         };
     }
 
-    public static boolean isInProgressOrPending(ModerationRequest moderationRequest){
-        return  moderationRequest.getModerationState().equals(ModerationState.INPROGRESS) ||
+    public static boolean isInProgressOrPending(ModerationRequest moderationRequest) {
+        return moderationRequest.getModerationState().equals(ModerationState.INPROGRESS) ||
                 moderationRequest.getModerationState().equals(ModerationState.PENDING);
     }
 
@@ -431,6 +431,17 @@ public class CommonUtils {
         }).toList();
     }
 
+    public static RequestSummary addRequestSummaries(RequestSummary left, RequestSummary right) {
+        RequestSummary result = new RequestSummary();
+        result.requestStatus = left.isSetRequestStatus() && left.requestStatus.equals(RequestStatus.SUCCESS)
+                            && right.isSetRequestStatus() && right.requestStatus.equals(RequestStatus.SUCCESS)
+                            ? RequestStatus.SUCCESS
+                            : RequestStatus.FAILURE;
+        result.setTotalElements(left.getTotalElements() + right.getTotalElements());
+        result.setTotalAffectedElements(left.getTotalAffectedElements() + right.getTotalAffectedElements());
+        return result;
+    }
+
     @NotNull
     public static Map<String, List<String>> getIdentifierToListOfDuplicates(ListMultimap<String, String> identifierToIds) {
         Map<String, List<String>> output = new HashMap<>();
@@ -448,14 +459,17 @@ public class CommonUtils {
     @NotNull
     public static RequestSummary getRequestSummary(List<String> ids, List<DocumentOperationResult> documentOperationResults) {
         final RequestSummary requestSummary = new RequestSummary();
-        if (documentOperationResults.isEmpty()) {
-            requestSummary.setRequestStatus(RequestStatus.SUCCESS);
-        } else {
-            requestSummary.setRequestStatus(RequestStatus.FAILURE);
-        }
-
+        requestSummary.requestStatus = documentOperationResults.isEmpty() ? RequestStatus.SUCCESS : RequestStatus.FAILURE;
         requestSummary.setTotalElements(ids.size());
         requestSummary.setTotalAffectedElements(ids.size() - documentOperationResults.size());
+        return requestSummary;
+    }
+
+    public static RequestSummary getRequestSummary(int total, int failures) {
+        final RequestSummary requestSummary = new RequestSummary();
+        requestSummary.requestStatus = failures == 0 ? RequestStatus.SUCCESS : RequestStatus.FAILURE;
+        requestSummary.setTotalElements(total);
+        requestSummary.setTotalAffectedElements(total - failures);
         return requestSummary;
     }
 
@@ -475,9 +489,9 @@ public class CommonUtils {
             getLogger(clazz).error("Error opening resources " + propertiesFilePath + ".", e);
         }
 
-        if(useSystemConfig){
+        if (useSystemConfig) {
             File systemPropertiesFile = new File(SYSTEM_CONFIGURATION_PATH, propertiesFilePath);
-            if(systemPropertiesFile.exists()){
+            if (systemPropertiesFile.exists()) {
                 try (InputStream resourceAsStream = new FileInputStream(systemPropertiesFile.getPath())) {
                     if (resourceAsStream == null)
                         throw new IOException("cannot open " + systemPropertiesFile.getPath());
@@ -500,14 +514,14 @@ public class CommonUtils {
         }
     }
 
-    public static Optional<Attachment> getBestClearingReport(Release release){
+    public static Optional<Attachment> getBestClearingReport(Release release) {
         return nullToEmptyCollection(release.getAttachments())
                 .stream()
                 .filter(att -> att.getAttachmentType() == AttachmentType.CLEARING_REPORT)
                 .max(Comparator.comparing(Attachment::getCheckStatus, CHECK_STATUS_COMPARATOR));
     }
 
-    public static boolean isTemporaryTodo(Todo todo){
+    public static boolean isTemporaryTodo(Todo todo) {
         return todo.isSetId() && todo.getId().startsWith(TMP_TODO_ID_PREFIX);
     }
 
