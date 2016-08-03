@@ -63,7 +63,7 @@
     </title>
 </head>
 <body>
-<h1>Open Source Software</h
+<h1>Open Source Software</h1>
 
 <h2 id="releaseHeader">Releases</h2>
 #if($licenseInfoResults.keySet().size() > 0)
