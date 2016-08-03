@@ -568,12 +568,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-        List<VulnerabilityDTO> vuls;
-        if (PermissionUtils.isAdmin(user)) {
-            vuls = vulClient.getVulnerabilitiesByProjectId(id, user);
-        } else {
-            vuls = vulClient.getVulnerabilitiesByProjectIdWithoutIncorrect(id, user);
-        }
+        List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectIdWithoutIncorrect(id, user);
         request.setAttribute(VULNERABILITY_LIST, vuls);
 
         Optional<ProjectVulnerabilityRating> projectVulnerabilityRating = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
