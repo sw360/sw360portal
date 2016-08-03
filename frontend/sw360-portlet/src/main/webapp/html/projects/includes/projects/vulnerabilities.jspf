@@ -78,12 +78,13 @@
                     'title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"'+
                     'style="min-width: 90px; min-height: 28px;">'+
                    <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}" inQuotes="true"/> +
-                '</select>',
+                '</select>'
                 </core_rt:when>
                 <core_rt:otherwise>
-                    '<div title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/></div>',
+                '<span title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/></span>'
                 </core_rt:otherwise>
             </core_rt:choose>
+            ,
             "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
         });
         </core_rt:forEach>
