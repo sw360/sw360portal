@@ -144,7 +144,7 @@ struct ProjectVulnerabilityRating{
     3: optional string type = "projectvulnerabilityrating",
 
     4: required string projectId,
-    //keys are the externalIds of the vulnerabilities
+    //first key: externalIds of the vulnerabilities, second key: releaseId (couchDb id)
     5: required map<string, map<string, list<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus,
 }
 
