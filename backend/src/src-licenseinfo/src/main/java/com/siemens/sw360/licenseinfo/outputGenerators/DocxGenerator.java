@@ -46,10 +46,6 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
     private void fillDocument(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws IOException {
 
         cleanUpTemplate(document);
-
-        String header = "OSS Attributions for " + projectName;
-        addHeader(document, header);
-
         setProjectNameInDocument(document, projectName);
 
         String[] tableHeaders = {"Name of OSS Component",
@@ -57,11 +53,9 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
                 "Name and Version of License (see Appendix for License Text)",
                 "More Information"};
         XWPFTable table = createTableAndAddReleasesTableHeaders(document, tableHeaders);
-
         fillReleasesTable(table, projectLicenseInfoResults);
 
         addLicenseTextsHeader(document, "Appendix - License Texts");
-
         addLicenseTexts(document, projectLicenseInfoResults);
     }
 }
