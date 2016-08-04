@@ -13,14 +13,9 @@ package com.siemens.sw360.licenseinfo.outputGenerators;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
@@ -33,15 +28,6 @@ public class DocxUtils {
     public static void cleanUpTemplate(XWPFDocument document) {
         replaceText(document, "$Heading1", "");
         replaceText(document, "$Heading2", "");
-    }
-
-    public static void addHeader(XWPFDocument document, String headerText) throws IOException {
-        XWPFHeaderFooterPolicy policy = document.getHeaderFooterPolicy();
-            XWPFHeader headerD = policy.createHeader(policy.DEFAULT);
-            XWPFRun run = headerD.getParagraphs().get(0).createRun();
-            addNewLines(run, 2);
-            addFormattedText(run, headerText, 12);
-            addNewLines(run, 2);
     }
 
     public static void setProjectNameInDocument(XWPFDocument document, String projectName) {
@@ -198,17 +184,26 @@ public class DocxUtils {
         addFormattedText(run, text, fontSize, false);
     }
 
-    private static void replaceText(XWPFDocument document, String findText, String replaceText){
+    public static void replaceText(XWPFDocument document, String placeHolder, String replaceText){
+        for (XWPFHeader header : document.getHeaderList())
+            replaceAllBodyElements(header.getBodyElements(), placeHolder, replaceText);
+        replaceAllBodyElements(document.getBodyElements(), placeHolder, replaceText);
+    }
 
-        for (int i = 0; i < document.getParagraphs().size(); i++ ) {
-                XWPFParagraph p = document.getParagraphs().get(i);
-                for (int z = 0; z < p.getRuns().size(); z++) {
-                    XWPFRun run = p.getRuns().get(z);
-                    String text = run.getText(0);
-                    if(text != null && text.contains(findText)) {
-                        run.setText(text.replace(findText, replaceText),0);
-                    }
-                }
+    private static void replaceAllBodyElements(List<IBodyElement> bodyElements, String placeHolder, String replaceText){
+        for (IBodyElement bodyElement : bodyElements) {
+            if (bodyElement.getElementType().compareTo(BodyElementType.PARAGRAPH) == 0)
+                replaceParagraph((XWPFParagraph) bodyElement, placeHolder, replaceText);
+        }
+    }
+
+    private static void replaceParagraph(XWPFParagraph paragraph, String placeHolder, String replaceText) {
+        for (XWPFRun r : paragraph.getRuns()) {
+            String text = r.getText(r.getTextPosition());
+            if (text != null && text.contains(placeHolder)) {
+                text = text.replace(placeHolder, replaceText);
+                r.setText(text, 0);
+            }
         }
     }
 }
