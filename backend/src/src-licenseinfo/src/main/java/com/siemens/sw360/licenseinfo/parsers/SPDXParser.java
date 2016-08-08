@@ -14,6 +14,7 @@ import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
@@ -41,13 +42,14 @@ public class SPDXParser extends LicenseInfoParser {
     protected static final String FILETYPE_SPDX_INTERNAL = "RDF/XML";
     protected static final List<String> ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS = ImmutableList.of(
             "rdf",
-            "spdx"
+            "spdx" // usually used for tag:value format
     );
-    protected static final List<String> ACCEPTABLE_ATTACHMENT_CONTENT_TYPES = ImmutableList.of(
-            "application/rdf+xml",
-            "application/xml",
-            "text/plain"
-    );
+    protected static final List<AttachmentType> ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
+            AttachmentType.COMPONENT_LICENSE_INFO_XML,
+            AttachmentType.COMPONENT_LICENSE_INFO_COMBINED,
+            AttachmentType.SCAN_RESULT_REPORT,
+            AttachmentType.SCAN_RESULT_REPORT_XML,
+            AttachmentType.OTHER);
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
@@ -57,17 +59,18 @@ public class SPDXParser extends LicenseInfoParser {
 
     @Override
     public boolean isApplicableTo(Attachment attachment) throws TException {
+        boolean isAcceptable = true;
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         String lowerFileName = attachmentContent.getFilename().toLowerCase();
 
-        boolean isFiletypeAcceptable = ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
+        isAcceptable &= ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                 .map(extension -> lowerFileName.endsWith(extension))
                 .reduce(false, (b1, b2) -> b1 || b2);
-        boolean isContentTypeAcceptable = ACCEPTABLE_ATTACHMENT_CONTENT_TYPES.contains(attachmentContent.getContentType());
+        isAcceptable &= ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType());
 
         // TODO: test for namespace `spdx` in rdf file (maybe to much overhead? Better try parsing and die?)
 
-        return isFiletypeAcceptable && isContentTypeAcceptable;
+        return isAcceptable;
     }
 
     @Override

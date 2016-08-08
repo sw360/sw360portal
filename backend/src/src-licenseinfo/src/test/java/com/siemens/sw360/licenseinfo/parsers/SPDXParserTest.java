@@ -56,7 +56,7 @@ public class SPDXParserTest {
 
         parser = new SPDXParser(connector, attachmentContentStore.getAttachmentContentProvider());
 
-        attachmentContentStore.put(spdxExampleFile, SPDXParser.ACCEPTABLE_ATTACHMENT_CONTENT_TYPES.get(0));
+        attachmentContentStore.put(spdxExampleFile);
     }
 
     private void assertIsResultOfExample(LicenseInfo result){
@@ -79,16 +79,16 @@ public class SPDXParserTest {
     @Test
     public void testIsApplicableTo() throws Exception {
         try {
-            SPDXParser.ACCEPTABLE_ATTACHMENT_CONTENT_TYPES.stream()
-                    .forEach(contentType -> SPDXParser.ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
+            SPDXParser.ACCEPTABLE_ATTACHMENT_TYPES.stream()
+                    .forEach(attachmentType -> SPDXParser.ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                             .forEach(extension -> {
                                 String filename = "filename." + extension;
                                 try {
-                                    attachmentContentStore.put(filename, contentType, "");
+                                    attachmentContentStore.put(filename, "");
                                 } catch (SW360Exception e) {
                                     throw new UncheckedSW360Exception(e);
                                 }
-                                Attachment attachment = makeAttachment(filename);
+                                Attachment attachment = makeAttachment(filename, attachmentType);
                                 try {
                                     assertThat(parser.isApplicableTo(attachment), is(true));
                                 } catch (TException e) {
@@ -118,8 +118,7 @@ public class SPDXParserTest {
     @Test
     public void testGetLicenseInfo() throws Exception {
 
-        AttachmentContent attachmentContent = attachmentContentStore.get(spdxExampleFile);
-        Attachment attachment = new Attachment(spdxExampleFile, spdxExampleFile);
+        Attachment attachment = makeAttachment(spdxExampleFile, SPDXParser.ACCEPTABLE_ATTACHMENT_TYPES.get(0));
 
         LicenseInfoParsingResult result = parser.getLicenseInfo(attachment);
 

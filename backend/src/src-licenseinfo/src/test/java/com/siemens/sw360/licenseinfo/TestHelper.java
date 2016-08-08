@@ -13,6 +13,7 @@ import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
@@ -39,17 +40,17 @@ public class TestHelper {
         return ClassLoader.getSystemResourceAsStream(filename);
     }
 
-    public static AttachmentContent makeAttachmentContent(String filename, String contentType){
+    public static AttachmentContent makeAttachmentContent(String filename){
         return new AttachmentContent()
                 .setId(filename)
-                .setFilename(filename)
-                .setContentType(contentType);
+                .setFilename(filename);
     }
 
-    public static Attachment makeAttachment(String filename){
+    public static Attachment makeAttachment(String filename, AttachmentType attachmentType){
         return new Attachment()
                 .setAttachmentContentId(filename)
-                .setFilename(filename);
+                .setFilename(filename)
+                .setAttachmentType(attachmentType);
     }
 
     //==================================================================================================================
@@ -75,15 +76,15 @@ public class TestHelper {
             return store.get(attachmentContentId);
         }
 
-        public AttachmentContentStore put(String filename, String contentType, String fileContent) throws SW360Exception {
-            AttachmentContent attachmentContent = makeAttachmentContent(filename, contentType);
+        public AttachmentContentStore put(String filename, String fileContent) throws SW360Exception {
+            AttachmentContent attachmentContent = makeAttachmentContent(filename);
             store.put(attachmentContent.getId(), attachmentContent);
             when(connectorMock.getAttachmentStream(attachmentContent)).thenReturn(new ReaderInputStream(new StringReader(fileContent)));
             return this;
         }
 
-        public AttachmentContentStore put(String filename, String contentType) throws SW360Exception {
-            return put(makeAttachmentContent(filename, contentType));
+        public AttachmentContentStore put(String filename) throws SW360Exception {
+            return put(makeAttachmentContent(filename));
         }
 
         public AttachmentContentStore put(AttachmentContent attachmentContent) throws SW360Exception {
