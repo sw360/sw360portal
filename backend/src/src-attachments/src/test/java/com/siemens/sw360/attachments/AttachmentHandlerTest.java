@@ -45,9 +45,9 @@ public class AttachmentHandlerTest {
     @Before
     public void setUp() throws Exception {
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
 //        databaseConnector.add(new Attachment().setId("A1").setCreatedBy("user1@test.com").setCreatedOn("2012-07-30").setFilename("a.txt").setContentType("text"));
 //        databaseConnector.add(new Attachment().setId("A2").setCreatedBy("user2@test.com").setCreatedOn("2012-05-22").setFilename("b.jpg").setContentType("image"));
         databaseConnector.add(new AttachmentContent().setId("A1").setFilename("a.txt").setContentType("text"));
@@ -59,14 +59,7 @@ public class AttachmentHandlerTest {
     @After
     public void tearDown() throws Exception {
         // Delete the database
-        TestUtils.deleteDatabase(url, dbName);
-    }
-
-    @Test
-    public void testGetDatabaseAddress() throws Exception {
-        DatabaseAddress address = handler.getDatabaseAddress();
-        assertEquals(url, address.getUrl());
-        assertEquals(dbName, address.getDbName());
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Test

@@ -25,21 +25,20 @@ import com.siemens.sw360.datahandler.thrift.users.UserService;
 
 public class ThriftApiSimpleTest {
 
-	private static final String url = DatabaseSettings.COUCH_DB_URL;
 	private static final String dbName = DatabaseSettings.COUCH_DB_DATABASE;
 	
 	private ThriftApi thriftApi;
 
 	@Before
 	public void setUp() throws Exception {
-		TestUtils.createDatabase(url, dbName);
+		TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
 		thriftApi = new ThriftApiSimple();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		TestUtils.deleteDatabase(url, dbName);
+		TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 	}
 	
 	@Test

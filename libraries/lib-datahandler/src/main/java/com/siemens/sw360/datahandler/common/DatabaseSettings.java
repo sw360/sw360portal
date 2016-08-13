@@ -8,7 +8,12 @@
  */
 package com.siemens.sw360.datahandler.common;
 
+import java.net.MalformedURLException;
+import java.util.Optional;
 import java.util.Properties;
+
+import org.ektorp.http.HttpClient;
+import org.ektorp.http.StdHttpClient;
 
 /**
  * Constants for the database address
@@ -29,17 +34,31 @@ public class DatabaseSettings {
 
     public static final int LUCENE_SEARCH_LIMIT;
 
+    private static final Optional<String> COUCH_DB_USERNAME;
+    private static final Optional<String> COUCH_DB_PASSWORD;
+
     static {
         Properties props = CommonUtils.loadProperties(DatabaseSettings.class, PROPERTIES_FILE_PATH);
 
         COUCH_DB_URL = props.getProperty("couchdb.url", "http://localhost:5984");
         COUCH_DB_DATABASE = props.getProperty("couchdb.database", "sw360db");
+        COUCH_DB_USERNAME = Optional.ofNullable(props.getProperty("couchdb.user", null));
+        COUCH_DB_PASSWORD = Optional.ofNullable(props.getProperty("couchdb.password", null));
         COUCH_DB_USERS = props.getProperty("couchdb.usersdb", "sw360users");
         COUCH_DB_ATTACHMENTS = props.getProperty("couchdb.attachments", "sw360attachments");
         COUCH_DB_FOSSOLOGY = props.getProperty("couchdb.fossologyKeys", "sw360fossologyKeys");
         COUCH_DB_VM = props.getProperty("couchdb.vulnerability_management", "sw360vm");
 
         LUCENE_SEARCH_LIMIT = Integer.parseInt(props.getProperty("lucenesearch.limit", "25"));
+    }
+
+    public static HttpClient getConfiguredHttpClient() throws MalformedURLException {
+        StdHttpClient.Builder httpClientBuilder = new StdHttpClient.Builder().url(COUCH_DB_URL);
+        if(COUCH_DB_USERNAME.isPresent() && COUCH_DB_PASSWORD.isPresent()) {
+            httpClientBuilder.username(COUCH_DB_USERNAME.get());
+            httpClientBuilder.password(COUCH_DB_PASSWORD.get());
+        }
+        return httpClientBuilder.build();
     }
 
 

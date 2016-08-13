@@ -27,6 +27,7 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import org.ektorp.DocumentOperationResult;
+import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.apache.log4j.Logger;
 
@@ -68,9 +69,9 @@ public class LicenseDatabaseHandler {
 
     private final Logger log = Logger.getLogger(LicenseDatabaseHandler.class);
 
-    public LicenseDatabaseHandler(String url, String dbName) throws MalformedURLException {
+    public LicenseDatabaseHandler(HttpClient httpClient, String dbName) throws MalformedURLException {
         // Create the connector
-        db = new DatabaseConnector(url, dbName);
+        db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repository
         licenseRepository = new LicenseRepository(db);

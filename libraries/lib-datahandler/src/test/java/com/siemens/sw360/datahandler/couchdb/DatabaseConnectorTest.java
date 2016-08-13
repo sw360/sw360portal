@@ -61,7 +61,7 @@ public class DatabaseConnectorTest {
         id = object.getId();
         rev = object.getRevision();
         // Now create the actual database connector
-        connector = new DatabaseConnector(COUCH_DB_URL, COUCH_DB_DATABASE, factory);
+        connector = new DatabaseConnector(DatabaseTestProperties.getConfiguredHttpClient(), COUCH_DB_DATABASE, factory);
     }
 
     @After

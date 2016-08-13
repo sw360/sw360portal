@@ -10,6 +10,7 @@ package com.siemens.sw360.datahandler.couchdb;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.ConcatClosingInputStream;
+import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
@@ -44,8 +45,8 @@ public class AttachmentStreamConnector {
      * @throws java.net.MalformedURLException if the given database address not a valid url.
      * @todo remove this mess of constructors and use dependency injection
      */
-    public AttachmentStreamConnector(DatabaseAddress address, Duration downloadTimeout) throws MalformedURLException {
-        this(new DatabaseConnector(address.getUrl(), address.getDbName()), downloadTimeout);
+    public AttachmentStreamConnector(Duration downloadTimeout) throws MalformedURLException {
+        this(new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS), downloadTimeout);
     }
 
     public AttachmentStreamConnector(DatabaseConnector connector, Duration downloadTimeout) {

@@ -16,6 +16,7 @@ import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.apache.log4j.Logger;
+import org.ektorp.http.HttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,16 +37,13 @@ public class RemoteAttachmentDownloader {
     private static final Logger log = getLogger(RemoteAttachmentDownloader.class);
 
     public static void main(String[] args) throws MalformedURLException {
-        String couchDbUrl = DatabaseSettings.COUCH_DB_URL;
-        String dbAttachments = DatabaseSettings.COUCH_DB_ATTACHMENTS;
-
         Duration downloadTimeout = durationOf(30, TimeUnit.SECONDS);
-        retrieveRemoteAttachments(couchDbUrl, dbAttachments, downloadTimeout);
+        retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS, downloadTimeout);
     }
 
-    public static int retrieveRemoteAttachments(String couchDbUrl, String dbAttachments, Duration downloadTimeout) throws MalformedURLException {
-        AttachmentConnector attachmentConnector = new AttachmentConnector(couchDbUrl, dbAttachments, downloadTimeout);
-        AttachmentRepository attachmentRepository = new AttachmentRepository(new DatabaseConnector(couchDbUrl, dbAttachments));
+    public static int retrieveRemoteAttachments(HttpClient httpClient, String dbAttachments, Duration downloadTimeout) throws MalformedURLException {
+        AttachmentConnector attachmentConnector = new AttachmentConnector(httpClient, dbAttachments, downloadTimeout);
+        AttachmentRepository attachmentRepository = new AttachmentRepository(new DatabaseConnector(httpClient, dbAttachments));
 
         List<AttachmentContent> remoteAttachments = attachmentRepository.getOnlyRemoteAttachments();
         log.info(format("we have %d remote attachments to retrieve", remoteAttachments.size()));

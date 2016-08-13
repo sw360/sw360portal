@@ -58,13 +58,13 @@ public class RemoteAttachmentDownloaderTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         assertTestString(dbName);
-        deleteDatabase(url, dbName);
+        deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Before
     public void setUp() throws Exception {
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
-        attachmentConnector = new AttachmentConnector(url, dbName, downloadTimeout);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
+        attachmentConnector = new AttachmentConnector(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout);
         repository = new AttachmentRepository(databaseConnector);
 
         garbage = new ArrayList<>();
@@ -81,11 +81,11 @@ public class RemoteAttachmentDownloaderTest {
     public void testIntegration() throws Exception {
         AttachmentContent attachmentContent = saveRemoteAttachment(url);
 
-        assertThat(retrieveRemoteAttachments(url, dbName, downloadTimeout), is(1));
+        assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(1));
 
         assertThat(attachmentConnector.getAttachmentStream(attachmentContent), hasLength(greaterThan(0l)));
 
-        assertThat(retrieveRemoteAttachments(url, dbName, downloadTimeout), is(0));
+        assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(0));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class RemoteAttachmentDownloaderTest {
             Future<Integer> future = executor.submit(new Callable<Integer>() {
                 @Override
                 public Integer call() throws Exception {
-                    return retrieveRemoteAttachments(url, dbName, downloadTimeout);
+                    return retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout);
                 }
             });
 
@@ -126,13 +126,13 @@ public class RemoteAttachmentDownloaderTest {
         AttachmentContent attachmentGood = saveRemoteAttachment(url);
 
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(2));
-        assertThat(retrieveRemoteAttachments(url, dbName, downloadTimeout), is(1));
+        assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(1));
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(1));
 
         assertThat(attachmentConnector.getAttachmentStream(attachmentGood), hasLength(greaterThan(0l)));
 
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(1));
-        assertThat(retrieveRemoteAttachments(url, dbName, downloadTimeout), is(0));
+        assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(0));
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(1));
 
         try {

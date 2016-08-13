@@ -47,7 +47,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentDatabaseHandlerTest {
 
-    private static final String url = DatabaseSettings.COUCH_DB_URL;
     private static final String dbName = DatabaseSettings.COUCH_DB_DATABASE;
     private static final String attachmentsDbName = DatabaseSettings.COUCH_DB_ATTACHMENTS;
 
@@ -115,10 +114,10 @@ public class ComponentDatabaseHandlerTest {
         releases.add(release2c);
 
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Prepare the database
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         for (Vendor vendor : vendors.values()) {
             databaseConnector.add(vendor);
@@ -134,12 +133,12 @@ public class ComponentDatabaseHandlerTest {
         releaseMap= ThriftUtils.getIdMap(releases);
 
         // Prepare the handler
-        handler = new ComponentDatabaseHandler(url, dbName, attachmentsDbName, moderator, releaseModerator);
+        handler = new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName, moderator, releaseModerator);
     }
 
     @After
     public void tearDown() throws Exception {
-        TestUtils.deleteDatabase(url, dbName);
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Test

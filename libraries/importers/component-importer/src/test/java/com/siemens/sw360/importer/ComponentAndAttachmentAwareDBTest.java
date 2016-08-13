@@ -51,7 +51,7 @@ public class ComponentAndAttachmentAwareDBTest {
     protected User user;
 
     protected  static  DatabaseConnector getDBConnector(String couchDbDatabase) throws MalformedURLException {
-        return new DatabaseConnector(DatabaseSettings.COUCH_DB_URL, couchDbDatabase);
+        return new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), couchDbDatabase);
     }
 
 
@@ -76,8 +76,8 @@ public class ComponentAndAttachmentAwareDBTest {
     }
 
     protected void deleteDatabases() throws MalformedURLException {
-        deleteDatabase(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_ATTACHMENTS);
-        deleteDatabase(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);
+        deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS);
+        deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
     }
     protected static ThriftClients getThriftClients() throws TException, IOException {
         assertTestDbNames();

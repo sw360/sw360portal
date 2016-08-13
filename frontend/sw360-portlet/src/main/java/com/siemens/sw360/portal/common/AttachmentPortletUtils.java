@@ -71,12 +71,7 @@ public class AttachmentPortletUtils {
     private synchronized void makeConnector() throws TException {
         if (connector == null) {
             try {
-                AttachmentService.Iface client = thriftClients.makeAttachmentClient();
-                DatabaseAddress address = client.getDatabaseAddress();
-                connector = new AttachmentStreamConnector(address, downloadTimeout);
-            } catch (TException e) {
-                log.error("Could not get database address from attachment client...", e);
-                throw e;
+                connector = new AttachmentStreamConnector(downloadTimeout);
             } catch (MalformedURLException e) {
                 log.error("Invalid database address received...", e);
                 throw new TException(e);

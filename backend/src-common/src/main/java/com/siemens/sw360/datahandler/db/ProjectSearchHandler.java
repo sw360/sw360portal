@@ -14,6 +14,7 @@ package com.siemens.sw360.datahandler.db;
         import com.siemens.sw360.datahandler.thrift.projects.Project;
         import com.siemens.sw360.datahandler.thrift.users.User;
         import org.apache.log4j.Logger;
+        import org.ektorp.http.HttpClient;
 
         import java.io.IOException;
         import java.util.List;
@@ -68,8 +69,8 @@ public class ProjectSearchHandler {
 
     private final LuceneAwareDatabaseConnector connector;
 
-    public ProjectSearchHandler(String url, String dbName) throws IOException {
-        connector = new LuceneAwareDatabaseConnector(url, dbName);
+    public ProjectSearchHandler(HttpClient httpClient, String dbName) throws IOException {
+        connector = new LuceneAwareDatabaseConnector(httpClient, dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);
     }

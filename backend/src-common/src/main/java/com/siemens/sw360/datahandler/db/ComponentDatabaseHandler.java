@@ -34,6 +34,7 @@ import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
+import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
@@ -82,8 +83,8 @@ public class ComponentDatabaseHandler {
     private final ReleaseModerator releaseModerator;
 
 
-    public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
-        DatabaseConnector db = new DatabaseConnector(url, dbName);
+    public ComponentDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
+        DatabaseConnector db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repositories
         vendorRepository = new VendorRepository(db);
@@ -96,16 +97,16 @@ public class ComponentDatabaseHandler {
         this.releaseModerator = releaseModerator;
 
         // Create the attachment connector
-        attachmentConnector = new AttachmentConnector(url, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
+        attachmentConnector = new AttachmentConnector(httpClient, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
     }
 
 
-    public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        this(url, dbName, attachmentDbName, new ComponentModerator(), new ReleaseModerator());
+    public ComponentDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
+        this(httpClient, dbName, attachmentDbName, new ComponentModerator(), new ReleaseModerator());
     }
 
-    public ComponentDatabaseHandler(String url, String dbName, String attachmentDbName, ThriftClients thriftClients) throws MalformedURLException {
-        this(url, dbName, attachmentDbName, new ComponentModerator(thriftClients), new ReleaseModerator(thriftClients));
+    public ComponentDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws MalformedURLException {
+        this(httpClient, dbName, attachmentDbName, new ComponentModerator(thriftClients), new ReleaseModerator(thriftClients));
     }
 
     private void autosetReleaseClearingState(Release releaseAfter, Release releaseBefore) {

@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -88,10 +89,10 @@ public class ProjectDatabaseHandlerTest {
         projects.add(project4);
 
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Prepare the database
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         for (Vendor vendor : vendors) {
             databaseConnector.add(vendor);
@@ -103,13 +104,13 @@ public class ProjectDatabaseHandlerTest {
             databaseConnector.add(project);
         }
 
-        ComponentDatabaseHandler componentHandler = new ComponentDatabaseHandler(url, dbName, attachmentsDbName);
-        handler = new ProjectDatabaseHandler(url, dbName, attachmentsDbName, moderator, componentHandler);
+        ComponentDatabaseHandler componentHandler = new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName);
+        handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName, moderator, componentHandler);
     }
 
     @After
     public void tearDown() throws Exception {
-        TestUtils.deleteDatabase(url, dbName);
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Test

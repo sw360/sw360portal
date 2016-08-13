@@ -20,6 +20,7 @@ import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
+import org.ektorp.http.HttpClient;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,23 +42,23 @@ public class ComponentHandler implements ComponentService.Iface {
     private final AttachmentHandler attachmentHandler;
 
     public ComponentHandler() throws IOException {
-        this(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
+        this(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
     }
 
-    ComponentHandler(String dbUrl, String dbName, String attachmentDbName) throws IOException {
-        handler = new ComponentDatabaseHandler(dbUrl, dbName, attachmentDbName);
-        searchHandler = new ComponentSearchHandler(dbUrl, dbName);
+    ComponentHandler(HttpClient httpClient, String dbName, String attachmentDbName) throws IOException {
+        handler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName);
+        searchHandler = new ComponentSearchHandler(httpClient, dbName);
         attachmentHandler = new AttachmentHandler();
     }
 
     // TODO use dependency injection instead of this constructors mess
     public ComponentHandler(ThriftClients thriftClients) throws IOException {
-        this(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS, thriftClients);
+        this(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS, thriftClients);
     }
 
-    ComponentHandler(String dbUrl, String dbName, String attachmentDbName, ThriftClients thriftClients) throws IOException {
-        handler = new ComponentDatabaseHandler(dbUrl, dbName, attachmentDbName, thriftClients);
-        searchHandler = new ComponentSearchHandler(dbUrl, dbName);
+    ComponentHandler(HttpClient httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws IOException {
+        handler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName, thriftClients);
+        searchHandler = new ComponentSearchHandler(httpClient, dbName);
         attachmentHandler = new AttachmentHandler();
     }
 

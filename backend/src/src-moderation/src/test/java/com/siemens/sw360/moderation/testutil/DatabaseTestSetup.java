@@ -9,6 +9,7 @@
 
 package com.siemens.sw360.moderation.testutil;
 
+import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.moderation.DocumentType;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -24,9 +25,7 @@ public class DatabaseTestSetup {
 
     public static void main(String[] args) throws MalformedURLException {
 
-        //DatabaseTestSetup dbSetup = new DatabaseTestSetup("http://localhost:5984", "sw360db");
-
-        DatabaseConnector db = new DatabaseConnector("http://localhost:5984", "sw360db");
+        DatabaseConnector db = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
 
         Project project = new Project().setName("Test Project");
         project.addToModerators("user1");

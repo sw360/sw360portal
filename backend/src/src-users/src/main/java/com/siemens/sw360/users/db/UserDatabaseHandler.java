@@ -14,6 +14,7 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
+import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -33,9 +34,9 @@ public class UserDatabaseHandler {
     private DatabaseConnector db;
     private UserRepository repository;
 
-    public UserDatabaseHandler(String url, String dbName) throws MalformedURLException {
+    public UserDatabaseHandler(HttpClient httpClient, String dbName) throws MalformedURLException {
         // Create the connector
-        db = new DatabaseConnector(url, dbName);
+        db = new DatabaseConnector(httpClient, dbName);
         repository =  new UserRepository(db);
     }
 

@@ -42,7 +42,7 @@ public class ModerationHandler implements ModerationService.Iface {
     /*private final DocumentDatabaseHandler documentHandler;*/
 
     public ModerationHandler() throws MalformedURLException {
-        handler = new ModerationDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
+        handler = new ModerationDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
         /*documentHandler = new DocumentDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);*/
     }
 

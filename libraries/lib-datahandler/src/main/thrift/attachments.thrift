@@ -90,11 +90,6 @@ struct DatabaseAddress {
 service AttachmentService {
 
     /**
-     * Returns the URL and database name where to upload the attachment
-     * */
-    DatabaseAddress getDatabaseAddress();
-
-    /**
      * Add attachmentContent (= the actual attachment object) object to database,
      * return attachmentContent as written to database if successful
      */

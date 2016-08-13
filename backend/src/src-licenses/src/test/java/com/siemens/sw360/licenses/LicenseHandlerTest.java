@@ -56,7 +56,7 @@ public class LicenseHandlerTest {
     @Before
     public void setUp() throws Exception {
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Create all test entries
         createTestEntries();
@@ -71,7 +71,7 @@ public class LicenseHandlerTest {
     @After
     public void tearDown() throws Exception {
         // Delete the database
-        TestUtils.deleteDatabase(url, dbName);
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Test
@@ -182,7 +182,7 @@ public class LicenseHandlerTest {
         obligations.put("O3", new Obligation().setId("O3").setName("Documentation that represent additional requirements in case of modifications (for example notice file with author's name)"));
         obligations.put("O4", new Obligation().setId("O4").setName("Apache Copyleft effect"));
 
-        DatabaseConnector db = new DatabaseConnector(url, dbName);
+        DatabaseConnector db = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Add obligations to database
         for (Obligation obligation : obligations.values()) {

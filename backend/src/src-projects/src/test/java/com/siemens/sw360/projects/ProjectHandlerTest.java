@@ -37,7 +37,6 @@ import static org.junit.Assert.assertEquals;
 
 public class ProjectHandlerTest {
 
-    private static final String url = DatabaseSettings.COUCH_DB_URL;
     private static final String dbName = DatabaseSettings.COUCH_DB_DATABASE;
     private static final String attachmentDbName = DatabaseSettings.COUCH_DB_ATTACHMENTS;
 
@@ -57,10 +56,10 @@ public class ProjectHandlerTest {
         projects.add(new Project().setId("P3").setName("Project3").setBusinessUnit("AB CD EF").setCreatedBy("user3"));
 
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Prepare the database
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
         for (Project project : projects) {
             databaseConnector.add(project);
         }
@@ -72,7 +71,7 @@ public class ProjectHandlerTest {
     @After
     public void tearDown() throws Exception {
         // Delete the database
-        TestUtils.deleteDatabase(url, dbName);
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Test
@@ -216,7 +215,7 @@ public class ProjectHandlerTest {
     public void testUpdateProject2_1() throws Exception {
         ProjectModerator moderator = Mockito.mock(ProjectModerator.class);
 
-        ProjectDatabaseHandler handler = new ProjectDatabaseHandler(url, dbName, attachmentDbName, moderator, new ComponentDatabaseHandler(url, dbName, attachmentDbName));
+        ProjectDatabaseHandler handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentDbName, moderator, new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentDbName));
         Project project2 = handler.getProjectById("P2", user1);
         project2.setName("Project2new");
 

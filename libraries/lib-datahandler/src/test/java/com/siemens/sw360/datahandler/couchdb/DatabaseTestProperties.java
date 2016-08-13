@@ -11,7 +11,11 @@ package com.siemens.sw360.datahandler.couchdb;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import org.apache.log4j.Logger;
+import org.ektorp.http.HttpClient;
+import org.ektorp.http.StdHttpClient;
 
+import java.net.MalformedURLException;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -26,10 +30,24 @@ public class DatabaseTestProperties {
     public static final String COUCH_DB_URL;
     public static final String COUCH_DB_DATABASE;
 
+    private static final Optional<String> COUCH_DB_USERNAME;
+    private static final Optional<String> COUCH_DB_PASSWORD;
+
     static {
         Properties props = CommonUtils.loadProperties(DatabaseTestProperties.class, PROPERTIES_FILE_PATH);
 
         COUCH_DB_URL = props.getProperty("couch_db_url", "http://localhost:5984");
         COUCH_DB_DATABASE = props.getProperty("couch_db_database", "datahandlertestdb");
+        COUCH_DB_USERNAME = Optional.ofNullable(props.getProperty("couchdb.username", null));
+        COUCH_DB_PASSWORD = Optional.ofNullable(props.getProperty("couchdb.password", null));
+    }
+
+    public static HttpClient getConfiguredHttpClient() throws MalformedURLException {
+        StdHttpClient.Builder httpClientBuilder = new StdHttpClient.Builder().url(COUCH_DB_URL);
+        if(COUCH_DB_USERNAME.isPresent() && COUCH_DB_PASSWORD.isPresent()) {
+            httpClientBuilder.username(COUCH_DB_USERNAME.get());
+            httpClientBuilder.password(COUCH_DB_PASSWORD.get());
+        }
+        return httpClientBuilder.build();
     }
 }
