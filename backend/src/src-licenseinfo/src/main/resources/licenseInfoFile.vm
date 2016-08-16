@@ -1,0 +1,42 @@
+Open Source Software used in the product
+
+This product or device contains, among other things, Open Source Software (see below) components developed by third parties and licensed under an Open Source Software license. These Open Source Software components are protected by copyright. Your rights to use these Open Source Software components are governed by the applicable Open Source Software license conditions. You must comply with these license conditions in order to be entitled to use the Open Source Software as foreseen in the relevant license.
+
+You are permitted to modify proprietary components and to engage in reverse engineering for purposes of debugging such modifications, to the extent such components are linked to libraries licensed under the GNU Lesser General Public License. Your rights to modify proprietary components originating from other parties are governed by the respective third party´s license conditions.
+
+Open Source Software Contained in this Product/Device:
+
+#foreach($compName in $licenseInfoResults.keySet())
+###[[List of Involved Open Source (!!!!! Check Component type !!!!!) Components]]
+$compName#if (${licenseInfoResults.get($compName).status.name()} != "SUCCESS") (No license information available)#end
+
+#end
+
+Copyright Notices
+
+#foreach($compName in $licenseInfoResults.keySet())
+$compName
+
+#set($copyrights = [])
+#if(${licenseInfoResults.get($compName).licenseInfo})
+#set($copyrights = $licenseInfoResults.get($compName).licenseInfo.copyrights)
+#foreach($copyright in ${copyrights})
+$copyright##[[Copyright Holders Of the Open Source Component#1]]
+
+#end
+#end
+
+#end
+....
+
+Open Source Software Licenses
+
+#foreach($license in $licenses)
+##[[List all found Licenses of all Components here ]]
+$license
+
+#end
+Definition of Open Source Software
+
+As used herein, the term “Open Source Software” means any software that is licensed royalty-free (i.e., fees for exercising the licensed rights are prohibited, whereas fees for reimbursement of costs incurred by licensor are generally permitted) under any license terms which allow all users to modify such software. “Open Source Software” as used here may require, as a condition of modification and/or distribution that the source code of such software be made available to all users of the software for purposes of information and modification.
+

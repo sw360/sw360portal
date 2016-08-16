@@ -27,6 +27,7 @@ import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -46,6 +47,10 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -112,8 +117,26 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveLinkedReleases(request, response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
+        } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
+            downloadLicenseInfo(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
+        }
+    }
+
+    private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+
+        String projectId = request.getParameter(PROJECT_ID);
+        try {
+            Project project = projectClient.getProjectById(projectId, user);
+            String fileName = String.format("LicenseInfo-%s-%s.txt", null!=project ? project.getName() : "Unknown-Project",
+                    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now()));
+            PortletResponseUtil.sendFile(request, response, fileName, licenseInfoClient.getLicenseInfoFileForProject(projectId, user).getBytes(), "text/plain");
+        } catch (TException e) {
+            log.error("Error getting LicenseInfo file", e);
         }
     }
 
