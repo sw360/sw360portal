@@ -86,7 +86,8 @@ public class AttachmentContentDownloaderTest {
                 } catch (ExecutionException e) {
                     Throwable futureException = e.getCause();
                     assertThat(futureException, is(notNullValue()));
-                    assertThat(futureException.getMessage(), containsString("timed out"));
+                    assertThat(futureException.getMessage(),
+                            anyOf(containsString("timed out"), containsString("Das Netzwerk ist nicht erreichbar")));
                 }
             } catch (TimeoutException e) {
                 fail("downloader got stuck on a black hole");

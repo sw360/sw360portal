@@ -81,7 +81,7 @@
                 '</select>',
                 </core_rt:when>
                 <core_rt:otherwise>
-                    '<div title="${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId)}"/></div>',
+                    '<div title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId)}'/>"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId)}"/></div>',
                 </core_rt:otherwise>
             </core_rt:choose>
             "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
