@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -92,4 +92,18 @@
             </select>
         </td>
     </tr>
+    <tr>
+        <td width="33%">
+            <sw360:DisplayUserEdit email="${component.createdBy}" id="<%=Component._Fields.CREATED_BY.toString()%>"
+                                   description="Created by" multiUsers="false" readonly="true"/>
+        </td>
+
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${component.moderators}" id="<%=Component._Fields.MODERATORS.toString()%>"
+                                   description="Moderators" multiUsers="true" readonly="false"/>
+        </td>
+        <td width="33%">
+        </td>
+    </tr>
+
 </table>

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -104,6 +104,8 @@
     </form>
 </div>
 
+<jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
+<jsp:include page="/html/utils/includes/searchUsers.jsp" />
 
 <script>
     releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>';
@@ -116,9 +118,16 @@
     function cancel() {
         deleteAttachmentsOnCancel();
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
-        var portletURL = Liferay.PortletURL.createURL(baseUrl)
-                .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
+        var portletURL = Liferay.PortletURL.createURL(baseUrl);
+<core_rt:choose>
+    <core_rt:when test="${not empty component.id}">
+        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
                 .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
+    </core_rt:when>
+    <core_rt:otherwise>
+        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>')
+    </core_rt:otherwise>
+</core_rt:choose>
         window.location = portletURL.toString();
     }
 

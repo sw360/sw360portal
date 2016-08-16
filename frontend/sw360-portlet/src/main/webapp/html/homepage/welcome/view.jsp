@@ -168,8 +168,6 @@
             <li/>
             <b>Moderators</b>
             <li/>
-            <b>Comoderators</b>
-            <li/>
             <b>Contributors</b></ul>
 
         <li/>
@@ -331,7 +329,7 @@
         <li/>
         <b>Mainline State</b>: status of the release if it has been already recorded in "Mainline"
         <li/>
-        <b>Contacts</b>: a pointer (e.g. email address) to a contact person for the release
+        <b>Contributors</b>: a list of contributors to the release
         <li/>
         <b>Moderators</b>: a list of moderators responsible for the component<br/>
     </ul>

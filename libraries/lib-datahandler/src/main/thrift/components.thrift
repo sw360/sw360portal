@@ -177,7 +177,7 @@ struct Release {
 
     // string details
     30: optional string createdBy, // person who created the release
-    32: optional set<string> contacts, // contacts linked to the release
+    32: optional set<string> contributors, // contributors to the release
     34: optional set<string> moderators, // people who can modify the data
     36: optional set<string> subscribers, // List of subscribers
 

@@ -142,13 +142,10 @@
                                    description="Moderators" multiUsers="true"/>
         </td>
         <td width="33%">
-            <sw360:DisplayUserEdit emails="${project.comoderators}" id="<%=Project._Fields.COMODERATORS.toString()%>"
-                                   description="Comoderators" multiUsers="true"/>
-        </td>
-        <td width="33%">
             <sw360:DisplayUserEdit emails="${project.contributors}" id="<%=Project._Fields.CONTRIBUTORS.toString()%>"
                                    description="Contributors" multiUsers="true"/>
         </td>
+        <td width="33%"/>
     </tr>
 
 </table>

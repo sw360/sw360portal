@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,8 @@
  */
 package com.siemens.sw360.datahandler.permissions;
 
+import com.google.common.collect.Sets;
+import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -21,15 +23,18 @@ import static com.siemens.sw360.datahandler.common.CommonUtils.toSingletonSet;
  * Created by bodet on 16/02/15.
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentPermissions extends DocumentPermissions<Component> {
 
     private final Set<String> createdBy;
+    private final Set<String> moderators;
 
     protected ComponentPermissions(Component document, User user) {
         super(document, user);
         //Should depend on permissions of contained releases
         this.createdBy = toSingletonSet(document.createdBy);
+        moderators = Sets.union(toSingletonSet(document.createdBy), CommonUtils.nullToEmptySet(document.moderators));
     }
 
     @Override
@@ -44,12 +49,12 @@ public class ComponentPermissions extends DocumentPermissions<Component> {
 
     @Override
     protected Set<String> getContributors() {
-        return createdBy;
+        return moderators;
     }
 
     @Override
     protected Set<String> getModerators() {
-        return createdBy;
+        return moderators;
     }
 
 }

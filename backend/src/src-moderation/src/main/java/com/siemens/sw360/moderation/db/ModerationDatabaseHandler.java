@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -205,7 +205,6 @@ public class ModerationDatabaseHandler {
         CommonUtils.add(moderators, dbproject.getCreatedBy());
         CommonUtils.add(moderators, dbproject.getProjectResponsible());
         CommonUtils.addAll(moderators, dbproject.getModerators());
-        CommonUtils.addAll(moderators, dbproject.getComoderators());
 
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
 

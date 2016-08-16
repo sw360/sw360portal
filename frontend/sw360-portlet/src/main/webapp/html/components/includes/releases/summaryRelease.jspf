@@ -33,8 +33,8 @@
             <td><sw360:DisplayUserEmail email="${release.createdBy}"/></td>
         </tr>
         <tr>
-            <td>Contacts:</td>
-            <td><sw360:DisplayUserEmailCollection value="${release.contacts}"/></td>
+            <td>Contributors:</td>
+            <td><sw360:DisplayUserEmailCollection value="${release.contributors}"/></td>
         </tr>
         <tr>
             <td>Moderators:</td>

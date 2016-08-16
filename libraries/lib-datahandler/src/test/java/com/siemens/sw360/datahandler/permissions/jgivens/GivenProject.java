@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,9 +18,6 @@ import com.tngtech.jgiven.annotation.Quoted;
 import com.tngtech.jgiven.annotation.ScenarioState;
 import org.mockito.Mockito;
 
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -34,7 +31,6 @@ public class GivenProject extends Stage<GivenProject> {
         CREATED_BY,
         LEAD_ARCHITECT,
         MODERATOR,
-        CO_MODERATOR,
         CONTRIBUTOR,
         PROJECT_RESPONSIBLE
     }
@@ -60,10 +56,6 @@ public class GivenProject extends Stage<GivenProject> {
             case MODERATOR:
                 Mockito.when(project.isSetModerators()).thenReturn(true);
                 Mockito.when(project.getModerators()).thenReturn(ImmutableSet.of(m1));
-                break;
-            case CO_MODERATOR:
-                Mockito.when(project.isSetComoderators()).thenReturn(true);
-                Mockito.when(project.getComoderators()).thenReturn(ImmutableSet.of(m1));
                 break;
             case CONTRIBUTOR:
                 Mockito.when(project.isSetContributors()).thenReturn(true);

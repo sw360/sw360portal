@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -44,9 +44,6 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
                     "    for(var i in doc.moderators) {" +
                     "      emit(doc.moderators[i], doc._id);" +
                     "    }" +
-                    "    for(var i in doc.comoderators) {" +
-                    "      emit(doc.comoderators[i], doc._id);" +
-                    "    }" +
                     "    for(var i in doc.contributors) {" +
                     "      emit(doc.contributors[i], doc._id);" +
                     "    }" +
@@ -63,9 +60,6 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
                     "      acc[doc.leadArchitect]=1;\n" +
                     "    for(var i in doc.moderators) { \n" +
                     "      acc[doc.moderators[i]]=1;\n" +
-                    "    }\n" +
-                    "    for(var i in doc.comoderators) {\n" +
-                    "      acc[doc.comoderators[i]]=1;\n" +
                     "    }\n" +
                     "    for(var i in doc.contributors) {\n" +
                     "      acc[doc.contributors[i]]=1;\n" +

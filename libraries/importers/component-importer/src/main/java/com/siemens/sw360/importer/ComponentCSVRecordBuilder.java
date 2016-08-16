@@ -45,7 +45,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
     private String releaseRepostitoryType;
     private String releaseMainlineState;
     private String releaseClearingState;
-    private String releaseContacts;
+    private String releaseContributors;
     private String releaseModerators;
     private String releaseSubscribers;
     private String releaseLanguages;
@@ -107,7 +107,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
                 releaseName, releaseVersion, releaseDate, CPEId,
                 releaseCreatedOn, releaseCreatedBy, releaseRepostitoryURL,
                 releaseRepostitoryType, releaseMainlineState, releaseClearingState,
-                releaseContacts, releaseModerators, releaseSubscribers,
+                releaseContributors, releaseModerators, releaseSubscribers,
                 releaseLanguages, releaseOperatingSystems, releaseMainLicenseNames,
                 releaseDownloadURL, vendorName, vendorShortname, vendorUrl,
                 cIAL, cIECCN, cIExternalSupplierID, cIAssessorContactPerson,
@@ -147,7 +147,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         releaseRepostitoryType = null;
         releaseMainlineState = null;
         releaseClearingState = null;
-        releaseContacts = null;
+        releaseContributors = null;
         releaseModerators = null;
         releaseSubscribers = null;
         releaseLanguages = null;
@@ -215,7 +215,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         releaseRepostitoryType = record.get(i++);
         releaseMainlineState = record.get(i++);
         releaseClearingState = record.get(i++);
-        releaseContacts = record.get(i++);
+        releaseContributors = record.get(i++);
         releaseModerators = record.get(i++);
         releaseSubscribers = record.get(i++);
         releaseLanguages = record.get(i++);
@@ -357,7 +357,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         setReleaseMainlineState(getEnumStringOrNull(release.getMainlineState()));
         setReleaseClearingState(getEnumStringOrNull(release.getClearingState()));
 
-        setReleaseContacts(joinStrings(release.getContacts()));
+        setReleaseContributors(joinStrings(release.getContributors()));
         setReleaseModerators(joinStrings(release.getModerators()));
         setReleaseSubscribers(joinStrings(release.getSubscribers()));
         setReleaseLanguages(joinStrings(release.getLanguages()));
@@ -456,8 +456,8 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         this.releaseClearingState = releaseClearingState;
     }
 
-    public void setReleaseContacts(String releaseContacts) {
-        this.releaseContacts = releaseContacts;
+    public void setReleaseContributors(String releaseContributors) {
+        this.releaseContributors = releaseContributors;
     }
 
     public void setReleaseModerators(String releaseModerators) {

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,7 +33,7 @@ public class ReleasePermissions extends DocumentPermissions<Release> {
         super(document, user);
 
         moderators = Sets.union(toSingletonSet(document.createdBy), CommonUtils.nullToEmptySet(document.moderators));
-        contributors = Sets.union(moderators, CommonUtils.nullToEmptySet(document.contacts));
+        contributors = Sets.union(moderators, CommonUtils.nullToEmptySet(document.contributors));
 
     }
 

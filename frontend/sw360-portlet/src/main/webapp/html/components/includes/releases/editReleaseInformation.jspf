@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -9,10 +9,8 @@
 
 
 
-<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
 <%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.Component" %>
-<%@ page import="com.siemens.sw360.datahandler.common.CommonUtils" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingState" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.MainlineState" %>
 
@@ -138,8 +136,8 @@
         </td>
 
         <td width="33%">
-            <sw360:DisplayUserEdit emails="${release.contacts}" id="<%=Release._Fields.CONTACTS.toString()%>"
-                                   description="Contacts" multiUsers="true" readonly="false"/>
+            <sw360:DisplayUserEdit emails="${release.contributors}" id="<%=Release._Fields.CONTRIBUTORS.toString()%>"
+                                   description="Contributors" multiUsers="true" readonly="false"/>
         </td>
         <td width="33%">
             <sw360:DisplayUserEdit emails="${release.moderators}" id="<%=Release._Fields.MODERATORS.toString()%>"
