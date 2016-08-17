@@ -97,6 +97,17 @@
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
             <version>${ektorp.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>net.sourceforge.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stephenc.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+            <version>1.3.9-1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
