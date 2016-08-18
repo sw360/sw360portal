@@ -28,10 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -107,6 +104,7 @@ public class FossologyFileHandler {
                 //to avoid race conditions, get the object again
                 Release release = assertNotNull(componentService.getReleaseById(releaseId, user));
                 setFossologyStatus(release, clearingTeam, FossologyStatus.SENT, Integer.toString(fossologyUploadId), attachmentContent.getId());
+                updateReleaseClearingState(release, FossologyStatus.SENT);
                 updateRelease(release, user, componentService);
                 return RequestStatus.SUCCESS;
             }
@@ -144,6 +142,7 @@ public class FossologyFileHandler {
 
     private void updateFossologyStatus(Release release, User user, String clearingTeam, FossologyStatus currentStatus, ComponentService.Iface componentService) throws TException {
         setFossologyStatus(release, clearingTeam, currentStatus);
+        updateReleaseClearingState(release, currentStatus);
         updateRelease(release, user, componentService);
     }
 
@@ -180,6 +179,8 @@ public class FossologyFileHandler {
                     updateInDb = false;
                 }
             }
+            Optional<FossologyStatus> maxStatus = nullToEmptyMap(release.getClearingTeamToFossologyStatus()).values().stream().max(FossologyStatus::compareTo);
+            updateReleaseClearingState(release, maxStatus);
 
             if (updateInDb) {
                 updateRelease(release, user, componentClient);
@@ -189,6 +190,28 @@ public class FossologyFileHandler {
         getReleaseAndUnlockIt(releaseId, user, componentClient); // just unlockit
 
         return release;
+    }
+
+    private void updateReleaseClearingState(Release release, FossologyStatus fossologyStatus) {
+        updateReleaseClearingState(release, Optional.of(fossologyStatus));
+    }
+    private void updateReleaseClearingState(Release release, Optional<FossologyStatus> fossologyStatus) {
+        Optional<ClearingState> newClearingState = mapFossologyStatusToClearingState(fossologyStatus);
+        if (newClearingState.isPresent() && newClearingState.get().compareTo(release.getClearingState()) > 0){
+            release.setClearingState(newClearingState.get());
+        }
+    }
+
+    private Optional<ClearingState> mapFossologyStatusToClearingState(Optional<FossologyStatus> fossologyStatus) {
+        if (fossologyStatus.isPresent()){
+            if (fossologyStatus.get()==FossologyStatus.IN_PROGRESS){
+                return Optional.of(ClearingState.UNDER_CLEARING);
+            } else if (fossologyStatus.get().compareTo(FossologyStatus.SENT) >= 0 &&
+                    fossologyStatus.get().compareTo(FossologyStatus.IN_PROGRESS) < 0){
+                return Optional.of(ClearingState.SENT_TO_FOSSOLOGY);
+            }
+        }
+        return Optional.empty();
     }
 
     protected Release getReleaseAndUnlockIt(String releaseId, User user, ComponentService.Iface componentClient) throws TException {
@@ -228,8 +251,6 @@ public class FossologyFileHandler {
 
         if (!isNullOrEmpty(fossologyUploadId)) {
             release.setFossologyId(fossologyUploadId);
-            release.setClearingState(ClearingState.SENT_TO_FOSSOLOGY);
-
             release.setAttachmentInFossology(attachmentId);
         }
     }

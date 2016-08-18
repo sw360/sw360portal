@@ -410,6 +410,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             } else {
                 release = new Release();
                 release.setComponentId(id);
+                release.setClearingState(ClearingState.NEW_CLEARING);
                 request.setAttribute(RELEASE, release);
                 putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
                 setAttachmentsInRequest(request, release.getAttachments());
@@ -708,6 +709,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 } else {
                     release = new Release();
                     release.setComponentId(component.getId());
+                    release.setClearingState(ClearingState.NEW_CLEARING);
                     ComponentPortletUtils.updateReleaseFromRequest(request, release);
                     releaseId = client.addRelease(release, user);
 

@@ -98,12 +98,10 @@
     <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="clearing_state">Clearing State</label>
-            <select class="toplabelledInput" id="clearing_state"
+            <input id="clearing_state"
                     name="<portlet:namespace/><%=Release._Fields.CLEARING_STATE%>"
-                    style="min-width: 162px; min-height: 28px;">
-
-                <sw360:DisplayEnumOptions type="<%=ClearingState.class%>" selected="${release.clearingState}"/>
-            </select>
+                    type="text" readonly
+                    value="<sw360:DisplayEnum value="${release.clearingState}"/>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="mainline_state">Mainline State</label>
