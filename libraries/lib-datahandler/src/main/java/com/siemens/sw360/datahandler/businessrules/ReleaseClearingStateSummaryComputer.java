@@ -50,7 +50,10 @@ public class ReleaseClearingStateSummaryComputer {
     }
 
     static Void addReleaseWithStates(ReleaseClearingStateSummary summary, ViewedState globalState, ViewedState myTeamState, ViewedState otherTeamState) {
-        if (globalState.present()) { // if the release has its clearing state field set use it and ignore the rest
+        // if the release has its clearing state field set to REPORT_AVAILABLE or APPROVED use it and ignore the rest
+        // otherwise, look at what fossology has to say
+        // if all else fails, default to NEW
+        if (globalState.present() && globalState.compareTo(ViewedState.REPORT_AVAILABLE) >= 0) {
             return addReleaseState(summary, globalState);
         }
         if (myTeamState.present()) { // if my team has something to say ignore the rest

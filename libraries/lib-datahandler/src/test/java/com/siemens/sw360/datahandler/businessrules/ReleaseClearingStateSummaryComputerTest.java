@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,7 @@ import org.junit.Test;
 
 /**
  * @author daniele.fognini@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ReleaseClearingStateSummaryComputerTest extends ScenarioTest<GivenReleasesWithFossologyStatus, WhenComputeClearingState, ThenReleaseClearingState> {
 
@@ -81,17 +82,18 @@ public class ReleaseClearingStateSummaryComputerTest extends ScenarioTest<GivenR
     @Test
     public void test3() throws Exception {
         given()
-                .a_release_with_clearing_status(ClearingState.SENT_TO_FOSSOLOGY)
+                .a_release_with_clearing_status(ClearingState.NEW_CLEARING)
                 .and()
-                .a_release_with_fossology_status_$_for_$_and_$_for_$(
+                .a_release_with_clearing_status_$_and_fossology_status_$_for_$_and_$_for_$(
+                        ClearingState.SENT_TO_FOSSOLOGY,
                         FossologyStatus.SCANNING, CLEARING_TEAM,
                         FossologyStatus.CLOSED, ANOTHER_CLEARING_TEAM);
 
         when().the_clearing_state_is_computed_for(CLEARING_TEAM);
 
         then()
-                .new_releases_should_be(0).and()
-                .under_clearing_should_be(1).and()
+                .new_releases_should_be(1).and()
+                .under_clearing_should_be(0).and()
                 .under_clearing_by_project_team_should_be(1).and()
                 .report_available_should_be(0);
 
@@ -170,7 +172,7 @@ public class ReleaseClearingStateSummaryComputerTest extends ScenarioTest<GivenR
     @Test
     public void test7() throws Exception {
         given()
-                .a_release_with_clearing_status(ClearingState.SENT_TO_FOSSOLOGY);
+                .a_release_with_clearing_status_$_and_fossology_status_$_for_$(ClearingState.SENT_TO_FOSSOLOGY, FossologyStatus.OPEN, ANOTHER_CLEARING_TEAM);
 
         when().the_clearing_state_is_computed_for(CLEARING_TEAM);
 
@@ -229,7 +231,7 @@ public class ReleaseClearingStateSummaryComputerTest extends ScenarioTest<GivenR
     }
 
     @Test
-    public void the_clearing_moves_to_the_right_following_clearing_team_but_is_reset_by_the_global_release_clearing_state() {
+    public void the_clearing_moves_to_the_right_following_clearing_team_but_is_overwritten_by_global_clearing_state_above_under_clearing() {
         given().a_new_release();
 
         when().the_clearing_state_is_computed_for(CLEARING_TEAM);
@@ -237,18 +239,18 @@ public class ReleaseClearingStateSummaryComputerTest extends ScenarioTest<GivenR
         then().new_releases_should_be(1);
 
         when().the_release_is_sent_for_clearing_to(CLEARING_TEAM);
-        then().new_releases_should_be(0).and().under_clearing_by_project_team_should_be(1);
+        then().new_releases_should_be(0).and().under_clearing_by_project_team_should_be(1).and().report_available_should_be(0).and().approved_should_be(0);
 
         when().the_release_is_sent_for_clearing_to(ANOTHER_CLEARING_TEAM);
-        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(1);
+        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(1).and().report_available_should_be(0).and().approved_should_be(0);
 
-        when().team_$_sets_fossology_status_to(CLEARING_TEAM, FossologyStatus.CLOSED);
-        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(0).and().report_available_should_be(1);
+//        when().team_$_sets_fossology_status_to(CLEARING_TEAM, FossologyStatus.CLOSED);
+//        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(0).and().report_available_should_be(1);
+//
+        when().the_release_clearing_state_is_set_to(ClearingState.REPORT_AVAILABLE);
+        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(0).and().report_available_should_be(1).and().approved_should_be(0);
 
-        when().the_release_clearing_state_is_set_to(ClearingState.UNDER_CLEARING);
-        then().under_clearing_should_be(1).and().under_clearing_by_project_team_should_be(0).and().report_available_should_be(0);
-
-        when().the_release_clearing_state_is_set_to(ClearingState.NEW_CLEARING);
-        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(0).and().report_available_should_be(1);
+        when().the_release_clearing_state_is_set_to(ClearingState.APPROVED);
+        then().under_clearing_should_be(0).and().under_clearing_by_project_team_should_be(0).and().report_available_should_be(0).and().approved_should_be(1);
     }
 }
