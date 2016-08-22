@@ -27,7 +27,6 @@
         <module>commonIO</module>
         <module>importers</module>
         <module>exporters</module>
-        <module>bdp-access-proxy</module>
     </modules>
 
     <build>
