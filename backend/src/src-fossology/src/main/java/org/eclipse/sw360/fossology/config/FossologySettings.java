@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2015.
+ * With modifications by Bosch Software Innovations GmbH, 2016
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -55,17 +57,8 @@ public class FossologySettings {
     }
 
     private static byte[] loadKeyFile(String keyFilePath) {
-        byte[] fossologyPrivateKey = null;
-        try {
-            try (InputStream keyFileStream = FossologySettings.class.getResourceAsStream(keyFilePath)) {
-                if (keyFileStream == null)
-                    throw new IOException("cannot open " + keyFilePath);
-                fossologyPrivateKey = IOUtils.toByteArray(keyFileStream);
-            }
-        } catch (IOException e) {
-            log.error("Cannot load private key", e);
-        }
-        return fossologyPrivateKey;
+        return CommonUtils.loadResource(FossologySettings.class, keyFilePath)
+                .orElse(null);
     }
 
     public int getFossologyConnectionTimeout() {

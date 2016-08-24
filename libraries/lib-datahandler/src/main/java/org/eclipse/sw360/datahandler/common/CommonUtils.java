@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016.
+ * With modifications by Bosch Software Innovations GmbH, 2016
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +25,7 @@ import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
@@ -503,6 +506,35 @@ public class CommonUtils {
             }
         }
         return props;
+    }
+
+    public static Optional<byte[]> loadResource(Class<?> clazz, String resourceFilePath) {
+        return loadResource(clazz, resourceFilePath, true);
+    }
+
+    public static Optional<byte[]> loadResource(Class<?> clazz, String resourceFilePath, boolean useSystemResourses) {
+        if(useSystemResourses) {
+            File systemResourceFile = new File(SYSTEM_CONFIGURATION_PATH, resourceFilePath);
+            if(systemResourceFile.exists()){
+                try (InputStream resourceAsStream = new FileInputStream(systemResourceFile.getPath())) {
+                    if (resourceAsStream == null){
+                        throw new IOException("cannot open " + systemResourceFile.getPath());
+                    }
+                    return Optional.of(IOUtils.toByteArray(resourceAsStream));
+                } catch (IOException e) {
+                    getLogger(clazz).error("Error opening resources " + systemResourceFile.getPath() + ".", e);
+                }
+            }
+        }
+
+        try (InputStream resourceAsStream = clazz.getResourceAsStream(resourceFilePath)) {
+            if (resourceAsStream == null)
+                throw new IOException("cannot open " + resourceFilePath);
+            return Optional.of(IOUtils.toByteArray(resourceAsStream));
+        } catch (IOException e) {
+            getLogger(clazz).error("Error opening resources " + resourceFilePath + ".", e);
+        }
+        return Optional.empty();
     }
 
     public static <T> T getFirst(Iterable<T> iterable) {
