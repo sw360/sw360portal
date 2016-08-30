@@ -179,7 +179,10 @@ public class FossologyFileHandler {
                     updateInDb = false;
                 }
             }
-            Optional<FossologyStatus> maxStatus = nullToEmptyMap(release.getClearingTeamToFossologyStatus()).values().stream().max(FossologyStatus::compareTo);
+            Optional<FossologyStatus> maxStatus = nullToEmptyMap(release.getClearingTeamToFossologyStatus())
+                    .values()
+                    .stream()
+                    .max(FossologyStatus::compareTo);
             updateReleaseClearingState(release, maxStatus);
 
             if (updateInDb) {
@@ -196,20 +199,18 @@ public class FossologyFileHandler {
         updateReleaseClearingState(release, Optional.of(fossologyStatus));
     }
     private void updateReleaseClearingState(Release release, Optional<FossologyStatus> fossologyStatus) {
-        Optional<ClearingState> newClearingState = mapFossologyStatusToClearingState(fossologyStatus);
+        Optional<ClearingState> newClearingState = fossologyStatus.flatMap(this::mapFossologyStatusToClearingState);
         if (newClearingState.isPresent() && newClearingState.get().compareTo(release.getClearingState()) > 0){
             release.setClearingState(newClearingState.get());
         }
     }
 
-    private Optional<ClearingState> mapFossologyStatusToClearingState(Optional<FossologyStatus> fossologyStatus) {
-        if (fossologyStatus.isPresent()){
-            if (fossologyStatus.get()==FossologyStatus.IN_PROGRESS){
-                return Optional.of(ClearingState.UNDER_CLEARING);
-            } else if (fossologyStatus.get().compareTo(FossologyStatus.SENT) >= 0 &&
-                    fossologyStatus.get().compareTo(FossologyStatus.IN_PROGRESS) < 0){
-                return Optional.of(ClearingState.SENT_TO_FOSSOLOGY);
-            }
+    private Optional<ClearingState> mapFossologyStatusToClearingState(FossologyStatus fossologyStatus) {
+        if (fossologyStatus==FossologyStatus.IN_PROGRESS){
+            return Optional.of(ClearingState.UNDER_CLEARING);
+        } else if (fossologyStatus.compareTo(FossologyStatus.SENT) >= 0 &&
+                fossologyStatus.compareTo(FossologyStatus.IN_PROGRESS) < 0){
+            return Optional.of(ClearingState.SENT_TO_FOSSOLOGY);
         }
         return Optional.empty();
     }
