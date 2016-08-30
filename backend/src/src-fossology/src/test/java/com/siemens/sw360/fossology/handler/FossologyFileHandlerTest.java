@@ -109,6 +109,7 @@ public class FossologyFileHandlerTest {
 
         when(release.getFossologyId()).thenReturn("41");
         when(release.isSetFossologyId()).thenReturn(true);
+        when(release.getClearingState()).thenReturn(ClearingState.SENT_TO_FOSSOLOGY);
 
         spyGetFilledSourceAttachment(filledAttachment);
 
@@ -172,6 +173,7 @@ public class FossologyFileHandlerTest {
 
         final InputStream inputStream = mock(InputStream.class);
         when(release.isSetFossologyId()).thenReturn(false);
+        when(release.getClearingState()).thenReturn(ClearingState.NEW_CLEARING);
         when(attachmentConnector.getAttachmentStream(attachmentContent)).thenReturn(inputStream);
         when(fossologyUploader.uploadToFossology(inputStream, attachmentContent, clearingTeam)).thenReturn(1);
 
@@ -441,7 +443,6 @@ public class FossologyFileHandlerTest {
         verify(release).setClearingTeamToFossologyStatus(anyMapOf(String.class, FossologyStatus.class));
 
         verify(release).setFossologyId("13");
-        verify(release).setClearingState(ClearingState.SENT_TO_FOSSOLOGY);
         verify(release).setAttachmentInFossology("14");
     }
 

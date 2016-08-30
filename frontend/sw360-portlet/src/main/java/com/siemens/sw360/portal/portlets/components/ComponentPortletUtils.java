@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,11 +8,8 @@
  */
 package com.siemens.sw360.portal.portlets.components;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -27,7 +24,6 @@ import org.apache.thrift.TException;
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +64,9 @@ public abstract class ComponentPortletUtils {
                     if (!release.isSetReleaseIdToRelationship())
                         release.setReleaseIdToRelationship(new HashMap<String, ReleaseRelationship>());
                     updateLinkedReleaesFromRequest(request, release.releaseIdToRelationship);
+                    break;
+                case CLEARING_STATE:
+                    // skip setting CLEARING_STATE. it is supposed to be set only programmatically, never from user input.
                     break;
                 default:
                     setFieldValue(request, release, field);
