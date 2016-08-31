@@ -16,86 +16,96 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Text;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Created by heydenrb on 04.08.16.
- */
 public class XhtmlGeneratorTest {
-    Collection<LicenseInfoParsingResult> lipresults;
-    Collection<LicenseInfoParsingResult> lipresults2;
-    Collection<LicenseInfoParsingResult> lipresults3;
-    Collection<LicenseInfoParsingResult> lipresultsEmpty;
-    XhtmlGenerator xhtmlGenerator;
+    static Collection<LicenseInfoParsingResult> lipresults;
+    static Collection<LicenseInfoParsingResult> lipresults2;
+    static Collection<LicenseInfoParsingResult> lipresults3;
+    static Collection<LicenseInfoParsingResult> lipresultsEmpty;
 
-    @Before
-    public void setUp() throws Exception {
+    static String xmlString;
+    static String xmlString2;
+    static String xmlString3;
+    static String xmlStringEmpty;
+
+    static Document document;
+    static Document document2;
+    static Document document3;
+    static Document documentEmpty;
+
+    static XhtmlGenerator xhtmlGenerator;
+
+    static String cr = "cr";
+    static String cr1 = "cr1";
+    static String cr2 = "cr2";
+    static String CR1 = "CR1";
+    static String CR2 = "CR2";
+    static String l1 = "l1";
+    static String l2 = "l2";
+    static String L1 = "L1";
+    static String L2 = "L2";
+    static String t1 = "first row\nsecond row";
+    static String T1 = "T1";
+    static String T2 = "T2";
+    static String releaseName = "myrelease";
+    static String vendorName = "vendor";
+    static String version1 = "1";
+    static String version2 = "2";
+
+
+    @BeforeClass
+    public static void setUp() throws Exception {
         //first LicenseInfoParsingResult
-        LicenseInfoParsingResult lipresult = new LicenseInfoParsingResult();
-
         LicenseInfo li = new LicenseInfo();
-        Set<String> copyrights = new HashSet<String>(Arrays.asList("cr1", "cr2"));
+        Set<String> copyrights = new HashSet<String>(Arrays.asList(cr1, cr2));
         li.setCopyrights(copyrights);
 
-        LicenseNameWithText lnt1 = new LicenseNameWithText().setLicenseName("l1").setLicenseText("t1");
-        LicenseNameWithText lnt2 = new LicenseNameWithText().setLicenseName("l1").setLicenseText("t1");
+        LicenseNameWithText lnt1 = new LicenseNameWithText().setLicenseName(l1).setLicenseText(t1);
+        LicenseNameWithText lnt2 = new LicenseNameWithText().setLicenseName(l2).setLicenseText(t1);
         Set<LicenseNameWithText> licenseNameWithTexts = new HashSet<>(Arrays.asList(lnt1, lnt2));
 
         li.setLicenseNamesWithTexts(licenseNameWithTexts);
 
-        lipresult.setLicenseInfo(li);
-        lipresult.setName("myrelease");
-        lipresult.setVersion("1");
-        lipresult.setVendor("vendor");
+        LicenseInfoParsingResult lipresult = generateLIPResult(li, releaseName, version1, vendorName);
         lipresults = Collections.singletonList(lipresult);
 
         //second LicenseInfoParsingResult
-        LicenseInfoParsingResult lipresult2 = new LicenseInfoParsingResult();
-
         LicenseInfo li2 = new LicenseInfo();
-        Set<String> copyrights2 = new HashSet<String>(Arrays.asList("CR1", "CR2"));
+        Set<String> copyrights2 = new HashSet<String>(Arrays.asList(CR1, CR2));
         li2.setCopyrights(copyrights2);
 
-        LicenseNameWithText lnt11 = new LicenseNameWithText().setLicenseName("L1").setLicenseText("T1");
-        LicenseNameWithText lnt12 = new LicenseNameWithText().setLicenseName("L1").setLicenseText("T2");
+        LicenseNameWithText lnt11 = new LicenseNameWithText().setLicenseName(L1).setLicenseText(T1);
+        LicenseNameWithText lnt12 = new LicenseNameWithText().setLicenseName(L2).setLicenseText(T2);
         Set<LicenseNameWithText> licenseNameWithTexts2 = new HashSet<>(Arrays.asList(lnt11, lnt12));
 
         li2.setLicenseNamesWithTexts(licenseNameWithTexts2);
 
-        lipresult2.setLicenseInfo(li2);
-        lipresult2.setName("myrelease");
-        lipresult2.setVersion("2");
-        lipresult2.setVendor("vendor");
-
+        LicenseInfoParsingResult lipresult2 = generateLIPResult(li2, releaseName, version2, vendorName);
         lipresults2 = Arrays.asList(lipresult,lipresult2);
 
         //LicenseInfoParsingResult with a single copyright and license
-        LicenseInfoParsingResult lipresult3 = new LicenseInfoParsingResult();
-
         LicenseInfo li3 = new LicenseInfo();
-        Set<String> copyrights3 = new HashSet<String>(Arrays.asList("cr"));
+        Set<String> copyrights3 = new HashSet<String>(Arrays.asList(cr));
         li3.setCopyrights(copyrights3);
 
-        LicenseNameWithText lnt31 = new LicenseNameWithText().setLicenseName("l1").setLicenseText("t1");
+        LicenseNameWithText lnt31 = new LicenseNameWithText().setLicenseName(l1).setLicenseText(t1);
         Set<LicenseNameWithText> licenseNameWithTexts3 = new HashSet<>(Arrays.asList(lnt31));
 
         li3.setLicenseNamesWithTexts(licenseNameWithTexts3);
 
-        lipresult3.setLicenseInfo(li3);
-        lipresult3.setName("myrelease");
-        lipresult3.setVersion("1");
-        lipresult3.setVendor("vendor");
+        LicenseInfoParsingResult lipresult3 = generateLIPResult(li3, releaseName, version1, vendorName);
         lipresults3 = Collections.singletonList(lipresult3);
 
         //LicenseInfoParsingResult with a no copyright and license
-        LicenseInfoParsingResult lipresultEmpty = new LicenseInfoParsingResult();
-
         LicenseInfo liEmpty = new LicenseInfo();
         Set<String> copyrightsEmpty = new HashSet();
         liEmpty.setCopyrights(copyrightsEmpty);
@@ -104,52 +114,85 @@ public class XhtmlGeneratorTest {
 
         liEmpty.setLicenseNamesWithTexts(licenseNameWithTextsEmpty);
 
-        lipresultEmpty.setLicenseInfo(liEmpty);
-        lipresultEmpty.setName("myrelease");
-        lipresultEmpty.setVersion("1");
-        lipresultEmpty.setVendor("vendor");
+        LicenseInfoParsingResult lipresultEmpty = generateLIPResult(liEmpty, releaseName, version1, vendorName);
         lipresultsEmpty = Collections.singletonList(lipresultEmpty);
 
         xhtmlGenerator = new XhtmlGenerator();
+
+        xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject");
+        xmlString2 = xhtmlGenerator.generateOutputFile(lipresults2, "myproject");
+        xmlString3 = xhtmlGenerator.generateOutputFile(lipresults3, "myproject");
+        xmlStringEmpty = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject");
+
+        document = DocumentHelper.parseText(xmlString);
+        document2 = DocumentHelper.parseText(xmlString2);
+        document3 = DocumentHelper.parseText(xmlString3);
+        documentEmpty = DocumentHelper.parseText(xmlStringEmpty);
+
+    }
+
+    private static LicenseInfoParsingResult generateLIPResult(LicenseInfo info, String releaseName, String version, String vendor){
+        return new LicenseInfoParsingResult()
+                .setLicenseInfo(info)
+                .setName(releaseName)
+                .setVendor(vendor)
+                .setVersion(version);
     }
 
     @Test
     public void testGenerateOutputFile_EmptyCopyrightAndLicense() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String copyrights = findCopyrights(document, "vendor_myrelease_1");
-        String licenses = findLicenses(document,"vendor_myrelease_1");
-        assertThat(copyrights.equals(""), is(true));
-        assertThat(licenses.equals(""), is(true));
+        String copyrights = findCopyrights(documentEmpty, releaseNameString(vendorName, releaseName, version1));
+        String licenses = findLicenses(documentEmpty,releaseNameString(vendorName, releaseName, version1));
+        assertThat(copyrights, is(""));
+        assertThat(licenses, is(""));
+    }
+
+    private String releaseNameString(String vName, String rName, String version) {
+        return vName + "_" + rName + "_" + version;
     }
 
     @Test
     public void testGenerateOutputFile_parseSingleCopyright() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresults3, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String copyrights = findCopyrights(document, "vendor_myrelease_1");
-        assertThat(copyrights.equals("\ncr"), is(true));
+        String copyrights = findCopyrights(document3, releaseNameString(vendorName, releaseName, version1));
+        assertThat(copyrights, is("\n"+ cr));
     }
 
     @Test
     public void testGenerateOutputFile_parseCopyrights() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String copyrights = findCopyrights(document, "vendor_myrelease_1");
-        assertThat(copyrights.contains("cr1"), is(true));
-        assertThat(copyrights.contains("cr2"), is(true));
+        String copyrights = findCopyrights(document, releaseNameString(vendorName, releaseName, version1));
+        assertThat(copyrights, containsString(cr1));
+        assertThat(copyrights, containsString(cr2));
     }
 
     @Test
     public void testGenerateOutputFile_parseCopyrightsFromTwoReleases() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresults2, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String copyrights = findCopyrights(document, "vendor_myrelease_1");
-        assertThat(copyrights.contains("cr1"), is(true));
-        assertThat(copyrights.contains("cr2"), is(true));
-        copyrights = findCopyrights(document, "vendor_myrelease_2");
-        assertThat(copyrights.contains("CR1"), is(true));
-        assertThat(copyrights.contains("CR2"), is(true));
+        String copyrights = findCopyrights(document2, releaseNameString(vendorName, releaseName, version1));
+        assertThat(copyrights, containsString(cr1));
+        assertThat(copyrights.contains(cr2), is(true));
+        copyrights = findCopyrights(document2, releaseNameString(vendorName, releaseName, version2));
+        assertThat(copyrights, containsString(CR1));
+        assertThat(copyrights, containsString(CR2));
+    }
+
+    @Test
+    public void testGenerateOutputFile_parseSingleLicense() throws Exception {
+        String licenses = findLicenses(document3,releaseNameString(vendorName, releaseName, version1));
+        assertThat(licenses, is(t1 + "\n"));
+    }
+
+    @Test
+    public void testGenerateOutputFile_parseLicenses() throws Exception {
+        String licenses = findLicenses(document, releaseNameString(vendorName, releaseName, version1));
+        assertThat(licenses, containsString(t1));
+    }
+
+    @Test
+    public void testGenerateOutputFile_parseLicensesFromTwoReleases() throws Exception {
+        String licenses = findLicenses(document2, releaseNameString(vendorName, releaseName, version1));
+        assertThat(licenses.contains(t1), is(true));
+        licenses = findLicenses(document2, releaseNameString(vendorName, releaseName, version2));
+        assertThat(licenses, containsString(T1));
+        assertThat(licenses, containsString(T2));
     }
 
     private String findCopyrights(Document document, String releaseNameString) {
@@ -165,32 +208,6 @@ public class XhtmlGeneratorTest {
         return result.toString();
     }
 
-    @Test
-    public void testGenerateOutputFile_parseSingleLicense() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresults3, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String licenses = findLicenses(document, "vendor_myrelease_1");
-        assertThat(licenses.equals("\nt1\n"), is(true));
-    }
-    @Test
-    public void testGenerateOutputFile_parseLicenses() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String licenses = findLicenses(document, "vendor_myrelease_1");
-        assertThat(licenses.contains("t1"), is(true));
-    }
-
-    @Test
-    public void testGenerateOutputFile_parseLicensesFromTwoReleases() throws Exception {
-        String xmlString = xhtmlGenerator.generateOutputFile(lipresults2, "myproject");
-        Document document = DocumentHelper.parseText(xmlString);
-        String licenses = findLicenses(document, "vendor_myrelease_1");
-        assertThat(licenses.contains("t1"), is(true));
-        licenses = findLicenses(document, "vendor_myrelease_2");
-        assertThat(licenses.contains("T1"), is(true));
-        assertThat(licenses.contains("T2"), is(true));
-    }
-
     private String findLicenses(Document document, String releaseNameString) {
         List list = document.selectNodes("//*[local-name()='li'][@id='"+ releaseNameString + "']/*[local-name()='ul'][@class='licenseEntries']");
         StringBuffer result = new StringBuffer();
@@ -201,8 +218,9 @@ public class XhtmlGeneratorTest {
                 Element liElement = (Element) liObject;
                 String licenseEntryId = liElement.attribute("id").getValue();
                 String licenseTextId = licenseEntryId.replace("licenseEntry","licenseText");
-                String licenseText = ((Text) document.selectNodes("//*[local-name()='pre'][@id='"+ licenseTextId+ "']/text()").get(0)).getStringValue();
-                result.append(licenseText);
+                List licenseTexts = document.selectNodes("//*[local-name()='pre'][@id='" + licenseTextId + "']/text()");
+                Object licenseText = licenseTexts.stream().map(l -> ((Text) l).getStringValue()).reduce("", (BinaryOperator<String>)(l1, l2)-> (String) (l1+l2));
+                result.append(((String) licenseText).trim());
                 result.append("\n");
             }
         }
