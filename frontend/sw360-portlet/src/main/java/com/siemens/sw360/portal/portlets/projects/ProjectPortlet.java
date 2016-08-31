@@ -22,6 +22,7 @@ import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
@@ -79,6 +80,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project._Fields.NAME,
             Project._Fields.STATE,
             Project._Fields.TAG);
+
+    private static final Visibility DEFAULT_VISIBILITY = Visibility.BUISNESSUNIT_AND_MODERATORS;
 
     @Override
     protected Set<Attachment> getAttachments(String documentId, String documentType, User user) {
@@ -572,6 +575,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         } else {
             project = new Project();
             project.setBusinessUnit(user.getDepartment());
+            project.setVisbility(getDefaultVisibility());
             request.setAttribute(PROJECT, project);
             setAttachmentsInRequest(request, project.getAttachments());
             try {
@@ -607,6 +611,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             } else {
                 Project project = new Project();
                 project.setBusinessUnit(user.getDepartment());
+                project.setVisbility(getDefaultVisibility());
                 setAttachmentsInRequest(request, project.getAttachments());
 
                 request.setAttribute(PROJECT, project);
@@ -631,6 +636,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             projects = Collections.emptySet();
         }
         return projects;
+    }
+
+    private Visibility getDefaultVisibility() {
+        return DEFAULT_VISIBILITY;
     }
 
     //! Actions
