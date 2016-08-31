@@ -42,9 +42,7 @@
                 <td colspan="2" rowspan="3" class="lessPadding">
                     Type: <sw360:DisplayEnum value="${attachment.attachmentType}"/> <br/>
                     Status: <sw360:DisplayEnum value="${attachment.checkStatus}"/> <br/>
-                    SHA1-Checksum: <input class="checksumInput" readonly="true"
-                           type="text"
-                           value="${attachment.sha1}">
+                    SHA1-Checksum: <span class="hashvalue">${attachment.sha1}</span>
                 </td>
             </tr>
             <tr id="attachmentRow3${loop.count}" >
