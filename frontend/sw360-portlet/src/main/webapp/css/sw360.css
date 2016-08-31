@@ -321,3 +321,8 @@ input[readonly].clickable {
 .release-list-entry-element input {
     width: 100%;
 }
+
+.hashvalue {
+    word-break: break-all;
+    font-family: monospace;
+}
