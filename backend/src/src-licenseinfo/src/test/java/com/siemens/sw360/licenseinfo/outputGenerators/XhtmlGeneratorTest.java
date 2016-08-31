@@ -13,12 +13,16 @@ import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Text;
+import org.dom4j.io.SAXReader;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.*;
 import java.util.function.BinaryOperator;
 
@@ -124,11 +128,47 @@ public class XhtmlGeneratorTest {
         xmlString3 = xhtmlGenerator.generateOutputFile(lipresults3, "myproject");
         xmlStringEmpty = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject");
 
-        document = DocumentHelper.parseText(xmlString);
-        document2 = DocumentHelper.parseText(xmlString2);
-        document3 = DocumentHelper.parseText(xmlString3);
-        documentEmpty = DocumentHelper.parseText(xmlStringEmpty);
+        generateDocumentsFromXml();
+    }
 
+    private static void generateDocumentsFromXml() throws Exception{
+
+        EntityResolver resolver = new EntityResolver() {
+            public InputSource resolveEntity(String publicId, String systemId) {
+                if ( publicId.equals( "-//W3C//DTD XHTML 1.0 Strict//EN" ) ) {
+                    InputStream in = getClass().getResourceAsStream(
+                            "/xhtml1-strict.dtd"
+                    );
+                    return new InputSource( in );
+                }
+                if(publicId.equals("-//W3C//ENTITIES Latin 1 for XHTML//EN")){
+                    InputStream in = getClass().getResourceAsStream(
+                            "/xhtml-lat1.ent"
+                    );
+                    return new InputSource( in );
+                }
+                if(publicId.equals("-//W3C//ENTITIES Symbols for XHTML//EN")){
+                    InputStream in = getClass().getResourceAsStream(
+                            "/xhtml-symbol.ent"
+                    );
+                    return new InputSource( in );
+                }
+                if(publicId.equals("-//W3C//ENTITIES Special for XHTML//EN")){
+                    InputStream in = getClass().getResourceAsStream(
+                            "/xhtml-special.ent"
+                    );
+                    return new InputSource( in );
+                }
+                return null;
+            }
+        };
+
+        SAXReader reader = new SAXReader();
+        reader.setEntityResolver(resolver);
+        document = reader.read(new InputSource(new StringReader(xmlString)));
+        document2 = reader.read(new InputSource(new StringReader(xmlString2)));
+        document3 = reader.read(new InputSource(new StringReader(xmlString3)));
+        documentEmpty = reader.read(new InputSource(new StringReader(xmlStringEmpty)));
     }
 
     private static LicenseInfoParsingResult generateLIPResult(LicenseInfo info, String releaseName, String version, String vendor){
