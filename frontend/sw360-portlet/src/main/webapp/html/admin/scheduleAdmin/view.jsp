@@ -8,6 +8,8 @@
   --%>
 
 <%@include file="/html/init.jsp" %>
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
 <portlet:defineObjects/>

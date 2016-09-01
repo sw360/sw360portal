@@ -784,8 +784,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     SessionMessages.add(request, "request_processed", successMsg);
                     response.setRenderParameter(PROJECT_ID, id);
                 } else {
-                    String successMsg = "Project was not added successfully";
-                    SessionMessages.add(request, "request_processed", successMsg);
+                    setSW360SessionError(request, ErrorMessages.PROJECT_NOT_ADDED);
                 }
                 response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
             }

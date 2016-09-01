@@ -9,6 +9,8 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 
 <%@include file="/html/init.jsp" %>
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 

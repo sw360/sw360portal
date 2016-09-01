@@ -9,7 +9,8 @@
   --%>
 
 <%@include file="/html/init.jsp" %>
-
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.Component" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>

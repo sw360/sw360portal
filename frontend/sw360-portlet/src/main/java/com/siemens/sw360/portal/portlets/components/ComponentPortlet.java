@@ -19,14 +19,9 @@ import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.DocumentState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.VerificationState;
-import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
+import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -759,8 +754,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     SessionMessages.add(request, "request_processed", successMsg);
                     response.setRenderParameter(COMPONENT_ID, componentId);
                 } else {
-                    String failMsg = "Component was not added successfully";
-                    SessionMessages.add(request, "request_processed", failMsg);
+                    setSW360SessionError(request, ErrorMessages.COMPONENT_NOT_ADDED);
                 }
                 response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
             }
@@ -801,16 +795,15 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     releaseId = client.addRelease(release, user);
 
                     if (releaseId != null) {
+                        response.setRenderParameter(RELEASE_ID, releaseId);
                         String successMsg = "Release " + printName(release) + " added successfully";
                         SessionMessages.add(request, "request_processed", successMsg);
                     } else {
-                        String successMsg = "Release was not added successfully";
-                        SessionMessages.add(request, "request_processed", successMsg);
+                        setSW360SessionError(request, ErrorMessages.RELEASE_NOT_ADDED);
                     }
 
                     response.setRenderParameter(PAGENAME, PAGENAME_EDIT_RELEASE);
                     response.setRenderParameter(COMPONENT_ID, request.getParameter(COMPONENT_ID));
-                    response.setRenderParameter(RELEASE_ID, releaseId);
                 }
             } catch (TException e) {
                 log.error("Error fetching release from backend!", e);

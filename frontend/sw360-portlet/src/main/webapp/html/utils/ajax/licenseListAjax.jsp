@@ -10,8 +10,6 @@
 
 <%@include file="/html/init.jsp" %>
 
-<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
-
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 

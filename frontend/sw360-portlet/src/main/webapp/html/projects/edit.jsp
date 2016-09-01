@@ -8,7 +8,8 @@
   --%>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@include file="/html/init.jsp"%>
-
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
@@ -36,6 +37,8 @@
 <portlet:actionURL var="deleteURL" name="delete">
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/>
 </portlet:actionURL>
+
+
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">

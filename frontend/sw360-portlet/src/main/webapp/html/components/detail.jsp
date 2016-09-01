@@ -8,9 +8,8 @@
   --%>
 
 <%@include file="/html/init.jsp" %>
-<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
-
-
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
