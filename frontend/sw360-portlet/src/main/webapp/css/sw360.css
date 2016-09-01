@@ -335,6 +335,13 @@ input[readonly].clickable {
     font-family: monospace;
 }
 
+.formatSelect {
+   width: 20em !important;
+   height: 25px !important;
+   margin-bottom: 0 !important;
+    padding:0 !important;
+}
+
 .notificationBulletSpan {
     min-width: 25px;
     height: 25px;

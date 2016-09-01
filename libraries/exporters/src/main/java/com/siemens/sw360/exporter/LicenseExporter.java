@@ -9,17 +9,17 @@
  */
 package com.siemens.sw360.exporter;
 
-import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.commonIO.ConvertRecord;
+import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseType;
 import org.apache.log4j.Logger;
-
-import static com.siemens.sw360.commonIO.ConvertRecord.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static com.siemens.sw360.commonIO.ConvertRecord.licenseSerializer;
 
 /**
  * Created by bodet on 10/02/15.
@@ -81,8 +81,10 @@ public class LicenseExporter extends ExcelExporter<License> {
         }
 
         @Override
-        public List<String> makeRow(License license) {
-            return formatRow(converter.transformer().apply(license));
+        public ExcelSubTable makeRows(License license) {
+            return new ExcelSubTable(
+                    formatRow(converter.transformer().apply(license))
+            );
         }
     }
 

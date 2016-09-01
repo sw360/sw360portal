@@ -11,9 +11,7 @@ package com.siemens.sw360.datahandler.common;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimaps;
+import com.google.common.collect.*;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.components.*;
@@ -27,6 +25,7 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +36,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.transform;
+import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractId;
 import static org.apache.log4j.Logger.getLogger;
 
@@ -323,5 +324,26 @@ public class SW360Utils {
             idToLicense = Collections.emptyMap();
         }
         return idToLicense;
+    }
+
+    public static String fieldValueAsString(Object fieldValue) {
+        if (fieldValue instanceof TEnum) {
+            return nullToEmpty(ThriftEnumUtils.enumToString((TEnum) fieldValue));
+        }
+        if (fieldValue instanceof String) {
+            return nullToEmpty((String) fieldValue);
+        }
+        if (fieldValue instanceof Map) {
+            List<String> mapEntriesAsStrings = ((Map<String, Object>) fieldValue).entrySet().stream().map(e -> e.getKey() + " : " + e.getValue().toString()).collect(Collectors.toList());
+            return joinStrings(mapEntriesAsStrings);
+        }
+        if (fieldValue instanceof Iterable){
+            return joinStrings((Iterable<String>) fieldValue);
+        }
+        return fieldValue.toString();
+    }
+
+    public static String displayNameFor(String name, Map<String, String> nameToDisplayName){
+        return nameToDisplayName.containsKey(name)? nameToDisplayName.get(name) : name;
     }
 }

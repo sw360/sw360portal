@@ -72,8 +72,6 @@
     <span class="pull-right">
         <input type="button" id="importbutton" class="addButton"
                value="Import Projects" onclick="window.location.href='/group/guest/import/'" />
-        <input type="button" id="exportbutton" class="addButton"
-               value="Export Projects" />
         <input type="button" class="addButton" onclick="window.location.href='<%=addProjectURL%>'" value="Add Project" />
     </span>
 </p>
@@ -178,6 +176,14 @@
         </tfoot>
     </table>
 </div>
+
+<span class="pull-right">
+        <select class="toplabelledInput, formatSelect" id="extendedExcelExport" name="extendedExcelExport">
+            <option value="false">Projects only</option>
+            <option value="true">Projects with linked releases</option>
+        </select>
+        <input type="button" class="addButton" id="exportExcelButton" value="Export Excel" class="addButton" onclick="exportExcel()"/>
+</span>
 
 
 <div id="fossologyClearing" title="Fossology Clearing" style="display: none; background-color: #ffffff;">
@@ -301,9 +307,15 @@
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
          portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
+         portletURL.setParameter('<%=Project._Fields.NAME%>',$('#project_name').val());
+         portletURL.setParameter('<%=Project._Fields.TYPE%>',$('#project_type').val());
+         portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>',$('#project_responsible').val());
+         portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>',$('#group').val());
+         portletURL.setParameter('<%=Project._Fields.STATE%>',$('#state').val());
+         portletURL.setParameter('<%=Project._Fields.TAG%>',$('#tag').val());
+         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
 
          window.location.href = portletURL.toString();
-
      }
 
      function openSelectClearingDialog(projectId, fieldId) {

@@ -55,7 +55,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
         }
 
         @Override
-        public List<String> makeRow(Component component) {
+        public ExcelSubTable makeRows(Component component) {
             List<String> row = new ArrayList<>(getColumns());
 
             row.add(nullToEmpty(component.name));
@@ -67,7 +67,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
             row.add(nullToEmpty(component.createdOn));
             row.add(joinStrings(getVersions(component.releases)));
 
-            return row;
+            return new ExcelSubTable(row);
         }
 
         private static List<String> getVersions(Collection<Release> releases) {

@@ -10,7 +10,6 @@ package com.siemens.sw360.components.summary;
 
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.Project._Fields;
-import com.siemens.sw360.exporter.ProjectExporter;
 
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
 
@@ -32,8 +31,6 @@ public class ProjectSummary extends DocumentSummary<Project> {
         copyField(document, copy, _Fields.CLEARING_TEAM);
 
         switch (type) {
-            case EXPORT_SUMMARY:
-                setExportSummaryFields(document, copy);
             case SUMMARY:
                 setSummaryFields(document, copy);
             default:
@@ -45,7 +42,7 @@ public class ProjectSummary extends DocumentSummary<Project> {
 
     protected static void setSummaryFields(Project document, Project copy) {
 
-        for (_Fields renderedField : ProjectExporter.RENDERED_FIELDS) {
+        for (_Fields renderedField : Project.metaDataMap.keySet()) {
             switch (renderedField) {
                 case RELEASE_IDS:
                     if (document.isSetReleaseIdToUsage()) {
@@ -57,12 +54,4 @@ public class ProjectSummary extends DocumentSummary<Project> {
             }
         }
     }
-
-    protected static void setExportSummaryFields(Project document, Project copy) {
-        copyField(document, copy, _Fields.CREATED_ON);
-        copyField(document, copy, _Fields.CREATED_BY);
-        copyField(document, copy, _Fields.LEAD_ARCHITECT);
-        copyField(document, copy, _Fields.BUSINESS_UNIT);
-    }
-
 }

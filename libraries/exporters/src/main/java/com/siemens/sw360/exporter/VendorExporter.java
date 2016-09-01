@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
 import static com.siemens.sw360.datahandler.thrift.vendors.Vendor._Fields.*;
 
 /**
@@ -56,7 +55,7 @@ public class VendorExporter  extends  ExcelExporter<Vendor>{
         }
 
         @Override
-        public List<String> makeRow(Vendor vendor) {
+        public ExcelSubTable makeRows(Vendor vendor) {
             List<String> row = new ArrayList<>(getColumns());
 
             for (Vendor._Fields renderedField : RENDERED_FIELDS) {
@@ -70,7 +69,7 @@ public class VendorExporter  extends  ExcelExporter<Vendor>{
                     row.add("");
                 }
             }
-            return row;
+            return new ExcelSubTable(row);
         }
     }
 }

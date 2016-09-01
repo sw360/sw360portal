@@ -11,7 +11,6 @@ package com.siemens.sw360.datahandler.db;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.common.SW360Constants;
@@ -20,7 +19,6 @@ import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
 import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -34,10 +32,9 @@ import org.apache.log4j.Logger;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.*;
+import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
 import static com.siemens.sw360.datahandler.common.SW360Utils.*;
@@ -99,10 +96,6 @@ public class ProjectDatabaseHandler {
 
     public List<Project> searchByName(String name, User user) {
         return repository.searchByName(name, user);
-    }
-
-    public List<Project> searchByNameFortExport(String name, User user) {
-        return repository.searchByNameForExport(name, user);
     }
 
     ////////////////////////////
