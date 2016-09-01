@@ -11,6 +11,7 @@ package com.siemens.sw360.datahandler.common;
 import java.net.MalformedURLException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
@@ -52,7 +53,7 @@ public class DatabaseSettings {
         LUCENE_SEARCH_LIMIT = Integer.parseInt(props.getProperty("lucenesearch.limit", "25"));
     }
 
-    public static HttpClient getConfiguredHttpClient() throws MalformedURLException {
+    public static Supplier<HttpClient> getConfiguredHttpClient() throws MalformedURLException {
         StdHttpClient.Builder httpClientBuilder = new StdHttpClient.Builder().url(COUCH_DB_URL);
         if(! "".equals(COUCH_DB_USERNAME)) {
             httpClientBuilder.username(COUCH_DB_USERNAME);
@@ -60,7 +61,7 @@ public class DatabaseSettings {
         if (! "".equals(COUCH_DB_PASSWORD)) {
             httpClientBuilder.password(COUCH_DB_PASSWORD);
         }
-        return httpClientBuilder.build();
+        return httpClientBuilder::build;
     }
 
 

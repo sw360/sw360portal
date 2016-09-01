@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 
@@ -45,7 +46,7 @@ public class ComponentHandler implements ComponentService.Iface {
         this(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
     }
 
-    ComponentHandler(HttpClient httpClient, String dbName, String attachmentDbName) throws IOException {
+    ComponentHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws IOException {
         handler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName);
         searchHandler = new ComponentSearchHandler(httpClient, dbName);
         attachmentHandler = new AttachmentHandler();
@@ -56,7 +57,7 @@ public class ComponentHandler implements ComponentService.Iface {
         this(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS, thriftClients);
     }
 
-    ComponentHandler(HttpClient httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws IOException {
+    ComponentHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws IOException {
         handler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName, thriftClients);
         searchHandler = new ComponentSearchHandler(httpClient, dbName);
         attachmentHandler = new AttachmentHandler();

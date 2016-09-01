@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Class for accessing the Lucene connector on the CouchDB database
@@ -74,7 +75,7 @@ public class ComponentSearchHandler {
 
     private final LuceneAwareDatabaseConnector connector;
 
-    public ComponentSearchHandler(HttpClient httpClient, String dbName) throws IOException {
+    public ComponentSearchHandler(Supplier<HttpClient> httpClient, String dbName) throws IOException {
         connector = new LuceneAwareDatabaseConnector(httpClient, dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);

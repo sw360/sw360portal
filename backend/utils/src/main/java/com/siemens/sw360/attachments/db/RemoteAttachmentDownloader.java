@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.common.Duration.durationOf;
 import static java.lang.String.format;
@@ -41,7 +42,7 @@ public class RemoteAttachmentDownloader {
         retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS, downloadTimeout);
     }
 
-    public static int retrieveRemoteAttachments(HttpClient httpClient, String dbAttachments, Duration downloadTimeout) throws MalformedURLException {
+    public static int retrieveRemoteAttachments(Supplier<HttpClient> httpClient, String dbAttachments, Duration downloadTimeout) throws MalformedURLException {
         AttachmentConnector attachmentConnector = new AttachmentConnector(httpClient, dbAttachments, downloadTimeout);
         AttachmentRepository attachmentRepository = new AttachmentRepository(new DatabaseConnector(httpClient, dbAttachments));
 

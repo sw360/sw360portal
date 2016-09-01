@@ -20,6 +20,7 @@ package com.siemens.sw360.datahandler.db;
         import java.util.List;
         import java.util.Map;
         import java.util.Set;
+        import java.util.function.Supplier;
 
 public class ProjectSearchHandler {
 
@@ -69,7 +70,7 @@ public class ProjectSearchHandler {
 
     private final LuceneAwareDatabaseConnector connector;
 
-    public ProjectSearchHandler(HttpClient httpClient, String dbName) throws IOException {
+    public ProjectSearchHandler(Supplier<HttpClient> httpClient, String dbName) throws IOException {
         connector = new LuceneAwareDatabaseConnector(httpClient, dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);

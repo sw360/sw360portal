@@ -40,13 +40,12 @@ public class AttachmentStreamConnector {
     private final Duration downloadTimeout;
 
     /**
-     * @param address         Thrift object representing the database address
      * @param downloadTimeout timeout for downloading remote attachments
      * @throws java.net.MalformedURLException if the given database address not a valid url.
      * @todo remove this mess of constructors and use dependency injection
      */
     public AttachmentStreamConnector(Duration downloadTimeout) throws MalformedURLException {
-        this(new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS), downloadTimeout);
+        this(new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient().get(), DatabaseSettings.COUCH_DB_ATTACHMENTS), downloadTimeout);
     }
 
     public AttachmentStreamConnector(DatabaseConnector connector, Duration downloadTimeout) {

@@ -19,6 +19,7 @@ import org.ektorp.util.Documents;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Database Connector to a CouchDB database
@@ -40,6 +41,16 @@ public class DatabaseConnector extends StdCouchDbConnector {
      */
     public DatabaseConnector(HttpClient httpClient, String dbName) throws MalformedURLException {
         this(httpClient, dbName, new MapperFactory());
+    }
+
+    /**
+     * Create a connection to the database
+     *
+     * @param httpClient    Supplier<HttpClient> with authentication of CouchDB server
+     * @param dbName name of the database on the CouchDB server
+     */
+    public DatabaseConnector(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
+        this(httpClient.get(), dbName, new MapperFactory());
     }
 
     /**

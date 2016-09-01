@@ -39,6 +39,7 @@ import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -63,7 +64,7 @@ public class ModerationDatabaseHandler {
     private final ComponentDatabaseHandler componentDatabaseHandler;
     private final DatabaseConnector db;
 
-    public ModerationDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
+    public ModerationDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
         db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repository

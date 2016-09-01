@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
@@ -69,7 +70,7 @@ public class LicenseDatabaseHandler {
 
     private final Logger log = Logger.getLogger(LicenseDatabaseHandler.class);
 
-    public LicenseDatabaseHandler(HttpClient httpClient, String dbName) throws MalformedURLException {
+    public LicenseDatabaseHandler(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
         // Create the connector
         db = new DatabaseConnector(httpClient, dbName);
 

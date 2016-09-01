@@ -18,6 +18,7 @@ import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
 
@@ -34,7 +35,7 @@ public class UserDatabaseHandler {
     private DatabaseConnector db;
     private UserRepository repository;
 
-    public UserDatabaseHandler(HttpClient httpClient, String dbName) throws MalformedURLException {
+    public UserDatabaseHandler(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
         // Create the connector
         db = new DatabaseConnector(httpClient, dbName);
         repository =  new UserRepository(db);

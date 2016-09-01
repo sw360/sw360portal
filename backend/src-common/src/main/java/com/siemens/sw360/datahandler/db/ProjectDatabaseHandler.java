@@ -33,6 +33,7 @@ import org.ektorp.http.HttpClient;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
@@ -58,12 +59,12 @@ public class ProjectDatabaseHandler {
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
 
-    public ProjectDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
+    public ProjectDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
         this(httpClient, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(httpClient,dbName,attachmentDbName));
     }
 
     @VisibleForTesting
-    public ProjectDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
+    public ProjectDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repositories

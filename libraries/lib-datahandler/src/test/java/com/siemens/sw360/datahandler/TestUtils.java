@@ -30,6 +30,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
@@ -110,14 +111,18 @@ public class TestUtils {
         return user;
     }
 
-    public static void deleteDatabase(HttpClient httpClient, String dbName) throws MalformedURLException {
+    public static void deleteDatabase(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
         assertTestString(dbName);
 
-        DatabaseInstance instance = new DatabaseInstance(httpClient);
+        DatabaseInstance instance = new DatabaseInstance(httpClient.get());
         if (instance.checkIfDbExists(dbName))
             instance.deleteDatabase(dbName);
 
         DatabaseInstanceTracker.destroy();
+    }
+
+    public static void createDatabase(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
+        createDatabase(httpClient.get(), dbName);
     }
 
     public static void createDatabase(HttpClient httpClient, String dbName) throws MalformedURLException {

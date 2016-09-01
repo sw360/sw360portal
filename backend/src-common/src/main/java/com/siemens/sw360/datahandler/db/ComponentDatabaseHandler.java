@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -83,7 +84,7 @@ public class ComponentDatabaseHandler {
     private final ReleaseModerator releaseModerator;
 
 
-    public ComponentDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
+    public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repositories
@@ -101,11 +102,11 @@ public class ComponentDatabaseHandler {
     }
 
 
-    public ComponentDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
+    public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
         this(httpClient, dbName, attachmentDbName, new ComponentModerator(), new ReleaseModerator());
     }
 
-    public ComponentDatabaseHandler(HttpClient httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws MalformedURLException {
+    public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws MalformedURLException {
         this(httpClient, dbName, attachmentDbName, new ComponentModerator(thriftClients), new ReleaseModerator(thriftClients));
     }
 
