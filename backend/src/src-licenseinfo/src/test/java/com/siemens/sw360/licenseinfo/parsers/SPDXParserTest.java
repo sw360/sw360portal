@@ -65,7 +65,7 @@ public class SPDXParserTest {
         assertThat(result.getFilenames().size(), is(1));
         assertThat(result.getFilenames().get(0), is(spdxExampleFile));
 
-        assertThat(result.getLicenseTextsSize(), is(5));
+        assertThat(result.getLicenseTextsSize(), is(7));
         assertThat(result.getLicenseTexts().stream()
                 .map(l -> l.contains("\"THE BEER-WARE LICENSE\""))
                 .filter(b -> b)

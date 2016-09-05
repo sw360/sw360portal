@@ -175,7 +175,6 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                     return null;
                 }
             }).filter(Objects::nonNull)
-                    // public LicenseInfoParsingResult getLicenseInfoForRelease(Release release) throws TException {
                     .map((release) -> {
                         try {
                             return getLicenseInfoForRelease(release);
