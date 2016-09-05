@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
+import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -29,6 +30,7 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -48,10 +50,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -129,15 +128,26 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
         User user = UserCacheHolder.getUserFromRequest(request);
+
+        String generatorClassName = request.getParameter(PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT);
         LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
-        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
         String projectId = request.getParameter(PROJECT_ID);
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
         try {
             Project project = projectClient.getProjectById(projectId, user);
-            String fileName = String.format("LicenseInfo-%s-%s.txt", null!=project ? project.getName() : "Unknown-Project",
-                    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now()));
-            PortletResponseUtil.sendFile(request, response, fileName, licenseInfoClient.getLicenseInfoFileForProject(projectId, user).getBytes(), "text/plain");
+            String projectName = project != null ? project.getName() : "Unknown-Project";
+            String timestamp = SW360Utils.getCreatedOn();
+            OutputFormatInfo outputFormatInfo = licenseInfoClient.getOutputFormatInfoForGeneratorClass(generatorClassName);
+            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + outputFormatInfo.getFileExtension();
+            if(outputFormatInfo.isOutputBinary){
+                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName);
+                byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
+                licenseInfoByteBuffer.get(licenseInfoByteArray);
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, "text/plain");
+            } else {
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+            }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
         }
@@ -288,7 +298,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
-                final String fullname = vendor!=null?vendor.getFullname():"";
+                final String fullname = vendor != null ? vendor.getFullname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(),
                         fullname, release.getName(), release.getVersion());
                 linkedReleases.add(linkedRelease);
@@ -452,7 +462,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             } else {
                 projectList = projectClient.refineSearch(searchtext, filterMap, user);
             }
-            for(Project project:projectList){
+            for (Project project : projectList) {
                 setClearingStateSummary(project);
             }
 
@@ -496,7 +506,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(USING_PROJECTS, usingProjects);
                 Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
-
+                LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+                List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
+                request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
                 addProjectBreadcrumb(request, response, project);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
@@ -685,6 +697,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Error updating project in backend!", e);
         }
     }
+
     @UsedAsLiferayAction
     public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
         response.setRenderParameter(KEY_SEARCH_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_TEXT)));

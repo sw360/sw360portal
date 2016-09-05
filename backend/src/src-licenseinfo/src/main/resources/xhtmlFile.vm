@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+        * {
+            font-family: Arial;
+            font-size: 14px;
+        }
+
+        h1 {
+            font-size: 18px;
+        }
+
+        h2 {
+            font-size: 16px;
+        }
+
+        h3 {
+            font-size: 14px;
+        }
+
+        p {
+            font-weight: normal
+        }
+
+        body {
+            background: #ffffff;
+        }
+
+        .top {
+            text-decoration: none;
+            color: blue;
+            padding: 0px 1em;
+        }
+
+        .inset {
+            margin: 0.7em;
+            padding: 0.7em;
+            background: white;
+            border-top: 1px solid silver;
+            xborder-right: 1px solid silver;
+        }
+
+        .inset p {
+            white-space: pre-wrap;
+        }
+
+        .inset .groupId {
+            color: black;
+            font-size: 12px;
+        }
+
+        .title {
+            visibility: hidden;
+        }
+
+    </style>
+    <title>
+        Open Source Software
+    </title>
+</head>
+<body>
+<h1>Open Source Software</h1>
+
+<h2 id="releaseHeader">Releases</h2>
+#if($licenseInfoResults.keySet().size() > 0)
+<ul id="releaseOverview">
+    #foreach($releaseName in $licenseInfoResults.keySet())
+        <li>
+            <a href="#h3$esc.xml($releaseName).replace(" ","_").replace(",","-")">$esc.xml($releaseName)</a>
+        </li>
+    #end
+</ul>
+
+<ul id="releases" style="list-style-type:none">
+#foreach($releaseName in $licenseInfoResults.keySet())
+    <li id="$esc.xml($releaseName).replace(" ","_").replace(",","-")" class="release" title="$esc.xml($releaseName)">
+    <div class="inset">
+        <h3 id="h3$esc.xml($releaseName).replace(" ","_").replace(",","-")">$esc.xml($releaseName)
+            <a class="top" href="#releaseHeader">&#8679;</a>
+        </h3>
+    </div>
+
+    <pre class="copyrights">
+#set($copyrights = [])
+#if(${licenseInfoResults.get($releaseName).licenseInfo})
+#set($copyrights = $licenseInfoResults.get($releaseName).licenseInfo.copyrights)
+#foreach($copyright in ${copyrights})
+$esc.xml($copyright)
+#end
+#end
+    </pre>
+
+    Licenses:<br/>
+        #set($licenses = [])
+        #if(${licenseInfoResults.get($releaseName).licenseInfo})
+            #set($licenses = $licenseInfoResults.get($releaseName).licenseInfo.licenseNamesWithTexts)
+            #if($licenses.size() > 0)
+                <ul style="list-style-type:none" class="licenseEntries">
+                #foreach($license in ${licenses})
+                    #set($licenseName = "Unknown license name")
+                    #if($license.licenseName)
+                        #set($licenseName = $esc.xml($license.licenseName))
+                    #end
+                    #set($licenseId = $license.id)
+                    <li class="licenseEntry" id="licenseEntry$licenseId" title="$licenseName">
+                        <a href="#licenseTextItem$licenseId">$licenseName ($licenseId)</a>
+                   </li>
+                #end
+                </ul>
+            #end
+        #end
+    </li>
+#end
+</ul>
+#end
+
+<div class="inset">
+    <br/><br/>
+    <h2>License texts</h2>
+</div>
+
+#if($allLicenseNamesWithTexts.size() > 0)
+<ul id="licenseTexts" style="list-style-type:none">
+#foreach($license in $allLicenseNamesWithTexts)
+    #set($licenseName = "Unknown license name")
+    #if($license.licenseName)
+        #set($licenseName = $esc.xml($license.licenseName))
+    #end
+
+    #set($licenseText = "")
+    #if($license.licenseText)
+        #set($licenseText = $esc.xml($license.licenseText))
+    #end
+
+    #set($licenseId = $license.id)
+    <li id="licenseTextItem$licenseId">
+    <h3>$licenseId: $licenseName<a class="top" href="#releaseHeader">&#8679;</a></h3>
+    <pre class="licenseText" id="licenseText$licenseId">
+$licenseText
+    </pre>
+    </li>
+#end
+</ul>
+#end
+
+</body>
+</html>
