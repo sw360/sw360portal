@@ -30,15 +30,17 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
 
 <div id="where" class="content1">
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${licenseDetail.shortname}"/></span>
         <core_rt:if test="${not addMode}" >
-            <input type="button" class="addButton" onclick="window.location.href='<%=deleteURL%>'"
+            <input type="button" class="addButton" onclick="deleteConfirmed('Do you really want to delete the license <b><sw360:LicenseName license="${licenseDetail}"/></b> ?', deleteLicense)"
                    value="Delete <sw360:LicenseName license="${licenseDetail}"/>"
             >
         </core_rt:if>
@@ -82,6 +84,10 @@
 
     function editLicense() {
         window.location ='<portlet:renderURL ><portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'
+    }
+
+    function deleteLicense() {
+        window.location.href = '<%=deleteURL%>';
     }
 
     function cancel() {

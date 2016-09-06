@@ -55,11 +55,13 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <!--include jQuery -->
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 <script src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
 
@@ -71,7 +73,11 @@
 <div id="where" class="content1">
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${component.name}"/></span>
         <core_rt:if test="${not componentDivAddMode}">
-            <input type="button" class="addButton" onclick="window.location.href='<%=deleteComponentURL%>'"
+            <input type="button" class="addButton" onclick="deleteConfirmed('' +
+                    'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?'  +
+                    '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b> contains<br/><ul></core_rt:if>' +
+                    '<core_rt:if test="${not empty component.attachments}" ><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></core_rt:if>'  +
+                    '<core_rt:if test="${not empty component.attachments}" ></ul></core_rt:if>', deleteComponent)"
                    value="Delete <sw360:out value="${component.name}"/> "
                     <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the component is used." </core_rt:if>
                     >
@@ -141,6 +147,11 @@
             },
         });
     }
+
+    function deleteComponent() {
+        window.location.href = '<%=deleteComponentURL%>';
+    }
+
 
     var contextpath;
     $(document).ready(function () {

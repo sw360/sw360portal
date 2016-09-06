@@ -54,9 +54,11 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 
 <div id="header"></div>
@@ -256,7 +258,7 @@
             "2": `<tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>`,
             "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
             "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
-            + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '${component.name}')\"  alt='Delete' title='Delete'>"
+            + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '<b>${component.name}</b>',${component.attachmentsSize})\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
 
@@ -278,9 +280,9 @@
         $('#componentsTable_last').hide();
     }
 
-    function deleteComponent(id, name) {
+    function deleteComponent(id, name, attachmentsSize) {
 
-        if (confirm("Do you want to delete component " + name + " ?")) {
+        function deleteComponentInternal() {
             jQuery.ajax({
                 type: 'POST',
                 url: '<%=deleteAjaxURL%>',
@@ -293,18 +295,24 @@
                         oTable.row('#' + id).remove().draw();
                     }
                     else if (data.result == 'SENT_TO_MODERATOR') {
-                        alert("You may not delete the component, but a request was sent to a moderator!");
+                        $.alert("You may not delete the component, but a request was sent to a moderator!");
                     }
                     else {
-                        alert("I could not delete the component!");
+                        $.alert("I could not delete the component!");
                     }
                 },
                 error: function () {
-                    alert("I could not delete the component!");
+                    $.alert("I could not delete the component!");
                 }
             });
         }
 
+        var confirmMessage = "Do you really want to delete the component " + name + " ?";
+        confirmMessage += (attachmentsSize > 0) ? "<br/><br/>The component " + name +  " contains<br/><ul>" : "";
+        confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
+        confirmMessage += (attachmentsSize > 0) ? "</ul>" : "";
+
+        deleteConfirmed(confirmMessage, deleteComponentInternal);
     }
 </script>
 <%@include file="/html/utils/includes/modal.jspf" %>

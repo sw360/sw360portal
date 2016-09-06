@@ -6,11 +6,15 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
     function deleteReleaseLink(rowId) {
-        if (confirm("Do you really want to remove the link to this release?")) {
+
+        function deleteReleaseLinkInternal() {
             $('#' + rowId).remove();
         }
+
+        deleteConfirmed("Do you really want to remove the link to this release?", deleteReleaseLinkInternal);
     }
 </script>

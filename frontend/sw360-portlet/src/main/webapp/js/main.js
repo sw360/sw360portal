@@ -234,3 +234,15 @@ function flashMessage(content, styleClass) {
     node.addClass('alert ' + styleClass).text(content).prependTo(target);
 }
 
+function deleteConfirmed(confirmMessage, confirmCallback) {
+    return $.confirm({
+        title: 'Warning',
+        content: confirmMessage,
+        confirmButtonClass: 'btn-info',
+        cancelButtonClass: 'btn-danger',
+        confirm: function() {
+            confirmCallback();
+        }
+    });
+}
+

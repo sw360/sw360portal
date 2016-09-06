@@ -32,8 +32,10 @@
     </table>
 </div>
 
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
+    var oTable;
     var oTable;
     AUI().use('liferay-portlet-url', function (A) {
         <portlet:namespace/>load();
@@ -48,7 +50,7 @@
             "DT_RowId": "${moderation.id}",
             "0": '<sw360:out value="${moderation.documentName}"/>',
             "1": '<sw360:out value="${moderation.moderationState}"/>',
-            "2": "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','${moderation.documentName}')\"  alt='Delete' title='Delete'>"
+            "2": "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
 
@@ -70,8 +72,7 @@
     }
     function deleteModerationRequest(id, docName) {
 
-        if (confirm("Do you want to delete the moderation request for " + docName + " ?")) {
-
+        function deleteModerationRequestInternal() {
             jQuery.ajax({
                 type: 'POST',
                 url: '<%=deleteAjaxURL%>',
@@ -84,15 +85,16 @@
                         oTable.row('#' + id).remove().draw();
                     }
                     else {
-                        alert("I could not delete the moderation request!");
+                        $.alert("I could not delete the moderation request!");
                     }
                 },
                 error: function () {
-                    alert("I could not delete the moderation request!");
+                    $.alert("I could not delete the moderation request!");
                 }
             });
         }
 
+        deleteConfirmed("Do you really want to delete the moderation request for " + docName + " ?", deleteModerationRequestInternal);
     }
 
 

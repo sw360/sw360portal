@@ -21,6 +21,9 @@
 <jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request" />
 <jsp:useBean id="documentID" class="java.lang.String" scope="request" />
 <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
+<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
+<jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
+<jsp:useBean id="attachments" type="java.util.Set<com.siemens.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
 
 <core_rt:set  var="addMode"  value="${empty project.id}" />
 <portlet:actionURL var="updateURL" name="update">
@@ -36,9 +39,11 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
 
 <core_rt:if test="${not addMode}" >
@@ -49,7 +54,13 @@
 <div id="where" class="content1">
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
     <core_rt:if test="${not addMode}" >
-        <input type="button" class="addButton" onclick="window.location.href='<%=deleteURL%>'"
+        <input type="button" class="addButton" onclick="deleteConfirmed('' +
+                'Do you really want to delete the project <b><sw360:ProjectName project="${project}"/></b> ?'  +
+                '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ><br/><br/>The project <b><sw360:ProjectName project="${project}"/></b> contains<br/><ul></core_rt:if>' +
+                '<core_rt:if test="${not empty project.linkedProjects}" ><li><sw360:out value="${project.linkedProjectsSize}"/> linked projects</li></core_rt:if>'  +
+                '<core_rt:if test="${not empty project.releaseIdToUsage}" ><li><sw360:out value="${project.releaseIdToUsageSize}"/> linked releases</li></core_rt:if>'  +
+                '<core_rt:if test="${not empty project.attachments}" ><li><sw360:out value="${project.attachmentsSize}"/> attachments</li></core_rt:if>'  +
+                '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ></ul></core_rt:if>', deleteProject)"
                    value="Delete <sw360:ProjectName project="${project}"/>"
                     <core_rt:if test="${ usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the project is used." </core_rt:if>
                 >
@@ -110,6 +121,10 @@
         });
     }
 
+    function deleteProject() {
+        window.location.href = '<%=deleteURL%>';
+    }
+
     var contextpath;
     $( document ).ready(function() {
         contextpath = '<%=request.getContextPath()%>';
@@ -124,8 +139,6 @@
                 }
         );
     });
-
-
 </script>
 
 
