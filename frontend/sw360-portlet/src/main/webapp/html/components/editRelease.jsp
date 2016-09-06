@@ -72,10 +72,10 @@
                    <core_rt:if test="${not addMode}">
                        <input type="button" class="addButton" onclick="deleteConfirmed('' +
                                'Do you really want to delete the release <b><sw360:ReleaseName release="${release}" /></b> ?'  +
-                               '<core_rt:if test="${not empty release.releaseIdToRelationshipSize or not empty release.attachmentsSize}" ><br/><br/>The release <b><sw360:ReleaseName release="${release}" /></b> contains<br/><ul></core_rt:if>' +
-                               '<core_rt:if test="${not empty release.releaseIdToRelationshipSize}" ><li><sw360:out value="${release.releaseIdToRelationshipSize}"/> linked releases</li></core_rt:if>'  +
-                               '<core_rt:if test="${not empty release.attachmentsSize}" ><li><sw360:out value="${release.attachmentsSize}"/> attachments</li></core_rt:if>'  +
-                               '<core_rt:if test="${not empty release.releaseIdToRelationshipSize or not empty release.attachmentsSize}" ></ul></core_rt:if>', deleteRelease)"
+                               '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ><br/><br/>The release <b><sw360:ReleaseName release="${release}" /></b> contains<br/><ul></core_rt:if>' +
+                               '<core_rt:if test="${not empty release.releaseIdToRelationship}" ><li><sw360:out value="${release.releaseIdToRelationshipSize}"/> linked releases</li></core_rt:if>'  +
+                               '<core_rt:if test="${not empty release.attachments}" ><li><sw360:out value="${release.attachmentsSize}"/> attachments</li></core_rt:if>'  +
+                               '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ></ul></core_rt:if>', deleteRelease)"
                               value="Delete  <sw360:ReleaseName release="${release}" /> "
                        <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the release is used." </core_rt:if>
                                >

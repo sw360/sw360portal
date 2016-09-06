@@ -258,7 +258,7 @@
             "2": `<tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>`,
             "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
             "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
-            + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '<b>${component.name}</b>',${component.attachmentsSize})\"  alt='Delete' title='Delete'>"
+            + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '<b>${component.name}</b>',${component.releaseIdsSize},${component.attachmentsSize})\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
 
@@ -280,7 +280,7 @@
         $('#componentsTable_last').hide();
     }
 
-    function deleteComponent(id, name, attachmentsSize) {
+    function deleteComponent(id, name, linkedReleasesSize, attachmentsSize) {
 
         function deleteComponentInternal() {
             jQuery.ajax({
@@ -308,9 +308,10 @@
         }
 
         var confirmMessage = "Do you really want to delete the component " + name + " ?";
-        confirmMessage += (attachmentsSize > 0) ? "<br/><br/>The component " + name +  " contains<br/><ul>" : "";
+        confirmMessage += (attachmentsSize > 0 || linkedReleasesSize > 0) ? "<br/><br/>The component " + name +  " contains<br/><ul>" : "";
+        confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
         confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
-        confirmMessage += (attachmentsSize > 0) ? "</ul>" : "";
+        confirmMessage += (attachmentsSize > 0 || linkedReleasesSize > 0) ? "</ul>" : "";
 
         deleteConfirmed(confirmMessage, deleteComponentInternal);
     }
