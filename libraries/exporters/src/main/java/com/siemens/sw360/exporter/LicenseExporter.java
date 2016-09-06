@@ -81,8 +81,8 @@ public class LicenseExporter extends ExcelExporter<License> {
         }
 
         @Override
-        public ExcelSubTable makeRows(License license) {
-            return new ExcelSubTable(
+        public SubTable makeRows(License license) {
+            return new SubTable(
                     formatRow(converter.transformer().apply(license))
             );
         }

@@ -206,11 +206,15 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
-        final User user = UserCacheHolder.getUserFromRequest(request);
         try {
-            boolean extendedExcelExport = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
+            User user = UserCacheHolder.getUserFromRequest(request);
+            boolean isExtendedExcelExport = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
             List<Project> projects = getFilteredProjectList(request);
-            ProjectExporter exporter = new ProjectExporter(thriftClients.makeComponentClient(), extendedExcelExport);
+            ProjectExporter exporter = new ProjectExporter(
+                    thriftClients.makeComponentClient(),
+                    thriftClients.makeProjectClient(),
+                    user,
+                    isExtendedExcelExport);
             PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
@@ -442,7 +446,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
         String searchtext = request.getParameter(KEY_SEARCH_TEXT);
-
         String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
 
         Map<String, Set<String>> filterMap = new HashMap<>();
@@ -456,10 +459,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         List<Project> projectList;
 
-        try {
-            final User user = UserCacheHolder.getUserFromRequest(request);
-            ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
         String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
         if (null == groupFilterValue) {
@@ -480,7 +482,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Could not search projects in backend ", e);
             projectList = Collections.emptyList();
         }
-
         return projectList;
     }
 

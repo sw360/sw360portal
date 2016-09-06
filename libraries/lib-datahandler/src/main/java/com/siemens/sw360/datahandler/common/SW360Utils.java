@@ -346,4 +346,20 @@ public class SW360Utils {
     public static String displayNameFor(String name, Map<String, String> nameToDisplayName){
         return nameToDisplayName.containsKey(name)? nameToDisplayName.get(name) : name;
     }
+
+    public static <T> Map<String, T> putReleaseNamesInMap(Map<String, T> map, List<Release> releases) {
+        if(map == null || releases == null) return Collections.emptyMap();
+        Map<String, T> releaseNamesMap = new HashMap<>();
+        releases.stream()
+                .forEach(r -> releaseNamesMap.put(SW360Utils.printName(r),map.get(r.getId())));
+        return releaseNamesMap;
+    }
+
+    public static <T> Map<String, T> putProjectNamesInMap(Map<String, T> map, List<Project> projects) {
+        if(map == null || projects == null) return Collections.emptyMap();
+        Map<String, T> projectNamesMap = new HashMap<>();
+        projects.stream()
+                .forEach(p -> projectNamesMap.put(SW360Utils.printName(p),map.get(p.getId())));
+        return projectNamesMap;
+    }
 }

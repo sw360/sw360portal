@@ -12,7 +12,7 @@ package com.siemens.sw360.exporter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExcelSubTable {
+public class SubTable {
 
     List<List<String>> elements;
 
@@ -24,12 +24,12 @@ public class ExcelSubTable {
         return elements.get(rowNumber);
     }
 
-    public ExcelSubTable(List<String> row) {
+    public SubTable(List<String> row) {
         elements = new ArrayList<>();
         elements.add(row);
     }
 
-    public ExcelSubTable() {
+    public SubTable() {
         elements = new ArrayList<>();
     }
 

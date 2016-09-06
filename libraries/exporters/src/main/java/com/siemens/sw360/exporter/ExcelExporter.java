@@ -71,7 +71,7 @@ public class ExcelExporter<T> {
         int nextExcelSheetRow = 1;
         for (int currentDocNumber = 0; currentDocNumber < numberoOfDocuments; currentDocNumber++) {
             T document = documents.get(currentDocNumber);
-            ExcelSubTable table = helper.makeRows(document);
+            SubTable table = helper.makeRows(document);
             for(int currentTableRow = 0; currentTableRow < table.getnRows(); currentTableRow ++){
                 List<String> rowValues = table.getRow(currentTableRow);
                 Row row = sheet.createRow(nextExcelSheetRow);

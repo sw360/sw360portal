@@ -8,10 +8,32 @@
  */
 package com.siemens.sw360.exporter;
 
+import com.siemens.sw360.datahandler.thrift.components.ComponentService;
+import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
+import com.siemens.sw360.datahandler.thrift.users.User;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 /**
  * Created by heydenrb on 06.11.15.
  */
 public class ProjectExporterTest {
+    @Mock
+    ComponentService.Iface componentClient;
 
+    @Mock
+    ProjectService.Iface projectClient;
 
+    @Mock
+    User user;
+
+    @Test
+    public void testEveryRenderedProjectFieldHasAHeader() throws Exception {
+        ProjectExporter exporter = new ProjectExporter(componentClient,
+                projectClient, user, false);
+        assertThat(exporter.RENDERED_FIELDS.size(), is(exporter.HEADERS.size()));
+    }
 }

@@ -14,6 +14,8 @@ import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
+import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
+import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.exporter.ReleaseExporter.ReleaseHelper;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -21,8 +23,10 @@ import org.apache.thrift.TException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static com.siemens.sw360.datahandler.common.SW360Utils.fieldValueAsString;
+import static com.siemens.sw360.datahandler.common.SW360Utils.putProjectNamesInMap;
+import static com.siemens.sw360.datahandler.common.SW360Utils.putReleaseNamesInMap;
 import static com.siemens.sw360.datahandler.thrift.projects.Project._Fields.*;
 
 public class ProjectExporter extends ExcelExporter<Project> {
@@ -34,28 +38,29 @@ public class ProjectExporter extends ExcelExporter<Project> {
     public static final Map<String, String> nameToDisplayName;
     static {
         nameToDisplayName = new HashMap<>();
-        nameToDisplayName.put("id", "project ID");
-        nameToDisplayName.put("name", "project name");
-        nameToDisplayName.put("state", "project state");
-        nameToDisplayName.put("createdBy", "created by");
-        nameToDisplayName.put("createdOn", "creation date");
-        nameToDisplayName.put("projectResponsible", "project responsible");
-        nameToDisplayName.put("leadArchitect", "project lead architect");
-        nameToDisplayName.put("tag", "project tag");
-        nameToDisplayName.put("businessUnit", "group");
-        nameToDisplayName.put("releaseIds", "release IDs");
-        nameToDisplayName.put("releaseClearingStateSummary", "release clearing state summary");
-        nameToDisplayName.put("externalIds", "external IDs");
-        nameToDisplayName.put("visbility", "visibility");
-        nameToDisplayName.put("projectType", "project type");
-        nameToDisplayName.put("linkedProjects", "linked projects");
-        nameToDisplayName.put("releaseIdToUsage", "release IDs with usage");
-        nameToDisplayName.put("clearingTeam", "clearing team");
-        nameToDisplayName.put("preevaluationDeadline", "pre-evaluation deadline");
-        nameToDisplayName.put("systemTestStart", "system test start");
-        nameToDisplayName.put("systemTestEnd", "system test end");
-        nameToDisplayName.put("deliveryStart", "delivery start");
-        nameToDisplayName.put("phaseOutSince", "phase out since");
+        nameToDisplayName.put(Project._Fields.ID.getFieldName(), "project ID");
+        nameToDisplayName.put(Project._Fields.NAME.getFieldName(), "project name");
+        nameToDisplayName.put(Project._Fields.STATE.getFieldName(), "project state");
+        nameToDisplayName.put(Project._Fields.CREATED_BY.getFieldName(), "created by");
+        nameToDisplayName.put(Project._Fields.CREATED_ON.getFieldName(), "creation date");
+        nameToDisplayName.put(Project._Fields.PROJECT_RESPONSIBLE.getFieldName(), "project responsible");
+        nameToDisplayName.put(Project._Fields.LEAD_ARCHITECT.getFieldName(), "project lead architect");
+        nameToDisplayName.put(Project._Fields.TAG.getFieldName(), "project tag");
+        nameToDisplayName.put(Project._Fields.BUSINESS_UNIT.getFieldName(), "group");
+        nameToDisplayName.put(Project._Fields.RELEASE_IDS.getFieldName(), "release IDs");
+        nameToDisplayName.put(Project._Fields.RELEASE_CLEARING_STATE_SUMMARY.getFieldName(),
+                "release clearing state summary");
+        nameToDisplayName.put(Project._Fields.EXTERNAL_IDS.getFieldName(), "external IDs");
+        nameToDisplayName.put(Project._Fields.VISBILITY.getFieldName(), "visibility");
+        nameToDisplayName.put(Project._Fields.PROJECT_TYPE.getFieldName(), "project type");
+        nameToDisplayName.put(Project._Fields.LINKED_PROJECTS.getFieldName(), "linked projects");
+        nameToDisplayName.put(Project._Fields.RELEASE_ID_TO_USAGE.getFieldName(), "release IDs with usage");
+        nameToDisplayName.put(Project._Fields.CLEARING_TEAM.getFieldName(), "clearing team");
+        nameToDisplayName.put(Project._Fields.PREEVALUATION_DEADLINE.getFieldName(), "pre-evaluation deadline");
+        nameToDisplayName.put(Project._Fields.SYSTEM_TEST_START.getFieldName(), "system test start");
+        nameToDisplayName.put(Project._Fields.SYSTEM_TEST_END.getFieldName(), "system test end");
+        nameToDisplayName.put(Project._Fields.DELIVERY_START.getFieldName(), "delivery start");
+        nameToDisplayName.put(Project._Fields.PHASE_OUT_SINCE.getFieldName(), "phase out since");
     }
 
     private static final List<Project._Fields> IGNORED_FIELDS = ImmutableList.<Project._Fields>builder()
@@ -63,6 +68,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add(ATTACHMENTS)
             .add(DOCUMENT_STATE)
             .add(PERMISSIONS)
+            .add(RELEASE_IDS)
             .build();
 
     public static final List<Project._Fields> RENDERED_FIELDS = Project.metaDataMap.keySet()
@@ -72,9 +78,9 @@ public class ProjectExporter extends ExcelExporter<Project> {
 
     protected static List<String> HEADERS = new ArrayList<>();
 
-    public ProjectExporter(ComponentService.Iface client, boolean extendedByReleases) {
-        super(new ProjectHelper(client));
-        releaseHelper = new ReleaseHelper();
+    public ProjectExporter(ComponentService.Iface componentClient, ProjectService.Iface projectClient, User user, boolean extendedByReleases) {
+        super(new ProjectHelper(componentClient, projectClient, user));
+        releaseHelper = new ReleaseHelper(componentClient);
         this.extendedByReleases = extendedByReleases;
         HEADERS = RENDERED_FIELDS
                 .stream()
@@ -86,12 +92,16 @@ public class ProjectExporter extends ExcelExporter<Project> {
         }
     }
 
-    private static class ProjectHelper implements ExporterHelper<Project> {
+    protected static class ProjectHelper implements ExporterHelper<Project> {
 
-        private final ComponentService.Iface client;
+        private final ComponentService.Iface componentClient;
+        private final ProjectService.Iface projectClient;
+        private final User user;
 
-        private ProjectHelper(ComponentService.Iface client) {
-            this.client = client;
+        private ProjectHelper(ComponentService.Iface componentClient, ProjectService.Iface projectClient, User user) {
+            this.componentClient = componentClient;
+            this.projectClient = projectClient;
+            this.user = user;
         }
 
         @Override
@@ -105,19 +115,19 @@ public class ProjectExporter extends ExcelExporter<Project> {
         }
 
         @Override
-        public ExcelSubTable makeRows(Project project) {
+        public SubTable makeRows(Project project) {
             if (extendedByReleases) {
                 return makeRowsWithReleases(project);
             } else {
-                return new ExcelSubTable(makeRowForProjectOnly(project));
+                return new SubTable(makeRowForProjectOnly(project));
             }
         }
 
-        private ExcelSubTable makeRowsWithReleases(Project project) {
+        protected SubTable makeRowsWithReleases(Project project) {
             List<Release> releases = getReleases(project);
-            ExcelSubTable table = new ExcelSubTable();
+            SubTable table = new SubTable();
 
-            if(releases.size() >0) {
+            if(releases.size() > 0) {
                 for (Release release : releases) {
                     List<String> currentRow = makeRowForProjectOnly(project);
                     currentRow.addAll(releaseHelper.makeRows(release).elements.get(0));
@@ -135,15 +145,25 @@ public class ProjectExporter extends ExcelExporter<Project> {
 
         private List<String> makeRowForProjectOnly(Project project) {
             List<String> row = new ArrayList<>(getColumns());
-
+            List<Release> releases = getReleases(project);
             for (Project._Fields renderedField : RENDERED_FIELDS) {
-                if(project.isSet(renderedField)) {
+                if (project.isSet(renderedField)) {
                     Object fieldValue = project.getFieldValue(renderedField);
-
-                    if (renderedField.equals(RELEASE_IDS)) {
-                        row.add(joinStrings(getReleaseNames(project)));
-                    } else {
-                        row.add(SW360Utils.fieldValueAsString(fieldValue));
+                    switch (renderedField) {
+                        case RELEASE_IDS:
+                            row.add(fieldValueAsString(getReleaseNames(releases)));
+                            break;
+                        case RELEASE_ID_TO_USAGE:
+                            row.add(fieldValueAsString(putReleaseNamesInMap(project.releaseIdToUsage, releases)));
+                            break;
+                        case LINKED_PROJECTS:
+                            row.add(fieldValueAsString(putProjectNamesInMap(
+                                    project.getLinkedProjects(),
+                                    getProjects(project.getLinkedProjects().keySet(), user)
+                            )));
+                            break;
+                        default:
+                            row.add(fieldValueAsString(fieldValue));
                     }
                 } else {
                     row.add("");
@@ -153,20 +173,31 @@ public class ProjectExporter extends ExcelExporter<Project> {
             return row;
         }
 
-        private List<String> getReleaseNames(Project project) {
-            if (project.releaseIds == null) return Collections.emptyList();
-            return getReleases(project).stream().map(SW360Utils::printName).collect(Collectors.toList());
+        private List<String> getReleaseNames(List<Release> releases) {
+            if (releases == null) return Collections.emptyList();
+            return releases.stream().map(SW360Utils::printName).collect(Collectors.toList());
         }
 
         private List<Release> getReleases(Project project) {
             List<Release> releasesByIdsForExport;
             try {
-                releasesByIdsForExport = client.getReleasesByIdsForExport(nullToEmptySet(project.releaseIds));
+                releasesByIdsForExport = componentClient.getReleasesByIdsForExport(nullToEmptySet(project.releaseIds));
             } catch (TException e) {
                 log.error("Error fetching release information", e);
                 releasesByIdsForExport = Collections.emptyList();
             }
             return releasesByIdsForExport;
+        }
+
+        private List<Project> getProjects(Set<String> ids, User user){
+            List<Project> projects;
+            try {
+                projects = projectClient.getProjectsById(ids, user);
+            } catch (TException e) {
+                log.error("Error fetching linked projects.", e);
+                projects = Collections.emptyList();
+            }
+            return projects;
         }
     }
 

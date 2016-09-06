@@ -55,7 +55,7 @@ public class VendorExporter  extends  ExcelExporter<Vendor>{
         }
 
         @Override
-        public ExcelSubTable makeRows(Vendor vendor) {
+        public SubTable makeRows(Vendor vendor) {
             List<String> row = new ArrayList<>(getColumns());
 
             for (Vendor._Fields renderedField : RENDERED_FIELDS) {
@@ -69,7 +69,7 @@ public class VendorExporter  extends  ExcelExporter<Vendor>{
                     row.add("");
                 }
             }
-            return new ExcelSubTable(row);
+            return new SubTable(row);
         }
     }
 }

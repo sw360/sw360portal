@@ -22,6 +22,6 @@ public interface ExporterHelper<T> {
 
     public List<String> getHeaders();
 
-    public ExcelSubTable makeRows(T document);
+    public SubTable makeRows(T document);
 
 }
