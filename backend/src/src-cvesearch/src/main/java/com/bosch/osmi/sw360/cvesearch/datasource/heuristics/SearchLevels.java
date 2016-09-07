@@ -1,9 +1,20 @@
+/*
+ * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * Copyright Siemens AG, 2016.
+ * Part of the SW360 Portal Project.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package com.bosch.osmi.sw360.cvesearch.datasource.heuristics;
 
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApi;
 import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchGuesser;
 import com.bosch.osmi.sw360.cvesearch.datasource.matcher.Match;
 import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +23,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 import static java.util.Collections.*;
@@ -20,6 +32,8 @@ public class SearchLevels {
 
     private static final String CPE_WILDCARD      = ".*";
     private static final String CPE_NEEDLE_PREFIX = "cpe:2.3:.:";
+
+    private Logger log = Logger.getLogger(SearchLevels.class);
 
     private List<SearchLevel> searchLevels;
 
@@ -46,12 +60,29 @@ public class SearchLevels {
                 r -> r.getCpeid().toLowerCase()));
     }
 
-    public List<List<NeedleWithMeta>> apply(Release release) throws IOException {
-        List<List<NeedleWithMeta>> result = new ArrayList<>();
-        for(SearchLevel searchLevel : searchLevels){
-            result.add(searchLevel.apply(release));
+    public Stream<List<NeedleWithMeta>> apply(Release release) throws IOException {
+        try {
+        return searchLevels.stream()
+                .map(searchLevel -> {
+                    try {
+                        return searchLevel.apply(release);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }) ;
+        } catch (UncheckedIOException ue) {
+            throw ue.getIOExceptionCause();
         }
-        return result;
+    }
+
+    class UncheckedIOException extends RuntimeException{
+        UncheckedIOException(IOException e) {
+            super(e);
+        }
+
+        IOException getIOExceptionCause(){
+            return (IOException) getCause();
+        }
     }
 
     //==================================================================================================================

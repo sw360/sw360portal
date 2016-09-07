@@ -39,6 +39,9 @@
         <developer>
             <name>maximilian.huber@tngtech.com</name>
         </developer>
+        <developer>
+            <name>stefan.jaeger@evosoft.com</name>
+        </developer>
     </developers>
 
     <artifactId>src-schedule</artifactId>
