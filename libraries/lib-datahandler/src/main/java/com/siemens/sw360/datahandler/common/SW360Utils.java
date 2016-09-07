@@ -39,6 +39,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.transform;
 import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractId;
 import static org.apache.log4j.Logger.getLogger;
 
@@ -157,7 +158,7 @@ public class SW360Utils {
         if (isNullOrEmpty(version)) {
             return name;
         } else {
-            return name + "(" + version + ")";
+            return name + " (" + version + ")";
         }
     }
 
@@ -334,7 +335,12 @@ public class SW360Utils {
             return nullToEmpty((String) fieldValue);
         }
         if (fieldValue instanceof Map) {
-            List<String> mapEntriesAsStrings = ((Map<String, Object>) fieldValue).entrySet().stream().map(e -> e.getKey() + " : " + e.getValue().toString()).collect(Collectors.toList());
+            List<String> mapEntriesAsStrings = nullToEmptyMap(((Map<String, Object>) fieldValue)).entrySet().stream()
+                    .map(e -> {
+                        String valueString = e.getValue() != null ? e.getValue().toString():"";
+                        return e.getKey() + " : " + valueString;
+                    })
+                    .collect(Collectors.toList());
             return joinStrings(mapEntriesAsStrings);
         }
         if (fieldValue instanceof Iterable){
@@ -351,7 +357,7 @@ public class SW360Utils {
         if(map == null || releases == null) return Collections.emptyMap();
         Map<String, T> releaseNamesMap = new HashMap<>();
         releases.stream()
-                .forEach(r -> releaseNamesMap.put(SW360Utils.printName(r),map.get(r.getId())));
+                .forEach(r -> releaseNamesMap.put(printName(r),map.get(r.getId())));
         return releaseNamesMap;
     }
 
@@ -359,7 +365,12 @@ public class SW360Utils {
         if(map == null || projects == null) return Collections.emptyMap();
         Map<String, T> projectNamesMap = new HashMap<>();
         projects.stream()
-                .forEach(p -> projectNamesMap.put(SW360Utils.printName(p),map.get(p.getId())));
+                .forEach(p -> projectNamesMap.put(printName(p),map.get(p.getId())));
         return projectNamesMap;
+    }
+
+    public static List<String> getReleaseNames(List<Release> releases) {
+        if (releases == null) return Collections.emptyList();
+        return releases.stream().map(SW360Utils::printName).collect(Collectors.toList());
     }
 }

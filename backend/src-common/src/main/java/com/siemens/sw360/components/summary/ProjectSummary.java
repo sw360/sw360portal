@@ -42,15 +42,15 @@ public class ProjectSummary extends DocumentSummary<Project> {
 
     protected static void setSummaryFields(Project document, Project copy) {
 
-        for (_Fields renderedField : Project.metaDataMap.keySet()) {
-            switch (renderedField) {
+        for (_Fields field : Project.metaDataMap.keySet()) {
+            switch (field) {
                 case RELEASE_IDS:
                     if (document.isSetReleaseIdToUsage()) {
                         copy.setReleaseIds(document.releaseIdToUsage.keySet());
                     }
                     break;
                 default:
-                    copyField(document, copy, renderedField);
+                    copyField(document, copy, field);
             }
         }
     }

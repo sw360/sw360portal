@@ -9,40 +9,79 @@
 package com.siemens.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
+import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.components.Component;
+import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.exporter.ReleaseExporter.ReleaseHelper;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static com.siemens.sw360.datahandler.common.SW360Utils.fieldValueAsString;
+import static com.siemens.sw360.datahandler.common.SW360Utils.getReleaseNames;
+import static com.siemens.sw360.datahandler.thrift.components.Component._Fields.*;
 
-/**
- * Created by bodet on 06/02/15.
- *
- * @author cedric.bodet@tngtech.com
- */
 public class ComponentExporter extends ExcelExporter<Component> {
+    private static final Logger log = Logger.getLogger(ProjectExporter.class);
+    private static boolean extendedByReleases;
+    private static ReleaseHelper releaseHelper;
 
-    private static final List<String> HEADERS = ImmutableList.<String>builder()
-            .add("Component Name")
-            .add("Programming Languages")
-            .add("Categories")
-            .add("Operating Systems")
-            .add("Software Platforms")
-            .add("Created by")
-            .add("Creation Date")
-            .add("Releases")
+    public static final Map<String, String> nameToDisplayName;
+    static {
+        nameToDisplayName = new HashMap<>();
+        nameToDisplayName.put(Component._Fields.NAME.getFieldName(), "component name");
+        nameToDisplayName.put(Component._Fields.CREATED_ON.getFieldName(), "creation date");
+        nameToDisplayName.put(Component._Fields.COMPONENT_TYPE.getFieldName(), "component type");
+        nameToDisplayName.put(Component._Fields.CREATED_BY.getFieldName(), "created by");
+        nameToDisplayName.put(Component._Fields.RELEASE_IDS.getFieldName(), "releases");
+        nameToDisplayName.put(Component._Fields.MAIN_LICENSE_IDS.getFieldName(), "main license IDs");
+        nameToDisplayName.put(Component._Fields.SOFTWARE_PLATFORMS.getFieldName(), "software platforms");
+        nameToDisplayName.put(Component._Fields.OPERATING_SYSTEMS.getFieldName(), "operating systems");
+        nameToDisplayName.put(Component._Fields.VENDOR_NAMES.getFieldName(), "vendor names");
+    }
+
+    private static final List<Component._Fields> IGNORED_FIELDS = ImmutableList.<Component._Fields>builder()
+            .add(ID)
+            .add(REVISION)
+            .add(DOCUMENT_STATE)
+            .add(PERMISSIONS)
+            .add(RELEASES)
             .build();
 
-    public ComponentExporter() {
-        super(new ComponentHelper());
+    public static final List<Component._Fields> RENDERED_FIELDS = Component.metaDataMap.keySet()
+            .stream()
+            .filter(k -> ! IGNORED_FIELDS.contains(k))
+            .collect(Collectors.toList());
+
+    protected static List<String> HEADERS = new ArrayList<>();
+
+    public ComponentExporter(ComponentService.Iface componentClient, boolean extendedByReleases) {
+        super(new ComponentHelper(componentClient));
+        releaseHelper = new ReleaseHelper(componentClient);
+        this.extendedByReleases = extendedByReleases;
+        HEADERS = RENDERED_FIELDS
+                .stream()
+                .map(Component._Fields::getFieldName)
+                .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
+                .collect(Collectors.toList());
+        if(extendedByReleases){
+            HEADERS.addAll(releaseHelper.getHeaders());
+        }
     }
 
     protected static class ComponentHelper implements ExporterHelper<Component> {
+
+        private final ComponentService.Iface componentClient;
+        private List<Release> releases;
+
+        private ComponentHelper(ComponentService.Iface componentClient){
+            this.componentClient = componentClient;
+        };
 
         @Override
         public int getColumns() {
@@ -56,18 +95,59 @@ public class ComponentExporter extends ExcelExporter<Component> {
 
         @Override
         public SubTable makeRows(Component component) {
+            return extendedByReleases
+                    ? makeRowsWithReleases(component)
+                    : makeRowForComponentOnly(component);
+        }
+
+        protected SubTable makeRowsWithReleases(Component component) {
+            releases = getReleases(component);
+            SubTable table = new SubTable();
+
+            if(releases.size() > 0) {
+                for (Release release : releases) {
+                    List<String> currentRow = makeRowForComponent(component);
+                    currentRow.addAll(releaseHelper.makeRows(release).elements.get(0));
+                    table.addRow(currentRow);
+                }
+            } else {
+                List<String> componentRowWithEmptyReleaseFields = makeRowForComponent(component);
+                for(int i = 0; i < releaseHelper.getColumns(); i++){
+                    componentRowWithEmptyReleaseFields.add("");
+                }
+                table.addRow(componentRowWithEmptyReleaseFields);
+            }
+            return table;
+        }
+
+        private List<String> makeRowForComponent(Component component) {
+            if(! component.isSetAttachments()){
+                component.setAttachments(Collections.EMPTY_SET);
+            }
             List<String> row = new ArrayList<>(getColumns());
+            for (Component._Fields renderedField : RENDERED_FIELDS) {
+                if (component.isSet(renderedField)) {
+                    Object fieldValue = component.getFieldValue(renderedField);
+                    switch (renderedField) {
+                        case RELEASE_IDS:
+                            row.add(fieldValueAsString(getReleaseNames(getReleases(component))));
+                            break;
+                        case ATTACHMENTS:
+                            row.add(component.attachments.size()+"");
+                            break;
+                        default:
+                            row.add(fieldValueAsString(fieldValue));
+                    }
+                } else {
+                    row.add("");
+                }
+            }
+            return row;
+        }
 
-            row.add(nullToEmpty(component.name));
-            row.add(joinStrings(component.languages));
-            row.add(joinStrings(component.categories));
-            row.add(joinStrings(component.operatingSystems));
-            row.add(joinStrings(component.softwarePlatforms));
-            row.add(nullToEmpty(component.createdBy));
-            row.add(nullToEmpty(component.createdOn));
-            row.add(joinStrings(getVersions(component.releases)));
-
-            return new SubTable(row);
+        private SubTable makeRowForComponentOnly(Component component){
+            releases = getReleases(component);
+            return new SubTable(makeRowForComponent(component));
         }
 
         private static List<String> getVersions(Collection<Release> releases) {
@@ -78,6 +158,17 @@ public class ComponentExporter extends ExcelExporter<Component> {
                 versions.add(nullToEmpty(release.name));
             }
             return versions;
+        }
+
+        private List<Release> getReleases(Component component) {
+            List<Release> releasesByIdsForExport;
+            try {
+                releasesByIdsForExport = componentClient.getReleasesByIdsForExport(nullToEmptySet(component.releaseIds));
+            } catch (TException e) {
+                log.error("Error fetching release information", e);
+                releasesByIdsForExport = Collections.emptyList();
+            }
+            return releasesByIdsForExport;
         }
     }
 

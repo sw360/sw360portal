@@ -46,12 +46,11 @@ public class ReleaseExporter extends ExcelExporter<Release> {
         nameToDisplayName.put(Release._Fields.COTS_DETAILS.getFieldName(), "COTS details");
         nameToDisplayName.put(Release._Fields.MAIN_LICENSE_IDS.getFieldName(), "main license IDs");
         nameToDisplayName.put(Release._Fields.DOWNLOADURL.getFieldName(), "downloadurl");
-        nameToDisplayName.put(Release._Fields.RELEASE_ID_TO_RELATIONSHIP.getFieldName(), "release IDs with relationship");
+        nameToDisplayName.put(Release._Fields.RELEASE_ID_TO_RELATIONSHIP.getFieldName(), "releases with relationship");
     }
 
     private static final List<Release._Fields> IGNORED_FIELDS = ImmutableList.<Release._Fields>builder()
             .add(REVISION)
-            .add(ATTACHMENTS)
             .add(DOCUMENT_STATE)
             .add(PERMISSIONS)
             .add(VENDOR_ID)
@@ -123,6 +122,9 @@ public class ReleaseExporter extends ExcelExporter<Release> {
 
         @Override
         public SubTable makeRows(Release release) {
+            if(! release.isSetAttachments()){
+                release.setAttachments(Collections.EMPTY_SET);
+            }
             List<String> row = new ArrayList<>();
             for (Release._Fields field : RENDERED_FIELDS) {
                 switch (field) {
@@ -137,6 +139,9 @@ public class ReleaseExporter extends ExcelExporter<Release> {
                         break;
                     case RELEASE_ID_TO_RELATIONSHIP:
                         addReleaseIdToRelationShipToRow(release.getReleaseIdToRelationship(), row);
+                        break;
+                    case ATTACHMENTS:
+                        row.add(release.attachments.size()+"");
                         break;
                     default:
                         if (release.isSet(field)) {

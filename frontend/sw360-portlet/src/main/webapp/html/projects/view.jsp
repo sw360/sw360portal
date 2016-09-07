@@ -315,6 +315,9 @@
          portletURL.setParameter('<%=Project._Fields.TAG%>',$('#tag').val());
          portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
 
+         $('#keywordsearchinput').val("");
+         useSearch('keywordsearchinput');
+
          window.location.href = portletURL.toString();
      }
 

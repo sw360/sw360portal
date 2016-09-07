@@ -459,7 +459,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         List<Project> projectList;
 
-
         final User user = UserCacheHolder.getUserFromRequest(request);
         ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 

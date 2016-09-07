@@ -63,8 +63,6 @@
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Components</span> <span class="pageHeaderSmallSpan">(${componentList.size()})</span>
     <span class="pull-right">
-         <input type="button" id="exportbutton" class="addButton"
-                value="Export Components">
           <input type="button" class="addButton" onclick="window.location.href='<%=addComponentURL%>'"
                 value="Add Component">
     </span>
@@ -84,7 +82,7 @@
             <tr>
                 <td>
                     <input type="text" class="searchbar"
-                           id="keywordsearchinput" value="${searchfilter}"
+                           id="keywordsearchinput" value=""
                            onkeyup="useSearch('keywordsearchinput')"
                            name="<portlet:namespace/><%=PortalConstants.KEY_SEARCH_FILTER_TEXT%>">
                     <br/>
@@ -185,6 +183,14 @@
 </div>
 <div style="clear:both"></div>
 
+<span class="pull-right">
+        <select class="toplabelledInput, formatSelect" id="extendedExcelExport" name="extendedExcelExport">
+            <option value="false">Components only</option>
+            <option value="true">Components with releases</option>
+        </select>
+        <input type="button" class="addButton" id="exportExcelButton" value="Export Excel" class="addButton" onclick="exportExcel()"/>
+</span>
+
 <script>
     var oTable;
     var modal;
@@ -224,10 +230,21 @@
     function exportExcel(){
         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                 .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-        portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
+        portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_FILTER_TEXT%>', $('#keywordsearchinput').val());
+        portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#name_search').val());
+        portletURL.setParameter('<%=Component._Fields.CATEGORIES%>',$('#categories').val());
+        portletURL.setParameter('<%=Component._Fields.LANGUAGES%>',$('#languages').val());
+        portletURL.setParameter('<%=Component._Fields.SOFTWARE_PLATFORMS%>',$('#software_platforms').val());
+        portletURL.setParameter('<%=Component._Fields.OPERATING_SYSTEMS%>',$('#operating_systems').val());
+        portletURL.setParameter('<%=Component._Fields.VENDOR_NAMES%>',$('#vendor_names').val());
+        portletURL.setParameter('<%=Component._Fields.COMPONENT_TYPE%>',$('#component_type').val());
+        portletURL.setParameter('<%=Component._Fields.MAIN_LICENSE_IDS%>',$('#main_licenses').val());
+        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
+
+        $('#keywordsearchinput').val("");
+        useSearch('keywordsearchinput');
 
         window.location.href=portletURL.toString();
-
     }
 
     function createComponentsTable() {
