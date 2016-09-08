@@ -113,27 +113,27 @@
                 <td>
                     <label for="project_name">Project Name</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.NAME%>"
-                           value="${name}" id="project_name">
+                           value="${name}" id="project_name" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project_type">Project Type</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
-                           value="${projectType}" id="project_type">
+                           value="${projectType}" id="project_type" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project_responsible">Project Responsible (Email)</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_RESPONSIBLE%>"
-                           value="${projectResponsible}" id="project_responsible">
+                           value="${projectResponsible}" id="project_responsible" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="group">Group</label>
-                    <select class="toplabelledInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
+                    <select class="toplabelledInput, filterInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
                             style="width: 90%; padding: 5px; color: gray; min-height: 28px;">
                         <option value="" class="textlabel stackedLabel"
                                 <core_rt:if test="${empty businessUnit}"> selected="selected"</core_rt:if>
@@ -150,14 +150,14 @@
                 <td>
                     <label for="state">State</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.STATE%>"
-                           value="${state}" id="state">
+                           value="${state}" id="state" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="tag">Tag</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.TAG%>"
-                           value="${tag}" id="tag">
+                           value="${tag}" id="tag" class="filterInput">
                 </td>
             </tr>
 
@@ -214,6 +214,10 @@
         PortletURL = Liferay.PortletURL;
         load();
         $('#exportbutton').click(exportExcel);
+        $('.filterInput').on('input', function() {
+            $('#exportExcelButton').prop('disabled', true);
+            //when filters are actually applied, page is refreshed and exportExcelButton enabled automatically
+        });
     });
 
     function useSearch(buttonId) {
@@ -290,20 +294,23 @@
          $('#projectsTable_filter').hide();
          $('#projectsTable_first').hide();
          $('#projectsTable_last').hide();
-     }
+    }
 
 
-     function createUrl_comp(paramId, paramVal) {
+    function createUrl_comp(paramId, paramVal) {
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
                  .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
          return portletURL.toString();
-     }
+    }
 
-     function createDetailURLfromProjectId(paramVal) {
+    function createDetailURLfromProjectId(paramVal) {
          return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
-     }
+    }
 
-     function exportExcel() {
+    function exportExcel() {
+        $('#keywordsearchinput').val("");
+        useSearch('keywordsearchinput');
+
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
          portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
@@ -315,20 +322,17 @@
          portletURL.setParameter('<%=Project._Fields.TAG%>',$('#tag').val());
          portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
 
-         $('#keywordsearchinput').val("");
-         useSearch('keywordsearchinput');
-
          window.location.href = portletURL.toString();
-     }
+    }
 
-     function openSelectClearingDialog(projectId, fieldId) {
+    function openSelectClearingDialog(projectId, fieldId) {
          $('#projectId').val(projectId);
 
          setFormSubmit(fieldId);
          fillClearingFormAndOpenDialog(projectId);
-     }
+    }
 
-     function deleteProject(projectId, name) {
+    function deleteProject(projectId, name) {
 
          if (confirm("Do you want to delete project " + name + " ?")) {
 
@@ -358,9 +362,9 @@
              });
 
          }
-     }
+    }
 
-     function fillClearingFormAndOpenDialog(projectId) {
+    function fillClearingFormAndOpenDialog(projectId) {
          jQuery.ajax({
              type: 'POST',
              url: '<%=projectReleasesAjaxURL%>',
@@ -376,9 +380,9 @@
                  alert("I could not get any releases!");
              }
          });
-     }
+    }
 
-     function setFormSubmit(fieldId) {
+    function setFormSubmit(fieldId) {
          $('#fossologyClearingForm').submit(function (e) {
              e.preventDefault();
              closeOpenDialogs();
@@ -405,11 +409,11 @@
 
          });
 
-     }
+    }
 
-     function selectAll(form) {
+    function selectAll(form) {
          $(form).find(':checkbox').prop("checked", true);
-     }
+    }
 
  </script>
 

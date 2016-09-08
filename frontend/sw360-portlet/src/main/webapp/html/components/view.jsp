@@ -105,21 +105,21 @@
             <tr>
                 <td>
                     <label for="name_search">Name Search</label>
-                    <input type="text" class="searchbar" name="<portlet:namespace/><%=PortalConstants.KEY_SEARCH_TEXT%>"
+                    <input type="text" class="searchbar, filterInput" name="<portlet:namespace/><%=PortalConstants.KEY_SEARCH_TEXT%>"
                            value="${searchtext}" id="name_search">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="categories">Categories</label>
-                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Component._Fields.CATEGORIES%>"
+                    <input type="text" class="searchbar, filterInput" name="<portlet:namespace/><%=Component._Fields.CATEGORIES%>"
                            value="${categories}" id="categories">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="component_type">Component Type</label>
-                    <select class="toplabelledInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
+                    <select class="toplabelledInput, filterInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
                             style="min-width: 162px; min-height: 28px;">
                         <option value="<%=PortalConstants.NO_FILTER%>" class="textlabel stackedLabel">Any</option>
                         <sw360:DisplayEnumOptions type="<%=ComponentType.class%>" selectedName="${componentType}" useStringValues="true"/>
@@ -129,14 +129,14 @@
             <tr>
                 <td>
                     <label for="languages">Languages</label>
-                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
+                    <input type="text" class="searchbar, filterInput" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
                            value="${languages}" id="languages">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="software_platforms">Software Platforms</label>
-                    <input type="text" class="searchbar"
+                    <input type="text" class="searchbar, filterInput"
                            name="<portlet:namespace/><%=Component._Fields.SOFTWARE_PLATFORMS%>"
                            value="${softwarePlatforms}" id="software_platforms">
                 </td>
@@ -144,7 +144,7 @@
             <tr>
                 <td>
                     <label for="operating_systems">Operating Systems</label>
-                    <input type="text" class="searchbar"
+                    <input type="text" class="searchbar, filterInput"
                            name="<portlet:namespace/><%=Component._Fields.OPERATING_SYSTEMS%>"
                            value="${operatingSystems}" id="operating_systems">
                 </td>
@@ -152,7 +152,7 @@
             <tr>
                 <td>
                     <label for="vendor_names">Vendors</label>
-                    <input type="text" class="searchbar"
+                    <input type="text" class="searchbar, filterInput"
                            name="<portlet:namespace/><%=Component._Fields.VENDOR_NAMES%>"
                            value="${vendorNames}" id="vendor_names">
                 </td>
@@ -160,7 +160,7 @@
             <tr>
                 <td>
                     <label for="main_licenses">Main Licenses</label>
-                    <input type="text" class="searchbar"
+                    <input type="text" class="searchbar, filterInput"
                            name="<portlet:namespace/><%=Component._Fields.MAIN_LICENSE_IDS%>"
                            value="${mainLicenseIds}" id="main_licenses">
                 </td>
@@ -199,6 +199,10 @@
     AUI().use('liferay-portlet-url', function (A) {
         PortletURL = Liferay.PortletURL;
         load();
+        $('.filterInput').on('input', function() {
+            $('#exportExcelButton').prop('disabled', true);
+            //when filters are actually applied, page is refreshed and exportExcelButton enabled automatically
+        });
     });
 
     //This can not be document ready function as liferay definitions need to be loaded first
@@ -228,6 +232,9 @@
     }
 
     function exportExcel(){
+        $('#keywordsearchinput').val("");
+        useSearch('keywordsearchinput');
+
         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                 .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
         portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_FILTER_TEXT%>', $('#keywordsearchinput').val());
@@ -240,9 +247,6 @@
         portletURL.setParameter('<%=Component._Fields.COMPONENT_TYPE%>',$('#component_type').val());
         portletURL.setParameter('<%=Component._Fields.MAIN_LICENSE_IDS%>',$('#main_licenses').val());
         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
-
-        $('#keywordsearchinput').val("");
-        useSearch('keywordsearchinput');
 
         window.location.href=portletURL.toString();
     }
