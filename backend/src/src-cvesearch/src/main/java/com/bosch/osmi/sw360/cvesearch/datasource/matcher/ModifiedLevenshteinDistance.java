@@ -55,15 +55,15 @@ public class ModifiedLevenshteinDistance {
 
         for (int i = 0; i < needleLength; i++) oldcost[i] = i;
 
-        int savedCostsWhenSippedSpaceSeparatedPrefix     = 0;
+        int savedCostsWhenSkippedSpaceSeparatedPrefix     = 0;
         int minimalCostsWhenSkippedSpaceSeperatedPostfix = Integer.MAX_VALUE;
         for (int j = 1; j < haystackLength; j++) {
             //=========================================================================================================
             if (j > 0 && haystack.charAt(j - 1) == space) {
                 // skipping prefix of haystack does not cost anything, if it ends with a space
-                savedCostsWhenSippedSpaceSeparatedPrefix = j;
+                savedCostsWhenSkippedSpaceSeparatedPrefix = j;
             }
-            curcost[0] = j - savedCostsWhenSippedSpaceSeparatedPrefix;
+            curcost[0] = j - savedCostsWhenSkippedSpaceSeparatedPrefix;
 
             //=========================================================================================================
             for(int i = 1; i < needleLength; i++) {

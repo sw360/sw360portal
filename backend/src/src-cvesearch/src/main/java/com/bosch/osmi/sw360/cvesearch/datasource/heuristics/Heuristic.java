@@ -1,5 +1,6 @@
 /*
  * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * Copyright Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Heuristic {
 
@@ -38,38 +40,30 @@ public class Heuristic {
         this.maxDepth = maxDepth;
     }
 
-    public List<CveSearchData> run(Release release) throws IOException {
-        int level = 0;
-
-        List<List<SearchLevels.NeedleWithMeta>> evaluatedSearchLevels = searchLevels.apply(release);
-        List<CveSearchData> result = new ArrayList<>();
-
-        for(List<SearchLevels.NeedleWithMeta> evaluatedSearchLevel: evaluatedSearchLevels){
-            level++;
-
-            for(SearchLevels.NeedleWithMeta needleWithMeta: evaluatedSearchLevel){
-                try {
-                    result.addAll(cveSearchApi.cvefor(needleWithMeta.needle).stream()
-                            .map(cveSearchData -> cveSearchData
-                                    .setUsedNeedle(needleWithMeta.needle)
-                                    .setMatchedBy(needleWithMeta.description))
-                            .collect(Collectors.toList()));
-                } catch (IOException e) {
-                    log.error("IOException in searchlevel=" + level +
-                            "\n\twith description=" + needleWithMeta.description +
-                            "\n\twith needle=" + needleWithMeta.needle +
-                            "\n\twith msg=" + e.getMessage());
-                }
-            }
-            if(result.size() > 0){
-                return result;
-            }
-            if(level == maxDepth){
-                log.info("reached maximal level.");
-                break;
-            }
+    protected Stream<CveSearchData> runForNeedleWithMeta(SearchLevels.NeedleWithMeta needleWithMeta){
+        try {
+            return cveSearchApi.cvefor(needleWithMeta.needle)
+                    .stream()
+                    .map(cveSearchData -> cveSearchData
+                            .setUsedNeedle(needleWithMeta.needle)
+                            .setMatchedBy(needleWithMeta.description));
+        } catch (IOException e) {
+            log.error("IOException in searchlevel" +
+                    "\n\twith description=" + needleWithMeta.description +
+                    "\n\twith needle=" + needleWithMeta.needle +
+                    "\n\twith exception message=" + e.getMessage(), e);
+            return Stream.empty();
         }
+    }
 
-        return result;
+    public List<CveSearchData> run(Release release) throws IOException {
+        return searchLevels.apply(release)
+                .limit(maxDepth == 0 ? Integer.MAX_VALUE : maxDepth)
+                .map(evaluatedSearchLevel -> evaluatedSearchLevel.stream()
+                        .flatMap(this::runForNeedleWithMeta))
+                .map(stream -> stream.collect(Collectors.toList()))
+                .filter(list -> list.size() > 0)
+                .findFirst()
+                .orElse(new ArrayList<>());
     }
 }

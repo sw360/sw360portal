@@ -134,6 +134,6 @@ public class CveSearchHandler implements CveSearchService.Iface {
 
     @Override
     public Set<String> findCpes(String vendor, String product, String version) throws TException {
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 }
