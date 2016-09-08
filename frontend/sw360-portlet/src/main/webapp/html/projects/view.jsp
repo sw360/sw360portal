@@ -176,9 +176,9 @@
         </tfoot>
     </table>
 </div>
-
+<span class="clear-float"/>
 <span class="pull-right">
-        <select class="toplabelledInput, formatSelect" id="extendedExcelExport" name="extendedExcelExport">
+        <select class="toplabelledInput formatSelect" id="extendedByReleases" name="extendedByReleases">
             <option value="false">Projects only</option>
             <option value="true">Projects with linked releases</option>
         </select>
@@ -216,12 +216,10 @@
         $('#exportbutton').click(exportExcel);
         $('.filterInput').on('input', function() {
             $('#exportExcelButton').prop('disabled', true);
-            //when filters are actually applied, page is refreshed and exportExcelButton enabled automatically
         });
     });
 
     function useSearch(buttonId) {
-        //we only want to search names starting with the value in the search box
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
         oTable.columns(0).search('^' + val, true).draw();
     }
@@ -313,14 +311,13 @@
 
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-         portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
          portletURL.setParameter('<%=Project._Fields.NAME%>',$('#project_name').val());
          portletURL.setParameter('<%=Project._Fields.TYPE%>',$('#project_type').val());
          portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>',$('#project_responsible').val());
          portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>',$('#group').val());
          portletURL.setParameter('<%=Project._Fields.STATE%>',$('#state').val());
          portletURL.setParameter('<%=Project._Fields.TAG%>',$('#tag').val());
-         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
+         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
          window.location.href = portletURL.toString();
     }

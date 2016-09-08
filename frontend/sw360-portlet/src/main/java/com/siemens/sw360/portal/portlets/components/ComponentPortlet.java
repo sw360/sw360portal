@@ -230,9 +230,9 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
         try {
-            boolean isExtendedExcelExport = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
+            boolean extendedByReleases = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
             List<Component> components = getFilteredComponentList(request);
-            ComponentExporter exporter = new ComponentExporter(thriftClients.makeComponentClient(), isExtendedExcelExport);
+            ComponentExporter exporter = new ComponentExporter(thriftClients.makeComponentClient(), extendedByReleases);
             PortletResponseUtil.sendFile(request, response, "Components.xlsx", exporter.makeExcelExport(components),
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         } catch (IOException | SW360Exception e) {
@@ -677,7 +677,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     private void prepareStandardView(RenderRequest request) throws IOException {
         String searchtext = request.getParameter(KEY_SEARCH_TEXT);
-
         String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
 
         List<Component> componentList = getFilteredComponentList(request);
@@ -687,19 +686,18 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         try {
             vendorNames = thriftClients.makeVendorClient().getAllVendorNames();
         } catch (TException e) {
-            log.error("Problem retrieving all the Vendor names");
+            log.error("Problem retrieving all the Vendor names", e);
             vendorNames = Collections.emptySet();
         }
 
         List<String> componentTypeNames = Arrays.asList(ComponentType.values())
                 .stream()
-                .map(ct -> ThriftEnumUtils.enumToString(ct))
+                .map(ThriftEnumUtils::enumToString)
                 .collect(Collectors.toList());
 
         request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
         request.setAttribute(COMPONENT_LIST, componentList);
-        request.setAttribute(KEY_SEARCH_TEXT, searchtext);
-        request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
+        request.setAttribute(KEY_SEARCH_TEXT, request.getParameter(KEY_SEARCH_TEXT));
         request.setAttribute(COMPONENT_TYPE_LIST, new ThriftJsonSerializer().toJson(componentTypeNames));
 
     }
@@ -712,14 +710,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         for (Component._Fields filteredField : componentFilteredFields) {
             String parameter = request.getParameter(filteredField.toString());
             if (!isNullOrEmpty(parameter) &&
-                    !(filteredField.equals(Component._Fields.COMPONENT_TYPE) && parameter.equals(PortalConstants.NO_FILTER)))
-            {
+                    !(filteredField.equals(Component._Fields.COMPONENT_TYPE) && parameter.equals(PortalConstants.NO_FILTER))) {
                 filterMap.put(filteredField.getFieldName(), CommonUtils.splitToSet(parameter));
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
         }
-
-        List<Component> componentList;
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);

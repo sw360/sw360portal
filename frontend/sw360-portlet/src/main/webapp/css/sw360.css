@@ -388,10 +388,15 @@ input[readonly].clickable {
 .formatedMessageForVulCheckedBy:before, .formatedMessageForVulComment:before{
     font-size: small;
 }
+
 .formatedMessageForVulCheckedBy:before {
     content: "Checked by: ";
 }
 
 .formatedMessageForVulComment:before {
     content: "Comment: ";
+}
+
+.clear-float {
+    clear:both;
 }

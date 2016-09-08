@@ -160,7 +160,7 @@ public class ComponentHandler implements ComponentService.Iface {
     @Override
     public List<Release> getReleasesByIdsForExport(Set<String> ids) throws TException {
         assertNotNull(ids);
-        return handler.getDetailedReleases(ids, null);
+        return handler.getDetailedReleasesForExport(ids);
     }
 
     @Override

@@ -40,23 +40,9 @@ public class ReleaseSummary extends DocumentSummary<Release> {
         if(type == SummaryType.DETAILED_EXPORT_SUMMARY){
            setDetailedExportSummaryFields(document, copy);
         } else {
-            copyField(document, copy, _Fields.ID);
-            copyField(document, copy, _Fields.NAME);
-            copyField(document, copy, _Fields.VERSION);
-            copyField(document, copy, _Fields.COMPONENT_ID);
-            copyField(document, copy, _Fields.CLEARING_TEAM_TO_FOSSOLOGY_STATUS);
-            copyField(document, copy, _Fields.FOSSOLOGY_ID);
-
+            setShortSummaryFields(document,copy);
             if (type != SummaryType.SHORT) {
-                copyField(document, copy, _Fields.CPEID);
-                copyField(document, copy, _Fields.CREATED_BY);
-                copyField(document, copy, _Fields.MAINLINE_STATE);
-                copyField(document, copy, _Fields.CLEARING_STATE);
-                copyField(document, copy, _Fields.RELEASE_DATE);
-                copyField(document, copy, _Fields.LANGUAGES);
-                copyField(document, copy, _Fields.OPERATING_SYSTEMS);
-                copyField(document, copy, _Fields.ATTACHMENTS);
-                copyField(document, copy, _Fields.MAIN_LICENSE_IDS);
+               setAdditionalFieldsForSummariesOtherThanShortAndDetailedExport(document, copy);
             }
         }
         if (document.isSetVendorId()) {
@@ -72,6 +58,27 @@ public class ReleaseSummary extends DocumentSummary<Release> {
         for (_Fields renderedField : ReleaseExporter.RENDERED_FIELDS) {
             copyField(document, copy, renderedField);
         }
+    }
+
+    private void setShortSummaryFields(Release document, Release copy) {
+        copyField(document, copy, _Fields.ID);
+        copyField(document, copy, _Fields.NAME);
+        copyField(document, copy, _Fields.VERSION);
+        copyField(document, copy, _Fields.COMPONENT_ID);
+        copyField(document, copy, _Fields.CLEARING_TEAM_TO_FOSSOLOGY_STATUS);
+        copyField(document, copy, _Fields.FOSSOLOGY_ID);
+    }
+
+    private void setAdditionalFieldsForSummariesOtherThanShortAndDetailedExport(Release document, Release copy){
+        copyField(document, copy, _Fields.CPEID);
+        copyField(document, copy, _Fields.CREATED_BY);
+        copyField(document, copy, _Fields.MAINLINE_STATE);
+        copyField(document, copy, _Fields.CLEARING_STATE);
+        copyField(document, copy, _Fields.RELEASE_DATE);
+        copyField(document, copy, _Fields.LANGUAGES);
+        copyField(document, copy, _Fields.OPERATING_SYSTEMS);
+        copyField(document, copy, _Fields.ATTACHMENTS);
+        copyField(document, copy, _Fields.MAIN_LICENSE_IDS);
     }
 
 }

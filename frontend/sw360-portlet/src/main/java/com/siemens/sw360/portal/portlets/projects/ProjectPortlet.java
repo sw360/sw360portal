@@ -208,13 +208,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
         try {
             User user = UserCacheHolder.getUserFromRequest(request);
-            boolean isExtendedExcelExport = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
+            boolean extendedByReleases = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
             List<Project> projects = getFilteredProjectList(request);
             ProjectExporter exporter = new ProjectExporter(
                     thriftClients.makeComponentClient(),
                     thriftClients.makeProjectClient(),
                     user,
-                    isExtendedExcelExport);
+                    extendedByReleases);
             PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
@@ -433,13 +433,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private void prepareStandardView(RenderRequest request) throws IOException {
-        String searchtext = request.getParameter(KEY_SEARCH_TEXT);
-        String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
         List<Project> projectList = getFilteredProjectList(request);
 
         request.setAttribute(PROJECT_LIST, projectList);
-        request.setAttribute(KEY_SEARCH_TEXT, searchtext);
-        request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
         List<Organization> organizations = UserUtils.getOrganizations(request);
         request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
     }
@@ -474,7 +470,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             } else {
                 projectList = projectClient.refineSearch(searchtext, filterMap, user);
             }
-            for (Project project : projectList) {
+            for(Project project:projectList){
                 setClearingStateSummary(project);
             }
         } catch (TException e) {
