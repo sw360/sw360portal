@@ -75,12 +75,11 @@
         <core_rt:if test="${not componentDivAddMode}">
             <input type="button" class="addButton" onclick="deleteConfirmed('' +
                     'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?'  +
-                    '<core_rt:if test="${not empty component.attachments or not empty component.releases}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b> contains<br/><ul></core_rt:if>' +
-                    '<core_rt:if test="${not empty component.releases}" ><li><sw360:out value="${component.releasesSize}"/> linked releases</li></core_rt:if>'  +
-                    '<core_rt:if test="${not empty component.attachments}" ><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></core_rt:if>'  +
-                    '<core_rt:if test="${not empty component.attachments or not empty component.releases}" ></ul></core_rt:if>', deleteComponent)"
+                    '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b>contains<br/><ul><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></ul></core_rt:if>'
+                    , deleteComponent)"
                    value="Delete <sw360:out value="${component.name}"/> "
                     <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the component is used." </core_rt:if>
+                    <core_rt:if test="${component.releasesSize>0}"> disabled="disabled" title="Deletion is disabled as the component contains releases." </core_rt:if>
                     >
         </core_rt:if>
     </p>

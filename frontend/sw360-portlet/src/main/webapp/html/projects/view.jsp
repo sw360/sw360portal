@@ -218,10 +218,12 @@
         $('#exportbutton').click(exportExcel);
         $('.filterInput').on('input', function() {
             $('#exportExcelButton').prop('disabled', true);
+            <%--when filters are actually applied, page is refreshed and exportExcelButton enabled automatically--%>
         });
     });
 
     function useSearch(buttonId) {
+        <%-- we only want to search names starting with the value in the search box--%>
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
         oTable.columns(0).search('^' + val, true).draw();
     }
@@ -310,9 +312,9 @@
          return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
      }
 
-     function exportExcel() {
-         $('#keywordsearchinput').val("");
-         useSearch('keywordsearchinput');
+    function exportExcel() {
+        $('#keywordsearchinput').val("");
+        useSearch('keywordsearchinput');
 
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
@@ -325,7 +327,7 @@
          portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
          window.location.href = portletURL.toString();
-    }
+     }
 
      function openSelectClearingDialog(projectId, fieldId) {
          $('#projectId').val(projectId);
@@ -334,7 +336,7 @@
          fillClearingFormAndOpenDialog(projectId);
      }
 
-    function deleteProject(projectId, name) {
+    function deleteProject(projectId, name, linkedProjectsSize, linkedReleasesSize, attachmentsSize) {
 
          function deleteProjectInternal() {
              jQuery.ajax({
@@ -351,7 +353,7 @@
                      else if (data.result == 'SENT_TO_MODERATOR') {
                          $.alert("You may not delete the project, but a request was sent to a moderator!");
                      } else if (data.result == 'IN_USE') {
-                         $.alert("The project is used by another project!");
+                         $.alert("The project cannot be deleted, since it is used by another project!");
                      }
                      else {
                          $.alert("I could not delete the project!");

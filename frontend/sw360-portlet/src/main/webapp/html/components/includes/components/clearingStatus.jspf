@@ -61,7 +61,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#releasesTable').dataTable({
+        oTable = $('#releasesTable').DataTable({
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
@@ -70,7 +70,7 @@
                 {"sTitle": "Clearing state"},
                 {"sTitle": "Clearing report"},
                 {"sTitle": "Mainline state"},
-                {"sTitle": "Action"}
+                {"sTitle": "Actions"}
             ]
         });
 
@@ -79,7 +79,7 @@
 
     }
 
-    //This can not be document ready function as liferay definitions need to be loaded first
+    <%--This can not be document ready function as liferay definitions need to be loaded first--%>
     $(window).load(function () {
         createClearingTable();
     });
@@ -95,14 +95,14 @@
                     <portlet:namespace/>releaseId: id
                 },
                 success: function (data) {
-                    if (data.result == 'SUCCESS')
+                    if (data.result == 'SUCCESS') {
                         oTable.row('#' + id).remove().draw();
+                    }
                     else if (data.result == 'SENT_TO_MODERATOR') {
                         $.alert("You may not delete the release, but a request was sent to a moderator!");
                     } else if (data.result == 'IN_USE') {
-                        $.alert("The release is used by another component (release) or project");
-                    }
-                    else {
+                        $.alert("I could not delete the release, since it is used by another component (release) or project");
+                    } else {
                         $.alert("I could not delete the release!");
                     }
                 },

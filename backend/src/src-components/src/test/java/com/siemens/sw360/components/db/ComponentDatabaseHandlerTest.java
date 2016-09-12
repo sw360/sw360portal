@@ -425,7 +425,7 @@ public class ComponentDatabaseHandlerTest {
     }
 
     @Test
-    public void testComponentCleanUp() throws Exception {
+    public void testDontDeleteComponentWithReleaseContained() throws Exception {
         Component component = new Component().setId("Del").setName("delete").setDescription("d1").setCreatedBy(email1);
         Release release = new Release().setId("DelR").setComponentId("Del").setName("delete Release").setVersion("1.0").setCreatedBy(email1).setVendorId("V1").setClearingState(ClearingState.NEW_CLEARING);
 
@@ -439,19 +439,9 @@ public class ComponentDatabaseHandlerTest {
             assertThat(delR.getName(), is("delete Release"));
         }
 
-        handler.deleteComponent("Del", user1);
+        RequestStatus status = handler.deleteComponent("Del", user1);
 
-        exception.expect(SW360Exception.class);
-        handler.getComponent("Del", user1);
-    }
-
-    @Test
-    public void testComponentCleanUp2() throws Exception {
-        Component component = new Component().setId("Del").setName("delete").setDescription("d1").setCreatedBy(email1);
-        Release release = new Release().setId("DelR").setComponentId("Del").setName("delete Release").setVersion("1.0").setCreatedBy(email1).setVendorId("V1").setClearingState(ClearingState.NEW_CLEARING);
-
-        handler.addComponent(component, email1);
-        handler.addRelease(release, email1);
+        assertThat(status, is(RequestStatus.IN_USE));
 
         {
             Component del = handler.getComponent("Del", user1);
@@ -459,11 +449,6 @@ public class ComponentDatabaseHandlerTest {
             Release delR = handler.getRelease("DelR", user1);
             assertThat(delR.getName(), is("delete Release"));
         }
-
-        handler.deleteComponent("Del", user1);
-
-        exception.expect(SW360Exception.class);
-        handler.getRelease("DelR", user1);
     }
 
     @Test
@@ -816,7 +801,7 @@ public class ComponentDatabaseHandlerTest {
     @Test
     public void testDeleteComponentNotModerator() throws Exception {
         when(moderator.deleteComponent(any(Component.class), eq(user2))).thenReturn(RequestStatus.SENT_TO_MODERATOR);
-        RequestStatus status = handler.deleteComponent("C1", user2);
+        RequestStatus status = handler.deleteComponent("C3", user2);
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
         List<Component> componentSummary = handler.getComponentSummary(user1);
         assertEquals(3, componentSummary.size());

@@ -280,8 +280,7 @@
         $('#componentsTable_last').hide();
     }
 
-    function deleteComponent(id, name, linkedReleasesSize, attachmentsSize) {
-
+    function deleteComponent(id, name, numberOfReleases, attachmentsSize) {
         function deleteComponentInternal() {
             jQuery.ajax({
                 type: 'POST',
@@ -290,6 +289,7 @@
                 data: {
                     <portlet:namespace/>componentid: id
                 },
+
                 success: function (data) {
                     if (data.result == 'SUCCESS') {
                         oTable.row('#' + id).remove().draw();
@@ -297,8 +297,10 @@
                     else if (data.result == 'SENT_TO_MODERATOR') {
                         $.alert("You may not delete the component, but a request was sent to a moderator!");
                     }
-                    else {
-                        $.alert("I could not delete the component!");
+                    else if (data.result == 'IN_USE') {
+                        $.alert("I could not delete the component, since it is in use.");
+                    } else {
+                        $.alert("I could not delete the component.");
                     }
                 },
                 error: function () {
@@ -307,14 +309,15 @@
             });
         }
 
-        var confirmMessage = "Do you really want to delete the component " + name + " ?";
-        confirmMessage += (attachmentsSize > 0 || linkedReleasesSize > 0) ? "<br/><br/>The component " + name +  " contains<br/><ul>" : "";
-        confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
-        confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
-        confirmMessage += (attachmentsSize > 0 || linkedReleasesSize > 0) ? "</ul>" : "";
-
-        deleteConfirmed(confirmMessage, deleteComponentInternal);
+        if (numberOfReleases > 0) {
+            $.alert("The component cannot be deleted, since it contains releases. Please delete the releases first.");
+        } else {
+            var confirmMessage = "Do you really want to delete the component " + name + " ?";
+            confirmMessage += (attachmentsSize > 0) ? "<br/><br/>The component " + name + " contains<br/><ul><li>" + attachmentsSize + " attachments</li></ul>" : "";
+            deleteConfirmed(confirmMessage, deleteComponentInternal);
+        }
     }
+
 </script>
 <%@include file="/html/utils/includes/modal.jspf" %>
 <%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>

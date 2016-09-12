@@ -511,6 +511,7 @@ public class ComponentDatabaseHandler {
         assertNotNull(component);
 
         final Set<String> releaseIds = component.getReleaseIds();
+        if (releaseIds!=null && releaseIds.size()>0) return RequestStatus.IN_USE;
         if (checkIfInUse(releaseIds)) return RequestStatus.IN_USE;
 
 
