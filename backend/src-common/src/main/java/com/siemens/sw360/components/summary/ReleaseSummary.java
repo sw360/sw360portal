@@ -55,7 +55,7 @@ public class ReleaseSummary extends DocumentSummary<Release> {
     }
 
     private void setDetailedExportSummaryFields(Release document, Release copy) {
-        for (_Fields renderedField : ReleaseExporter.RENDERED_FIELDS) {
+        for (_Fields renderedField : ReleaseExporter.RELEASE_RENDERED_FIELDS) {
             copyField(document, copy, renderedField);
         }
     }

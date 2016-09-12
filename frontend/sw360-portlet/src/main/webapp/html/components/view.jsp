@@ -180,9 +180,9 @@
         </tfoot>
     </table>
 </div>
-
+<div class="clear-float"></div>
 <span class="pull-right">
-        <select class="toplabelledInput, formatSelect" id="extendedExcelExport" name="extendedExcelExport">
+        <select class="toplabelledInput formatSelect" id="extendedByReleases" name="extendedByReleases">
             <option value="false">Components only</option>
             <option value="true">Components with releases</option>
         </select>
@@ -221,7 +221,6 @@
     }
 
     function useSearch(buttonId) {
-        //we only want to search names starting with the value in the search box
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
         oTable.columns(1).search('^'+val, true).draw();
     }
@@ -232,7 +231,6 @@
 
         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                 .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-        portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_FILTER_TEXT%>', $('#keywordsearchinput').val());
         portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#name_search').val());
         portletURL.setParameter('<%=Component._Fields.CATEGORIES%>',$('#categories').val());
         portletURL.setParameter('<%=Component._Fields.LANGUAGES%>',$('#languages').val());
@@ -241,7 +239,7 @@
         portletURL.setParameter('<%=Component._Fields.VENDOR_NAMES%>',$('#vendor_names').val());
         portletURL.setParameter('<%=Component._Fields.COMPONENT_TYPE%>',$('#component_type').val());
         portletURL.setParameter('<%=Component._Fields.MAIN_LICENSE_IDS%>',$('#main_licenses').val());
-        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedExcelExport').val());
+        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
         window.location.href=portletURL.toString();
     }

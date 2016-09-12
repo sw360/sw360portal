@@ -335,11 +335,11 @@ input[readonly].clickable {
     font-family: monospace;
 }
 
-.formatSelect {
-   width: 20em !important;
-   height: 25px !important;
-   margin-bottom: 0 !important;
-    padding:0 !important;
+#extendedByReleases, .formatSelect {
+   width: 20em;
+   height: 25px;
+   margin-bottom: 0;
+   padding:0;
 }
 
 .notificationBulletSpan {
@@ -398,5 +398,5 @@ input[readonly].clickable {
 }
 
 .clear-float {
-    clear:both;
+    clear:right;
 }

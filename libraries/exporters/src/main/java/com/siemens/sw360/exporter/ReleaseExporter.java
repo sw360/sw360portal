@@ -9,6 +9,7 @@
 package com.siemens.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.log4j.Logger;
@@ -49,7 +50,7 @@ public class ReleaseExporter extends ExcelExporter<Release> {
         nameToDisplayName.put(Release._Fields.RELEASE_ID_TO_RELATIONSHIP.getFieldName(), "releases with relationship");
     }
 
-    private static final List<Release._Fields> IGNORED_FIELDS = ImmutableList.<Release._Fields>builder()
+    private static final List<Release._Fields> RELEASE_IGNORED_FIELDS = ImmutableList.<Release._Fields>builder()
             .add(REVISION)
             .add(DOCUMENT_STATE)
             .add(PERMISSIONS)
@@ -63,9 +64,9 @@ public class ReleaseExporter extends ExcelExporter<Release> {
             .add(Vendor._Fields.TYPE)
             .build();
 
-    public static final List<Release._Fields> RENDERED_FIELDS = Release.metaDataMap.keySet()
+    public static final List<Release._Fields> RELEASE_RENDERED_FIELDS = Release.metaDataMap.keySet()
             .stream()
-            .filter(k -> !IGNORED_FIELDS.contains(k))
+            .filter(k -> !RELEASE_IGNORED_FIELDS.contains(k))
             .collect(Collectors.toList());
 
     private static final List<String> HEADERS = makeHeaders();
@@ -76,7 +77,7 @@ public class ReleaseExporter extends ExcelExporter<Release> {
 
     private static List<String> makeHeaders() {
         List<String> headers = new ArrayList();
-        for (Release._Fields field : RENDERED_FIELDS) {
+        for (Release._Fields field : RELEASE_RENDERED_FIELDS) {
             addToHeaders(headers, field);
         }
         return headers;
@@ -121,38 +122,38 @@ public class ReleaseExporter extends ExcelExporter<Release> {
         }
 
         @Override
-        public SubTable makeRows(Release release) {
+        public SubTable makeRows(Release release) throws SW360Exception {
             if(! release.isSetAttachments()){
                 release.setAttachments(Collections.EMPTY_SET);
             }
             List<String> row = new ArrayList<>();
-            for (Release._Fields field : RENDERED_FIELDS) {
-                switch (field) {
-                    case VENDOR:
-                        addVendorToRow(release.getVendor(), row);
-                        break;
-                    case COTS_DETAILS:
-                        addCotsDetailsToRow(release.getCotsDetails(), row);
-                        break;
-                    case CLEARING_INFORMATION:
-                        addClearingInformationToRow(release.getClearingInformation(), row);
-                        break;
-                    case RELEASE_ID_TO_RELATIONSHIP:
-                        addReleaseIdToRelationShipToRow(release.getReleaseIdToRelationship(), row);
-                        break;
-                    case ATTACHMENTS:
-                        row.add(release.attachments.size()+"");
-                        break;
-                    default:
-                        if (release.isSet(field)) {
-                            Object fieldValue = release.getFieldValue(field);
-                            row.add(fieldValueAsString(fieldValue));
-                        } else {
-                            row.add("");
-                        }
-                }
+            for (Release._Fields renderedField : RELEASE_RENDERED_FIELDS) {
+                addFieldValueToRow(row, renderedField, release);
             }
             return new SubTable(row);
+        }
+
+        private void addFieldValueToRow(List<String> row, Release._Fields field, Release release) throws SW360Exception {
+            switch(field) {
+                case VENDOR:
+                    addVendorToRow(release.getVendor(), row);
+                    break;
+                case COTS_DETAILS:
+                    addCotsDetailsToRow(release.getCotsDetails(), row);
+                    break;
+                case CLEARING_INFORMATION:
+                    addClearingInformationToRow(release.getClearingInformation(), row);
+                    break;
+                case RELEASE_ID_TO_RELATIONSHIP:
+                    addReleaseIdToRelationShipToRow(release.getReleaseIdToRelationship(), row);
+                    break;
+                case ATTACHMENTS:
+                    row.add(release.attachments.size() + "");
+                    break;
+                default:
+                    Object fieldValue = release.getFieldValue(field);
+                    row.add(fieldValueAsString(fieldValue));
+            }
         }
 
         private void addVendorToRow(Vendor vendor, List<String> row) {
@@ -205,7 +206,7 @@ public class ReleaseExporter extends ExcelExporter<Release> {
             }
         }
 
-        private void addReleaseIdToRelationShipToRow(Map<String, ReleaseRelationship> releaseIdToRelationship, List<String> row) {
+        private void addReleaseIdToRelationShipToRow(Map<String, ReleaseRelationship> releaseIdToRelationship, List<String> row) throws SW360Exception {
             if (releaseIdToRelationship != null) {
                 row.add(fieldValueAsString(putReleaseNamesInMap(
                         releaseIdToRelationship,
@@ -215,13 +216,12 @@ public class ReleaseExporter extends ExcelExporter<Release> {
             }
         }
 
-        private List<Release> getReleases(Set<String> ids) {
+        private List<Release> getReleases(Set<String> ids) throws SW360Exception {
             List<Release> releasesByIdsForExport;
             try {
                 releasesByIdsForExport = client.getReleasesByIdsForExport(nullToEmptySet(ids));
             } catch (TException e) {
-                log.error("Error fetching release information", e);
-                releasesByIdsForExport = Collections.emptyList();
+                throw new SW360Exception("Error fetching release information");
             }
             return releasesByIdsForExport;
         }

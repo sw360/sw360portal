@@ -84,9 +84,9 @@ public class ExcelExporter<T> {
     /**
      * Write the values into the row, setting the cells to the given style
      */
-    private void fillRow(Row row, List<String> values, CellStyle style) throws SW360Exception{
+    private void fillRow(Row row, List<String> values, CellStyle style) {
         if(values.size() < helper.getColumns()){
-            throw new SW360Exception("List of row values is too short.");
+            throw new IllegalArgumentException("List of row values is too short.");
         }
         for (int column = 0; column < helper.getColumns(); column++) {
             Cell cell = row.createCell(column);

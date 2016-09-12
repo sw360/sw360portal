@@ -328,6 +328,9 @@ public class SW360Utils {
     }
 
     public static String fieldValueAsString(Object fieldValue) {
+        if(fieldValue == null){
+            return "";
+        }
         if (fieldValue instanceof TEnum) {
             return nullToEmpty(ThriftEnumUtils.enumToString((TEnum) fieldValue));
         }
@@ -354,7 +357,9 @@ public class SW360Utils {
     }
 
     public static <T> Map<String, T> putReleaseNamesInMap(Map<String, T> map, List<Release> releases) {
-        if(map == null || releases == null) return Collections.emptyMap();
+        if(map == null || releases == null) {
+            return Collections.emptyMap();
+        }
         Map<String, T> releaseNamesMap = new HashMap<>();
         releases.stream()
                 .forEach(r -> releaseNamesMap.put(printName(r),map.get(r.getId())));
@@ -362,7 +367,9 @@ public class SW360Utils {
     }
 
     public static <T> Map<String, T> putProjectNamesInMap(Map<String, T> map, List<Project> projects) {
-        if(map == null || projects == null) return Collections.emptyMap();
+        if(map == null || projects == null) {
+            return Collections.emptyMap();
+        }
         Map<String, T> projectNamesMap = new HashMap<>();
         projects.stream()
                 .forEach(p -> projectNamesMap.put(printName(p),map.get(p.getId())));

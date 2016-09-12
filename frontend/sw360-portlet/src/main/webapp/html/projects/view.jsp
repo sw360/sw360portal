@@ -176,7 +176,7 @@
         </tfoot>
     </table>
 </div>
-<span class="clear-float"/>
+<div class="clear-float"></div>
 <span class="pull-right">
         <select class="toplabelledInput formatSelect" id="extendedByReleases" name="extendedByReleases">
             <option value="false">Projects only</option>
@@ -281,7 +281,7 @@
              search: {smart: false},
              "aoColumns": [
                  {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
-                 {title: "Description", data: "description"},// render: {display: displayEscaped}},
+                 {title: "Description", data: "description"},
                  {title: "Project Responsible", data: "responsible"},
                  {title: "State", data: "state", render: {display: displayEscaped}},
                  {title: "Clearing Status", data: "clearing"},
@@ -292,23 +292,20 @@
          $('#projectsTable_filter').hide();
          $('#projectsTable_first').hide();
          $('#projectsTable_last').hide();
-    }
+     }
 
 
-    function createUrl_comp(paramId, paramVal) {
+     function createUrl_comp(paramId, paramVal) {
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
                  .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
          return portletURL.toString();
-    }
+     }
 
-    function createDetailURLfromProjectId(paramVal) {
+     function createDetailURLfromProjectId(paramVal) {
          return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
-    }
+     }
 
-    function exportExcel() {
-        $('#keywordsearchinput').val("");
-        useSearch('keywordsearchinput');
-
+     function exportExcel() {
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
          portletURL.setParameter('<%=Project._Fields.NAME%>',$('#project_name').val());
@@ -322,14 +319,14 @@
          window.location.href = portletURL.toString();
     }
 
-    function openSelectClearingDialog(projectId, fieldId) {
+     function openSelectClearingDialog(projectId, fieldId) {
          $('#projectId').val(projectId);
 
          setFormSubmit(fieldId);
          fillClearingFormAndOpenDialog(projectId);
-    }
+     }
 
-    function deleteProject(projectId, name) {
+     function deleteProject(projectId, name) {
 
          if (confirm("Do you want to delete project " + name + " ?")) {
 
@@ -359,9 +356,9 @@
              });
 
          }
-    }
+     }
 
-    function fillClearingFormAndOpenDialog(projectId) {
+     function fillClearingFormAndOpenDialog(projectId) {
          jQuery.ajax({
              type: 'POST',
              url: '<%=projectReleasesAjaxURL%>',
@@ -377,9 +374,9 @@
                  alert("I could not get any releases!");
              }
          });
-    }
+     }
 
-    function setFormSubmit(fieldId) {
+     function setFormSubmit(fieldId) {
          $('#fossologyClearingForm').submit(function (e) {
              e.preventDefault();
              closeOpenDialogs();
@@ -406,11 +403,11 @@
 
          });
 
-    }
+     }
 
-    function selectAll(form) {
+     function selectAll(form) {
          $(form).find(':checkbox').prop("checked", true);
-    }
+     }
 
  </script>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials

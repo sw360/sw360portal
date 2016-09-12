@@ -11,6 +11,7 @@ package com.siemens.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.common.SW360Utils;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -61,16 +62,16 @@ public class ProjectExporter extends ExcelExporter<Project> {
         nameToDisplayName.put(Project._Fields.PHASE_OUT_SINCE.getFieldName(), "phase out since");
     }
 
-    private static final List<Project._Fields> IGNORED_FIELDS = ImmutableList.<Project._Fields>builder()
+    private static final List<Project._Fields> PROJECT_IGNORED_FIELDS = ImmutableList.<Project._Fields>builder()
             .add(REVISION)
             .add(DOCUMENT_STATE)
             .add(PERMISSIONS)
             .add(RELEASE_IDS)
             .build();
 
-    public static final List<Project._Fields> RENDERED_FIELDS = Project.metaDataMap.keySet()
+    public static final List<Project._Fields> PROJECT_RENDERED_FIELDS = Project.metaDataMap.keySet()
             .stream()
-            .filter(k -> ! IGNORED_FIELDS.contains(k))
+            .filter(k -> ! PROJECT_IGNORED_FIELDS.contains(k))
             .collect(Collectors.toList());
 
     protected static List<String> HEADERS = new ArrayList<>();
@@ -79,7 +80,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
         super(new ProjectHelper(componentClient, projectClient, user));
         releaseHelper = new ReleaseHelper(componentClient);
         this.extendedByReleases = extendedByReleases;
-        HEADERS = RENDERED_FIELDS
+        HEADERS = PROJECT_RENDERED_FIELDS
                 .stream()
                 .map(Project._Fields::getFieldName)
                 .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
@@ -113,13 +114,13 @@ public class ProjectExporter extends ExcelExporter<Project> {
         }
 
         @Override
-        public SubTable makeRows(Project project) {
+        public SubTable makeRows(Project project) throws SW360Exception {
             return extendedByReleases
                     ? makeRowsWithReleases(project)
                     : makeRowForProjectOnly(project);
         }
 
-        protected SubTable makeRowsWithReleases(Project project) {
+        protected SubTable makeRowsWithReleases(Project project) throws SW360Exception {
             releases = getReleases(project);
             SubTable table = new SubTable();
 
@@ -139,64 +140,66 @@ public class ProjectExporter extends ExcelExporter<Project> {
             return table;
         }
 
-        private List<String> makeRowForProject(Project project) {
+        private List<String> makeRowForProject(Project project) throws SW360Exception {
             if(! project.isSetAttachments()){
                 project.setAttachments(Collections.EMPTY_SET);
             }
             List<String> row = new ArrayList<>(getColumns());
-            for (Project._Fields renderedField : RENDERED_FIELDS) {
-                if (project.isSet(renderedField)) {
-                    Object fieldValue = project.getFieldValue(renderedField);
-                    switch (renderedField) {
-                        case RELEASE_IDS:
-                            row.add(fieldValueAsString(getReleaseNames(releases)));
-                            break;
-                        case RELEASE_ID_TO_USAGE:
-                            row.add(fieldValueAsString(putReleaseNamesInMap(project.releaseIdToUsage, releases)));
-                            break;
-                        case LINKED_PROJECTS:
-                            row.add(fieldValueAsString(putProjectNamesInMap(
-                                    project.getLinkedProjects(),
-                                    getProjects(project.getLinkedProjects().keySet(), user)
-                            )));
-                            break;
-                        case ATTACHMENTS:
-                            row.add(project.attachments.size()+"");
-                            break;
-                        default:
-                            row.add(fieldValueAsString(fieldValue));
-                    }
-                } else {
-                    row.add("");
-                }
+            for(Project._Fields renderedField : PROJECT_RENDERED_FIELDS) {
+                addFieldValueToRow(row, renderedField, project);
             }
 
             return row;
         }
 
-        private SubTable makeRowForProjectOnly(Project project){
+        private void addFieldValueToRow(List<String> row, Project._Fields field, Project project) throws SW360Exception {
+            if(project.isSet(field)) {
+                Object fieldValue = project.getFieldValue(field);
+                switch(field) {
+                    case RELEASE_IDS:
+                        row.add(fieldValueAsString(getReleaseNames(releases)));
+                        break;
+                    case RELEASE_ID_TO_USAGE:
+                        row.add(fieldValueAsString(putReleaseNamesInMap(project.releaseIdToUsage, releases)));
+                        break;
+                    case LINKED_PROJECTS:
+                        row.add(fieldValueAsString(putProjectNamesInMap(
+                                project.getLinkedProjects(),
+                                getProjects(project.getLinkedProjects().keySet(), user)
+                        )));
+                        break;
+                    case ATTACHMENTS:
+                        row.add(project.attachments.size() + "");
+                        break;
+                    default:
+                        row.add(fieldValueAsString(fieldValue));
+                }
+            } else {
+                row.add("");
+            }
+        }
+
+        private SubTable makeRowForProjectOnly(Project project) throws SW360Exception {
             releases = getReleases(project);
             return  new SubTable(makeRowForProject(project));
         }
 
-        private List<Release> getReleases(Project project) {
+        private List<Release> getReleases(Project project) throws SW360Exception {
             List<Release> releasesByIdsForExport;
             try {
                 releasesByIdsForExport = componentClient.getReleasesByIdsForExport(nullToEmptySet(project.releaseIds));
             } catch (TException e) {
-                log.error("Error fetching release information", e);
-                releasesByIdsForExport = Collections.emptyList();
+                throw new SW360Exception("Error fetching release information");
             }
             return releasesByIdsForExport;
         }
 
-        private List<Project> getProjects(Set<String> ids, User user){
+        private List<Project> getProjects(Set<String> ids, User user) throws SW360Exception {
             List<Project> projects;
             try {
                 projects = projectClient.getProjectsById(ids, user);
             } catch (TException e) {
-                log.error("Error fetching linked projects.", e);
-                projects = Collections.emptyList();
+                throw new SW360Exception("Error fetching linked projects");
             }
             return projects;
         }

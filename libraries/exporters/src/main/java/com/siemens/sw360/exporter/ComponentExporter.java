@@ -10,6 +10,7 @@ package com.siemens.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
 import com.siemens.sw360.datahandler.common.SW360Utils;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
@@ -45,7 +46,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
         nameToDisplayName.put(Component._Fields.VENDOR_NAMES.getFieldName(), "vendor names");
     }
 
-    private static final List<Component._Fields> IGNORED_FIELDS = ImmutableList.<Component._Fields>builder()
+    private static final List<Component._Fields> COMPONENT_IGNORED_FIELDS = ImmutableList.<Component._Fields>builder()
             .add(ID)
             .add(REVISION)
             .add(DOCUMENT_STATE)
@@ -53,9 +54,9 @@ public class ComponentExporter extends ExcelExporter<Component> {
             .add(RELEASES)
             .build();
 
-    public static final List<Component._Fields> RENDERED_FIELDS = Component.metaDataMap.keySet()
+    public static final List<Component._Fields> COMPONENT_RENDERED_FIELDS = Component.metaDataMap.keySet()
             .stream()
-            .filter(k -> ! IGNORED_FIELDS.contains(k))
+            .filter(k -> ! COMPONENT_IGNORED_FIELDS.contains(k))
             .collect(Collectors.toList());
 
     protected static List<String> HEADERS = new ArrayList<>();
@@ -64,7 +65,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
         super(new ComponentHelper(componentClient));
         releaseHelper = new ReleaseHelper(componentClient);
         this.extendedByReleases = extendedByReleases;
-        HEADERS = RENDERED_FIELDS
+        HEADERS = COMPONENT_RENDERED_FIELDS
                 .stream()
                 .map(Component._Fields::getFieldName)
                 .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
@@ -94,13 +95,13 @@ public class ComponentExporter extends ExcelExporter<Component> {
         }
 
         @Override
-        public SubTable makeRows(Component component) {
+        public SubTable makeRows(Component component) throws SW360Exception {
             return extendedByReleases
                     ? makeRowsWithReleases(component)
                     : makeRowForComponentOnly(component);
         }
 
-        protected SubTable makeRowsWithReleases(Component component) {
+        protected SubTable makeRowsWithReleases(Component component) throws SW360Exception {
             releases = getReleases(component);
             SubTable table = new SubTable();
 
@@ -120,32 +121,36 @@ public class ComponentExporter extends ExcelExporter<Component> {
             return table;
         }
 
-        private List<String> makeRowForComponent(Component component) {
+        private List<String> makeRowForComponent(Component component) throws SW360Exception {
             if(! component.isSetAttachments()){
                 component.setAttachments(Collections.EMPTY_SET);
             }
             List<String> row = new ArrayList<>(getColumns());
-            for (Component._Fields renderedField : RENDERED_FIELDS) {
-                if (component.isSet(renderedField)) {
-                    Object fieldValue = component.getFieldValue(renderedField);
-                    switch (renderedField) {
-                        case RELEASE_IDS:
-                            row.add(fieldValueAsString(getReleaseNames(getReleases(component))));
-                            break;
-                        case ATTACHMENTS:
-                            row.add(component.attachments.size()+"");
-                            break;
-                        default:
-                            row.add(fieldValueAsString(fieldValue));
-                    }
-                } else {
-                    row.add("");
-                }
+            for(Component._Fields renderedField : COMPONENT_RENDERED_FIELDS) {
+                addFieldValueToRow(row, renderedField, component);
             }
             return row;
         }
 
-        private SubTable makeRowForComponentOnly(Component component){
+        private void addFieldValueToRow(List<String> row, Component._Fields field, Component component) throws SW360Exception {
+            if(component.isSet(field)) {
+                Object fieldValue = component.getFieldValue(field);
+                switch(field) {
+                    case RELEASE_IDS:
+                        row.add(fieldValueAsString(getReleaseNames(getReleases(component))));
+                        break;
+                    case ATTACHMENTS:
+                        row.add(component.attachments.size() + "");
+                        break;
+                    default:
+                        row.add(fieldValueAsString(fieldValue));
+                }
+            } else {
+                row.add("");
+            }
+        }
+
+        private SubTable makeRowForComponentOnly(Component component) throws SW360Exception{
             releases = getReleases(component);
             return new SubTable(makeRowForComponent(component));
         }
@@ -160,13 +165,12 @@ public class ComponentExporter extends ExcelExporter<Component> {
             return versions;
         }
 
-        private List<Release> getReleases(Component component) {
+        private List<Release> getReleases(Component component) throws SW360Exception{
             List<Release> releasesByIdsForExport;
             try {
                 releasesByIdsForExport = componentClient.getReleasesByIdsForExport(nullToEmptySet(component.releaseIds));
             } catch (TException e) {
-                log.error("Error fetching release information", e);
-                releasesByIdsForExport = Collections.emptyList();
+                throw new SW360Exception("Error fetching release information");
             }
             return releasesByIdsForExport;
         }
