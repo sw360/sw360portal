@@ -80,6 +80,14 @@ div.content2 {
     width: 100%;
 }
 
+.info_table_left_column {
+    width: 30%;
+}
+
+.info_table_right_column {
+    width: 70%;
+}
+
 .info_table > thead > tr > th {
     background-color: rgb(178, 224, 224);
     border: medium none;
@@ -325,4 +333,58 @@ input[readonly].clickable {
 .hashvalue {
     word-break: break-all;
     font-family: monospace;
+}
+
+.notificationBulletSpan {
+    min-width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    font-size: 11px;
+    padding: 0 4px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 25px;
+    text-align: center;
+    display: inline-block;
+    float: right;
+}
+
+.backgroundAlert {
+    background: #e95850;
+}
+
+.backgroundGrey {
+    background: #aaaaaa;
+}
+
+.vulnerabilityRatingCommentArea {
+    width: 95% !important;
+    height: 90% !important;
+}
+
+.withTopMargin {
+    margin-top: 2em !important;
+}
+
+.formatedMessageForVulItem {
+    list-style: none;
+}
+
+.formatedMessageForVulItem:not(:last-of-type) {
+    margin-bottom: 10px;
+}
+
+.formatedMessageForVulDate, .formatedMessageForVulPrefix {
+    font-size: small;
+}
+
+.formatedMessageForVulCheckedBy:before, .formatedMessageForVulComment:before{
+    font-size: small;
+}
+.formatedMessageForVulCheckedBy:before {
+    content: "Checked by: ";
+}
+
+.formatedMessageForVulComment:before {
+    content: "Comment: ";
 }

@@ -14,6 +14,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Duration;
+import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
@@ -27,6 +28,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
@@ -53,6 +55,7 @@ public class ProjectDatabaseHandler {
     private static final Logger log = Logger.getLogger(ProjectDatabaseHandler.class);
 
     private final ProjectRepository repository;
+    private final ProjectVulnerabilityRatingRepository pvrRepository;
     private final ProjectModerator moderator;
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
@@ -65,9 +68,11 @@ public class ProjectDatabaseHandler {
     public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(url, dbName);
 
-        // Create the repository
+        // Create the repositories
         repository = new ProjectRepository(db);
+        pvrRepository = new ProjectVulnerabilityRatingRepository(db);
 
+        // Create the moderator
         this.moderator = moderator;
 
         // Create the attachment connector
@@ -336,5 +341,19 @@ public class ProjectDatabaseHandler {
         }
 
         return CommonUtils.getIdentifierToListOfDuplicates(projectIdentifierToReleaseId);
+    }
+
+    public List<ProjectVulnerabilityRating> getProjectVulnerabilityRatingByProjectId(String projectId){
+        return pvrRepository.getProjectVulnerabilityRating(projectId);
+    }
+
+    public RequestStatus updateProjectVulnerabilityRating(ProjectVulnerabilityRating link) {
+        if( ! link.isSetId()){
+            link.setId(SW360Constants.PROJECT_VULNERABILITY_RATING_ID_PREFIX + link.getProjectId());
+            pvrRepository.add(link);
+        } else {
+            pvrRepository.update(link);
+        }
+        return RequestStatus.SUCCESS;
     }
 }

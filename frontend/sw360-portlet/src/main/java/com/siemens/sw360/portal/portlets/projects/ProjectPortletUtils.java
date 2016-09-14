@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,7 @@
  */
 package com.siemens.sw360.portal.portlets.projects;
 
+import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -28,14 +29,19 @@ import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
+import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.PortletUtils;
+import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
+import javax.portlet.ResourceRequest;
 import javax.portlet.RenderRequest;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.siemens.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
 
@@ -97,6 +103,46 @@ public class ProjectPortletUtils {
 
     private static void setFieldValue(PortletRequest request, Project project, Project._Fields field) {
         PortletUtils.setFieldValue(request, project, field, Project.metaDataMap.get(field), "");
+    }
+
+    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request){
+        String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        ProjectVulnerabilityRating projectVulnerabilityRating = projectVulnerabilityRatings.orElse(
+                new ProjectVulnerabilityRating()
+                        .setProjectId(projectId)
+                        .setVulnerabilityIdToReleaseIdToStatus(new HashMap<>()));
+
+        String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
+        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
+        if(! projectVulnerabilityRating.isSetVulnerabilityIdToReleaseIdToStatus()){
+            projectVulnerabilityRating.setVulnerabilityIdToReleaseIdToStatus(new HashMap<>());
+        }
+
+        Map<String, Map <String, List<VulnerabilityCheckStatus>>>  vulnerabilityIdToReleaseIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToReleaseIdToStatus();
+        if(! vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId)){
+            vulnerabilityIdToReleaseIdToStatus.put(vulnerabilityId, new HashMap<>());
+        }
+        if(! vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)){
+            vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).put(releaseId, new ArrayList<>());
+        }
+
+        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).get(releaseId);
+        VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
+        vulnerabilityCheckStatusHistory.add(vulnerabilityCheckStatus);
+
+        return projectVulnerabilityRating;
+    }
+
+    private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request){
+        VulnerabilityRatingForProject vulnerabilityRatingForProject = VulnerabilityRatingForProject.findByValue(
+                        Integer.parseInt(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
+
+        VulnerabilityCheckStatus vulnerabilityCheckStatus = new VulnerabilityCheckStatus()
+                .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
+                .setCheckedOn(SW360Utils.getCreatedOn())
+                .setComment(request.getParameter(PortalConstants.VULNERABILITY_RATING_COMMENT))
+                .setVulnerabilityRating(vulnerabilityRatingForProject);
+        return vulnerabilityCheckStatus;
     }
 
     private static com.liferay.portal.model.User getLiferayUser(RenderRequest request, User user) throws PortalException, SystemException {

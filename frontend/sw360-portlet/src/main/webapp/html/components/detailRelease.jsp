@@ -25,7 +25,6 @@
 <jsp:useBean id="release" class="com.siemens.sw360.datahandler.thrift.components.Release" scope="request"/>
 <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>"
              scope="request"/>
-
 <jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
 <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 
@@ -78,7 +77,7 @@
                 <core_rt:if test="${cotsMode}">
                     <li <core_rt:if test="${selectedTab == 'COTSDetails'}"> class="active" </core_rt:if>  ><a href="#tab-CommercialDetails">Commercial Details</a></li>
                 </core_rt:if>
-                <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}">              class="active" </core_rt:if>  >                <a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
+                <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>  ><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
             </ul>
             <div class="tab-content span10">
                 <div id="tab-Summary" class="tab-pane">

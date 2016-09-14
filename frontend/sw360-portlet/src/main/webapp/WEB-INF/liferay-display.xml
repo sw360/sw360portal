@@ -30,9 +30,11 @@
 		<portlet id="mytaskassignments"/>
 		<portlet id="mytasksubmissions"/>
 		<portlet id="fossologyadmin"/>
+		<portlet id="scheduleadmin"/>
 		<portlet id="attachmentVacuum"/>
 		<portlet id="databaseSanitation"/>
 		<portlet id="bulkReleaseEdit"/>
 		<portlet id="signup"/>
+		<portlet id="vulnerabilities"/>
 	</category>
 </display>

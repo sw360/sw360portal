@@ -387,12 +387,15 @@ public class CommonUtils {
     }
 
 
-    public static RequestSummary addToMessage(RequestSummary left, RequestSummary right, String info) {
-        if (left.requestStatus.equals(RequestStatus.SUCCESS) && right.requestStatus.equals(RequestStatus.SUCCESS)) {
-            left.setRequestStatus(RequestStatus.SUCCESS);
-        } else {
-            left.setRequestStatus(RequestStatus.FAILURE);
+    public static RequestStatus reduceRequestStatus(RequestStatus r1, RequestStatus r2){
+        if (RequestStatus.SUCCESS.equals(r1) && RequestStatus.SUCCESS.equals(r2)){
+            return RequestStatus.SUCCESS;
         }
+        return RequestStatus.FAILURE;
+    }
+
+    public static RequestSummary addToMessage(RequestSummary left, RequestSummary right, String info) {
+        left.setRequestStatus(reduceRequestStatus(left.requestStatus, right.requestStatus));
 
         StringBuilder stringBuilder = new StringBuilder();
         if (left.isSetMessage()) {
@@ -510,5 +513,15 @@ public class CommonUtils {
         public Predicate<V> is(Predicate<T> predicate) {
             return Predicates.compose(predicate, transformer);
         }
+    }
+
+    public static <T> Optional<T> wrapThriftOptionalReplacement(List<T> thriftOutput){
+        if (thriftOutput == null || thriftOutput.size() == 0){
+            return Optional.empty();
+        }
+        if (thriftOutput.size() > 1){
+            getLogger(CommonUtils.class).error("List contained more then one item but was treated as \"Optional\".");
+        }
+        return Optional.of(thriftOutput.get(0));
     }
 }

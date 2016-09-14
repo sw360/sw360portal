@@ -34,7 +34,9 @@
         <module>svc-fossology</module>
         <module>svc-bdpimport</module>
         <module>svc-vulnerabilities</module>
+        <module>svc-cvesearch</module>
         <module>svc-licenseinfo</module>
+        <module>svc-schedule</module>
     </modules>
 
     <build>

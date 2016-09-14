@@ -15,6 +15,7 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
+<%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
 
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
@@ -180,10 +181,13 @@
         </tr>
         </tfoot>
     </table>
+    <div class="sw360modal" id="vulnerabilityModal"></div>
 </div>
+<div style="clear:both"></div>
 
 <script>
     var oTable;
+    var modal;
 
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
@@ -288,6 +292,7 @@
         }
 
     }
+
 </script>
-
-
+<%@include file="/html/utils/includes/modal.jspf" %>
+<%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>

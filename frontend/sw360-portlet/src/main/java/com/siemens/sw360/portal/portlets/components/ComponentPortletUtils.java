@@ -8,13 +8,17 @@
  */
 package com.siemens.sw360.portal.portlets.components;
 
+import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.thrift.VerificationState;
+import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.PortletUtils;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -23,9 +27,7 @@ import org.apache.thrift.TException;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -286,5 +288,25 @@ public abstract class ComponentPortletUtils {
             }
         }
         return RequestStatus.FAILURE;
+    }
+
+    public static ReleaseVulnerabilityRelation updateReleaseVulnerabilityRelationFromRequest(ReleaseVulnerabilityRelation dbRelation, ResourceRequest request){
+
+        if(!dbRelation.isSetVerificationStateInfo()){
+            dbRelation.setVerificationStateInfo(new ArrayList<>());
+        }
+        List<VerificationStateInfo> verificationStateHistory = dbRelation.getVerificationStateInfo();
+
+        VerificationState verificationState = VerificationState.findByValue(
+                Integer.parseInt(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_VALUE)));
+
+        VerificationStateInfo resultInfo = new VerificationStateInfo()
+                .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
+                .setCheckedOn(SW360Utils.getCreatedOn())
+                .setComment(request.getParameter(PortalConstants.VULNERABILITY_VERIFICATION_COMMENT))
+                .setVerificationState(verificationState);
+        verificationStateHistory.add(resultInfo);
+
+        return dbRelation;
     }
 }

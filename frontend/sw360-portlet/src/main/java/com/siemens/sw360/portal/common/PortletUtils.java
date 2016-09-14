@@ -10,19 +10,26 @@ package com.siemens.sw360.portal.common;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
+import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
 import com.siemens.sw360.datahandler.thrift.components.*;
+import com.siemens.sw360.datahandler.thrift.cvesearch.UpdateType;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import com.siemens.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
@@ -35,6 +42,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static java.lang.Integer.parseInt;
 
 /**
@@ -240,5 +248,50 @@ public class PortletUtils {
         newProject.unsetAttachments();
 
         return newProject;
+    }
+
+    public static JSONObject importStatusToJSON(VulnerabilityUpdateStatus updateStatus) {
+        JSONObject responseData = JSONFactoryUtil.createJSONObject();
+        if(! updateStatus.isSetStatusToVulnerabilityIds() || ! updateStatus.isSetRequestStatus()){
+            responseData.put(PortalConstants.REQUEST_STATUS, PortalConstants.RESPONSE__IMPORT_GENERAL_FAILURE);
+            return responseData;
+        }
+        if (updateStatus.getRequestStatus().equals(RequestStatus.FAILURE)
+                && nullToEmptyList(updateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED)).size() == 0) {
+            responseData.put(PortalConstants.REQUEST_STATUS, PortalConstants.RESPONSE__IMPORT_GENERAL_FAILURE);
+            return responseData;
+        }
+        responseData.put(PortalConstants.REQUEST_STATUS, updateStatus.getRequestStatus().toString());
+        JSONArray jsonFailedIds = JSONFactoryUtil.createJSONArray();
+        JSONArray jsonNewIds = JSONFactoryUtil.createJSONArray();
+        JSONArray jsonUpdatedIds = JSONFactoryUtil.createJSONArray();
+
+        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED).forEach(id -> jsonFailedIds.put(id));
+        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.NEW).forEach(id -> jsonNewIds.put(id));
+        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.UPDATED).forEach(id -> jsonUpdatedIds.put(id));
+
+        responseData.put(PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS, jsonFailedIds);
+        responseData.put(PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS, jsonNewIds);
+        responseData.put(PortalConstants.UPDATE_VULNERABILITIES__UPDATED_IDS, jsonUpdatedIds);
+        return responseData;
+    }
+
+    private static Map<String, Integer> addToMatchedByHistogram(Map<String, Integer> matchedByHistogram, String matchedBy){
+        if (matchedByHistogram.containsKey(matchedBy)){
+            matchedByHistogram.put(matchedBy, matchedByHistogram.get(matchedBy) + 1);
+        }else{
+            matchedByHistogram.put(matchedBy, 1);
+        }
+        return matchedByHistogram;
+    }
+
+    public static Map<String, Integer> addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, VulnerabilityDTO vul){
+        final String isMatchedByUnknown = "UNKNOWN";
+
+        if (vul.isSetMatchedBy()) {
+            return addToMatchedByHistogram(matchedByHistogram, vul.getMatchedBy());
+        } else {
+            return addToMatchedByHistogram(matchedByHistogram, isMatchedByUnknown);
+        }
     }
 }

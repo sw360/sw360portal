@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Test up data source to receive all users informations.
+ * Test up data source to receive all users information.
  */
 public class BdpApiAccessMockImplTest {
 
@@ -55,11 +55,12 @@ public class BdpApiAccessMockImplTest {
 	@Test
 	public void testProjectInfo() {
 		Collection<ProjectInfo> projectInfos = user.getProjectInfos();
-		assertThat(projectInfos.size(), is(2));
+		assertThat(projectInfos.size(), is(3));
         TreeSet<ProjectInfo> sortedProjectInfo = new TreeSet(Comparator.comparing(ProjectInfo::getProjectName).reversed());
         sortedProjectInfo.addAll(projectInfos);
 
-		ProjectInfo projectInfo = Assertions.firstOf(sortedProjectInfo);
+		sortedProjectInfo.pollFirst();
+		ProjectInfo projectInfo = sortedProjectInfo.first();
 		Assertions.assertProjectInfo(projectInfo);
 
 		Project project = projectInfo.getProject();

@@ -8,10 +8,12 @@
  */
 package com.siemens.sw360.datahandler.db;
 
+import com.google.common.base.Strings;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseRepository;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
+import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
@@ -59,6 +61,18 @@ public class VendorRepository extends DatabaseRepository<Vendor> {
         } else {
             log.error("User is not allowed to delete!");
             return RequestStatus.FAILURE;
+        }
+    }
+
+    public void fillVendor(Release release) {
+        if (release.isSetVendorId()) {
+            final String vendorId = release.getVendorId();
+            if (!Strings.isNullOrEmpty(vendorId)) {
+                final Vendor vendor = get(vendorId);
+                if (vendor != null)
+                    release.setVendor(vendor);
+            }
+            release.unsetVendorId();
         }
     }
 }

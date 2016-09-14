@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
@@ -20,6 +21,7 @@ import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.Visibility;
@@ -29,6 +31,8 @@ import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -37,6 +41,7 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.*;
 import com.siemens.sw360.exporter.ProjectExporter;
 import com.siemens.sw360.portal.common.*;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
@@ -52,14 +57,17 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.io.PrintWriter;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
+import static com.siemens.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 
 /**
@@ -70,6 +78,9 @@ import static org.apache.commons.lang.StringUtils.abbreviate;
  * @author alex.borodin@evosoft.com
  */
 public class ProjectPortlet extends FossologyAwarePortlet {
+
+
+    private final String NOT_CHECKED_YET = "Not checked yet.";
 
     private static final Logger log = Logger.getLogger(ProjectPortlet.class);
 
@@ -118,6 +129,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveRemoveProject(request, response);
         } else if (PortalConstants.VIEW_LINKED_RELEASES.equals(action)) {
             serveLinkedReleases(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_PROJECT.equals(action)) {
+            updateVulnerabilitiesProject(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITY_RATINGS.equals(action)) {
+            updateVulnerabilityRating(request, response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
@@ -157,7 +172,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 row.put("id", project.getId());
                 row.put("name", printName(project));
                 String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
+                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A." : pDesc);
                 row.put("state", ThriftEnumUtils.enumToString(project.getState()));
                 row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
                 row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
@@ -213,7 +228,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         try {
-            deleteUnneededAttachments(user.getEmail(),projectId);
+            deleteUnneededAttachments(user.getEmail(), projectId);
             ProjectService.Iface client = thriftClients.makeProjectClient();
             return client.deleteProject(projectId, user);
         } catch (TException e) {
@@ -288,7 +303,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
-                final String fullname = vendor!=null?vendor.getFullname():"";
+                final String fullname = vendor != null ? vendor.getFullname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(),
                         fullname, release.getName(), release.getVersion());
                 linkedReleases.add(linkedRelease);
@@ -452,7 +467,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             } else {
                 projectList = projectClient.refineSearch(searchtext, filterMap, user);
             }
-            for(Project project:projectList){
+            for (Project project : projectList) {
                 setClearingStateSummary(project);
             }
 
@@ -469,9 +484,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     }
 
-    private void addStickyProjectGroupToFilters(RenderRequest request, User user, Map<String, Set<String>> filterMap){
+    private void addStickyProjectGroupToFilters(RenderRequest request, User user, Map<String, Set<String>> filterMap) {
         String stickyGroupFilter = ProjectPortletUtils.loadStickyProjectGroup(request, user);
-        if (!isNullOrEmpty(stickyGroupFilter)){
+        if (!isNullOrEmpty(stickyGroupFilter)) {
             String groupFieldName = Project._Fields.BUSINESS_UNIT.getFieldName();
             filterMap.put(groupFieldName, Sets.newHashSet(stickyGroupFilter));
             request.setAttribute(groupFieldName, stickyGroupFilter);
@@ -497,18 +512,101 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
 
+                putVulnerabilitiesInRequest(request, id, user);
+                request.setAttribute(
+                        VULNERABILITY_RATINGS_EDITABLE,
+                        PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE));
+
                 addProjectBreadcrumb(request, response, project);
+
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
             }
         }
     }
 
+    private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory) {
+        return CommonVulnerabilityPortletUtils.formatedMessageForVul(statusHistory,
+                e -> e.getVulnerabilityRating().name(),
+                e -> e.getCheckedOn(),
+                e -> e.getCheckedBy(),
+                e -> e.getComment());
+    }
+
+    private boolean addToVulnerabilityRatings(Map<String, Map<String, VulnerabilityRatingForProject>> vulnerabilityRatings,
+                                              Map<String, Map<String, String>> vulnerabilityTooltips,
+                                              Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus,
+                                              VulnerabilityDTO vulnerability) {
+
+        String vulnerabilityId = vulnerability.getExternalId();
+        String releaseId = vulnerability.getIntReleaseId();
+        if (!vulnerabilityTooltips.containsKey(vulnerabilityId)) {
+            vulnerabilityTooltips.put(vulnerabilityId, new HashMap<>());
+        }
+        if (!vulnerabilityRatings.containsKey(vulnerabilityId)) {
+            vulnerabilityRatings.put(vulnerabilityId, new HashMap<>());
+        }
+        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = null;
+        if(vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId) && vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)) {
+            vulnerabilityCheckStatusHistory = vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).get(releaseId);
+        }
+        if (vulnerabilityCheckStatusHistory != null && vulnerabilityCheckStatusHistory.size() > 0) {
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, formatedMessageForVul(vulnerabilityCheckStatusHistory));
+
+            VulnerabilityCheckStatus vulnerabilityCheckStatus = vulnerabilityCheckStatusHistory.get(vulnerabilityCheckStatusHistory.size() - 1);
+            VulnerabilityRatingForProject rating = vulnerabilityCheckStatus.getVulnerabilityRating();
+            vulnerabilityRatings.get(vulnerabilityId).put(releaseId, rating);
+            if (rating != VulnerabilityRatingForProject.NOT_CHECKED) {
+                return true;
+            }
+        } else {
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, NOT_CHECKED_YET);
+            vulnerabilityRatings.get(vulnerabilityId).put(releaseId, VulnerabilityRatingForProject.NOT_CHECKED);
+        }
+        return false;
+    }
+
+    private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException {
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+        List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectIdWithoutIncorrect(id, user);
+        request.setAttribute(VULNERABILITY_LIST, vuls);
+
+        Optional<ProjectVulnerabilityRating> projectVulnerabilityRating = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
+
+        Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToStatusHistory;
+        if (projectVulnerabilityRating.isPresent()) {
+            vulnerabilityIdToStatusHistory = projectVulnerabilityRating.get().getVulnerabilityIdToReleaseIdToStatus();
+        } else {
+            vulnerabilityIdToStatusHistory = new HashMap<>();
+        }
+
+        int numberOfVulnerabilities = 0;
+        int numberOfCheckedVulnerabilities = 0;
+        Map<String, Map<String, String>> vulnerabilityTooltips = new HashMap<>();
+        Map<String, Map<String, VulnerabilityRatingForProject>> vulnerabilityRatings = new HashMap<>();
+        Map<String, Integer> matchedByHistogram = new HashMap<>();
+        for (VulnerabilityDTO vul : vuls) {
+            numberOfVulnerabilities++;
+            boolean wasAddedVulChecked = addToVulnerabilityRatings(vulnerabilityRatings, vulnerabilityTooltips, vulnerabilityIdToStatusHistory, vul);
+            if (wasAddedVulChecked) {
+                numberOfCheckedVulnerabilities++;
+            }
+            addToMatchedByHistogram(matchedByHistogram, vul);
+        }
+
+        int numberOfUncheckedVulnerabilities = numberOfVulnerabilities - numberOfCheckedVulnerabilities;
+
+        request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
+        request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRatings);
+        request.setAttribute(PortalConstants.VULNERABILITY_CHECKSTATUS_TOOLTIPS, vulnerabilityTooltips);
+        request.setAttribute(PortalConstants.NUMBER_OF_VULNERABILITIES, numberOfVulnerabilities);
+        request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
+    }
+
     private void setClearingStateSummary(Project project) {
         ComponentService.Iface componentClient = thriftClients.makeComponentClient();
 
         setClearingStateSummary(componentClient, project);
-
     }
 
     private Collection<Project> setClearingStateSummary(Collection<Project> projects) {
@@ -523,7 +621,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void setClearingStateSummary(ComponentService.Iface componentClient, Project project) {
         try {
             final Set<String> releaseIds;
-            if(project.isSetReleaseIds()){
+            if (project.isSetReleaseIds()) {
                 releaseIds = project.getReleaseIds();
             } else {
                 releaseIds = CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
@@ -661,7 +759,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
                 requestStatus = client.updateProject(project, user);
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
-                cleanUploadHistory(user.getEmail(),id);
+                cleanUploadHistory(user.getEmail(), id);
                 response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
                 response.setRenderParameter(PROJECT_ID, request.getParameter(PROJECT_ID));
             } else {
@@ -685,6 +783,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Error updating project in backend!", e);
         }
     }
+
     @UsedAsLiferayAction
     public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
         response.setRenderParameter(KEY_SEARCH_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_TEXT)));
@@ -694,4 +793,39 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
+    private void updateVulnerabilitiesProject(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            VulnerabilityUpdateStatus importStatus = cveClient.updateForProject(projectId);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e) {
+            log.error("Error updating CVEs for project in backend.", e);
+        }
+    }
+
+    private void updateVulnerabilityRating(ResourceRequest request, ResourceResponse response) throws IOException {
+        String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
+        User user = UserCacheHolder.getUserFromRequest(request);
+
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+
+        RequestStatus requestStatus = RequestStatus.FAILURE;
+        try {
+            Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(projectId, user));
+            ProjectVulnerabilityRating link = ProjectPortletUtils.updateProjectVulnerabilityRatingFromRequest(projectVulnerabilityRatings, request);
+            requestStatus = vulClient.updateProjectVulnerabilityRating(link, user);
+        } catch (TException e) {
+            log.error("Error updating vulnerability ratings for project in backend.", e);
+        }
+
+        JSONObject responseData = JSONFactoryUtil.createJSONObject();
+        responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+        responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
+        PrintWriter writer = response.getWriter();
+        writer.write(responseData.toString());
+    }
 }

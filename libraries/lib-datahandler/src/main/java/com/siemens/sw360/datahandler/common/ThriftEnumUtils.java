@@ -12,6 +12,7 @@ package com.siemens.sw360.datahandler.common;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.siemens.sw360.datahandler.thrift.VerificationState;
 import com.siemens.sw360.datahandler.thrift.datasources.SourceDatabase;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.Visibility;
@@ -22,6 +23,7 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
 import org.apache.thrift.TEnum;
 
 import java.util.Enumeration;
@@ -171,6 +173,18 @@ public class ThriftEnumUtils {
             UserGroup.ADMIN, "Admin"
           );
 
+    private static final ImmutableMap<VulnerabilityRatingForProject, String> MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING = ImmutableMap.of(
+            VulnerabilityRatingForProject.NOT_CHECKED, "Not Checked" ,
+            VulnerabilityRatingForProject.IRRELEVANT, "Irrelevant" ,
+            VulnerabilityRatingForProject.RESOLVED, "Resolved" ,
+            VulnerabilityRatingForProject.APPLICABLE, "Applicable"
+    );
+
+    private static final ImmutableMap<VerificationState, String> MAP_VERIFICATION_STATUS_STRING = ImmutableMap.of(
+            VerificationState.NOT_CHECKED, "Not Checked" ,
+            VerificationState.CHECKED, "Checked" ,
+            VerificationState.INCORRECT, "Incorrect"
+    );
 
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
@@ -189,6 +203,8 @@ public class ThriftEnumUtils {
             .put(Visibility.class, MAP_VISIBILITY_STRING)
             .put(ProjectState.class, MAP_PROJECT_STATE_STRING)
             .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
+            .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
+            .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)
             .build();
 
     public static String enumToString(TEnum value) {

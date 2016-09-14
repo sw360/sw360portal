@@ -18,7 +18,7 @@ import com.bosch.osmi.sw360.bdp.entitytranslation.TranslationConstants;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
 import com.siemens.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
-import com.siemens.sw360.datahandler.thrift.bdpimportstatus.BdpImportStatus;
+import com.siemens.sw360.datahandler.thrift.importstatus.ImportStatus;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
 
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class BdpImportHandler implements BdpImportService.Iface {
 
     @Override
-    public synchronized BdpImportStatus importDatasources(List<String> bdpProjectIds, User user, RemoteCredentials remoteCredentials) throws TException {
+    public synchronized ImportStatus importDatasources(List<String> bdpProjectIds, User user, RemoteCredentials remoteCredentials) throws TException {
         BdpApiAccessWrapperSimple bdpApiAccessWrapper = new BdpApiAccessWrapperSimple(remoteCredentials);
         ThriftUploader thriftUploader = new ThriftUploader(new ThriftExchange(new ThriftApiSimple()), bdpApiAccessWrapper);
 

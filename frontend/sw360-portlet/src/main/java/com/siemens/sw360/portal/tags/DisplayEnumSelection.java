@@ -15,6 +15,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
+import java.util.Iterator;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.Iterables.all;
@@ -28,6 +29,7 @@ public class DisplayEnumSelection extends SimpleTagSupport {
     private TEnum selected;
     private String selectedName;
     private Boolean useStringValues = false;
+    private Boolean inQuotes = false;
     private Iterable<? extends TEnum> options;
 
     public void setType(Class type) {
@@ -55,6 +57,8 @@ public class DisplayEnumSelection extends SimpleTagSupport {
         this.useStringValues = useStringValues;
     }
 
+    public void setInQuotes(Boolean inQuotes) { this.inQuotes = inQuotes;}
+
     public void doTag() throws JspException, IOException {
         if (options != null) {
             doEnumValues(options);
@@ -67,16 +71,26 @@ public class DisplayEnumSelection extends SimpleTagSupport {
 
     private void doEnumValues(Iterable<? extends TEnum> enums) throws IOException {
         JspWriter jspWriter = getJspContext().getOut();
-        for (TEnum enumItem : enums) {
+
+        Iterator<? extends TEnum> iterator = enums.iterator();
+        while (iterator.hasNext()){
+            TEnum enumItem = iterator.next();
             String enumItemDescription = ThriftEnumUtils.enumToString(enumItem);
 
             boolean selected = enumItem.equals(this.selected) || enumItem.toString().equals(this.selectedName);
             String value = useStringValues ? enumItem.toString() : "" + enumItem.getValue();
-            jspWriter.write(String.format(
+            String result = String.format(
                     "<option value=\"%s\" class=\"textlabel stackedLabel\" " +
                             (selected ? "selected=\"selected\" " : "") +
                             ">%s</option>",
-                    value, enumItemDescription));
+                    value, enumItemDescription);
+            if (inQuotes && iterator.hasNext()){
+                jspWriter.write("\'"+ result+ "\' +");
+            } else if (inQuotes) {
+                jspWriter.write("\'"+ result+ "\'");
+            } else {
+                jspWriter.write(result);
+            }
         }
     }
 }

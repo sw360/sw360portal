@@ -18,24 +18,27 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.VerificationState;
+import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
+import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import com.siemens.sw360.exporter.ComponentExporter;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.PortletUtils;
-import com.siemens.sw360.portal.common.ThriftJsonSerializer;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
+import com.siemens.sw360.portal.common.*;
 import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
 import com.siemens.sw360.portal.users.LifeRayUserSession;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -44,13 +47,16 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
 import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 
 /**
  * Component portlet implementation
@@ -111,6 +117,14 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             serveUnsubscribeRelease(request, response);
         } else if (PortalConstants.VIEW_LINKED_RELEASES.equals(action)) {
             serveLinkedReleases(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_RELEASE.equals(action)){
+            updateVulnerabilitiesRelease(request,response);
+        } else if (PortalConstants.UPDATE_VULNERABILITIES_COMPONENT.equals(action)){
+            updateVulnerabilitiesComponent(request,response);
+        } else if (PortalConstants.UPDATE_ALL_VULNERABILITIES.equals(action)) {
+            updateAllVulnerabilities(request, response);
+        } else if (PortalConstants.UPDATE_VULNERABILITY_VERIFICATION.equals(action)){
+                updateVulnerabilityVerification(request,response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
         } else if (isGenericAction(action)) {
@@ -151,7 +165,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             log.error("Error searching vendors", e);
         }
 
-        request.setAttribute("vendorsSearch", CommonUtils.nullToEmptyList(vendors));
+        request.setAttribute("vendorsSearch", nullToEmptyList(vendors));
         include("/html/components/ajax/vendorSearch.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
@@ -479,12 +493,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
                 setUsingDocs(request, user, client, releaseIds);
 
-                addComponentBreadcrumb(request, response, component);
-
                 // get vulnerabilities
-                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByComponentId(id, user);
-                request.setAttribute(VULNERABILITY_LIST, vuls);
+                putVulnerabilitiesInRequestComponent(request, id, user);
+                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
+
+                addComponentBreadcrumb(request, response, component);
             } catch (TException e) {
                 log.error("Error fetching component from backend!", e);
             }
@@ -539,10 +552,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     id = release.getComponentId();
                 }
 
-                // get vulnerabilities
-                VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
-                List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByReleaseId(releaseId, user);
-                request.setAttribute(VULNERABILITY_LIST, vuls);
+                putVulnerabilitiesInRequestRelease(request, releaseId, user);
+                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
             }
 
             component = client.getComponentById(id, user);
@@ -559,6 +570,80 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         }
 
     }
+
+    private String formatedMessageForVul(List<VerificationStateInfo> infoHistory){
+        return CommonVulnerabilityPortletUtils.formatedMessageForVul(infoHistory,
+                e -> e.getVerificationState().name(),
+                e -> e.getCheckedOn(),
+                e -> e.getCheckedBy(),
+                e -> e.getComment());
+    }
+
+    private void putVulnerabilitiesInRequestRelease(RenderRequest request, String releaseId, User user) throws TException {
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+        List<VulnerabilityDTO> vuls;
+        if (PermissionUtils.isAdmin(user)) {
+            vuls = vulClient.getVulnerabilitiesByReleaseId(releaseId, user);
+        } else {
+            vuls = vulClient.getVulnerabilitiesByReleaseIdWithoutIncorrect(releaseId, user);
+        }
+        request.setAttribute(VULNERABILITY_LIST,vuls);
+
+        putVulnerabilityMetadatasInRequest(request, vuls);
+    }
+
+    private void putVulnerabilitiesInRequestComponent(RenderRequest request, String componentId, User user) throws TException{
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+        List<VulnerabilityDTO> vuls;
+        if (PermissionUtils.isAdmin(user)) {
+            vuls = vulClient.getVulnerabilitiesByComponentId(componentId, user);
+        } else {
+            vuls = vulClient.getVulnerabilitiesByComponentIdWithoutIncorrect(componentId, user);
+        }
+        request.setAttribute(VULNERABILITY_LIST, vuls);
+
+        putVulnerabilityMetadatasInRequest(request, vuls);
+
+    }
+
+    private void addToVulnerabilityVerifications(Map<String, Map<String, VerificationState>> vulnerabilityVerifications,
+                                                 Map<String, Map<String, String>> vulnerabilityTooltips,
+                                                 VulnerabilityDTO vulnerability){
+        String vulnerabilityId = vulnerability.getExternalId();
+        String releaseId = vulnerability.getIntReleaseId();
+        if(! vulnerabilityVerifications.containsKey(vulnerabilityId)){
+            vulnerabilityVerifications.put(vulnerabilityId, new HashMap<>());
+        }
+        if(! vulnerabilityTooltips.containsKey(vulnerabilityId)){
+            vulnerabilityTooltips.put(vulnerabilityId, new HashMap<>());
+        }
+        ReleaseVulnerabilityRelation relation = vulnerability.getReleaseVulnerabilityRelation();
+
+        if (! relation.isSetVerificationStateInfo()) {
+            vulnerabilityVerifications.get(vulnerabilityId).put(releaseId, VerificationState.NOT_CHECKED);
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, "Not checked yet.");
+        } else {
+            List<VerificationStateInfo> infoHistory = relation.getVerificationStateInfo();
+            VerificationStateInfo info = infoHistory.get(infoHistory.size() - 1);
+            vulnerabilityVerifications.get(vulnerabilityId).put(releaseId, info.getVerificationState());
+            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, formatedMessageForVul(infoHistory));
+        }
+    }
+
+    private void putVulnerabilityMetadatasInRequest(RenderRequest request, List<VulnerabilityDTO> vuls) {
+        Map<String, Map<String, String>> vulnerabilityTooltips = new HashMap<>();
+        Map<String, Map<String, VerificationState>> vulnerabilityVerifications = new HashMap<>();
+        Map<String, Integer> matchedByHistogram = new HashMap<>();
+        for (VulnerabilityDTO vulnerability : vuls) {
+            addToVulnerabilityVerifications(vulnerabilityVerifications, vulnerabilityTooltips, vulnerability);
+            addToMatchedByHistogram(matchedByHistogram, vulnerability);
+        }
+
+        request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
+        request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
+        request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);
+    }
+
 
     private void setUsingDocs(RenderRequest request, String releaseId, User user, ComponentService.Iface client) throws TException {
         if (releaseId != null) {
@@ -760,6 +845,67 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         response.setRenderParameter(KEY_SEARCH_FILTER_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_FILTER_TEXT)));
         for (Component._Fields componentFilteredField : componentFilteredFields) {
             response.setRenderParameter(componentFilteredField.toString(), nullToEmpty(request.getParameter(componentFilteredField.toString())));
+        }
+    }
+
+    private void updateVulnerabilitiesRelease(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            VulnerabilityUpdateStatus importStatus = cveClient.updateForRelease(releaseId);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e){
+            log.error("Error updating CVEs for release in backend.", e);
+        }
+    }
+
+    private void updateVulnerabilitiesComponent(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        String componentId = request.getParameter(PortalConstants.COMPONENT_ID);
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            VulnerabilityUpdateStatus importStatus = cveClient.updateForComponent(componentId);
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e) {
+            log.error("Error updating CVEs for component in backend.", e);
+        }
+    }
+
+    private void updateAllVulnerabilities(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
+        CveSearchService.Iface cveClient = thriftClients.makeCvesearchClient();
+        try {
+            VulnerabilityUpdateStatus importStatus = cveClient.fullUpdate();
+            JSONObject responseData = PortletUtils.importStatusToJSON(importStatus);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e) {
+            log.error("Error occured with full update of CVEs in backend.", e);
+        }
+    }
+
+    private void updateVulnerabilityVerification(ResourceRequest request, ResourceResponse response) throws IOException{
+        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
+        String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
+        User user = UserCacheHolder.getUserFromRequest(request);
+
+        VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
+
+       try {
+           Vulnerability dbVulnerability = vulClient.getVulnerabilityByExternalId(vulnerabilityExternalId, user);
+           ReleaseVulnerabilityRelation dbRelation = vulClient.getRelationByIds(releaseId, dbVulnerability.getId(), user);
+           ReleaseVulnerabilityRelation resultRelation = ComponentPortletUtils.updateReleaseVulnerabilityRelationFromRequest(dbRelation, request);
+           RequestStatus requestStatus = vulClient.updateReleaseVulnerabilityRelation(resultRelation, user);
+
+            JSONObject responseData = JSONFactoryUtil.createJSONObject();
+            responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+            responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
+            PrintWriter writer = response.getWriter();
+            writer.write(responseData.toString());
+        } catch (TException e) {
+            log.error("Error updating vulnerability verification for release "+ releaseId +" in backend.", e);
         }
     }
 }

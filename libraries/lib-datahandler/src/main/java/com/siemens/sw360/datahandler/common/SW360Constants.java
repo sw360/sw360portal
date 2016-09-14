@@ -29,6 +29,8 @@ public class SW360Constants {
 
     public static final String KEY_ID = "_id";
     public static final String KEY_REV = "_rev";
+
+    public static final String PROJECT_VULNERABILITY_RATING_ID_PREFIX = "pvrating_";
     // Proper values of the "type" member to deserialize to CouchDB
     public static final String TYPE_OBLIGATION = "obligation";
     public static final String TYPE_TODO = "todo";

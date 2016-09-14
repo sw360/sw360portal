@@ -131,7 +131,22 @@ public class PortalConstants {
     public static final String DUPLICATE_PROJECTS = "duplicateProjects";
 
     //! Specialized keys for vulnerability management
+    public static final String VULNERABILITY = "vulnerability";
     public static final String VULNERABILITY_LIST = "vulnerabilityList";
+    public static final String VULNERABILITY_RATINGS = "vulnerabilityRatings";
+    public static final String VULNERABILITY_RATINGS_EDITABLE = "vulnerabilityRatingsEditable";
+    public static final String VULNERABILITY_ID = "vulnerabilityId";
+    public static final String VULNERABILITY_RATING_VALUE = "vulnerabilityRatingValue";
+    public static final String VULNERABILITY_RATING_COMMENT = "vulnerabilityRatingComment";
+    public static final String NUMBER_OF_VULNERABILITIES = "numberOfVulnerabilities";
+    public static final String NUMBER_OF_UNCHECKED_VULNERABILITIES = "numberOfUncheckedVulnerabilities";
+    public static final String VULNERABILITY_CHECKSTATUS_TOOLTIPS = "vulnerabilityCheckstatusTooltips";
+    public static final String VULNERABILITY_VERIFICATION_VALUE = "vulnerabilityVerificationValue";
+    public static final String VULNERABILITY_VERIFICATION_COMMENT = "vulnerabilityVerificationComment";
+    public static final String VULNERABILITY_VERIFICATION_EDITABLE = "vulnerabilityVerificationEditable";
+    public static final String VULNERABILITY_VERIFICATION_TOOLTIPS = "vulnerabilityVerificationTooltips";
+    public static final String VULNERABILITY_VERIFICATIONS = "vulnerabilityVerifications";
+    public static final String VULNERABILITY_MATCHED_BY_HISTOGRAM = "vulnerabilityMatchedByHistogram";
 
     //! Specialized keys for account sign-up
     public static final String PASSWORD = "password";
@@ -223,6 +238,14 @@ public class PortalConstants {
     public static final String LICENSE_PREFIX = "license";
     public static final String LICENSE_SEARCH = LICENSE_PREFIX + "search";
 
+    //vulnerability actions
+    public static  final String UPDATE_VULNERABILITIES_RELEASE = "updateVulnerabilitiesRelease";
+    public static  final String UPDATE_VULNERABILITIES_COMPONENT = "updateVulnerabilitiesComponent";
+    public static  final String UPDATE_ALL_VULNERABILITIES = "updateAllVulnerabilities";
+    public static  final String UPDATE_VULNERABILITIES_PROJECT = "updateVulnerabilitiesProject";
+    public static  final String UPDATE_VULNERABILITY_RATINGS = "updateVulnerabilityRatings";
+    public static  final String UPDATE_VULNERABILITY_VERIFICATION = "updateVulnerabilityVerification";
+
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
     public static final String EXPORT_ID = "export_id";
@@ -248,6 +271,8 @@ public class PortalConstants {
     public static final String IMPORT_RESPONSE__IMPORT_BDP_SUCCESS = "importProject_response_bdp_import_success";
     public static final String IMPORT_RESPONSE__IMPORT_BDP_FAILURE = "importProject_response_bdp_import_failure";
     public static final String IMPORT_RESPONSE__IMPORT_BDP_GENERAL_FAILURE = "importProject_response_bdp_import_general_failure";
+    public static final String RESPONSE__IMPORT_GENERAL_FAILURE = "response_import_general_failure";
+
 
     public static final String IMPORT_RESPONSE__STATUS = "importProject_response_status";
     public static final String IMPORT_RESPONSE__DBURL = "importProject_response_dburl";
@@ -259,6 +284,9 @@ public class PortalConstants {
 
     public static final String IMPORT_RESPONSE__SUCCESSFUL_IDS = "importProject_response_successfulIds";
     public static final String IMPORT_RESPONSE__FAILED_IDS = "importProject_response_failedIds";
+    public static final String UPDATE_VULNERABILITIES__FAILED_IDS = "updateVulnerabilities_failedIds";
+    public static final String UPDATE_VULNERABILITIES__NEW_IDS = "updateVulnerabilities_newIds";
+    public static final String UPDATE_VULNERABILITIES__UPDATED_IDS = "updateVulnerabilities_updatedIds";
 
     //! request status
     public static final String REQUEST_STATUS = "request_status";
@@ -279,4 +307,5 @@ public class PortalConstants {
     private PortalConstants() {
         // Utility class with only static functions
     }
+
 }

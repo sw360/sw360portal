@@ -12,12 +12,14 @@ package com.siemens.sw360.datahandler.thrift;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
+import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.fossology.FossologyService;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
+import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
 import com.siemens.sw360.datahandler.thrift.search.SearchService;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
@@ -49,6 +51,7 @@ public class ThriftClients {
     //! Service addresses
     public static final String ATTACHMENT_SERVICE_URL = "/attachments/thrift";
     public static final String COMPONENT_SERVICE_URL = "/components/thrift";
+    public static final String CVESEARCH_SERVICE_URL = "/cvesearch/thrift";
     public static final String FOSSOLOGY_SERVICE_URL = "/fossology/thrift";
     public static final String LICENSE_SERVICE_URL = "/licenses/thrift";
     public static final String MODERATION_SERVICE_URL = "/moderation/thrift";
@@ -59,6 +62,11 @@ public class ThriftClients {
     public static final String VENDOR_SERVICE_URL = "/vendors/thrift";
     public static final String BDPIMPORT_SERVICE_URL = "/bdpimport/thrift";
     public static final String VULNERABILITY_SERVICE_URL = "/vulnerabilities/thrift";
+    public static final String SCHEDULE_SERVICE_URL = "/schedule/thrift";
+
+    // A service which has to be scheduled by the scheduler should be registered here!
+    // names of services that can be scheduled by the schedule service, i.e. that have an "update" method
+    public static final String CVESEARCH_SERVICE = "cvesearchService";
 
     static {
         Properties props = CommonUtils.loadProperties(ThriftClients.class, PROPERTIES_FILE_PATH);
@@ -89,6 +97,10 @@ public class ThriftClients {
 
     public ComponentService.Iface makeComponentClient() {
         return new ComponentService.Client(makeProtocol(BACKEND_URL, COMPONENT_SERVICE_URL));
+    }
+
+    public CveSearchService.Iface makeCvesearchClient() {
+        return new CveSearchService.Client(makeProtocol(BACKEND_URL, CVESEARCH_SERVICE_URL));
     }
 
     public FossologyService.Iface makeFossologyClient() {
@@ -129,5 +141,9 @@ public class ThriftClients {
 
     public LicenseInfoService.Client makeLicenseInfoClient() {
         return new LicenseInfoService.Client(makeProtocol(BACKEND_URL, LICENSEINFO_SERVICE_URL));
+    }
+
+    public ScheduleService.Iface makeScheduleClient() {
+        return new ScheduleService.Client(makeProtocol(BACKEND_URL, SCHEDULE_SERVICE_URL));
     }
 }
