@@ -25,6 +25,7 @@ import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.addAll;
 import static com.siemens.sw360.datahandler.common.CommonUtils.removeAll;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 
 
 /**
@@ -72,6 +73,7 @@ public abstract class Moderator<U extends TFieldIdEnum, T extends TBase<T, U>> {
                 addAll(originalSet,(Set<String>) documentAdditions.getFieldValue(field));
                 document.setFieldValue(field, originalSet);
                 break;
+
             case TType.STRING:
             case TType.ENUM:
                 document.setFieldValue(field, documentAdditions.getFieldValue(field));

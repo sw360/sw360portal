@@ -326,16 +326,14 @@ input[readonly].clickable {
     width: 100%;
 }
 
-.formatSelect {
-    width: 20em !important;
-    height: 25px !important;
-    margin-bottom: 0 !important;
-}
-
 .hashvalue {
     word-break: break-all;
     font-family: monospace;
 }
+
+.button-div{
+ margin-bottom: 1em;
+} 
 
 #extendedByReleases, .formatSelect {
    width: 20em;

@@ -118,6 +118,16 @@ abstract public class Sw360Portlet extends MVCPortlet {
         }
     }
 
+    protected void renderRemoveModerationRequestStatus(PortletRequest request, MimeResponse response, RemoveModeratorRequestStatus status) {
+        JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+        jsonObject.put("result", status.toString());
+        try {
+            writeJSON(request, response, jsonObject);
+        } catch (IOException e) {
+            log.error("Problem rendering RemoveModerationRequestStatus", e);
+        }
+    }
+
     protected void renderRequestStatus(PortletRequest request, ActionResponse response, RequestStatus requestStatus) {
         SessionMessages.add(request, "request_processed", requestStatus.toString());
     }

@@ -32,12 +32,8 @@
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Project:  <sw360:ProjectName project="${project}"/></span>
 </p>
-<input type="button" onclick="acceptDelete()" id="edit" value="Accept Delete"    class="acceptButton">&nbsp;
-<input type="button" onclick="removeFromModerators()" id="edit" value="Remove Me from Moderators"    class="ignoreButton">&nbsp;
-<input type="button" onclick="declineDelete()" id="edit" value="Decline Deletion"    class="addButton">&nbsp;
-<input type="button" onclick="postPone()" id="edit" value="Postpone Decision"    class="postponeButton">&nbsp;
-<input type="button" onclick="cancel()" id="edit" value="Cancel"    class="cancelButton">
-
+<%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
+<br/>
 <div id="content" >
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">
@@ -95,32 +91,6 @@
         return portletURL;
     }
 
-
-    function acceptDelete() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_ACCEPT%>');
-        window.location = portletURL.toString();
-    }
-
-    function removeFromModerators() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_REMOVEME%>');
-        window.location = portletURL.toString();
-    }
-
-    function declineDelete() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_DECLINE%>');
-        window.location = portletURL.toString();
-    }
-
-    function postPone() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_POSTPONE%>');
-        window.location = portletURL.toString();
-    }
-
-    function cancel() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_CANCEL%>');
-        window.location = portletURL.toString();
-    }
-
     function deleteAttachment(id1, id2) {
         alert("You can not delete individual attachments in the moderation, if you accept the request all attachments will be deleted.");
     }
@@ -134,3 +104,4 @@
     }
 
 </script>
+<%@include file="/html/moderation/includes/moderationActions.jspf"%>

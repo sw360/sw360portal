@@ -14,6 +14,7 @@ import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
+import com.siemens.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
@@ -57,9 +58,25 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     @Override
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
-        if (isGenericAction(action)) {
+        if (PortalConstants.ACTION_REMOVEME.equals(action)){
+            removeMeFromModerators(request, response);
+        } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
+    }
+
+    private void removeMeFromModerators(ResourceRequest request, ResourceResponse response){
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        final String id = request.getParameter(MODERATION_ID);
+        ModerationService.Iface client = thriftClients.makeModerationClient();
+        RemoveModeratorRequestStatus status = null;
+        try {
+            status = client.removeUserFromAssignees(id, user);
+        } catch(TException e) {
+            log.error("Error in Moderation ", e);
+        }
+        request.setAttribute(PortalConstants.REQUEST_STATUS, status);
+        renderRemoveModerationRequestStatus(request, response, status);
     }
 
     @Override
@@ -81,16 +98,17 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             try {
                 ModerationService.Iface client = thriftClients.makeModerationClient();
                 ModerationRequest moderationRequest = client.getModerationRequestById(id);
-                if (ACTION_CANCEL.equals(request.getParameter(ACTION))) {
+                String action = request.getParameter(ACTION);
+                if (ACTION_CANCEL.equals(action)) {
                     client.cancelInProgress(id);
 
                     sessionMessage = "You have cancelled working on the previous moderation request.";
-                } else if (ACTION_DECLINE.equals(request.getParameter(ACTION))) {
+                } else if (ACTION_DECLINE.equals(action)) {
                     declineModerationRequest(user, moderationRequest, request);
 
                     client.refuseRequest(id);
                     sessionMessage = "You have declined the previous moderation request";
-                } else if (ACTION_ACCEPT.equals(request.getParameter(ACTION))) {
+                } else if (ACTION_ACCEPT.equals(action)) {
                     String requestingUserEmail = moderationRequest.getRequestingUser();
                     User requestingUser = UserCacheHolder.getUserFromEmail(requestingUserEmail);
                     acceptModerationRequest(user, requestingUser, moderationRequest, request);
@@ -100,15 +118,13 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     client.updateModerationRequest(moderationRequest);
 
                     sessionMessage = "You have accepted the previous moderation request.";
-                } else if (ACTION_POSTPONE.equals(request.getParameter(ACTION))) {
+                } else if (ACTION_POSTPONE.equals(action)) {
                     // keep me assigned but do it later... so nothing to be done here
                     sessionMessage = "You have postponed the previous moderation request.";
-                } else if (ACTION_REMOVEME.equals(request.getParameter(ACTION))) {
-                    client.removeUserFromAssignees(id, user);
-                    sessionMessage = "You have removed yourself from the moderators of the previous moderation request.";
-
+                } else if (ACTION_RENDER_NEXT_AFTER_UNSUBSCRIBE.equals(action)) {
+                    sessionMessage = "You are removed from the list of moderators for the previous moderation request.";
                 } else {
-                    throw new PortletException("Unknown action");
+                   throw new PortletException("Unknown action");
                 }
 
                 //! Actions are processed now we go and render the next one
