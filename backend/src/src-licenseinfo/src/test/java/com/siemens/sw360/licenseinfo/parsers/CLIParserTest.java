@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.StringReader;
 
+import static com.siemens.sw360.licenseinfo.TestHelper.assertLicenseInfoParsingResult;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
@@ -97,15 +100,12 @@ public class CLIParserTest {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
         when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
         LicenseInfoParsingResult res = parser.getLicenseInfo(cliAttachment);
-        assertThat(res.getStatus(), is(LicenseInfoRequestStatus.SUCCESS));
-        assertThat(res.getLicenseInfo(), notNullValue());
+        assertLicenseInfoParsingResult(CLIParser.FILETYPE_CLI, res);
         assertThat(res.getLicenseInfo().getFilenames(), contains("a.xml"));
-        assertThat(res.getLicenseInfo().getFiletype(), is(CLIParser.FILETYPE_CLI));
         assertThat(res.getLicenseInfo().getLicenseTexts().size(), is(1));
         assertThat(res.getLicenseInfo().getLicenseTexts(), containsInAnyOrder("jQuery projects are released under the terms of the MIT license."));
         assertThat(res.getLicenseInfo().getCopyrights().size(), is(2));
         assertThat(res.getLicenseInfo().getCopyrights(), containsInAnyOrder("Copyrights", "(c) jQuery Foundation, Inc. | jquery.org"));
-
     }
 
     @Test
@@ -113,11 +113,8 @@ public class CLIParserTest {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
         when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE.replaceAll("</Content>", "</Broken>"))));
         LicenseInfoParsingResult res = parser.getLicenseInfo(cliAttachment);
-        assertThat(res.getStatus(), is(LicenseInfoRequestStatus.FAILURE));
-        assertThat(res.getLicenseInfo(), notNullValue());
+        assertLicenseInfoParsingResult(CLIParser.FILETYPE_CLI, res, LicenseInfoRequestStatus.FAILURE);
         assertThat(res.getLicenseInfo().getFilenames(), contains("a.xml"));
-        assertThat(res.getLicenseInfo().getFiletype(), is(CLIParser.FILETYPE_CLI));
-
     }
 
 }
