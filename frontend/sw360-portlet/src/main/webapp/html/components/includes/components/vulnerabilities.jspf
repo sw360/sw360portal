@@ -45,10 +45,6 @@
         </core_rt:forEach>
     </ul>
 </div>
-<span class="pull-right">
-    <input type="button" onclick="updateVulnerabilities('${component.id}')" id="updateVulnerabilities" value="Update by CVE-search" class="addButton">
-</span>
-
 
 <script type="text/javascript">
     var oTable;
