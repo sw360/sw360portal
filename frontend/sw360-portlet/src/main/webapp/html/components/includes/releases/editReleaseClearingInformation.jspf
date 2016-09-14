@@ -96,6 +96,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel " for="evaluationDate">Evaluation Date</label>
             <input id="evaluationDate"
+                   class="datepicker"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EVALUATED%>"
                    type="text"
                    placeholder="Evaluation Date YYYY-MM-DD"
@@ -104,6 +105,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel " for="procStart">Process start</label>
             <input id="procStart"
+                   class="datepicker"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.PROC_START%>"
                    type="text"
                    placeholder="Process Start YYYY-MM-DD"
@@ -295,3 +297,8 @@
     </tr>
 </table>
 
+<script>
+    $(document).ready(function(){
+        $(".datepicker").datepicker({dateFormat: "yy-mm-dd"});
+    });
+</script>

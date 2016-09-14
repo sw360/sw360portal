@@ -76,7 +76,7 @@
     <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="releaseDate">Release Date</label>
-            <input id="releaseDate" name="<portlet:namespace/><%=Release._Fields.RELEASE_DATE%>" type="date"
+            <input id="releaseDate" class="datepicker" name="<portlet:namespace/><%=Release._Fields.RELEASE_DATE%>" type="text"
                    placeholder="Enter Release Date"
                    value="<sw360:out value="${release.releaseDate}"/>"/>
         </td>
@@ -143,3 +143,9 @@
         </td>
     </tr>
 </table>
+
+<script>
+    $(document).ready(function(){
+        $(".datepicker").datepicker({dateFormat: "yy-mm-dd"});
+    });
+</script>
