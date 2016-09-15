@@ -24,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -140,7 +141,7 @@ public class ThriftUploaderTest {
 
     @Test
     public void testIfIsAlreadyInDbWrapperEmptyList() {
-        Optional<String> toCheck = thriftUploader.searchExistingEntityId(Optional.of(Collections.EMPTY_LIST),
+    	Optional<String> toCheck = thriftUploader.searchExistingEntityId(Optional.of(Collections.emptyList()),
                 Object::toString,
                 "");
         assertThat(toCheck, is(notNullValue()));
