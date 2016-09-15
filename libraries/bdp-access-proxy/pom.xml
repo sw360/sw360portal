@@ -36,13 +36,6 @@
         <test.excludes>**/*schouldNotExist</test.excludes>
     </properties>
 
-    <scm>
-        <connection>scm:git:https://example.invalid/url/to/bdp-access-proxy.git</connection>
-        <developerConnection>scm:git:https://example.invalid/url/to/bdp-access-proxy.git</developerConnection>
-        <url>https://example.invalid/url/to/bdp-access-proxy</url>
-
-    </scm>
-
     <repositories>
         <repository>
            <id>jcenter</id>
