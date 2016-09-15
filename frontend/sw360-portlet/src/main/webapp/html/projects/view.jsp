@@ -306,6 +306,9 @@
      }
 
      function exportExcel() {
+         $('#keywordsearchinput').val("");
+         useSearch('keywordsearchinput');
+
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
          portletURL.setParameter('<%=Project._Fields.NAME%>',$('#project_name').val());
