@@ -10,7 +10,6 @@
 package com.siemens.sw360.moderation.db;
 
 import com.siemens.sw360.datahandler.thrift.components.COTSDetails;
-import com.siemens.sw360.datahandler.thrift.components.ClearingInformation;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.apache.thrift.protocol.TType;
 
@@ -26,8 +25,8 @@ public class COTSDetailsModerationRequestGenerator extends ModerationRequestGene
 
     @Override
     public ModerationRequest setAdditionsAndDeletions(ModerationRequest request, COTSDetails update, COTSDetails actual){
-        updateDocument = update;
-        actualDocument = actual;
+        updateDocument = update == null ? new COTSDetails() : update;
+        actualDocument = actual == null ? new COTSDetails() : actual;
 
         documentAdditions = null;
         documentDeletions = null;
@@ -35,48 +34,48 @@ public class COTSDetailsModerationRequestGenerator extends ModerationRequestGene
         for(COTSDetails._Fields field : COTSDetails._Fields.values()){
             if(COTSDetails.metaDataMap.get(field).valueMetaData.type == TType.BOOL ||
                     COTSDetails.metaDataMap.get(field).valueMetaData.type == TType.I32){
-                if(actual.getFieldValue(field) != update.getFieldValue(field)){
+                if(actualDocument.getFieldValue(field) != updateDocument.getFieldValue(field)){
                     if(documentAdditions == null){
                         documentAdditions = new COTSDetails();
                     }
                     if(documentDeletions == null){
                         documentDeletions = new COTSDetails();
                     }
-                    documentAdditions.setFieldValue(field, update.getFieldValue(field));
-                    documentDeletions.setFieldValue(field, actual.getFieldValue(field));
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
                 }
                 continue;
             }
 
             if(COTSDetails.metaDataMap.get(field).valueMetaData.type == TType.STRING) {
-                if (isNullOrEmpty((String) actual.getFieldValue(field))
-                        && isNullOrEmpty((String) update.getFieldValue(field))) {
+                if (isNullOrEmpty((String) actualDocument.getFieldValue(field))
+                        && isNullOrEmpty((String) updateDocument.getFieldValue(field))) {
                     continue;
                 }
 
-                if (actual.isSet(field) && !update.isSet(field)) {
+                if (actualDocument.isSet(field) && !updateDocument.isSet(field)) {
                     if (documentDeletions == null) {
                         documentDeletions = new COTSDetails();
                     }
-                    documentDeletions.setFieldValue(field, actual.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
                     continue;
                 }
-                if (update.isSet(field) && !actual.isSet(field)) {
+                if (updateDocument.isSet(field) && !actualDocument.isSet(field)) {
                     if (documentAdditions == null) {
                         documentAdditions = new COTSDetails();
                     }
-                    documentAdditions.setFieldValue(field, update.getFieldValue(field));
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
                     continue;
                 }
-                if (!(actual.getFieldValue(field).equals(update.getFieldValue(field)))) {
+                if (!(actualDocument.getFieldValue(field).equals(updateDocument.getFieldValue(field)))) {
                     if (documentAdditions == null) {
                         documentAdditions = new COTSDetails();
                     }
                     if (documentDeletions == null) {
                         documentDeletions = new COTSDetails();
                     }
-                    documentAdditions.setFieldValue(field, update.getFieldValue(field));
-                    documentDeletions.setFieldValue(field, actual.getFieldValue(field));
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
                 }
             }
         }
