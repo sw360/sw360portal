@@ -24,6 +24,11 @@ target/
 *.idea
 *.iml
 
+# Ignore eclipse files
+.classpath
+.project
+.settings
+
 /libraries/target/
 /libraries/lib-datahandler/target/
 /libraries/commonIO/target/
