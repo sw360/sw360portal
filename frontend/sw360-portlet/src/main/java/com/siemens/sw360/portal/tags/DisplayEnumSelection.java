@@ -80,9 +80,9 @@ public class DisplayEnumSelection extends SimpleTagSupport {
             boolean selected = enumItem.equals(this.selected) || enumItem.toString().equals(this.selectedName);
             String value = useStringValues ? enumItem.toString() : "" + enumItem.getValue();
             String result = String.format(
-                    "<option value=\"%s\" class=\"textlabel stackedLabel\" \" +\n" +
-                            "                            (selected ? \"selected=\\\"selected\\\" \" : \"\") +\n" +
-                            "                            \">%s</option>",
+                    "<option value=\"%s\" class=\"textlabel stackedLabel\" " +
+                            (selected ? "selected=\"selected\" " : "") +
+                             ">%s</option>",
                     value, enumItemDescription);
             if (inQuotes && iterator.hasNext()){
                 jspWriter.write("\'"+ result+ "\' +");

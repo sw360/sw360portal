@@ -32,10 +32,10 @@ import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -56,12 +56,8 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -222,7 +218,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
         final User user = UserCacheHolder.getUserFromRequest(request);
         try {
-            User user = UserCacheHolder.getUserFromRequest(request);
             boolean extendedByReleases = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
             List<Project> projects = getFilteredProjectList(request);
             ProjectExporter exporter = new ProjectExporter(
