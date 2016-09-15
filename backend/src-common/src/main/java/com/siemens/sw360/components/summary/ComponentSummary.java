@@ -76,17 +76,15 @@ public class ComponentSummary extends DocumentSummary<Component> {
             copyField(document, copy, Component._Fields.DESCRIPTION);
         }
 
-
-
         copyField(document, copy, Component._Fields.ID);
         copyField(document, copy, Component._Fields.NAME);
         copyField(document, copy, Component._Fields.VENDOR_NAMES);
         copyField(document, copy, Component._Fields.COMPONENT_TYPE);
 
-
         if (type == SummaryType.SUMMARY) {
-            copyField(document, copy, Component._Fields.MAIN_LICENSE_IDS);
-            copyField(document, copy, Component._Fields.CATEGORIES);
+            for (Component._Fields field : Component.metaDataMap.keySet()) {
+                copyField(document, copy, field);
+            }
         }
 
         return copy;

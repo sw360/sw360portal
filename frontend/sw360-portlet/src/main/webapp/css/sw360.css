@@ -335,6 +335,13 @@ input[readonly].clickable {
     font-family: monospace;
 }
 
+#extendedByReleases, .formatSelect {
+   width: 20em;
+   height: 25px;
+   margin-bottom: 0;
+   padding:0;
+}
+
 .notificationBulletSpan {
     min-width: 25px;
     height: 25px;
@@ -381,10 +388,15 @@ input[readonly].clickable {
 .formatedMessageForVulCheckedBy:before, .formatedMessageForVulComment:before{
     font-size: small;
 }
+
 .formatedMessageForVulCheckedBy:before {
     content: "Checked by: ";
 }
 
 .formatedMessageForVulComment:before {
     content: "Comment: ";
+}
+
+.clear-float {
+    clear:right;
 }

@@ -9,6 +9,7 @@
 package com.siemens.sw360.exporter;
 
 
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -29,20 +30,17 @@ public class ExcelExporter<T> {
 
     private final ExporterHelper<T> helper;
 
-    private final int nColumns;
-
     public ExcelExporter(ExporterHelper<T> helper) {
         this.helper = helper;
-        nColumns = helper.getColumns();
     }
 
-    public InputStream makeExcelExport(List<T> documents) throws IOException {
+    public InputStream makeExcelExport(List<T> documents) throws IOException, SW360Exception {
         final Workbook workbook = new XSSFWorkbook();
 
-        Sheet sheet = workbook.createSheet("Component Data");
+        Sheet sheet = workbook.createSheet("Data");
 
         /** Adding styles to cells */
-        CellStyle cellStyte = createCellStyte(workbook);
+        CellStyle cellStyle = createCellStyle(workbook);
         CellStyle headerStyle = createHeaderStyle(workbook);
 
         /** Create header row */
@@ -51,10 +49,10 @@ public class ExcelExporter<T> {
         fillRow(headerRow, headerNames, headerStyle);
 
         /** Create data rows */
-        fillValues(sheet, documents, cellStyte);
+        fillValues(sheet, documents, cellStyle);
 
         /** Resize the columns */
-        for (int iColumns = 0; iColumns < nColumns; iColumns++) {
+        for (int iColumns = 0; iColumns < helper.getColumns(); iColumns++) {
             sheet.autoSizeColumn(iColumns);
         }
 
@@ -68,13 +66,18 @@ public class ExcelExporter<T> {
     /**
      * Convert all documents to
      */
-    private void fillValues(Sheet sheet, List<T> documents, CellStyle style) {
-        int nRow = documents.size();
-        for (int iRow = 0; iRow < nRow; iRow++) {
-            T document = documents.get(iRow);
-            List<String> values = helper.makeRow(document);
-            Row row = sheet.createRow(iRow + 1); // Since 0 is used for headers
-            fillRow(row, values, style);
+    private void fillValues(Sheet sheet, List<T> documents, CellStyle style) throws SW360Exception {
+        int numberoOfDocuments = documents.size();
+        int nextExcelSheetRow = 1;
+        for (int currentDocNumber = 0; currentDocNumber < numberoOfDocuments; currentDocNumber++) {
+            T document = documents.get(currentDocNumber);
+            SubTable table = helper.makeRows(document);
+            for(int currentTableRow = 0; currentTableRow < table.getnRows(); currentTableRow ++){
+                List<String> rowValues = table.getRow(currentTableRow);
+                Row row = sheet.createRow(nextExcelSheetRow);
+                nextExcelSheetRow++;
+                fillRow(row, rowValues, style);
+            }
         }
     }
 
@@ -82,7 +85,10 @@ public class ExcelExporter<T> {
      * Write the values into the row, setting the cells to the given style
      */
     private void fillRow(Row row, List<String> values, CellStyle style) {
-        for (int column = 0; column < nColumns; column++) {
+        if(values.size() < helper.getColumns()){
+            throw new IllegalArgumentException("List of row values is too short.");
+        }
+        for (int column = 0; column < helper.getColumns(); column++) {
             Cell cell = row.createCell(column);
             cell.setCellValue(values.get(column));
             cell.setCellStyle(style);
@@ -92,7 +98,7 @@ public class ExcelExporter<T> {
     /**
      * Create style for data cells
      */
-    private static CellStyle createCellStyte(Workbook workbook) {
+    private static CellStyle createCellStyle(Workbook workbook) {
         CellStyle cellStyle = workbook.createCellStyle();
         cellStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN);
         cellStyle.setBorderTop(XSSFCellStyle.BORDER_THIN);
@@ -105,11 +111,10 @@ public class ExcelExporter<T> {
      * Create header style, same has cell style but with bold font
      */
     private static CellStyle createHeaderStyle(Workbook workbook) {
-        CellStyle headerCellStyle = createCellStyte(workbook);
+        CellStyle headerCellStyle = createCellStyle(workbook);
         Font font = workbook.createFont();
         font.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
         headerCellStyle.setFont(font);
         return headerCellStyle;
     }
-
 }

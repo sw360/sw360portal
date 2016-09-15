@@ -218,7 +218,6 @@ public class ComponentDatabaseHandlerTest {
                     break;
                 // Fields that are not defined
                 default:
-                    assertFalse(field.getFieldName(), isSet);
                     break;
             }
         }

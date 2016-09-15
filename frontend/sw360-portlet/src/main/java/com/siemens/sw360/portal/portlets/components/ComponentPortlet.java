@@ -21,10 +21,12 @@ import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.VerificationState;
 import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
+import com.siemens.sw360.datahandler.thrift.licenses.License;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -91,8 +93,14 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         return Collections.emptySet();
     }
 
-    private static final ImmutableList<Component._Fields> componentFilteredFields = ImmutableList.of(Component._Fields.CATEGORIES,
-            Component._Fields.LANGUAGES, Component._Fields.SOFTWARE_PLATFORMS, Component._Fields.OPERATING_SYSTEMS, Component._Fields.VENDOR_NAMES, Component._Fields.COMPONENT_TYPE, Component._Fields.MAIN_LICENSE_IDS);
+    private static final ImmutableList<Component._Fields> componentFilteredFields = ImmutableList.of(
+            Component._Fields.CATEGORIES,
+            Component._Fields.LANGUAGES,
+            Component._Fields.SOFTWARE_PLATFORMS,
+            Component._Fields.OPERATING_SYSTEMS,
+            Component._Fields.VENDOR_NAMES,
+            Component._Fields.COMPONENT_TYPE,
+            Component._Fields.MAIN_LICENSE_IDS);
 
     //! Serve resource and helpers
     @Override
@@ -222,20 +230,12 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
         try {
-            ComponentService.Iface client = thriftClients.makeComponentClient();
-            String searchText = request.getParameter(PortalConstants.KEY_SEARCH_TEXT);
-            List<Component> components;
-
-            if (isNullOrEmpty(searchText)) {
-                components = client.getComponentSummaryForExport();
-            } else {
-                components = client.searchComponentForExport(searchText);
-
-            }
-
-            ComponentExporter exporter = new ComponentExporter();
-            PortletResponseUtil.sendFile(request, response, "Components.xlsx", exporter.makeExcelExport(components), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        } catch (IOException | TException e) {
+            boolean extendedByReleases = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
+            List<Component> components = getFilteredComponentList(request);
+            ComponentExporter exporter = new ComponentExporter(thriftClients.makeComponentClient(), extendedByReleases);
+            PortletResponseUtil.sendFile(request, response, "Components.xlsx", exporter.makeExcelExport(components),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
         }
     }
@@ -677,22 +677,44 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     private void prepareStandardView(RenderRequest request) throws IOException {
         String searchtext = request.getParameter(KEY_SEARCH_TEXT);
-
         String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
 
+        List<Component> componentList = getFilteredComponentList(request);
+
+        Set<String> vendorNames;
+
+        try {
+            vendorNames = thriftClients.makeVendorClient().getAllVendorNames();
+        } catch (TException e) {
+            log.error("Problem retrieving all the Vendor names", e);
+            vendorNames = Collections.emptySet();
+        }
+
+        List<String> componentTypeNames = Arrays.asList(ComponentType.values())
+                .stream()
+                .map(ThriftEnumUtils::enumToString)
+                .collect(Collectors.toList());
+
+        request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
+        request.setAttribute(COMPONENT_LIST, componentList);
+        request.setAttribute(KEY_SEARCH_TEXT, request.getParameter(KEY_SEARCH_TEXT));
+        request.setAttribute(COMPONENT_TYPE_LIST, new ThriftJsonSerializer().toJson(componentTypeNames));
+
+    }
+
+    private List<Component> getFilteredComponentList(PortletRequest request) throws IOException {
+        String searchtext = request.getParameter(KEY_SEARCH_TEXT);
+        List<Component> componentList;
         Map<String, Set<String>> filterMap = new HashMap<>();
 
         for (Component._Fields filteredField : componentFilteredFields) {
             String parameter = request.getParameter(filteredField.toString());
             if (!isNullOrEmpty(parameter) &&
-                    !(filteredField.equals(Component._Fields.COMPONENT_TYPE) && parameter.equals(PortalConstants.NO_FILTER)))
-            {
+                    !(filteredField.equals(Component._Fields.COMPONENT_TYPE) && parameter.equals(PortalConstants.NO_FILTER))) {
                 filterMap.put(filteredField.getFieldName(), CommonUtils.splitToSet(parameter));
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
         }
-
-        List<Component> componentList;
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
@@ -707,27 +729,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             log.error("Could not search components in backend ", e);
             componentList = Collections.emptyList();
         }
-
-        Set<String> vendorNames;
-
-        try {
-            vendorNames = thriftClients.makeVendorClient().getAllVendorNames();
-        } catch (TException e) {
-            log.error("Problem retrieving all the Vendor names");
-            vendorNames = Collections.emptySet();
-        }
-
-        List<String> componentTypeNames = Arrays.asList(ComponentType.values())
-                .stream()
-                .map(ct -> ThriftEnumUtils.enumToString(ct))
-                .collect(Collectors.toList());
-
-        request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
-        request.setAttribute(COMPONENT_LIST, componentList);
-        request.setAttribute(KEY_SEARCH_TEXT, searchtext);
-        request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
-        request.setAttribute(COMPONENT_TYPE_LIST, new ThriftJsonSerializer().toJson(componentTypeNames));
-
+        return componentList;
     }
 
     //! Actions

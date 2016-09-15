@@ -232,10 +232,6 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
         return searchByName(name, user, SummaryType.SHORT);
     }
 
-    public List<Project> searchByNameForExport(String name, User user) {
-        return searchByName(name, user, SummaryType.EXPORT_SUMMARY);
-    }
-
     @NotNull
     private Set<Project> filterAccessibleProjectsByIds(User user, Set<String> searchIds) {
         final Set<Project> accessibleProjects = getAccessibleProjects(user);

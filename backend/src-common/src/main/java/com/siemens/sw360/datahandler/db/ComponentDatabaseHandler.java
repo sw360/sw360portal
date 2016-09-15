@@ -696,6 +696,10 @@ public class ComponentDatabaseHandler {
         return releaseRepository.makeSummary(SummaryType.SHORT, ids);
     }
 
+    public List<Release> getDetailedReleasesForExport(Set<String> ids) {
+        return releaseRepository.makeSummary(SummaryType.DETAILED_EXPORT_SUMMARY, ids);
+    }
+
     public List<Release> getFullReleases(Set<String> ids, User user) {
         return releaseRepository.makeSummary(SummaryType.SUMMARY, ids);
     }

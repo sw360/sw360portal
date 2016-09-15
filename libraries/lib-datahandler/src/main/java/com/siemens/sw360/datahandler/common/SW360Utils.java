@@ -11,9 +11,7 @@ package com.siemens.sw360.datahandler.common;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimaps;
+import com.google.common.collect.*;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.components.*;
@@ -27,6 +25,7 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +36,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.transform;
+import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
+import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractId;
 import static org.apache.log4j.Logger.getLogger;
 
@@ -156,7 +158,7 @@ public class SW360Utils {
         if (isNullOrEmpty(version)) {
             return name;
         } else {
-            return name + "(" + version + ")";
+            return name + " (" + version + ")";
         }
     }
 
@@ -323,5 +325,59 @@ public class SW360Utils {
             idToLicense = Collections.emptyMap();
         }
         return idToLicense;
+    }
+
+    public static String fieldValueAsString(Object fieldValue) {
+        if(fieldValue == null){
+            return "";
+        }
+        if (fieldValue instanceof TEnum) {
+            return nullToEmpty(ThriftEnumUtils.enumToString((TEnum) fieldValue));
+        }
+        if (fieldValue instanceof String) {
+            return nullToEmpty((String) fieldValue);
+        }
+        if (fieldValue instanceof Map) {
+            List<String> mapEntriesAsStrings = nullToEmptyMap(((Map<String, Object>) fieldValue)).entrySet().stream()
+                    .map(e -> {
+                        String valueString = e.getValue() != null ? e.getValue().toString():"";
+                        return e.getKey() + " : " + valueString;
+                    })
+                    .collect(Collectors.toList());
+            return joinStrings(mapEntriesAsStrings);
+        }
+        if (fieldValue instanceof Iterable){
+            return joinStrings((Iterable<String>) fieldValue);
+        }
+        return fieldValue.toString();
+    }
+
+    public static String displayNameFor(String name, Map<String, String> nameToDisplayName){
+        return nameToDisplayName.containsKey(name)? nameToDisplayName.get(name) : name;
+    }
+
+    public static <T> Map<String, T> putReleaseNamesInMap(Map<String, T> map, List<Release> releases) {
+        if(map == null || releases == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, T> releaseNamesMap = new HashMap<>();
+        releases.stream()
+                .forEach(r -> releaseNamesMap.put(printName(r),map.get(r.getId())));
+        return releaseNamesMap;
+    }
+
+    public static <T> Map<String, T> putProjectNamesInMap(Map<String, T> map, List<Project> projects) {
+        if(map == null || projects == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, T> projectNamesMap = new HashMap<>();
+        projects.stream()
+                .forEach(p -> projectNamesMap.put(printName(p),map.get(p.getId())));
+        return projectNamesMap;
+    }
+
+    public static List<String> getReleaseNames(List<Release> releases) {
+        if (releases == null) return Collections.emptyList();
+        return releases.stream().map(SW360Utils::printName).collect(Collectors.toList());
     }
 }
