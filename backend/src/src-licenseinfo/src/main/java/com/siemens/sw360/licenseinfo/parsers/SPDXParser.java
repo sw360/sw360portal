@@ -44,12 +44,27 @@ public class SPDXParser extends LicenseInfoParser {
             "rdf",
             "spdx" // usually used for tag:value format
     );
-    protected static final List<AttachmentType> ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
-            AttachmentType.COMPONENT_LICENSE_INFO_XML,
-            AttachmentType.COMPONENT_LICENSE_INFO_COMBINED,
-            AttachmentType.SCAN_RESULT_REPORT,
-            AttachmentType.SCAN_RESULT_REPORT_XML,
-            AttachmentType.OTHER);
+    protected static final List<AttachmentType> NOT_ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
+            AttachmentType.SOURCE,
+            AttachmentType.DESIGN,
+            AttachmentType.REQUIREMENT,
+            AttachmentType.CLEARING_REPORT,
+            AttachmentType.SOURCE_SELF,
+            AttachmentType.BINARY,
+            AttachmentType.BINARY_SELF,
+            AttachmentType.DECISION_REPORT,
+            AttachmentType.LEGAL_EVALUATION,
+            AttachmentType.LICENSE_AGREEMENT,
+            AttachmentType.SCREENSHOT
+    );
+    // Thus acceptable attachment types are:
+    //
+    //  - AttachmentType.DOCUMENT
+    //  - AttachmentType.COMPONENT_LICENSE_INFO_XML
+    //  - AttachmentType.COMPONENT_LICENSE_INFO_COMBINED
+    //  - AttachmentType.SCAN_RESULT_REPORT
+    //  - AttachmentType.SCAN_RESULT_REPORT_XML
+    //  - AttachmentType.OTHER
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
@@ -66,7 +81,7 @@ public class SPDXParser extends LicenseInfoParser {
         isAcceptable &= ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                 .map(extension -> lowerFileName.endsWith(extension))
                 .reduce(false, (b1, b2) -> b1 || b2);
-        isAcceptable &= ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType());
+        isAcceptable &= ! NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType());
 
         // TODO: test for namespace `spdx` in rdf file (maybe to much overhead? Better try parsing and die?)
 
