@@ -1,5 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
+ * Copyright Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -22,16 +23,17 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SPDXDocumentFactory;
+import org.spdx.rdfparser.license.*;
 import org.spdx.rdfparser.model.SpdxDocument;
+import org.spdx.rdfparser.model.SpdxItem;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author: alex.borodin@evosoft.com
@@ -113,14 +115,62 @@ public class SPDXParser extends LicenseInfoParser {
         return new URI("file", filePath, null).toString();
     }
 
+    protected Stream<String> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
+        if (spdxLicenseInfo instanceof LicenseSet) {
+
+            LicenseSet LicenseSet = (LicenseSet) spdxLicenseInfo;
+            return Arrays.stream(LicenseSet.getMembers())
+                    .flatMap(this::getAllLicenseTextsFromInfo);
+
+        } else if (spdxLicenseInfo instanceof ExtractedLicenseInfo) {
+
+            ExtractedLicenseInfo extractedLicenseInfo = (ExtractedLicenseInfo) spdxLicenseInfo;
+            return Collections.singleton(extractedLicenseInfo.getExtractedText())
+                    .stream();
+
+        } else if (spdxLicenseInfo instanceof License) {
+
+            License license = (License) spdxLicenseInfo;
+            return Collections.singleton(license.getLicenseText())
+                    .stream();
+
+        } else if (spdxLicenseInfo instanceof OrLaterOperator) {
+
+            OrLaterOperator orLaterOperator = (OrLaterOperator) spdxLicenseInfo;
+            return getAllLicenseTextsFromInfo(orLaterOperator.getLicense());
+
+        } else if (spdxLicenseInfo instanceof WithExceptionOperator) {
+
+            WithExceptionOperator withExceptionOperator = (WithExceptionOperator) spdxLicenseInfo;
+            String licenseExceptionText = withExceptionOperator.getException()
+                    .getLicenseExceptionText();
+            return getAllLicenseTextsFromInfo(withExceptionOperator.getLicense())
+                    .map(licenseText -> licenseText + "\n\n" + licenseExceptionText);
+
+        }
+
+        return Stream.empty();
+    }
+
+    protected Set<String> getAllLicenseTexts(SpdxDocument spdxDocument) throws InvalidSPDXAnalysisException {
+        Stream<String> licenseTexts = Arrays.stream(spdxDocument.getDocumentDescribes())
+                .flatMap(spdxItem -> Stream.concat(
+                        getAllLicenseTextsFromInfo(spdxItem.getLicenseConcluded()),
+                        Arrays.stream(spdxItem.getLicenseInfoFromFiles())
+                                .flatMap(this::getAllLicenseTextsFromInfo)));
+        Stream<String> extractedLicenseTexts = Arrays.stream(spdxDocument.getExtractedLicenseInfos())
+                        .flatMap(this::getAllLicenseTextsFromInfo);
+        return Stream.concat(licenseTexts, extractedLicenseTexts)
+                .collect(Collectors.toSet());
+    }
+
     protected Optional<LicenseInfo> addSpdxContentToCLI(LicenseInfo result, SpdxDocument doc) {
         try {
-            Arrays.stream(doc.getExtractedLicenseInfos()).forEach(
-                    extractedLicenseInfo -> result.addToLicenseTexts(extractedLicenseInfo.getExtractedText())
-            );
-            Arrays.stream(doc.getDocumentDescribes()).forEach(
-                    spdxItem -> result.addToCopyrights(spdxItem.getCopyrightText())
-            );
+            getAllLicenseTexts(doc)
+                    .forEach(text -> result.addToLicenseTexts(text));
+            Arrays.stream(doc.getDocumentDescribes())
+                    .map(SpdxItem::getCopyrightText)
+                    .forEach(copyrightText -> result.addToCopyrights(copyrightText));
         } catch (InvalidSPDXAnalysisException e) {
             e.printStackTrace();
         }
