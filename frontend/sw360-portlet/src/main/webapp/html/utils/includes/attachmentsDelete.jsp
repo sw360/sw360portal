@@ -20,12 +20,15 @@
     <portlet:param name="<%=PortalConstants.DOCUMENT_TYPE%>" value="${documentType}"/>
 </portlet:resourceURL>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
-
     function deleteAttachment(rowId, attachmentId) {
-        if (confirm("Do you really want to delete this attachment?")) {
+
+        function deleteAttachmentInternal() {
             $('#' + rowId).remove();
         }
-    }
 
+        deleteConfirmed("Do you really want to delete this attachment?", deleteAttachmentInternal);
+    }
 </script>

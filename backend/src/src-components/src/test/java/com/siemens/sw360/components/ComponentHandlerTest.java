@@ -64,6 +64,7 @@ public class ComponentHandlerTest {
         assertThat(componentHandler.getReleaseById(releaseId, adminUser), is(not(nullValue())));
         assertThat(componentHandler.getComponentById(componentId, adminUser), is(not(nullValue())));
 
+        assertThat(componentHandler.deleteRelease(releaseId, adminUser), is(RequestStatus.SUCCESS));
         assertThat(componentHandler.deleteComponent(componentId, adminUser), is(RequestStatus.SUCCESS));
 
         try {

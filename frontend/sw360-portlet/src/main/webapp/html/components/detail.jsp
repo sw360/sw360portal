@@ -6,6 +6,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+
 <%@include file="/html/init.jsp" %>
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 

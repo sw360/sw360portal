@@ -74,8 +74,10 @@
     </table>
 </div>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 
 <script>
 
@@ -114,7 +116,7 @@
             "1": "<sw360:out value="${vendor.shortname}"/>",
             "2": "<sw360:out value="${vendor.url}"/>",
             "3": "<a href='"+createDetailURLfromVendorId('${vendor.id}')+"' target='_self'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'></a>"
-            +"<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteVendor('${vendor.id}', '<sw360:out value="${vendor.fullname}"/>')\"  alt='Delete' title='Delete'>"
+            +"<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteVendor('${vendor.id}', '<b><sw360:out value="${vendor.fullname}"/></b>')\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
 
@@ -134,26 +136,29 @@
     }
 
     function deleteVendor( id, name ) {
-        if(confirm("Do you want to delete vendor " + name + " ?")) {
+
+        function deleteVendorInternal() {
             jQuery.ajax({
                 type: 'POST',
                 url: '<%=deleteAjaxURL%>',
                 cache: false,
                 data: {
-                <portlet:namespace/>vendorId: id
+                    <portlet:namespace/>vendorId: id
                 },
                 success: function (data) {
                     if(data.result == 'SUCCESS')
                         oTable.fnDeleteRow($('#' + id));
                     else {
-                        alert("I could not delete the vendor!");
+                        $.alert("I could not delete the vendor!");
                     }
                 },
                 error: function () {
-                    alert("I could not delete the vendor!");
+                    $.alert("I could not delete the vendor!");
                 }
             });
         }
+
+        deleteConfirmed("Do you really want to delete the vendor " + name + " ?", deleteVendorInternal);
     }
 </script>
 

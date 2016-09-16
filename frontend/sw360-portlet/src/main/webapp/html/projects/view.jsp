@@ -201,9 +201,11 @@
 </div>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css"><link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 
 <script>
@@ -216,10 +218,12 @@
         $('#exportbutton').click(exportExcel);
         $('.filterInput').on('input', function() {
             $('#exportExcelButton').prop('disabled', true);
+            <%--when filters are actually applied, page is refreshed and exportExcelButton enabled automatically--%>
         });
     });
 
     function useSearch(buttonId) {
+        <%-- we only want to search names starting with the value in the search box--%>
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
         oTable.columns(0).search('^' + val, true).draw();
     }
@@ -246,7 +250,7 @@
                         "",
                         "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
                 + "<img src='<%=request.getContextPath()%>/images/Trash.png'" +
-                " onclick=\"deleteProject('" + id + "', '" + replaceSingleQuote(row.name) + "')\" alt='Delete' title='Delete'/>";
+                " onclick=\"deleteProject('" + id + "', '<b>" + replaceSingleQuote(row.name) + "</b>'," + replaceSingleQuote(row.linkedProjectsSize) + ","+ replaceSingleQuote(row.linkedReleasesSize) +","+ replaceSingleQuote(row.attachmentsSize) +")\" alt='Delete' title='Delete'/>";
     }
 
     function renderProjectNameLink(name, type, row) {
@@ -271,7 +275,10 @@
             "description": "<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="\""/>",
             "state":"<sw360:DisplayEnum value='${project.state}'/>",
             "clearing":'<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
-            "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>'
+            "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>',
+            "linkedProjectsSize" : '${project.linkedProjectsSize}',
+            "linkedReleasesSize" : '${project.releaseIdToUsageSize}',
+            "attachmentsSize" : '${project.attachmentsSize}'
         });
         </core_rt:forEach>
 
@@ -305,9 +312,9 @@
          return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
      }
 
-     function exportExcel() {
-         $('#keywordsearchinput').val("");
-         useSearch('keywordsearchinput');
+    function exportExcel() {
+        $('#keywordsearchinput').val("");
+        useSearch('keywordsearchinput');
 
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
@@ -320,7 +327,7 @@
          portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
          window.location.href = portletURL.toString();
-    }
+     }
 
      function openSelectClearingDialog(projectId, fieldId) {
          $('#projectId').val(projectId);
@@ -329,10 +336,9 @@
          fillClearingFormAndOpenDialog(projectId);
      }
 
-     function deleteProject(projectId, name) {
+    function deleteProject(projectId, name, linkedProjectsSize, linkedReleasesSize, attachmentsSize) {
 
-         if (confirm("Do you want to delete project " + name + " ?")) {
-
+         function deleteProjectInternal() {
              jQuery.ajax({
                  type: 'POST',
                  url: '<%=deleteAjaxURL%>',
@@ -345,20 +351,29 @@
                          oTable.row('#' + projectId).remove().draw();
                      }
                      else if (data.result == 'SENT_TO_MODERATOR') {
-                         alert("You may not delete the project, but a request was sent to a moderator!");
+                         $.alert("You may not delete the project, but a request was sent to a moderator!");
                      } else if (data.result == 'IN_USE') {
-                         alert("The project is used by another project!");
+                         $.alert("The project cannot be deleted, since it is used by another project!");
                      }
                      else {
-                         alert("I could not delete the project!");
+                         $.alert("I could not delete the project!");
                      }
                  },
                  error: function () {
-                     alert("I could not delete the project!");
+                     $.alert("I could not delete the project!");
                  }
              });
 
          }
+
+         var confirmMessage = "Do you really want to delete the project " + name + " ?";
+         confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "<br/><br/>The project " + name +  " contains<br/><ul>" : "";
+         confirmMessage += (linkedProjectsSize > 0) ? "<li>" + linkedProjectsSize + " linked projects</li>" : "";
+         confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
+         confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
+         confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "</ul>" : "";
+
+         deleteConfirmed(confirmMessage, deleteProjectInternal);
      }
 
      function fillClearingFormAndOpenDialog(projectId) {
