@@ -19,6 +19,7 @@ import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
@@ -165,12 +166,21 @@ public class SPDXParser extends LicenseInfoParser {
     }
 
     protected Optional<LicenseInfo> addSpdxContentToCLI(LicenseInfo result, SpdxDocument doc) {
+        if(! result.isSetLicenseNamesWithTexts()){
+            result.setLicenseNamesWithTexts(new HashSet<>());
+        }
         try {
-            getAllLicenseTexts(doc)
-                    .forEach(text -> result.addToLicenseTexts(text));
-            Arrays.stream(doc.getDocumentDescribes())
-                    .map(SpdxItem::getCopyrightText)
-                    .forEach(copyrightText -> result.addToCopyrights(copyrightText));
+            Arrays.stream(doc.getExtractedLicenseInfos()).forEach(
+                    extractedLicenseInfo ->
+                            result.getLicenseNamesWithTexts()
+                                    .add(new LicenseNameWithText()
+                                            .setLicenseText(extractedLicenseInfo.getExtractedText())
+                                            .setLicenseName(extractedLicenseInfo.getName())
+                                    )
+            );
+            Arrays.stream(doc.getDocumentDescribes()).forEach(
+                    spdxItem -> result.addToCopyrights(spdxItem.getCopyrightText())
+            );
         } catch (InvalidSPDXAnalysisException e) {
             e.printStackTrace();
         }

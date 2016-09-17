@@ -82,7 +82,7 @@ public class DisplayEnumSelection extends SimpleTagSupport {
             String result = String.format(
                     "<option value=\"%s\" class=\"textlabel stackedLabel\" " +
                             (selected ? "selected=\"selected\" " : "") +
-                            ">%s</option>",
+                             ">%s</option>",
                     value, enumItemDescription);
             if (inQuotes && iterator.hasNext()){
                 jspWriter.write("\'"+ result+ "\' +");

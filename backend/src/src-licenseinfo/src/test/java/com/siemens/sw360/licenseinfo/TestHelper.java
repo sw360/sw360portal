@@ -20,16 +20,16 @@ import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus
 import com.siemens.sw360.licenseinfo.parsers.AttachmentContentProvider;
 import org.apache.commons.io.input.ReaderInputStream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.mockito.Mockito.when;
-
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.mockito.Mockito.when;
 
 /**
  * @author: maximilian.huber@tngtech.com
@@ -107,7 +107,11 @@ public class TestHelper {
 
         if(assertNonempty){
             assertThat(info.getCopyrights(), notNullValue());
-            assertThat(info.getLicenseTexts(), notNullValue());
+            assertThat(info.getLicenseNamesWithTexts(), notNullValue());
+            assertThat(info.getLicenseNamesWithTexts().stream()
+                    .filter(lt -> lt.isSetLicenseText())
+                    .findAny()
+                    .isPresent(), is(true));
         }
     }
 

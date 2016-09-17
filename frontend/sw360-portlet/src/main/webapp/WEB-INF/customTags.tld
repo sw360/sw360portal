@@ -132,6 +132,23 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayOutputFormats</name>
+        <tag-class>com.siemens.sw360.portal.tags.DisplayOutputFormats</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>options</name>
+            <required>true</required>
+            <type>java.util.Collection</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>selected</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplayUser</name>
         <tag-class>com.siemens.sw360.portal.tags.DisplayUser</tag-class>
         <body-content>empty</body-content>

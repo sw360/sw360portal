@@ -6,9 +6,6 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 
 <%@include file="/html/init.jsp" %>
 
@@ -19,8 +16,16 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
+<portlet:resourceURL var="downloadLicenseInfoURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_LICENSE_INFO%>'/>
+    <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${requestScope.project.id}"/>
+</portlet:resourceURL>
+
 <jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"
              scope="request"/>
+<jsp:useBean id="licenseInfoOutputFormats" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo>"
+             scope="request"/>
+
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>
 <script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
@@ -126,21 +131,17 @@
     </core_rt:if>
     </tbody>
 </table>
-
-<input type="button" id="downloadLicenseInfoBtn" class="addButton"
-       value="Download License Information">
+<form  id="downloadLicenseInfoForm" name="downloadLicenseInfoForm" action="<%=downloadLicenseInfoURL%>" method="post" >
+<span class="pull-right">
+    <select class="toplabelledInput, formatSelect" id="<%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>" name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>">
+                        <sw360:DisplayOutputFormats options='${licenseInfoOutputFormats}'/>
+    </select>
+    <input type="submit" id="downloadLicenseInfoButton" value="Download File" class="addButton"/>
+</span>
+</form>
 
 <script>
     $(window).load(function () {
         $("#LinkedProjectsInfo").treetable({expandable: true});
-        $('#downloadLicenseInfoBtn').click(downloadLicenseInfo);
     });
-
-    function downloadLicenseInfo() {
-        var portletURL = `<portlet:resourceURL>
-        <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.DOWNLOAD_LICENSE_INFO%>"/>
-        <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${requestScope.project.id}"/>
-        </portlet:resourceURL>`;
-        window.location.href = portletURL;
-    }
 </script>
