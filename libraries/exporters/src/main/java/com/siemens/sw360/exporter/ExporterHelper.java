@@ -9,6 +9,8 @@
 
 package com.siemens.sw360.exporter;
 
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
+
 import java.util.List;
 
 /**
@@ -22,6 +24,6 @@ public interface ExporterHelper<T> {
 
     public List<String> getHeaders();
 
-    public List<String> makeRow(T document);
+    public SubTable makeRows(T document) throws SW360Exception;
 
 }

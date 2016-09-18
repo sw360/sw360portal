@@ -511,6 +511,7 @@ public class ComponentDatabaseHandler {
         assertNotNull(component);
 
         final Set<String> releaseIds = component.getReleaseIds();
+        if (releaseIds!=null && releaseIds.size()>0) return RequestStatus.IN_USE;
         if (checkIfInUse(releaseIds)) return RequestStatus.IN_USE;
 
 
@@ -694,6 +695,10 @@ public class ComponentDatabaseHandler {
 
     public List<Release> getReleases(Set<String> ids, User user) {
         return releaseRepository.makeSummary(SummaryType.SHORT, ids);
+    }
+
+    public List<Release> getDetailedReleasesForExport(Set<String> ids) {
+        return releaseRepository.makeSummary(SummaryType.DETAILED_EXPORT_SUMMARY, ids);
     }
 
     public List<Release> getFullReleases(Set<String> ids, User user) {

@@ -13,6 +13,7 @@ import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.apache.thrift.TException;
@@ -65,12 +66,13 @@ public class SPDXParserTest {
         assertThat(result.getFilenames().size(), is(1));
         assertThat(result.getFilenames().get(0), is(spdxExampleFile));
 
-        assertThat(result.getLicenseTextsSize(), is(5));
-        assertThat(result.getLicenseTexts().stream()
-                .map(l -> l.contains("\"THE BEER-WARE LICENSE\""))
-                .filter(b -> b)
+        assertThat(result.getLicenseNamesWithTextsSize(), is(5));
+        assertThat(result.getLicenseNamesWithTexts()
+                .stream()
+                .map(lt -> lt.getLicenseText())
+                .filter(t -> t.contains("\"THE BEER-WARE LICENSE\""))
                 .findAny()
-                .get(),
+                .isPresent(),
                 is(true));
         assertThat(result.getCopyrightsSize(), is(1));
         assertThat(result.getCopyrights(), hasItem("Copyright 2008-2010 John Smith"));
@@ -79,7 +81,8 @@ public class SPDXParserTest {
     @Test
     public void testIsApplicableTo() throws Exception {
         try {
-            SPDXParser.ACCEPTABLE_ATTACHMENT_TYPES.stream()
+            Arrays.stream(AttachmentType.values())
+                    .filter(at -> ! SPDXParser.NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(at))
                     .forEach(attachmentType -> SPDXParser.ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                             .forEach(extension -> {
                                 String filename = "filename." + extension;
@@ -118,7 +121,11 @@ public class SPDXParserTest {
     @Test
     public void testGetLicenseInfo() throws Exception {
 
-        Attachment attachment = makeAttachment(spdxExampleFile, SPDXParser.ACCEPTABLE_ATTACHMENT_TYPES.get(0));
+        Attachment attachment = makeAttachment(spdxExampleFile,
+                Arrays.stream(AttachmentType.values())
+                        .filter(at -> ! SPDXParser.NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(at))
+                        .findAny()
+                        .get());
 
         LicenseInfoParsingResult result = parser.getLicenseInfo(attachment);
 

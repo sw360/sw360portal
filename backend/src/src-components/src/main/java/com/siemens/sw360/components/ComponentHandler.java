@@ -9,7 +9,6 @@
 package com.siemens.sw360.components;
 
 import com.siemens.sw360.attachments.AttachmentHandler;
-import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ComponentSearchHandler;
@@ -18,13 +17,14 @@ import com.siemens.sw360.datahandler.thrift.RequestSummary;
 import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.siemens.sw360.datahandler.common.SW360Assert.*;
 
@@ -160,7 +160,7 @@ public class ComponentHandler implements ComponentService.Iface {
     @Override
     public List<Release> getReleasesByIdsForExport(Set<String> ids) throws TException {
         assertNotNull(ids);
-        return handler.getReleases(ids, null);
+        return handler.getDetailedReleasesForExport(ids);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.google.common.base.Strings;
 import com.siemens.sw360.datahandler.db.VendorRepository;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.Release._Fields;
+import com.siemens.sw360.exporter.ReleaseExporter;
 
 import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
 
@@ -36,33 +37,48 @@ public class ReleaseSummary extends DocumentSummary<Release> {
     @Override
     protected Release summary(SummaryType type, Release document) {
         Release copy = new Release();
+        if(type == SummaryType.DETAILED_EXPORT_SUMMARY){
+           setDetailedExportSummaryFields(document, copy);
+        } else {
+            setShortSummaryFields(document,copy);
+            if (type != SummaryType.SHORT) {
+               setAdditionalFieldsForSummariesOtherThanShortAndDetailedExport(document, copy);
+            }
+        }
+        if (document.isSetVendorId()) {
+            final String vendorId = document.getVendorId();
+            if (!Strings.isNullOrEmpty(vendorId)) {
+                copy.setVendor(vendorRepository.get(vendorId));
+            }
+        }
+        return copy;
+    }
+
+    private void setDetailedExportSummaryFields(Release document, Release copy) {
+        for (_Fields renderedField : ReleaseExporter.RELEASE_RENDERED_FIELDS) {
+            copyField(document, copy, renderedField);
+        }
+    }
+
+    private void setShortSummaryFields(Release document, Release copy) {
         copyField(document, copy, _Fields.ID);
         copyField(document, copy, _Fields.NAME);
         copyField(document, copy, _Fields.VERSION);
         copyField(document, copy, _Fields.COMPONENT_ID);
         copyField(document, copy, _Fields.CLEARING_TEAM_TO_FOSSOLOGY_STATUS);
         copyField(document, copy, _Fields.FOSSOLOGY_ID);
+    }
 
-        if(document.isSetVendorId() ) {
-            final String vendorId = document.getVendorId();
-            if (!Strings.isNullOrEmpty(vendorId)) {
-                copy.setVendor(vendorRepository.get(vendorId));
-            }
-        }
-
-        if (type != SummaryType.SHORT) {
-            copyField(document, copy, _Fields.CPEID);
-            copyField(document, copy, _Fields.CREATED_BY);
-            copyField(document, copy, _Fields.MAINLINE_STATE);
-            copyField(document, copy, _Fields.CLEARING_STATE);
-            copyField(document, copy, _Fields.RELEASE_DATE);
-            copyField(document, copy, _Fields.LANGUAGES);
-            copyField(document, copy, _Fields.OPERATING_SYSTEMS);
-            copyField(document, copy, _Fields.ATTACHMENTS);
-            copyField(document, copy, _Fields.MAIN_LICENSE_IDS);
-        }
-
-        return copy;
+    private void setAdditionalFieldsForSummariesOtherThanShortAndDetailedExport(Release document, Release copy){
+        copyField(document, copy, _Fields.CPEID);
+        copyField(document, copy, _Fields.CREATED_BY);
+        copyField(document, copy, _Fields.MAINLINE_STATE);
+        copyField(document, copy, _Fields.CLEARING_STATE);
+        copyField(document, copy, _Fields.RELEASE_DATE);
+        copyField(document, copy, _Fields.LANGUAGES);
+        copyField(document, copy, _Fields.OPERATING_SYSTEMS);
+        copyField(document, copy, _Fields.ATTACHMENTS);
+        copyField(document, copy, _Fields.MAIN_LICENSE_IDS);
     }
 
 }

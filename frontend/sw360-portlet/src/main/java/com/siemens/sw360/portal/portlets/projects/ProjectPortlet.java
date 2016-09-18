@@ -20,19 +20,22 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Constants;
+import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.DocumentState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -53,11 +56,8 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -144,15 +144,26 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
         User user = UserCacheHolder.getUserFromRequest(request);
+
+        String generatorClassName = request.getParameter(PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT);
         LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
         ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
         String projectId = request.getParameter(PROJECT_ID);
         try {
             Project project = projectClient.getProjectById(projectId, user);
-            String fileName = String.format("LicenseInfo-%s-%s.txt", null!=project ? project.getName() : "Unknown-Project",
-                    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now()));
-            PortletResponseUtil.sendFile(request, response, fileName, licenseInfoClient.getLicenseInfoFileForProject(projectId, user).getBytes(), "text/plain");
+            String projectName = project != null ? project.getName() : "Unknown-Project";
+            String timestamp = SW360Utils.getCreatedOn();
+            OutputFormatInfo outputFormatInfo = licenseInfoClient.getOutputFormatInfoForGeneratorClass(generatorClassName);
+            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + outputFormatInfo.getFileExtension();
+            if(outputFormatInfo.isOutputBinary){
+                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName);
+                byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
+                licenseInfoByteBuffer.get(licenseInfoByteArray);
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, "text/plain");
+            } else {
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+            }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
         }
@@ -172,7 +183,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 row.put("id", project.getId());
                 row.put("name", printName(project));
                 String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A." : pDesc);
+                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
                 row.put("state", ThriftEnumUtils.enumToString(project.getState()));
                 row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
                 row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
@@ -207,18 +218,15 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void exportExcel(ResourceRequest request, ResourceResponse response) {
         final User user = UserCacheHolder.getUserFromRequest(request);
         try {
-            ProjectService.Iface client = thriftClients.makeProjectClient();
-            String searchText = request.getParameter(PortalConstants.KEY_SEARCH_TEXT);
-            List<Project> projects;
-            if (isNullOrEmpty(searchText)) {
-                projects = client.getAccessibleProjectsSummary(user);
-            } else {
-                projects = client.searchByName(searchText, user);
-            }
-
-            ProjectExporter exporter = new ProjectExporter(thriftClients.makeComponentClient());
+            boolean extendedByReleases = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
+            List<Project> projects = getFilteredProjectList(request);
+            ProjectExporter exporter = new ProjectExporter(
+                    thriftClients.makeComponentClient(),
+                    thriftClients.makeProjectClient(),
+                    user,
+                    extendedByReleases);
             PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        } catch (IOException | TException e) {
+        } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
         }
     }
@@ -435,7 +443,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private void prepareStandardView(RenderRequest request) throws IOException {
+        List<Project> projectList = getFilteredProjectList(request);
 
+        request.setAttribute(PROJECT_LIST, projectList);
+        List<Organization> organizations = UserUtils.getOrganizations(request);
+        request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
+    }
+
+    private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
         String searchtext = request.getParameter(KEY_SEARCH_TEXT);
 
         String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
@@ -451,17 +466,16 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         List<Project> projectList;
 
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+
+        String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
+        if (null == groupFilterValue) {
+            addStickyProjectGroupToFilters(request, user, filterMap);
+        } else {
+            ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
+        }
         try {
-            final User user = UserCacheHolder.getUserFromRequest(request);
-            ProjectService.Iface projectClient = thriftClients.makeProjectClient();
-
-            String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
-            if (null == groupFilterValue) {
-                addStickyProjectGroupToFilters(request, user, filterMap);
-            } else {
-                ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
-            }
-
             if (isNullOrEmpty(searchtext) && filterMap.isEmpty()) {
                 projectList = projectClient.getAccessibleProjectsSummary(user);
             } else {
@@ -475,16 +489,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Could not search projects in backend ", e);
             projectList = Collections.emptyList();
         }
-
-        request.setAttribute(PROJECT_LIST, projectList);
-        request.setAttribute(KEY_SEARCH_TEXT, searchtext);
-        request.setAttribute(KEY_SEARCH_FILTER_TEXT, searchfilter);
-        List<Organization> organizations = UserUtils.getOrganizations(request);
-        request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
-
+        return projectList;
     }
 
-    private void addStickyProjectGroupToFilters(RenderRequest request, User user, Map<String, Set<String>> filterMap) {
+    private void addStickyProjectGroupToFilters(PortletRequest request, User user, Map<String, Set<String>> filterMap){
         String stickyGroupFilter = ProjectPortletUtils.loadStickyProjectGroup(request, user);
         if (!isNullOrEmpty(stickyGroupFilter)) {
             String groupFieldName = Project._Fields.BUSINESS_UNIT.getFieldName();
@@ -511,6 +519,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(USING_PROJECTS, usingProjects);
                 Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
+                LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+                List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
+                request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
 
                 putVulnerabilitiesInRequest(request, id, user);
                 request.setAttribute(

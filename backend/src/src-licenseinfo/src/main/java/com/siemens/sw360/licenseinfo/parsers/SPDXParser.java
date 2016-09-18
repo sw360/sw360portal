@@ -1,5 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
+ * Copyright Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -18,20 +19,22 @@ import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SPDXDocumentFactory;
+import org.spdx.rdfparser.license.*;
 import org.spdx.rdfparser.model.SpdxDocument;
+import org.spdx.rdfparser.model.SpdxItem;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author: alex.borodin@evosoft.com
@@ -44,12 +47,27 @@ public class SPDXParser extends LicenseInfoParser {
             "rdf",
             "spdx" // usually used for tag:value format
     );
-    protected static final List<AttachmentType> ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
-            AttachmentType.COMPONENT_LICENSE_INFO_XML,
-            AttachmentType.COMPONENT_LICENSE_INFO_COMBINED,
-            AttachmentType.SCAN_RESULT_REPORT,
-            AttachmentType.SCAN_RESULT_REPORT_XML,
-            AttachmentType.OTHER);
+    protected static final List<AttachmentType> NOT_ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
+            AttachmentType.SOURCE,
+            AttachmentType.DESIGN,
+            AttachmentType.REQUIREMENT,
+            AttachmentType.CLEARING_REPORT,
+            AttachmentType.SOURCE_SELF,
+            AttachmentType.BINARY,
+            AttachmentType.BINARY_SELF,
+            AttachmentType.DECISION_REPORT,
+            AttachmentType.LEGAL_EVALUATION,
+            AttachmentType.LICENSE_AGREEMENT,
+            AttachmentType.SCREENSHOT
+    );
+    // Thus acceptable attachment types are:
+    //
+    //  - AttachmentType.DOCUMENT
+    //  - AttachmentType.COMPONENT_LICENSE_INFO_XML
+    //  - AttachmentType.COMPONENT_LICENSE_INFO_COMBINED
+    //  - AttachmentType.SCAN_RESULT_REPORT
+    //  - AttachmentType.SCAN_RESULT_REPORT_XML
+    //  - AttachmentType.OTHER
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
@@ -66,7 +84,7 @@ public class SPDXParser extends LicenseInfoParser {
         isAcceptable &= ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                 .map(extension -> lowerFileName.endsWith(extension))
                 .reduce(false, (b1, b2) -> b1 || b2);
-        isAcceptable &= ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType());
+        isAcceptable &= ! NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType());
 
         // TODO: test for namespace `spdx` in rdf file (maybe to much overhead? Better try parsing and die?)
 
@@ -98,10 +116,67 @@ public class SPDXParser extends LicenseInfoParser {
         return new URI("file", filePath, null).toString();
     }
 
+    protected Stream<String> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
+        if (spdxLicenseInfo instanceof LicenseSet) {
+
+            LicenseSet LicenseSet = (LicenseSet) spdxLicenseInfo;
+            return Arrays.stream(LicenseSet.getMembers())
+                    .flatMap(this::getAllLicenseTextsFromInfo);
+
+        } else if (spdxLicenseInfo instanceof ExtractedLicenseInfo) {
+
+            ExtractedLicenseInfo extractedLicenseInfo = (ExtractedLicenseInfo) spdxLicenseInfo;
+            return Collections.singleton(extractedLicenseInfo.getExtractedText())
+                    .stream();
+
+        } else if (spdxLicenseInfo instanceof License) {
+
+            License license = (License) spdxLicenseInfo;
+            return Collections.singleton(license.getLicenseText())
+                    .stream();
+
+        } else if (spdxLicenseInfo instanceof OrLaterOperator) {
+
+            OrLaterOperator orLaterOperator = (OrLaterOperator) spdxLicenseInfo;
+            return getAllLicenseTextsFromInfo(orLaterOperator.getLicense());
+
+        } else if (spdxLicenseInfo instanceof WithExceptionOperator) {
+
+            WithExceptionOperator withExceptionOperator = (WithExceptionOperator) spdxLicenseInfo;
+            String licenseExceptionText = withExceptionOperator.getException()
+                    .getLicenseExceptionText();
+            return getAllLicenseTextsFromInfo(withExceptionOperator.getLicense())
+                    .map(licenseText -> licenseText + "\n\n" + licenseExceptionText);
+
+        }
+
+        return Stream.empty();
+    }
+
+    protected Set<String> getAllLicenseTexts(SpdxDocument spdxDocument) throws InvalidSPDXAnalysisException {
+        Stream<String> licenseTexts = Arrays.stream(spdxDocument.getDocumentDescribes())
+                .flatMap(spdxItem -> Stream.concat(
+                        getAllLicenseTextsFromInfo(spdxItem.getLicenseConcluded()),
+                        Arrays.stream(spdxItem.getLicenseInfoFromFiles())
+                                .flatMap(this::getAllLicenseTextsFromInfo)));
+        Stream<String> extractedLicenseTexts = Arrays.stream(spdxDocument.getExtractedLicenseInfos())
+                        .flatMap(this::getAllLicenseTextsFromInfo);
+        return Stream.concat(licenseTexts, extractedLicenseTexts)
+                .collect(Collectors.toSet());
+    }
+
     protected Optional<LicenseInfo> addSpdxContentToCLI(LicenseInfo result, SpdxDocument doc) {
+        if(! result.isSetLicenseNamesWithTexts()){
+            result.setLicenseNamesWithTexts(new HashSet<>());
+        }
         try {
             Arrays.stream(doc.getExtractedLicenseInfos()).forEach(
-                    extractedLicenseInfo -> result.addToLicenseTexts(extractedLicenseInfo.getExtractedText())
+                    extractedLicenseInfo ->
+                            result.getLicenseNamesWithTexts()
+                                    .add(new LicenseNameWithText()
+                                            .setLicenseText(extractedLicenseInfo.getExtractedText())
+                                            .setLicenseName(extractedLicenseInfo.getName())
+                                    )
             );
             Arrays.stream(doc.getDocumentDescribes()).forEach(
                     spdxItem -> result.addToCopyrights(spdxItem.getCopyrightText())

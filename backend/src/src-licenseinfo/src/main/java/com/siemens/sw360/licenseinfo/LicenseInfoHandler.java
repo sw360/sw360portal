@@ -18,25 +18,24 @@ import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import com.siemens.sw360.datahandler.thrift.licenseinfo.*;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.licenseinfo.outputGenerators.DocxGenerator;
+import com.siemens.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
+import com.siemens.sw360.licenseinfo.outputGenerators.OutputGenerator;
+import com.siemens.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
 import com.siemens.sw360.licenseinfo.parsers.AttachmentContentProvider;
 import com.siemens.sw360.licenseinfo.parsers.CLIParser;
 import com.siemens.sw360.licenseinfo.parsers.LicenseInfoParser;
 import com.siemens.sw360.licenseinfo.parsers.SPDXParser;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
-import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,9 +53,11 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
     public static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
     public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
-    public static final String LICENSE_INFO_TEMPLATE_FILE = "licenseInfoFile.vm";
+    public static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
 
     private final LicenseInfoParser[] parsers;
+
+    private final OutputGenerator[] outputGenerators;
 
     private static final Logger log = Logger.getLogger(LicenseInfoHandler.class);
 
@@ -82,6 +83,12 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         parsers = new LicenseInfoParser[]{
                 new SPDXParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
                 new CLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
+        };
+
+        outputGenerators = new OutputGenerator[]{
+                new LicenseInfoGenerator(),
+                new XhtmlGenerator(),
+                new DocxGenerator()
         };
     }
 
@@ -150,16 +157,55 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     }
 
     @Override
-    public String getLicenseInfoFileForProject(String projectId, User user) throws TException {
+    public String getLicenseInfoFileForProject(String projectId, User user, String outputGeneratorClassName) throws TException {
         assertId(projectId);
         Project project = projectDatabaseHandler.getProjectById(projectId, user);
         assertNotNull(project);
 
         Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(projectId, user);
-
-        return generateLicenseInfoFile(projectLicenseInfoResults);
+        for (OutputGenerator generator : outputGenerators) {
+            if (outputGeneratorClassName.equals(generator.getClass().getName())) {
+                return (String) generator.generateOutputFile(projectLicenseInfoResults, project.getName());
+            }
+        }
+        throw new TException("Unknown output generator for String output: " + outputGeneratorClassName);
     }
 
+    @Override
+    public ByteBuffer getLicenseInfoFileForProjectAsBinary(String projectId, User user, String outputGeneratorClassName) throws TException {
+        assertId(projectId);
+        Project project = projectDatabaseHandler.getProjectById(projectId, user);
+        assertNotNull(project);
+
+        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(projectId, user);
+        for (OutputGenerator generator : outputGenerators) {
+            if (outputGeneratorClassName.equals(generator.getClass().getName())) {
+                return ByteBuffer.wrap((byte[]) generator.generateOutputFile(projectLicenseInfoResults, project.getName()));
+            }
+        }
+        throw new TException("Unknown output generator for binary output: " + outputGeneratorClassName);
+    }
+
+    @Override
+    public List<OutputFormatInfo> getPossibleOutputFormats() {
+        List<OutputFormatInfo> outputPossibilities = new ArrayList<>();
+        for (OutputGenerator generator : outputGenerators) {
+            outputPossibilities.add(
+                    generator.getOutputFormatInfo()
+            );
+        }
+        return outputPossibilities;
+    }
+
+    @Override
+    public OutputFormatInfo getOutputFormatInfoForGeneratorClass(String generatorClassName) throws TException{
+        for (OutputGenerator generator : outputGenerators) {
+            if (generatorClassName.equals(generator.getClass().getName())) {
+                return generator.getOutputFormatInfo();
+            }
+        }
+        throw new TException("Unknown output format: " + generatorClassName);
+    }
 
     public Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(String projectId, User user) throws TException {
         Map<String, ProjectRelationship> fakeRelations = Maps.newHashMap();
@@ -175,7 +221,6 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                     return null;
                 }
             }).filter(Objects::nonNull)
-                    // public LicenseInfoParsingResult getLicenseInfoForRelease(Release release) throws TException {
                     .map((release) -> {
                         try {
                             return getLicenseInfoForRelease(release);
@@ -212,7 +257,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         //merging copyrights
         mergedLi.setCopyrights(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getCopyrights()), nullToEmptySet(lir2.getLicenseInfo().getCopyrights())));
         //merging licenses
-        mergedLi.setLicenseTexts(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getLicenseTexts()), nullToEmptySet(lir2.getLicenseInfo().getLicenseTexts())));
+        mergedLi.setLicenseNamesWithTexts(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getLicenseNamesWithTexts()), nullToEmptySet(lir2.getLicenseInfo().getLicenseNamesWithTexts())));
 
         //use copy constructor to copy vendor, name, and version
         return new LicenseInfoParsingResult(lir1)
@@ -221,40 +266,6 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                 .setMessage((nullToEmptyString(lir1.getMessage()) + "\n" + nullToEmptyString(lir2.getMessage())).trim());
     }
 
-    private String generateLicenseInfoFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) throws SW360Exception {
-        try {
-            Properties p = new Properties();
-            p.setProperty("resource.loader", "class");
-            p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-            Velocity.init(p);
-            VelocityContext vc = new VelocityContext();
-
-            Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
-                    .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
-            Set<String> licenses = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
-                    .map(LicenseInfo::getLicenseTexts)
-                    .filter(Objects::nonNull)
-                    .reduce(Sets::union)
-                    .orElse(Collections.emptySet());
-
-            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
-            vc.put(LICENSES_CONTEXT_PROPERTY, licenses);
-
-            StringWriter sw = new StringWriter();
-            Velocity.mergeTemplate(LICENSE_INFO_TEMPLATE_FILE, "utf-8", vc, sw);
-            sw.close();
-            return sw.toString();
-        } catch (Exception e) {
-            log.error("Could not generate licenseinfo file", e);
-            return "License information could not be generated.\nAn exception occured: " + e.toString();
-        }
-    }
-
-    private String getComponentLongName(LicenseInfoParsingResult li) {
-        return String.format("%s %s %s", li.getVendor(), li.getName(), li.getVersion()).trim();
-    }
 
     private LicenseInfoParsingResult noSourceParsingResult() {
         return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE);

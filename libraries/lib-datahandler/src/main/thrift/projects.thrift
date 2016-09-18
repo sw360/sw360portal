@@ -144,11 +144,6 @@ service ProjectService {
     list<Project> searchByName(1: string name, 2: User user);
 
     /**
-     * same as `searchByName`, but returns the export summary of projects
-     */
-    list<Project> searchByNameForExport(1: string name, 2: User user);
-
-    /**
      * list of short project summaries which are visible to the `user` and have `id` in releaseIdToUsage
      */
     set<Project> searchByReleaseId(1: string id, 2: User user);

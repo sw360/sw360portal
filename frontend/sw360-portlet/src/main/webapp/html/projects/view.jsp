@@ -72,8 +72,6 @@
     <span class="pull-right">
         <input type="button" id="importbutton" class="addButton"
                value="Import Projects" onclick="window.location.href='/group/guest/import/'" />
-        <input type="button" id="exportbutton" class="addButton"
-               value="Export Projects" />
         <input type="button" class="addButton" onclick="window.location.href='<%=addProjectURL%>'" value="Add Project" />
     </span>
 </p>
@@ -115,27 +113,27 @@
                 <td>
                     <label for="project_name">Project Name</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.NAME%>"
-                           value="${name}" id="project_name">
+                           value="${name}" id="project_name" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project_type">Project Type</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
-                           value="${projectType}" id="project_type">
+                           value="${projectType}" id="project_type" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project_responsible">Project Responsible (Email)</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_RESPONSIBLE%>"
-                           value="${projectResponsible}" id="project_responsible">
+                           value="${projectResponsible}" id="project_responsible" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="group">Group</label>
-                    <select class="toplabelledInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
+                    <select class="toplabelledInput, filterInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
                             style="width: 90%; padding: 5px; color: gray; min-height: 28px;">
                         <option value="" class="textlabel stackedLabel"
                                 <core_rt:if test="${empty businessUnit}"> selected="selected"</core_rt:if>
@@ -152,14 +150,14 @@
                 <td>
                     <label for="state">State</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.STATE%>"
-                           value="${state}" id="state">
+                           value="${state}" id="state" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="tag">Tag</label>
                     <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.TAG%>"
-                           value="${tag}" id="tag">
+                           value="${tag}" id="tag" class="filterInput">
                 </td>
             </tr>
 
@@ -178,6 +176,14 @@
         </tfoot>
     </table>
 </div>
+<div class="clear-float"></div>
+<span class="pull-right">
+        <select class="toplabelledInput formatSelect" id="extendedByReleases" name="extendedByReleases">
+            <option value="false">Projects only</option>
+            <option value="true">Projects with linked releases</option>
+        </select>
+        <input type="button" class="addButton" id="exportExcelButton" value="Export Excel" class="addButton" onclick="exportExcel()"/>
+</span>
 
 
 <div id="fossologyClearing" title="Fossology Clearing" style="display: none; background-color: #ffffff;">
@@ -195,9 +201,11 @@
 </div>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css"><link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 
 <script>
@@ -208,10 +216,14 @@
         PortletURL = Liferay.PortletURL;
         load();
         $('#exportbutton').click(exportExcel);
+        $('.filterInput').on('input', function() {
+            $('#exportExcelButton').prop('disabled', true);
+            <%--when filters are actually applied, page is refreshed and exportExcelButton enabled automatically--%>
+        });
     });
 
     function useSearch(buttonId) {
-        //we only want to search names starting with the value in the search box
+        <%-- we only want to search names starting with the value in the search box--%>
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
         oTable.columns(0).search('^' + val, true).draw();
     }
@@ -238,7 +250,7 @@
                         "",
                         "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
                 + "<img src='<%=request.getContextPath()%>/images/Trash.png'" +
-                " onclick=\"deleteProject('" + id + "', '" + replaceSingleQuote(row.name) + "')\" alt='Delete' title='Delete'/>";
+                " onclick=\"deleteProject('" + id + "', '<b>" + replaceSingleQuote(row.name) + "</b>'," + replaceSingleQuote(row.linkedProjectsSize) + ","+ replaceSingleQuote(row.linkedReleasesSize) +","+ replaceSingleQuote(row.attachmentsSize) +")\" alt='Delete' title='Delete'/>";
     }
 
     function renderProjectNameLink(name, type, row) {
@@ -263,7 +275,10 @@
             "description": "<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="\""/>",
             "state":"<sw360:DisplayEnum value='${project.state}'/>",
             "clearing":'<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
-            "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>'
+            "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>',
+            "linkedProjectsSize" : '${project.linkedProjectsSize}',
+            "linkedReleasesSize" : '${project.releaseIdToUsageSize}',
+            "attachmentsSize" : '${project.attachmentsSize}'
         });
         </core_rt:forEach>
 
@@ -273,7 +288,7 @@
              search: {smart: false},
              "aoColumns": [
                  {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
-                 {title: "Description", data: "description"},// render: {display: displayEscaped}},
+                 {title: "Description", data: "description"},
                  {title: "Project Responsible", data: "responsible"},
                  {title: "State", data: "state", render: {display: displayEscaped}},
                  {title: "Clearing Status", data: "clearing"},
@@ -297,13 +312,21 @@
          return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
      }
 
-     function exportExcel() {
+    function exportExcel() {
+        $('#keywordsearchinput').val("");
+        useSearch('keywordsearchinput');
+
          var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                  .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-         portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#keywordsearchinput').val());
+         portletURL.setParameter('<%=Project._Fields.NAME%>',$('#project_name').val());
+         portletURL.setParameter('<%=Project._Fields.TYPE%>',$('#project_type').val());
+         portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>',$('#project_responsible').val());
+         portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>',$('#group').val());
+         portletURL.setParameter('<%=Project._Fields.STATE%>',$('#state').val());
+         portletURL.setParameter('<%=Project._Fields.TAG%>',$('#tag').val());
+         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
          window.location.href = portletURL.toString();
-
      }
 
      function openSelectClearingDialog(projectId, fieldId) {
@@ -313,10 +336,9 @@
          fillClearingFormAndOpenDialog(projectId);
      }
 
-     function deleteProject(projectId, name) {
+    function deleteProject(projectId, name, linkedProjectsSize, linkedReleasesSize, attachmentsSize) {
 
-         if (confirm("Do you want to delete project " + name + " ?")) {
-
+         function deleteProjectInternal() {
              jQuery.ajax({
                  type: 'POST',
                  url: '<%=deleteAjaxURL%>',
@@ -329,20 +351,29 @@
                          oTable.row('#' + projectId).remove().draw();
                      }
                      else if (data.result == 'SENT_TO_MODERATOR') {
-                         alert("You may not delete the project, but a request was sent to a moderator!");
+                         $.alert("You may not delete the project, but a request was sent to a moderator!");
                      } else if (data.result == 'IN_USE') {
-                         alert("The project is used by another project!");
+                         $.alert("The project cannot be deleted, since it is used by another project!");
                      }
                      else {
-                         alert("I could not delete the project!");
+                         $.alert("I could not delete the project!");
                      }
                  },
                  error: function () {
-                     alert("I could not delete the project!");
+                     $.alert("I could not delete the project!");
                  }
              });
 
          }
+
+         var confirmMessage = "Do you really want to delete the project " + name + " ?";
+         confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "<br/><br/>The project " + name +  " contains<br/><ul>" : "";
+         confirmMessage += (linkedProjectsSize > 0) ? "<li>" + linkedProjectsSize + " linked projects</li>" : "";
+         confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
+         confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
+         confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "</ul>" : "";
+
+         deleteConfirmed(confirmMessage, deleteProjectInternal);
      }
 
      function fillClearingFormAndOpenDialog(projectId) {

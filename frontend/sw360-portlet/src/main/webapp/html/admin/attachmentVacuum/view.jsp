@@ -35,28 +35,30 @@
 </table>
 <br/>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
   function cleanUp() {
-    if (confirm("Do you really want to clean up the attachment db?")) {
+      function cleanUpInternal() {
+          jQuery.ajax({
+              type: 'POST',
+              url: '<%=cleanUpURL%>',
+              cache: false,
+              data: "",
+              success: function (data) {
+                  if(data.result == 'SUCCESS')
+                      $.alert("I deleted " + data.totalAffectedObjects + " of " + data.totalObjects + " total Attachments in the DB.");
+                  else {
+                      $.alert("I could not cleanup the attachments!");
+                  }
+              },
+              error: function () {
+                  $.alert("I could not cleanup the attachments!");
+              }
+          });
+      }
 
-      jQuery.ajax({
-        type: 'POST',
-        url: '<%=cleanUpURL%>',
-        cache: false,
-        data: "",
-        success: function (data) {
-          if(data.result == 'SUCCESS')
-            alert("I deleted " + data.totalAffectedObjects + " of " + data.totalObjects + " total Attachments in the DB.");
-          else {
-            alert("I could not cleanup the attachments!");
-          }
-        },
-        error: function () {
-          alert("I could not cleanup the attachments!");
-        }
-      });
-    }
-
+      deleteConfirmed("Do you really want to clean up the attachment db?", cleanUpInternal);
   }
 </script>
 

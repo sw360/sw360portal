@@ -53,7 +53,12 @@ public class ProjectHandler implements ProjectService.Iface {
 
     @Override
     public List<Project> refineSearch(String text, Map<String, Set<String>> subQueryRestrictions,User user) throws TException {
-        return searchHandler.search(text, subQueryRestrictions,user);
+        List<Project> foundProjects = searchHandler.search(text, subQueryRestrictions, user);
+        foundProjects.stream()
+                .forEach(p -> p.releaseIds = p.isSetReleaseIdToUsage()
+                                ? p.releaseIdToUsage.keySet()
+                                : Collections.EMPTY_SET);
+        return foundProjects;
     }
 
     @Override
@@ -83,14 +88,6 @@ public class ProjectHandler implements ProjectService.Iface {
         assertUser(user);
 
         return handler.searchByName(name, user);
-    }
-
-    @Override
-    public List<Project> searchByNameForExport(String name, User user) throws TException {
-        assertNotEmpty(name);
-        assertUser(user);
-
-        return handler.searchByNameFortExport(name, user);
     }
 
     @Override

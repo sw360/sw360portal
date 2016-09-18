@@ -309,10 +309,6 @@ input[readonly].clickable {
     padding: 0.5px !important;
 }
 
-#attachmentDetail .checksumInput{
-    margin-bottom: 0;
-    height: 15px;
-}
 
 .sw360modal button:last-of-type {
     float: right;
@@ -330,9 +326,22 @@ input[readonly].clickable {
     width: 100%;
 }
 
+.formatSelect {
+    width: 20em !important;
+    height: 25px !important;
+    margin-bottom: 0 !important;
+}
+
 .hashvalue {
     word-break: break-all;
     font-family: monospace;
+}
+
+#extendedByReleases, .formatSelect {
+   width: 20em;
+   height: 25px;
+   margin-bottom: 0;
+   padding:0;
 }
 
 .notificationBulletSpan {
@@ -381,10 +390,15 @@ input[readonly].clickable {
 .formatedMessageForVulCheckedBy:before, .formatedMessageForVulComment:before{
     font-size: small;
 }
+
 .formatedMessageForVulCheckedBy:before {
     content: "Checked by: ";
 }
 
 .formatedMessageForVulComment:before {
     content: "Comment: ";
+}
+
+.clear-float {
+    clear:right;
 }
