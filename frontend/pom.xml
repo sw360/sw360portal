@@ -26,41 +26,4 @@
         <module>sw360-portlet</module>
         <module>sw360-theme</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.siemens.sw360</groupId>
-            <artifactId>importers</artifactId>
-            <version>${project.version}</version>
-            <type>pom</type>
-        </dependency>
-
-        <dependency>
-            <groupId>com.siemens.sw360</groupId>
-            <artifactId>datahandler</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <useIncrementalCompilation>false</useIncrementalCompilation>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

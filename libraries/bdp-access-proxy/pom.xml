@@ -36,13 +36,6 @@
         <test.excludes>**/*schouldNotExist</test.excludes>
     </properties>
 
-    <scm>
-        <connection>scm:git:https://example.invalid/url/to/bdp-access-proxy.git</connection>
-        <developerConnection>scm:git:https://example.invalid/url/to/bdp-access-proxy.git</developerConnection>
-        <url>https://example.invalid/url/to/bdp-access-proxy</url>
-
-    </scm>
-
     <repositories>
         <repository>
            <id>jcenter</id>
@@ -104,17 +97,6 @@
             </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-
-            <plugin>
-                <groupId>external.atlassian.jgitflow</groupId>
-                <artifactId>jgitflow-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-        </plugins>
     </build>
     <profiles>
         <profile>

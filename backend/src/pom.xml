@@ -38,43 +38,4 @@
         <module>src-cvesearch</module>
         <module>src-schedule</module>
     </modules>
-
-
-    <dependencies>
-        <dependency>
-            <groupId>com.siemens.sw360</groupId>
-            <artifactId>src-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-build-configuration-resources</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems combine.children="append">
-                                <artifactItem>
-                                    <groupId>com.siemens.sw360</groupId>
-                                    <artifactId>src-common</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                                    <excludes>**/*.java,**/*.class</excludes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
