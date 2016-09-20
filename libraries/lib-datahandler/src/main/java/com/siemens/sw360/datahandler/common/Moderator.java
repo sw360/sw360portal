@@ -25,8 +25,6 @@ import java.util.*;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.addAll;
 import static com.siemens.sw360.datahandler.common.CommonUtils.removeAll;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-
 
 /**
  * Base class for Moderators

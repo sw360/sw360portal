@@ -72,10 +72,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         RemoveModeratorRequestStatus status = null;
         try {
             status = client.removeUserFromAssignees(id, user);
+            request.setAttribute(PortalConstants.REQUEST_STATUS, status);
         } catch(TException e) {
             log.error("Error in Moderation ", e);
         }
-        request.setAttribute(PortalConstants.REQUEST_STATUS, status);
         renderRemoveModerationRequestStatus(request, response, status);
     }
 

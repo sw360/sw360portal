@@ -38,7 +38,7 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Component: ${component.name}</span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
-<br/>
+
 <div id="content">
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">

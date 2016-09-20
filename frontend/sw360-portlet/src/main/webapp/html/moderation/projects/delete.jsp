@@ -33,7 +33,6 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Project:  <sw360:ProjectName project="${project}"/></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
-<br/>
 <div id="content" >
     <div class="container-fluid">
         <div id="myTab" class="row-fluid">
