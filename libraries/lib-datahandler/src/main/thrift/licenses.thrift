@@ -17,6 +17,7 @@ typedef users.User User
 typedef users.RequestedAction RequestedAction
 typedef sw360.RequestStatus RequestStatus
 typedef sw360.DocumentState DocumentState
+typedef sw360.CustomProperties CustomProperties
 
 struct Obligation {
 	1: optional string id,
@@ -37,6 +38,7 @@ struct Todo {
     8: optional list<Obligation> obligations,
     9: optional set<string> obligationDatabaseIds,
     10: required i32 todoId,
+    11: optional map<string, string> customPropertyToValue,
 
     // These two are a quick fix to receiving booleans in PHP not working at the moment
     15: optional string developmentString,
@@ -143,7 +145,7 @@ service LicenseService {
     /**
      * Update the whitelisted todos for an organisation, generate moderation request if user has no permissions
      **/
-    RequestStatus updateWhitelist(1: string licenceId, 2: set<string> todoDatabaseIds, 3: User user);
+    RequestStatus updateWhitelist(1: string licenseId, 2: set<string> todoDatabaseIds, 3: User user);
 
     /**
      * delete license from database if user has permissions,
@@ -271,4 +273,8 @@ service LicenseService {
      * return filled todo
      **/
     Todo getTodoById( 1: string id);
+
+    list<CustomProperties> getCustomProperties(1: string documentType);
+
+    RequestStatus updateCustomProperties(1: CustomProperties customProperties, 2: User user )
 }

@@ -532,4 +532,26 @@ public class CommonUtils {
         }
         return Optional.of(thriftOutput.get(0));
     }
+
+    public static Map<String, Set<String>> mergeMapIntoMap(Map<String, Set<String>> source, Map<String, Set<String>> destination) {
+        if (destination == null) {
+            return source;
+        }
+        if (source == null) {
+            return destination;
+        }
+        source.keySet().stream().forEach(k -> {
+                    if (destination.containsKey(k)) {
+                        destination.get(k).addAll(source.get(k));
+                    } else {
+                        destination.put(k, source.get(k));
+                    }
+                }
+        );
+        return destination;
+    }
+
+    public static boolean isNullEmptyOrWhitespace(String string){
+        return string==null || string.trim().length() == 0;
+    }
 }

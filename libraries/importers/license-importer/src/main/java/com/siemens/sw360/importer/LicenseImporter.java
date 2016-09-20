@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -74,7 +75,7 @@ public class LicenseImporter {
         Map<Integer, Set<Integer>> obligationTodoMapping;
         try (final InputStream in = getURL(obligationTodoFilename).openStream()) {
             List<CSVRecord> obligationTodoRecords = ImportCSV.readAsCSVRecords(in);
-            obligationTodoMapping = ConvertRecord.convertObligationTodo(obligationTodoRecords);
+            obligationTodoMapping = ConvertRecord.convertRelationalTableWithIntegerKeys(obligationTodoRecords);
         }
 
         log.debug("Parsing todos ...");
@@ -152,7 +153,7 @@ public class LicenseImporter {
 
         Map<Integer, Todo> todoMap = null;
         try (final InputStream in = getURL(todoFilename).openStream()) {
-            todoMap = TypeMappings.getTodoMap(licenseClient, obligationMap, obligationTodoMapping, in);
+            todoMap = TypeMappings.getTodoMapAndWriteMissingToDatabase(licenseClient, obligationMap, obligationTodoMapping, in);
         } catch (TException e) {
             log.error("Error saving Todos", e);
         }

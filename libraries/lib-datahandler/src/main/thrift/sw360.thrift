@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -58,4 +59,12 @@ struct RequestSummary {
   2: optional i32 totalAffectedElements;
   3: optional i32 totalElements;
   4: optional string message;
+}
+
+struct CustomProperties {
+    1: optional string id,
+    2: optional string revision,
+    3: optional string type = "customproperties",
+    4: optional string documentType,
+    5: map<string, set<string>> propertyToValues;
 }

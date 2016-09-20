@@ -402,3 +402,13 @@ input[readonly].clickable {
 .clear-float {
     clear:right;
 }
+
+.mapDisplayRootItem {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+.mapDisplayChildItemLeft {
+    font-weight:bold;
+}

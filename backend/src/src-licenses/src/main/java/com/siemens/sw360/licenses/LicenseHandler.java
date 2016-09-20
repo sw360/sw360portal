@@ -11,8 +11,10 @@ package com.siemens.sw360.licenses;
 
 
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.licenses.*;
+import com.siemens.sw360.datahandler.thrift.CustomProperties;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
 import org.apache.thrift.TException;
@@ -279,4 +281,16 @@ public class LicenseHandler implements LicenseService.Iface {
         return handler.deleteLicense(id, user);
     }
 
+    @Override
+    public List<CustomProperties> getCustomProperties(String documentType) {
+        return handler.getCustomProperties(documentType);
+    }
+
+    @Override
+    public RequestStatus updateCustomProperties(CustomProperties customProperties, User user){
+        if(! PermissionUtils.isAdmin(user)){
+            return RequestStatus.FAILURE;
+        }
+        return handler.addOrUpdateCustomProperties(customProperties);
+    }
 }

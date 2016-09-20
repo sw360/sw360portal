@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -32,7 +33,8 @@
             <td colspan="3">Todo</td>
             <td>Applies to development</td>
             <td>Applies to distribution</td>
-            <td colspan="2">
+            <td>Further properties</td>
+            <td colspan="1">
                 Obligations
             </td>
             <td class="addToWhiteListCheckboxesPlaceholder"></td>
@@ -43,9 +45,9 @@
                 <td colspan="3"><sw360:out value="${todo.text}"/></td>
                 <td><sw360:DisplayBoolean value="${todo.development}" defined="${todo.setDevelopment}"/></td>
                 <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
-
+                <td><sw360:DisplayMap value="${todo.customPropertyToValue}"/></td>
                 <core_rt:if test="${todo.obligationsSize > 0}">
-                    <td colspan="2">
+                    <td colspan="1">
                         <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
                             <ul>
                                 <li style="color: red"><sw360:out value="${ob.name}"/></li>
@@ -55,7 +57,7 @@
                 </core_rt:if>
 
                 <core_rt:if test="${todo.obligationsSize == 0}">
-                    <td colspan="2"> No obligations</td>
+                    <td colspan="1"> No obligations</td>
                 </core_rt:if>
                 <td class="addToWhiteListCheckboxesPlaceholder"></td>
             </tr>
@@ -85,7 +87,8 @@
             <td colspan="3">Todo</td>
             <td>Applies to development</td>
             <td>Applies to distribution</td>
-            <td colspan="2">
+            <td>Further properties</td>
+            <td colspan="1">
                 Obligations
             </td>
             <td class="addToWhiteListCheckboxes">Add to white list</td>
@@ -95,9 +98,9 @@
                 <td colspan="3"><sw360:out value="${todo.text}"/></td>
                 <td><sw360:DisplayBoolean value="${todo.development}" defined="${todo.setDevelopment}"/></td>
                 <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
-
+                <td><sw360:DisplayMap value="${todo.customPropertyToValue}"/></td>
                 <core_rt:if test="${todo.obligationsSize > 0}">
-                    <td colspan="2">
+                    <td colspan="1">
                         <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
                             <ul>
                                 <li style="color: red"><sw360:out value="${ob.name}"/></li>
@@ -107,7 +110,7 @@
                 </core_rt:if>
 
                 <core_rt:if test="${todo.obligationsSize == 0}">
-                    <td colspan="2"> No obligations</td>
+                    <td colspan="1"> No obligations</td>
                 </core_rt:if>
                 <td class="addToWhiteListCheckboxes">
                     <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
@@ -132,7 +135,8 @@
             <td colspan="3">Todo</td>
             <td>Applies to development</td>
             <td>Applies to distribution</td>
-            <td colspan="2">
+            <td>Further properties</td>
+            <td colspan="1">
                 Obligations
             </td>
             <td class="addToWhiteListCheckboxes">Add to white list</td>
@@ -142,9 +146,9 @@
                 <td colspan="3"><sw360:out value="${todo.text}"/></td>
                 <td><sw360:DisplayBoolean value="${todo.development}" defined="${todo.setDevelopment}"/></td>
                 <td><sw360:DisplayBoolean value="${todo.distribution}" defined="${todo.setDistribution}"/></td>
-
+                <td><sw360:DisplayMap value="${todo.customPropertyToValue}"/></td>
                 <core_rt:if test="${todo.obligationsSize > 0}">
-                    <td colspan="2">
+                    <td colspan="1">
                         <core_rt:forEach var="ob" varStatus="status" items="${todo.obligations}">
                             <ul>
                                 <li style="color: red"><sw360:out value="${ob.name}"/></li>
@@ -154,7 +158,7 @@
                 </core_rt:if>
 
                 <core_rt:if test="${todo.obligationsSize == 0}">
-                    <td colspan="2"> No obligations</td>
+                    <td colspan="1"> No obligations</td>
                 </core_rt:if>
                 <td class="addToWhiteListCheckboxes">
                     <label><input type="checkbox" name="<portlet:namespace/>whiteList" value="${todo.id}"
