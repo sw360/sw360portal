@@ -11,6 +11,7 @@ package com.siemens.sw360.moderation;
 
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
+import com.siemens.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.components.Component;
@@ -132,12 +133,16 @@ public class ModerationHandler implements ModerationService.Iface {
     }
 
     @Override
-    public void removeUserFromAssignees(String requestId, User user) throws TException {
+    public RemoveModeratorRequestStatus removeUserFromAssignees(String requestId, User user) throws TException {
         ModerationRequest request = handler.getRequest(requestId);
+        if(request.getModerators().size()==1){
+            return RemoveModeratorRequestStatus.LAST_MODERATOR;
+        }
         request.getModerators().remove(user.getEmail());
         request.setModerationState(ModerationState.PENDING);
         request.unsetReviewer();
         handler.updateModerationRequest(request);
+        return RemoveModeratorRequestStatus.SUCCESS;
     }
 
     @Override

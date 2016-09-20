@@ -18,6 +18,12 @@ enum RequestStatus {
     IN_USE=3,
 }
 
+enum RemoveModeratorRequestStatus {
+    SUCCESS = 0,
+    LAST_MODERATOR = 1,
+    FAILURE = 2,
+}
+
 exception SW360Exception {
     1: required string why,
 }

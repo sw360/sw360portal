@@ -18,6 +18,7 @@ namespace java com.siemens.sw360.datahandler.thrift.moderation
 namespace php sw360.thrift.moderation
 
 typedef sw360.RequestStatus RequestStatus
+typedef sw360.RemoveModeratorRequestStatus RemoveModeratorStatus
 typedef sw360.ModerationState ModerationState
 typedef components.Component Component
 typedef components.Release Release
@@ -143,8 +144,9 @@ service ModerationService {
      * remove user from moderators of moderation request specified by requestId,
      * set moderation state to PENDING,
      * unset reviewer
+     * if user is last moderator for moderation request: do not remove, return RemoveModeratorStatus.LAST_MODERATOR
      **/
-    oneway void removeUserFromAssignees(1: string requestId, 2:User user);
+    RemoveModeratorStatus removeUserFromAssignees(1: string requestId, 2:User user);
 
     /**
      * set moderation state to PENDING of moderation request spedified by requestId,

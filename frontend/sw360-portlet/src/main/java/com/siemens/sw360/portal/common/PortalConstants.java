@@ -171,6 +171,7 @@ public class PortalConstants {
     public static final String ACTION_POSTPONE = "action_postpone";
     public static final String ACTION_DECLINE = "action_decline";
     public static final String ACTION_REMOVEME = "action_removeme";
+    public static final String ACTION_RENDER_NEXT_AFTER_UNSUBSCRIBE = "action_render_next";
     public static final String WHAT = "what";
 
     public static final String WHERE = "where";
