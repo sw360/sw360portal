@@ -60,9 +60,10 @@ The software is tested with
 * Tested with windows 7 SP1, ubuntu 14.04, macosx 10.8, 10.9 10.10
 * We run Liferay with PostgreSQL 9.3, but HSQL (as of the bundle) runs also OK.
 
-Please note that there are PROBLEMS with
+### PROBLEMS
 
-t.b.d. (no known problems at this time)
+Running with the tested software shows no problems if you encounter some please report them at https://github.com/siemens/sw360portal/issues.
+
 
 ### Deployment
 
