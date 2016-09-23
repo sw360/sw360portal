@@ -31,10 +31,7 @@ import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -310,11 +307,14 @@ public class CommonUtils {
         return new AfterFunction<>(function);
     }
 
-    public static void closeQuietly(InputStream stream, Logger logger) {
+    public static void closeQuietly(Closeable closeable, Logger logger) {
+        if (closeable == null){
+            return;
+        }
         try {
-            stream.close();
+            closeable.close();
         } catch (IOException e) {
-            logger.info("cannot close input stream", e);
+            logger.warn("cannot close closeable", e);
         }
     }
 

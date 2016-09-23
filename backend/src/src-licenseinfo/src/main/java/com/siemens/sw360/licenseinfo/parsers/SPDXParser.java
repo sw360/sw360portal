@@ -36,6 +36,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
+
 /**
  * @author: alex.borodin@evosoft.com
  * @author: maximilian.huber@tngtech.com
@@ -189,8 +191,9 @@ public class SPDXParser extends LicenseInfoParser {
     }
 
     protected Optional<SpdxDocument> parseAsSpdx(AttachmentContent attachmentContent){
+        InputStream attachmentStream = null;
         try {
-            InputStream attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
+            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
             SpdxDocument doc = SPDXDocumentFactory.createSpdxDocument(attachmentStream,
                     getUriOfAttachment(attachmentContent),
                     FILETYPE_SPDX_INTERNAL);
@@ -201,6 +204,8 @@ public class SPDXParser extends LicenseInfoParser {
             log.error("Unable to parse SPDX for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId(), e);
         } catch (URISyntaxException e) {
             log.error("Invalid URI syntax for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId(), e);
+        } finally {
+            closeQuietly(attachmentStream, log);
         }
         return Optional.empty();
     }

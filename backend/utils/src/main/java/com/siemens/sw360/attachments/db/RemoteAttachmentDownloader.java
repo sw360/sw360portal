@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static com.siemens.sw360.datahandler.common.Duration.durationOf;
 import static java.lang.String.format;
 import static org.apache.log4j.Logger.getLogger;
@@ -62,8 +63,9 @@ public class RemoteAttachmentDownloader {
             log.info(format("retrieving attachment (%s) {filename=%s}", attachmentContentId, attachmentContent.getFilename()));
             log.debug("url is " + attachmentContent.getRemoteUrl());
 
+            InputStream content = null;
             try {
-                InputStream content = attachmentConnector.getAttachmentStream(attachmentContent);
+                content = attachmentConnector.getAttachmentStream(attachmentContent);
                 if (content == null) {
                     log.error("null content retrieving attachment " + attachmentContentId);
                     continue;
@@ -77,6 +79,8 @@ public class RemoteAttachmentDownloader {
                 }
             } catch (SW360Exception e) {
                 log.error("cannot retrieve attachment " + attachmentContentId, e);
+            } finally {
+                closeQuietly(content, log);
             }
         }
 
