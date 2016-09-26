@@ -96,6 +96,10 @@
         <td>Tag:</td>
         <td><sw360:out value="${project.tag}"/></td>
     </tr>
+    <tr>
+        <td>External ids:</td>
+        <td><sw360:DisplayMap value="${project.externalIds}"/></td>
+    </tr>
 </table>
 
 <table class="table info_table" id="projectAdminData" title="Project Admin Overview">
