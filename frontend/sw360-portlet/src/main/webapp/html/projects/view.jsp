@@ -271,8 +271,8 @@
         result.push({
             "DT_RowId": "${project.id}",
             "id": '${project.id}',
-            "name": '${project.name}',
-            "description": "<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="\""/>",
+            "name": '<sw360:ProjectName project="${project}"/>',
+            "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="\""/>',
             "state":"<sw360:DisplayEnum value='${project.state}'/>",
             "clearing":'<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
             "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>',
