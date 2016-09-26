@@ -532,6 +532,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
             }
         }
     }
@@ -661,6 +662,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 usingProjects = client.searchLinkingProjects(id, user);
             } catch (TException e) {
                 log.error("Something went wrong with fetching the project", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
                 return;
             }
 
@@ -791,6 +793,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         } catch (TException e) {
             log.error("Error updating project in backend!", e);
+            setSW360SessionError(request, ErrorMessages.DEFAULT_ERROR_MESSAGE);
         }
     }
 

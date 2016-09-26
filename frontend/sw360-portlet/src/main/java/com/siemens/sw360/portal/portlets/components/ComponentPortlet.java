@@ -375,6 +375,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 setUsingDocs(request, user, client, component.getReleaseIds());
             } catch (TException e) {
                 log.error("Error fetching component from backend!", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_COMPONENT);
             }
         } else {
             Component component = new Component();
@@ -436,6 +437,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         } catch (TException e) {
             log.error("Error fetching release from backend!", e);
+            setSW360SessionError(request, ErrorMessages.ERROR_GETTING_RELEASE);
         }
     }
 
@@ -495,6 +497,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 addComponentBreadcrumb(request, response, component);
             } catch (TException e) {
                 log.error("Error fetching component from backend!", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_COMPONENT);
             }
         }
     }
@@ -561,7 +564,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         } catch (TException e) {
             log.error("Error fetching release from backend!", e);
-            throw new PortletException("backend not available", e);
+            setSW360SessionError(request, ErrorMessages.ERROR_GETTING_RELEASE);
         }
 
     }

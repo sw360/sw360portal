@@ -120,6 +120,7 @@ public class PortalConstants {
     public static final String STATE;
     public static final String PROJECT_TYPE;
     public static final String EXTENDED_EXCEL_EXPORT = "extendedExcelExport";
+    public static final String PROJECT_NOT_FOUND = "projectNotFound";
 
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";

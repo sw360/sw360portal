@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
@@ -14,23 +15,6 @@
 <liferay-theme:defineObjects/>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 
-<jsp:useBean id="component" class="com.siemens.sw360.datahandler.thrift.components.Component" scope="request"/>
-<jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
-<jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
-
-<jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
-
-<jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
-
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
-<script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
-
-<jsp:include page="/html/utils/includes/attachmentsDelete.jsp"/>
-
 <portlet:resourceURL var="subscribeComponentURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.SUBSCRIBE%>"/>
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
@@ -42,41 +26,60 @@
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
 </portlet:resourceURL>
 
-<div id="header"></div>
-<p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span>
-     <span class="pull-right">
+<c:catch var="attributeNotFoundException">
+    <jsp:useBean id="component" class="com.siemens.sw360.datahandler.thrift.components.Component" scope="request"/>
+    <jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
+    <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
+    <jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
+</c:catch>
+<core_rt:if test="${empty attributeNotFoundException}">
+
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
+    <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+
+    <jsp:include page="/html/utils/includes/attachmentsDelete.jsp"/>
+
+    <div id="header"></div>
+    <p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span>
+        <span class="pull-right">
         <input type="button" onclick="editComponent()" id="edit" value="Edit" class="addButton">
         <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${component}"
-                                  id="SubscribeButton" onclick="subscribeComponent('SubscribeButton')"  altonclick="unsubscribeComponent('SubscribeButton')" />
+                                      id="SubscribeButton" onclick="subscribeComponent('SubscribeButton')"  altonclick="unsubscribeComponent('SubscribeButton')" />
     </span>
-</p>
-<div id="content">
-    <div class="container-fluid">
-        <div id="myTab" class="row-fluid">
-            <ul class="nav nav-tabs span2">
-                <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
-                <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
-                <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
-                <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
-            </ul>
-            <div class="tab-content span10">
-                <div id="tab-Summary" class="tab-pane">
-                    <%@include file="/html/components/includes/components/summary.jspf" %>
-                    <%@include file="/html/components/includes/components/usingDocuments.jspf" %>
-                </div>
-                <div id="tab-ClearingStatus">
-                    <%@include file="/html/components/includes/components/clearingStatus.jspf" %>
-                </div>
-                <div id="tab-Attachments">
-                    <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />
-                </div>
-                <div id="tab-Vulnerabilities">
-                    <%@include file="/html/components/includes/components/vulnerabilities.jspf" %>
+    </p>
+    <div id="content">
+        <div class="container-fluid">
+            <div id="myTab" class="row-fluid">
+                <ul class="nav nav-tabs span2">
+                    <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
+                    <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
+                    <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
+                    <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
+                </ul>
+                <div class="tab-content span10">
+                    <div id="tab-Summary" class="tab-pane">
+                        <%@include file="/html/components/includes/components/summary.jspf" %>
+                        <%@include file="/html/components/includes/components/usingDocuments.jspf" %>
+                    </div>
+                    <div id="tab-ClearingStatus">
+                        <%@include file="/html/components/includes/components/clearingStatus.jspf" %>
+                    </div>
+                    <div id="tab-Attachments">
+                        <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />
+                    </div>
+                    <div id="tab-Vulnerabilities">
+                        <%@include file="/html/components/includes/components/vulnerabilities.jspf" %>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</core_rt:if>
 
 <script>
     var tabView;
