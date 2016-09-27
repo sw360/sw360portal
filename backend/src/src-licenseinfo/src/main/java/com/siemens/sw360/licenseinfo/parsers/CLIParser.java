@@ -34,9 +34,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
 
 /**
  * Class for extracting copyright and license information from a simple XML file
@@ -73,8 +76,10 @@ public class CLIParser extends LicenseInfoParser {
     private boolean hasCLIRootElement(AttachmentContent content) {
         XMLInputFactory xmlif = XMLInputFactory.newFactory();
         XMLStreamReader xmlStreamReader = null;
+        InputStream attachmentStream = null;
         try {
-            xmlStreamReader = xmlif.createXMLStreamReader(attachmentConnector.getAttachmentStream(content));
+            attachmentStream = attachmentConnector.getAttachmentStream(content);
+            xmlStreamReader = xmlif.createXMLStreamReader(attachmentStream);
 
             //skip to first element
             while(xmlStreamReader.hasNext() && xmlStreamReader.next() != XMLStreamConstants.START_ELEMENT);
@@ -90,6 +95,7 @@ public class CLIParser extends LicenseInfoParser {
                     // ignore it
                 }
             }
+            closeQuietly(attachmentStream, log);
         }
     }
 
@@ -98,11 +104,13 @@ public class CLIParser extends LicenseInfoParser {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename())).setFiletype(FILETYPE_CLI);
         LicenseInfoParsingResult result = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
+        InputStream attachmentStream = null;
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(attachmentConnector.getAttachmentStream(attachmentContent));
+            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
+            Document doc = builder.parse(attachmentStream);
             XPath xpath = XPathFactory.newInstance().newXPath();
             XPathExpression copyrightsExpr = xpath.compile(COPYRIGHTS_XPATH);
             XPathExpression licensesExpr = xpath.compile(LICENSES_XPATH);
@@ -114,6 +122,8 @@ public class CLIParser extends LicenseInfoParser {
         } catch (ParserConfigurationException | IOException | XPathExpressionException | SAXException | SW360Exception e) {
             log.error(e);
             result.setStatus(LicenseInfoRequestStatus.FAILURE).setMessage("Error while parsing CLI file: " + e.toString());
+        } finally {
+            closeQuietly(attachmentStream, log);
         }
         return result;
     }

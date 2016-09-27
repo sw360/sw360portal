@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -60,6 +60,7 @@ public class AttachmentStreamConnector {
 
     /**
      * Get an input stream to download the attachment
+     * It is highly recommended to close this stream after using to avoid connection leak
      */
     public InputStream getAttachmentStream(AttachmentContent attachment) throws SW360Exception {
         assertNotNull(attachment);

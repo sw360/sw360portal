@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
@@ -93,9 +94,10 @@ public class AttachmentConnector extends AttachmentStreamConnector {
     }
 
     public String getSha1FromAttachmentContentId(String attachmentContentId) {
+        InputStream attachmentStream = null;
         try {
             AttachmentContent attachmentContent = getAttachmentContent(attachmentContentId);
-            InputStream attachmentStream = readAttachmentStream(attachmentContent);
+            attachmentStream = readAttachmentStream(attachmentContent);
             return sha1Hex(attachmentStream);
         } catch (SW360Exception e) {
             log.error("Problem retrieving content of attachment", e);
@@ -103,6 +105,8 @@ public class AttachmentConnector extends AttachmentStreamConnector {
         } catch (IOException e) {
             log.error("Problem computing the sha1 checksum", e);
             return "";
+        } finally {
+            closeQuietly(attachmentStream, log);
         }
     }
 
