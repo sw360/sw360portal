@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -28,6 +29,7 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 
 import org.apache.log4j.Logger;
+import org.ektorp.http.HttpClient;
 
 /**
  * Ektorp connector for uploading attachments
@@ -46,8 +48,8 @@ public class AttachmentConnector extends AttachmentStreamConnector {
     /**
      * @todo remove this mess of constructors and use dependency injection
      */
-    public AttachmentConnector(String url, String dbName, Duration downloadTimeout) throws MalformedURLException {
-        this(new DatabaseConnector(url, dbName), downloadTimeout);
+    public AttachmentConnector(Supplier<HttpClient> httpClient, String dbName, Duration downloadTimeout) throws MalformedURLException {
+        this(new DatabaseConnector(httpClient.get(), dbName), downloadTimeout);
     }
 
     /**

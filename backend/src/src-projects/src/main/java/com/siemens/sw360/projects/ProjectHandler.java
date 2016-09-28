@@ -38,12 +38,10 @@ public class ProjectHandler implements ProjectService.Iface {
 
     private final ProjectDatabaseHandler handler;
     private final ProjectSearchHandler searchHandler;
-    private final AttachmentHandler attachmentHandler;
 
     ProjectHandler() throws MalformedURLException, IOException {
-        handler = new ProjectDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
-        searchHandler = new ProjectSearchHandler(DatabaseSettings.COUCH_DB_URL,DatabaseSettings.COUCH_DB_DATABASE);
-        attachmentHandler = new AttachmentHandler();
+        handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
+        searchHandler = new ProjectSearchHandler(DatabaseSettings.getConfiguredHttpClient(),DatabaseSettings.COUCH_DB_DATABASE);
     }
 
     /////////////////////

@@ -23,9 +23,11 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.ektorp.DbAccessException;
+import org.ektorp.http.HttpClient;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.ThriftEnumUtils.enumByString;
@@ -53,8 +55,8 @@ public class LuceneAwareDatabaseConnector extends LuceneAwareCouchDbConnector {
     /**
      * URL/DbName constructor
      */
-    public LuceneAwareDatabaseConnector(String url, String dbName) throws IOException {
-        this(new DatabaseConnector(url, dbName));
+    public LuceneAwareDatabaseConnector(Supplier<HttpClient> httpClient, String dbName) throws IOException {
+        this(new DatabaseConnector(httpClient, dbName));
     }
 
     /**

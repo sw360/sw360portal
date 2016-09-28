@@ -34,7 +34,7 @@ public class UserHandler implements UserService.Iface {
     UserDatabaseHandler db;
 
     public UserHandler() throws MalformedURLException {
-        db = new UserDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_USERS);
+        db = new UserDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_USERS);
     }
 
     @Override

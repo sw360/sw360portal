@@ -66,8 +66,8 @@ public class DatabaseSearchHandler {
 
     public DatabaseSearchHandler(String url, String dbName) throws IOException {
         // Create the database connector and add the search view to couchDB
-        projectRepository = new ProjectRepository(new DatabaseConnector(url, dbName));
-        connector = new LuceneAwareDatabaseConnector(url, dbName);
+        projectRepository = new ProjectRepository(new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName));
+        connector = new LuceneAwareDatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);
     }

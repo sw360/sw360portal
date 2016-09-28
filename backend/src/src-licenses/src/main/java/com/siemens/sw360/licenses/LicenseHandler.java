@@ -35,7 +35,7 @@ public class LicenseHandler implements LicenseService.Iface {
     LicenseDatabaseHandler handler;
 
     LicenseHandler() throws MalformedURLException {
-        handler = new LicenseDatabaseHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);
+        handler = new LicenseDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
     }
 
     /////////////////////

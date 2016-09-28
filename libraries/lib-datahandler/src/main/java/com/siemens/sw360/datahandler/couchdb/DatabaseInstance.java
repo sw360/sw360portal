@@ -8,6 +8,7 @@
  */
 package com.siemens.sw360.datahandler.couchdb;
 
+import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
@@ -18,17 +19,14 @@ import java.net.MalformedURLException;
  */
 public class DatabaseInstance extends StdCouchDbInstance {
 
-    private final String url;
-
     /**
      * Builds a CouchDB instance using ektorp
      *
-     * @param url URL of the CouchDB instance
+     * @param httpClient HttpClient with authentication of the CouchDB instance
      * @throws MalformedURLException
      */
-    public DatabaseInstance(String url) throws MalformedURLException {
-        super(new StdHttpClient.Builder().url(url).build());
-        this.url = url;
+    public DatabaseInstance(HttpClient httpClient) throws MalformedURLException {
+        super(httpClient);
         DatabaseInstanceTracker.track(this);
     }
 
@@ -41,9 +39,5 @@ public class DatabaseInstance extends StdCouchDbInstance {
 
     public void destroy() {
         getConnection().shutdown();
-    }
-
-    public String getUrl() {
-        return url;
     }
 }

@@ -32,13 +32,13 @@ public class FossologyConfig {
 
     @Bean
     public FossologyFingerPrintRepository fossologyFingerPrintRepository() throws MalformedURLException {
-        DatabaseConnector fossologyFingerPrintDatabaseConnector = new DatabaseConnector(COUCH_DB_URL, COUCH_DB_FOSSOLOGY);
+        DatabaseConnector fossologyFingerPrintDatabaseConnector = new DatabaseConnector(getConfiguredHttpClient(), COUCH_DB_FOSSOLOGY);
         return new FossologyFingerPrintRepository(FossologyHostFingerPrint.class, fossologyFingerPrintDatabaseConnector);
     }
 
     @Bean
     public AttachmentConnector attachmentConnector() throws MalformedURLException {
-        return new AttachmentConnector(COUCH_DB_URL, COUCH_DB_ATTACHMENTS, downloadTimeout);
+        return new AttachmentConnector(getConfiguredHttpClient(), COUCH_DB_ATTACHMENTS, downloadTimeout);
     }
 
     @Bean

@@ -18,6 +18,7 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
+import org.ektorp.http.HttpClient;
 import org.hamcrest.*;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.mockito.invocation.InvocationOnMock;
@@ -29,6 +30,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
@@ -69,7 +71,7 @@ public class TestUtils {
 
     public static void deleteAllDatabases() throws MalformedURLException {
         for (String dbName : dbNames) {
-            deleteDatabase(DatabaseSettings.COUCH_DB_URL, dbName);
+            deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
         }
     }
 
@@ -109,20 +111,24 @@ public class TestUtils {
         return user;
     }
 
-    public static void deleteDatabase(String url, String dbName) throws MalformedURLException {
+    public static void deleteDatabase(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
         assertTestString(dbName);
 
-        DatabaseInstance instance = new DatabaseInstance(url);
+        DatabaseInstance instance = new DatabaseInstance(httpClient.get());
         if (instance.checkIfDbExists(dbName))
             instance.deleteDatabase(dbName);
 
         DatabaseInstanceTracker.destroy();
     }
 
-    public static void createDatabase(String url, String dbName) throws MalformedURLException {
+    public static void createDatabase(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
+        createDatabase(httpClient.get(), dbName);
+    }
+
+    public static void createDatabase(HttpClient httpClient, String dbName) throws MalformedURLException {
         assertTestString(dbName);
 
-        DatabaseInstance instance = new DatabaseInstance(url);
+        DatabaseInstance instance = new DatabaseInstance(httpClient);
 
         if (instance.checkIfDbExists(dbName))
             instance.deleteDatabase(dbName);

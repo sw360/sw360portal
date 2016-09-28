@@ -34,10 +34,12 @@ import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.ektorp.http.HttpClient;
 
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -62,15 +64,15 @@ public class ModerationDatabaseHandler {
     private final ComponentDatabaseHandler componentDatabaseHandler;
     private final DatabaseConnector db;
 
-    public ModerationDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        db = new DatabaseConnector(url, dbName);
+    public ModerationDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
+        db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repository
         repository = new ModerationRequestRepository(db);
 
-        licenseDatabaseHandler = new LicenseDatabaseHandler(url,dbName);
-        projectDatabaseHandler = new ProjectDatabaseHandler(url,dbName,attachmentDbName);
-        componentDatabaseHandler = new ComponentDatabaseHandler(url,dbName,attachmentDbName);
+        licenseDatabaseHandler = new LicenseDatabaseHandler(httpClient, dbName);
+        projectDatabaseHandler = new ProjectDatabaseHandler(httpClient, dbName, attachmentDbName);
+        componentDatabaseHandler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName);
     }
 
     public List<ModerationRequest> getRequestsByModerator(String moderator) {

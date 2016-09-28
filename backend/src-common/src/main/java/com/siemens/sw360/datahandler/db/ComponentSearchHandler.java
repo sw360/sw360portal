@@ -13,11 +13,13 @@ import com.siemens.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector
 import com.siemens.sw360.datahandler.couchdb.lucene.LuceneSearchView;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import org.apache.log4j.Logger;
+import org.ektorp.http.HttpClient;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Class for accessing the Lucene connector on the CouchDB database
@@ -73,8 +75,8 @@ public class ComponentSearchHandler {
 
     private final LuceneAwareDatabaseConnector connector;
 
-    public ComponentSearchHandler(String url, String dbName) throws IOException {
-        connector = new LuceneAwareDatabaseConnector(url, dbName);
+    public ComponentSearchHandler(Supplier<HttpClient> httpClient, String dbName) throws IOException {
+        connector = new LuceneAwareDatabaseConnector(httpClient, dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);
     }

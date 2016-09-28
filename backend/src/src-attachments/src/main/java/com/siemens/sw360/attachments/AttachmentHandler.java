@@ -48,20 +48,11 @@ public class AttachmentHandler implements AttachmentService.Iface {
     private final AttachmentRepository repository;
     private final AttachmentConnector attachmentConnector;
 
-    private final DatabaseAddress address;
-
 
     public AttachmentHandler() throws MalformedURLException {
-        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_ATTACHMENTS);
-        attachmentConnector = new AttachmentConnector(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_ATTACHMENTS, durationOf(30, TimeUnit.SECONDS));
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS);
+        attachmentConnector = new AttachmentConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS, durationOf(30, TimeUnit.SECONDS));
         repository = new AttachmentRepository(databaseConnector);
-
-        address = databaseConnector.getAddress();
-    }
-
-    @Override
-    public DatabaseAddress getDatabaseAddress() throws TException {
-        return address;
     }
 
     @Override

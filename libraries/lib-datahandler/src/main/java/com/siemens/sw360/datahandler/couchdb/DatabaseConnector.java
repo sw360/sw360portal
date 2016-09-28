@@ -13,11 +13,13 @@ import com.siemens.sw360.datahandler.thrift.ThriftUtils;
 import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.apache.log4j.Logger;
 import org.ektorp.*;
+import org.ektorp.http.HttpClient;
 import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.util.Documents;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Database Connector to a CouchDB database
@@ -34,22 +36,32 @@ public class DatabaseConnector extends StdCouchDbConnector {
     /**
      * Create a connection to the database
      *
-     * @param url    URL of CouchDB server
+     * @param httpClient    HttpClient with authentication of CouchDB server
      * @param dbName name of the database on the CouchDB server
      */
-    public DatabaseConnector(String url, String dbName) throws MalformedURLException {
-        this(url, dbName, new MapperFactory());
+    public DatabaseConnector(HttpClient httpClient, String dbName) throws MalformedURLException {
+        this(httpClient, dbName, new MapperFactory());
     }
 
     /**
      * Create a connection to the database
      *
-     * @param url           URL of CouchDB server
+     * @param httpClient    Supplier<HttpClient> with authentication of CouchDB server
+     * @param dbName name of the database on the CouchDB server
+     */
+    public DatabaseConnector(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
+        this(httpClient.get(), dbName, new MapperFactory());
+    }
+
+    /**
+     * Create a connection to the database
+     *
+     * @param httpClient    HttpClient with authentication of CouchDB server
      * @param dbName        name of the database on the CouchDB server
      * @param mapperFactory Specific mapper factory to use for serialization
      */
-    public DatabaseConnector(String url, String dbName, MapperFactory mapperFactory) throws MalformedURLException {
-        this(dbName, new DatabaseInstance(url), mapperFactory);
+    public DatabaseConnector(HttpClient httpClient, String dbName, MapperFactory mapperFactory) throws MalformedURLException {
+        this(dbName, new DatabaseInstance(httpClient), mapperFactory);
     }
 
     private DatabaseConnector(String dbName, DatabaseInstance instance, MapperFactory mapperFactory) throws MalformedURLException {
@@ -168,10 +180,6 @@ public class DatabaseConnector extends StdCouchDbConnector {
             return true;
         }
         return false;
-    }
-
-    public DatabaseAddress getAddress() {
-        return new DatabaseAddress(instance.getUrl(), dbName);
     }
 
     public String getDbName() {

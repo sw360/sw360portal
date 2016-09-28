@@ -73,22 +73,22 @@ public class ComponentSearchHandlerTest {
         components.add(component3);
 
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Prepare the database
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         for (Component component : components) {
             databaseConnector.add(component);
         }
 
         // Prepare the handler
-        searchHandler = new ComponentSearchHandler(url, dbName);
+        searchHandler = new ComponentSearchHandler(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @After
     public void tearDown() throws Exception {
-        TestUtils.deleteDatabase(url, dbName);
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
     @Test

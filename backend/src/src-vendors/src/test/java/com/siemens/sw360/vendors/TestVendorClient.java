@@ -8,6 +8,7 @@
  */
 package com.siemens.sw360.vendors;
 
+import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
@@ -29,7 +30,7 @@ public class TestVendorClient {
 
     @SuppressWarnings("unused")
     public static void InitDatabase() throws MalformedURLException {
-        DatabaseConnector databaseConnector = new DatabaseConnector("http://localhost:5984", "sw360db");
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
 
         databaseConnector.add(new Vendor().setShortname("Microsoft").setFullname("Microsoft Corporation").setUrl("http://www.microsoft.com"));
         databaseConnector.add(new Vendor().setShortname("Apache").setFullname("The Apache Software Foundation").setUrl("http://www.apache.org"));

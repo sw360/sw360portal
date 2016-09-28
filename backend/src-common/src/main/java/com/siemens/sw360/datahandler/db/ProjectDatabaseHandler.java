@@ -28,10 +28,12 @@ import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import org.apache.log4j.Logger;
+import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
@@ -57,13 +59,13 @@ public class ProjectDatabaseHandler {
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
 
-    public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        this(url, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(url,dbName,attachmentDbName));
+    public ProjectDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
+        this(httpClient, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(httpClient,dbName,attachmentDbName));
     }
 
     @VisibleForTesting
-    public ProjectDatabaseHandler(String url, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
-        DatabaseConnector db = new DatabaseConnector(url, dbName);
+    public ProjectDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ProjectModerator moderator, ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
+        DatabaseConnector db = new DatabaseConnector(httpClient, dbName);
 
         // Create the repositories
         repository = new ProjectRepository(db);
@@ -73,7 +75,7 @@ public class ProjectDatabaseHandler {
         this.moderator = moderator;
 
         // Create the attachment connector
-        attachmentConnector = new AttachmentConnector(url, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
+        attachmentConnector = new AttachmentConnector(httpClient, attachmentDbName, Duration.durationOf(30, TimeUnit.SECONDS));
 
         this.componentDatabaseHandler = componentDatabaseHandler;
     }

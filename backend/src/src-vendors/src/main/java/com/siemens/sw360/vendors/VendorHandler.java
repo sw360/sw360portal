@@ -38,7 +38,7 @@ public class VendorHandler implements VendorService.Iface {
     private final VendorSearch vendorSearch;
 
     public VendorHandler() throws IOException {
-        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
         vendorRepository = new VendorRepository(databaseConnector);
         vendorSearch = new VendorSearch(databaseConnector);     // Remove release id from component
     }

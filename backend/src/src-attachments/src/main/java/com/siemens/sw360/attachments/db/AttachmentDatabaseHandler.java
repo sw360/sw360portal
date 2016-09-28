@@ -19,11 +19,13 @@ import com.siemens.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
+import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.Duration.durationOf;
@@ -43,18 +45,14 @@ public class AttachmentDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(AttachmentDatabaseHandler.class);
 
-    public AttachmentDatabaseHandler(String url, String dbName, String attachmentDbName) throws MalformedURLException {
-        db = new DatabaseConnector(url, attachmentDbName);
-        attachmentConnector = new AttachmentConnector(url, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
+    public AttachmentDatabaseHandler(Supplier<HttpClient> httpClient, String attachmentDbName) throws MalformedURLException {
+        db = new DatabaseConnector(httpClient, attachmentDbName);
+        attachmentConnector = new AttachmentConnector(httpClient, attachmentDbName, durationOf(30, TimeUnit.SECONDS));
         repository = new AttachmentRepository(db);
     }
 
     public AttachmentConnector getAttachmentConnector(){
         return attachmentConnector;
-    }
-
-    public DatabaseAddress getDatabaseAddress(){
-        return db.getAddress();
     }
 
     public AttachmentContent add(AttachmentContent attachmentContent){
