@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,7 @@ import static com.siemens.sw360.datahandler.common.ThriftEnumUtils.stringToEnum;
  * Generic database connector for handling lucene searches
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class LuceneAwareDatabaseConnector extends LuceneAwareCouchDbConnector {
 
@@ -179,21 +180,20 @@ public class LuceneAwareDatabaseConnector extends LuceneAwareCouchDbConnector {
     }
 
     private static String formatSubquery(Set<String> filterSet, final String fieldname) {
-        final Function<String, String> addType =new Function<String, String>() {
-            @Override
-            public String apply(String input) {
-                if (fieldname.equals("state")) {
-                    return fieldname + ":\"" + (enumByString(input, ProjectState.class).toString()) + "\"";
-                } else if (fieldname.equals("projectType")) {
-                    return fieldname + ":\"" + (enumByString(input, ProjectType.class).toString()) + "\"";
-                }else {
-                    return fieldname + ":\"" + input + "\"";
-                }
+        final Function<String, String> addType = input -> {
+            if (fieldname.equals("state")) {
+                return fieldname + ":\"" + (enumByString(input, ProjectState.class).toString()) + "\"";
+            } else if (fieldname.equals("projectType")) {
+                return fieldname + ":\"" + (enumByString(input, ProjectType.class).toString()) + "\"";
+            } else if (input.contains(" ")){
+                return fieldname + ":\"" + input + "\"";
+            } else {
+                return fieldname + ":" + input;
             }
         };
 
-        FluentIterable<String> transform = FluentIterable.from(filterSet).transform(addType);
-        return "( " + OR.join(transform) + " ) ";
+        FluentIterable<String> searchFilters = FluentIterable.from(filterSet).transform(addType);
+        return "( " + OR.join(searchFilters) + " ) ";
     }
 
 }

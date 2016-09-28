@@ -1,6 +1,6 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -33,7 +33,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Keyword Search
+                Display Filter
             </th>
         </tr>
         </thead>

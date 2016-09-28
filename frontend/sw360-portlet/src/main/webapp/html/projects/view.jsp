@@ -29,8 +29,6 @@
 <jsp:useBean id="tag" class="java.lang.String" scope="request"/>
 <jsp:useBean id="name" class="java.lang.String" scope="request"/>
 <jsp:useBean id="state" class="java.lang.String" scope="request"/>
-<jsp:useBean id="searchtext" class="java.lang.String" scope="request"/>
-<jsp:useBean id="searchfilter" class="java.lang.String" scope="request"/>
 
 <core_rt:set var="stateAutoC" value='<%=PortalConstants.STATE%>'/>
 <core_rt:set var="projectTypeAutoC" value='<%=PortalConstants.PROJECT_TYPE%>'/>
@@ -83,7 +81,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Keyword Search
+                Display Filter by Name
             </th>
         </tr>
         </thead>

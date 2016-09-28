@@ -11,8 +11,6 @@
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
@@ -46,21 +44,21 @@
 
 
 <div id="searchInput" class="content1">
-        <table style="width: 90%; margin-left:3%;border:1px solid #cccccc;">
-            <thead class="infoheading">
+        <table>
+            <thead>
             <tr>
-                <th>
-                    Keyword Search
+                <th class="infoheading">
+                    Display Filter
                 </th>
             </tr>
             </thead>
             <tbody style="background-color: #f8f7f7; border: none;">
             <tr>
                 <td>
-                    <input type="text" maxlength="100" style="width: 200px; padding: 5px; color: gray;height:20px;"
+                    <input type="text" class="searchbar"
                            id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
                     <br/>
-                    <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold; align:center"
+                    <input class="searchbutton"
                            type="button" name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
                 </td>
             </tr>
@@ -84,7 +82,6 @@
 
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/licenses.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
 <script>
