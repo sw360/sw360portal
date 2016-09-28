@@ -24,16 +24,19 @@ public class ProjectSummary extends DocumentSummary<Project> {
     protected Project summary(SummaryType type, Project document) {
         // Copy required details
         Project copy = new Project();
-        copyField(document, copy, _Fields.ID);
-        copyField(document, copy, _Fields.NAME);
-        copyField(document, copy, _Fields.DESCRIPTION);
-        copyField(document, copy, _Fields.VERSION);
-        copyField(document, copy, _Fields.CLEARING_TEAM);
 
         switch (type) {
+            case LINKED_PROJECT_ACCESSIBLE:
+                setFieldsForAccessibleLinkedProject(document,copy);
+                break;
+            case LINKED_PROJECT_NOT_ACCESSIBLE:
+                setFieldsForUnAccessibleLinkedProject(document,copy);
+                break;
             case SUMMARY:
                 setSummaryFields(document, copy);
+                break;
             default:
+                setDefaultFields(document,copy);
                 break;
         }
 
@@ -53,5 +56,33 @@ public class ProjectSummary extends DocumentSummary<Project> {
                     copyField(document, copy, field);
             }
         }
+    }
+
+    protected static void setDefaultFields(Project document, Project copy) {
+        copyField(document, copy, _Fields.ID);
+        copyField(document, copy, _Fields.NAME);
+        copyField(document, copy, _Fields.DESCRIPTION);
+        copyField(document, copy, _Fields.VERSION);
+        copyField(document, copy, _Fields.CLEARING_TEAM);
+    }
+
+    protected static void setFieldsForAccessibleLinkedProject(Project document, Project copy) {
+        copyField(document, copy, _Fields.ID);
+        copyField(document, copy, _Fields.NAME);
+        copyField(document, copy, _Fields.DESCRIPTION);
+        copyField(document, copy, _Fields.VERSION);
+        copyField(document, copy, _Fields.CLEARING_TEAM);
+        copyField(document, copy, _Fields.BUSINESS_UNIT);
+        copyField(document, copy, _Fields.PROJECT_RESPONSIBLE);
+    }
+
+    protected static void setFieldsForUnAccessibleLinkedProject(Project document, Project copy) {
+        copyField(document, copy, _Fields.ID);
+        copyField(document, copy, _Fields.NAME);
+        copyField(document, copy, _Fields.VERSION);
+        copy.setDescription("");
+        copy.setClearingTeam("");
+        copy.setBusinessUnit("");
+        copy.setProjectResponsible("");
     }
 }

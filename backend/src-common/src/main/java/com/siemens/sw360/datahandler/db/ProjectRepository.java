@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
 
@@ -151,8 +152,7 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
 
     public Set<Project> searchByReleaseId(Set<String> ids, User user) {
         Set<String> searchIds = queryForIdsAsValue("byreleaseid", ids);
-
-        return new HashSet<>((makeSummaryFromFullDocs(SummaryType.SHORT, filterAccessibleProjectsByIds(user, searchIds))));
+        return linkedProjectSummaryAccordingToAccessibility(searchIds, user);
     }
 
     @View(name = "fullbyreleaseid", map = FULL_BY_RELEASE_ID_VIEW)
@@ -168,7 +168,17 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
     @View(name = "bylinkingprojectid", map = BY_LINKING_PROJECT_ID_VIEW)
     public Set<Project> searchByLinkingProjectId(String id, User user) {
         Set<String> searchIds = queryForIdsByPrefix("bylinkingprojectid", id);
-        return new HashSet<>((makeSummaryFromFullDocs(SummaryType.SHORT, filterAccessibleProjectsByIds(user, searchIds))));
+        return linkedProjectSummaryAccordingToAccessibility(searchIds, user);
+    }
+
+    private Set<Project> linkedProjectSummaryAccordingToAccessibility(Set<String> ids, User user){
+        Set<Project> accessibleLinkedProjects = filterAccessibleProjectsByIds(user, ids);
+        Set<String>  accessibleLinkedProjectIds = accessibleLinkedProjects.stream().map(Project::getId).collect(Collectors.toSet());
+        Set<String> unaccessibleLinkedProjectIds = ids.stream().filter(pid -> ! accessibleLinkedProjectIds.contains(pid)).collect(Collectors.toSet());
+        List<Project> unaccessibleLinkedProjects = get(unaccessibleLinkedProjectIds);
+        Set<Project> projectSummary = new HashSet<>((makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_ACCESSIBLE, accessibleLinkedProjects )));
+        projectSummary.addAll(makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_NOT_ACCESSIBLE, unaccessibleLinkedProjects ));
+        return projectSummary;
     }
 
     @View(name = "fullbylinkingprojectid", map = FULL_BY_LINKING_PROJECT_ID_VIEW)

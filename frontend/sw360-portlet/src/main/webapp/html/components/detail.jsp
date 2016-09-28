@@ -64,7 +64,9 @@
                 <div class="tab-content span10">
                     <div id="tab-Summary" class="tab-pane">
                         <%@include file="/html/components/includes/components/summary.jspf" %>
-                        <%@include file="/html/components/includes/components/usingDocuments.jspf" %>
+                        <core_rt:set var="documentName"><sw360:out value='${component.name}'/></core_rt:set>
+                        <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
+                        <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
                     </div>
                     <div id="tab-ClearingStatus">
                         <%@include file="/html/components/includes/components/clearingStatus.jspf" %>

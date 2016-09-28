@@ -107,7 +107,9 @@
             <%@include file="/html/components/includes/components/editBasicInfo.jspf" %>
             <core_rt:if test="${not componentDivAddMode}">
                 <%@include file="/html/utils/includes/editAttachments.jsp" %>
-                <%@include file="/html/components/includes/components/usingDocuments.jspf" %>
+            <core_rt:set var="documentName"><sw360:out value='${component.name}'/></core_rt:set>
+            <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
+            <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
             </core_rt:if>
         </form>
     </div>

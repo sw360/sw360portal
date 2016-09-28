@@ -8,6 +8,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
 <%@include file="/html/init.jsp"%>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects />
