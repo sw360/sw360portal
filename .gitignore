@@ -24,6 +24,9 @@ target/
 *.idea
 *.iml
 
+#ignore any log files
+*.log
+
 /libraries/target/
 /libraries/lib-datahandler/target/
 /libraries/commonIO/target/
