@@ -21,7 +21,7 @@
             <td><sw360:out value="${release.cpeid}"/></td>
         </tr>
         <tr>
-            <td>Release date:</td>
+            <td>Release Date of this Release:</td>
             <td><sw360:out value="${release.releaseDate}"/></td>
         </tr>
         <tr>
@@ -55,7 +55,9 @@
         </tr>
         <tr>
             <td>Mainline State:</td>
-            <td><sw360:DisplayEnum value="${release.mainlineState}"/></td>
+            <td><span title="Open: new, Mainline: recommended use, Specific: tolerated use, Phaseout: avoid use">
+                <sw360:DisplayEnum value="${release.mainlineState}"/>
+            </span></td>
         </tr>
 
         <tr>
