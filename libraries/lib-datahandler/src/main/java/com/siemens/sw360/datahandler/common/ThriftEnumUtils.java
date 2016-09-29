@@ -26,7 +26,6 @@ import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
 import org.apache.thrift.TEnum;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -110,13 +109,13 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<ProjectRelationship, String> MAP_PROJECT_RELATION_STRING = ImmutableMap.of(
             ProjectRelationship.UNKNOWN, "Unknown" ,
             ProjectRelationship.DUPLICATE, "Duplicate" ,
-            ProjectRelationship.CONTAINED, "Contained" ,
-            ProjectRelationship.REFERRED, "Referred");
+            ProjectRelationship.CONTAINED, "Is a subproject" ,
+            ProjectRelationship.REFERRED, "Related");
 
     private static final ImmutableMap<ReleaseRelationship, String> MAP_RELEASE_RELATION_STRING = ImmutableMap.of(
             ReleaseRelationship.UNKNOWN, "Unknown" ,
-            ReleaseRelationship.CONTAINED, "Contained" ,
-            ReleaseRelationship.REFERRED, "Referred");
+            ReleaseRelationship.CONTAINED, "Is a subrelease" ,
+            ReleaseRelationship.REFERRED, "Related");
 
     private static final ImmutableMap<RepositoryType, String> MAP_REPOSITORY_TYPE_STRING = ImmutableMap.<RepositoryType, String>builder()
             .put(RepositoryType.UNKNOWN, "Unknown")

@@ -66,6 +66,7 @@ import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogr
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentPortlet extends FossologyAwarePortlet {
 
@@ -289,6 +290,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
                 final String fullname = vendor != null ? vendor.getFullname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(), fullname, release.getName(), release.getVersion());
+                linkedRelease.setReleaseRelationship(ReleaseRelationship.REFERRED);
                 linkedReleases.add(linkedRelease);
             }
         } catch (TException e) {

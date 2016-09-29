@@ -56,7 +56,7 @@
                     <sw360:out value="${releaseLink.comment}"/>
                 </core_rt:if>
                 <core_rt:if test="${releaseLink.setReleaseRelationship}">
-                    <sw360:out value="${releaseLink.releaseRelationship}"/>
+                    <sw360:DisplayEnum value="${releaseLink.releaseRelationship}"/>
                 </core_rt:if>
             </td>
             <td>
