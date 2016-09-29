@@ -9,7 +9,6 @@
  */
 package com.siemens.sw360.datahandler.db;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.siemens.sw360.components.summary.SummaryType;
@@ -45,9 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.siemens.sw360.datahandler.common.CommonUtils.getBestClearingReport;
-import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static com.siemens.sw360.datahandler.common.CommonUtils.*;
 import static com.siemens.sw360.datahandler.common.Duration.durationOf;
 import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
@@ -688,7 +685,9 @@ public class ComponentDatabaseHandler {
             final Vendor vendor = vendorRepository.get(release.getVendorId());
             fullname = vendor != null ? vendor.getFullname() : "";
         }
-        return new ReleaseLink(release.id, fullname, release.name, release.version);
+        ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
+        releaseLink.setClearingState(release.getClearingState());
+        return releaseLink;
     }
 
     public List<Release> searchReleaseByName(String name) {

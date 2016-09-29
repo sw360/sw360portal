@@ -274,6 +274,7 @@ struct ReleaseLink{
     20: optional string parentId,
     21: optional list<ReleaseLink> subreleases,
 
+    31: optional ClearingState clearingState,
     100: optional set<string> licenseIds,
     101: optional set<string> licenseNames
 }
