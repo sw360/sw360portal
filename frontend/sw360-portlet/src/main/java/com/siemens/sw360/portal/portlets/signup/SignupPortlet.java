@@ -15,6 +15,7 @@ import com.liferay.portal.model.Organization;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import com.siemens.sw360.portal.common.ErrorMessages;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.UsedAsLiferayAction;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
@@ -25,6 +26,7 @@ import org.apache.thrift.TException;
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -69,8 +71,10 @@ public class SignupPortlet extends Sw360Portlet {
                 response.setRenderParameter(PortalConstants.PAGENAME, PortalConstants.PAGENAME_SUCCESS);
             }
         } else {
+            String message = (String)((LinkedHashMap)request.getPortletSession().getAttributeMap().get("com.liferay.portal.kernel.servlet.SessionMessages")).get("requestProcessed");
+            setSW360SessionError(request, message);
             request.setAttribute(PortalConstants.USER, registrant);
-            log.info("Could not create User");
+            log.info("Could not create user");
         }
 
     }
@@ -80,12 +84,11 @@ public class SignupPortlet extends Sw360Portlet {
         try {
             client.createUserRequest(user);
             log.info("Created moderation request for a new user account");
-            SessionMessages.add(request, "request_processed", "Moderation request has been sent");
+            SessionMessages.add(request, "request_processed", "Moderation request has been sent.");
 
         } catch (TException e) {
-            String failMsg = "Could not create user moderation request";
-            log.error(failMsg, e);
-            SessionMessages.add(request, "request_processed", failMsg);
+            log.error("Could not create user moderation request.", e);
+            setSW360SessionError(request, ErrorMessages.COULD_NOT_CREATE_USER_MODERATION_REQUEST);
             return false;
         }
         return true;

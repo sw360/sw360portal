@@ -8,7 +8,8 @@
   --%>
 
 <%@include file="/html/init.jsp" %>
-
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 

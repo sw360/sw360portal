@@ -7,8 +7,8 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
 <%@include file="/html/init.jsp"%>
-
-
+<%-- the following is needed by liferay to display error messages--%>
+<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 
 <portlet:defineObjects />
 <liferay-theme:defineObjects />

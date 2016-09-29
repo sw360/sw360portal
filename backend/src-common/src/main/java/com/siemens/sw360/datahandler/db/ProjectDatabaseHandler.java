@@ -106,9 +106,10 @@ public class ProjectDatabaseHandler {
 
     public Project getProjectById(String id, User user) throws SW360Exception {
         Project project = repository.get(id);
+        assertNotNull(project);
 
-        if (!makePermission(project, user).isActionAllowed(RequestedAction.READ)) {
-            throw fail("User " + user +" is not allowed to view the requested project "+project+"!");
+        if(!makePermission(project, user).isActionAllowed(RequestedAction.READ)) {
+            throw fail("User " + user + " is not allowed to view the requested project " + project + "!");
         }
 
         return project;
@@ -142,6 +143,8 @@ public class ProjectDatabaseHandler {
         prepareProject(project);
 
         Project actual = repository.get(project.getId());
+
+        assertNotNull(project);
 
         if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
             copyImmutableFields(project,actual);

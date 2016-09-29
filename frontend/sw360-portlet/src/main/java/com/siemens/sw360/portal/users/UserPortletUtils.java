@@ -20,6 +20,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
 import com.liferay.portal.service.persistence.RoleUtil;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.siemens.sw360.portal.common.ErrorMessages;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
@@ -109,12 +110,16 @@ public class UserPortletUtils {
         boolean sameScreenNameExists = userByFieldExists(screenName, UserLocalServiceUtil::getUserByScreenName, companyId);
         boolean sameExternalIdExists = userByFieldExists(externalId, UserLocalServiceUtil::getUserByOpenId, companyId);
         boolean alreadyExists = sameScreenNameExists || sameEmailExists || sameExternalIdExists;
-        if (alreadyExists) {
-            String errorMessage = "" +
-                    (sameEmailExists ? "Email address already exists." : "") +
-                    (sameScreenNameExists ? " Full name already exists." : "") +
-                    (sameExternalIdExists ? " External id already exists." : "");
-            errorMessage = errorMessage.trim();
+
+        if(alreadyExists) {
+            String errorMessage;
+            if(sameScreenNameExists) {
+                errorMessage = ErrorMessages.FULL_NAME_ALREADY_EXISTS;
+            } else if(sameEmailExists) {
+                errorMessage = ErrorMessages.EMAIL_ALREADY_EXISTS;
+            } else {
+                errorMessage = ErrorMessages.EXTERNAL_ID_ALREADY_EXISTS;
+            }
             log.info(errorMessage);
             SessionMessages.add(request, "request_processed", errorMessage);
         }

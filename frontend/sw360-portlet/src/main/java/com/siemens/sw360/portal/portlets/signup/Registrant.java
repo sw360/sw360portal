@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.siemens.sw360.datahandler.common.SW360Assert;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.portal.common.ErrorMessages;
 import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.users.UserPortletUtils;
 import com.siemens.sw360.portal.users.UserUtils;
@@ -51,33 +52,33 @@ class Registrant extends User {
 
     public boolean validateUserData(ActionRequest request) {
         if (isNullOrEmpty(getGivenname())) {
-            SessionMessages.add(request, "request_processed", "First name cannot be empty");
+            SessionMessages.add(request, "request_processed", ErrorMessages.FIRST_NAME_CANNOT_BE_EMPTY);
             return false;
         }
         if (isNullOrEmpty(getLastname())) {
-            SessionMessages.add(request, "request_processed", "Last name cannot be empty");
+            SessionMessages.add(request, "request_processed", ErrorMessages.LAST_NAME_CANNOT_BE_EMPTY);
             return false;
         }
         if (!Validator.isEmailAddress(getEmail())) {
-            SessionMessages.add(request, "request_processed", "Email is not valid");
+            SessionMessages.add(request, "request_processed", ErrorMessages.EMAIL_NOT_VALID);
             return false;
         }
         if (isNullOrEmpty(getDepartment())) {
-            SessionMessages.add(request, "request_processed", "Department cannot be empty");
+            SessionMessages.add(request, "request_processed", ErrorMessages.DEPARTMENT_CANNOT_BE_EMPTY);
             return false;
         }
         if (isNullOrEmpty(getExternalid())) {
-            SessionMessages.add(request, "request_processed", "External ID cannot be empty");
+            SessionMessages.add(request, "request_processed", ErrorMessages.EXTERNAL_ID_CANNOT_BE_EMPTY);
             return false;
         }
         if (isNullOrEmpty(password)) {
-            SessionMessages.add(request, "request_processed", "Password cannot be empty");
+            SessionMessages.add(request, "request_processed", ErrorMessages.PASSWORD_CANNOT_BE_EMPTY);
             return false;
         }
         try {
             SW360Assert.assertEquals(password, password2);
         } catch (SW360Exception e) {
-            SessionMessages.add(request, "request_processed", "Passwords don't match");
+            SessionMessages.add(request, "request_processed", ErrorMessages.PASSWORDS_DONT_MATCH);
             return false;
         }
 

@@ -15,6 +15,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
@@ -29,17 +30,21 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
+import com.siemens.sw360.portal.common.ErrorMessages;
 import com.siemens.sw360.portal.common.PortalConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_LIST;
 import static com.siemens.sw360.portal.common.PortalConstants.PROJECT_LIST;
+import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_LIST;
 
 
 abstract public class Sw360Portlet extends MVCPortlet {
@@ -221,7 +226,7 @@ abstract public class Sw360Portlet extends MVCPortlet {
     }
 
     public void setSessionMessage(PortletRequest request, RequestStatus requestStatus, String type, String verb, String name) throws PortletException {
-        String successMsg;
+        String statusMessage;
         if (isNullOrEmpty(name)) {
             name = "";
         }
@@ -230,25 +235,38 @@ abstract public class Sw360Portlet extends MVCPortlet {
         }
         switch (requestStatus) {
             case SUCCESS:
-                successMsg = type + name + " " + verb + "d successfully!";
+                statusMessage = type + name + " " + verb + "d successfully!";
+                SessionMessages.add(request, "request_processed", statusMessage);
                 break;
             case SENT_TO_MODERATOR:
-                successMsg = "Moderation request was sent to " + verb + " the " + type + name + "!";
+                statusMessage = "Moderation request was sent to " + verb + " the " + type + name + "!";
+                SessionMessages.add(request, "request_processed", statusMessage);
                 break;
             case FAILURE:
-                successMsg = type + name + " could not be " + verb + "d successfully!";
+                setSW360SessionError(request, ErrorMessages.DOCUMENT_NOT_PROCESSED_SUCCESSFULLY);
                 break;
             case IN_USE:
                 if(type.equals("License")) {
-                    successMsg = type + name + " could not be " + verb + "d successfully, as it is used by at least one Release!";
+                    setSW360SessionError(request, ErrorMessages.LICENSE_USED_BY_RELEASE);
                 } else {
-                    successMsg = type + name + " could not be " + verb + "d successfully, as it is used by other Projects or Releases!";
+                    setSW360SessionError(request, ErrorMessages.DOCUMENT_USED_BY_PROJECT_OR_RELEASE);
                 }
                 break;
             default:
                 throw new PortletException("Unknown request status");
         }
-        SessionMessages.add(request, "request_processed", successMsg);
+    }
+
+    public void setSW360SessionError(PortletRequest request, String errorMessage) {
+        if(ErrorMessages.allErrorMessages.contains(errorMessage)) {
+            SessionErrors.add(request, errorMessage);
+        } else {
+            SessionErrors.add(request, ErrorMessages.DEFAULT_ERROR_MESSAGE);
+        }
+        SessionMessages.add(request, PortalUtil.getPortletId(request) +
+                SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_ERROR_MESSAGE);
+        SessionMessages.add(request, PortalUtil.getPortletId(request) +
+                SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
     }
 
     public void setSessionMessage(PortletRequest request, String successMsg) throws PortletException {
