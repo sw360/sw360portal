@@ -24,7 +24,7 @@
 <table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases Hierarchy">
     <thead>
     <tr>
-        <th colspan="5" class="headlabel">Linked Releases Hierarchy</th>
+        <th colspan="6" class="headlabel">Linked Releases Hierarchy</th>
     </tr>
     <tr>
         <th>Release name</th>
@@ -32,6 +32,7 @@
         <th>Release version</th>
         <th>Release relation</th>
         <th>License names</th>
+        <th>Clearing state</th>
     </tr>
     </thead>
     <tbody>
@@ -65,12 +66,15 @@
                                                    scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
                 </core_rt:if>
             </td>
+            <td>
+                <sw360:DisplayEnum value="${releaseLink.clearingState}"/>
+            </td>
         </tr>
     </core_rt:forEach>
 
     <core_rt:if test="${releaseList.size() < 1}">
         <tr>
-            <td colspan="5"> No linked releases</td>
+            <td colspan="6"> No linked releases</td>
         </tr>
     </core_rt:if>
 
