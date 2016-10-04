@@ -9,6 +9,7 @@
 package com.siemens.sw360.datahandler.db;
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Sets;
 import com.siemens.sw360.components.summary.ProjectSummary;
 import com.siemens.sw360.components.summary.SummaryType;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
@@ -174,7 +175,7 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
     private Set<Project> linkedProjectSummaryAccordingToAccessibility(Set<String> ids, User user){
         Set<Project> accessibleLinkedProjects = filterAccessibleProjectsByIds(user, ids);
         Set<String>  accessibleLinkedProjectIds = accessibleLinkedProjects.stream().map(Project::getId).collect(Collectors.toSet());
-        Set<String> unaccessibleLinkedProjectIds = ids.stream().filter(pid -> ! accessibleLinkedProjectIds.contains(pid)).collect(Collectors.toSet());
+        Set<String> unaccessibleLinkedProjectIds = Sets.difference(ids, accessibleLinkedProjectIds);
         List<Project> unaccessibleLinkedProjects = get(unaccessibleLinkedProjectIds);
         Set<Project> projectSummary = new HashSet<>((makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_ACCESSIBLE, accessibleLinkedProjects )));
         projectSummary.addAll(makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_NOT_ACCESSIBLE, unaccessibleLinkedProjects ));
