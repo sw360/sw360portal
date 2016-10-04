@@ -10,7 +10,6 @@ ROOT=File.dirname(__FILE__)
 
 TARGET_PREFIX=ENV['TARGET_PREFIX'] || "/opt/sw360/deploy"
 TARGET_NAME="sw360"
-TARGET_VERSION="1.4.0-SNAPSHOT"
 DEPENDENCIES_PACKAGE="sw360_dependencies"
 
 MAVEN_PARAMETERS=ENV['MAVEN_PARAMETERS'] || "-DskipTests"
@@ -29,7 +28,7 @@ print "# MAVEN_PARAMETERS are set to: #{MAVEN_PARAMETERS}\n"
 print "# DOCKERIZE is set to: #{DOCKERIZE}\n"
 print "########################################################################\n\n"
 
-task :default => :install
+task :default => :compile
 
 desc "clean up"
 task :clean do
@@ -49,8 +48,7 @@ task :maybe_build_docker_image do
 end
 
 def runInDocker(dockercmd, moreVolumes="")
-    m2=File.expand_path("~/.m2")
-    volumes="-v #{ROOT}:/sw360portal -v #{m2}:/root/.m2 #{moreVolumes}"
+    volumes="-v #{ROOT}:/sw360portal -v _cache/.m2:/root/.m2 #{moreVolumes}"
     workdir="-w /sw360portal"
     gosu="gosu $(id -u):$(id -g)"
     sh "docker run -i #{volumes} #{workdir} --net=host sw360/#{DEV_CONTAINER_NAME} #{gosu} #{dockercmd}"
@@ -94,8 +92,12 @@ namespace :package do
       runInDocker("rake package:all DOCKERIZE=false")
     end
   else
+
+    # the following bash command evaluates to the version of the maven projekt
+    $getVersion = "printf 'VERSION=${project.version}\n0\n' | mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate | grep '^VERSION' | awk -F\"=\" '{print $2}'"
+
     def package(format)
-      args =                " -v #{TARGET_VERSION}"
+      args =                " -v $(#{$getVersion})"
       args = args <<        " -n #{TARGET_NAME}"
       args = args <<        " -t #{format}"
       args = args <<        " -d #{DEPENDENCIES_PACKAGE}"
@@ -119,7 +121,7 @@ namespace :package do
     end
     desc "generate a .tar.gz archive of all war files"
     task :tar => ["getWars"] do
-      sh "tar cvzf #{TARGET_NAME}.tar.gz #{TMP_DIR} --transform='s/#{TMP_DIR.gsub('/','\/')}//g'"
+      sh "tar cvzf #{TARGET_NAME}-$(#{$getVersion}).tar.gz #{TMP_DIR} --transform='s/#{TMP_DIR.gsub('/','\/')}//g'"
     end
 
     task :all => [:deb, :rpm, :tar]

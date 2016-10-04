@@ -30,7 +30,7 @@ RUN set -x \
 
 RUN set -x \
  && echo "deb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list \
- && $_update && $_install openjdk-8-jdk wget maven && $_cleanup \
+ && $_update && $_install openjdk-8-jdk maven && $_cleanup \
  && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java \
  && echo "JAVA_HOME=\"/usr/lib/jvm/java-8-openjdk-amd64/jre\"" >> /etc/environment
 

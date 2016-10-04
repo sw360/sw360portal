@@ -125,7 +125,7 @@ DOCKERIZE=false rake package:deb
 ```
 
 **Note:** the debian and rpm packages depend on the package `sw360_dependencies`
-which has to be build somewhere else.g
+which has to be built somewhere else.
 
 ### Liferay Configuration
 
