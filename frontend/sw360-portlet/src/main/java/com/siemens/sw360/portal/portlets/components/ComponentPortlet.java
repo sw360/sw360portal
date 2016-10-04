@@ -61,6 +61,7 @@ import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogr
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentPortlet extends FossologyAwarePortlet {
 
@@ -89,6 +90,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private static final ImmutableList<Component._Fields> componentFilteredFields = ImmutableList.of(
+            Component._Fields.NAME,
             Component._Fields.CATEGORIES,
             Component._Fields.LANGUAGES,
             Component._Fields.SOFTWARE_PLATFORMS,
@@ -674,9 +676,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private void prepareStandardView(RenderRequest request) throws IOException {
-        String searchtext = request.getParameter(KEY_SEARCH_TEXT);
-        String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
-
         List<Component> componentList = getFilteredComponentList(request);
 
         Set<String> vendorNames;
@@ -695,13 +694,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         request.setAttribute(VENDOR_LIST, new ThriftJsonSerializer().toJson(vendorNames));
         request.setAttribute(COMPONENT_LIST, componentList);
-        request.setAttribute(KEY_SEARCH_TEXT, request.getParameter(KEY_SEARCH_TEXT));
         request.setAttribute(COMPONENT_TYPE_LIST, new ThriftJsonSerializer().toJson(componentTypeNames));
 
     }
 
     private List<Component> getFilteredComponentList(PortletRequest request) throws IOException {
-        String searchtext = request.getParameter(KEY_SEARCH_TEXT);
         List<Component> componentList;
         Map<String, Set<String>> filterMap = new HashMap<>();
 
@@ -709,7 +706,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             String parameter = request.getParameter(filteredField.toString());
             if (!isNullOrEmpty(parameter) &&
                     !(filteredField.equals(Component._Fields.COMPONENT_TYPE) && parameter.equals(PortalConstants.NO_FILTER))) {
-                filterMap.put(filteredField.getFieldName(), CommonUtils.splitToSet(parameter));
+                Set<String> values = CommonUtils.splitToSet(parameter);
+                if (filteredField.equals(Component._Fields.NAME)) {
+                    values = values.stream().map(v -> v + "*").collect(Collectors.toSet());
+                }
+                filterMap.put(filteredField.getFieldName(), values);
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
         }
@@ -718,10 +719,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             final User user = UserCacheHolder.getUserFromRequest(request);
             ComponentService.Iface componentClient = thriftClients.makeComponentClient();
 
-            if (isNullOrEmpty(searchtext) && filterMap.isEmpty()) {
+            if (filterMap.isEmpty()) {
                 componentList = componentClient.getComponentSummary(user);
             } else {
-                componentList = componentClient.refineSearch(searchtext, filterMap);
+                componentList = componentClient.refineSearch(null, filterMap);
             }
         } catch (TException e) {
             log.error("Could not search components in backend ", e);
@@ -839,8 +840,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     @UsedAsLiferayAction
     public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
-        response.setRenderParameter(KEY_SEARCH_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_TEXT)));
-        response.setRenderParameter(KEY_SEARCH_FILTER_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_FILTER_TEXT)));
         for (Component._Fields componentFilteredField : componentFilteredFields) {
             response.setRenderParameter(componentFilteredField.toString(), nullToEmpty(request.getParameter(componentFilteredField.toString())));
         }

@@ -25,6 +25,7 @@ import java.util.function.Supplier;
  * Class for accessing the Lucene connector on the CouchDB database
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentSearchHandler {
 
@@ -69,6 +70,9 @@ public class ComponentSearchHandler {
                     "      ret.add(doc.mainLicenseIds[i], {\"field\": \"mainLicenseIds\"} );" +
                     "    }" +
                     "        ret.add(doc.componentType, {\"field\": \"componentType\"} );" +
+                    "    if(doc.name !== undefined && doc.name != null && doc.name.length >0) {  "+
+                    "      ret.add(doc.name, {\"field\": \"name\"} );" +
+                    "    }" +
                     "    return ret;" +
                     "}");
 

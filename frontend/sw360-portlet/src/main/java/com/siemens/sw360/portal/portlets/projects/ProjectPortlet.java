@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -451,15 +452,15 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
-        String searchtext = request.getParameter(KEY_SEARCH_TEXT);
-
-        String searchfilter = request.getParameter(KEY_SEARCH_FILTER_TEXT);
-
         Map<String, Set<String>> filterMap = new HashMap<>();
         for (Project._Fields filteredField : projectFilteredFields) {
             String parameter = request.getParameter(filteredField.toString());
             if (!isNullOrEmpty(parameter)) {
-                filterMap.put(filteredField.getFieldName(), CommonUtils.splitToSet(parameter));
+                Set<String> values = CommonUtils.splitToSet(parameter);
+                if (filteredField.equals(Project._Fields.NAME)) {
+                    values = values.stream().map(v -> v + "*").collect(Collectors.toSet());
+                }
+                filterMap.put(filteredField.getFieldName(), values);
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
         }
@@ -476,10 +477,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
         }
         try {
-            if (isNullOrEmpty(searchtext) && filterMap.isEmpty()) {
+            if (filterMap.isEmpty()) {
                 projectList = projectClient.getAccessibleProjectsSummary(user);
             } else {
-                projectList = projectClient.refineSearch(searchtext, filterMap, user);
+                projectList = projectClient.refineSearch(null, filterMap, user);
             }
             for (Project project : projectList) {
                 setClearingStateSummary(project);
@@ -799,8 +800,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     @UsedAsLiferayAction
     public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
-        response.setRenderParameter(KEY_SEARCH_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_TEXT)));
-        response.setRenderParameter(KEY_SEARCH_FILTER_TEXT, nullToEmpty(request.getParameter(KEY_SEARCH_FILTER_TEXT)));
         for (Project._Fields projectFilteredField : projectFilteredFields) {
             response.setRenderParameter(projectFilteredField.toString(), nullToEmpty(request.getParameter(projectFilteredField.toString())));
         }

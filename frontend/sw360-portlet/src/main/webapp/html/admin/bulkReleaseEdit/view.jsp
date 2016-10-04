@@ -1,12 +1,11 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 
 
@@ -47,7 +46,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Keyword Search
+                Display Filter
             </th>
         </tr>
         </thead>
@@ -86,7 +85,7 @@
                            class="toplabelledInput"
                            placeholder="Enter CPE ID" required="" value="${release.cpeid}"/>
                     </label>
-                    <%-- this and following hidden spans are added to make keyword search and sorting using dataTables work--%>
+                    <%-- this and following hidden spans are added to make display filter and sorting using dataTables work--%>
                     <span style="display:none" id='plaincpeid${release.id}'>${release.cpeid}</span>
                 </td>
                 <td width="20%">

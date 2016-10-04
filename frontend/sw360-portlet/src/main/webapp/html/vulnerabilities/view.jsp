@@ -1,5 +1,6 @@
 <%--
   ~ Copyright (c) Bosch Software Innovations GmbH 2016.
+  ~ Copyright (c) Siemens AG 2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -28,11 +29,11 @@
     <span class="pageHeaderBigSpan">Vulnerabilities</span>
 </p>
 <div id="searchInput" class="content1">
-    <table >
+    <table>
         <thead>
         <tr>
             <th class="infoheading">
-                Keyword Search
+                Display Filter
             </th>
         </tr>
         </thead>

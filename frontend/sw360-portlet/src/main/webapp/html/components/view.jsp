@@ -16,7 +16,6 @@
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.RequestStatus" %>
 
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
@@ -34,8 +33,7 @@
 <jsp:useBean id="vendorList" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vendorNames" class="java.lang.String" scope="request"/>
 <jsp:useBean id="mainLicenseIds" class="java.lang.String" scope="request"/>
-<jsp:useBean id="searchtext" class="java.lang.String" scope="request"/>
-<jsp:useBean id="searchfilter" class="java.lang.String" scope="request"/>
+<jsp:useBean id="name" class="java.lang.String" scope="request"/>
 
 <core_rt:set var="programmingLanguages" value='<%=PortalConstants.PROGRAMMING_LANGUAGES%>'/>
 <core_rt:set var="operatingSystemsAutoC" value='<%=PortalConstants.OPERATING_SYSTEMS%>'/>
@@ -77,7 +75,7 @@
             <thead>
             <tr>
                 <th class="infoheading">
-                    Keyword Search
+                    Display Filter by Name
                 </th>
             </tr>
             </thead>
@@ -86,11 +84,10 @@
                 <td>
                     <input type="text" class="searchbar"
                            id="keywordsearchinput" value=""
-                           onkeyup="useSearch('keywordsearchinput')"
-                           name="<portlet:namespace/><%=PortalConstants.KEY_SEARCH_FILTER_TEXT%>">
+                           onkeyup="useSearch('keywordsearchinput')" />
                     <br/>
                     <input class="searchbutton" type="button"
-                           name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
+                           name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')" />
                 </td>
             </tr>
             </tbody>
@@ -107,9 +104,9 @@
             <tbody style="background-color: #f8f7f7; border: none;">
             <tr>
                 <td>
-                    <label for="name_search">Name Search</label>
-                    <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=PortalConstants.KEY_SEARCH_TEXT%>"
-                           value="${searchtext}" id="name_search">
+                    <label for="component_name">Component Name</label>
+                    <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Component._Fields.NAME%>"
+                           value="${name}" id="component_name">
                 </td>
             </tr>
             <tr>
@@ -234,7 +231,7 @@
 
         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
                 .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-        portletURL.setParameter('<%=PortalConstants.KEY_SEARCH_TEXT%>', $('#name_search').val());
+        portletURL.setParameter('<%=Component._Fields.NAME%>', $('#component_name').val());
         portletURL.setParameter('<%=Component._Fields.CATEGORIES%>',$('#categories').val());
         portletURL.setParameter('<%=Component._Fields.LANGUAGES%>',$('#languages').val());
         portletURL.setParameter('<%=Component._Fields.SOFTWARE_PLATFORMS%>',$('#software_platforms').val());
