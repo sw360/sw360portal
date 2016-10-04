@@ -55,6 +55,13 @@
         <jsp:include page="/html/utils/includes/attachmentsUpload.jsp"/>
         <jsp:include page="/html/utils/includes/attachmentsDelete.jsp" />
     </core_rt:if>
+    <core_rt:if test="${not addMode}" >
+        <input type="button" id="formSubmit" value="Update Project" class="addButton">
+    </core_rt:if>
+    <core_rt:if test="${addMode}" >
+        <input type="button" id="formSubmit" value="Add Project" class="addButton">
+    </core_rt:if>
+    <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
 
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
@@ -89,8 +96,9 @@
             <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
             <core_rt:if test="${not addMode}" >
                 <%@include file="/html/utils/includes/editAttachments.jsp" %>
-                <%@include file="/html/projects/includes/projects/usingProjects.jspf" %>
-
+            <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
+            <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
+            <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
             </core_rt:if>
         </form>
         <jsp:include page="/html/projects/includes/searchProjects.jsp" />

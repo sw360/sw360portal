@@ -14,6 +14,7 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 
@@ -34,38 +35,8 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Project:  <sw360:ProjectName project="${project}"/></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
-<div id="content" >
-    <div class="container-fluid">
-        <div id="myTab" class="row-fluid">
-            <ul class="nav nav-tabs span2">
-                <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
-                <li <core_rt:if test="${selectedTab == 'Linked Projects'}"> class="active" </core_rt:if>><a href="#tab-linkedProjects">Linked Projects</a></li>
-                <li <core_rt:if test="${selectedTab == 'Linked Projects'}"> class="active" </core_rt:if>><a href="#tab-linkedReleases">Linked Releases</a></li>
-                <li <core_rt:if test="${selectedTab == 'Clearing Status'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Clearing Status</a></li>
-                <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
-            </ul>
-            <div class="tab-content span10">
-                <div id="tab-Summary" class="tab-pane" >
-                    <%@include file="/html/projects/includes/projects/summary.jspf" %>
-                    <%@include file="/html/projects/includes/projects/usingProjects.jspf" %>
-                </div>
-                <div id="tab-linkedProjects" >
-                    <%@include file="/html/projects/includes/linkedProjects.jspf" %>
-                </div>
-                <div id="tab-linkedReleases" >
-                    <%@include file="/html/utils/includes/linkedReleaseDetails.jspf" %>
-                </div>
-                <div id="tab-ClearingStatus" >
-                    <%@include file="/html/projects/includes/projects/clearingStatus.jspf" %>
-                </div>
-                <div id="tab-Attachments" >
-                    <jsp:include page="/html/utils/includes/attachmentsDetail.jsp"/>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<core_rt:set var="inProjectDetailsContext" value="false" scope="request"/>
+<%@include file="/html/projects/detailOverview.jspf"%>
 <script>
     var tabView;
     var Y = YUI().use(

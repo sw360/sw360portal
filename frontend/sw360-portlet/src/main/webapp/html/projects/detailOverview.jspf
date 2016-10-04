@@ -33,7 +33,9 @@
             <div class="tab-content span10">
                 <div id="tab-Summary" class="tab-pane" >
                     <%@include file="/html/projects/includes/projects/summary.jspf" %>
-                    <%@include file="/html/projects/includes/projects/usingProjects.jspf" %>
+                    <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
+                    <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
+                    <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
                 </div>
                 <div id="tab-linkedProjects" >
                     <%@include file="/html/projects/includes/linkedProjects.jspf" %>

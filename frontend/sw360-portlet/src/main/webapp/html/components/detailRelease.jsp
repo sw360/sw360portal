@@ -89,7 +89,9 @@
                     <div id="tab-Summary" class="tab-pane">
                         <%@include file="/html/components/includes/releases/summaryRelease.jspf" %>
                         <%@include file="/html/components/includes/vendors/vendorDetail.jspf" %>
-                        <%@include file="/html/components/includes/releases/usingDocumentsRelease.jspf" %>
+                        <core_rt:set var="documentName"><sw360:ReleaseName release="${release}"/></core_rt:set>
+                        <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
+                        <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
                     </div>
                     <div id="tab-linkedReleases" >
                         <%@include file="/html/utils/includes/linkedReleaseDetails.jspf" %>

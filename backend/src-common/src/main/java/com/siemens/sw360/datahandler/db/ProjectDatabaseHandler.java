@@ -276,8 +276,8 @@ public class ProjectDatabaseHandler {
         return repository.searchByReleaseId(id, user);
     }
 
-    public Set<Project> searchByReleaseId(Set<String> id, User user) {
-        return repository.searchByReleaseId(id, user);
+    public Set<Project> searchByReleaseId(Set<String> ids, User user) {
+        return repository.searchByReleaseId(ids, user);
     }
 
     public Set<Project> searchLinkingProjects(String id, User user) {
