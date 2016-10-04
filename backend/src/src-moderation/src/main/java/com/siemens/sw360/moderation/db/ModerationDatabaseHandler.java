@@ -15,9 +15,11 @@ import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
+import com.siemens.sw360.datahandler.permissions.PermissionUtils;
 import com.siemens.sw360.datahandler.thrift.ModerationState;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.SW360Exception;
+import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
@@ -27,8 +29,6 @@ import com.siemens.sw360.datahandler.thrift.projects.Project;
 import com.siemens.sw360.datahandler.thrift.users.User;
 import com.siemens.sw360.datahandler.thrift.users.UserGroup;
 import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
 import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
 import com.siemens.sw360.mail.MailConstants;
 import com.siemens.sw360.mail.MailUtil;
@@ -36,12 +36,10 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.http.HttpClient;
 
-
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
 
@@ -150,6 +148,13 @@ public class ModerationDatabaseHandler {
         // Define moderators
         Set<String> moderators = new HashSet<>();
         CommonUtils.add(moderators, dbcomponent.getCreatedBy());
+        try{
+            String department =  getDepartmentFromUserEmail(component.getCreatedBy());
+            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
+        } catch (TException e){
+            log.error("Could not get user from database. Clearing admins not added as moderators, since department is missing.");
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
 
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, component.getId(), moderators);
 
@@ -168,7 +173,6 @@ public class ModerationDatabaseHandler {
         Release dbrelease;
         try {
             dbrelease = componentDatabaseHandler.getRelease(release.getId(), user);
-
         } catch (SW360Exception e) {
             log.error("Could not get original release from database. Could not generate moderation request.", e);
             return RequestStatus.FAILURE;
@@ -177,6 +181,13 @@ public class ModerationDatabaseHandler {
         Set<String> moderators = new HashSet<>();
         CommonUtils.add(moderators, dbrelease.getCreatedBy());
         CommonUtils.addAll(moderators, dbrelease.getModerators());
+        try{
+            String department =  getDepartmentFromUserEmail(release.getCreatedBy());
+            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
+        } catch (TException e){
+            log.error("Could not get user from database. Clearing admins not added as moderators, since department is missing.");
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
 
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, release.getId(), moderators);
 
@@ -207,7 +218,8 @@ public class ModerationDatabaseHandler {
         CommonUtils.add(moderators, dbproject.getCreatedBy());
         CommonUtils.add(moderators, dbproject.getProjectResponsible());
         CommonUtils.addAll(moderators, dbproject.getModerators());
-
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, dbproject.getBusinessUnit()));
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
 
         // Set meta-data
@@ -247,7 +259,7 @@ public class ModerationDatabaseHandler {
 
  public void createRequest(User user) {
         // Define moderators
-        Set<String> admins = getAdministrators(user.getDepartment());
+        Set<String> admins = getUsersAtLeast(UserGroup.ADMIN, user.getDepartment());
         ModerationRequest request = createStubRequest(user.getEmail(), false, user.getId(), admins);
 
         // Set meta-data
@@ -258,6 +270,12 @@ public class ModerationDatabaseHandler {
         request.setUser(user);
 
         addOrUpdate(request);
+    }
+
+    private String getDepartmentFromUserEmail(String userEmail) throws TException {
+        UserService.Iface client = (new ThriftClients()).makeUserClient();
+        User creator = client.getByEmail(userEmail);
+        return creator.getDepartment();
     }
 
     private Set<String> getLicenseModerators(String department) {
@@ -280,24 +298,36 @@ public class ModerationDatabaseHandler {
         return moderators;
     }
 
-    private Set<String> getAdministrators(String department) {
+    private Set<String> getUsersAtLeast(UserGroup userGroup, String department) {
         List<User> sw360users = getAllSW360Users();
-        List<User> allAdministrators = sw360users
+        List<User> allRelevantUsers = sw360users
                     .stream()
-                    .filter(user1 -> PermissionUtils.isUserAtLeast(UserGroup.ADMIN, user1))
+                    .filter(user1 -> PermissionUtils.isUserAtLeast(userGroup, user1))
                     .collect(Collectors.toList());
-        List<User> administrators = allAdministrators.stream()
+        List<User> relevantUsersOfDepartment = allRelevantUsers.stream()
                     .filter(user -> user.getDepartment().equals(department))
                     .collect(Collectors.toList());
-        if (administrators.isEmpty()){
-            // no admins for department found -> fall back to all admins
-            administrators = allAdministrators;
-        }
-        Set<String> adminEmails = administrators.stream()
+
+        List<User> resultingUsers = relevantUsersOfDepartment.isEmpty() ? allRelevantUsers : relevantUsersOfDepartment;
+        Set<String> resultingUserEmails = resultingUsers.stream()
                     .map(User::getEmail)
                     .collect(Collectors.toSet());
 
-        return adminEmails;
+        return resultingUserEmails;
+    }
+
+    private Set<String> getUsersAtLeast(UserGroup userGroup) {
+        List<User> sw360users = getAllSW360Users();
+        List<User> allRelevantusers = sw360users
+                .stream()
+                .filter(user1 -> PermissionUtils.isUserAtLeast(userGroup, user1))
+                .collect(Collectors.toList());
+
+        Set<String> resultingUserEmails = allRelevantusers.stream()
+                .map(User::getEmail)
+                .collect(Collectors.toSet());
+
+        return resultingUserEmails;
     }
 
     private List<User> getAllSW360Users() {
