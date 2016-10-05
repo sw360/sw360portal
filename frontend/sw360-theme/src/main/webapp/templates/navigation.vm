@@ -16,7 +16,7 @@
 
     </div>
 
-		<div class="navbar-inner collapse nav-collapse">
+		<div class="navbar-inner collapse nav-collapse" id="navbar">
 			<ul aria-label="#language ("site-pages")" class="nav nav-collapse" role="menubar" >
 				#foreach ($nav_item in $nav_items)
 						#set ($nav_item_attr_selected="")
