@@ -148,8 +148,8 @@ public class ModerationDatabaseHandler {
         // Define moderators
         Set<String> moderators = new HashSet<>();
         CommonUtils.add(moderators, dbcomponent.getCreatedBy());
-        try{
-            String department =  getDepartmentFromUserEmail(component.getCreatedBy());
+        try {
+            String department =  getDepartmentByUserEmail(component.getCreatedBy());
             CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
         } catch (TException e){
             log.error("Could not get user from database. Clearing admins not added as moderators, since department is missing.");
@@ -182,7 +182,7 @@ public class ModerationDatabaseHandler {
         CommonUtils.add(moderators, dbrelease.getCreatedBy());
         CommonUtils.addAll(moderators, dbrelease.getModerators());
         try{
-            String department =  getDepartmentFromUserEmail(release.getCreatedBy());
+            String department =  getDepartmentByUserEmail(release.getCreatedBy());
             CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
         } catch (TException e){
             log.error("Could not get user from database. Clearing admins not added as moderators, since department is missing.");
@@ -272,10 +272,9 @@ public class ModerationDatabaseHandler {
         addOrUpdate(request);
     }
 
-    private String getDepartmentFromUserEmail(String userEmail) throws TException {
+    private String getDepartmentByUserEmail(String userEmail) throws TException {
         UserService.Iface client = (new ThriftClients()).makeUserClient();
-        User creator = client.getByEmail(userEmail);
-        return creator.getDepartment();
+        return client.getDepartmentByEmail(userEmail);
     }
 
     private Set<String> getLicenseModerators(String department) {
@@ -304,11 +303,16 @@ public class ModerationDatabaseHandler {
                     .stream()
                     .filter(user1 -> PermissionUtils.isUserAtLeast(userGroup, user1))
                     .collect(Collectors.toList());
-        List<User> relevantUsersOfDepartment = allRelevantUsers.stream()
+
+        List<User> relevantUsersOfDepartment = Collections.emptyList();
+        if(department != null) {
+            relevantUsersOfDepartment = allRelevantUsers.stream()
                     .filter(user -> user.getDepartment().equals(department))
                     .collect(Collectors.toList());
+        }
 
         List<User> resultingUsers = relevantUsersOfDepartment.isEmpty() ? allRelevantUsers : relevantUsersOfDepartment;
+
         Set<String> resultingUserEmails = resultingUsers.stream()
                     .map(User::getEmail)
                     .collect(Collectors.toSet());
@@ -316,18 +320,8 @@ public class ModerationDatabaseHandler {
         return resultingUserEmails;
     }
 
-    private Set<String> getUsersAtLeast(UserGroup userGroup) {
-        List<User> sw360users = getAllSW360Users();
-        List<User> allRelevantusers = sw360users
-                .stream()
-                .filter(user1 -> PermissionUtils.isUserAtLeast(userGroup, user1))
-                .collect(Collectors.toList());
-
-        Set<String> resultingUserEmails = allRelevantusers.stream()
-                .map(User::getEmail)
-                .collect(Collectors.toSet());
-
-        return resultingUserEmails;
+    private Set<String> getUsersAtLeast(UserGroup userGroup){
+        return getUsersAtLeast(userGroup, null);
     }
 
     private List<User> getAllSW360Users() {

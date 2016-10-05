@@ -53,9 +53,9 @@ struct User {
 service UserService {
 
     /**
-     * returns SW360-user with id equal to emails
+     * returns SW360-user with id equal to email
      **/
-    User getByEmail(1:string emails);
+    User getByEmail(1:string email);
 
     /**
      * get list of all SW360-users in database with name equal to parameter name
@@ -86,4 +86,10 @@ service UserService {
      * send email to userEmail address over acceptance of moderation request
      **/
     RequestStatus sendMailForAcceptedModerationRequest(1: string userEmail);
+
+    /**
+     * returns department of the SW360-user with id equal to email
+     **/
+    string getDepartmentByEmail(1:string email);
+
 }
