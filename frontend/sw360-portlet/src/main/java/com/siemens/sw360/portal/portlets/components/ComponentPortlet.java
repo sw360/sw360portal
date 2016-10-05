@@ -290,7 +290,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
                 final String fullname = vendor != null ? vendor.getFullname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(), fullname, release.getName(), release.getVersion());
-                linkedRelease.setReleaseRelationship(ReleaseRelationship.REFERRED);
+                linkedRelease.setReleaseRelationship(ReleaseRelationship.CONTAINED);
                 linkedReleases.add(linkedRelease);
             }
         } catch (TException e) {

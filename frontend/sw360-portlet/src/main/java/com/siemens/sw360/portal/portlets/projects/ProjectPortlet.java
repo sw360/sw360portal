@@ -287,7 +287,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             for (String linkedId : linkedIds) {
                 Project project = client.getProjectById(linkedId, user);
                 ProjectLink linkedProject = new ProjectLink(linkedId, project.getName());
-                linkedProject.setRelation(ProjectRelationship.REFERRED);
+                linkedProject.setRelation(ProjectRelationship.CONTAINED);
                 linkedProject.setVersion(project.getVersion());
                 linkedProjects.add(linkedProject);
             }
