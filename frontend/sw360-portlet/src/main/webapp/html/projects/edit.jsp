@@ -55,13 +55,6 @@
         <jsp:include page="/html/utils/includes/attachmentsUpload.jsp"/>
         <jsp:include page="/html/utils/includes/attachmentsDelete.jsp" />
     </core_rt:if>
-    <core_rt:if test="${not addMode}" >
-        <input type="button" id="formSubmit" value="Update Project" class="addButton">
-    </core_rt:if>
-    <core_rt:if test="${addMode}" >
-        <input type="button" id="formSubmit" value="Add Project" class="addButton">
-    </core_rt:if>
-    <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
 
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
@@ -80,12 +73,11 @@
         </p>
         <core_rt:if test="${not addMode}" >
             <input type="button" id="formSubmit" value="Update Project" class="addButton">
-            <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
         </core_rt:if>
         <core_rt:if test="${addMode}" >
             <input type="button" id="formSubmit" value="Add Project" class="addButton">
-            <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
         </core_rt:if>
+        <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
     </div>
 
     <div id="editField" class="content2">
