@@ -72,6 +72,10 @@
             <td>Operating Systems:</td>
             <td><sw360:DisplayCollection value="${release.operatingSystems}"/></td>
         </tr>
+        <tr>
+            <td>External ids:</td>
+            <td><sw360:DisplayMap value="${release.externalIds}"/></td>
+        </tr>
     </table>
     <table class="table info_table" id="ReleaseRepository" title="Release Repository">
         <core_rt:if test="${release.setRepository}">
