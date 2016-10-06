@@ -59,7 +59,8 @@
 </div>
 
 <br/>
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
+<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
     function findDuplicates() {
 
@@ -104,25 +105,29 @@
     }
 
     function deleteAllLicenseInformation() {
-        if (confirm("Do you really want to delete all licenses, license types, todos, obligations, risks, risk categories and todo custom properties from the db? " +
-                        "\nN.B.: other documents might use the licenses." +
-                        "\nThis function is meant to be followed by a new license import.")) {
+
+        function deleteAllLicenseInformationInternal() {
             jQuery.ajax({
                 type: 'POST',
                 url: '<%=deleteAllLicenseInformationURL%>',
                 cache: false,
                 success: function (data) {
                     if (data.result == 'SUCCESS')
-                        alert("I deleted " + data.totalAffectedObjects + " of " + data.totalObjects + " total documents in the DB.");
+                        $.alert("I deleted " + data.totalAffectedObjects + " of " + data.totalObjects + " total documents in the DB.");
                     else {
-                        alert("I could not delete the license information!");
+                        $.alert("I could not delete the license information!");
                     }
                 },
                 error: function () {
-                    alert("I could not delete the license information!");
+                    $.alert("I could not delete the license information!");
                 }
             });
         }
+
+        var confirmMessage = "Do you really want to delete all licenses, license types, todos, obligations, risks, risk categories and todo custom properties from the db? " +
+                "\nN.B.: other documents might use the licenses." +
+                "\nThis function is meant to be followed by a new license import.";
+        deleteConfirmed(confirmMessage, deleteAllLicenseInformationInternal);
     }
 </script>
 
