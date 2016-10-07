@@ -227,7 +227,7 @@ public class ProjectDatabaseHandler {
         final List<Project> projects = repository.getAll();
         final Map<String, Project> projectMap = ThriftUtils.getIdMap(projects);
 
-        Set<String> visitedIds = new HashSet<>();
+        Stack<String> visitedIds = new Stack<>();
 
         out = iterateProjectRelationShips(relations, projectMap, visitedIds, null);
 
@@ -235,7 +235,7 @@ public class ProjectDatabaseHandler {
     }
 
 
-    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, Map<String, Project> projectMap, Set<String> visitedIds, String parentId) {
+    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, Map<String, Project> projectMap, Stack<String> visitedIds, String parentId) {
         List<ProjectLink> out = new ArrayList<>();
         for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
             String id = entry.getKey();
@@ -247,11 +247,13 @@ public class ProjectDatabaseHandler {
         return out;
     }
 
-    private Optional<ProjectLink> createProjectLink(Map<String, Project> projectMap, Set<String> visitedIds, String id, ProjectRelationship relationship, String parentId) {
-        if (visitedIds.add(id)) {
+    private Optional<ProjectLink> createProjectLink(Map<String, Project> projectMap, Stack<String> visitedIds, String id, ProjectRelationship relationship, String parentId) {
+        ProjectLink projectLink = null;
+        if (!visitedIds.contains(id)) {
+            visitedIds.push(id);
             Project project = projectMap.get(id);
             if (project != null) {
-                final ProjectLink projectLink = new ProjectLink(id, project.name);
+                projectLink = new ProjectLink(id, project.name);
                 if (project.isSetReleaseIdToUsage()){
                     List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage());
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
@@ -264,12 +266,12 @@ public class ProjectDatabaseHandler {
                     List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), projectMap, visitedIds, id);
                     projectLink.setSubprojects(subprojectLinks);
                 }
-                return Optional.of(projectLink);
             } else {
                 log.error("Broken ProjectLink in project with id: " + id + ", received null from DB");
             }
+            visitedIds.pop();
         }
-        return Optional.empty();
+        return Optional.ofNullable(projectLink);
     }
 
     public Set<Project> searchByReleaseId(String id, User user) {

@@ -624,7 +624,7 @@ public class ComponentDatabaseHandler {
         final List<Release> releases = releaseRepository.getAll();
         final Map<String, Release> releaseMap = ThriftUtils.getIdMap(releases);
 
-        Set<String> visitedIds = new HashSet<>();
+        Stack<String> visitedIds = new Stack<>();
 
         out = iterateReleaseRelationShips(relations, releaseMap, visitedIds, null);
 
@@ -632,7 +632,7 @@ public class ComponentDatabaseHandler {
     }
 
     @NotNull
-    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, Map<String, Release> releaseMap, Set<String> visitedIds, String parentId) {
+    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, Map<String, Release> releaseMap, Stack<String> visitedIds, String parentId) {
         List<ReleaseLink> out = new ArrayList<>();
 
         for (Map.Entry<String, ?> entry : relations.entrySet()) {
@@ -646,10 +646,12 @@ public class ComponentDatabaseHandler {
         return out;
     }
 
-    private Optional<ReleaseLink> createReleaseLink(Set<String> visitedIds, Map.Entry<String, ?> entry, String id, Release release, Map<String, Release> releaseMap, String parentId) {
-        if (visitedIds.add(id)) {
+    private Optional<ReleaseLink> createReleaseLink(Stack<String> visitedIds, Map.Entry<String, ?> entry, String id, Release release, Map<String, Release> releaseMap, String parentId) {
+        ReleaseLink releaseLink = null;
+        if (!visitedIds.contains(id)) {
+            visitedIds.push(id);
             if (release != null) {
-                final ReleaseLink releaseLink = getReleaseLink(release);
+                releaseLink = getReleaseLink(release);
                 fillValueFieldInReleaseLink(entry, releaseLink);
                 releaseLink.setParentId(parentId);
                 if (release.isSetMainLicenseIds()) {
@@ -660,12 +662,12 @@ public class ComponentDatabaseHandler {
                     List<ReleaseLink> subreleaseLinks = iterateReleaseRelationShips(release.getReleaseIdToRelationship(), releaseMap, visitedIds, id);
                     releaseLink.setSubreleases(subreleaseLinks);
                 }
-                return Optional.of(releaseLink);
             } else {
                 log.error("Broken ReleaseLink in release with id: " + id + ", was not in DB");
             }
+            visitedIds.pop();
         }
-        return Optional.empty();
+        return Optional.ofNullable(releaseLink);
     }
 
 
