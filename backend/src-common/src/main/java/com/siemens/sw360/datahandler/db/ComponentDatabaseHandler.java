@@ -618,17 +618,26 @@ public class ComponentDatabaseHandler {
         return ReleaseClearingStateSummaryComputer.computeReleaseClearingStateSummary(releases, clearingTeam);
     }
 
-    public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations) {
+    public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap) {
         List<ReleaseLink> out;
-
-        final List<Release> releases = releaseRepository.getAll();
-        final Map<String, Release> releaseMap = ThriftUtils.getIdMap(releases);
 
         Stack<String> visitedIds = new Stack<>();
 
         out = iterateReleaseRelationShips(relations, releaseMap, visitedIds, null);
 
         return out;
+    }
+
+    public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations) {
+
+        final Map<String, Release> releaseMap = getAllReleasesIdMap();
+
+        return getLinkedReleases(relations, releaseMap);
+    }
+
+    public Map<String, Release> getAllReleasesIdMap() {
+        final List<Release> releases = releaseRepository.getAll();
+        return ThriftUtils.getIdMap(releases);
     }
 
     @NotNull
