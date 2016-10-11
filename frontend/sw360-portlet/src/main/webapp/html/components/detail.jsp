@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -32,7 +33,12 @@
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
-</c:catch>
+    <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
+    <core_rt:if test="${vulnerabilityVerificationEditable}">
+        <jsp:useBean id="numberOfIncorrectVulnerabilities" type="java.lang.Long" scope="request"/>
+    </core_rt:if>
+    <jsp:useBean id="numberOfCheckedOrUncheckedVulnerabilities" type="java.lang.Long" scope="request"/>
+ </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

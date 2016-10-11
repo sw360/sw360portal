@@ -145,6 +145,8 @@ public class PortalConstants {
     public static final String VULNERABILITY_RATING_COMMENT = "vulnerabilityRatingComment";
     public static final String NUMBER_OF_VULNERABILITIES = "numberOfVulnerabilities";
     public static final String NUMBER_OF_UNCHECKED_VULNERABILITIES = "numberOfUncheckedVulnerabilities";
+    public static final String NUMBER_OF_INCORRECT_VULNERABILITIES = "numberOfIncorrectVulnerabilities";
+    public static final String NUMBER_OF_CHECKED_OR_UNCHECKED_VULNERABILITIES = "numberOfCheckedOrUncheckedVulnerabilities";
     public static final String VULNERABILITY_CHECKSTATUS_TOOLTIPS = "vulnerabilityCheckstatusTooltips";
     public static final String VULNERABILITY_VERIFICATION_VALUE = "vulnerabilityVerificationValue";
     public static final String VULNERABILITY_VERIFICATION_COMMENT = "vulnerabilityVerificationComment";
