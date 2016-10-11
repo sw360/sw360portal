@@ -1,5 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="org.eclipse.sw360.portal.portlets.Sw360Portlet" %>
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
@@ -43,6 +42,11 @@
                  scope="request"/>
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
     <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
+    <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
+    <core_rt:if test="${vulnerabilityVerificationEditable}">
+        <jsp:useBean id="numberOfIncorrectVulnerabilities" type="java.lang.Integer" scope="request"/>
+    </core_rt:if>
+    <jsp:useBean id="numberOfCheckedOrUncheckedVulnerabilities" type="java.lang.Integer" scope="request"/>
 </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">
 

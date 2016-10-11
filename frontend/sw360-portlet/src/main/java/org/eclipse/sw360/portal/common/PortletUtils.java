@@ -14,9 +14,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
-import org.eclipse.sw360.datahandler.thrift.ModerationState;
-import org.eclipse.sw360.datahandler.thrift.RequestStatus;
-import org.eclipse.sw360.datahandler.thrift.Visibility;
+import com.siemens.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
@@ -293,5 +291,15 @@ public class PortletUtils {
         } else {
             return addToMatchedByHistogram(matchedByHistogram, isMatchedByUnknown);
         }
+    }
+
+    public static VerificationState getVerificationState(VulnerabilityDTO vul){
+        if(vul.isSetReleaseVulnerabilityRelation()){
+            if(vul.getReleaseVulnerabilityRelation().isSetVerificationStateInfo()){
+                List<VerificationStateInfo> history = vul.getReleaseVulnerabilityRelation().getVerificationStateInfo();
+                return history.get(history.size()-1).getVerificationState();
+            }
+        }
+        return VerificationState.NOT_CHECKED;
     }
 }

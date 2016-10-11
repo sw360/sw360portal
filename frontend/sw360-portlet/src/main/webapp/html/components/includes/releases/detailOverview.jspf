@@ -18,7 +18,17 @@
                     <li <core_rt:if test="${selectedTab == 'COTSDetails'}"> class="active" </core_rt:if>  ><a href="#tab-CommercialDetails">Commercial Details</a></li>
                 </core_rt:if>
                 <core_rt:if test="${inReleaseDetailsContext}">
-                    <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>  ><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
+                    <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>  ><a href="#tab-Vulnerabilities">Vulnerabilities</a>
+                        <a href="#tab-Vulnerabilites">
+                            Vulnerabilities
+                            <div id="numberOfVulnerabilitiesDiv" class="notificationBulletSpan backgroundGrey" >
+                                    ${numberOfCheckedOrUncheckedVulnerabilities}
+                                <core_rt:if test="${vulnerabilityVerificationEditable}">
+                                    + ${numberOfIncorrectVulnerabilities}
+                                </core_rt:if>
+                            </div>
+                        </a>
+                    </li>
                 </core_rt:if>
             </ul>
             <div class="tab-content span10">

@@ -32,6 +32,11 @@
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
+    <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
+    <core_rt:if test="${vulnerabilityVerificationEditable}">
+        <jsp:useBean id="numberOfIncorrectVulnerabilities" type="java.lang.Integer" scope="request"/>
+    </core_rt:if>
+    <jsp:useBean id="numberOfCheckedOrUncheckedVulnerabilities" type="java.lang.Integer" scope="request"/>
 </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">
 

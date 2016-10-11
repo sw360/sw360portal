@@ -54,6 +54,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
+import static org.eclipse.sw360.portal.common.PortletUtils.getVerificationState;
 
 /**
  * Component portlet implementation
