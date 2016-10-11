@@ -25,3 +25,11 @@
 .form-group [role=alert] {
     color: darkred;
 }
+
+#navigation ul {
+    border: none !important;
+}
+
+#navbar {
+    border: none;
+}
