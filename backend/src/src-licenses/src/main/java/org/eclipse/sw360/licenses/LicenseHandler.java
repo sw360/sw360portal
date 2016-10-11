@@ -295,9 +295,10 @@ public class LicenseHandler implements LicenseService.Iface {
         }
         return handler.addOrUpdateCustomProperties(customProperties);
     }
-@Override
+
+    @Override
     public RequestSummary deleteAllLicenseInformation(User user) {
-        if(! PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+        if(! PermissionUtils.isUserAtLeast(UserGroup.ADMIN, user)){
             return new RequestSummary().setRequestStatus(RequestStatus.FAILURE);
         }
         return handler.deleteAllLicenseInformation();
