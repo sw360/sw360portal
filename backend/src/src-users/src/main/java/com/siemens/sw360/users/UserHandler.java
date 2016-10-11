@@ -88,4 +88,9 @@ public class UserHandler implements UserService.Iface {
         return db.sendMailForAcceptedModerationRequest(userEmail);
     }
 
+    @Override
+    public String getDepartmentByEmail(String email) throws TException {
+        User user = getByEmail(email);
+        return user != null ? user.getDepartment() : null;
+    }
 }
