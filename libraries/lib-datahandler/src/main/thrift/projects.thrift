@@ -70,8 +70,8 @@ struct Project {
     10: optional set<Attachment> attachments,
     11: optional string createdOn, // Creation date YYYY-MM-dd
     12: optional string businessUnit,
-    13: optional ProjectState state,
-    15: optional ProjectType projectType,
+    13: optional ProjectState state = ProjectState.ACTIVE,
+    15: optional ProjectType projectType = ProjectType.CUSTOMER,
     16: optional string tag,// user defined tags
     17: optional ProjectClearingState clearingState,
 
@@ -79,10 +79,10 @@ struct Project {
     21: optional string createdBy,
     22: optional string projectResponsible,
     23: optional string leadArchitect,
-    25: optional set<string> moderators,
+    25: optional set<string> moderators = [],
 //    26: optional set<string> comoderators, //deleted
-    27: optional set<string> contributors,
-    28: optional Visibility visbility,
+    27: optional set<string> contributors = [],
+    28: optional Visibility visbility = sw360.Visibility.BUISNESSUNIT_AND_MODERATORS,
 
     // Linked objects
     30: optional map<string, ProjectRelationship> linkedProjects,  //id, relationship
@@ -104,8 +104,8 @@ struct Project {
     70: optional DocumentState documentState,
 
     // Optional fields for summaries!
-    100: optional set<string> releaseIds;
-    101: optional ReleaseClearingStateSummary releaseClearingStateSummary;
+    100: optional set<string> releaseIds,
+    101: optional ReleaseClearingStateSummary releaseClearingStateSummary,
 
     200: optional map<RequestedAction, bool> permissions,
 }

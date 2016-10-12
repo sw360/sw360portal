@@ -179,10 +179,17 @@
             <select class="toplabelledInput" id="clearingTeam"
                     name="<portlet:namespace/><%=Project._Fields.CLEARING_TEAM%>"
                     style="min-width: 162px; min-height: 28px;">
-
+                <option value="<%=SW360Constants.CLEARING_TEAM_UNKNOWN%>"
+                        <core_rt:if test='${empty project.clearingTeam}'>
+                            selected="selected"
+                        </core_rt:if>><%=SW360Constants.CLEARING_TEAM_UNKNOWN%></option>
                 <core_rt:forEach items="${clearingTeamsStringSet}" var="entry">
-                    <option value="${entry}" class="textlabel stackedLabel" <core_rt:if
-                            test='${project.clearingTeam == entry}'>selected="selected"</core_rt:if>> ${entry} </option>
+                    <option value="${entry}" class="textlabel stackedLabel"
+                            <core_rt:if test='${project.clearingTeam == entry}'>
+                                selected="selected"
+                            </core_rt:if>>
+                            ${entry}
+                    </option>
                 </core_rt:forEach>
             </select>
         </td>
