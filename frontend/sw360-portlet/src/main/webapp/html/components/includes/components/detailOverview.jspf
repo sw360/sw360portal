@@ -14,17 +14,7 @@
                 <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
                 <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
                 <core_rt:if test="${inComponentDetailsContext}">
-                <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>><a href="#tab-Vulnerabilities">Vulnerabilities</a>
-                    <a href="#tab-Vulnerabilites">
-                        Vulnerabilities
-                        <div id="numberOfVulnerabilitiesDiv" class="notificationBulletSpan backgroundGrey" >
-                                ${numberOfCheckedOrUncheckedVulnerabilities}
-                            <core_rt:if test="${vulnerabilityVerificationEditable}">
-                                + ${numberOfIncorrectVulnerabilities}
-                            </core_rt:if>
-                        </div>
-                    </a>
-                </li>
+                    <%@include file="/html/utils/includes/vulnerabilityTab.jspf" %>
                 </core_rt:if>
             </ul>
             <div class="tab-content span10">
