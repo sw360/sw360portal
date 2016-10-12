@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,6 @@
  */
 package com.siemens.sw360.projects;
 
-import com.siemens.sw360.attachments.AttachmentHandler;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
@@ -33,6 +32,7 @@ import static com.siemens.sw360.datahandler.common.SW360Assert.*;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ProjectHandler implements ProjectService.Iface {
 
@@ -203,6 +203,11 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public Map<String, List<String>> getDuplicateProjects() throws TException {
         return handler.getDuplicateProjects();
+    }
+
+    @Override
+    public List<Project> fillClearingStateSummary(List<Project> projects, User user) throws TException {
+        return handler.fillClearingStateSummary(projects, user);
     }
 
     @Override

@@ -30,7 +30,6 @@ import com.siemens.sw360.datahandler.thrift.Visibility;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
@@ -172,7 +171,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void serveListProjects(ResourceRequest request, ResourceResponse response) throws IOException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        Collection<Project> projects = setClearingStateSummary(getAccessibleProjects(user));
+        Collection<Project> projects = getWithFilledClearingStateSummary(new ArrayList<>(getAccessibleProjects(user)), user);
 
         JSONObject jsonResponse = createJSONObject();
         JSONArray data = createJSONArray();
@@ -482,9 +481,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             } else {
                 projectList = projectClient.refineSearch(null, filterMap, user);
             }
-            for (Project project : projectList) {
-                setClearingStateSummary(project);
-            }
+            projectList = getWithFilledClearingStateSummary(projectList, user);
 
         } catch (TException e) {
             log.error("Could not search projects in backend ", e);
@@ -510,7 +507,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 Project project = client.getProjectById(id, user);
-                setClearingStateSummary(project);
+                project = getWithFilledClearingStateSummary(project, user);
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
                 setAttachmentsInRequest(request, project.getAttachments());
@@ -616,37 +613,20 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
     }
 
-    private void setClearingStateSummary(Project project) {
-        ComponentService.Iface componentClient = thriftClients.makeComponentClient();
-
-        setClearingStateSummary(componentClient, project);
+    private Project getWithFilledClearingStateSummary(Project project, User user) {
+        return getWithFilledClearingStateSummary(Arrays.asList(project), user).get(0);
     }
 
-    private Collection<Project> setClearingStateSummary(Collection<Project> projects) {
-        ComponentService.Iface componentClient = thriftClients.makeComponentClient();
+    private List<Project> getWithFilledClearingStateSummary(List<Project> projects, User user) {
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
-        for (Project project : projects) {
-            setClearingStateSummary(componentClient, project);
-        }
-        return projects;
-    }
-
-    private void setClearingStateSummary(ComponentService.Iface componentClient, Project project) {
         try {
-            final Set<String> releaseIds;
-            if (project.isSetReleaseIds()) {
-                releaseIds = project.getReleaseIds();
-            } else {
-                releaseIds = CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
-            }
-            final ReleaseClearingStateSummary releaseClearingStateSummary =
-                    componentClient.getReleaseClearingStateSummary(releaseIds, project.getClearingTeam());
-            project.setReleaseClearingStateSummary(releaseClearingStateSummary);
+            return projectClient.fillClearingStateSummary(projects, user);
         } catch (TException e) {
-            log.error("Could not summary of release status for project id " + project.getId() + "!", e);
+            log.error("Could not get summary of release clearing states for projects!", e);
+            return projects;
         }
     }
-
 
     private void prepareProjectEdit(RenderRequest request) {
         User user = UserCacheHolder.getUserFromRequest(request);

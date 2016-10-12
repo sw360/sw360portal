@@ -11,6 +11,8 @@ package com.siemens.sw360.datahandler.db;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
+import com.siemens.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.Duration;
 import com.siemens.sw360.datahandler.common.SW360Constants;
@@ -20,6 +22,7 @@ import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
 import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.components.Release;
+import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -34,7 +37,9 @@ import org.ektorp.http.HttpClient;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
@@ -357,5 +362,28 @@ public class ProjectDatabaseHandler {
             pvrRepository.update(link);
         }
         return RequestStatus.SUCCESS;
+    }
+
+    public List<Project> fillClearingStateSummary(List<Project> projects, User user) {
+        Function<Project, Set<String>> extractReleaseIds = project -> {
+            if (project.isSetReleaseIds()) {
+                return project.getReleaseIds();
+            } else {
+                return CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
+            }
+        };
+
+        Set<String> allReleaseIds = projects.stream().map(extractReleaseIds).reduce(Sets.newHashSet(), Sets::union);
+        if (!allReleaseIds.isEmpty()) {
+            Map<String, Release> releasesById = ThriftUtils.getIdMap(componentDatabaseHandler.getReleasesForClearingStateSummary(allReleaseIds));
+            for (Project project : projects) {
+                final Set<String> releaseIds = extractReleaseIds.apply(project);
+                List<Release> releases = releaseIds.stream().map(releasesById::get).collect(Collectors.toList());
+                final ReleaseClearingStateSummary releaseClearingStateSummary = ReleaseClearingStateSummaryComputer.computeReleaseClearingStateSummary(releases, project
+                        .getClearingTeam());
+                project.setReleaseClearingStateSummary(releaseClearingStateSummary);
+            }
+        }
+        return projects;
     }
 }

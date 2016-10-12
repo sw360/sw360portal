@@ -223,10 +223,14 @@ service ProjectService {
      */
     list<ProjectLink> getLinkedProjects(1:  map<string, ProjectRelationship> relations);
 
-
     /**
      * get a list of duplicated projects matched by `.printName()`
      * returned as map from pretty printed name to list of matching ids
      */
     map <string, list<string>> getDuplicateProjects();
+
+    /**
+    * get the same list of projects back, but with filled release clearing state summaries
+     */
+    list<Project> fillClearingStateSummary(list<Project> projects, User user);
 }

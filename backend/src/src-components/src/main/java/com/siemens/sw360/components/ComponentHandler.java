@@ -8,7 +8,6 @@
  */
 package com.siemens.sw360.components;
 
-import com.siemens.sw360.attachments.AttachmentHandler;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ComponentSearchHandler;
@@ -40,7 +39,6 @@ public class ComponentHandler implements ComponentService.Iface {
 
     private final ComponentDatabaseHandler handler;
     private final ComponentSearchHandler searchHandler;
-    private final AttachmentHandler attachmentHandler;
 
     public ComponentHandler() throws IOException {
         this(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
@@ -49,7 +47,6 @@ public class ComponentHandler implements ComponentService.Iface {
     ComponentHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws IOException {
         handler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName);
         searchHandler = new ComponentSearchHandler(httpClient, dbName);
-        attachmentHandler = new AttachmentHandler();
     }
 
     // TODO use dependency injection instead of this constructors mess
@@ -60,7 +57,6 @@ public class ComponentHandler implements ComponentService.Iface {
     ComponentHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ThriftClients thriftClients) throws IOException {
         handler = new ComponentDatabaseHandler(httpClient, dbName, attachmentDbName, thriftClients);
         searchHandler = new ComponentSearchHandler(httpClient, dbName);
-        attachmentHandler = new AttachmentHandler();
     }
 
     /////////////////////
@@ -354,14 +350,6 @@ public class ComponentHandler implements ComponentService.Iface {
         assertId(id);
 
         return handler.unsubscribeRelease(id, user);
-    }
-
-    ///////////////////////////////
-    // HELPER METHODS            //
-    ///////////////////////////////
-    @Override
-    public ReleaseClearingStateSummary getReleaseClearingStateSummary(Set<String> ids, String clearingTeam) throws TException {
-        return handler.getReleaseClearingStateSummary(ids, clearingTeam);
     }
 
     /////////////////////

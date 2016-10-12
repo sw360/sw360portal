@@ -492,11 +492,6 @@ service ComponentService {
     RequestStatus unsubscribeRelease(1: string id, 2: User user);
 
     /**
-     * Get a summary of release status for a given set of IDs
-     **/
-    ReleaseClearingStateSummary getReleaseClearingStateSummary(1: set<string> ids, 2:string clearingTeam);
-
-    /**
      * Make a list of components for Excel export and component importer
      **/
     list<Component> getComponentSummaryForExport();
