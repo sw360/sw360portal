@@ -605,19 +605,6 @@ public class ComponentDatabaseHandler {
     // HELPER SERVICES //
     /////////////////////
 
-    /**
-     * Get a summary of release status for a given set of IDs
-     */
-    public ReleaseClearingStateSummary getReleaseClearingStateSummary(Set<String> ids, String clearingTeam) {
-
-        List<Release> releases = null;
-        if (ids != null && ids.size() > 0) {
-            releases = releaseRepository.get(ids);
-        }
-
-        return ReleaseClearingStateSummaryComputer.computeReleaseClearingStateSummary(releases, clearingTeam);
-    }
-
     public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap) {
         List<ReleaseLink> out;
 
@@ -708,6 +695,16 @@ public class ComponentDatabaseHandler {
 
     public List<Release> getReleases(Set<String> ids, User user) {
         return releaseRepository.makeSummary(SummaryType.SHORT, ids);
+    }
+
+    /**
+     * Returns full documents straight from repository. Don't want this to get abused, that's why it's package-private.
+     * Used for bulk-computing ReleaseClearingStateSummaries by ProjectDatabaseHandler.
+     * The reason for this hack is that making summaries (like in getReleases()) takes way too long for a lot of
+     * releases.
+     */
+    List<Release> getReleasesForClearingStateSummary(Set<String> ids) {
+        return releaseRepository.get(ids);
     }
 
     public List<Release> getDetailedReleasesForExport(Set<String> ids) {
