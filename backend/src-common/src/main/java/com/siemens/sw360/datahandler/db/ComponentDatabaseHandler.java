@@ -623,7 +623,7 @@ public class ComponentDatabaseHandler {
 
         Stack<String> visitedIds = new Stack<>();
 
-        out = iterateReleaseRelationShips(relations, releaseMap, visitedIds, null);
+        out = iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
 
         return out;
     }
@@ -641,13 +641,12 @@ public class ComponentDatabaseHandler {
     }
 
     @NotNull
-    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, Map<String, Release> releaseMap, Stack<String> visitedIds, String parentId) {
+    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, String parentId, Stack<String> visitedIds, Map<String, Release> releaseMap) {
         List<ReleaseLink> out = new ArrayList<>();
 
         for (Map.Entry<String, ?> entry : relations.entrySet()) {
             String id = entry.getKey();
-            Release release = releaseMap.get(id);
-            Optional<ReleaseLink> releaseLinkOptional = createReleaseLink(visitedIds, entry, id, release, releaseMap, parentId);
+            Optional<ReleaseLink> releaseLinkOptional = createReleaseLink(id, entry.getValue(), parentId, visitedIds, releaseMap);
             if (releaseLinkOptional.isPresent()) {
                 out.add(releaseLinkOptional.get());
             }
@@ -655,24 +654,25 @@ public class ComponentDatabaseHandler {
         return out;
     }
 
-    private Optional<ReleaseLink> createReleaseLink(Stack<String> visitedIds, Map.Entry<String, ?> entry, String id, Release release, Map<String, Release> releaseMap, String parentId) {
+    private Optional<ReleaseLink> createReleaseLink(String id, Object relation, String parentId, Stack<String> visitedIds, Map<String, Release> releaseMap) {
         ReleaseLink releaseLink = null;
         if (!visitedIds.contains(id)) {
             visitedIds.push(id);
+            Release release = releaseMap.get(id);
             if (release != null) {
                 releaseLink = getReleaseLink(release);
-                fillValueFieldInReleaseLink(entry, releaseLink);
+                fillValueFieldInReleaseLink(releaseLink, relation);
                 releaseLink.setParentId(parentId);
                 if (release.isSetMainLicenseIds()) {
                     releaseLink.setLicenseIds(release.getMainLicenseIds());
                 }
 
                 if (release.isSetReleaseIdToRelationship()) {
-                    List<ReleaseLink> subreleaseLinks = iterateReleaseRelationShips(release.getReleaseIdToRelationship(), releaseMap, visitedIds, id);
+                    List<ReleaseLink> subreleaseLinks = iterateReleaseRelationShips(release.getReleaseIdToRelationship(), id, visitedIds, releaseMap);
                     releaseLink.setSubreleases(subreleaseLinks);
                 }
             } else {
-                log.error("Broken ReleaseLink in release with id: " + id + ", was not in DB");
+                log.error("Broken ReleaseLink in release with id: " + parentId + ". Linked release with id " + id + " was not in DB");
             }
             visitedIds.pop();
         }
@@ -680,12 +680,13 @@ public class ComponentDatabaseHandler {
     }
 
 
-    private void fillValueFieldInReleaseLink(Map.Entry<String, ?> entry, ReleaseLink releaseLink) {
-        Object value = entry.getValue();
-        if (value instanceof String) {
-            releaseLink.setComment((String) value);
-        } else if (value instanceof ReleaseRelationship) {
-            releaseLink.setReleaseRelationship((ReleaseRelationship) value);
+    private void fillValueFieldInReleaseLink(ReleaseLink releaseLink, Object relation) {
+        if (relation instanceof String) {
+            releaseLink.setComment((String) relation);
+        } else if (relation instanceof ReleaseRelationship) {
+            releaseLink.setReleaseRelationship((ReleaseRelationship) relation);
+        } else {
+            throw new IllegalArgumentException("Only String or ReleaseRelationship is allowed as ReleaseLink's relation value");
         }
     }
 

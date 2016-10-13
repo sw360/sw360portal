@@ -232,17 +232,16 @@ public class ProjectDatabaseHandler {
 
         Stack<String> visitedIds = new Stack<>();
 
-        out = iterateProjectRelationShips(relations, projectMap, visitedIds, null, releaseMap);
+        out = iterateProjectRelationShips(relations, null, visitedIds, projectMap, releaseMap);
 
         return out;
     }
 
 
-    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, Map<String, Project> projectMap, Stack<String> visitedIds, String parentId, Map<String, Release> releaseMap) {
+    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, String parentId, Stack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
         List<ProjectLink> out = new ArrayList<>();
         for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
-            String id = entry.getKey();
-            Optional<ProjectLink> projectLinkOptional = createProjectLink(projectMap, visitedIds, id, entry.getValue(), parentId, releaseMap);
+            Optional<ProjectLink> projectLinkOptional = createProjectLink(entry.getKey(), entry.getValue(), parentId, visitedIds, projectMap, releaseMap);
             if (projectLinkOptional.isPresent()) {
                 out.add(projectLinkOptional.get());
             }
@@ -250,7 +249,7 @@ public class ProjectDatabaseHandler {
         return out;
     }
 
-    private Optional<ProjectLink> createProjectLink(Map<String, Project> projectMap, Stack<String> visitedIds, String id, ProjectRelationship relationship, String parentId, Map<String, Release> releaseMap) {
+    private Optional<ProjectLink> createProjectLink(String id, ProjectRelationship relationship, String parentId, Stack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
         ProjectLink projectLink = null;
         if (!visitedIds.contains(id)) {
             visitedIds.push(id);
@@ -266,11 +265,11 @@ public class ProjectDatabaseHandler {
                 projectLink.setRelation(relationship);
                 projectLink.setVersion(project.getVersion());
                 if (project.isSetLinkedProjects()) {
-                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), projectMap, visitedIds, id, releaseMap);
+                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), id, visitedIds, projectMap, releaseMap);
                     projectLink.setSubprojects(subprojectLinks);
                 }
             } else {
-                log.error("Broken ProjectLink in project with id: " + id + ", received null from DB");
+                log.error("Broken ProjectLink in project with id: " + parentId + ". Linked project with id " + id + " was not in DB");
             }
             visitedIds.pop();
         }
