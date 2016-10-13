@@ -19,6 +19,7 @@ import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
 import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
 import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
 import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -226,20 +227,21 @@ public class ProjectDatabaseHandler {
         List<ProjectLink> out;
         final List<Project> projects = repository.getAll();
         final Map<String, Project> projectMap = ThriftUtils.getIdMap(projects);
+        final Map<String, Release> releaseMap = componentDatabaseHandler.getAllReleasesIdMap();
 
-        Set<String> visitedIds = new HashSet<>();
 
-        out = iterateProjectRelationShips(relations, projectMap, visitedIds, null);
+        Stack<String> visitedIds = new Stack<>();
+
+        out = iterateProjectRelationShips(relations, null, visitedIds, projectMap, releaseMap);
 
         return out;
     }
 
 
-    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, Map<String, Project> projectMap, Set<String> visitedIds, String parentId) {
+    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, String parentId, Stack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
         List<ProjectLink> out = new ArrayList<>();
         for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
-            String id = entry.getKey();
-            Optional<ProjectLink> projectLinkOptional = createProjectLink(projectMap, visitedIds, id, entry.getValue(), parentId);
+            Optional<ProjectLink> projectLinkOptional = createProjectLink(entry.getKey(), entry.getValue(), parentId, visitedIds, projectMap, releaseMap);
             if (projectLinkOptional.isPresent()) {
                 out.add(projectLinkOptional.get());
             }
@@ -247,13 +249,15 @@ public class ProjectDatabaseHandler {
         return out;
     }
 
-    private Optional<ProjectLink> createProjectLink(Map<String, Project> projectMap, Set<String> visitedIds, String id, ProjectRelationship relationship, String parentId) {
-        if (visitedIds.add(id)) {
+    private Optional<ProjectLink> createProjectLink(String id, ProjectRelationship relationship, String parentId, Stack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
+        ProjectLink projectLink = null;
+        if (!visitedIds.contains(id)) {
+            visitedIds.push(id);
             Project project = projectMap.get(id);
             if (project != null) {
-                final ProjectLink projectLink = new ProjectLink(id, project.name);
+                projectLink = new ProjectLink(id, project.name);
                 if (project.isSetReleaseIdToUsage()){
-                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage());
+                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage(), releaseMap);
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
 
@@ -261,15 +265,15 @@ public class ProjectDatabaseHandler {
                 projectLink.setRelation(relationship);
                 projectLink.setVersion(project.getVersion());
                 if (project.isSetLinkedProjects()) {
-                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), projectMap, visitedIds, id);
+                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), id, visitedIds, projectMap, releaseMap);
                     projectLink.setSubprojects(subprojectLinks);
                 }
-                return Optional.of(projectLink);
             } else {
-                log.error("Broken ProjectLink in project with id: " + id + ", received null from DB");
+                log.error("Broken ProjectLink in project with id: " + parentId + ". Linked project with id " + id + " was not in DB");
             }
+            visitedIds.pop();
         }
-        return Optional.empty();
+        return Optional.ofNullable(projectLink);
     }
 
     public Set<Project> searchByReleaseId(String id, User user) {

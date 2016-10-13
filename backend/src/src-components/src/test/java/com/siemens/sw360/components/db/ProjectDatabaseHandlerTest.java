@@ -87,6 +87,12 @@ public class ProjectDatabaseHandlerTest {
         projects.add(project3);
         Project project4 = new Project().setId("P4").setName("project4").setLinkedProjects(ImmutableMap.of("P1", ProjectRelationship.UNKNOWN));
         projects.add(project4);
+        Project project5 = new Project().setId("P5").setName("project5").setLinkedProjects(ImmutableMap.of("P6", ProjectRelationship.CONTAINED, "P7", ProjectRelationship.CONTAINED));
+        projects.add(project5);
+        Project project6 = new Project().setId("P6").setName("project6").setLinkedProjects(ImmutableMap.of("P7", ProjectRelationship.CONTAINED));
+        projects.add(project6);
+        Project project7 = new Project().setId("P7").setName("project7");
+        projects.add(project7);
 
         // Create the database
         TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
@@ -151,5 +157,38 @@ public class ProjectDatabaseHandlerTest {
 
         assertThat(linkedProjects, contains(link1));
     }
+
+    @Test
+    public void testGetLinkedProjects2() throws Exception {
+
+        // we wrap the potentially infinite loop in an executor
+        final ExecutorService service = Executors.newSingleThreadExecutor();
+
+        final Future<List<ProjectLink>> completionFuture = service.submit(() -> handler.getLinkedProjects(ImmutableMap.of("P5", ProjectRelationship.CONTAINED)));
+
+        service.shutdown();
+        service.awaitTermination(10, TimeUnit.SECONDS);
+
+        final List<ProjectLink> linkedProjects = completionFuture.get();
+
+        ProjectLink link7_5 = new ProjectLink("P7", "project7")
+                .setRelation(ProjectRelationship.CONTAINED)
+                .setParentId("P5");
+//                .setSubprojects(Collections.emptyList());
+        ProjectLink link7_6 = new ProjectLink("P7", "project7")
+                .setRelation(ProjectRelationship.CONTAINED)
+                .setParentId("P6");
+//                .setSubprojects(Collections.emptyList());
+        ProjectLink link6 = new ProjectLink("P6", "project6")
+                .setRelation(ProjectRelationship.CONTAINED)
+                .setParentId("P5")
+                .setSubprojects(Arrays.asList(link7_6));
+        ProjectLink link5 = new ProjectLink("P5", "project5")
+                .setRelation(ProjectRelationship.CONTAINED)
+                .setSubprojects(Arrays.asList(link6, link7_5));
+
+        assertThat(linkedProjects, contains(link5));
+    }
+
 
 }
