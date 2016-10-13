@@ -9,12 +9,11 @@
 package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.ImmutableSet;
+import org.eclipse.sw360.datahandler.couchdb.CouchDbConnectorWithSecurity.CouchDbConnectorWithSecurity;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
-import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.apache.log4j.Logger;
 import org.ektorp.*;
 import org.ektorp.http.HttpClient;
-import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.util.Documents;
 
 import java.net.MalformedURLException;
@@ -26,7 +25,7 @@ import java.util.function.Supplier;
  *
  * @author cedric.bodet@tngtech.com
  */
-public class DatabaseConnector extends StdCouchDbConnector {
+public class DatabaseConnector extends CouchDbConnectorWithSecurity {
 
     private static final Logger log = Logger.getLogger(DatabaseConnector.class);
 
@@ -70,6 +69,7 @@ public class DatabaseConnector extends StdCouchDbConnector {
         this.dbName = dbName;
         // Create the database if it does not exists yet
         instance.createDatabase(dbName);
+        restrictAccessToAdmins();
     }
 
     /**
