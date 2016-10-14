@@ -213,7 +213,7 @@ public class LicensesPortlet extends Sw360Portlet {
 
         if (isAttemptToOverwriteExistingByNew){
             response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
-            setSessionMessage(request, "License shortname is already taken.");
+            setSW360SessionError(request, ErrorMessages.LICENSE_SHORTNAME_TAKEN);
             request.setAttribute(KEY_LICENSE_DETAIL, license);
         } else if (isNewLicense) {
             response.setRenderParameter(PAGENAME, PAGENAME_VIEW);
