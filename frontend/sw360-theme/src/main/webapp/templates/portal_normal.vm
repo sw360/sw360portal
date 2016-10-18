@@ -65,7 +65,7 @@ $theme.include($body_top_include)
 
 	<footer id="footer" role="contentinfo">
 		<p class="powered-by">
-			#language("SW360 |") <a href="http://www.github.com/sw360/sw360portal" rel="external"> &copy; Siemens AG 2013-2015, Bosch Software Innovations GmbH 2016 |</a>
+			#language("SW360 |") <a href="http://www.github.com/sw360/sw360portal" rel="external"> &copy; Siemens AG 2013-2016, Bosch Software Innovations GmbH 2016 |</a>
             <a href="https://github.com/sw360/sw360portal/issues" rel="external"> Report an issue. | </a>
             
 		</p>
