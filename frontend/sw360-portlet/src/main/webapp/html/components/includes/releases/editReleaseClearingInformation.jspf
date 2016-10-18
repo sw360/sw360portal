@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -8,118 +8,15 @@
 --%>
 
 
-<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
-<%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Repository" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingInformation" %>
 <%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
 
-<table class="table info_table" id="ReleaseClearingInformation" title="Release clearing information">
+<table class="table info_table" id="ReleaseClearingInformation" title="Release Clearing Information">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Clearing Details</th>
     </tr>
     </thead>
-    <tr>
-
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="AL">Ausfuhrliste</label>
-            <input id="AL"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.AL%>"
-                   type="text"
-                   placeholder="Enter AL"
-                   value="<sw360:out value="${release.clearingInformation.AL}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="ECCN">ECCN</label>
-            <input id="ECCN"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECCN%>"
-                   type="text"
-                   placeholder="Enter ECCN"
-                   value="<sw360:out value="${release.clearingInformation.ECCN}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="materialIndexNumber">Material Index Number</label>
-            <input id="materialIndexNumber"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.MATERIAL_INDEX_NUMBER%>"
-                   type="text"
-                   placeholder="Enter material index number"
-                   value="<sw360:out value="${release.clearingInformation.materialIndexNumber}"/>"/>
-        </td>
-    </tr>
-<tr>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="additionalRequestInfo">Additional request Info</label>
-            <input id="additionalRequestInfo"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ADDITIONAL_REQUEST_INFO%>"
-                   type="text"
-                   placeholder="Enter additional request Info"
-                   value="<sw360:out value="${release.clearingInformation.additionalRequestInfo}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="externalSupplierId">ExternalSupplierId</label>
-            <input id="externalSupplierId"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_SUPPLIER_ID%>"
-                   type="text"
-                   placeholder="Enter ExternalSupplierID"
-                   value="<sw360:out value="${release.clearingInformation.externalSupplierID}"/>"/>
-        </td>
-    <td></td>
-</tr>
-    <tr>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="ECCComment">ECC Comment</label>
-            <input id="ECCComment"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECC_COMMENT%>"
-                   type="text"
-                   placeholder="Enter ECC comment"
-                   value="<sw360:out value="${release.clearingInformation.eccComment}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="assessorContactPerson">Assessor contact person</label>
-            <input id="assessorContactPerson"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_CONTACT_PERSON%>"
-                   type="text"
-                   placeholder="Enter assessor contact person"
-                   value="<sw360:out value="${release.clearingInformation.assessorContactPerson}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="assessorDepartment">Assessor Department</label>
-            <input id="assessorDepartment"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_DEPARTMENT%>"
-                   type="text"
-                   placeholder="Enter assessor Department"
-                   value="<sw360:out value="${release.clearingInformation.assessorDepartment}"/>"/>
-        </td>
-    </tr>
-    <tr>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="evaluationDate">Evaluation Date</label>
-            <input id="evaluationDate"
-                   class="datepicker"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EVALUATED%>"
-                   type="text"
-                   placeholder="Evaluation Date YYYY-MM-DD"
-                   value="<sw360:out value="${release.clearingInformation.evaluated}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="procStart">Process start</label>
-            <input id="procStart"
-                   class="datepicker"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.PROC_START%>"
-                   type="text"
-                   placeholder="Process Start YYYY-MM-DD"
-                   value="<sw360:out value="${release.clearingInformation.procStart}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="requestID">Request ID</label>
-            <input id="requestID"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.REQUEST_ID%>"
-                   type="text"
-                   placeholder="Enter request ID"
-                   value="<sw360:out value="${release.clearingInformation.requestID}"/>"/>
-        </td>
-    </tr>
 
     <tr>
         <td width="33%">
@@ -271,12 +168,148 @@
 
     <tr>
         <td width="33%">
+            <label class="textlabel stackedLabel " for="externalUrl">External URL</label>
+            <input id="externalUrl"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_URL%>"
+                   type="text"
+                   placeholder="Enter URL"
+                   value="<sw360:out value="${release.clearingInformation.externalUrl}"/>"/>
+        </td>
+        <td width="33%">
             <label class="textlabel stackedLabel " for="comment">Comment</label>
             <input id="comment"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.COMMENT%>"
                    type="text"
                    placeholder="Enter your comments"
                    value="<sw360:out value="${release.clearingInformation.comment}"/>"/>
+        </td>
+        <td></td>
+    </tr>
+</table>
+<table class="table info_table" id="RequestInformation" title="Request Information">
+        <thead>
+        <tr>
+            <th colspan="3" class="headlabel">Request Information</th>
+        </tr>
+        </thead>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="requestID">Request ID</label>
+            <input id="requestID"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.REQUEST_ID%>"
+                   type="text"
+                   placeholder="Enter request ID"
+                   value="<sw360:out value="${release.clearingInformation.requestID}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="additionalRequestInfo">Additional request Info</label>
+            <input id="additionalRequestInfo"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ADDITIONAL_REQUEST_INFO%>"
+                   type="text"
+                   placeholder="Enter additional request Info"
+                   value="<sw360:out value="${release.clearingInformation.additionalRequestInfo}"/>"/>
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="evaluationStart">Evaluation Start</label>
+            <input id="evaluationStart"
+                   class="datepicker"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.PROC_START%>"
+                   type="text"
+                   placeholder="Process Start YYYY-MM-DD"
+                   value="<sw360:out value="${release.clearingInformation.procStart}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="evaluationEnd">Evaluation End</label>
+            <input id="evaluationEnd"
+                   class="datepicker"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EVALUATED%>"
+                   type="text"
+                   placeholder="Evaluation Date YYYY-MM-DD"
+                   value="<sw360:out value="${release.clearingInformation.evaluated}"/>"/>
+        </td>
+        <td></td>
+    </tr>
+</table>
+
+<table class="table info_table" id="ECCInformation" title="ECC Information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">ECC Information</th>
+    </tr>
+    </thead>
+    <tr>
+
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="AL">Ausfuhrliste</label>
+            <input id="AL"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.AL%>"
+                   type="text"
+                   placeholder="Enter AL"
+                   value="<sw360:out value="${release.clearingInformation.AL}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="ECCN">ECCN</label>
+            <input id="ECCN"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECCN%>"
+                   type="text"
+                   placeholder="Enter ECCN"
+                   value="<sw360:out value="${release.clearingInformation.ECCN}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="materialIndexNumber">Material Index Number</label>
+            <input id="materialIndexNumber"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.MATERIAL_INDEX_NUMBER%>"
+                   type="text"
+                   placeholder="Enter material index number"
+                   value="<sw360:out value="${release.clearingInformation.materialIndexNumber}"/>"/>
+        </td>
+    </tr>
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="assessorContactPerson">Assessor contact person</label>
+            <input id="assessorContactPerson"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_CONTACT_PERSON%>"
+                   type="text"
+                   placeholder="Enter assessor contact person"
+                   value="<sw360:out value="${release.clearingInformation.assessorContactPerson}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="assessorDepartment">Assessor Department</label>
+            <input id="assessorDepartment"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_DEPARTMENT%>"
+                   type="text"
+                   placeholder="Enter assessor Department"
+                   value="<sw360:out value="${release.clearingInformation.assessorDepartment}"/>"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="ECCComment">ECC Comment</label>
+            <input id="ECCComment"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECC_COMMENT%>"
+                   type="text"
+                   placeholder="Enter ECC comment"
+                   value="<sw360:out value="${release.clearingInformation.eccComment}"/>"/>
+        </td>
+    </tr>
+</table>
+<table class="table info_table" id="SupplementalInformation" title="Supplemental Information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">Supplemental Information</th>
+    </tr>
+    </thead>
+
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="externalSupplierId">ExternalSupplierId</label>
+            <input id="externalSupplierId"
+                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_SUPPLIER_ID%>"
+                   type="text"
+                   placeholder="Enter ExternalSupplierID"
+                   value="<sw360:out value="${release.clearingInformation.externalSupplierID}"/>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel " for="count_of_security">Count of Security Vulnerabilities</label>
@@ -286,14 +319,7 @@
                    placeholder="Enter Count of Security Vulnerabilities"
                    value="<sw360:out value="${release.clearingInformation.countOfSecurityVn}"/>"/>
         </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="externalUrl">External URL</label>
-            <input id="externalUrl"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_URL%>"
-                   type="text"
-                   placeholder="Enter URL"
-                   value="<sw360:out value="${release.clearingInformation.externalUrl}"/>"/>
-        </td>
+        <td></td>
     </tr>
 </table>
 
