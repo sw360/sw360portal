@@ -357,30 +357,37 @@ public class ComponentDatabaseHandlerTest {
 
         ReleaseLink releaseLinkR1B_R2B = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setParentId("R2B")
+                .setNodeId("R1B_2")
+                .setParentNodeId("R2B_2")
                 .setSubreleases(Collections.emptyList());
         ReleaseLink releaseLinkR2B_exp = new ReleaseLink("R2B", vendors.get(r2B.getVendorId()).getFullname(), componentMap.get(r2B.getComponentId()).getName(), r2B.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setParentId("R2A")
+                .setNodeId("R2B_2")
+                .setParentNodeId("R2A_2")
                 .setSubreleases(Arrays.asList(releaseLinkR1B_R2B));
         ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", vendors.get(r2B.getVendorId()).getFullname(), componentMap.get(r2B.getComponentId()).getName(), r2B.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setParentId("R2A")
+                .setNodeId("R2B_1")
+                .setParentNodeId("R2A_1")
                 .setSubreleases(Collections.emptyList());
         ReleaseLink releaseLinkR2A_R1B = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setParentId("R1B")
+                .setNodeId("R2A_1")
+                .setParentNodeId("R1B_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2B));
         ReleaseLink releaseLinkR2A_R1A = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setParentId("R1A")
+                .setNodeId("R2A_2")
+                .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2B_exp));
         ReleaseLink releaseLinkR1B_R1A = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setParentId("R1A")
+                .setNodeId("R1B_1")
+                .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
         ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
                 .setComment("Important linked release")
+                .setNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR1B_R1A, releaseLinkR2A_R1A));
 
         assertThat(linkedReleases, contains(releaseLinkR1A));
@@ -409,12 +416,7 @@ public class ComponentDatabaseHandlerTest {
         // we wrap the potentially infinite loop in an executor
         final ExecutorService service = Executors.newSingleThreadExecutor();
 
-        final Future<List<ReleaseLink>> completionFuture = service.submit(new Callable<List<ReleaseLink>>() {
-            @Override
-            public List<ReleaseLink> call() throws Exception {
-                return handler.getLinkedReleases(relations);
-            }
-        });
+        final Future<List<ReleaseLink>> completionFuture = service.submit(() -> handler.getLinkedReleases(relations));
 
         service.shutdown();
         service.awaitTermination(10, TimeUnit.SECONDS);
@@ -423,16 +425,20 @@ public class ComponentDatabaseHandlerTest {
 
         ReleaseLink releaseLinkR2A_R1A = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setParentId("R1A");
+                .setNodeId("R2A_2")
+                .setParentNodeId("R1A_1");
         ReleaseLink releaseLinkR2A_R1B = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setParentId("R1B");
+                .setNodeId("R2A_1")
+                .setParentNodeId("R1B_1");
         ReleaseLink releaseLinkR1B = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setParentId("R1A")
+                .setNodeId("R1B_1")
+                .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
         ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
                 .setComment("Important linked release")
+                .setNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR1B, releaseLinkR2A_R1A));
 
         assertThat(linkedReleases, contains(releaseLinkR1A));

@@ -107,7 +107,9 @@ struct ProjectLink {
     2: required string name,
     3: optional ProjectRelationship relation,
     4: optional string version,
-    5: optional string parentId,
+//    5: optional string parentId,
+    6: optional string nodeId,
+    7: optional string parentNodeId,
     10: optional list<ReleaseLink> linkedReleases,
     11: optional list<ProjectLink> subprojects,
 }

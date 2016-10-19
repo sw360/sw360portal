@@ -235,7 +235,7 @@ public class ProjectDatabaseHandler {
         final Map<String, Release> releaseMap = componentDatabaseHandler.getAllReleasesIdMap();
 
 
-        Stack<String> visitedIds = new Stack<>();
+        CountingStack<String> visitedIds = new CountingStack<>();
 
         out = iterateProjectRelationShips(relations, null, visitedIds, projectMap, releaseMap);
 
@@ -243,7 +243,7 @@ public class ProjectDatabaseHandler {
     }
 
 
-    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, String parentId, Stack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
+    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, String parentId, CountingStack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
         List<ProjectLink> out = new ArrayList<>();
         for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
             Optional<ProjectLink> projectLinkOptional = createProjectLink(entry.getKey(), entry.getValue(), parentId, visitedIds, projectMap, releaseMap);
@@ -254,7 +254,7 @@ public class ProjectDatabaseHandler {
         return out;
     }
 
-    private Optional<ProjectLink> createProjectLink(String id, ProjectRelationship relationship, String parentId, Stack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
+    private Optional<ProjectLink> createProjectLink(String id, ProjectRelationship relationship, String parentId, CountingStack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
         ProjectLink projectLink = null;
         if (!visitedIds.contains(id)) {
             visitedIds.push(id);
@@ -266,7 +266,8 @@ public class ProjectDatabaseHandler {
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
 
-                projectLink.setParentId(parentId);
+                projectLink.setNodeId(generateNodeId(id, visitedIds));
+                projectLink.setParentNodeId(generateNodeId(parentId, visitedIds));
                 projectLink.setRelation(relationship);
                 projectLink.setVersion(project.getVersion());
                 if (project.isSetLinkedProjects()) {
@@ -279,6 +280,10 @@ public class ProjectDatabaseHandler {
             visitedIds.pop();
         }
         return Optional.ofNullable(projectLink);
+    }
+
+    private String generateNodeId(String id, CountingStack<String> visitedIds) {
+        return id == null ? null : id + "_" + visitedIds.getCount(id);
     }
 
     public Set<Project> searchByReleaseId(String id, User user) {

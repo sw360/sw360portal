@@ -132,27 +132,31 @@ public class ProjectDatabaseHandlerTest {
 
         final List<ProjectLink> linkedProjects = completionFuture.get();
 
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA").setComment("used");
-        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB").setComment("abused");
-        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA").setComment("used");
-        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB").setComment("considered for use");
+        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA").setComment("used").setNodeId("R1A_1");
+        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB").setComment("abused").setNodeId("R1B_1");
+        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA").setComment("used").setNodeId("R2A_1");
+        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB").setComment("considered for use").setNodeId("R2B_1");
 
         ProjectLink link3 = new ProjectLink("P3", "project3")
                 .setRelation(ProjectRelationship.REFERRED)
-                .setParentId("P2")
+                .setNodeId("P3_1")
+                .setParentNodeId("P2_1")
                 .setLinkedReleases(Arrays.asList(releaseLinkR2A, releaseLinkR2B))
                 .setSubprojects(Collections.emptyList());
         ProjectLink link4 = new ProjectLink("P4", "project4")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setParentId("P2")
+                .setNodeId("P4_1")
+                .setParentNodeId("P2_1")
                 .setSubprojects(Collections.emptyList());
         ProjectLink link2 = new ProjectLink("P2", "project2")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setParentId("P1")
+                .setNodeId("P2_1")
+                .setParentNodeId("P1_1")
                 .setLinkedReleases(Arrays.asList(releaseLinkR1A, releaseLinkR1B))
                 .setSubprojects(Arrays.asList(link3, link4));
         ProjectLink link1 = new ProjectLink("P1", "project1")
                 .setRelation(ProjectRelationship.UNKNOWN)
+                .setNodeId("P1_1")
                 .setSubprojects(Arrays.asList(link2));
 
         assertThat(linkedProjects, contains(link1));
@@ -173,18 +177,21 @@ public class ProjectDatabaseHandlerTest {
 
         ProjectLink link7_5 = new ProjectLink("P7", "project7")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setParentId("P5");
-//                .setSubprojects(Collections.emptyList());
+                .setNodeId("P7_2")
+                .setParentNodeId("P5_1");
         ProjectLink link7_6 = new ProjectLink("P7", "project7")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setParentId("P6");
-//                .setSubprojects(Collections.emptyList());
+                .setNodeId("P7_1")
+                .setParentNodeId("P6_1");
+
         ProjectLink link6 = new ProjectLink("P6", "project6")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setParentId("P5")
+                .setNodeId("P6_1")
+                .setParentNodeId("P5_1")
                 .setSubprojects(Arrays.asList(link7_6));
         ProjectLink link5 = new ProjectLink("P5", "project5")
                 .setRelation(ProjectRelationship.CONTAINED)
+                .setNodeId("P5_1")
                 .setSubprojects(Arrays.asList(link6, link7_5));
 
         assertThat(linkedProjects, contains(link5));
