@@ -227,7 +227,6 @@ public class ThriftValidate {
 
     public static void prepareProject(Project project) throws SW360Exception {
         assertNotEmpty(project.getName());
-
         project.setType(TYPE_PROJECT);
 
         // Unset temporary fields

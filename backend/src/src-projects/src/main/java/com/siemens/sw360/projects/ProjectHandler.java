@@ -10,6 +10,9 @@ package com.siemens.sw360.projects;
 
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
+import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
+import com.siemens.sw360.datahandler.db.ProjectSearchHandler;
+import com.siemens.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.projects.Project;
@@ -17,8 +20,6 @@ import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
 import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
 import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectSearchHandler;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
@@ -143,7 +144,7 @@ public class ProjectHandler implements ProjectService.Iface {
     ////////////////////////////
 
     @Override
-    public String addProject(Project project, User user) throws TException {
+    public AddDocumentRequestSummary addProject(Project project, User user) throws TException {
         assertNotNull(project);
         assertIdUnset(project.getId());
         assertUser(user);

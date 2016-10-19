@@ -23,10 +23,7 @@ import com.siemens.sw360.datahandler.common.SW360Constants;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
 import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.DocumentState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.Visibility;
+import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.ComponentService;
 import com.siemens.sw360.datahandler.thrift.components.Release;
@@ -665,20 +662,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             addEditDocumentMessage(request, permissions, documentState);
         } else {
-            project = new Project();
-            project.setBusinessUnit(user.getDepartment());
-            project.setVisbility(getDefaultVisibility());
-            request.setAttribute(PROJECT, project);
-            setAttachmentsInRequest(request, project.getAttachments());
-            try {
-                putLinkedProjectsInRequest(request, Collections.emptyMap());
-                putLinkedReleasesInRequest(request, Collections.emptyMap());
-            } catch (TException e) {
-                log.error("Could not put empty linked projects or linked releases in projects view.", e);
-            }
-            request.setAttribute(USING_PROJECTS, Collections.emptySet());
+            if(request.getAttribute(PROJECT) == null) {
+                project = new Project();
+                project.setBusinessUnit(user.getDepartment());
+                project.setVisbility(getDefaultVisibility());
+                request.setAttribute(PROJECT, project);
+                setAttachmentsInRequest(request, project.getAttachments());
+                try {
+                    putLinkedProjectsInRequest(request, Collections.emptyMap());
+                    putLinkedReleasesInRequest(request, Collections.emptyMap());
+                } catch(TException e) {
+                    log.error("Could not put empty linked projects or linked releases in projects view.", e);
+                }
+                request.setAttribute(USING_PROJECTS, Collections.emptySet());
 
-            SessionMessages.add(request, "request_processed", "New Project");
+                SessionMessages.add(request, "request_processed", "New Project");
+            }
         }
 
     }
@@ -760,22 +759,40 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 // Add project
                 Project project = new Project();
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
-                id = client.addProject(project, user);
+                AddDocumentRequestSummary summary = client.addProject(project, user);
 
-                if (id != null) {
-                    String successMsg = "Project " + printName(project) + " added successfully";
-                    SessionMessages.add(request, "request_processed", successMsg);
-                    response.setRenderParameter(PROJECT_ID, id);
-                } else {
-                    setSW360SessionError(request, ErrorMessages.PROJECT_NOT_ADDED);
+                AddDocumentRequestStatus status = summary.getRequestStatus();
+                switch(status) {
+                    case SUCCESS:
+                        String successMsg = "Project " + printName(project) + " added successfully";
+                        SessionMessages.add(request, "request_processed", successMsg);
+                        response.setRenderParameter(PROJECT_ID, summary.getId());
+                        response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
+                        break;
+                    case DUPLICATE:
+                        setSW360SessionError(request, ErrorMessages.PROJECT_DUPLICATE);
+                        response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
+                        prepareRequestForEditAfterDuplicateError(request, project);
+                        break;
+                    default:
+                        setSW360SessionError(request, ErrorMessages.PROJECT_NOT_ADDED);
+                        response.setRenderParameter(PAGENAME, PAGENAME_VIEW);
                 }
-                response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
+
             }
 
         } catch (TException e) {
             log.error("Error updating project in backend!", e);
             setSW360SessionError(request, ErrorMessages.DEFAULT_ERROR_MESSAGE);
         }
+    }
+
+    private void prepareRequestForEditAfterDuplicateError(ActionRequest request, Project project) throws TException {
+        request.setAttribute(PROJECT, project);
+        setAttachmentsInRequest(request, project.getAttachments());
+        request.setAttribute(USING_PROJECTS, Collections.emptySet());
+        putDirectlyLinkedProjectsInRequest(request, project.getLinkedProjects());
+        putDirectlyLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
     }
 
     @UsedAsLiferayAction

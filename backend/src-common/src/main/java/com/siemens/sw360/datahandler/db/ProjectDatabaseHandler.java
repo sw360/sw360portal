@@ -125,9 +125,13 @@ public class ProjectDatabaseHandler {
     // ADD INDIVIDUAL OBJECTS //
     ////////////////////////////
 
-    public String addProject(Project project, User user) throws SW360Exception {
+    public AddDocumentRequestSummary addProject(Project project, User user) throws SW360Exception {
         // Prepare project for database
         prepareProject(project);
+        if(isDuplicate(project)) {
+            return new AddDocumentRequestSummary()
+                    .setRequestStatus(AddDocumentRequestStatus.DUPLICATE);
+        }
 
         // Save creating user
         project.createdBy = user.getEmail();
@@ -137,9 +141,13 @@ public class ProjectDatabaseHandler {
         // Add project to database and return ID
         repository.add(project);
 
-        return project.getId();
+        return new AddDocumentRequestSummary().setId(project.getId()).setRequestStatus(AddDocumentRequestStatus.SUCCESS);
     }
 
+    private boolean isDuplicate(Project project){
+        List<Project> duplicates = repository.searchByNameAndVersion(project.getName(), project.getVersion());
+        return duplicates.size()>0;
+    }
     ///////////////////////////////
     // UPDATE INDIVIDUAL OBJECTS //
     ///////////////////////////////

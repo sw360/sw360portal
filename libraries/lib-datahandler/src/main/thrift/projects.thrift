@@ -25,6 +25,7 @@ typedef users.User User
 typedef users.RequestedAction RequestedAction
 typedef attachments.Attachment Attachment
 typedef components.ReleaseLink ReleaseLink
+typedef sw360.AddDocumentRequestSummary AddDocumentRequestSummary
 
 enum ProjectState {
     ACTIVE = 0,
@@ -165,7 +166,7 @@ service ProjectService {
      * add a project as a user to the db and get the id back
      * (part of project CRUD support)
      */
-    string addProject(1: Project project, 2: User user);
+    AddDocumentRequestSummary addProject(1: Project project, 2: User user);
 
     /**
      * get a project by id, if it is visible for the user

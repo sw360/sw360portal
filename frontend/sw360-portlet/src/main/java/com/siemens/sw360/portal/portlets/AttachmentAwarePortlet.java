@@ -53,7 +53,8 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         uploadHistoryPerUserEmailAndDocumentId = new HashMap<>();
     }
 
-    public static void setAttachmentsInRequest(RenderRequest request, Set<Attachment> attachments) {
+
+    public static void setAttachmentsInRequest(PortletRequest request, Set<Attachment> attachments) {
         request.setAttribute(ATTACHMENTS, CommonUtils.nullToEmptySet(attachments));
     }
 

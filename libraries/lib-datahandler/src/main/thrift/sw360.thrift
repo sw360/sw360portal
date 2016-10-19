@@ -24,6 +24,12 @@ enum RemoveModeratorRequestStatus {
     FAILURE = 2,
 }
 
+enum AddDocumentRequestStatus {
+    SUCCESS = 0,
+    DUPLICATE = 1,
+    FAILURE = 2
+}
+
 exception SW360Exception {
     1: required string why,
 }
@@ -65,6 +71,11 @@ struct RequestSummary {
   2: optional i32 totalAffectedElements;
   3: optional i32 totalElements;
   4: optional string message;
+}
+
+struct AddDocumentRequestSummary {
+    1: optional AddDocumentRequestStatus requestStatus;
+    2: optional string id;
 }
 
 struct CustomProperties {

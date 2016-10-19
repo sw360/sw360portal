@@ -81,7 +81,6 @@
     </div>
 
     <div id="editField" class="content2">
-
         <form  id="projectEditForm" name="projectEditForm" action="<%=updateURL%>" method="post" >
             <%@include file="/html/projects/includes/projects/basicInfo.jspf" %>
             <%@include file="/html/projects/includes/linkedProjectsEdit.jspf" %>

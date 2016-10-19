@@ -16,12 +16,14 @@ import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
 import com.siemens.sw360.datahandler.couchdb.SummaryAwareRepository;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.users.User;
-
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * CRUD access for the Release class
@@ -97,6 +99,14 @@ public class ReleaseRepository extends SummaryAwareRepository<Release> {
     @View(name = "byname", map = BY_NAME_VIEW)
     public List<Release> searchByName(String name) {
         return makeSummary(SummaryType.SHORT, queryForIdsByPrefix("byname", name));
+    }
+
+    public List<Release> searchByNameAndVersion(String name, String version){
+        List<Release> releasesMatchingName = searchByName(name);
+        List<Release> releasesMatchingNameAndVersion = releasesMatchingName.stream()
+                .filter(r -> isNullOrEmpty(version) ? isNullOrEmpty(r.getVersion()) : version.equals(r.getVersion()))
+                .collect(Collectors.toList());
+        return releasesMatchingNameAndVersion;
     }
 
     public List<Release> getReleaseSummary() {

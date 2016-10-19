@@ -11,6 +11,8 @@ package com.bosch.osmi.sw360.bdp.datasink.thrift;
 
 import com.bosch.osmi.sw360.bdp.entitytranslation.TranslationConstants;
 import com.siemens.sw360.datahandler.common.CommonUtils;
+import com.siemens.sw360.datahandler.thrift.AddDocumentRequestStatus;
+import com.siemens.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import com.siemens.sw360.datahandler.thrift.components.Component;
 import com.siemens.sw360.datahandler.thrift.components.Release;
 import com.siemens.sw360.datahandler.thrift.licenses.License;
@@ -20,13 +22,17 @@ import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static com.siemens.sw360.datahandler.thrift.AddDocumentRequestStatus.DUPLICATE;
+import static com.siemens.sw360.datahandler.thrift.AddDocumentRequestStatus.SUCCESS;
 
 public class ThriftExchange {
 
@@ -204,11 +210,24 @@ public class ThriftExchange {
     public String addComponent(Component component, User user) {
         String componentId = null;
         try {
-            componentId = getComponentClient().addComponent(component, user);
+            AddDocumentRequestSummary summary = getComponentClient().addComponent(component, user);
+            if(SUCCESS.equals(summary.getRequestStatus())) {
+                componentId = summary.getId();
+            } else {
+                logFailedAddDocument(summary.getRequestStatus(), "component");
+            }
         } catch (TException e) {
             logger.error("Could not add Component for user with email=[" + user.getEmail() + "]:" + e);
         }
         return componentId;
+    }
+
+    private void logFailedAddDocument(AddDocumentRequestStatus status, String documentTypeString){
+        if(DUPLICATE.equals(status)){
+            logger.error("Could not add duplicate "+ documentTypeString + ".");
+        } else {
+            logger.error("Adding the " + documentTypeString + "failed.");
+        }
     }
 
     /**
@@ -221,7 +240,12 @@ public class ThriftExchange {
     public String addRelease(Release release, User user) {
         String releaseId = null;
         try {
-            releaseId = getComponentClient().addRelease(release, user);
+            AddDocumentRequestSummary summary = getComponentClient().addRelease(release, user);
+            if(SUCCESS.equals(summary.getRequestStatus())) {
+                releaseId = summary.getId();
+            } else {
+                logFailedAddDocument(summary.getRequestStatus(), "release");
+            }
         } catch (TException e) {
             logger.error("Could not add Release for user with email=[" + user.getEmail() + "]:" + e);
         }
@@ -231,7 +255,12 @@ public class ThriftExchange {
     public String addProject(Project project, User user) {
         String projectId = null;
         try {
-            projectId = thriftApi.getProjectClient().addProject(project, user);
+            AddDocumentRequestSummary summary = thriftApi.getProjectClient().addProject(project, user);
+            if(SUCCESS.equals(summary.getRequestStatus())) {
+                projectId = summary.getId();
+            } else {
+                logFailedAddDocument(summary.getRequestStatus(), "project");
+            }
         } catch (TException e) {
             logger.error("Could not add Project for user with email=[" + user.getEmail() + "]:" + e);
         }

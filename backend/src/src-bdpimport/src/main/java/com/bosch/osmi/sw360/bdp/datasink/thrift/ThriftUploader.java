@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 // TODO: this contains logic and knowledge of the inner relations => move them to entitytranslation?
 public class ThriftUploader {
 
@@ -82,8 +84,8 @@ public class ThriftUploader {
     protected String getOrCreateComponent(com.bosch.osmi.bdp.access.api.model.Component componentBdp, User user) {
         logger.info("Try to import bdp Component: " + componentBdp.getName());
 
-        Optional<String> potentialReleaseId = searchExistingEntityId(thriftExchange.searchReleaseByNameAndVersion(componentBdp.getName(),
-                componentBdp.getComponentVersion()),
+        String componentVersion = isNullOrEmpty(componentBdp.getComponentVersion()) ? BdpComponentToSw360ReleaseTranslator.unknownVersionString : componentBdp.getComponentVersion();
+        Optional<String> potentialReleaseId = searchExistingEntityId(thriftExchange.searchReleaseByNameAndVersion(componentBdp.getName(), componentVersion),
                 Release::getId,
                 "Component",
                 "Release");
@@ -120,12 +122,13 @@ public class ThriftUploader {
 
         Set<String> releaseIds = componentsBdp.stream()
                 .map(c -> getOrCreateComponent(c, user))
+                .filter(id -> id != null)
                 .collect(Collectors.toSet());
 
         if (releaseIds.size() != componentsBdp.size()) {
             logger.warn("expected to get " + componentsBdp.size() + " different ids of releases but got " + releaseIds.size());
         } else {
-            logger.info("The expected number of releases was imported.");
+            logger.info("The expected number of releases was imported or already found in database.");
         }
 
         return releaseIds;
