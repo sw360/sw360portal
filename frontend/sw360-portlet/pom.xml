@@ -37,7 +37,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
+                    <autoDeployDir>${deploy.dir}</autoDeployDir>
                     <appServerDeployDir>${liferay.app.server.deploy.dir}</appServerDeployDir>
                     <appServerLibGlobalDir>${liferay.app.server.lib.global.dir}</appServerLibGlobalDir>
                     <appServerPortalDir>${liferay.app.server.portal.dir}</appServerPortalDir>
@@ -158,7 +158,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
+                            <autoDeployDir>${deploy.dir}</autoDeployDir>
                             <appServerDeployDir>${liferay.app.server.deploy.dir}</appServerDeployDir>
                             <appServerLibGlobalDir>${liferay.app.server.lib.global.dir}</appServerLibGlobalDir>
                             <appServerPortalDir>${liferay.app.server.portal.dir}</appServerPortalDir>

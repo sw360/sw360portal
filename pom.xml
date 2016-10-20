@@ -53,9 +53,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!--  User should provide below property configuration based on his/her liferay deployment environment -->
-        <liferay.auto.deploy.dir>
+        <deploy.dir>
             ${env.LIFERAY_PATH}/deploy
-        </liferay.auto.deploy.dir>
+        </deploy.dir>
         <liferay.maven.plugin.version>${liferay.version}</liferay.maven.plugin.version>
 
         <!-- some mem optimization here -->

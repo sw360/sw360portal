@@ -42,11 +42,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -73,6 +68,22 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+      <profile>
+        <id>deploy</id>
+        <build>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-war-plugin</artifactId>
+              <configuration>
+                <outputDirectory>${deploy.dir}</outputDirectory>
+              </configuration>
+            </plugin>
+          </plugins>
+        </build>
+      </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -81,5 +92,4 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
 </project>
