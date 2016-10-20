@@ -37,9 +37,9 @@
     </thead>
     <tbody>
     <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
-        <tr id="releaseLinkRow${loop.count}" data-tt-id="${releaseLink.id}"
+        <tr id="releaseLinkRow${loop.count}" data-tt-id="${releaseLink.nodeId}"
             <core_rt:if
-                    test="${not empty releaseLink.parentId}">data-tt-parent-id="${releaseLink.parentId}"</core_rt:if>
+                    test="${not empty releaseLink.parentNodeId}">data-tt-parent-id="${releaseLink.parentNodeId}"</core_rt:if>
         >
             <td>
                 <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">

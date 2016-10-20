@@ -12,7 +12,6 @@ package com.siemens.sw360.datahandler.db;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
 import com.siemens.sw360.datahandler.common.CommonUtils;
 import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
@@ -608,7 +607,7 @@ public class ComponentDatabaseHandler {
     public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap) {
         List<ReleaseLink> out;
 
-        Stack<String> visitedIds = new Stack<>();
+        CountingStack<String> visitedIds = new CountingStack<>();
 
         out = iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
 
@@ -628,7 +627,7 @@ public class ComponentDatabaseHandler {
     }
 
     @NotNull
-    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, String parentId, Stack<String> visitedIds, Map<String, Release> releaseMap) {
+    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, String parentId, CountingStack<String> visitedIds, Map<String, Release> releaseMap) {
         List<ReleaseLink> out = new ArrayList<>();
 
         for (Map.Entry<String, ?> entry : relations.entrySet()) {
@@ -641,7 +640,7 @@ public class ComponentDatabaseHandler {
         return out;
     }
 
-    private Optional<ReleaseLink> createReleaseLink(String id, Object relation, String parentId, Stack<String> visitedIds, Map<String, Release> releaseMap) {
+    private Optional<ReleaseLink> createReleaseLink(String id, Object relation, String parentId, CountingStack<String> visitedIds, Map<String, Release> releaseMap) {
         ReleaseLink releaseLink = null;
         if (!visitedIds.contains(id)) {
             visitedIds.push(id);
@@ -649,7 +648,8 @@ public class ComponentDatabaseHandler {
             if (release != null) {
                 releaseLink = getReleaseLink(release);
                 fillValueFieldInReleaseLink(releaseLink, relation);
-                releaseLink.setParentId(parentId);
+                releaseLink.setNodeId(generateNodeId(id, visitedIds));
+                releaseLink.setParentNodeId(generateNodeId(parentId, visitedIds));
                 if (release.isSetMainLicenseIds()) {
                     releaseLink.setLicenseIds(release.getMainLicenseIds());
                 }
@@ -687,6 +687,10 @@ public class ComponentDatabaseHandler {
         ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
         releaseLink.setClearingState(release.getClearingState());
         return releaseLink;
+    }
+
+    private String generateNodeId(String id, CountingStack<String> visitedIds) {
+        return id == null ? null : id + "_" + visitedIds.getCount(id);
     }
 
     public List<Release> searchReleaseByName(String name) {
