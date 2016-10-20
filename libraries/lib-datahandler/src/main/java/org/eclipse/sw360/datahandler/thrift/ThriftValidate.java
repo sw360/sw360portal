@@ -10,7 +10,6 @@ package org.eclipse.sw360.datahandler.thrift;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
@@ -229,9 +228,6 @@ public class ThriftValidate {
     public static void prepareProject(Project project) throws SW360Exception {
         assertNotEmpty(project.getName());
         project.setType(TYPE_PROJECT);
-        if(!project.isSetClearingTeam()){
-            project.setClearingTeam(SW360Constants.CLEARING_TEAM_UNKNOWN);
-        }
 
         // Unset temporary fields
         project.unsetPermissions();

@@ -27,6 +27,8 @@ typedef attachments.Attachment Attachment
 typedef components.ReleaseLink ReleaseLink
 typedef sw360.AddDocumentRequestSummary AddDocumentRequestSummary
 
+const string CLEARING_TEAM_UNKNOWN = "Unknown"
+
 enum ProjectState {
     ACTIVE = 0,
     PHASE_OUT = 1,
@@ -89,7 +91,7 @@ struct Project {
     31: optional map<string, string> releaseIdToUsage,    //id, comment
 
     // Admin data
-    40: optional string clearingTeam,
+    40: optional string clearingTeam = CLEARING_TEAM_UNKNOWN,
     41: optional string preevaluationDeadline,
     42: optional string systemTestStart,
     43: optional string systemTestEnd,

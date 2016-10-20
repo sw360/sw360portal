@@ -47,7 +47,6 @@ public class SW360Constants {
     public static final String TYPE_ATTACHMENT = "attachment";
     public static final String TYPE_PROJECT = "project";
     public static final String TYPE_MODERATION = "moderation";
-    public static final String CLEARING_TEAM_UNKNOWN = "unknown";
 
     /**
      * Hashmap containing the name field for each type.
