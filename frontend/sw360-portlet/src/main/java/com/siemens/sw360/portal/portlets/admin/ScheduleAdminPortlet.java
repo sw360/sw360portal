@@ -9,10 +9,11 @@
  */
 package com.siemens.sw360.portal.portlets.admin;
 
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
+import com.siemens.sw360.datahandler.common.CommonUtils;
+import com.siemens.sw360.datahandler.thrift.*;
+import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
 import com.siemens.sw360.datahandler.thrift.users.User;
+import com.siemens.sw360.portal.common.PortalConstants;
 import com.siemens.sw360.portal.common.UsedAsLiferayAction;
 import com.siemens.sw360.portal.portlets.Sw360Portlet;
 import com.siemens.sw360.portal.users.UserCacheHolder;
@@ -29,7 +30,47 @@ public class ScheduleAdminPortlet extends Sw360Portlet {
 
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        prepareStandardView(request, response);
         super.doView(request, response);
+    }
+
+    private void prepareStandardView(RenderRequest request, RenderResponse response) {
+        try {
+            User user = UserCacheHolder.getUserFromRequest(request);
+            ScheduleService.Iface scheduleClient = new ThriftClients().makeScheduleClient();
+
+            boolean isCveSearchScheduled = isCveSearchScheduled(scheduleClient, user);
+            request.setAttribute(PortalConstants.CVESEARCH_IS_SCHEDULED, isCveSearchScheduled);
+            boolean isAnyServiceScheduled = isAnyServiceScheduled(scheduleClient, user);
+            request.setAttribute(PortalConstants.ANY_SERVICE_IS_SCHEDULED, isAnyServiceScheduled);
+            int offsetInSeconds = scheduleClient.getFirstRunOffset(ThriftClients.CVESEARCH_SERVICE);
+            request.setAttribute(PortalConstants.CVESEARCH_OFFSET, CommonUtils.formatTime(offsetInSeconds));
+            int intervalInSeconds = scheduleClient.getInterval(ThriftClients.CVESEARCH_SERVICE);
+            request.setAttribute(PortalConstants.CVESEARCH_INTERVAL, CommonUtils.formatTime(intervalInSeconds));
+            String nextSync = scheduleClient.getNextSync(ThriftClients.CVESEARCH_SERVICE);
+            request.setAttribute(PortalConstants.CVESEARCH_NEXT_SYNC, nextSync);
+        } catch (TException te) {
+            log.error(te.getMessage());
+        }
+
+    }
+
+    private boolean isCveSearchScheduled(ScheduleService.Iface scheduleClient, User user) throws TException{
+            RequestStatusWithBoolean requestStatus = scheduleClient.isServiceScheduled(ThriftClients.CVESEARCH_SERVICE, user);
+            if(RequestStatus.SUCCESS.equals(requestStatus.getRequestStatus())){
+                return requestStatus.isAnswerPositive();
+            } else {
+                throw new SW360Exception("Backend query for schedule status of cvesearch failed.");
+            }
+    }
+
+    private boolean isAnyServiceScheduled(ScheduleService.Iface scheduleClient, User user) throws TException{
+        RequestStatusWithBoolean requestStatus = scheduleClient.isAnyServiceScheduled(user);
+        if(RequestStatus.SUCCESS.equals(requestStatus.getRequestStatus())){
+            return requestStatus.isAnswerPositive();
+        } else {
+            throw new SW360Exception("Backend query for schedule status of services failed.");
+        }
     }
 
     @UsedAsLiferayAction
@@ -37,9 +78,9 @@ public class ScheduleAdminPortlet extends Sw360Portlet {
         try {
             User user = UserCacheHolder.getUserFromRequest(request);
             RequestSummary requestSummary =
-                    new ThriftClients().makeScheduleClient().scheduleService(ThriftClients.CVESEARCH_SERVICE, user);
+                    new ThriftClients().makeScheduleClient().scheduleService(ThriftClients.CVESEARCH_SERVICE);
             setSessionMessage(request, requestSummary.getRequestStatus(), "Task", "schedule");
-        } catch (TException e){
+        } catch (TException e) {
             log.error(e);
         }
     }
@@ -51,7 +92,7 @@ public class ScheduleAdminPortlet extends Sw360Portlet {
             RequestStatus requestStatus =
                     new ThriftClients().makeScheduleClient().unscheduleService(ThriftClients.CVESEARCH_SERVICE, user);
             setSessionMessage(request, requestStatus, "Task", "unschedule");
-        } catch (TException e){
+        } catch (TException e) {
             log.error(e);
         }
     }
@@ -63,7 +104,7 @@ public class ScheduleAdminPortlet extends Sw360Portlet {
             RequestStatus requestStatus =
                     new ThriftClients().makeScheduleClient().unscheduleAllServices(user);
             setSessionMessage(request, requestStatus, "Every task", "unschedule");
-        } catch (TException e){
+        } catch (TException e) {
             log.error(e);
         }
     }

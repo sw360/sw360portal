@@ -131,7 +131,7 @@
 	background-color:#666666;
 }
 
-.addButton, .cancelButton, .acceptButton, .ignoreButton, .postponeButton {
+.addButton, .cancelButton, .acceptButton, .ignoreButton, .postponeButton, .notApplicableButton {
 	color: white;
     border: none;
     height: 25px;
@@ -161,27 +161,31 @@
     background-color: #767676;
 }
 
-.acceptButton{
+.acceptButton {
 	 background-color: #41e958;
  }
 
-.acceptButton:hover{
+.acceptButton:hover {
 	background-color: #1a875e;
 }
 
-.ignoreButton{
+.ignoreButton {
 	background-color: #ad1ae9;
 }
 
-.ignoreButton:hover{
+.ignoreButton:hover {
 	background-color: #4b2e88;
 }
 
-
-.postponeButton{
+.postponeButton {
 	background-color: #6860e9;
 }
 
-.postponeButton:hover{
+.postponeButton:hover {
 	background-color: #1a1ce9;
 }
+
+.notApplicableButton {
+	background-color: #bbbbbb;
+}
+

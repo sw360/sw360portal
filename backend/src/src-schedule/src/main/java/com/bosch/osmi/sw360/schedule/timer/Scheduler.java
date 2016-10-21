@@ -14,10 +14,7 @@ import com.siemens.sw360.datahandler.common.SW360Utils;
 import com.siemens.sw360.datahandler.thrift.RequestStatus;
 import org.apache.log4j.Logger;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -34,11 +31,9 @@ public class Scheduler {
     private static final ConcurrentHashMap<String, SW360Task> scheduledJobs = new ConcurrentHashMap<>();
 
     private static Timer timer = null;
-    private static final int syncFirstRunOffset = Integer.parseInt(ScheduleConstants.SYNC_FIRST_RUN_OFFSET_SEC);
-    private static final int syncInterval = Integer.parseInt(ScheduleConstants.SYNC_INTERVAL_SEC);
 
     private Scheduler() {
-        //only static member
+        //only static members
     }
 
     public static Date getNextSync() {
@@ -50,7 +45,9 @@ public class Scheduler {
             timer = new Timer();
         }
         ScheduleSyncTask syncTask = new ScheduleSyncTask(body, serviceName);
-        nextSync = getNextSyncDate(syncFirstRunOffset, syncInterval);
+        Integer firstRunOffset = ScheduleConstants.SYNC_FIRST_RUN_OFFSET_SEC.get(serviceName);
+        Integer syncInterval = ScheduleConstants.SYNC_INTERVAL_SEC.get(serviceName);
+        nextSync = getNextSyncDate(firstRunOffset, syncInterval);
 
         try {
             timer.scheduleAtFixedRate(syncTask, nextSync, syncInterval * 1000);
@@ -75,11 +72,22 @@ public class Scheduler {
         calendar.add(GregorianCalendar.SECOND, firstRunOffset);//today with offset time as specified
 
         // if firstRunOffset is in the past compute next run
-        if(calendar.getTime().getTime() < now) {
-            long timeLeftToNextRunInMilliSeconds = interval*1000 - ((now-calendar.getTime().getTime()) % (interval*1000));
+        if (calendar.getTime().getTime() < now) {
+            long timeLeftToNextRunInMilliSeconds = interval * 1000 - ((now - calendar.getTime().getTime()) % (interval * 1000));
             calendar.setTimeInMillis(now + timeLeftToNextRunInMilliSeconds);
-        };
+        }
+        ;
         return calendar.getTime();
+    }
+
+    public static Optional<Date> getNextSync(String serviceName) {
+
+        if (ScheduleConstants.invalidConfiguredServices.contains(serviceName)) {
+            return Optional.empty();
+        }
+        return Optional.of(getNextSyncDate(
+                ScheduleConstants.SYNC_FIRST_RUN_OFFSET_SEC.get(serviceName),
+                ScheduleConstants.SYNC_INTERVAL_SEC.get(serviceName)));
     }
 
     public static synchronized RequestStatus cancelAllSyncJobs() {
@@ -95,9 +103,9 @@ public class Scheduler {
                 .reduce(RequestStatus.SUCCESS, CommonUtils::reduceRequestStatus);
     }
 
-    private static synchronized RequestStatus cancelJob(SW360Task job){
+    private static synchronized RequestStatus cancelJob(SW360Task job) {
         long executionTime = job.scheduledExecutionTime();
-        try{
+        try {
             job.cancel();
         } catch (IllegalStateException e) {
             log.error(e.getMessage(), e);
@@ -106,5 +114,16 @@ public class Scheduler {
         scheduledJobs.remove(job.getId());
         log.info("Task " + job.getClass().getSimpleName() + " for " + SW360Utils.getDateTimeString(new Date(executionTime)) + " cancelled. " + job.toString());
         return RequestStatus.SUCCESS;
+    }
+
+    public static boolean isServiceScheduled(String serviceName) {
+        boolean scheduledJobsContainsMatchingJob = scheduledJobs.values().stream()
+                .filter(job -> serviceName.equals(job.getName()))
+                .findAny().isPresent();
+        return scheduledJobsContainsMatchingJob;
+    }
+
+    public static boolean isAnyServiceScheduled() {
+        return (!scheduledJobs.isEmpty());
     }
 }
