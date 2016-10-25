@@ -1,0 +1,7 @@
+<%@ page import="org.apache.log4j.Logger" %>
+<%Logger log = Logger.getLogger(getClass());%>
+
+<core_rt:set var="exceptionMessage" value="${attributeNotFoundException}"/>
+<core_rt:if test="${not empty attributeNotFoundException}">
+    <%log.error("Error in useBeans: "+ pageContext.getAttribute("exceptionMessage").toString());%>
+</core_rt:if>
