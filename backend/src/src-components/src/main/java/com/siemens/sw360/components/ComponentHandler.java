@@ -11,10 +11,7 @@ package com.siemens.sw360.components;
 import com.siemens.sw360.datahandler.common.DatabaseSettings;
 import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
 import com.siemens.sw360.datahandler.db.ComponentSearchHandler;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
+import com.siemens.sw360.datahandler.thrift.*;
 import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
 import com.siemens.sw360.datahandler.thrift.components.*;
 import com.siemens.sw360.datahandler.thrift.users.User;
@@ -199,7 +196,7 @@ public class ComponentHandler implements ComponentService.Iface {
     ////////////////////////////
 
     @Override
-    public String addComponent(Component component, User user) throws TException {
+    public AddDocumentRequestSummary addComponent(Component component, User user) throws TException {
         assertNotNull(component);
         assertIdUnset(component.getId());
         assertUser(user);
@@ -208,7 +205,7 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
-    public String addRelease(Release release, User user) throws TException {
+    public AddDocumentRequestSummary addRelease(Release release, User user) throws TException {
         assertNotNull(release);
         assertIdUnset(release.getId());
         assertUser(user);

@@ -8,7 +8,6 @@
  */
 package com.siemens.sw360.portal.common;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -37,8 +36,10 @@ import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.portlet.PortletRequest;
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -244,7 +245,6 @@ public class PortletUtils {
         newProject.setBusinessUnit(department);
 
         //project specifics
-        newProject.unsetName();
         newProject.unsetAttachments();
 
         return newProject;

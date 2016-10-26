@@ -310,7 +310,7 @@ abstract public class Sw360Portlet extends MVCPortlet {
         request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
     }
 
-    protected void putDirectlyLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
+    protected void putDirectlyLinkedReleaseRelationsInRequest(PortletRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
         List<ReleaseLink> linkedReleaseRelations = SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log);
         request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
     }
@@ -320,7 +320,7 @@ abstract public class Sw360Portlet extends MVCPortlet {
         request.setAttribute(RELEASE_LIST, linkedReleases);
     }
 
-    protected void putDirectlyLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) throws TException {
+    protected void putDirectlyLinkedReleasesInRequest(PortletRequest request, Map<String, String> releaseIdToRelationship) throws TException {
         List<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log);
         request.setAttribute(RELEASE_LIST, linkedReleases);
     }
@@ -330,7 +330,7 @@ abstract public class Sw360Portlet extends MVCPortlet {
         request.setAttribute(PROJECT_LIST, linkedProjects);
     }
 
-    protected void putDirectlyLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
+    protected void putDirectlyLinkedProjectsInRequest(PortletRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
         final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log);
         request.setAttribute(PROJECT_LIST, linkedProjects);
     }

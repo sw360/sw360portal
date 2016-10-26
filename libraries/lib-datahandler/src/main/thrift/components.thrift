@@ -18,6 +18,7 @@ namespace php sw360.thrift.components
 
 typedef sw360.RequestStatus RequestStatus
 typedef sw360.RequestSummary RequestSummary
+typedef sw360.AddDocumentRequestSummary AddDocumentRequestSummary
 typedef sw360.DocumentState DocumentState
 typedef attachments.Attachment Attachment
 typedef attachments.FilledAttachment FilledAttachment
@@ -333,7 +334,7 @@ service ComponentService {
      * add component to database with user as creator,
      * return id
      **/
-    string addComponent(1: Component component, 2: User user);
+    AddDocumentRequestSummary addComponent(1: Component component, 2: User user);
 
     /**
      * get component from database filled with releases and permissions for user
@@ -374,7 +375,7 @@ service ComponentService {
       * add release to database with user as creator,
       * return id
       **/
-    string addRelease(1: Release release, 2: User user);
+    AddDocumentRequestSummary addRelease(1: Release release, 2: User user);
 
     /**
       * get release from database filled with vendor and permissions for user

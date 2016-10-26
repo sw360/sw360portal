@@ -18,6 +18,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class BdpComponentToSw360ReleaseTranslator implements EntityTranslator<Component, Release> {
 
+    public static final String unknownVersionString = "UNKNOWN";
+
     @Override
     public Release apply(com.bosch.osmi.bdp.access.api.model.Component componentBdp) {
         Release releaseSW360 = new Release();
@@ -31,7 +33,7 @@ public class BdpComponentToSw360ReleaseTranslator implements EntityTranslator<Co
             releaseSW360.setVersion(componentBdp.getComponentVersion());
         } else {
             // this appears for example, if componentBdp.getUsageLevel() == "ORIGINAL_CODE"
-            releaseSW360.setVersion("UNKNOWN");
+            releaseSW360.setVersion(unknownVersionString);
         }
 
         releaseSW360.setReleaseDate(componentBdp.getReleaseDate());

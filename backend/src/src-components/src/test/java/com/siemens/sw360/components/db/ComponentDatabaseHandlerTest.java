@@ -66,6 +66,8 @@ public class ComponentDatabaseHandlerTest {
     private Map<String, Vendor> vendors;
     private ComponentDatabaseHandler handler;
 
+    private int nextReleaseVersion = 0;
+
 
     @Mock
     ComponentModerator moderator;
@@ -590,7 +592,7 @@ public class ComponentDatabaseHandlerTest {
         Release release = new Release().setName("REL").setVersion("VER");
         expected.addToReleases(release);
 
-        String id = handler.addComponent(expected, "new@mail.com");
+        String id = handler.addComponent(expected, "new@mail.com").getId();
         assertNotNull(id);
 
         Component actual = handler.getComponent(id, user1);
@@ -606,7 +608,7 @@ public class ComponentDatabaseHandlerTest {
         Release expected = new Release().setName("REL").setVersion("VER");
         expected.setComponentId("C1");
 
-        String id = handler.addRelease(expected, "new@mail.com");
+        String id = handler.addRelease(expected, "new@mail.com").getId();
         assertNotNull(id);
 
         Release actual = handler.getRelease(id, user1);
@@ -659,11 +661,11 @@ public class ComponentDatabaseHandlerTest {
     private String addRelease(String componentId, Set<String> licenseIds) throws SW360Exception {
         Release release = new Release()
                 .setName("REL")
-                .setVersion("VER")
+                .setVersion(nextReleaseVersion+"")
                 .setMainLicenseIds(licenseIds)
                 .setComponentId(componentId);
-
-        String id = handler.addRelease(release, user1.getEmail());
+        nextReleaseVersion++;
+        String id = handler.addRelease(release, user1.getEmail()).getId();
         assertNotNull(id);
         return id;
     }
@@ -695,7 +697,7 @@ public class ComponentDatabaseHandlerTest {
         Release release = new Release().setName("REL").setVersion("VER").setOperatingSystems(os).setLanguages(lang).setVendorId("V1");
         release.setComponentId(componentId);
 
-        String id = handler.addRelease(release, user1.getEmail());
+        String id = handler.addRelease(release, user1.getEmail()).getId();
         assertNotNull(id);
 
         {
@@ -716,7 +718,7 @@ public class ComponentDatabaseHandlerTest {
         Release release2 = new Release().setName("REL2").setVersion("VER2").setOperatingSystems(os2).setLanguages(lang2).setVendorId("V2");
         release2.setComponentId(componentId);
 
-        String id2 = handler.addRelease(release2, user1.getEmail());
+        String id2 = handler.addRelease(release2, user1.getEmail()).getId();
 
         {
             Component component = handler.getComponent(componentId, user1);
@@ -958,33 +960,30 @@ public class ComponentDatabaseHandlerTest {
 
 
     @Test
-    public void testDuplicateComponentIsFound() throws Exception {
+    public void testDuplicateComponentNotAdded() throws Exception {
         String originalComponentId = "C3";
         final Component tmp = handler.getComponent(originalComponentId, user1);
         tmp.unsetId();
         tmp.unsetRevision();
-        String newComponentId = handler.addComponent(tmp, email1);
+        String newComponentId = handler.addComponent(tmp, email1).getId();
 
         final Map<String, List<String>> duplicateComponents = handler.getDuplicateComponents();
 
-        assertThat(duplicateComponents.size(), is(1));
-        assertThat(duplicateComponents.get(printName(tmp)), containsInAnyOrder(newComponentId, originalComponentId));
-
+        assertThat(duplicateComponents.size(), is(0));
     }
 
 
     @Test
-    public void testDuplicateReleaseIsFound() throws Exception {
+    public void testDuplicateReleaseNotAdded() throws Exception {
 
         String originalReleaseId = "R1A";
         final Release tmp = handler.getRelease(originalReleaseId, user1);
         tmp.unsetId();
         tmp.unsetRevision();
-        String newReleaseId = handler.addRelease(tmp, email1);
+        String newReleaseId = handler.addRelease(tmp, email1).getId();
 
         final Map<String, List<String>> duplicateReleases = handler.getDuplicateReleases();
 
-        assertThat(duplicateReleases.size(), is(1));
-        assertThat(duplicateReleases.get(printName(tmp)), containsInAnyOrder(newReleaseId, originalReleaseId));
+        assertThat(duplicateReleases.size(), is(0));
     }
 }

@@ -148,7 +148,7 @@ public class ProjectHandlerTest {
         Project project4 = new Project();
         project4.setName("Project4").setBusinessUnit("AB CD FE");
 
-        String id = handler.addProject(project4, user2);
+        String id = handler.addProject(project4, user2).getId();
 
         Project projectActual = handler.getProjectById(id, user2);
         assertEquals("Project4", projectActual.getName());

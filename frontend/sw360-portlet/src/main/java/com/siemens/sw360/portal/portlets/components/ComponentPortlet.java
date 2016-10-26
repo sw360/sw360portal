@@ -381,11 +381,13 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_COMPONENT);
             }
         } else {
-            Component component = new Component();
-            request.setAttribute(COMPONENT, component);
-            setUsingDocs(request, user, null, component.getReleaseIds());
-            setAttachmentsInRequest(request, component.getAttachments());
-            SessionMessages.add(request, "request_processed", "New Component");
+            if(request.getAttribute(COMPONENT) == null) {
+                Component component = new Component();
+                request.setAttribute(COMPONENT, component);
+                setUsingDocs(request, user, null, component.getReleaseIds());
+                setAttachmentsInRequest(request, component.getAttachments());
+                SessionMessages.add(request, "request_processed", "New Component");
+            }
         }
     }
 
@@ -421,14 +423,17 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 }
 
             } else {
-                release = new Release();
-                release.setComponentId(id);
-                release.setClearingState(ClearingState.NEW_CLEARING);
-                request.setAttribute(RELEASE, release);
-                putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
-                setAttachmentsInRequest(request, release.getAttachments());
-                setUsingDocs(request, null, user, client);
-                SessionMessages.add(request, "request_processed", "New Release");
+                release = (Release) request.getAttribute(RELEASE);
+                if(release == null) {
+                    release = new Release();
+                    release.setComponentId(id);
+                    release.setClearingState(ClearingState.NEW_CLEARING);
+                    request.setAttribute(RELEASE, release);
+                    putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+                    setAttachmentsInRequest(request, release.getAttachments());
+                    setUsingDocs(request, null, user, client);
+                    SessionMessages.add(request, "request_processed", "New Release");
+                }
             }
 
             Component component = client.getComponentById(id, user);
@@ -746,27 +751,43 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
                 RequestStatus requestStatus = client.updateComponent(component, user);
                 setSessionMessage(request, requestStatus, "Component", "update", component.getName());
-                cleanUploadHistory(user.getEmail(),id);                
+                cleanUploadHistory(user.getEmail(),id);
                 response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
                 response.setRenderParameter(COMPONENT_ID, request.getParameter(COMPONENT_ID));
             } else {
                 Component component = new Component();
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
-                String componentId = client.addComponent(component, user);
+                AddDocumentRequestSummary summary = client.addComponent(component, user);
 
-                if (componentId != null) {
-                    String successMsg = "Component " + component.getName() + " added successfully";
-                    SessionMessages.add(request, "request_processed", successMsg);
-                    response.setRenderParameter(COMPONENT_ID, componentId);
-                } else {
-                    setSW360SessionError(request, ErrorMessages.COMPONENT_NOT_ADDED);
+                AddDocumentRequestStatus status = summary.getRequestStatus();
+                switch(status){
+                    case SUCCESS:
+                        String successMsg = "Component " + component.getName() + " added successfully";
+                        SessionMessages.add(request, "request_processed", successMsg);
+                        response.setRenderParameter(COMPONENT_ID, summary.getId());
+                        response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
+                        break;
+                    case DUPLICATE:
+                        setSW360SessionError(request, ErrorMessages.COMPONENT_DUPLICATE);
+                        response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
+                        prepareRequestForEditAfterDuplicateError(request, component);
+                        break;
+                    default:
+                        setSW360SessionError(request, ErrorMessages.COMPONENT_NOT_ADDED);
+                        response.setRenderParameter(PAGENAME, PAGENAME_VIEW);
                 }
-                response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
             }
 
         } catch (TException e) {
             log.error("Error fetching component from backend!", e);
         }
+    }
+
+    private void prepareRequestForEditAfterDuplicateError(ActionRequest request, Component component) throws TException {
+        request.setAttribute(COMPONENT, component);
+        setAttachmentsInRequest(request, component.getAttachments());
+        request.setAttribute(USING_PROJECTS, Collections.emptySet());
+        request.setAttribute(USING_COMPONENTS, Collections.emptySet());
     }
 
     @UsedAsLiferayAction
@@ -797,22 +818,48 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     release.setComponentId(component.getId());
                     release.setClearingState(ClearingState.NEW_CLEARING);
                     ComponentPortletUtils.updateReleaseFromRequest(request, release);
-                    releaseId = client.addRelease(release, user);
+                    AddDocumentRequestSummary summary = client.addRelease(release, user);
 
-                    if (releaseId != null) {
-                        response.setRenderParameter(RELEASE_ID, releaseId);
-                        String successMsg = "Release " + printName(release) + " added successfully";
-                        SessionMessages.add(request, "request_processed", successMsg);
-                    } else {
-                        setSW360SessionError(request, ErrorMessages.RELEASE_NOT_ADDED);
+                    AddDocumentRequestStatus status = summary.getRequestStatus();
+                    switch(status){
+                        case SUCCESS:
+                            response.setRenderParameter(RELEASE_ID, summary.getId());
+                            String successMsg = "Release " + printName(release) + " added successfully";
+                            SessionMessages.add(request, "request_processed", successMsg);
+                            response.setRenderParameter(PAGENAME, PAGENAME_EDIT_RELEASE);
+                            break;
+                        case DUPLICATE:
+                            setSW360SessionError(request, ErrorMessages.RELEASE_DUPLICATE);
+                            response.setRenderParameter(PAGENAME, PAGENAME_EDIT_RELEASE);
+                            prepareRequestForReleaseEditAfterDuplicateError(request, release);
+                            break;
+                        default:
+                            setSW360SessionError(request, ErrorMessages.RELEASE_NOT_ADDED);
+                            response.setRenderParameter(PAGENAME, PAGENAME_DETAIL);
                     }
 
-                    response.setRenderParameter(PAGENAME, PAGENAME_EDIT_RELEASE);
                     response.setRenderParameter(COMPONENT_ID, request.getParameter(COMPONENT_ID));
                 }
             } catch (TException e) {
                 log.error("Error fetching release from backend!", e);
             }
+        }
+    }
+
+    private void prepareRequestForReleaseEditAfterDuplicateError(ActionRequest request, Release release) throws TException {
+        fillVendor(release);
+        request.setAttribute(RELEASE, release);
+        setAttachmentsInRequest(request, release.getAttachments());
+        putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+        request.setAttribute(USING_PROJECTS, Collections.emptySet());
+        request.setAttribute(USING_COMPONENTS, Collections.emptySet());
+    }
+
+    private void fillVendor(Release release) throws TException {
+        VendorService.Iface client = thriftClients.makeVendorClient();
+        if(release.isSetVendorId()) {
+            Vendor vendor = client.getByID(release.getVendorId());
+            release.setVendor(vendor);
         }
     }
 

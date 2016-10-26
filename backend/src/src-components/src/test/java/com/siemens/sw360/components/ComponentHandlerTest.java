@@ -51,10 +51,10 @@ public class ComponentHandlerTest {
     public void testGetByUploadId() throws Exception {
 
         Component originalComponent = new Component("name").setDescription("a desc");
-        String componentId = componentHandler.addComponent(originalComponent, adminUser);
+        String componentId = componentHandler.addComponent(originalComponent, adminUser).getId();
 
         Release release = new Release("name", "version", componentId).setFossologyId("id");
-        String releaseId = componentHandler.addRelease(release, adminUser);
+        String releaseId = componentHandler.addRelease(release, adminUser).getId();
 
         Component component = componentHandler.getComponentForReportFromFossologyUploadId("id");
 

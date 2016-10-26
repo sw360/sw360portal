@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.siemens.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
 
 /**
@@ -141,6 +142,14 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
     public List<Project> searchByName(String name, User user, SummaryType summaryType) {
         Set<String> searchIds = queryForIdsByPrefix("byname", name);
         return makeSummaryFromFullDocs(summaryType, filterAccessibleProjectsByIds(user, searchIds));
+    }
+
+    public List<Project> searchByNameAndVersion(String name, String version) {
+        List<Project> projectsMatchingName = queryView("byname", name);
+        List<Project> projectsMatchingNameAndVersion = projectsMatchingName.stream()
+                .filter(p -> isNullOrEmpty(version) ? isNullOrEmpty(p.getVersion()) : version.equals(p.getVersion()))
+                .collect(Collectors.toList());
+        return makeSummaryFromFullDocs(SummaryType.SHORT, projectsMatchingNameAndVersion);
     }
 
 

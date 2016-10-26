@@ -16,8 +16,11 @@ import com.google.common.collect.ImmutableList;
 public class ErrorMessages {
 
     public static final String PROJECT_NOT_ADDED = "Project could not be added.";
+    public static final String PROJECT_DUPLICATE ="Project could not be added, since a project with the same name and version already exists.";
     public static final String COMPONENT_NOT_ADDED = "Component could not be added.";
+    public static final String COMPONENT_DUPLICATE ="Component could not be added, since a component with the same name already exists.";
     public static final String RELEASE_NOT_ADDED = "Release could not be added.";
+    public static final String RELEASE_DUPLICATE ="Release could not be added, since a release with the same name and version already exists.";
     public static final String ERROR_GETTING_PROJECT = "Error fetching project from backend.";
     public static final String ERROR_GETTING_COMPONENT = "Error fetching component from backend.";
     public static final String ERROR_GETTING_RELEASE = "Error fetching release from backend.";
@@ -41,8 +44,11 @@ public class ErrorMessages {
     //this map is used in errorKeyToMessage.jspf to generate key-value pairs for the liferay-ui error tag
     public static final ImmutableList<String> allErrorMessages = ImmutableList.<String>builder()
             .add(PROJECT_NOT_ADDED)
+            .add(PROJECT_DUPLICATE)
             .add(COMPONENT_NOT_ADDED)
+            .add(COMPONENT_DUPLICATE)
             .add(RELEASE_NOT_ADDED)
+            .add(RELEASE_DUPLICATE)
             .add(LICENSE_USED_BY_RELEASE)
             .add(DOCUMENT_USED_BY_PROJECT_OR_RELEASE)
             .add(DOCUMENT_NOT_PROCESSED_SUCCESSFULLY)

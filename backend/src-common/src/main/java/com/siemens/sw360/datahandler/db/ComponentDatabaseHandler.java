@@ -239,8 +239,11 @@ public class ComponentDatabaseHandler {
     /**
      * Add new release to the database
      */
-    public String addComponent(Component component, String user) throws SW360Exception {
-
+    public AddDocumentRequestSummary addComponent(Component component, String user) throws SW360Exception {
+        if(isDuplicate(component)) {
+            return new AddDocumentRequestSummary()
+                    .setRequestStatus(AddDocumentRequestStatus.DUPLICATE);
+        }
         // Prepare the component
         prepareComponent(component);
 
@@ -250,18 +253,23 @@ public class ComponentDatabaseHandler {
 
         // Add the component to the database and return ID
         componentRepository.add(component);
-        return component.getId();
+        return new AddDocumentRequestSummary()
+                .setRequestStatus(AddDocumentRequestStatus.SUCCESS)
+                .setId(component.getId());
     }
 
     /**
      * Add a single new release to the database
      */
-    public String addRelease(Release release, String user) throws SW360Exception {
-
+    public AddDocumentRequestSummary addRelease(Release release, String user) throws SW360Exception {
         // Prepare the release and get underlying component ID
         prepareRelease(release);
-        String componentId = release.getComponentId();
+        if(isDuplicate(release)) {
+            return new AddDocumentRequestSummary()
+                    .setRequestStatus(AddDocumentRequestStatus.DUPLICATE);
+        }
 
+        String componentId = release.getComponentId();
         // Ensure that component exists
         Component component = componentRepository.get(componentId);
         assertNotNull(component);
@@ -293,7 +301,19 @@ public class ComponentDatabaseHandler {
         updateReleaseDependentFieldsForComponent(component, release);
         componentRepository.update(component);
 
-        return id;
+        return new AddDocumentRequestSummary()
+                .setRequestStatus(AddDocumentRequestStatus.SUCCESS)
+                .setId(id);
+    }
+
+    private boolean isDuplicate(Component component){
+        Set<String> duplicates = componentRepository.getMyComponentIdsByName(component.getName());
+        return duplicates.size()>0;
+    }
+
+    private boolean isDuplicate(Release release){
+        List<Release> duplicates = releaseRepository.searchByNameAndVersion(release.getName(), release.getVersion());
+        return duplicates.size()>0;
     }
 
     private void resetReleaseDependentFields(Component component) {
