@@ -53,14 +53,14 @@
             <input class="toplabelledInput" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
                    id="programminglanguages" type="text"
                    placeholder="e.g., Java,C++, C#,..."
-                   value="<sw360:DisplayCollection value='${component.languages}' />"/>
+                   value="<sw360:DisplayCollection value='${release.languages}' />"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="op_systems">Operating Systems</label>
             <input class="toplabelledInput" id="op_systems"
                    name="<portlet:namespace/><%=Component._Fields.OPERATING_SYSTEMS%>" type="text" align="middle"
                    placeholder="e.g.,Linux,MAC,Windows,..."
-                   value="<sw360:DisplayCollection value="${component.operatingSystems}" />"/>
+                   value="<sw360:DisplayCollection value="${release.operatingSystems}" />"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_id">CPE ID</label>

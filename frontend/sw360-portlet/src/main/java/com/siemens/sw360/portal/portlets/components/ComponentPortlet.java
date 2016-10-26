@@ -846,12 +846,21 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void prepareRequestForReleaseEditAfterDuplicateError(ActionRequest request, Release release) {
+    private void prepareRequestForReleaseEditAfterDuplicateError(ActionRequest request, Release release) throws TException {
+        fillVendor(release);
         request.setAttribute(RELEASE, release);
         setAttachmentsInRequest(request, release.getAttachments());
         putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
         request.setAttribute(USING_PROJECTS, Collections.emptySet());
         request.setAttribute(USING_COMPONENTS, Collections.emptySet());
+    }
+
+    private void fillVendor(Release release) throws TException {
+        VendorService.Iface client = thriftClients.makeVendorClient();
+        if(release.isSetVendorId()) {
+            Vendor vendor = client.getByID(release.getVendorId());
+            release.setVendor(vendor);
+        }
     }
 
     @UsedAsLiferayAction
