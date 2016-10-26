@@ -12,6 +12,8 @@ package org.eclipse.sw360.cvesearch.datasource.matcher;
 import org.junit.Test;
 
 import static org.eclipse.sw360.cvesearch.datasource.matcher.ModifiedLevenshteinDistance.levenshteinMatch;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class ModifiedLevenshteinDistanceTest {
 
@@ -22,7 +24,7 @@ public class ModifiedLevenshteinDistanceTest {
         String needDle = "needDle";
 
         // equal strings have distance 0
-        assert(levenshteinMatch(needle,needle).getDistance() == 0);
+        assertThat(levenshteinMatch(needle,needle).getDistance(), is(0));
 
         // appending or prepending adds 1 to the distance
         assert(levenshteinMatch(needle,needle + "a").getDistance() == 1);
