@@ -171,7 +171,7 @@
             <label class="textlabel stackedLabel " for="externalUrl">External URL</label>
             <input id="externalUrl"
                    name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.EXTERNAL_URL%>"
-                   type="text"
+                   type="URL"
                    placeholder="Enter URL"
                    value="<sw360:out value="${release.clearingInformation.externalUrl}"/>"/>
         </td>

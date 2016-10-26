@@ -106,7 +106,7 @@
     </tr> 
     <tr>
         <td>External URL:</td>
-        <td><sw360:out value="${clearingInfo.externalUrl}"/></td>
+        <td><sw360:DisplayLink target="${clearingInfo.externalUrl}"/></td>
     </tr>
     <tr>
         <td>Comments:</td>
