@@ -95,11 +95,13 @@ public class DisplayUserEdit extends NameSpaceAwareTag {
                     if (!Strings.isNullOrEmpty(email))
                         user = client.getByEmail(email);
                 } catch (TException e) {
-                    user = null;
+                    throw new JspException("Exception occurred in User client.");
                 }
+                emailList.add(email);
                 if (user != null) {
-                    emailList.add(email);
                     userList.add(user.getFullname());
+                } else {
+                    userList.add(email);
                 }
             }
 

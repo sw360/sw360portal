@@ -9,9 +9,11 @@
 package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.eclipse.sw360.portal.users.UserUtils;
+import org.apache.thrift.TException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
@@ -33,12 +35,17 @@ public class DisplayUserEmail extends SimpleTagSupport {
         User user = null;
 
         if (!Strings.isNullOrEmpty(email)) {
-            user = UserCacheHolder.getUserFromEmail(email);
-        } else {
-            email = "";
+            UserService.Iface client = new ThriftClients().makeUserClient();
+
+            if(client != null) {
+                try {
+                    user = client.getByEmail(email);
+                } catch(TException e) {
+                    throw new JspException("Exception occurred in User client.");
+                }
+            }
         }
 
         getJspContext().getOut().print(UserUtils.displayUser(email, user));
     }
-
 }
