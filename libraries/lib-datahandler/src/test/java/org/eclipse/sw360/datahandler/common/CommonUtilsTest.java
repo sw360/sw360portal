@@ -8,11 +8,16 @@
  */
 package org.eclipse.sw360.datahandler.common;
 
+import org.apache.log4j.Logger;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.junit.Test;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.formatTime;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.getTargetNameOfUrl;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isValidUrl;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -121,4 +126,50 @@ public class CommonUtilsTest {
         assertThat(formatTime(86400), is("24:00:00"));
     }
 
+    @Test
+    public void testIsMapFieldMapOfStringSets_EmptyMaps() throws Exception {
+        Map<String, Set<String>> roleMap = new HashMap<>();
+        Project project = new Project().setName("pname").setRoles(roleMap);
+        boolean b = isMapFieldMapOfStringSets(Project._Fields.ROLES, project, project, project, Logger.getLogger(CommonUtilsTest.class));
+        assertThat(b, is(false));
+    }
+    @Test
+    public void testIsMapFieldMapOfStringSets_EmptySets() throws Exception {
+        Map<String, Set<String>> roleMap = new HashMap<>();
+        roleMap.put("role1", new HashSet<>());
+        roleMap.put("role2", new HashSet<>());
+        Project project = new Project().setName("pname").setRoles(roleMap);
+        boolean b = isMapFieldMapOfStringSets(Project._Fields.ROLES, project, project, project, Logger.getLogger(CommonUtilsTest.class));
+        assertThat(b, is(false));
+    }
+    @Test
+    public void testIsMapFieldMapOfStringSets_NoSet() throws Exception {
+        Map<String, String> releaseIdToUsage = new HashMap<>();
+        releaseIdToUsage.put("r1", "u1");
+        releaseIdToUsage.put("r2", "u2");
+        Project project = new Project().setName("pname").setReleaseIdToUsage(releaseIdToUsage);
+        boolean b = isMapFieldMapOfStringSets(Project._Fields.RELEASE_ID_TO_USAGE, project, project, project, Logger.getLogger(CommonUtilsTest.class));
+        assertThat(b, is(false));
+    }
+    @Test
+    public void testIsMapFieldMapOfStringSets_StringSets() throws Exception {
+        Map<String, Set<String>> roleMap = new HashMap<>();
+        roleMap.put("expert", toSingletonSet("expert@company.com"));
+        Project project = new Project().setName("pname").setRoles(roleMap);
+        boolean b = isMapFieldMapOfStringSets(Project._Fields.ROLES, project, project, project, Logger.getLogger(CommonUtilsTest.class));
+        assertThat(b, is(true));
+    }
+    @Test
+    public void testIsMapFieldMapOfStringSets_SingleStringSets() throws Exception {
+        Map<String, Set<String>> roleMap = new HashMap<>();
+        Project project = new Project().setName("pname").setRoles(roleMap);
+        Map<String, Set<String>> roleMap2 = new HashMap<>();
+        roleMap.put("expert", new HashSet<>());
+        Project project2 = new Project().setName("pname").setRoles(roleMap2);
+        Map<String, Set<String>> roleMap3 = new HashMap<>();
+        roleMap.put("expert", toSingletonSet("expert@company.com"));
+        Project project3 = new Project().setName("pname").setRoles(roleMap3);
+        boolean b = isMapFieldMapOfStringSets(Project._Fields.ROLES, project, project2, project3, Logger.getLogger(CommonUtilsTest.class));
+        assertThat(b, is(true));
+    }
 }

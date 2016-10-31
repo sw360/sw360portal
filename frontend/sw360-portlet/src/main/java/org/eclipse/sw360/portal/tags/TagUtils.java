@@ -1,7 +1,9 @@
 package org.eclipse.sw360.portal.tags;
 
 import com.google.common.collect.Sets;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.portal.common.PortalConstants;
+import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
@@ -16,10 +18,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.getNullToEmptyValue;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.unifiedKeyset;
 import static org.eclipse.sw360.portal.tags.urlutils.UrlWriterImpl.resourceUrl;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
@@ -69,12 +74,39 @@ public class TagUtils {
                         (Set<String>) updateFieldValue,
                         (Set<String>) deletedFieldValue,
                         field,
-                        fieldMetaData,
+                        prefix);
+            } else if(fieldMetaData.valueMetaData.type == TType.MAP &&
+                    CommonUtils.isMapFieldMapOfStringSets(field, oldInstance, additions, deletions, Logger.getLogger(TagUtils.class))) {
+                displayCustomMap(display,
+                        (Map<String, Set<String>>) oldFieldValue,
+                        (Map<String, Set<String>>) updateFieldValue,
+                        (Map<String, Set<String>>) deletedFieldValue,
+                        field,
                         prefix);
             } else {
-                displaySimpleField(display, oldFieldValue, updateFieldValue, deletedFieldValue, field, fieldMetaData, prefix);
+                    displaySimpleField(display, oldFieldValue, updateFieldValue, deletedFieldValue, field, fieldMetaData, prefix);
+                }
             }
         }
+
+    private static <U extends TFieldIdEnum> void displayCustomMap(StringBuilder display,
+                                                                  Map<String, Set<String>> oldFieldValue,
+                                                                  Map<String, Set<String>> updateFieldValue,
+                                                                  Map<String, Set<String>> deletedFieldValue,
+                                                                  U field,
+                                                                  String prefix) {
+        Set<String> keySetOfChanges = unifiedKeyset(updateFieldValue, deletedFieldValue);
+
+        for(String key: keySetOfChanges){
+            displaySet(display,
+                    getNullToEmptyValue(oldFieldValue, key),
+                    getNullToEmptyValue(updateFieldValue, key),
+                    getNullToEmptyValue(deletedFieldValue,key),
+                    field,
+                    prefix,
+                    key);
+        }
+
     }
 
     private static <U extends TFieldIdEnum, T extends TBase<T, U>> void displaySet(StringBuilder display,
@@ -82,17 +114,25 @@ public class TagUtils {
                                                                                    Set<String> updateFieldValue,
                                                                                    Set<String> deletedFieldValue,
                                                                                    U field,
-                                                                                   FieldMetaData fieldMetaData,
                                                                                    String prefix) {
+        displaySet(display, oldFieldValue, updateFieldValue, deletedFieldValue, field, prefix, "");
+    }
+    private static <U extends TFieldIdEnum, T extends TBase<T, U>> void displaySet(StringBuilder display,
+                                                                                   Set<String> oldFieldValue,
+                                                                                   Set<String> updateFieldValue,
+                                                                                   Set<String> deletedFieldValue,
+                                                                                   U field,
+                                                                                   String prefix,
+                                                                                   String key) {
         String oldDisplay = null;
         String deleteDisplay = "n.a. (modified list)";
         String updateDisplay = null;
 
         if (oldFieldValue != null) {
-            oldDisplay = getDisplayString(fieldMetaData, oldFieldValue);
+            oldDisplay = getDisplayString(TType.SET, oldFieldValue);
         }
         if (updateFieldValue != null) {
-            updateDisplay = getDisplayString(fieldMetaData,
+            updateDisplay = getDisplayString(TType.SET,
                     Sets.difference(
                             Sets.union(nullToEmptySet(oldFieldValue), nullToEmptySet(updateFieldValue)),
                             nullToEmptySet(deletedFieldValue)));
@@ -107,10 +147,12 @@ public class TagUtils {
             oldDisplay = NOT_SET;
         }
 
-        display.append(String.format("<tr><td>%s:</td>", prefix + field.getFieldName()));
-        display.append(String.format("<td>%s</td>", oldDisplay, prefix + field.getFieldName()));
-        display.append(String.format("<td>%s</td>", deleteDisplay, prefix + field.getFieldName()));
-        display.append(String.format("<td>%s</td></tr> ", updateDisplay, prefix + field.getFieldName()));
+        String keyString = isNullOrEmpty(key) ? "" : " ["+key+"]";
+
+        display.append(String.format("<tr><td>%s:</td>", prefix + field.getFieldName()+keyString));
+        display.append(String.format("<td>%s</td>", oldDisplay, prefix + field.getFieldName()+keyString));
+        display.append(String.format("<td>%s</td>", deleteDisplay, prefix + field.getFieldName()+keyString));
+        display.append(String.format("<td>%s</td></tr> ", updateDisplay, prefix + field.getFieldName()+keyString));
     }
 
     private static <U extends TFieldIdEnum, T extends TBase<T, U>> void displaySimpleField(StringBuilder display,
@@ -125,13 +167,13 @@ public class TagUtils {
         String updateDisplay = null;
 
         if (oldFieldValue != null) {
-            oldDisplay = getDisplayString(fieldMetaData, oldFieldValue);
+            oldDisplay = getDisplayString(fieldMetaData.valueMetaData.type, oldFieldValue);
         }
         if (deletedFieldValue != null) {
-            deleteDisplay = getDisplayString(fieldMetaData, deletedFieldValue);
+            deleteDisplay = getDisplayString(fieldMetaData.valueMetaData.type, deletedFieldValue);
         }
         if (updateFieldValue != null) {
-            updateDisplay = getDisplayString(fieldMetaData, updateFieldValue);
+            updateDisplay = getDisplayString(fieldMetaData.valueMetaData.type, updateFieldValue);
         }
         if (isNullOrEmpty(updateDisplay) && isNullOrEmpty(oldDisplay)) {
             return;
@@ -152,10 +194,10 @@ public class TagUtils {
         display.append(String.format("<td>%s</td></tr> ", updateDisplay, prefix + field.getFieldName()));
     }
 
-    public static String getDisplayString(FieldMetaData fieldMetaData, Object fieldValue) {
+    public static String getDisplayString(byte type, Object fieldValue) {
         String fieldDisplay = "";
-        switch (fieldMetaData.valueMetaData.type) {
-            case org.apache.thrift.protocol.TType.LIST:
+        switch (type) {
+            case TType.LIST:
                 if (fieldValue != null) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("<ul>");
@@ -166,7 +208,7 @@ public class TagUtils {
                     fieldDisplay = sb.toString();
                 }
                 break;
-            case org.apache.thrift.protocol.TType.SET:
+            case TType.SET:
                 if (fieldValue != null) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("<ul>");

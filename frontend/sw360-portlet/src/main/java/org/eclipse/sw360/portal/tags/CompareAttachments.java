@@ -137,12 +137,12 @@ public class CompareAttachments extends ContextAwareTag {
             FieldMetaData fieldMetaData = Attachment.metaDataMap.get(field);
             Object fieldValue = attachment.getFieldValue(field);
             if(field.equals(Attachment._Fields.FILENAME)){
-                jspWriter.append(String.format("<td>%s", getDisplayString(fieldMetaData, fieldValue)));
+                jspWriter.append(String.format("<td>%s", getDisplayString(fieldMetaData.valueMetaData.type, fieldValue)));
                 jspWriter.write("<br/>");
                 addDownloadLink(pageContext, jspWriter, attachment.getFilename(), attachment.getAttachmentContentId());
                 jspWriter.append("</td>");
             } else {
-                jspWriter.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData, fieldValue)));
+                jspWriter.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData.valueMetaData.type, fieldValue)));
             }
         }
         jspWriter.append("</tr>");

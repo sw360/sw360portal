@@ -9,13 +9,8 @@
 
 package org.eclipse.sw360.moderation.db;
 
-import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
-import org.apache.log4j.Logger;
-import org.apache.thrift.protocol.TType;
-
-import java.util.Set;
 
 /**
  * Class for comparing a document with its counterpart in the database
@@ -61,6 +56,9 @@ public class ComponentModerationRequestGenerator extends ModerationRequestGenera
                         break;
                     case ATTACHMENTS:
                         dealWithAttachments(Component._Fields.ATTACHMENTS);
+                        break;
+                    case ROLES:
+                        dealWithCustomMap(Component._Fields.ROLES);
                         break;
                     default:
                         dealWithBaseTypes(field, Component.metaDataMap.get(field));

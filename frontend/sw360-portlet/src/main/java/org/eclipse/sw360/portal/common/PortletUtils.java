@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static java.lang.Integer.parseInt;
 
@@ -314,5 +315,27 @@ public class PortletUtils {
             }
         }
         return VerificationState.NOT_CHECKED;
+    }
+
+    public static Map<String,Set<String>> getCustomMapFromRequest(PortletRequest request) {
+        Map<String, Set<String>> customMap = new HashMap<>();
+        Enumeration<String> parameterNames = request.getParameterNames();
+        List<String> keyAndValueParameterIds = Collections.list(parameterNames).stream()
+                .filter(p -> p.startsWith(PortalConstants.CUSTOM_MAP_KEY))
+                .map(s -> s.replace(PortalConstants.CUSTOM_MAP_KEY, ""))
+                .collect(Collectors.toList());
+        for(String parameterId : keyAndValueParameterIds) {
+            String key = request.getParameter(PortalConstants.CUSTOM_MAP_KEY +parameterId);
+            if(isNullEmptyOrWhitespace(key)){
+                log.error("Empty map key found");
+            } else {
+                String value = request.getParameter(PortalConstants.CUSTOM_MAP_VALUE + parameterId);
+                if(!customMap.containsKey(key)){
+                    customMap.put(key, new HashSet<>());
+                }
+                customMap.get(key).add(value);
+            }
+        }
+        return customMap;
     }
 }

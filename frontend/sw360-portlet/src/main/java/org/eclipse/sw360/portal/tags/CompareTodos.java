@@ -169,7 +169,7 @@ public class CompareTodos extends NameSpaceAwareTag {
                                 .map(Obligation::getName)
                                 .collect(Collectors.toList());
             }
-            display.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData, fieldValue)));
+            display.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData.valueMetaData.type, fieldValue)));
 
         }
         display.append("</tr>");

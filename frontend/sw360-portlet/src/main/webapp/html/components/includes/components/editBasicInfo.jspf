@@ -106,3 +106,8 @@
         </td>
     </tr>
 </table>
+<core_rt:set var="keys" value="<%=PortalConstants.COMPONENT_ROLES%>"/>
+<core_rt:set var="mapTitle" value="Additional Roles"/>
+<core_rt:set var="inputType" value="email"/>
+<core_rt:set var="inputSubtitle" value="Enter mail address"/>
+<%@include file="/html/utils/includes/mapEdit.jspf" %>

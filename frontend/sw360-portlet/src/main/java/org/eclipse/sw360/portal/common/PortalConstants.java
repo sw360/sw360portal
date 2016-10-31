@@ -87,6 +87,7 @@ public class PortalConstants {
     public static final String TYPE_MASK = "typeMask";
     public static final String COMPONENT_TYPE_LIST = "componentTypeList";
     public static final String COMPONENT_CATEGORIES;
+    public static final String COMPONENT_ROLES;
 
     //! Specialized keys for releases
     public static final String RELEASE_ID = "releaseId";
@@ -96,6 +97,7 @@ public class PortalConstants {
     public static final String PAGENAME_RELEASE_DETAIL = "detailRelease";
     public static final String PAGENAME_EDIT_RELEASE = "editRelease";
     public static final String PAGENAME_DUPLICATE_RELEASE = "duplicateRelease";
+    public static final String RELEASE_ROLES;
 
     //! Specialized keys for vendors
     public static final String VENDOR = "vendor";
@@ -127,6 +129,7 @@ public class PortalConstants {
     public static final String PROJECT_NOT_FOUND = "projectNotFound";
     public static final String PAGENAME_LICENSE_INFO = "generateLicenseInfo";
     public static final String PAGENAME_SOURCE_CODE_BUNDLE = "generateSourceCodeBundle";
+    public static final String PROJECT_ROLES;
 
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
@@ -318,6 +321,11 @@ public class PortalConstants {
     public static final String UPDATE_VULNERABILITIES__NEW_IDS = "updateVulnerabilities_newIds";
     public static final String UPDATE_VULNERABILITIES__UPDATED_IDS = "updateVulnerabilities_updatedIds";
 
+    //custom map keywords
+    public static final String CUSTOM_MAP = "customMap";
+    public static final String CUSTOM_MAP_KEY = "customMapKey";
+    public static final String CUSTOM_MAP_VALUE = "customMapValue";
+
     //! request status
     public static final String REQUEST_STATUS = "request_status";
 
@@ -332,6 +340,9 @@ public class PortalConstants {
         PROJECT_TYPE = props.getProperty("project.type","[ \"Customer Project\", \"Internal Project\", \"Product\", \"Service\"]");
         LICENSE_IDENTIFIERS = props.getProperty("license.identifiers", "[]");
         COMPONENT_CATEGORIES = props.getProperty("component.categories", "[ \"framework\", \"SDK\", \"big-data\", \"build-management\", \"cloud\", \"content\", \"database\", \"graphics\", \"http\", \"javaee\", \"library\", \"mail\", \"mobile\", \"security\", \"testing\", \"virtual-machine\", \"web-framework\", \"xml\"]");
+        PROJECT_ROLES = props.getProperty("custommap.project.roles", "[ \"pre-sales consultant\", \"primary contact\"]");
+        COMPONENT_ROLES = props.getProperty("custommap.component.roles", "[ \"committer\", \"contributor\", \"expert\"]");
+        RELEASE_ROLES = props.getProperty("custommap.release.roles", "[ \"expert\"]");
     }
 
     private PortalConstants() {

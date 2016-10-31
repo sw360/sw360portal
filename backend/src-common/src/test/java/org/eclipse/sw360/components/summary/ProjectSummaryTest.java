@@ -73,6 +73,9 @@ public class ProjectSummaryTest {
                 case CLEARING_STATE:
                     project.clearingState = ProjectClearingState.OPEN;
                     break;
+                case ROLES:
+                    project.roles = Collections.emptyMap();
+                    break;
                 default: //most fields are string
                     project.setFieldValue(renderedField, "asd");
                     break;

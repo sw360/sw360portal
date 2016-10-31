@@ -803,6 +803,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 return;
             }
 
+            request.setAttribute(CUSTOM_MAP, project.isSetRoles() ? project.roles : Collections.emptyMap());
             request.setAttribute(USING_PROJECTS, usingProjects);
             Map<RequestedAction, Boolean> permissions = project.getPermissions();
             DocumentState documentState = project.getDocumentState();
@@ -821,6 +822,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     log.error("Could not put empty linked projects or linked releases in projects view.", e);
                 }
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
+                request.setAttribute(CUSTOM_MAP, Collections.emptyMap());
 
                 SessionMessages.add(request, "request_processed", "New Project");
             }

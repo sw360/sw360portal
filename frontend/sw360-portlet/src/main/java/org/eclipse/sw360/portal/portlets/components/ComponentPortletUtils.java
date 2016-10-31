@@ -74,6 +74,8 @@ public abstract class ComponentPortletUtils {
                 case CLEARING_STATE:
                     // skip setting CLEARING_STATE. it is supposed to be set only programmatically, never from user input.
                     break;
+                case ROLES:
+                    release.setRoles(PortletUtils.getCustomMapFromRequest(request));
                 default:
                     setFieldValue(request, release, field);
             }
@@ -125,6 +127,8 @@ public abstract class ComponentPortletUtils {
                 case ATTACHMENTS:
                     component.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, component.getAttachments()));
                     break;
+                case ROLES:
+                    component.setRoles(PortletUtils.getCustomMapFromRequest(request));
 
 
                 default:

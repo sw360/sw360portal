@@ -29,6 +29,7 @@ import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
@@ -67,17 +68,24 @@ public class ProjectPortletUtils {
         for (Project._Fields field : Project._Fields.values()) {
             switch (field) {
                 case LINKED_PROJECTS:
-                    if (!project.isSetLinkedProjects()) project.setLinkedProjects(new HashMap<String, ProjectRelationship>());
+                    if (!project.isSetLinkedProjects()) {
+                        project.setLinkedProjects(new HashMap<String, ProjectRelationship>());
+                    }
                     updateLinkedProjectsFromRequest(request, project.linkedProjects);
                     break;
                 case RELEASE_ID_TO_USAGE:
-                    if (!project.isSetReleaseIdToUsage()) project.setReleaseIdToUsage(new HashMap<String,String>());
+                    if (!project.isSetReleaseIdToUsage()) {
+                        project.setReleaseIdToUsage(new HashMap<String,String>());
+                    }
                     updateLinkedReleasesFromRequest(request, project.releaseIdToUsage);
                     break;
 
                 case ATTACHMENTS:
                     project.setAttachments(PortletUtils.updateAttachmentsFromRequest(request, project.getAttachments()));
                     break;
+
+                case ROLES:
+                    project.setRoles(PortletUtils.getCustomMapFromRequest(request));
                 default:
                     setFieldValue(request, project, field);
             }

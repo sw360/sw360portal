@@ -102,6 +102,11 @@
                     <div class="tab-content span10">
                         <div id="tab-ReleaseInformation" class="tab-pane">
                             <%@include file="/html/components/includes/releases/editReleaseInformation.jspf" %>
+                            <core_rt:set var="keys" value="<%=PortalConstants.RELEASE_ROLES%>"/>
+                            <core_rt:set var="mapTitle" value="Additional Roles"/>
+                            <core_rt:set var="inputType" value="email"/>
+                            <core_rt:set var="inputSubtitle" value="Enter mail address"/>
+                            <%@include file="/html/utils/includes/mapEdit.jspf" %>
                             <%@include file="/html/components/includes/releases/editReleaseRepository.jspf" %>
                         </div>
                         <div id="tab-ReleaseLinks">
