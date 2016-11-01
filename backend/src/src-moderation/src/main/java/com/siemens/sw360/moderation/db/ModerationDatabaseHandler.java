@@ -259,7 +259,7 @@ public class ModerationDatabaseHandler {
 
  public void createRequest(User user) {
         // Define moderators
-        Set<String> admins = getUsersAtLeast(UserGroup.ADMIN, user.getDepartment());
+        Set<String> admins = getUsersAtLeast(UserGroup.CLEARING_ADMIN, user.getDepartment());
         ModerationRequest request = createStubRequest(user.getEmail(), false, user.getId(), admins);
 
         // Set meta-data
