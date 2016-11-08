@@ -28,6 +28,18 @@ $copyright##[[Copyright Holders Of the Open Source Component#1]]
 
 #end
 ....
+Acknowledgements
+
+#foreach($compName in $acknowledgements.keySet())
+$compName
+
+#set($acks = $acknowledgements.get($compName))
+#foreach($ack in ${acks}   )
+$ack##[[License Acknowledgement Of the Open Source Component#1]]
+
+#end
+#end
+....
 
 Open Source Software Licenses
 

@@ -93,6 +93,17 @@ $esc.xml($copyright)
 #end
 #end
     </pre>
+#if(${acknowledgements.get($releaseName)})
+
+    Acknowledgements:<br/>
+    <pre class="acknowledgements">
+#set($acks = [])
+#set($acks = $acknowledgements.get($releaseName))
+#foreach($ack in ${acks})
+$esc.xml($ack)
+#end
+    </pre>
+#end
 
     Licenses:<br/>
         #set($licenses = [])

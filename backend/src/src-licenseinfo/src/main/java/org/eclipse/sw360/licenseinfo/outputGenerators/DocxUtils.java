@@ -16,6 +16,7 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
@@ -35,10 +36,10 @@ public class DocxUtils {
     }
 
     public static XWPFTable createTableAndAddReleasesTableHeaders(XWPFDocument document, String[] headers) {
-        if (headers.length < 4) {
+        if (headers.length < 5) {
             throw new IllegalArgumentException("Too few table headers found. Need 4 table headers.");
         }
-        XWPFTable table = document.createTable(1, 4);
+        XWPFTable table = document.createTable(1, 5);
         styleTable(table);
         XWPFTableRow headerRow = table.getRow(0);
 
@@ -66,6 +67,7 @@ public class DocxUtils {
         for (LicenseInfoParsingResult result : projectLicenseInfoResults) {
             Set<String> copyrights = Collections.EMPTY_SET;
             Set<LicenseNameWithText> licenseNamesWithTexts = Collections.EMPTY_SET;
+            Set<String> acknowledgements = Collections.EMPTY_SET;
             if (result.isSetLicenseInfo()) {
                 LicenseInfo licenseInfo = result.getLicenseInfo();
                 if (licenseInfo.isSetCopyrights()) {
@@ -73,16 +75,19 @@ public class DocxUtils {
                 }
                 if (licenseInfo.isSetLicenseNamesWithTexts()) {
                     licenseNamesWithTexts = licenseInfo.getLicenseNamesWithTexts();
+                    acknowledgements = licenseNamesWithTexts.stream()
+                            .map(LicenseNameWithText::getAcknowledgements)
+                            .filter(Objects::nonNull).collect(Collectors.toSet());
                 }
             }
             String releaseName = nullToEmptyString(result.getName());
             String version = nullToEmptyString(result.getVersion());
 
-            addTableRow(table, releaseName, version, licenseNamesWithTexts, copyrights);
+            addTableRow(table, releaseName, version, licenseNamesWithTexts, acknowledgements, copyrights);
         }
     }
 
-    private static void addTableRow(XWPFTable table, String releaseName, String version, Set<LicenseNameWithText> licenseNamesWithTexts, Set<String> copyrights) {
+    private static void addTableRow(XWPFTable table, String releaseName, String version, Set<LicenseNameWithText> licenseNamesWithTexts, Set<String> acknowledgements, Set<String> copyrights) {
         XWPFTableRow row = table.createRow();
 
         XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
@@ -107,6 +112,13 @@ public class DocxUtils {
         }
 
         currentParagraph = row.getCell(3).getParagraphs().get(0);
+        styleTableHeaderParagraph(currentParagraph);
+        currentRun = currentParagraph.createRun();
+        for (String ack : acknowledgements) {
+            addFormattedText(currentRun, ack, 12);
+            addNewLines(currentRun, 1);
+        }
+        currentParagraph = row.getCell(4).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
         for (String copyright : copyrights) {

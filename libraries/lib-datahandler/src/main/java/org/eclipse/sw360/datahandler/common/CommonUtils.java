@@ -579,4 +579,9 @@ public class CommonUtils {
     public static boolean isNullEmptyOrWhitespace(String string){
         return string==null || string.trim().length() == 0;
     }
+
+    public static <T> java.util.function.Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Set<Object> visitedKeys = new HashSet<>();
+        return t -> visitedKeys.add(keyExtractor.apply(t));
+    }
 }

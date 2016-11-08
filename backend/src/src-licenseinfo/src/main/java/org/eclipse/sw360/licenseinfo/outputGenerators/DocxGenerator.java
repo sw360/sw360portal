@@ -51,6 +51,7 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
         String[] tableHeaders = {"Name of OSS Component",
                 "Version of OSS Component",
                 "Name and Version of License (see Appendix for License Text)",
+                "Acknowledgements",
                 "More Information"};
         XWPFTable table = createTableAndAddReleasesTableHeaders(document, tableHeaders);
         fillReleasesTable(table, projectLicenseInfoResults);
