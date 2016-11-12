@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.SW360Constants.TYPE_USER;
 
@@ -202,17 +203,21 @@ public class UserUtils {
     public static UserGroup getUserGroupFromLiferayUser(com.liferay.portal.model.User user) {
 
         try {
-            List<Role> roles = user.getRoles();
+            List<String> roleNames = user.getRoles().stream()
+                    .map(Role::getName)
+                    .collect(Collectors.toList());
 
-            List<String> roleNames = new ArrayList<>();
-
-            for (Role role : roles) {
-                roleNames.add(role.getName());
+            if (roleNames.contains(PortalConstants.ROLENAME_ADMIN)) {
+                return UserGroup.ADMIN;
+            } else if (roleNames.contains(PortalConstants.ROLENAME_SW360_ADMIN)) {
+                return UserGroup.SW360_ADMIN;
+            } else if (roleNames.contains(PortalConstants.ROLENAME_CLEARING_ADMIN)) {
+                return UserGroup.CLEARING_ADMIN;
+            } else if (roleNames.contains(PortalConstants.ROLENAME_ECC_ADMIN)) {
+                return UserGroup.ECC_ADMIN;
+            } else if (roleNames.contains(PortalConstants.ROLENAME_SECURITY_ADMIN)) {
+                return UserGroup.SECURITY_ADMIN;
             }
-
-            if (roleNames.contains(PortalConstants.ROLENAME_ADMIN)) return UserGroup.ADMIN;
-            else if (roleNames.contains(PortalConstants.ROLENAME_CLEARING_ADMIN)) return UserGroup.CLEARING_ADMIN;
-            else if (roleNames.contains(PortalConstants.ROLENAME_ECC_ADMIN)) return UserGroup.ECC_ADMIN;
 
         } catch (SystemException e) {
             log.error("Problem retrieving UserGroup", e);
@@ -236,14 +241,18 @@ public class UserUtils {
 
     public static String getRoleConstantFromUserGroup(UserGroup group) {
         switch (group) {
-            case USER:
-                return RoleConstants.USER;
+            case ADMIN:
+                return RoleConstants.ADMINISTRATOR;
+            case SW360_ADMIN:
+                return PortalConstants.ROLENAME_SW360_ADMIN;
             case CLEARING_ADMIN:
                 return PortalConstants.ROLENAME_CLEARING_ADMIN;
             case ECC_ADMIN:
                 return PortalConstants.ROLENAME_ECC_ADMIN;
-            case ADMIN:
-                return RoleConstants.ADMINISTRATOR;
+            case SECURITY_ADMIN:
+                return PortalConstants.ROLENAME_SECURITY_ADMIN;
+            case USER:
+                return RoleConstants.USER;
         }
         return RoleConstants.USER;
     }

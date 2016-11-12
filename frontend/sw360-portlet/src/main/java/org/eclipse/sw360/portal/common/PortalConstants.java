@@ -37,6 +37,9 @@ public class PortalConstants {
     public static final String ROLENAME_ADMIN = "Administrator";
     public static final String ROLENAME_CLEARING_ADMIN = "Clearing Admin";
     public static final String ROLENAME_ECC_ADMIN = "ECC Admin";
+    public static final String ROLENAME_SECURITY_ADMIN = "Security Admin";
+    public static final String ROLENAME_SW360_ADMIN = "SW360 Admin";
+
 
     //! Standard keys for Lists and their size
     public static final String KEY_SUMMARY = "documents";

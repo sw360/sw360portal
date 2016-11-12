@@ -172,12 +172,14 @@ public class ThriftEnumUtils {
             ProjectClearingState.IN_PROGRESS, "In Progress",
             ProjectClearingState.CLOSED, "Closed");
 
-    private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.of(
-            UserGroup.USER, "User" ,
-            UserGroup.CLEARING_ADMIN, "Clearing Admin" ,
-            UserGroup.ADMIN, "Admin",
-            UserGroup.ECC_ADMIN, "ECC Admin"
-          );
+    private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.<UserGroup, String>builder()
+            .put(UserGroup.USER, "User")
+            .put(UserGroup.ADMIN, "Admin")
+            .put(UserGroup.CLEARING_ADMIN, "Clearing Admin")
+            .put(UserGroup.ECC_ADMIN, "ECC Admin")
+            .put(UserGroup.SECURITY_ADMIN, "Security Admin")
+            .put(UserGroup.SW360_ADMIN, "SW360 Admin")
+            .build();
 
     private static final ImmutableMap<VulnerabilityRatingForProject, String> MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING = ImmutableMap.of(
             VulnerabilityRatingForProject.NOT_CHECKED, "Not Checked" ,
