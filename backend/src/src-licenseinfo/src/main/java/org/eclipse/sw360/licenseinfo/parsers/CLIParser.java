@@ -57,8 +57,7 @@ public class CLIParser extends LicenseInfoParser {
 
     private static final List<AttachmentType> ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
             AttachmentType.COMPONENT_LICENSE_INFO_XML,
-            AttachmentType.COMPONENT_LICENSE_INFO_COMBINED,
-            AttachmentType.OTHER);
+            AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
 
     public CLIParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
         super(attachmentConnector, attachmentContentProvider);

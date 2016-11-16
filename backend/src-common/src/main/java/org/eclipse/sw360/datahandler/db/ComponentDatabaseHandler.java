@@ -78,6 +78,7 @@ public class ComponentDatabaseHandler {
      */
     private final ComponentModerator moderator;
     private final ReleaseModerator releaseModerator;
+    public static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED, AttachmentType.SCAN_RESULT_REPORT, AttachmentType.SCAN_RESULT_REPORT_XML);
 
 
     public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
@@ -624,21 +625,15 @@ public class ComponentDatabaseHandler {
     // HELPER SERVICES //
     /////////////////////
 
-    public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap) {
-        List<ReleaseLink> out;
-
-        CountingStack<String> visitedIds = new CountingStack<>();
-
-        out = iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
-
-        return out;
+    List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap, CountingStack<String> visitedIds) {
+        return iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
     }
 
     public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations) {
 
         final Map<String, Release> releaseMap = getAllReleasesIdMap();
 
-        return getLinkedReleases(relations, releaseMap);
+        return getLinkedReleases(relations, releaseMap, new CountingStack<>());
     }
 
     public Map<String, Release> getAllReleasesIdMap() {
@@ -706,6 +701,11 @@ public class ComponentDatabaseHandler {
         }
         ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
         releaseLink.setClearingState(release.getClearingState());
+        List<Attachment> licenseInfoAttachments = release.getAttachments().stream()
+                .filter(att -> LICENSE_INFO_ATTACHMENT_TYPES.contains(att.getAttachmentType()))
+                .sorted(Comparator.comparing(Attachment::getCreatedTeam).thenComparing(Comparator.comparing(Attachment::getCreatedOn).reversed()))
+                .collect(Collectors.toList());
+        releaseLink.setLicenseInfoAttachments(licenseInfoAttachments);
         return releaseLink;
     }
 

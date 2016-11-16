@@ -61,20 +61,20 @@ service LicenseInfoService {
     /**
      * Returns the CLI contained in the attachment, if any
      * */
-    LicenseInfoParsingResult getLicenseInfoForAttachment(1: Attachment attachment);
+//    LicenseInfoParsingResult getLicenseInfoForAttachment(1: Attachment attachment);
 
     /**
      * Returns the CLI for the given release.
      * */
-    LicenseInfoParsingResult getLicenseInfoForRelease(1: Release release);
+//    LicenseInfoParsingResult getLicenseInfoForRelease(1: Release release, 2: string selectedAttachmentContentId);
 
     /**
      * get a copyright and license information file on all linked releases and linked releases of linked projects (recursively)
      * output format as specified by outputType
      */
-    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType);
+    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType, 4: map<string, string>releaseIdsToSelectedAttachmentIds);
 
-    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType);
+    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType, 4: map<string, string>releaseIdsToSelectedAttachmentIds);
 
     /**
       * returns all available output types

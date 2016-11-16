@@ -60,16 +60,16 @@ public class SPDXParser extends LicenseInfoParser {
             AttachmentType.DECISION_REPORT,
             AttachmentType.LEGAL_EVALUATION,
             AttachmentType.LICENSE_AGREEMENT,
+            AttachmentType.DOCUMENT,
+            AttachmentType.OTHER,
             AttachmentType.SCREENSHOT
     );
     // Thus acceptable attachment types are:
     //
-    //  - AttachmentType.DOCUMENT
     //  - AttachmentType.COMPONENT_LICENSE_INFO_XML
     //  - AttachmentType.COMPONENT_LICENSE_INFO_COMBINED
     //  - AttachmentType.SCAN_RESULT_REPORT
     //  - AttachmentType.SCAN_RESULT_REPORT_XML
-    //  - AttachmentType.OTHER
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
