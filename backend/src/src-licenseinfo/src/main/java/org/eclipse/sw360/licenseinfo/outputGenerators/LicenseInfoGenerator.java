@@ -31,7 +31,7 @@ public class LicenseInfoGenerator extends OutputGenerator<String> {
     Logger log = Logger.getLogger(LicenseInfoGenerator.class);
 
     public LicenseInfoGenerator() {
-        super("txt", "License information as TEXT",false);
+        super("txt", "License information as TEXT", false, "text/plain");
     }
 
     @Override

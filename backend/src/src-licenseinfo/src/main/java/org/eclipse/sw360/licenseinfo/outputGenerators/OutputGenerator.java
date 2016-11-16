@@ -27,11 +27,13 @@ public abstract class OutputGenerator<T> {
     private final String OUTPUT_TYPE;
     private final String OUTPUT_DESCRIPTION;
     private final boolean IS_OUTPUT_BINARY;
+    private final String OUTPUT_MIME_TYPE;
 
-    OutputGenerator(String outputType, String outputDescription, boolean isOutputBinary){
+    OutputGenerator(String outputType, String outputDescription, boolean isOutputBinary, String mimeType){
         OUTPUT_TYPE = outputType;
         OUTPUT_DESCRIPTION = outputDescription;
         IS_OUTPUT_BINARY = isOutputBinary;
+        OUTPUT_MIME_TYPE = mimeType;
     }
 
     public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception;
@@ -48,12 +50,17 @@ public abstract class OutputGenerator<T> {
         return IS_OUTPUT_BINARY;
     }
 
+    public String getOutputMimeType() {
+        return OUTPUT_MIME_TYPE;
+    }
+
     public OutputFormatInfo getOutputFormatInfo() {
         return new OutputFormatInfo()
                 .setFileExtension(getOutputType())
                 .setDescription(getOutputDescription())
                 .setIsOutputBinary(isOutputBinary())
-                .setGeneratorClassName(this.getClass().getName());
+                .setGeneratorClassName(this.getClass().getName())
+                .setMimeType(getOutputMimeType());
     }
 
     public String getComponentLongName(LicenseInfoParsingResult li) {

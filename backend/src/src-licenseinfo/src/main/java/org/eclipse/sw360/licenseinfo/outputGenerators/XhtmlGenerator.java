@@ -32,7 +32,7 @@ public class XhtmlGenerator extends OutputGenerator<String> {
     Logger log = Logger.getLogger(XhtmlGenerator.class);
 
     public XhtmlGenerator() {
-        super("html", "License information as XHTML", false);
+        super("html", "License information as XHTML", false, "application/xhtml+xml");
     }
 
     @Override

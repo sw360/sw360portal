@@ -27,7 +27,8 @@ struct OutputFormatInfo{
     1: optional string fileExtension,
     2: optional string description,
     3: optional string generatorClassName,
-    4: bool isOutputBinary
+    4: bool isOutputBinary,
+    5: optional string mimeType,
 }
 
 struct LicenseNameWithText{

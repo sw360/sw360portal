@@ -157,9 +157,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName);
                 byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
                 licenseInfoByteBuffer.get(licenseInfoByteArray);
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, "text/plain");
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, outputFormatInfo.getMimeType());
             } else {
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), outputFormatInfo.getMimeType());
             }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
