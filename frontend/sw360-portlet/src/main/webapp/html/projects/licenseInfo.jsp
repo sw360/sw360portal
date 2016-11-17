@@ -53,7 +53,7 @@
                 <th colspan="4" class="headlabel">Linked Releases And Projects</th>
             </tr>
             <tr>
-                <th width="5%"><input type="checkbox" /></th>
+                <th width="5%"><input type="checkbox" checked="checked" id="selectAllCheckbox"/></th>
                 <th width="30%">Name</th>
                 <th width="30%">Uploaded by</th>
                 <th width="30%">Clearing Team</th>
@@ -110,7 +110,7 @@
                                 <input type="checkbox"
                                        name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_RELEASE_TO_ATTACHMENT%>"
                                        value="${releaseLink.id}:${attachment.attachmentContentId}"
-                                       <core_rt:if test="${!attachmentSelected && (releaseLink.licenseInfoAttachments.size() == 1 || attachment.createdTeam == sw360User.department)}">checked="checked"
+                                       <core_rt:if test="${!attachmentSelected && (releaseLink.licenseInfoAttachments.size() == 1 || attachment.createdTeam == sw360User.department)}">checked="checked" class="defaultChecked"
                                             <core_rt:set var="attachmentSelected" value="true" scope="request"/>
                                        </core_rt:if>
                                 />
@@ -150,6 +150,23 @@
 <script>
     $(window).load(function () {
         $("#LinkedProjectsInfo").treetable({expandable: true, column: 1, initialState: "expanded"});
+        $("#selectAllCheckbox").on("change", function() {
+            var uncheckAll = function() {
+                $("#LinkedProjectsInfo").find(":checkbox:not(#selectAllCheckbox)").each(function () {
+                    this.checked = false;
+                })
+
+            };
+            if (this.checked){
+                uncheckAll();
+                $("#LinkedProjectsInfo").find(":checkbox.defaultChecked").each(function () {
+                    this.checked = true;
+                })
+            } else {
+                uncheckAll();
+            }
+        })
     });
+
 </script>
 </core_rt:if>
