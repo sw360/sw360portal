@@ -8,6 +8,7 @@
   --%>
 <%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@include file="/html/init.jsp"%>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%-- the following is needed by liferay to display error messages--%>
@@ -47,16 +48,16 @@
 
     <div id="content" >
         <form id="downloadLicenseInfoForm" name="downloadLicenseInfoForm" action="<%=downloadLicenseInfoURL%>" method="post">
-        <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects">
+        <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
             <thead>
             <tr>
                 <th colspan="4" class="headlabel">Linked Releases And Projects</th>
             </tr>
             <tr>
-                <th width="5%"><input type="checkbox" checked="checked" id="selectAllCheckbox"/></th>
-                <th width="30%">Name</th>
-                <th width="30%">Uploaded by</th>
-                <th width="30%">Clearing Team</th>
+                <th><input type="checkbox" checked="checked" id="selectAllCheckbox"/></th>
+                <th>Name</th>
+                <th>Uploaded by</th>
+                <th>Clearing Team</th>
             </tr>
             </thead>
             <tbody>
@@ -67,14 +68,14 @@
                         <core_rt:if
                                 test="${not empty projectLink.parentNodeId}">data-tt-parent-id="${projectLink.parentNodeId}"</core_rt:if>
                     >
-                        <td width="5%" />
-                        <td width="30%">
+                        <td></td>
+                        <td>
                             <a href="<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />"><sw360:out
                                     value="${projectLink.name} ${projectLink.version}"/></a>
                         </td>
-                        <td width="30%">
+                        <td>
                         </td>
-                        <td width="30%">
+                        <td>
                         </td>
                     </tr>
                 </core_rt:if>
@@ -82,31 +83,31 @@
                 <core_rt:forEach items="${projectLink.linkedReleases}" var="releaseLink" varStatus="releaseloop">
                     <tr id="releaseLinkRow${loop.count}_${releaseloop.count}" data-tt-id="${releaseLink.nodeId}"
                         <core_rt:if test="${loop.index!=0}">data-tt-parent-id="${projectLink.nodeId}"</core_rt:if>
-                        <core_rt:if test="${empty releaseLink.licenseInfoAttachments || releaseLink.licenseInfoAttachments.size() == 0}">class="highlightedRed"</core_rt:if>
-                        <core_rt:if test="${releaseLink.licenseInfoAttachments.size() == 1}">class="highlightedGreen"</core_rt:if>
-                        <core_rt:if test="${releaseLink.licenseInfoAttachments.size() > 1}">class="highlightedYellow"</core_rt:if>
+                        <core_rt:if test="${empty releaseLink.licenseInfoAttachments}">class="highlightedRed"</core_rt:if>
+                        <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) == 1}">class="highlightedGreen"</core_rt:if>
+                        <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) gt 1}">class="highlightedYellow"</core_rt:if>
                     >
-                        <td width="5%"/>
-                        <td width="30%">
+                        <td></td>
+                        <td>
                             <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
                                 <sw360:out value="${releaseLink.vendor}"/><core_rt:if
                                     test="${not empty releaseLink.vendor}">&nbsp;</core_rt:if><sw360:out
                                     value="${releaseLink.name} ${releaseLink.version}"/>
                             </a>
                         </td>
-                        <td width="30%">
+                        <td>
                         </td>
-                        <td width="30%">
+                        <td>
                         </td>
                     </tr>
                     <core_rt:set var="attachmentSelected" value="false" scope="request"/>
                     <core_rt:forEach items="${releaseLink.licenseInfoAttachments}" var="attachment" varStatus="attachmentloop">
                         <tr id="attachmentRow${loop.count}_${releaseloop.count}_${attachmentloop.count}" data-tt-id="${releaseLink.nodeId}_${attachment.attachmentContentId}"
                             data-tt-parent-id="${releaseLink.nodeId}"
-                            <core_rt:if test="${releaseLink.licenseInfoAttachments.size() == 1}">class="highlightedGreen"</core_rt:if>
-                            <core_rt:if test="${releaseLink.licenseInfoAttachments.size() > 1}">class="highlightedYellow"</core_rt:if>
+                            <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) == 1}">class="highlightedGreen"</core_rt:if>
+                            <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) gt 1}">class="highlightedYellow"</core_rt:if>
                         >
-                            <td width="5%">
+                            <td>
                                 <input type="checkbox"
                                        name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_RELEASE_TO_ATTACHMENT%>"
                                        value="${releaseLink.id}:${attachment.attachmentContentId}"
@@ -115,13 +116,13 @@
                                        </core_rt:if>
                                 />
                             </td>
-                            <td width="30%">
+                            <td>
                                 <sw360:out value="${attachment.filename}"/>
                             </td>
-                            <td width="30%">
+                            <td>
                                 <sw360:DisplayUserEmail email="${attachment.createdBy}"/>
                             </td>
-                            <td width="30%">
+                            <td>
                                 <sw360:out value="${attachment.createdTeam}"/>
                             </td>
                         </tr>
