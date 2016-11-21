@@ -1,5 +1,6 @@
 /*
  * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * With modifications by Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -10,12 +11,16 @@
 package org.eclipse.sw360.cvesearch.datasource;
 
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.cvesearch.service.CveSearchHandler;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+
+import static org.eclipse.sw360.cvesearch.datasource.CveSearchDataTestHelper.isUrlReachable;
 
 public class CveSearchApiImplTest {
 
@@ -29,7 +34,8 @@ public class CveSearchApiImplTest {
     @Before
     public void setUp() {
         Properties props = CommonUtils.loadProperties(CveSearchApiImplTest.class, "/cvesearch.properties");
-        String host = props.getProperty("cvesearch.host","https://localhost:5000");
+        String host = props.getProperty(CveSearchHandler.CVESEARCH_HOST_PROPERTY, "https://localhost:5000");
+        Assume.assumeTrue("CVE Search host is reachable", isUrlReachable(host));
         cveSearchApi = new CveSearchApiImpl(host);
     }
 
