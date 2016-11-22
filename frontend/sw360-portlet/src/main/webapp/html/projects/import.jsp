@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) Bosch Software Innovations GmbH 2015.
+  ~ Copyright (c) Bosch Software Innovations GmbH 2015-2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -101,7 +101,7 @@
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js" type="text/javascript"></script>
 
 <script>
-    var oTable;
+    var dataSourceTable;
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
         PortletURL = Liferay.PortletURL;
@@ -132,7 +132,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#dataSourceTable').DataTable({
+        dataSourceTable = $('#dataSourceTable').DataTable({
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
@@ -151,7 +151,7 @@
             bodyContent = "<ol>",
             selectedProjects = [];
 
-        oTable.rows('.selected').data().each(function(e) {
+        dataSourceTable.rows('.selected').data().each(function(e) {
             chtml = $("<div/>").html(e[0]).contents();
 
             selectedProjects.push({
@@ -195,7 +195,7 @@
     function importProjectsData(modal) {
         var checked = [];
 
-        oTable.rows('.selected').data().each(function(e) {
+        dataSourceTable.rows('.selected').data().each(function(e) {
             var chtml = $("<div/>").html(e[0]).contents();
             checked.push(chtml.attr('id'));
         });
@@ -277,7 +277,7 @@
             });
         });
 
-        oTable = $('#dataSourceTable').DataTable({
+        dataSourceTable = $('#dataSourceTable').DataTable({
             "bDestroy": true,
             "sPaginationType": "full_numbers",
             "aoColumns": [
@@ -320,7 +320,7 @@
             type: 'POST',
             data: data,
             success: function(response) {
-                oTable = $('#dataSourceTable').DataTable({
+                dataSourceTable = $('#dataSourceTable').DataTable({
                     "bDestroy": true,
                     "sPaginationType": "full_numbers",
                     "aoColumns": [

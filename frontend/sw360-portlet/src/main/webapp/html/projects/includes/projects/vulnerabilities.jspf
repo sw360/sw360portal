@@ -48,7 +48,7 @@
 </div>
 
 <script type="text/javascript">
-    var oTable;
+    var projectVulnerabilityTable;
     var modal;
     var ratingChangeSelect;
 
@@ -85,7 +85,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#vulnerabilityTable').DataTable({
+        projectVulnerabilityTable = $('#vulnerabilityTable').DataTable({
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
@@ -106,7 +106,7 @@
             ],
             "order": [[ 2, 'asc' ], [ 3, 'desc' ]]
         });
-        oTable.$('td').tooltip({
+        projectVulnerabilityTable.$('td').tooltip({
             "delay": 0,
             "track": true,
             "fade": 250,

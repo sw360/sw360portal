@@ -67,7 +67,7 @@
 <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 
 <script>
-    var oTable;
+    var vulnerabilityTable;
 
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
@@ -81,7 +81,7 @@
     }
 
     function useSearch(searchFieldId) {
-        oTable.fnFilter( $('#'+searchFieldId).val());
+        vulnerabilityTable.fnFilter( $('#'+searchFieldId).val());
     }
 
     function createVulnerabilityTable() {
@@ -108,7 +108,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#vulnerabilitiesTable').dataTable({
+        vulnerabilityTable = $('#vulnerabilitiesTable').dataTable({
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
@@ -120,7 +120,7 @@
             ],
             "order": [[2, 'asc'], [3, 'desc']]
         });
-        oTable.$('td').tooltip({"delay": 0, "track": true, "fade": 250});
+        vulnerabilityTable.$('td').tooltip({"delay": 0, "track": true, "fade": 250});
 
         $('#vulnerabilitiesTable_filter').hide();
         $('#vulnerabilitiesTable_first').hide();

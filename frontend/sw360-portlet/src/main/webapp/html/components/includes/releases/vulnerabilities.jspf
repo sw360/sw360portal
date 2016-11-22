@@ -50,7 +50,7 @@
 </div>
 
 <script type="text/javascript">
-    var oTable;
+    var vulnerabilityTable;
     var modal;
     var releaseVerificationChangeSelect;
 
@@ -85,7 +85,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#vulnerabilityTable').dataTable({
+        vulnerabilityTable = $('#vulnerabilityTable').dataTable({
             "sPaginationType": "full_numbers",
             "aaData": result,
             "aoColumns": [
@@ -105,7 +105,7 @@
             ],
             "order": [[1, 'asc'], [2, 'desc']]
         });
-        oTable.$('td').tooltip({
+        vulnerabilityTable.$('td').tooltip({
             "delay": 0,
             "track": true,
             "fade": 250,

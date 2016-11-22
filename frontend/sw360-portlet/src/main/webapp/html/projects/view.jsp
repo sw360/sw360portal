@@ -208,7 +208,7 @@
 <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
 
 <script>
-    var oTable;
+    var projectsTable;
 
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
@@ -224,7 +224,7 @@
     function useSearch(buttonId) {
         <%-- we only want to search names starting with the value in the search box--%>
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
-        oTable.columns(0).search('^' + val, true).draw();
+        projectsTable.columns(0).search('^' + val, true).draw();
     }
 
     function makeProjectUrl(projectId, page) {
@@ -281,7 +281,7 @@
         });
         </core_rt:forEach>
 
-         oTable = $('#projectsTable').DataTable({
+         projectsTable = $('#projectsTable').DataTable({
              "sPaginationType": "full_numbers",
              "aaData": result,
              search: {smart: false},
@@ -347,7 +347,7 @@
                  },
                  success: function (data) {
                      if (data.result == 'SUCCESS') {
-                         oTable.row('#' + projectId).remove().draw();
+                         projectsTable.row('#' + projectId).remove().draw(false);
                      }
                      else if (data.result == 'SENT_TO_MODERATOR') {
                          $.alert("You may not delete the project, but a request was sent to a moderator!");
