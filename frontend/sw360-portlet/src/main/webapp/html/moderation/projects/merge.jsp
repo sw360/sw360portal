@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -45,7 +45,7 @@
 
 <h2>Current Project</h2>
 <core_rt:set var="inProjectDetailsContext" value="false" scope="request"/>
-<%@include file="/html/projects/detailOverview.jspf"%>
+<%@include file="/html/projects/includes/detailOverview.jspf"%>
 
 <script>
     var tabView;
@@ -82,6 +82,10 @@
 
     function deleteProjectLink(rowId, linkedProjectId){
         alert("You can not delete individual project links in the moderation, if you accept the request all links (original projects will prevail) will be deleted.");
+    }
+
+    function openSelectClearingDialog(fieldId, releaseId) {
+        alert("You can not send to fossology from moderation");
     }
 
 </script>
