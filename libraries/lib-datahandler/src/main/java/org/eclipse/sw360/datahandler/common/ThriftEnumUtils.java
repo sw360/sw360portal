@@ -19,6 +19,7 @@ import org.eclipse.sw360.datahandler.thrift.Visibility;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @author Gerrit.Grenzebach@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author Andreas.Reichel@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 
 public class ThriftEnumUtils {
@@ -166,6 +168,11 @@ public class ThriftEnumUtils {
             ProjectState.PHASE_OUT, "Phase out" ,
             ProjectState.UNKNOWN, "Unknown");
 
+    private static final ImmutableMap<ProjectClearingState, String> MAP_PROJECT_CLEARING_STATE_STRING = ImmutableMap.of(
+            ProjectClearingState.OPEN, "Open",
+            ProjectClearingState.IN_PROGRESS, "In Progress",
+            ProjectClearingState.CLOSED, "Closed");
+
     private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.of(
             UserGroup.USER, "User" ,
             UserGroup.CLEARING_ADMIN, "Clearing Admin" ,
@@ -201,6 +208,7 @@ public class ThriftEnumUtils {
             .put(UserGroup.class, MAP_USER_GROUP_STRING)
             .put(Visibility.class, MAP_VISIBILITY_STRING)
             .put(ProjectState.class, MAP_PROJECT_STATE_STRING)
+            .put(ProjectClearingState.class, MAP_PROJECT_CLEARING_STATE_STRING)
             .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
             .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
             .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)

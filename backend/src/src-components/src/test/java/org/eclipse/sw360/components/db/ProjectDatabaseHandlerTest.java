@@ -16,6 +16,8 @@ import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
 import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
 import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
@@ -55,6 +57,7 @@ public class ProjectDatabaseHandlerTest {
     private List<Project> projects;
     private List<Vendor> vendors;
     private List<Release> releases;
+    private List<Component> components;
     private ProjectDatabaseHandler handler;
 
     @Mock
@@ -77,6 +80,10 @@ public class ProjectDatabaseHandlerTest {
         releases.add(release2a);
         Release release2b = new Release().setId("R2B").setComponentId("C2").setName("component2").setVersion("releaseB").setVendorId("V1");
         releases.add(release2b);
+
+        components = new ArrayList<>();
+        Component component1 = new Component().setId("C1").setName("component1").setDescription("d1").setComponentType(ComponentType.OSS);
+        components.add(component1);
 
         projects = new ArrayList<>();
         Project project1 = new Project().setId("P1").setName("project1").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.CONTAINED));
@@ -106,6 +113,9 @@ public class ProjectDatabaseHandlerTest {
         for (Release release : releases) {
             databaseConnector.add(release);
         }
+        for (Component component : components) {
+            databaseConnector.add(component);
+        }
         for (Project project : projects) {
             databaseConnector.add(project);
         }
@@ -132,8 +142,8 @@ public class ProjectDatabaseHandlerTest {
 
         final List<ProjectLink> linkedProjects = completionFuture.get();
 
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA").setComment("used").setNodeId("R1A_1");
-        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB").setComment("abused").setNodeId("R1B_1");
+        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA").setComment("used").setNodeId("R1A_1").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB").setComment("abused").setNodeId("R1B_1").setComponentType(ComponentType.OSS);
         ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA").setComment("used").setNodeId("R2A_1");
         ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB").setComment("considered for use").setNodeId("R2B_1");
 

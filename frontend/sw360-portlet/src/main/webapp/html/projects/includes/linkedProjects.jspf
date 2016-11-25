@@ -22,16 +22,18 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
 <script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
 
-<table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects">
+<table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
     <thead>
     <tr>
-        <th colspan="4" class="headlabel">Linked Releases And Projects</th>
+        <th colspan="6" class="headlabel">Linked Releases And Projects</th>
     </tr>
     <tr>
-        <th width="25%">Name</th>
-        <th width="25%">Version</th>
-        <th width="25%">Relation</th>
-        <th width="25%">Main Licenses</th>
+        <th>Name</th>
+        <th>Version</th>
+        <th>Relation</th>
+        <th>Type</th>
+        <th>Clearing State</th>
+        <th>Main Licenses</th>
     </tr>
     </thead>
     <tbody>
@@ -44,13 +46,19 @@
         >
             <td>
                 <a href="<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />"><sw360:out
-                        value="${projectLink.name}"/></a>
+                        value="${projectLink.name}" maxChar="50"/></a>
             </td>
             <td>
                 <sw360:out value="${projectLink.version}"/>
             </td>
             <td>
                 <sw360:DisplayEnum value="${projectLink.relation}"/>
+            </td>
+            <td>
+                <sw360:DisplayEnum value="${projectLink.projectType}"/>
+            </td>
+            <td>
+                <sw360:DisplayEnum value="${projectLink.clearingState}"/>
             </td>
             <td>
             </td>
@@ -63,9 +71,7 @@
             >
                 <td>
                     <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
-                        <sw360:out value="${releaseLink.vendor}"/><core_rt:if
-                            test="${not empty releaseLink.vendor}">&nbsp;</core_rt:if><sw360:out
-                            value="${releaseLink.name}"/>
+                        <sw360:out value="${releaseLink.vendor} ${releaseLink.name}" maxChar="50"/>
                     </a>
                 </td>
                 <td>
@@ -78,6 +84,12 @@
                     <core_rt:if test="${releaseLink.setReleaseRelationship}">
                         <sw360:out value="${releaseLink.releaseRelationship}"/>
                     </core_rt:if>
+                </td>
+                <td>
+                    <sw360:DisplayEnum value="${releaseLink.componentType}"/>
+                </td>
+                <td>
+                    <sw360:DisplayEnum value="${releaseLink.clearingState}"/>
                 </td>
                 <td>
                     <core_rt:if test="${releaseLink.setLicenseIds}">

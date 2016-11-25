@@ -11,6 +11,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectType" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectState" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.Visibility" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState" %>
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
@@ -50,11 +51,13 @@
 
     <tr>
         <td width="33%">
-            <label class="textlabel stackedLabel" for="proj_desc">Description</label>
-                <textarea class="toplabelledInput" id="proj_desc"
-                          name="<portlet:namespace/><%=Project._Fields.DESCRIPTION%>" rows="4" cols="30"
-                          style="width:200px; height: 25px; resize:both;"
-                          placeholder="Enter Description"><sw360:out value="${project.description}" stripNewlines="false"/></textarea>
+            <label class="textlabel stackedLabel" for="proj_projectclearingstate">Project clearing state</label>
+            <select class="toplabelledInput" id="proj_projectclearingstate"
+                    name="<portlet:namespace/><%=Project._Fields.CLEARING_STATE%>"
+                    style="min-width: 162px; min-height: 28px;">
+
+                <sw360:DisplayEnumOptions type="<%=ProjectClearingState.class%>" selected="${project.clearingState}"/>
+            </select>
         </td>
 
         <td width="33%">
@@ -80,6 +83,14 @@
 
     <tr>
         <td width="33%">
+            <label class="textlabel stackedLabel" for="proj_desc">Description</label>
+            <textarea class="toplabelledInput" id="proj_desc"
+                      name="<portlet:namespace/><%=Project._Fields.DESCRIPTION%>" rows="4" cols="30"
+                      style="width: 200px; height: 25px; resize:both;"
+                      placeholder="Enter Description"><sw360:out value="${project.description}" stripNewlines="false"/></textarea>
+        </td>
+
+        <td width="33%">
             <label class="textlabel stackedLabel" for="proj_tag">Tag</label>
             <input class="toplabelledInput" id="proj_tag" name="<portlet:namespace/><%=Project._Fields.TAG%>"
                    type="text"
@@ -92,12 +103,20 @@
                    type="URL"
                    value="<sw360:out value="${project.homepage}"/>" placeholder="Enter Home Url"/>
         </td>
+    </tr>
 
+    <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_wiki">Wiki URL</label>
             <input class="toplabelledInput" id="proj_wiki" name="<portlet:namespace/><%=Project._Fields.WIKI%>"
                    type="URL"
                    value="<sw360:out value="${project.wiki}"/>" placeholder="Enter Wiki Url"/>
+        </td>
+
+        <td width="33%">
+        </td>
+
+        <td width="33%">
         </td>
 
     </tr>

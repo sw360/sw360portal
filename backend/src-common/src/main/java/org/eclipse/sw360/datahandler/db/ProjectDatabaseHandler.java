@@ -259,6 +259,7 @@ public class ProjectDatabaseHandler {
                 out.add(projectLinkOptional.get());
             }
         }
+        out.sort(Comparator.comparing(ProjectLink::getName).thenComparing(ProjectLink::getVersion));
         return out;
     }
 
@@ -274,10 +275,13 @@ public class ProjectDatabaseHandler {
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
 
-                projectLink.setNodeId(generateNodeId(id, visitedIds));
-                projectLink.setParentNodeId(generateNodeId(parentId, visitedIds));
-                projectLink.setRelation(relationship);
-                projectLink.setVersion(project.getVersion());
+                projectLink
+                        .setNodeId(generateNodeId(id, visitedIds))
+                        .setParentNodeId(generateNodeId(parentId, visitedIds))
+                        .setRelation(relationship)
+                        .setVersion(project.getVersion())
+                        .setProjectType(project.getProjectType())
+                        .setClearingState(project.getClearingState());
                 if (project.isSetLinkedProjects()) {
                     List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), id, visitedIds, projectMap, releaseMap);
                     projectLink.setSubprojects(subprojectLinks);
