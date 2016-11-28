@@ -36,9 +36,8 @@
     </developers>
     <licenses>
         <license>
-            <name>GPL-2.0-with-classpath-exception.</name>
-            <url>https://spdx.org/licenses/GPL-2.0-with-classpath-exception</url>
-            <distribution>repo</distribution>
+            <name>Eclipse Public License 1.0</name>
+            <url>http://www.eclipse.org/legal/epl-v10.html</url>
         </license>
     </licenses>
     <build>
