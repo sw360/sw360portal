@@ -29,12 +29,13 @@
 
 <h4>Welcome to SW360!</h4>
 
-<h5>Sign Up For an Account<h5>
 <core_rt:if test="${themeDisplay.signedIn}">
     <p style="font-weight: bold;">You are signed in, please go to the private pages on the top-right corner of this site. You do not need to sign up.</p>
-
+    <img src="<%=request.getContextPath()%>/images/welcome/select_private_pages.png" alt=""
+         border="0" width="150"/><br/>
 </core_rt:if>
 <core_rt:if test="${not themeDisplay.signedIn}">
+    <h5>Sign Up For an Account<h5>
 <div id="createAccount">
     <form action="<%=createAccountURL%>" id="signup_form" method="post">
         <table>
