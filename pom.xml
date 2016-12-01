@@ -63,7 +63,7 @@
 
     </properties>
 
-    <groupId>com.siemens.sw360</groupId>
+    <groupId>org.eclipse.sw360</groupId>
     <artifactId>sw360</artifactId>
     <packaging>pom</packaging>
     <version>1.5.0-SNAPSHOT</version>
@@ -194,7 +194,7 @@
                             <configuration>
                                 <artifactItems combine.children="append">
                                     <artifactItem>
-                                        <groupId>com.siemens.sw360</groupId>
+                                        <groupId>org.eclipse.sw360</groupId>
                                         <artifactId>build-configuration</artifactId>
                                         <version>${project.version}</version>
                                         <type>jar</type>
@@ -212,7 +212,7 @@
                             <configuration>
                                 <artifactItems combine.children="append">
                                     <artifactItem>
-                                        <groupId>com.siemens.sw360</groupId>
+                                        <groupId>org.eclipse.sw360</groupId>
                                         <artifactId>build-configuration</artifactId>
                                         <version>${project.version}</version>
                                         <type>test-jar</type>

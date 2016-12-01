@@ -9,7 +9,7 @@
  */
 # Provide enumeration for database sources
 
-namespace java com.siemens.sw360.datahandler.thrift.datasources
+namespace java org.eclipse.sw360.datahandler.thrift.datasources
 
 enum SourceDatabase {
     BDP = 1

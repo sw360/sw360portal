@@ -15,8 +15,8 @@
 <liferay-theme:defineObjects />
 
 <c:catch var="attributeNotFoundException">
-    <jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request"/>
-    <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>"
+    <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request"/>
+    <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>"
                  scope="request"/>
     <jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
     <jsp:useBean id="numberOfUncheckedVulnerabilities" type="java.lang.Integer" scope="request"/>

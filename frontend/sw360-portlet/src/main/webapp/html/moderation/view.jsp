@@ -11,7 +11,7 @@
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -20,7 +20,7 @@
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
 
-<jsp:useBean id="moderationRequests" type="java.util.List<com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest>"
+<jsp:useBean id="moderationRequests" type="java.util.List<org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest>"
              scope="request"/>
 
 <div id="header"></div>

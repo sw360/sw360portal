@@ -12,9 +12,9 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 
-<jsp:useBean id="releaseSearch" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Release>" class="java.util.ArrayList" scope="request"/>
+<jsp:useBean id="releaseSearch" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.Release>" class="java.util.ArrayList" scope="request"/>
 
 <core_rt:if test="${releaseSearch.size()>0}" >
     <core_rt:forEach items="${releaseSearch}" var="entry">

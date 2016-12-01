@@ -13,7 +13,7 @@
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:resourceURL var="subscribeComponentURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.SUBSCRIBE%>"/>
@@ -27,10 +27,10 @@
 </portlet:resourceURL>
 
 <c:catch var="attributeNotFoundException">
-    <jsp:useBean id="component" class="com.siemens.sw360.datahandler.thrift.components.Component" scope="request"/>
+    <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
     <jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
-    <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
-    <jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
+    <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
 </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">

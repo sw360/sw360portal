@@ -7,7 +7,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<%@ page import="com.siemens.sw360.portal.common.ErrorMessages" %>
+<%@ page import="org.eclipse.sw360.portal.common.ErrorMessages" %>
 <core_rt:set var="errorMessageList" value='<%=ErrorMessages.allErrorMessages%>'/>
 
 

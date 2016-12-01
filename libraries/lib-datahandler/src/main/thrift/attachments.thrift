@@ -10,7 +10,7 @@
 include "users.thrift"
 include "sw360.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.attachments
+namespace java org.eclipse.sw360.datahandler.thrift.attachments
 namespace php sw360.thrift.attachments
 
 typedef sw360.RequestStatus RequestStatus

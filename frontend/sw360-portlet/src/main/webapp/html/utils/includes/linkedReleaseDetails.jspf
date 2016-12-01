@@ -15,7 +15,7 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.ReleaseLink>"
+<jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"
              scope="request"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>

@@ -12,7 +12,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>backend-src</artifactId>
-        <groupId>com.siemens.sw360</groupId>
+        <groupId>org.eclipse.sw360</groupId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -31,7 +31,7 @@
     </developers>
     <dependencies>
         <dependency>
-            <groupId>com.siemens.sw360</groupId>
+            <groupId>org.eclipse.sw360</groupId>
             <artifactId>src-licenses</artifactId>
             <version>1.5.0-SNAPSHOT</version>
         </dependency>

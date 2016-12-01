@@ -8,7 +8,7 @@
   --%>
 
 
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@include file="/html/init.jsp"%>
 
 
@@ -17,9 +17,9 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %>
 
-<jsp:useBean id="projectSearch" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.Project>" class="java.util.ArrayList" scope="request"/>
+<jsp:useBean id="projectSearch" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.Project>" class="java.util.ArrayList" scope="request"/>
 
 <core_rt:if test="${projectSearch.size()>0}" >
     <core_rt:forEach items="${projectSearch}" var="entry">

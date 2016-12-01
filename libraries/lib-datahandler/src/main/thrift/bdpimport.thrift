@@ -18,7 +18,7 @@ include "sw360.thrift"
 include "users.thrift"
 include "importstatus.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.bdpimport
+namespace java org.eclipse.sw360.datahandler.thrift.bdpimport
 namespace php sw360.thrift.bdpimport
 
 typedef projects.Project Project

@@ -7,7 +7,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
@@ -16,15 +16,15 @@
 <liferay-theme:defineObjects/>
 
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
-<jsp:useBean id="licenseDetail" class="com.siemens.sw360.datahandler.thrift.licenses.License" scope="request"/>
-<jsp:useBean id="moderationLicenseDetail" class="com.siemens.sw360.datahandler.thrift.licenses.License"
+<jsp:useBean id="licenseDetail" class="org.eclipse.sw360.datahandler.thrift.licenses.License" scope="request"/>
+<jsp:useBean id="moderationLicenseDetail" class="org.eclipse.sw360.datahandler.thrift.licenses.License"
              scope="request"/>
 <jsp:useBean id="added_todos_from_moderation_request"
-             type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
+             type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
 <jsp:useBean id="db_todos_from_moderation_request"
-             type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
+             type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
 <jsp:useBean id="isUserAtLeastClearingAdmin" class="java.lang.String" scope="request"/>
-<jsp:useBean id="obligationList" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.Obligation>"
+<jsp:useBean id="obligationList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Obligation>"
              scope="request"/>
 
 <portlet:actionURL var="editLicenseTodosURL" name="updateWhiteList">

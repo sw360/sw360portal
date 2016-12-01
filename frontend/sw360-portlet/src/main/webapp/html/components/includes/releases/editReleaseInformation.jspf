@@ -9,10 +9,10 @@
 
 
 
-<%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Component" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingState" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.MainlineState" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.SW360Utils" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Component" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ClearingState" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.MainlineState" %>
 
 <table class="table info_table" id="ComponentBasicInfo" title="Release Basic Information">
     <thead>

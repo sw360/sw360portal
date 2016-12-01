@@ -9,7 +9,7 @@
  */
 include "users.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.search
+namespace java org.eclipse.sw360.datahandler.thrift.search
 namespace php sw360.thrift.search
 
 typedef users.User User

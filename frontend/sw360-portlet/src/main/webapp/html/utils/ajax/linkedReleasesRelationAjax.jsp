@@ -11,11 +11,11 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ReleaseLink" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ReleaseRelationship" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ReleaseLink" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship" %>
 
-<jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
+<jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
 
 <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
     <tr id="releaseLinkRow${loop.count}" >

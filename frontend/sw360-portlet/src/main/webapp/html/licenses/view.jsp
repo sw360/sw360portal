@@ -10,7 +10,7 @@
 <%@include file="/html/init.jsp"%>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
@@ -19,7 +19,7 @@
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
 <jsp:useBean id="isUserAtLeastClearingAdmin" class="java.lang.String" scope="request" />
-<jsp:useBean id="licenseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.License>"
+<jsp:useBean id="licenseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.License>"
              scope="request"/>
 
 <portlet:resourceURL var="exportLicensesURL">

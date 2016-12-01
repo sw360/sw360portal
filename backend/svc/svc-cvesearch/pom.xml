@@ -14,13 +14,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>backend-svc</artifactId>
-        <groupId>com.siemens.sw360</groupId>
+        <groupId>org.eclipse.sw360</groupId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>svc-cvesearch</artifactId>
-    <groupId>com.bosch.osmi</groupId>
+    <groupId>org.eclipse</groupId>
     <packaging>war</packaging>
 
     <developers>
@@ -48,7 +48,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.bosch.osmi</groupId>
+                                    <groupId>org.eclipse</groupId>
                                     <artifactId>src-${project.build.finalName}</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
@@ -67,7 +67,7 @@
     <dependencies>
         <dependency>
             <artifactId>src-${project.build.finalName}</artifactId>
-            <groupId>com.bosch.osmi</groupId>
+            <groupId>org.eclipse</groupId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>

@@ -14,7 +14,7 @@
 
 <%-- Note that the necessary includes are in life-ray-portlet.xml --%>
 
-<jsp:useBean id="components" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Component>"
+<jsp:useBean id="components" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.Component>"
              class="java.util.ArrayList" scope="request"/>
 
 <div class="homepageheading">

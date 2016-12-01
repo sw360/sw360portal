@@ -15,11 +15,11 @@
 
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.moderation.DocumentType" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 
-<jsp:useBean id="newuser" type="com.siemens.sw360.datahandler.thrift.users.User" scope="request"/>
-<jsp:useBean id="moderationRequest" class="com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
+<jsp:useBean id="newuser" type="org.eclipse.sw360.datahandler.thrift.users.User" scope="request"/>
+<jsp:useBean id="moderationRequest" class="org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">

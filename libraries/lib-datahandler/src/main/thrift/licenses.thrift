@@ -10,7 +10,7 @@
 include "users.thrift"
 include "sw360.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.licenses
+namespace java org.eclipse.sw360.datahandler.thrift.licenses
 namespace php sw360.thrift.licenses
 
 typedef users.User User

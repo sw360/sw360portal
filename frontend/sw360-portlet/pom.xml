@@ -15,7 +15,7 @@
 
     <parent>
         <artifactId>frontend</artifactId>
-        <groupId>com.siemens.sw360</groupId>
+        <groupId>org.eclipse.sw360</groupId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
 
@@ -50,18 +50,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.siemens.sw360</groupId>
+            <groupId>org.eclipse.sw360</groupId>
             <artifactId>datahandler</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.siemens.sw360</groupId>
+            <groupId>org.eclipse.sw360</groupId>
             <artifactId>component-importer</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.siemens.sw360</groupId>
+            <groupId>org.eclipse.sw360</groupId>
             <artifactId>exporters</artifactId>
             <version>${project.version}</version>
         </dependency>

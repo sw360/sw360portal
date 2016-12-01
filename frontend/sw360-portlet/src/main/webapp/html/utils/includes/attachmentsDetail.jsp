@@ -14,7 +14,7 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="attachments" type="java.util.Set<com.siemens.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
+<jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
 <jsp:useBean id="documentType" type="java.lang.String" scope="request"/>
 <table class="table info_table " id="attachmentDetail" title="Attachment Information">
     <thead>

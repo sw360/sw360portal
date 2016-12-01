@@ -15,8 +15,8 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<jsp:useBean id="release" class="com.siemens.sw360.datahandler.thrift.components.Release" scope="request" />
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<jsp:useBean id="release" class="org.eclipse.sw360.datahandler.thrift.components.Release" scope="request" />
 <div id="search-release-form" title="Search Release" style="display: none; background-color: #ffffff;">
     <form>
         <div style="display: inline-block">

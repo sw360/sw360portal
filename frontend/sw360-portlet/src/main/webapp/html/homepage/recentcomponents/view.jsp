@@ -1,6 +1,6 @@
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.components.ComponentPortlet" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.Sw360Portlet" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.components.ComponentPortlet" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
   ~
@@ -16,7 +16,7 @@
 
 
 
-<jsp:useBean id="components" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Component>"
+<jsp:useBean id="components" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.Component>"
              class="java.util.ArrayList" scope="request"/>
 
 <div id="recentComponentsDiv">

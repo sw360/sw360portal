@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-namespace java com.siemens.sw360.datahandler.thrift
+namespace java org.eclipse.sw360.datahandler.thrift
 namespace php sw360.thrift
 
 enum RequestStatus {

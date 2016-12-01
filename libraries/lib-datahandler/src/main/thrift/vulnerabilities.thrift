@@ -9,7 +9,7 @@
 include "sw360.thrift"
 include "users.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.vulnerabilities
+namespace java org.eclipse.sw360.datahandler.thrift.vulnerabilities
 namespace php sw360.thrift.vulnerabilities
 
 typedef sw360.RequestSummary RequestSummary

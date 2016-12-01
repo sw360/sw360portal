@@ -14,13 +14,13 @@
 <liferay-theme:defineObjects />
 
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.moderation.DocumentType" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 
-<jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
-<jsp:useBean id="moderationRequest" class="com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
+<jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
+<jsp:useBean id="moderationRequest" class="org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
-<jsp:useBean id="actual_project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request" />
+<jsp:useBean id="actual_project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
 <core_rt:set var="project" value="${actual_project}" scope="request"/>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.Sw360Portlet" %>
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
@@ -16,9 +16,9 @@
 
 <%@ taglib prefix="core_rt" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ComponentType" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -34,12 +34,12 @@
 </portlet:resourceURL>
 
 <c:catch var="attributeNotFoundException">
-    <jsp:useBean id="component" class="com.siemens.sw360.datahandler.thrift.components.Component" scope="request"/>
+    <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
     <jsp:useBean id="releaseId" class="java.lang.String" scope="request"/>
-    <jsp:useBean id="release" class="com.siemens.sw360.datahandler.thrift.components.Release" scope="request"/>
-    <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>"
+    <jsp:useBean id="release" class="org.eclipse.sw360.datahandler.thrift.components.Release" scope="request"/>
+    <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>"
                  scope="request"/>
-    <jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
     <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">

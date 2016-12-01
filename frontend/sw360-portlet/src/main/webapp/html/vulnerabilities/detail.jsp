@@ -11,7 +11,7 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
-<jsp:useBean id="vulnerability" class="com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability" scope="request" />
+<jsp:useBean id="vulnerability" class="org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability" scope="request" />
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

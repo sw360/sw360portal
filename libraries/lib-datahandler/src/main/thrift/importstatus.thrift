@@ -14,7 +14,7 @@
 
 include "sw360.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.importstatus
+namespace java org.eclipse.sw360.datahandler.thrift.importstatus
 namespace php sw360.datahandler.thrift.importstatus
 
 typedef sw360.RequestStatus RequestStatus

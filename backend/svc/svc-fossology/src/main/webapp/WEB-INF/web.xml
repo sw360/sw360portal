@@ -17,7 +17,7 @@
     </welcome-file-list>
 
     <listener>
-        <listener-class>com.siemens.sw360.SW360ServiceContextListener</listener-class>
+        <listener-class>org.eclipse.sw360.SW360ServiceContextListener</listener-class>
     </listener>
 
     <listener>
@@ -33,7 +33,7 @@
     </context-param>
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>com.siemens.sw360.fossology.config.FossologyConfig</param-value>
+        <param-value>org.eclipse.sw360.fossology.config.FossologyConfig</param-value>
     </context-param>
 
     <servlet>
@@ -45,7 +45,7 @@
         </init-param>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>com.siemens.sw360.fossology.config.FossologyConfig</param-value>
+            <param-value>org.eclipse.sw360.fossology.config.FossologyConfig</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

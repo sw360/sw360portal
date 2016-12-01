@@ -14,7 +14,7 @@ include "projects.thrift"
 include "users.thrift"
 include "licenses.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.moderation
+namespace java org.eclipse.sw360.datahandler.thrift.moderation
 namespace php sw360.thrift.moderation
 
 typedef sw360.RequestStatus RequestStatus

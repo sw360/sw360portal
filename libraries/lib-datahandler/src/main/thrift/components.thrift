@@ -13,7 +13,7 @@ include "users.thrift"
 include "vendors.thrift"
 include "licenses.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.components
+namespace java org.eclipse.sw360.datahandler.thrift.components
 namespace php sw360.thrift.components
 
 typedef sw360.RequestStatus RequestStatus

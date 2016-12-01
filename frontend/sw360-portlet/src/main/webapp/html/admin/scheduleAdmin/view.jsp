@@ -1,4 +1,4 @@
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %><%--
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %><%--
   ~ Copyright (c) Bosch Software Innovations GmbH 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials

@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:resourceURL var="licenseSearchURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.LICENSE_SEARCH%>"/>

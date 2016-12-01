@@ -6,18 +6,18 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-<%@ page import="com.siemens.sw360.datahandler.common.SW360Constants" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.attachments.CheckStatus" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.SW360Constants" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus" %>
 <%@include file="/html/init.jsp" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.attachments.Attachment" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.Attachment" %>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 
-<jsp:useBean id="attachments" type="java.util.Set<com.siemens.sw360.datahandler.thrift.attachments.Attachment>"
+<jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>"
              scope="request"/>
 <jsp:useBean id="documentType" type="java.lang.String" scope="request"/>
 

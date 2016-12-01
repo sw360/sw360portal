@@ -12,7 +12,7 @@ include "attachments.thrift"
 include "components.thrift"
 include "users.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.fossology
+namespace java org.eclipse.sw360.datahandler.thrift.fossology
 namespace php sw360.thrift.fossology
 
 typedef attachments.Attachment Attachment

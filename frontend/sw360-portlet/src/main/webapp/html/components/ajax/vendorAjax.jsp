@@ -14,10 +14,10 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.vendors.Vendor" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.vendors.Vendor" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 
-<jsp:useBean id="vendor" class="com.siemens.sw360.datahandler.thrift.vendors.Vendor" scope="request" />
+<jsp:useBean id="vendor" class="org.eclipse.sw360.datahandler.thrift.vendors.Vendor" scope="request" />
 
 
 <table class="table info_table" id="ComponentBasicInfo" title="Vendor Information">

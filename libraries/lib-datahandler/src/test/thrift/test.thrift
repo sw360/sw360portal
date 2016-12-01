@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-namespace java com.siemens.sw360.testthrift
+namespace java org.eclipse.sw360.testthrift
 
 enum Status {
   ACTIVE,
