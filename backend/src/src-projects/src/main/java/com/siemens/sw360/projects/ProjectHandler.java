@@ -6,27 +6,27 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.projects;
+package org.eclipse.sw360.projects;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectSearchHandler;
-import com.siemens.sw360.datahandler.thrift.AddDocumentRequestSummary;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
+import org.eclipse.sw360.datahandler.db.ProjectSearchHandler;
+import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
 
 /**
  * Implementation of the Thrift service

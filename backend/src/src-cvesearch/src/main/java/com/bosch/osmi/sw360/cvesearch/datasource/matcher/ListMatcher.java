@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
+package org.eclipse.sw360.cvesearch.datasource.matcher;
 
 import org.apache.log4j.Logger;
 
@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.bosch.osmi.sw360.cvesearch.datasource.matcher.ModifiedLevenshteinDistance.levenshteinMatch;
+import static org.eclipse.sw360.cvesearch.datasource.matcher.ModifiedLevenshteinDistance.levenshteinMatch;
 
 public class ListMatcher {
     private Collection<String> needleList;

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.projects;
+package org.eclipse.sw360.projects;
 
 import org.apache.log4j.Logger;
 import org.apache.thrift.TProcessor;

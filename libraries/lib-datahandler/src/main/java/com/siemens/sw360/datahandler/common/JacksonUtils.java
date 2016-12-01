@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.common;
+package org.eclipse.sw360.datahandler.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 
 import java.util.HashSet;
 import java.util.Set;

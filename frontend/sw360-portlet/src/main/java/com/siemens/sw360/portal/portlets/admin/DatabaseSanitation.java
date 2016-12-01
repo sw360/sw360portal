@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.admin;
+package org.eclipse.sw360.portal.portlets.admin;
 
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.allAreEmptyOrNull;
-import static com.siemens.sw360.datahandler.common.CommonUtils.oneIsNull;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.allAreEmptyOrNull;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.oneIsNull;
 
 /**
  * This portlet looks for duplicates in entry-identifiers that should be unique in the database

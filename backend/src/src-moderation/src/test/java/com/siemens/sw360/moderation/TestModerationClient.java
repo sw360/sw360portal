@@ -7,11 +7,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation;
+package org.eclipse.sw360.moderation;
 
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;

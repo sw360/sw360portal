@@ -7,10 +7,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.test;
+package org.eclipse.sw360.datahandler.test;
 
-import com.siemens.sw360.testthrift.TestObject;
-import com.siemens.sw360.testthrift.TestService;
+import org.eclipse.sw360.testthrift.TestObject;
+import org.eclipse.sw360.testthrift.TestService;
 import org.apache.thrift.TException;
 
 /**

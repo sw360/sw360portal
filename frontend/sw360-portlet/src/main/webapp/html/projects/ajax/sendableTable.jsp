@@ -12,13 +12,13 @@
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="releasesAndProjects" type="java.util.Map<com.siemens.sw360.datahandler.thrift.components.Release, java.lang.String>" scope="request"/>
+<jsp:useBean id="releasesAndProjects" type="java.util.Map<org.eclipse.sw360.datahandler.thrift.components.Release, java.lang.String>" scope="request"/>
 
 <core_rt:if test="${releasesAndProjects.size()>0}">
     <core_rt:forEach items="${releasesAndProjects.entrySet()}" var="releaseAndProjectString" varStatus="loop">

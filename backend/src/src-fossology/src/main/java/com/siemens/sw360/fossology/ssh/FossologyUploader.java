@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.ssh;
+package org.eclipse.sw360.fossology.ssh;
 
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,8 +22,8 @@ import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
-import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotEmpty;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.apache.log4j.Logger.getLogger;
 
 /**

@@ -7,12 +7,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.testthrift.TestObject;
+import org.eclipse.sw360.testthrift.TestObject;
 import org.junit.Before;
 import org.junit.Test;
 

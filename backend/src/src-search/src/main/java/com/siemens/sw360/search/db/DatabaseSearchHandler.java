@@ -7,22 +7,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.search.db;
+package org.eclipse.sw360.search.db;
 
 import com.github.ldriscoll.ektorplucene.LuceneResult;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.lucene.LuceneSearchView;
-import com.siemens.sw360.datahandler.db.ProjectRepository;
-import com.siemens.sw360.datahandler.permissions.ProjectPermissions;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.search.SearchResult;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneSearchView;
+import org.eclipse.sw360.datahandler.db.ProjectRepository;
+import org.eclipse.sw360.datahandler.permissions.ProjectPermissions;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;

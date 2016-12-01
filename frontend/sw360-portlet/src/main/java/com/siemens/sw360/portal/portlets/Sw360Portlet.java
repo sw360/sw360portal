@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.portal.portlets;
+package org.eclipse.sw360.portal.portlets;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
@@ -19,19 +19,19 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseRelationship;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.portal.common.ErrorMessages;
-import com.siemens.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.portal.common.ErrorMessages;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -43,8 +43,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.portal.common.PortalConstants.PROJECT_LIST;
-import static com.siemens.sw360.portal.common.PortalConstants.RELEASE_LIST;
+import static org.eclipse.sw360.portal.common.PortalConstants.PROJECT_LIST;
+import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_LIST;
 
 
 abstract public class Sw360Portlet extends MVCPortlet {

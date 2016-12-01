@@ -7,18 +7,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.schedule.service;
+package org.eclipse.sw360.schedule.service;
 
-import com.bosch.osmi.sw360.schedule.timer.ScheduleConstants;
-import com.bosch.osmi.sw360.schedule.timer.Scheduler;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestStatusWithBoolean;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.schedule.timer.ScheduleConstants;
+import org.eclipse.sw360.schedule.timer.Scheduler;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestStatusWithBoolean;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.schedule.ScheduleService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

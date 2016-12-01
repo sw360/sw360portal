@@ -7,10 +7,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.licenseinfo;
+package org.eclipse.sw360.licenseinfo;
 
-import com.siemens.sw360.attachments.db.AttachmentDatabaseHandler;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.attachments.db.AttachmentDatabaseHandler;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.apache.thrift.TException;
 import org.junit.After;
 import org.junit.Before;

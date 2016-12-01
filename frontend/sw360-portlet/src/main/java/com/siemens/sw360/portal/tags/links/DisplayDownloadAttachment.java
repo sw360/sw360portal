@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags.links;
+package org.eclipse.sw360.portal.tags.links;
 
-import com.siemens.sw360.portal.tags.ContextAwareTag;
+import org.eclipse.sw360.portal.tags.ContextAwareTag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
-import static com.siemens.sw360.portal.tags.TagUtils.addDownloadLink;
+import static org.eclipse.sw360.portal.tags.TagUtils.addDownloadLink;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**

@@ -6,31 +6,31 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.db;
+package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
+import org.eclipse.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import org.apache.log4j.Logger;
 import org.ektorp.http.HttpClient;
 
@@ -41,12 +41,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
-import static com.siemens.sw360.datahandler.common.SW360Utils.*;
-import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 
 /**
  * Class for accessing the CouchDB database

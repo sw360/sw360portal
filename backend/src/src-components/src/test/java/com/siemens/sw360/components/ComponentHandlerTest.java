@@ -6,20 +6,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components;
+package org.eclipse.sw360.components;
 
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.siemens.sw360.datahandler.TestUtils.*;
-import static com.siemens.sw360.datahandler.thrift.components.Component._Fields.*;
+import static org.eclipse.sw360.datahandler.TestUtils.*;
+import static org.eclipse.sw360.datahandler.thrift.components.Component._Fields.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;

@@ -1,4 +1,4 @@
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
   ~
@@ -13,7 +13,7 @@
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
-<jsp:useBean id="releasesAndProjects" type="java.util.Map<com.siemens.sw360.datahandler.thrift.components.Release,java.lang.String>" scope="request"/>
+<jsp:useBean id="releasesAndProjects" type="java.util.Map<org.eclipse.sw360.datahandler.thrift.components.Release,java.lang.String>" scope="request"/>
 <core_rt:if test="${releasesAndProjects.size() == 0 }">
     <h3>Please add linked releases or projects with linked releases to view their clearing status here.</h3>
 </core_rt:if>

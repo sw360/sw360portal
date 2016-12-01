@@ -7,9 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.permissions.jgivens;
+package org.eclipse.sw360.datahandler.permissions.jgivens;
 
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 

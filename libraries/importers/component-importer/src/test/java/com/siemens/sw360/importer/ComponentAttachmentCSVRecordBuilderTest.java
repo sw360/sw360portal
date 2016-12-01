@@ -7,13 +7,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

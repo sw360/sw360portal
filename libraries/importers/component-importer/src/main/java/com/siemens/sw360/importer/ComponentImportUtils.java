@@ -7,24 +7,24 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseRelationship;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -38,7 +38,7 @@ import java.util.*;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static java.lang.String.format;
 
 /**

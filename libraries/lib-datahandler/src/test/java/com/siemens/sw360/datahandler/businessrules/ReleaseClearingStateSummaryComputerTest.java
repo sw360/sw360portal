@@ -7,13 +7,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.businessrules;
+package org.eclipse.sw360.datahandler.businessrules;
 
-import com.siemens.sw360.datahandler.businessrules.jgivens.GivenReleasesWithFossologyStatus;
-import com.siemens.sw360.datahandler.businessrules.jgivens.ThenReleaseClearingState;
-import com.siemens.sw360.datahandler.businessrules.jgivens.WhenComputeClearingState;
-import com.siemens.sw360.datahandler.thrift.components.ClearingState;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.businessrules.jgivens.GivenReleasesWithFossologyStatus;
+import org.eclipse.sw360.datahandler.businessrules.jgivens.ThenReleaseClearingState;
+import org.eclipse.sw360.datahandler.businessrules.jgivens.WhenComputeClearingState;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
 import com.tngtech.jgiven.junit.ScenarioTest;
 import org.junit.Test;
 

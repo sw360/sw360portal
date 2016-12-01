@@ -6,25 +6,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
-import com.siemens.sw360.commonIO.SampleOptions;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.commonIO.SampleOptions;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.isValidUrl;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isValidUrl;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 /**
  * @author daniele.fognini@tngtech.com

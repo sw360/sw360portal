@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.ssh;
+package org.eclipse.sw360.fossology.ssh;
 
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

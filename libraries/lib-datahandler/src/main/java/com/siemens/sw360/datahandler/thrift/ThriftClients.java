@@ -7,23 +7,23 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.thrift;
+package org.eclipse.sw360.datahandler.thrift;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyService;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
-import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
-import com.siemens.sw360.datahandler.thrift.search.SearchService;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyService;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.bdpimport.BdpImportService;
+import org.eclipse.sw360.datahandler.thrift.schedule.ScheduleService;
+import org.eclipse.sw360.datahandler.thrift.search.SearchService;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import org.apache.log4j.Logger;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;

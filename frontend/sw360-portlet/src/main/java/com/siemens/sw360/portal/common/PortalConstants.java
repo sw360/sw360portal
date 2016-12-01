@@ -7,9 +7,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.common;
+package org.eclipse.sw360.portal.common;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 
 import java.util.Properties;
 import java.util.Set;

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.commonIO;
+package org.eclipse.sw360.commonIO;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -7,9 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
-import com.siemens.sw360.commonIO.ConvertUtil;
+import org.eclipse.sw360.commonIO.ConvertUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

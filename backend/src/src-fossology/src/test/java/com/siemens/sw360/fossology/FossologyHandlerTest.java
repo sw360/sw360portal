@@ -6,18 +6,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology;
+package org.eclipse.sw360.fossology;
 
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.fossology.config.FossologySettings;
-import com.siemens.sw360.fossology.handler.FossologyFileHandler;
-import com.siemens.sw360.fossology.handler.FossologyHostKeyHandler;
-import com.siemens.sw360.fossology.handler.FossologyScriptsHandler;
-import com.siemens.sw360.fossology.ssh.FossologySshConnector;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.fossology.config.FossologySettings;
+import org.eclipse.sw360.fossology.handler.FossologyFileHandler;
+import org.eclipse.sw360.fossology.handler.FossologyHostKeyHandler;
+import org.eclipse.sw360.fossology.handler.FossologyScriptsHandler;
+import org.eclipse.sw360.fossology.ssh.FossologySshConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags;
+package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.servlet.jsp.JspException;
@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.copyOf;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.portal.tags.TagUtils.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.portal.tags.TagUtils.*;
 
 /**
  * Display the fields that have changed as described by additions and deletions

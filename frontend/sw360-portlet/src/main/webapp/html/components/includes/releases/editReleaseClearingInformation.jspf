@@ -8,8 +8,8 @@
 --%>
 
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingInformation" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ClearingInformation" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 
 <table class="table info_table" id="ReleaseClearingInformation" title="Release Clearing Information">
     <thead>

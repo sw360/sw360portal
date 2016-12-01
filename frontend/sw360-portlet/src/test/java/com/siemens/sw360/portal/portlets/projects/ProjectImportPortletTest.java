@@ -7,11 +7,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.projects;
+package org.eclipse.sw360.portal.portlets.projects;
 
 import com.liferay.portal.kernel.json.JSONObject;
-import com.siemens.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
-import com.siemens.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;

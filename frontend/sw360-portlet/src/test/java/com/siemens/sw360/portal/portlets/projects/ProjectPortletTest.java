@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.projects;
+package org.eclipse.sw360.portal.portlets.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
-import com.siemens.sw360.portal.common.ThriftJsonSerializer;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
+import org.eclipse.sw360.portal.common.ThriftJsonSerializer;
 import org.junit.Test;
 
 import java.util.Map;

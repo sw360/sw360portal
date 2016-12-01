@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo;
+package org.eclipse.sw360.licenseinfo;
 
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
-import com.siemens.sw360.projects.Sw360ThriftServlet;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import org.eclipse.sw360.projects.Sw360ThriftServlet;
 import org.apache.thrift.protocol.TCompactProtocol;
 
 import java.net.MalformedURLException;

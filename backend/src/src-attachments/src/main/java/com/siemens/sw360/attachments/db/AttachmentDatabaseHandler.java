@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.attachments.db;
+package org.eclipse.sw360.attachments.db;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertUser;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.validateAttachment;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertUser;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.validateAttachment;
 
 /**
  * Class for accessing the CouchDB database for attachment objects

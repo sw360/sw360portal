@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.apache.commons.csv.CSVRecord;
 
 /**

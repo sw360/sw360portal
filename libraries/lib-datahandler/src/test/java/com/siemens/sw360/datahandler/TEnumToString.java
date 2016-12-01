@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler;
+package org.eclipse.sw360.datahandler;
 
-import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import com.tngtech.jgiven.annotation.Format;
 import com.tngtech.jgiven.format.ArgumentFormatter;
 import org.apache.thrift.TEnum;

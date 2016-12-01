@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components;
+package org.eclipse.sw360.components;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ComponentSearchHandler;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
+import org.eclipse.sw360.datahandler.db.ComponentSearchHandler;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.thrift.TException;
 import org.ektorp.http.HttpClient;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
 
 /**
  * Implementation of the Thrift service

@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.entitlement;
+package org.eclipse.sw360.datahandler.entitlement;
 
 import com.google.common.collect.Maps;
-import com.siemens.sw360.datahandler.common.Moderator;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.Todo;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.Moderator;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 
 /**
  * Moderation for the license service

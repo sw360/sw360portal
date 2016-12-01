@@ -7,21 +7,21 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.projects;
+package org.eclipse.sw360.projects;
 
 import com.google.common.collect.ImmutableMap;
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
+import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
+import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.common.SW360Utils.getProjectIds;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getProjectIds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;

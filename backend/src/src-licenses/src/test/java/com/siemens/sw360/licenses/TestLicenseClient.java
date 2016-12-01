@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenses;
+package org.eclipse.sw360.licenses;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.licenses.Obligation;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;

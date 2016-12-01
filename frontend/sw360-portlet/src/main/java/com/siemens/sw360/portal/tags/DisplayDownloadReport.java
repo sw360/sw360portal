@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags;
+package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.apache.thrift.TBase;
 
 import javax.servlet.jsp.JspException;
@@ -27,12 +27,12 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.collect.Maps.transformValues;
-import static com.siemens.sw360.datahandler.common.CommonUtils.afterFunction;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractField;
-import static com.siemens.sw360.datahandler.thrift.attachments.Attachment._Fields.ATTACHMENT_CONTENT_ID;
-import static com.siemens.sw360.datahandler.thrift.attachments.Attachment._Fields.ATTACHMENT_TYPE;
-import static com.siemens.sw360.datahandler.thrift.attachments.Attachment._Fields.FILENAME;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.afterFunction;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractField;
+import static org.eclipse.sw360.datahandler.thrift.attachments.Attachment._Fields.ATTACHMENT_CONTENT_ID;
+import static org.eclipse.sw360.datahandler.thrift.attachments.Attachment._Fields.ATTACHMENT_TYPE;
+import static org.eclipse.sw360.datahandler.thrift.attachments.Attachment._Fields.FILENAME;
 
 /**
  * This displays a Download Report attachment if available

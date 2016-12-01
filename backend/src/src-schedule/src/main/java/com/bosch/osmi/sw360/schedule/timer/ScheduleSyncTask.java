@@ -7,9 +7,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.schedule.timer;
+package org.eclipse.sw360.schedule.timer;
 
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.apache.log4j.Logger;
 
 import java.util.function.Supplier;

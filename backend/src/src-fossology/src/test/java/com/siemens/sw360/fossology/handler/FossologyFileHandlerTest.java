@@ -6,26 +6,26 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.handler;
+package org.eclipse.sw360.fossology.handler;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.FilledAttachment;
-import com.siemens.sw360.datahandler.thrift.components.ClearingState;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.fossology.ssh.FossologyUploader;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.FilledAttachment;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.fossology.ssh.FossologyUploader;
 import org.apache.thrift.TException;
 import org.junit.After;
 import org.junit.Before;

@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler;
+package org.eclipse.sw360.datahandler;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.base.Optional;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.DatabaseInstance;
-import com.siemens.sw360.datahandler.couchdb.DatabaseInstanceTracker;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseInstance;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseInstanceTracker;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.ektorp.http.HttpClient;

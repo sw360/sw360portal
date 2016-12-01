@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology;
+package org.eclipse.sw360.fossology;
 
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TProtocolFactory;
-import com.siemens.sw360.projects.Sw360ThriftServlet;
+import org.eclipse.sw360.projects.Sw360ThriftServlet;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 

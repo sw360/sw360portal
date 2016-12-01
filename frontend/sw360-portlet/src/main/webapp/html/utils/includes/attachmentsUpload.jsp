@@ -8,7 +8,7 @@
   --%>
 
 <%@include file="/html/init.jsp" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>

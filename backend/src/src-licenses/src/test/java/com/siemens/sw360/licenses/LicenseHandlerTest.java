@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenses;
+package org.eclipse.sw360.licenses;
 
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

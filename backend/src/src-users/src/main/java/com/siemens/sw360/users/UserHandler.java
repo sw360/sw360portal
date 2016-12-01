@@ -6,21 +6,21 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.users;
+package org.eclipse.sw360.users;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.users.db.UserDatabaseHandler;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.users.db.UserDatabaseHandler;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.net.MalformedURLException;
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotEmpty;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 
 /**
  * Implementation of the Thrift service

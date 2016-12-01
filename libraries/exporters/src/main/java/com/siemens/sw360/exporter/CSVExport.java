@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.exporter;
+package org.eclipse.sw360.exporter;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.apache.commons.csv.CSVPrinter;
 import org.jetbrains.annotations.NotNull;
 

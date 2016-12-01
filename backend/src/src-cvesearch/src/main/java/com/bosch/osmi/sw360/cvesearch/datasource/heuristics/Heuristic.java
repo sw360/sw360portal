@@ -8,11 +8,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.datasource.heuristics;
+package org.eclipse.sw360.cvesearch.datasource.heuristics;
 
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApi;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.cvesearch.datasource.CveSearchApi;
+import org.eclipse.sw360.cvesearch.datasource.CveSearchData;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;

@@ -6,31 +6,31 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo;
+package org.eclipse.sw360.licenseinfo;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.siemens.sw360.attachments.db.AttachmentDatabaseHandler;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.*;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.licenseinfo.outputGenerators.DocxGenerator;
-import com.siemens.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
-import com.siemens.sw360.licenseinfo.outputGenerators.OutputGenerator;
-import com.siemens.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
-import com.siemens.sw360.licenseinfo.parsers.AttachmentContentProvider;
-import com.siemens.sw360.licenseinfo.parsers.CLIParser;
-import com.siemens.sw360.licenseinfo.parsers.LicenseInfoParser;
-import com.siemens.sw360.licenseinfo.parsers.SPDXParser;
+import org.eclipse.sw360.attachments.db.AttachmentDatabaseHandler;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
+import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.licenseinfo.outputGenerators.DocxGenerator;
+import org.eclipse.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
+import org.eclipse.sw360.licenseinfo.outputGenerators.OutputGenerator;
+import org.eclipse.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
+import org.eclipse.sw360.licenseinfo.parsers.AttachmentContentProvider;
+import org.eclipse.sw360.licenseinfo.parsers.CLIParser;
+import org.eclipse.sw360.licenseinfo.parsers.LicenseInfoParser;
+import org.eclipse.sw360.licenseinfo.parsers.SPDXParser;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -39,10 +39,10 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.*;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertId;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.common.SW360Utils.flattenProjectLinkTree;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertId;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.flattenProjectLinkTree;
 
 /**
  * Implementation of the Thrift service

@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.config;
+package org.eclipse.sw360.fossology.config;
 
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.fossology.db.FossologyFingerPrintRepository;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.fossology.db.FossologyFingerPrintRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import java.net.MalformedURLException;
 import static org.mockito.Mockito.mock;
 
 @Configuration
-@ComponentScan({"com.siemens.sw360.fossology"})
+@ComponentScan({"org.eclipse.sw360.fossology"})
 public class TestConfig {
     @Bean
     public FossologyFingerPrintRepository fossologyFingerPrintRepository() throws MalformedURLException {

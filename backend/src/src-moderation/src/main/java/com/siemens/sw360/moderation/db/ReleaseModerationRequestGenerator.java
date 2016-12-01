@@ -7,10 +7,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation.db;
+package org.eclipse.sw360.moderation.db;
 
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 

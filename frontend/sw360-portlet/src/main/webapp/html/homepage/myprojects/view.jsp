@@ -14,7 +14,7 @@
 <%-- Note that the necessary includes are in life-ray-portlet.xml --%>
 
 
-<jsp:useBean id="projects" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.Project>"
+<jsp:useBean id="projects" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.Project>"
              scope="request"/>
 
 <div class="homepageheading">

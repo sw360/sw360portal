@@ -6,22 +6,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.components;
+package org.eclipse.sw360.portal.portlets.components;
 
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.VerificationState;
-import com.siemens.sw360.datahandler.thrift.VerificationStateInfo;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.PortletUtils;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.VerificationState;
+import org.eclipse.sw360.datahandler.thrift.VerificationStateInfo;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.PortletUtils;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

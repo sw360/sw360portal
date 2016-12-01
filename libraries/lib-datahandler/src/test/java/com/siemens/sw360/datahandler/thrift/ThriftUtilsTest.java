@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.thrift;
+package org.eclipse.sw360.datahandler.thrift;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.junit.Before;
 import org.junit.Test;
 

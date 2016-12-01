@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.admin;
+package org.eclipse.sw360.portal.portlets.admin;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -23,16 +23,16 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCSV;
-import com.siemens.sw360.portal.users.UserCacheHolder;
-import com.siemens.sw360.portal.users.UserUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCSV;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.portal.users.UserUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -45,7 +45,7 @@ import java.io.*;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.portal.users.UserUtils.getRoleConstantFromUserGroup;
+import static org.eclipse.sw360.portal.users.UserUtils.getRoleConstantFromUserGroup;
 
 /**
  * Created by jn on 06.03.15.
@@ -58,8 +58,8 @@ public class UserPortlet extends Sw360Portlet {
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
 
-        List<com.siemens.sw360.datahandler.thrift.users.User> missingUsers = new ArrayList<>();
-        List<com.siemens.sw360.datahandler.thrift.users.User> backEndUsers;
+        List<org.eclipse.sw360.datahandler.thrift.users.User> missingUsers = new ArrayList<>();
+        List<org.eclipse.sw360.datahandler.thrift.users.User> backEndUsers;
 
         List<User> liferayUsers;
         List<User> liferayUsers2;
@@ -137,9 +137,9 @@ public class UserPortlet extends Sw360Portlet {
                 }
             }).toSet();
 
-            missingUsers = FluentIterable.from(backEndUsers).filter(new Predicate<com.siemens.sw360.datahandler.thrift.users.User>() {
+            missingUsers = FluentIterable.from(backEndUsers).filter(new Predicate<org.eclipse.sw360.datahandler.thrift.users.User>() {
                 @Override
-                public boolean apply(com.siemens.sw360.datahandler.thrift.users.User input) {
+                public boolean apply(org.eclipse.sw360.datahandler.thrift.users.User input) {
                     return !lifeRayMails.contains(input.getEmail());
                 }
             }).toList();
@@ -204,7 +204,7 @@ public class UserPortlet extends Sw360Portlet {
             if (isNullOrEmpty(emailAddress) || isNullOrEmpty(department)) {
                 continue;
             }
-            com.siemens.sw360.datahandler.thrift.users.User sw360user = UserCacheHolder.getUserFromEmail(emailAddress);
+            org.eclipse.sw360.datahandler.thrift.users.User sw360user = UserCacheHolder.getUserFromEmail(emailAddress);
             boolean wantsMailNotification =
                     sw360user.isSetWantsMailNotification() ? sw360user.wantsMailNotification : true;
             String userGroup = sw360user.getUserGroup().toString();

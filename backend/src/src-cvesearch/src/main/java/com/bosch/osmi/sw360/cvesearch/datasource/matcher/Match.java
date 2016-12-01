@@ -1,4 +1,4 @@
-package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
+package org.eclipse.sw360.cvesearch.datasource.matcher;
 
 import java.util.Comparator;
 

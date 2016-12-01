@@ -7,10 +7,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 
 public class AttachmentContentWrapper extends DocumentWrapper<AttachmentContent> {
 

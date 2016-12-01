@@ -7,27 +7,27 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation;
+package org.eclipse.sw360.moderation;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.moderation.db.ModerationDatabaseHandler;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.thrift.ModerationState;
+import org.eclipse.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.moderation.db.ModerationDatabaseHandler;
 import org.apache.thrift.TException;
 
 import java.net.MalformedURLException;
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
 
 
 /**

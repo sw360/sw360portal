@@ -6,33 +6,33 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.moderation;
+package org.eclipse.sw360.portal.portlets.moderation;
 
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
-import com.siemens.sw360.portal.users.UserUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.ModerationState;
+import org.eclipse.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.licenses.Obligation;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +42,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
  * Moderation portlet implementation

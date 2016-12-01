@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags;
+package org.eclipse.sw360.portal.tags;
 
-import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.apache.thrift.TEnum;
 
 import javax.servlet.jsp.JspException;

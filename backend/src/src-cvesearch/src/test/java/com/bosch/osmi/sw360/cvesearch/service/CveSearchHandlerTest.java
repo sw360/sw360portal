@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.service;
+package org.eclipse.sw360.cvesearch.service;
 
 import org.junit.Before;
 import org.junit.Ignore;

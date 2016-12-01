@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.db;
+package org.eclipse.sw360.datahandler.db;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.lucene.LuceneSearchView;
-import com.siemens.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneSearchView;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.apache.log4j.Logger;
 import org.ektorp.http.HttpClient;
 

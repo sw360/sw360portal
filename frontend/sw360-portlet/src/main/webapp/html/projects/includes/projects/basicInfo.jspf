@@ -7,10 +7,10 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectType" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectState" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.Visibility" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectType" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectState" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.Visibility" %>
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 

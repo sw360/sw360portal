@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

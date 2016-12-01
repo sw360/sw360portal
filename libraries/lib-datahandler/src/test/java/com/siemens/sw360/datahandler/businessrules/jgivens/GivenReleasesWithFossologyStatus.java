@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.businessrules.jgivens;
+package org.eclipse.sw360.datahandler.businessrules.jgivens;
 
 import com.google.common.collect.ImmutableMap;
-import com.siemens.sw360.datahandler.TEnumToString;
-import com.siemens.sw360.datahandler.thrift.components.ClearingState;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.TEnumToString;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.Quoted;
 import com.tngtech.jgiven.annotation.ScenarioState;

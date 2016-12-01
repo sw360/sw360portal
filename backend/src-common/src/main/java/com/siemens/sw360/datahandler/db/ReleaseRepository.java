@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.db;
+package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableListMultimap;
-import com.siemens.sw360.components.summary.ReleaseSummary;
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.SummaryAwareRepository;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.components.summary.ReleaseSummary;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 

@@ -7,10 +7,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags.links;
+package org.eclipse.sw360.portal.tags.links;
 
 import com.liferay.portal.kernel.servlet.taglib.TagSupport;
-import com.siemens.sw360.portal.tags.OutTag;
+import org.eclipse.sw360.portal.tags.OutTag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;

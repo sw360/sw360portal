@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.handler;
+package org.eclipse.sw360.fossology.handler;
 
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
-import com.siemens.sw360.fossology.db.FossologyFingerPrintRepository;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
+import org.eclipse.sw360.fossology.db.FossologyFingerPrintRepository;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 
 @Component
 public class FossologyHostKeyHandler {

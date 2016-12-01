@@ -11,7 +11,7 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="userList" type="java.util.List<com.siemens.sw360.datahandler.thrift.users.User>"
+<jsp:useBean id="userList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.users.User>"
              class="java.util.ArrayList" scope="request"/>
 <jsp:useBean id="how" type="java.lang.Boolean" scope="request"/>
 

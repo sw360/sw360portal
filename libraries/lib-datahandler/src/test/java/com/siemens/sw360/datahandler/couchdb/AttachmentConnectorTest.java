@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

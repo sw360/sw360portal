@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.permissions;
+package org.eclipse.sw360.datahandler.permissions;
 
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 
 /**
  * Created by bodet on 16/02/15.

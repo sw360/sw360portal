@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb.lucene;
+package org.eclipse.sw360.datahandler.couchdb.lucene;
 
 import com.github.ldriscoll.ektorplucene.LuceneAwareCouchDbConnector;
 import com.github.ldriscoll.ektorplucene.LuceneQuery;
@@ -15,12 +15,12 @@ import com.github.ldriscoll.ektorplucene.util.IndexUploader;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.permissions.ProjectPermissions;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.permissions.ProjectPermissions;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
@@ -30,8 +30,8 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.ThriftEnumUtils.enumByString;
-import static com.siemens.sw360.datahandler.common.ThriftEnumUtils.stringToEnum;
+import static org.eclipse.sw360.datahandler.common.ThriftEnumUtils.enumByString;
+import static org.eclipse.sw360.datahandler.common.ThriftEnumUtils.stringToEnum;
 
 /**
  * Generic database connector for handling lucene searches

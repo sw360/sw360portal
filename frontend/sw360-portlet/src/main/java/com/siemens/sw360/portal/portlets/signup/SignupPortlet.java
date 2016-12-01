@@ -6,20 +6,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.signup;
+package org.eclipse.sw360.portal.portlets.signup;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.portal.common.ErrorMessages;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserUtils;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.portal.common.ErrorMessages;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

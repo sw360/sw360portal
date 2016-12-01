@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.db;
+package org.eclipse.sw360.datahandler.db;
 
 import java.util.HashMap;
 import java.util.Stack;

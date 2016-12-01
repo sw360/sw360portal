@@ -7,11 +7,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.exporter;
+package org.eclipse.sw360.exporter;
 
-import com.siemens.sw360.commonIO.ConvertRecord;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseType;
+import org.eclipse.sw360.commonIO.ConvertRecord;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseType;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.siemens.sw360.commonIO.ConvertRecord.licenseSerializer;
+import static org.eclipse.sw360.commonIO.ConvertRecord.licenseSerializer;
 
 /**
  * Created by bodet on 10/02/15.

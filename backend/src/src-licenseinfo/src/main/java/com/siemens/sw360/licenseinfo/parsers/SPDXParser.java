@@ -8,18 +8,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo.parsers;
+package org.eclipse.sw360.licenseinfo.parsers;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
@@ -36,7 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 
 /**
  * @author: alex.borodin@evosoft.com

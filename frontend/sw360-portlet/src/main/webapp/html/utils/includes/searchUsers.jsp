@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:resourceURL var="userSearchURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.USER_SEARCH%>"/>

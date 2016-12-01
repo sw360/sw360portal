@@ -7,10 +7,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.testthrift.TestObject;
+import org.eclipse.sw360.testthrift.TestObject;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.http.HttpClient;
@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-import static com.siemens.sw360.datahandler.couchdb.DatabaseTestProperties.COUCH_DB_DATABASE;
-import static com.siemens.sw360.datahandler.couchdb.DatabaseTestProperties.COUCH_DB_URL;
+import static org.eclipse.sw360.datahandler.couchdb.DatabaseTestProperties.COUCH_DB_DATABASE;
+import static org.eclipse.sw360.datahandler.couchdb.DatabaseTestProperties.COUCH_DB_URL;
 import static org.junit.Assert.*;
 
 public class DatabaseConnectorTest {

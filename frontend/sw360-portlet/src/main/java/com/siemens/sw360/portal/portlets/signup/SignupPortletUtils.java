@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.signup;
+package org.eclipse.sw360.portal.portlets.signup;
 
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.portal.common.PortletUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.common.PortletUtils;
 
 import javax.portlet.PortletRequest;
 import java.util.HashSet;

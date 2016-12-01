@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.projects;
+package org.eclipse.sw360.portal.portlets.projects;
 
-import com.siemens.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -25,17 +25,17 @@ import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.PortletUtils;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.PortletUtils;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
@@ -43,7 +43,7 @@ import javax.portlet.ResourceRequest;
 import javax.portlet.RenderRequest;
 import java.util.*;
 
-import static com.siemens.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
+import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
 
 /**
  * Component portlet implementation

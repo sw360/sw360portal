@@ -7,11 +7,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.datasource;
+package org.eclipse.sw360.cvesearch.datasource;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import static com.bosch.osmi.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEquivalent;
+import static org.eclipse.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEquivalent;
 
 public class CveSearchWrapperTest {
     CveSearchApi cveSearchApi;

@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.apache.log4j.Logger;
 import org.ektorp.*;
 import org.ektorp.http.HttpClient;

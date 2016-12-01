@@ -8,16 +8,16 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.licenseinfo.outputGenerators;
+package org.eclipse.sw360.licenseinfo.outputGenerators;
 
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.util.*;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 public class DocxUtils {
 

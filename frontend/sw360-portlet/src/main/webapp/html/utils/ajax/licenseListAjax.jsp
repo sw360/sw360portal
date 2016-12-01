@@ -13,7 +13,7 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="licenseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.licenses.License>" scope="request"/>
+<jsp:useBean id="licenseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.License>" scope="request"/>
 
 <core_rt:if test="${licenseList.size()>0}">
     <core_rt:forEach items="${licenseList}" var="entry">

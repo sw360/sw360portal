@@ -8,22 +8,22 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.common;
+package org.eclipse.sw360.datahandler.common;
 
 
 import com.google.common.collect.ImmutableMap;
-import com.siemens.sw360.datahandler.thrift.VerificationState;
-import com.siemens.sw360.datahandler.thrift.datasources.SourceDatabase;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.Visibility;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
+import org.eclipse.sw360.datahandler.thrift.VerificationState;
+import org.eclipse.sw360.datahandler.thrift.datasources.SourceDatabase;
+import org.eclipse.sw360.datahandler.thrift.ModerationState;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
 import org.apache.thrift.TEnum;
 
 import java.util.Map;

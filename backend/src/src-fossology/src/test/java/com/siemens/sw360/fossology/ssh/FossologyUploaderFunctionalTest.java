@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.ssh;
+package org.eclipse.sw360.fossology.ssh;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
-import com.siemens.sw360.fossology.config.TestConfig;
-import com.siemens.sw360.fossology.db.FossologyFingerPrintRepository;
-import com.siemens.sw360.fossology.handler.FossologyScriptsHandler;
-import com.siemens.sw360.fossology.ssh.FossologyUploader.CapturerOutputStream;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
+import org.eclipse.sw360.fossology.config.TestConfig;
+import org.eclipse.sw360.fossology.db.FossologyFingerPrintRepository;
+import org.eclipse.sw360.fossology.handler.FossologyScriptsHandler;
+import org.eclipse.sw360.fossology.ssh.FossologyUploader.CapturerOutputStream;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

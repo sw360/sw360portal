@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.homepage;
+package org.eclipse.sw360.portal.portlets.homepage;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.LifeRayUserSession;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.LifeRayUserSession;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

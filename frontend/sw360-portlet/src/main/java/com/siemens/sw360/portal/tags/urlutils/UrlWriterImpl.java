@@ -7,14 +7,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags.urlutils;
+package org.eclipse.sw360.portal.tags.urlutils;
 
 import com.liferay.taglib.portlet.ActionURLTag;
 import com.liferay.taglib.portlet.RenderURLTag;
 import com.liferay.taglib.portlet.ResourceURLTag;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.page.PortletPage;
-import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.page.PortletPage;
+import org.eclipse.sw360.portal.portlets.LinkToPortletConfiguration;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;

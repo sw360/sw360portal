@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.apache.thrift.TException;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -24,11 +24,11 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Set;
 
-import static com.siemens.sw360.datahandler.TestUtils.emptyOrNullCollectionOf;
-import static com.siemens.sw360.datahandler.TestUtils.sortByField;
-import static com.siemens.sw360.datahandler.common.CommonUtils.getFirst;
-import static com.siemens.sw360.datahandler.common.SW360Constants.TYPE_ATTACHMENT;
-import static com.siemens.sw360.datahandler.common.SW360Utils.getReleaseIds;
+import static org.eclipse.sw360.datahandler.TestUtils.emptyOrNullCollectionOf;
+import static org.eclipse.sw360.datahandler.TestUtils.sortByField;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.getFirst;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.TYPE_ATTACHMENT;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getReleaseIds;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.instanceOf;

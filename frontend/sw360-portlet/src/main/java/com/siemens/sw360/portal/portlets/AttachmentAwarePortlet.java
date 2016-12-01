@@ -6,26 +6,26 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets;
+package org.eclipse.sw360.portal.portlets;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.portal.common.AttachmentPortletUtils;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.common.AttachmentPortletUtils;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.*;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.datahandler.common.CommonUtils.toSingletonSet;
-import static com.siemens.sw360.portal.common.PortalConstants.ATTACHMENTS;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
+import static org.eclipse.sw360.portal.common.PortalConstants.ATTACHMENTS;
 
 /**
  * Attachment portlet implementation

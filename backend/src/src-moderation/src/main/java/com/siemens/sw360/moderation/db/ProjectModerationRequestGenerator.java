@@ -7,12 +7,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation.db;
+package org.eclipse.sw360.moderation.db;
 
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 
 import java.util.HashMap;
 import java.util.Map;

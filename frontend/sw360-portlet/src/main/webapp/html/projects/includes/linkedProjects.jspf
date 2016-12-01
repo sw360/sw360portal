@@ -20,11 +20,11 @@
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${requestScope.project.id}"/>
 </portlet:resourceURL>
 
-<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"
+<jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"
              scope="request"/>
 <core_rt:if test="${inProjectDetailsContext}">
     <jsp:useBean id="licenseInfoOutputFormats"
-                 type="java.util.List<com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo>"
+                 type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo>"
                  scope="request"/>
 </core_rt:if>
 

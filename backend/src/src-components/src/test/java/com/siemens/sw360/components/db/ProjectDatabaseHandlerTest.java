@@ -7,21 +7,21 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.components.db;
+package org.eclipse.sw360.components.db;
 
 import com.google.common.collect.ImmutableMap;
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.entitlement.ProjectModerator;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
+import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
+import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static com.siemens.sw360.datahandler.TestUtils.assertTestString;
+import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 

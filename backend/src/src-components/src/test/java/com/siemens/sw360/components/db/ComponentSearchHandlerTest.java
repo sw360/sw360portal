@@ -7,24 +7,24 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.components.db;
+package org.eclipse.sw360.components.db;
 
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseInstance;
-import com.siemens.sw360.datahandler.db.ComponentSearchHandler;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseInstance;
+import org.eclipse.sw360.datahandler.db.ComponentSearchHandler;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
-import static com.siemens.sw360.datahandler.TestUtils.assumeCanConnectTo;
-import static com.siemens.sw360.datahandler.common.SW360Utils.getComponentIds;
+import static org.eclipse.sw360.datahandler.TestUtils.assumeCanConnectTo;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getComponentIds;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;

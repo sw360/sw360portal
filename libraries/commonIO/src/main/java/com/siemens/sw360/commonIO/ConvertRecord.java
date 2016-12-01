@@ -7,13 +7,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.commonIO;
+package org.eclipse.sw360.commonIO;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 
 /**
  * Convert CSV Record to license objects

@@ -1,6 +1,6 @@
-package com.bosch.osmi.sw360.cvesearch.datasource;
+package org.eclipse.sw360.cvesearch.datasource;
 
-import com.bosch.osmi.sw360.cvesearch.datasource.matcher.Match;
+import org.eclipse.sw360.cvesearch.datasource.matcher.Match;
 import org.junit.Before;
 import org.junit.Test;
 

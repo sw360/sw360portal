@@ -7,13 +7,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.vulnerabilities;
+package org.eclipse.sw360.portal.portlets.vulnerabilities;
 
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
-import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
+import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
  *Vulnerabilities portlet implementation

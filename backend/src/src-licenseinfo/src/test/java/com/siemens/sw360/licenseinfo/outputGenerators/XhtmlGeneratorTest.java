@@ -7,11 +7,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo.outputGenerators;
+package org.eclipse.sw360.licenseinfo.outputGenerators;
 
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Text;

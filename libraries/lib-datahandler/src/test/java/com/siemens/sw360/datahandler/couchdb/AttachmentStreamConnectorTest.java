@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.DocumentNotFoundException;
 import org.junit.Before;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;

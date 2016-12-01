@@ -8,13 +8,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.licenseinfo.outputGenerators;
+package org.eclipse.sw360.licenseinfo.outputGenerators;
 
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -23,7 +23,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.licenseinfo.LicenseInfoHandler.*;
+import static org.eclipse.sw360.licenseinfo.LicenseInfoHandler.*;
 
 public class LicenseInfoGenerator extends OutputGenerator<String> {
 

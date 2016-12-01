@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components.summary;
+package org.eclipse.sw360.components.summary;
 
-import com.siemens.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
 
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
-import static com.siemens.sw360.datahandler.thrift.licenses.License._Fields;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
+import static org.eclipse.sw360.datahandler.thrift.licenses.License._Fields;
 
 /**
  * Created by bodet on 17/02/15.

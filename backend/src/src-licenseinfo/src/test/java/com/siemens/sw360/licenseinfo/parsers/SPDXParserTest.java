@@ -7,15 +7,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenseinfo.parsers;
+package org.eclipse.sw360.licenseinfo.parsers;
 
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +29,9 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static com.siemens.sw360.licenseinfo.TestHelper.*;
-import static com.siemens.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_EXTERNAL;
-import static com.siemens.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_INTERNAL;
+import static org.eclipse.sw360.licenseinfo.TestHelper.*;
+import static org.eclipse.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_EXTERNAL;
+import static org.eclipse.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_INTERNAL;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 

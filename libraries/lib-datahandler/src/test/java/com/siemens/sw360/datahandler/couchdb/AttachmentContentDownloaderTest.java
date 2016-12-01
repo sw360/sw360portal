@@ -7,11 +7,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.io.CharStreams;
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +21,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.*;
 
-import static com.siemens.sw360.datahandler.TestUtils.*;
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.TestUtils.*;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;

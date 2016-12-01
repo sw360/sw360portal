@@ -7,9 +7,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.datasource;
+package org.eclipse.sw360.cvesearch.datasource;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.common;
+package org.eclipse.sw360.portal.common;
 
 
 import org.hamcrest.Matchers;
@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.splitToSet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.splitToSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 

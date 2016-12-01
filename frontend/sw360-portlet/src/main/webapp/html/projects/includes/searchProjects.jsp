@@ -14,8 +14,8 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request" />
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
 <div id="search-project-form" title="Search Project" style="display: none; background-color: #ffffff;">
     <form>
         <div style="display: inline-block">

@@ -6,21 +6,21 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.attachments;
+package org.eclipse.sw360.attachments;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.attachments.db.AttachmentRepository;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.attachments.db.AttachmentRepository;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.validateAttachment;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.validateAttachment;
 
 /**
  * Implementation of the Thrift service

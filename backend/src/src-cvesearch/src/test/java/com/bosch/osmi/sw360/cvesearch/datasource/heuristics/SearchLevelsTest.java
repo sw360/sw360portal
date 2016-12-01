@@ -1,6 +1,6 @@
-package com.bosch.osmi.sw360.cvesearch.datasource.heuristics;
+package org.eclipse.sw360.cvesearch.datasource.heuristics;
 
-import com.siemens.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.junit.Test;
 
 public class SearchLevelsTest {

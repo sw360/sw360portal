@@ -5,7 +5,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- */package com.siemens.sw360.portal.users;
+ */package org.eclipse.sw360.portal.users;
 
 import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -20,7 +20,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
 import com.liferay.portal.service.persistence.RoleUtil;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.siemens.sw360.portal.common.ErrorMessages;
+import org.eclipse.sw360.portal.common.ErrorMessages;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;

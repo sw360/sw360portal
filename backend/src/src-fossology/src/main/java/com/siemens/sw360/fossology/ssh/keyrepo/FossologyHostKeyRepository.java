@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.ssh.keyrepo;
+package org.eclipse.sw360.fossology.ssh.keyrepo;
 
 import com.jcraft.jsch.HostKey;
 import com.jcraft.jsch.HostKeyRepository;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.UserInfo;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
-import com.siemens.sw360.fossology.db.FossologyFingerPrintRepository;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
+import org.eclipse.sw360.fossology.db.FossologyFingerPrintRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

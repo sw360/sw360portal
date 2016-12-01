@@ -7,17 +7,17 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.attachments.db;
+package org.eclipse.sw360.attachments.db;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseRepository;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseRepository;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;

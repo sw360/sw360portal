@@ -10,7 +10,7 @@
 include "users.thrift"
 include "components.thrift"
 
-namespace java com.siemens.sw360.datahandler.thrift.licenseinfo
+namespace java org.eclipse.sw360.datahandler.thrift.licenseinfo
 namespace php sw360.thrift.licenseinfo
 
 typedef components.Release Release

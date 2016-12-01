@@ -6,19 +6,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.signup;
+package org.eclipse.sw360.portal.portlets.signup;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Validator;
-import com.siemens.sw360.datahandler.common.SW360Assert;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.portal.common.ErrorMessages;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.users.UserPortletUtils;
-import com.siemens.sw360.portal.users.UserUtils;
+import org.eclipse.sw360.datahandler.common.SW360Assert;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.common.ErrorMessages;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.users.UserPortletUtils;
+import org.eclipse.sw360.portal.users.UserUtils;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletRequest;

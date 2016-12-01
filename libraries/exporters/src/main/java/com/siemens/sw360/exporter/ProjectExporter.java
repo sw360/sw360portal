@@ -7,26 +7,26 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.exporter;
+package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.exporter.ReleaseExporter.ReleaseHelper;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.exporter.ReleaseExporter.ReleaseHelper;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.datahandler.common.SW360Utils.*;
-import static com.siemens.sw360.datahandler.thrift.projects.Project._Fields.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.thrift.projects.Project._Fields.*;
 
 public class ProjectExporter extends ExcelExporter<Project> {
 

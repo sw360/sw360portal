@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.permissions.jgivens;
+package org.eclipse.sw360.datahandler.permissions.jgivens;
 
-import com.siemens.sw360.datahandler.TEnumToString;
-import com.siemens.sw360.datahandler.permissions.DocumentPermissions;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.TEnumToString;
+import org.eclipse.sw360.datahandler.permissions.DocumentPermissions;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 import com.tngtech.jgiven.annotation.ProvidedScenarioState;

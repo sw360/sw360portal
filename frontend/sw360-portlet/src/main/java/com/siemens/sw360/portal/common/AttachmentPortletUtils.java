@@ -7,22 +7,22 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.portal.common;
+package org.eclipse.sw360.portal.common;
 
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.util.PortalUtil;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.couchdb.AttachmentStreamConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.attachments.DatabaseAddress;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentStreamConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentNotFoundException;
@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static java.net.URLConnection.guessContentTypeFromName;
 import static java.net.URLConnection.guessContentTypeFromStream;
 

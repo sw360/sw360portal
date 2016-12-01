@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 include "sw360.thrift"
-namespace java com.siemens.sw360.datahandler.thrift.users
+namespace java org.eclipse.sw360.datahandler.thrift.users
 namespace php sw360.thrift.users
 
 typedef sw360.RequestStatus RequestStatus

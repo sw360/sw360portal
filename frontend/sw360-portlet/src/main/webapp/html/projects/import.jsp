@@ -14,15 +14,15 @@
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.datasources.SourceDatabase" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.datasources.SourceDatabaseSelector" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.datasources.SourceDatabase" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.datasources.SourceDatabaseSelector" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="importables" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.Project>"
+<jsp:useBean id="importables" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.Project>"
              scope="request"/>
 <jsp:useBean id="idName" type="java.lang.String" scope="request"/>
 <jsp:useBean id="loggedIn" type="java.lang.Boolean" scope="request" />

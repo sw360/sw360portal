@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.businessrules;
+package org.eclipse.sw360.datahandler.businessrules;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.thrift.components.ClearingState;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.Map;
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Maps.filterKeys;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 
 /**
  * @author daniele.fognini@tngtech.com

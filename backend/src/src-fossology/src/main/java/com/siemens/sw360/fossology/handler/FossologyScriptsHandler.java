@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.handler;
+package org.eclipse.sw360.fossology.handler;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.fossology.ssh.FossologyUploader;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.fossology.ssh.FossologyUploader;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static org.apache.log4j.Logger.getLogger;
 
 

@@ -7,9 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.apache.log4j.Logger;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;

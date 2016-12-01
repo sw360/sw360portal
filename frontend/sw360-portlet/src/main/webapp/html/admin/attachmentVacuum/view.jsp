@@ -6,7 +6,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>

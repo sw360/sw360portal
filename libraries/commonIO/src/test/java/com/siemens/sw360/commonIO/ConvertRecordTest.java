@@ -7,12 +7,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.commonIO;
+package org.eclipse.sw360.commonIO;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.siemens.sw360.datahandler.common.ImportCSV;
-import com.siemens.sw360.datahandler.thrift.licenses.Todo;
+import org.eclipse.sw360.datahandler.common.ImportCSV;
+import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
 import org.apache.commons.csv.CSVRecord;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.siemens.sw360.commonIO.ConvertRecord.*;
+import static org.eclipse.sw360.commonIO.ConvertRecord.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 

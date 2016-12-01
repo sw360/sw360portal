@@ -1,4 +1,4 @@
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
@@ -15,7 +15,7 @@
 <liferay-theme:defineObjects/>
 
 <jsp:useBean id="userList" type="java.util.List<com.liferay.portal.model.User>" scope="request"/>
-<jsp:useBean id="missingUserList" type="java.util.List<com.siemens.sw360.datahandler.thrift.users.User>"
+<jsp:useBean id="missingUserList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.users.User>"
              scope="request"/>
 <portlet:actionURL var="updateLifeRayUsers" name="updateUsers">
 </portlet:actionURL>

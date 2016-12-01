@@ -7,14 +7,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.search;
+package org.eclipse.sw360.search;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.common.SW360Assert;
-import com.siemens.sw360.datahandler.thrift.search.SearchResult;
-import com.siemens.sw360.datahandler.thrift.search.SearchService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.search.db.DatabaseSearchHandler;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.SW360Assert;
+import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
+import org.eclipse.sw360.datahandler.thrift.search.SearchService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.search.db.DatabaseSearchHandler;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

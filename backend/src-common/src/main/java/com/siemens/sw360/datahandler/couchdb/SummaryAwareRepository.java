@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
-import com.siemens.sw360.components.summary.DocumentSummary;
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.components.summary.DocumentSummary;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.util.Collection;
 import java.util.Collections;

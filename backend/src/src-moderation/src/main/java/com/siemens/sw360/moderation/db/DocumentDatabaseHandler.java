@@ -8,20 +8,20 @@
  *//*
 
 
-package com.siemens.sw360.moderation.db;
+package org.eclipse.sw360.moderation.db;
 
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 
 import java.net.MalformedURLException;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertId;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertId;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
 
 */
 /**

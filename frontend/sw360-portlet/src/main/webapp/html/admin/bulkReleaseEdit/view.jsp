@@ -6,7 +6,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 
 <%@include file="/html/init.jsp" %>
@@ -15,7 +15,7 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Release>"
+<jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.Release>"
              scope="request"/>
 
 <%--TODO--%>

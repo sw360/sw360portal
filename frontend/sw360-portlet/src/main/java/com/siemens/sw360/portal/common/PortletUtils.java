@@ -6,30 +6,30 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.common;
+package org.eclipse.sw360.portal.common;
 
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.Visibility;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.cvesearch.UpdateType;
-import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectType;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.ModerationState;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.UpdateType;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static java.lang.Integer.parseInt;
 
 /**

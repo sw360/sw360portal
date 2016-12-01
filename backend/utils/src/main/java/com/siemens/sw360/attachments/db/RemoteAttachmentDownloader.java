@@ -7,14 +7,14 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.attachments.db;
+package org.eclipse.sw360.attachments.db;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.apache.log4j.Logger;
 import org.ektorp.http.HttpClient;
 
@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static java.lang.String.format;
 import static org.apache.log4j.Logger.getLogger;
 

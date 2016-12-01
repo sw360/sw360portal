@@ -6,18 +6,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.common;
+package org.eclipse.sw360.portal.common;
 
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.io.IOException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.portal.users.UserCacheHolder.getUserFromEmail;
+import static org.eclipse.sw360.portal.users.UserCacheHolder.getUserFromEmail;
 
 /**
  * @author daniele.fognini@tngtech.com

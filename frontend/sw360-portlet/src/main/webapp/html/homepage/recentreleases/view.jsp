@@ -6,9 +6,9 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.components.ComponentPortlet" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.Sw360Portlet" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.components.ComponentPortlet" %>
 
 <%@include file="/html/init.jsp" %>
 <portlet:defineObjects/>
@@ -17,7 +17,7 @@
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
-<jsp:useBean id="releases" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.Release>"
+<jsp:useBean id="releases" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.Release>"
              class="java.util.ArrayList" scope="request"/>
 
 <div id="recentReleasesDiv">

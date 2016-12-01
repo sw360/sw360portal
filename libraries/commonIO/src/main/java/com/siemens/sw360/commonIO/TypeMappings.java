@@ -7,18 +7,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.commonIO;
+package org.eclipse.sw360.commonIO;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.ImportCSV;
-import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.thrift.CustomProperties;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.ImportCSV;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.thrift.CustomProperties;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
@@ -27,8 +27,8 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.commonIO.ConvertRecord.PropertyWithValue;
-import static com.siemens.sw360.commonIO.ConvertRecord.putToTodos;
+import static org.eclipse.sw360.commonIO.ConvertRecord.PropertyWithValue;
+import static org.eclipse.sw360.commonIO.ConvertRecord.putToTodos;
 
 /**
  * @author johannes.najjar@tngtech.com

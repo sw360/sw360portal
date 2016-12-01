@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.admin;
+package org.eclipse.sw360.portal.portlets.admin;
 
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

@@ -6,18 +6,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.exporter;
+package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.thrift.TEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.siemens.sw360.datahandler.thrift.vendors.Vendor._Fields.*;
+import static org.eclipse.sw360.datahandler.thrift.vendors.Vendor._Fields.*;
 
 /**
  * Created by jn on 03.03.15.

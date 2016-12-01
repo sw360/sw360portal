@@ -6,17 +6,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.db;
+package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
-import com.siemens.sw360.components.summary.ProjectSummary;
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.SummaryAwareRepository;
-import com.siemens.sw360.datahandler.permissions.ProjectPermissions;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.components.summary.ProjectSummary;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
+import org.eclipse.sw360.datahandler.permissions.ProjectPermissions;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.support.View;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
 
 /**
  * CRUD access for the Project class

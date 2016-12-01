@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.users.db;
+package org.eclipse.sw360.users.db;
 
 import com.google.common.base.Strings;
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.components.summary.UserSummary;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.SummaryAwareRepository;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.components.summary.UserSummary;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.support.View;
 
 import java.util.List;

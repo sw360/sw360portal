@@ -7,13 +7,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.permissions;
+package org.eclipse.sw360.datahandler.permissions;
 
-import com.siemens.sw360.datahandler.permissions.jgivens.GivenProject;
-import com.siemens.sw360.datahandler.permissions.jgivens.ThenVisible;
-import com.siemens.sw360.datahandler.permissions.jgivens.WhenComputeVisibility;
-import com.siemens.sw360.datahandler.thrift.Visibility;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.permissions.jgivens.GivenProject;
+import org.eclipse.sw360.datahandler.permissions.jgivens.ThenVisible;
+import org.eclipse.sw360.datahandler.permissions.jgivens.WhenComputeVisibility;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -21,9 +21,9 @@ import com.tngtech.jgiven.junit.ScenarioTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.siemens.sw360.datahandler.permissions.jgivens.GivenProject.ProjectRole.*;
-import static com.siemens.sw360.datahandler.thrift.Visibility.*;
-import static com.siemens.sw360.datahandler.thrift.users.UserGroup.*;
+import static org.eclipse.sw360.datahandler.permissions.jgivens.GivenProject.ProjectRole.*;
+import static org.eclipse.sw360.datahandler.thrift.Visibility.*;
+import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.*;
 
 /**
  * @author johannes.najjar@tngtech.com

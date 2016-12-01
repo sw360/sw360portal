@@ -7,22 +7,22 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.attachments.AttachmentHandler;
-import com.siemens.sw360.attachments.db.AttachmentRepository;
-import com.siemens.sw360.components.ComponentHandler;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.common.ImportCSV;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.vendors.VendorHandler;
+import org.eclipse.sw360.attachments.AttachmentHandler;
+import org.eclipse.sw360.attachments.db.AttachmentRepository;
+import org.eclipse.sw360.components.ComponentHandler;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.ImportCSV;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.vendors.VendorHandler;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.thrift.TException;
 import org.junit.After;
@@ -33,9 +33,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.List;
 
-import static com.siemens.sw360.datahandler.TestUtils.*;
-import static com.siemens.sw360.importer.ComponentImportUtils.convertCSVRecordsToCompCSVRecords;
-import static com.siemens.sw360.importer.ComponentImportUtils.convertCSVRecordsToComponentAttachmentCSVRecords;
+import static org.eclipse.sw360.datahandler.TestUtils.*;
+import static org.eclipse.sw360.importer.ComponentImportUtils.convertCSVRecordsToCompCSVRecords;
+import static org.eclipse.sw360.importer.ComponentImportUtils.convertCSVRecordsToComponentAttachmentCSVRecords;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 

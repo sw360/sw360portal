@@ -7,9 +7,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.datasource.matcher;
+package org.eclipse.sw360.cvesearch.datasource.matcher;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyString;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 public class ModifiedLevenshteinDistance {
 

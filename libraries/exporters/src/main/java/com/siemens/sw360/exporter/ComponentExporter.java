@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.exporter;
+package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.exporter.ReleaseExporter.ReleaseHelper;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.exporter.ReleaseExporter.ReleaseHelper;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -22,10 +22,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.datahandler.common.SW360Utils.fieldValueAsString;
-import static com.siemens.sw360.datahandler.common.SW360Utils.getReleaseNames;
-import static com.siemens.sw360.datahandler.thrift.components.Component._Fields.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getReleaseNames;
+import static org.eclipse.sw360.datahandler.thrift.components.Component._Fields.*;
 
 public class ComponentExporter extends ExcelExporter<Component> {
     private static final Logger log = Logger.getLogger(ProjectExporter.class);

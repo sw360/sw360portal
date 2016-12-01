@@ -8,10 +8,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.licenseinfo.outputGenerators;
+package org.eclipse.sw360.licenseinfo.outputGenerators;
 
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 
@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 
-import static com.siemens.sw360.licenseinfo.outputGenerators.DocxUtils.*;
+import static org.eclipse.sw360.licenseinfo.outputGenerators.DocxUtils.*;
 
 public class DocxGenerator extends OutputGenerator<byte[]> {
 

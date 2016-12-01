@@ -7,31 +7,31 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation.db;
+package org.eclipse.sw360.moderation.db;
 
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
-import com.siemens.sw360.datahandler.db.ProjectDatabaseHandler;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.ModerationState;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.moderation.DocumentType;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.datahandler.thrift.users.UserService;
-import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
-import com.siemens.sw360.mail.MailConstants;
-import com.siemens.sw360.mail.MailUtil;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
+import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.ModerationState;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.moderation.DocumentType;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.licenses.db.LicenseDatabaseHandler;
+import org.eclipse.sw360.mail.MailConstants;
+import org.eclipse.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.http.HttpClient;
@@ -41,7 +41,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
 
 /**
  * Class for accessing the CouchDB database for the moderation objects

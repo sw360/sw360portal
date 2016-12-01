@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.db;
+package org.eclipse.sw360.fossology.db;
 
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseRepository;
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseRepository;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyHostFingerPrint;
 
 /**
  * @author daniele.fognini@tngtech.com

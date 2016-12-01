@@ -8,12 +8,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.licenseinfo.outputGenerators;
+package org.eclipse.sw360.licenseinfo.outputGenerators;
 
 
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.tools.ToolManager;

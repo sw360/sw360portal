@@ -10,7 +10,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.siemens.sw360</groupId>
+        <groupId>org.eclipse.sw360</groupId>
         <artifactId>backend</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
@@ -26,7 +26,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.siemens.sw360</groupId>
+            <groupId>org.eclipse.sw360</groupId>
             <artifactId>src-attachments</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -57,7 +57,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.siemens.sw360.UtilsEntryPoint</mainClass>
+                            <mainClass>org.eclipse.sw360.UtilsEntryPoint</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

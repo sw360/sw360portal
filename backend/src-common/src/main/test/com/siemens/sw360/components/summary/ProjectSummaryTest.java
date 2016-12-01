@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components.summary;
+package org.eclipse.sw360.components.summary;
 
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectState;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.siemens.sw360.exporter.ProjectExporter.RENDERED_FIELDS;
+import static org.eclipse.sw360.exporter.ProjectExporter.RENDERED_FIELDS;
 import static org.junit.Assert.assertNotNull;
 
 /**

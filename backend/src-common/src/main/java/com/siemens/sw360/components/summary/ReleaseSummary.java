@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components.summary;
+package org.eclipse.sw360.components.summary;
 
 import com.google.common.base.Strings;
-import com.siemens.sw360.datahandler.db.VendorRepository;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.Release._Fields;
-import com.siemens.sw360.exporter.ReleaseExporter;
+import org.eclipse.sw360.datahandler.db.VendorRepository;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.Release._Fields;
+import org.eclipse.sw360.exporter.ReleaseExporter;
 
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
 
 /**
  * Created by bodet on 17/02/15.

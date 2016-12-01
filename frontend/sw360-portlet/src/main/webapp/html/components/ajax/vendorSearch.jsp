@@ -12,7 +12,7 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
-<jsp:useBean id="vendorsSearch" type="java.util.List<com.siemens.sw360.datahandler.thrift.vendors.Vendor>" class="java.util.ArrayList" scope="request"/>
+<jsp:useBean id="vendorsSearch" type="java.util.List<org.eclipse.sw360.datahandler.thrift.vendors.Vendor>" class="java.util.ArrayList" scope="request"/>
 
 <core_rt:if test="${vendorsSearch.size()>0}" >
 <core_rt:forEach items="${vendorsSearch}" var="entry">

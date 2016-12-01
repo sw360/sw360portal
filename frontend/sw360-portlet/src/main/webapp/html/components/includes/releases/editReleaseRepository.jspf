@@ -7,10 +7,10 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
-<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Repository" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.RepositoryType" %>
+<%@ page import="org.eclipse.sw360.portal.users.UserCacheHolder" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Repository" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.RepositoryType" %>
 
 <table class="table info_table" id="ComponentRepository" title="Release Repository">
   <thead>

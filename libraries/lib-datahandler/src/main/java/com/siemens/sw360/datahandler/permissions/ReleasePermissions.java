@@ -6,18 +6,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.permissions;
+package org.eclipse.sw360.datahandler.permissions;
 
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.util.Map;
 import java.util.Set;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.toSingletonSet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
 
 /**
  * Created by bodet on 16/02/15.

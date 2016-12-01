@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.search;
+package org.eclipse.sw360.portal.portlets.search;
 
-import com.siemens.sw360.datahandler.thrift.search.SearchResult;
-import com.siemens.sw360.datahandler.thrift.search.SearchService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
+import org.eclipse.sw360.datahandler.thrift.search.SearchService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
  * Created by bodet on 03/12/14.

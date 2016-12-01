@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.projects;
+package org.eclipse.sw360.portal.portlets.projects;
 
 /**
  * Created by andreas.reichel@tngtech.com on 19.11.15.
@@ -17,16 +17,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.bdpimport.BdpImportService;
-import com.siemens.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
-import com.siemens.sw360.datahandler.thrift.importstatus.ImportStatus;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.bdpimport.BdpImportService;
+import org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
+import org.eclipse.sw360.datahandler.thrift.importstatus.ImportStatus;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 

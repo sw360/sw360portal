@@ -7,25 +7,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenses.db;
+package org.eclipse.sw360.licenses.db;
 
 
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.CustomPropertiesRepository;
-import com.siemens.sw360.datahandler.db.ReleaseRepository;
-import com.siemens.sw360.datahandler.db.VendorRepository;
-import com.siemens.sw360.datahandler.entitlement.LicenseModerator;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.db.CustomPropertiesRepository;
+import org.eclipse.sw360.datahandler.db.ReleaseRepository;
+import org.eclipse.sw360.datahandler.db.VendorRepository;
+import org.eclipse.sw360.datahandler.entitlement.LicenseModerator;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
@@ -37,12 +37,12 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static com.siemens.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
-import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
+import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.*;
 
 /**
  * Class for accessing the CouchDB database

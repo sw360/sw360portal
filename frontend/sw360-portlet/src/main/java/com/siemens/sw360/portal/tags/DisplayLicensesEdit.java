@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags;
+package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -22,8 +22,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.collect.Collections2.transform;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractField;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractId;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractField;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractId;
 
 /**
  * This displays a user in Edit mode

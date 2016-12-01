@@ -7,11 +7,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.schedule.service;
+package org.eclipse.sw360.schedule.service;
 
-import com.bosch.osmi.sw360.schedule.timer.ScheduleConstants;
-import com.siemens.sw360.datahandler.thrift.schedule.ScheduleService;
-import com.siemens.sw360.projects.Sw360ThriftServlet;
+import org.eclipse.sw360.schedule.timer.ScheduleConstants;
+import org.eclipse.sw360.datahandler.thrift.schedule.ScheduleService;
+import org.eclipse.sw360.projects.Sw360ThriftServlet;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;

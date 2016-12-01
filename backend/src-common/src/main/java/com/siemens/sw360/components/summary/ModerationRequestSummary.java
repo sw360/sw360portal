@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components.summary;
+package org.eclipse.sw360.components.summary;
 
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
 
 /**
  * Created by bodet on 17/02/15.

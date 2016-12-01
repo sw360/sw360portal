@@ -7,11 +7,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -7,19 +7,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags.links;
+package org.eclipse.sw360.portal.tags.links;
 
-import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.thrift.search.SearchResult;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.page.PortletDefaultPage;
-import com.siemens.sw360.portal.common.page.PortletReleasePage;
-import com.siemens.sw360.portal.portlets.LinkToPortletConfiguration;
-import com.siemens.sw360.portal.tags.urlutils.UrlWriter;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.page.PortletDefaultPage;
+import org.eclipse.sw360.portal.common.page.PortletReleasePage;
+import org.eclipse.sw360.portal.portlets.LinkToPortletConfiguration;
+import org.eclipse.sw360.portal.tags.urlutils.UrlWriter;
 
 import javax.servlet.jsp.JspException;
 
-import static com.siemens.sw360.portal.tags.urlutils.UrlWriterImpl.renderUrl;
+import static org.eclipse.sw360.portal.tags.urlutils.UrlWriterImpl.renderUrl;
 
 /**
  * @author daniele.fognini@tngtech.com

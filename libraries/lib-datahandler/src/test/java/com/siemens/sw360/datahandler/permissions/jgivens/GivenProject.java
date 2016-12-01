@@ -7,12 +7,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.datahandler.permissions.jgivens;
+package org.eclipse.sw360.datahandler.permissions.jgivens;
 
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.TEnumToString;
-import com.siemens.sw360.datahandler.thrift.Visibility;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.TEnumToString;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.Quoted;
 import com.tngtech.jgiven.annotation.ScenarioState;

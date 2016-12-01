@@ -7,13 +7,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation.db;
+package org.eclipse.sw360.moderation.db;
 
-import com.siemens.sw360.components.summary.ModerationRequestSummary;
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.couchdb.SummaryAwareRepository;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.components.summary.ModerationRequestSummary;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.ektorp.support.View;
 
 import java.util.List;

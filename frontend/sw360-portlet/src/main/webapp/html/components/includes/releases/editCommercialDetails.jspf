@@ -8,12 +8,12 @@
 --%>
 
 
-<%@ page import="com.siemens.sw360.portal.users.UserCacheHolder" %>
-<%@ page import="com.siemens.sw360.datahandler.common.SW360Utils" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Repository" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.Release" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.ClearingInformation" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.COTSDetails" %>
+<%@ page import="org.eclipse.sw360.portal.users.UserCacheHolder" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.SW360Utils" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Repository" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ClearingInformation" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.COTSDetails" %>
 <table class="table info_table" id="COTSDetails" title="COTS Details">
     <thead>
     <tr>

@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.permissions;
+package org.eclipse.sw360.datahandler.permissions;
 
-import com.siemens.sw360.datahandler.permissions.jgivens.GivenProject;
-import com.siemens.sw360.datahandler.permissions.jgivens.ThenHighestAllowedAction;
-import com.siemens.sw360.datahandler.permissions.jgivens.WhenComputePermissions;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.datahandler.permissions.jgivens.GivenProject;
+import org.eclipse.sw360.datahandler.permissions.jgivens.ThenHighestAllowedAction;
+import org.eclipse.sw360.datahandler.permissions.jgivens.WhenComputePermissions;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -20,8 +20,8 @@ import com.tngtech.jgiven.junit.ScenarioTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.siemens.sw360.datahandler.thrift.users.RequestedAction.*;
-import static com.siemens.sw360.datahandler.thrift.users.UserGroup.*;
+import static org.eclipse.sw360.datahandler.thrift.users.RequestedAction.*;
+import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.*;
 
 /**
  * @author johannes.najjar@tngtech.com
@@ -36,7 +36,7 @@ public class ProjectPermissionsTest extends ScenarioTest<GivenProject, WhenCompu
 
     /**
      * See
-     * com.siemens.sw360.datahandler.permissions.DocumentPermissions.getHighestAllowedPermission()
+     * org.eclipse.sw360.datahandler.permissions.DocumentPermissions.getHighestAllowedPermission()
      * for relevant cases
      */
     @DataProvider

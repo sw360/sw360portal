@@ -17,12 +17,12 @@
     </welcome-file-list>
 
     <listener>
-        <listener-class>com.siemens.sw360.SW360ServiceContextListener</listener-class>
+        <listener-class>org.eclipse.sw360.SW360ServiceContextListener</listener-class>
     </listener>
 
     <servlet>
         <servlet-name>AttachmentService</servlet-name>
-        <servlet-class>com.siemens.sw360.attachments.AttachmentServlet</servlet-class>
+        <servlet-class>org.eclipse.sw360.attachments.AttachmentServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

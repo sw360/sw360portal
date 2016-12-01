@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.vendors;
+package org.eclipse.sw360.vendors;
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.datahandler.db.VendorRepository;
-import com.siemens.sw360.datahandler.db.VendorSearch;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.datahandler.db.VendorRepository;
+import org.eclipse.sw360.datahandler.db.VendorSearch;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.prepareVendor;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareVendor;
 
 /**
  * Implementation of the Thrift service

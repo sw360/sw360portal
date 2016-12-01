@@ -7,13 +7,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.datasource;
+package org.eclipse.sw360.cvesearch.datasource;
 
-import com.bosch.osmi.sw360.cvesearch.datasource.json.CveSearchJsonParser;
+import org.eclipse.sw360.cvesearch.datasource.json.CveSearchJsonParser;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.siemens.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;

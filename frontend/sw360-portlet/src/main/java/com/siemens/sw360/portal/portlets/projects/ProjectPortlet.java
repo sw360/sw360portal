@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.projects;
+package org.eclipse.sw360.portal.portlets.projects;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -18,35 +18,35 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Constants;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.common.ThriftEnumUtils;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseLink;
-import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
-import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
-import com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.*;
-import com.siemens.sw360.exporter.ProjectExporter;
-import com.siemens.sw360.portal.common.*;
-import com.siemens.sw360.portal.portlets.FossologyAwarePortlet;
-import com.siemens.sw360.portal.users.LifeRayUserSession;
-import com.siemens.sw360.portal.users.UserCacheHolder;
-import com.siemens.sw360.portal.users.UserUtils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.*;
+import org.eclipse.sw360.exporter.ProjectExporter;
+import org.eclipse.sw360.portal.common.*;
+import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
+import org.eclipse.sw360.portal.users.LifeRayUserSession;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -61,10 +61,10 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
-import static com.siemens.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
-import static com.siemens.sw360.datahandler.common.SW360Utils.printName;
-import static com.siemens.sw360.portal.common.PortalConstants.*;
-import static com.siemens.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
+import static org.eclipse.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 
 /**

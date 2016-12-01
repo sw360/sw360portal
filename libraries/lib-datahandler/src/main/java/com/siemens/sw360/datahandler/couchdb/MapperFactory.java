@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.impl.ObjectMapperFactory;
 import org.ektorp.impl.jackson.EktorpJacksonModule;

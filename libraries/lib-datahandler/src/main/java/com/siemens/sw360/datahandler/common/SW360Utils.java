@@ -6,24 +6,24 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.common;
+package org.eclipse.sw360.datahandler.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.LicenseService;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectLink;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship;
-import com.siemens.sw360.datahandler.thrift.projects.ProjectService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
-import com.siemens.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
@@ -38,9 +38,9 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.transform;
-import static com.siemens.sw360.datahandler.common.CommonUtils.joinStrings;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.extractId;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.joinStrings;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractId;
 import static org.apache.log4j.Logger.getLogger;
 
 /**

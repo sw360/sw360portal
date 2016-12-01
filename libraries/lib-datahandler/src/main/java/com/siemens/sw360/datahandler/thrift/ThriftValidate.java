@@ -6,25 +6,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.thrift;
+package org.eclipse.sw360.datahandler.thrift;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Predicates.notNull;
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
-import static com.siemens.sw360.datahandler.common.SW360Constants.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.*;
 
 /**
  * Utility class to validate the data before inserting it in the database.

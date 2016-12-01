@@ -6,21 +6,21 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.users.db;
+package org.eclipse.sw360.users.db;
 
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.mail.MailConstants;
-import com.siemens.sw360.mail.MailUtil;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.mail.MailConstants;
+import org.eclipse.sw360.mail.MailUtil;
 import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
+import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 
 /**
  * Class for accessing the CouchDB database

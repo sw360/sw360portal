@@ -7,24 +7,24 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.licenses;
+package org.eclipse.sw360.portal.portlets.licenses;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.exporter.LicenseExporter;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.exporter.LicenseExporter;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -35,9 +35,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.TMP_TODO_ID_PREFIX;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static com.siemens.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.TMP_TODO_ID_PREFIX;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
  * License portlet implementation

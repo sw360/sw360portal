@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.users;
+package org.eclipse.sw360.portal.users;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -15,8 +15,8 @@ import org.apache.commons.csv.CSVRecord;
 
 import javax.portlet.PortletRequest;
 
-import static com.siemens.sw360.portal.users.UserUtils.getRoleConstantFromUserGroup;
-import static com.siemens.sw360.portal.users.UserUtils.userGroupFromString;
+import static org.eclipse.sw360.portal.users.UserUtils.getRoleConstantFromUserGroup;
+import static org.eclipse.sw360.portal.users.UserUtils.userGroupFromString;
 
 /**
  * Created by heydenrb on 01.03.16.

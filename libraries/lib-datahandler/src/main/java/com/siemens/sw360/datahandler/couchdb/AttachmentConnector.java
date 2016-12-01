@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.couchdb;
+package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +23,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.closeQuietly;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotEmpty;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 
 import org.apache.log4j.Logger;

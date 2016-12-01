@@ -6,21 +6,21 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.exporter;
+package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.datahandler.common.SW360Utils.*;
-import static com.siemens.sw360.datahandler.thrift.components.Release._Fields.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.thrift.components.Release._Fields.*;
 
 
 public class ReleaseExporter extends ExcelExporter<Release> {

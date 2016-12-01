@@ -7,23 +7,23 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.components.db;
+package org.eclipse.sw360.components.db;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.db.ComponentDatabaseHandler;
-import com.siemens.sw360.datahandler.entitlement.ComponentModerator;
-import com.siemens.sw360.datahandler.entitlement.ReleaseModerator;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
+import org.eclipse.sw360.datahandler.entitlement.ComponentModerator;
+import org.eclipse.sw360.datahandler.entitlement.ReleaseModerator;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -34,8 +34,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static com.siemens.sw360.datahandler.TestUtils.assertTestString;
-import static com.siemens.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.*;

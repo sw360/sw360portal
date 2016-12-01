@@ -8,19 +8,19 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360.moderation.db;
+package org.eclipse.sw360.moderation.db;
 
 import com.google.common.collect.Maps;
-import com.siemens.sw360.datahandler.thrift.licenses.License;
-import com.siemens.sw360.datahandler.thrift.licenses.Todo;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.uniqueIndex;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 
 /**
  * Class for comparing a document with its counterpart in the database

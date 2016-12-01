@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.importer;
+package org.eclipse.sw360.importer;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
-import com.siemens.sw360.datahandler.common.ImportCSV;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.datahandler.common.ImportCSV;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -23,7 +23,7 @@ import org.apache.thrift.TException;
 import java.io.IOException;
 import java.util.List;
 
-import static com.siemens.sw360.importer.ComponentImportUtils.*;
+import static org.eclipse.sw360.importer.ComponentImportUtils.*;
 
 /**
  * Main class of the component importer

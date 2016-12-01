@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.common;
+package org.eclipse.sw360.datahandler.common;
 
 import org.junit.Test;
 
-import static com.siemens.sw360.datahandler.common.CommonUtils.formatTime;
-import static com.siemens.sw360.datahandler.common.CommonUtils.getTargetNameOfUrl;
-import static com.siemens.sw360.datahandler.common.CommonUtils.isValidUrl;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.formatTime;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.getTargetNameOfUrl;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isValidUrl;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

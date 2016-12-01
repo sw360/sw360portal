@@ -6,20 +6,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.components.summary;
+package org.eclipse.sw360.components.summary;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
-import com.siemens.sw360.datahandler.db.ReleaseRepository;
-import com.siemens.sw360.datahandler.db.VendorRepository;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.db.ReleaseRepository;
+import org.eclipse.sw360.datahandler.db.VendorRepository;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.*;
 
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyField;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
 
 /**
  * Created by bodet on 17/02/15.

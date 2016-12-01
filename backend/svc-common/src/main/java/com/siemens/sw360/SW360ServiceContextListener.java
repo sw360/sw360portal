@@ -7,9 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.siemens.sw360;
+package org.eclipse.sw360;
 
-import com.siemens.sw360.datahandler.couchdb.DatabaseInstanceTracker;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseInstanceTracker;
 import org.ektorp.http.IdleConnectionMonitor;
 
 import javax.servlet.ServletContextEvent;

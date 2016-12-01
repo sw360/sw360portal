@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.common.datatables;
+package org.eclipse.sw360.portal.common.datatables;
 
 import com.google.common.collect.ImmutableMap;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesColumn;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesOrder;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesParameters;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesSearch;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesColumn;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesOrder;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesParameters;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesSearch;
 import org.junit.Test;
 
 import java.util.List;

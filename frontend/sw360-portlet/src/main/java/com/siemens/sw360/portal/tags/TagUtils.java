@@ -1,7 +1,7 @@
-package com.siemens.sw360.portal.tags;
+package org.eclipse.sw360.portal.tags;
 
 import com.google.common.collect.Sets;
-import com.siemens.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static com.siemens.sw360.portal.tags.urlutils.UrlWriterImpl.resourceUrl;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.portal.tags.urlutils.UrlWriterImpl.resourceUrl;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 

@@ -12,12 +12,12 @@
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-<%@ page import="com.siemens.sw360.datahandler.common.ThriftEnumUtils" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
-<%@ page import="com.siemens.sw360.portal.portlets.Sw360Portlet" %>
-<%@ page import="com.siemens.sw360.portal.portlets.projects.ProjectPortlet" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.ThriftEnumUtils" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.Sw360Portlet" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.projects.ProjectPortlet" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.components.*" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.*" %>
 
 <portlet:actionURL var="updateReleaseURL" name="updateRelease">
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
@@ -40,13 +40,13 @@
 <liferay-theme:defineObjects/>
 
 <c:catch var="attributeNotFoundException">
-    <jsp:useBean id="component" class="com.siemens.sw360.datahandler.thrift.components.Component" scope="request"/>
-    <jsp:useBean id="release" class="com.siemens.sw360.datahandler.thrift.components.Release" scope="request"/>
+    <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
+    <jsp:useBean id="release" class="org.eclipse.sw360.datahandler.thrift.components.Release" scope="request"/>
 
-    <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>"
+    <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>"
                  scope="request"/>
 
-    <jsp:useBean id="usingComponents" type="java.util.Set<com.siemens.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
 
     <core_rt:set var="programmingLanguages" value='<%=PortalConstants.PROGRAMMING_LANGUAGES%>'/>
     <core_rt:set var="operatingSystemsAutoC" value='<%=PortalConstants.OPERATING_SYSTEMS%>'/>

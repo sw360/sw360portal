@@ -14,9 +14,9 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 
-<%@ page import="com.siemens.sw360.datahandler.common.SW360Constants" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.moderation.DocumentType" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.SW360Constants" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 
 <portlet:actionURL var="updateURL" name="update">
@@ -31,12 +31,12 @@
 </portlet:actionURL>
 
 <c:catch var="attributeNotFoundException">
-    <jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request" />
+    <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
     <jsp:useBean id="documentID" class="java.lang.String" scope="request" />
-    <jsp:useBean id="usingProjects" type="java.util.Set<com.siemens.sw360.datahandler.thrift.projects.Project>" scope="request"/>
-    <jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
-    <jsp:useBean id="releaseList" type="java.util.List<com.siemens.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
-    <jsp:useBean id="attachments" type="java.util.Set<com.siemens.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
+    <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
+    <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
+    <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
+    <jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
 
     <core_rt:set  var="addMode"  value="${empty project.id}" />
 </c:catch>

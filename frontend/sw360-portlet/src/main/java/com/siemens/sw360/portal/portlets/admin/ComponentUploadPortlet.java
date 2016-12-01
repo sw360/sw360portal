@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets.admin;
+package org.eclipse.sw360.portal.portlets.admin;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
@@ -17,27 +17,27 @@ import com.google.common.collect.SetMultimap;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.util.PortalUtil;
-import com.siemens.sw360.commonIO.ConvertRecord;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.RequestSummary;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftUtils;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentService;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.components.ReleaseRelationship;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.VendorService;
-import com.siemens.sw360.exporter.CSVExport;
-import com.siemens.sw360.exporter.ZipTools;
-import com.siemens.sw360.importer.*;
-import com.siemens.sw360.portal.common.PortalConstants;
-import com.siemens.sw360.portal.common.UsedAsLiferayAction;
-import com.siemens.sw360.portal.portlets.Sw360Portlet;
-import com.siemens.sw360.portal.users.UserCacheHolder;
+import org.eclipse.sw360.commonIO.ConvertRecord;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
+import org.eclipse.sw360.exporter.CSVExport;
+import org.eclipse.sw360.exporter.ZipTools;
+import org.eclipse.sw360.importer.*;
+import org.eclipse.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
+import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
@@ -49,11 +49,11 @@ import java.io.*;
 import java.util.*;
 import java.util.zip.ZipOutputStream;
 
-import static com.siemens.sw360.commonIO.ConvertRecord.*;
-import static com.siemens.sw360.commonIO.TypeMappings.*;
-import static com.siemens.sw360.datahandler.common.ImportCSV.readAsCSVRecords;
-import static com.siemens.sw360.exporter.ZipTools.*;
-import static com.siemens.sw360.importer.ComponentImportUtils.*;
+import static org.eclipse.sw360.commonIO.ConvertRecord.*;
+import static org.eclipse.sw360.commonIO.TypeMappings.*;
+import static org.eclipse.sw360.datahandler.common.ImportCSV.readAsCSVRecords;
+import static org.eclipse.sw360.exporter.ZipTools.*;
+import static org.eclipse.sw360.importer.ComponentImportUtils.*;
 
 /**
  * @author daniele.fognini@tngtech.com

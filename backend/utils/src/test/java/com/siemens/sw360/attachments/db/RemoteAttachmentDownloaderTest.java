@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.attachments.db;
+package org.eclipse.sw360.attachments.db;
 
-import com.siemens.sw360.datahandler.TestUtils;
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.common.Duration;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.TestUtils;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static com.siemens.sw360.attachments.db.RemoteAttachmentDownloader.length;
-import static com.siemens.sw360.attachments.db.RemoteAttachmentDownloader.retrieveRemoteAttachments;
-import static com.siemens.sw360.datahandler.TestUtils.*;
+import static org.eclipse.sw360.attachments.db.RemoteAttachmentDownloader.length;
+import static org.eclipse.sw360.attachments.db.RemoteAttachmentDownloader.retrieveRemoteAttachments;
+import static org.eclipse.sw360.datahandler.TestUtils.*;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;

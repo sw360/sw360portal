@@ -16,10 +16,10 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectLink" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.Project" %>
-<%@ page import="com.siemens.sw360.datahandler.thrift.projects.ProjectRelationship" %>
-<jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectLink" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship" %>
+<jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
 
 
 <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">

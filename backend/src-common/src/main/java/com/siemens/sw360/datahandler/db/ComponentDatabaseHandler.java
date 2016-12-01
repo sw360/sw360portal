@@ -7,28 +7,28 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.db;
+package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.siemens.sw360.components.summary.SummaryType;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Utils;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.couchdb.DatabaseConnector;
-import com.siemens.sw360.datahandler.entitlement.ComponentModerator;
-import com.siemens.sw360.datahandler.entitlement.ReleaseModerator;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.*;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
-import com.siemens.sw360.datahandler.thrift.attachments.CheckStatus;
-import com.siemens.sw360.datahandler.thrift.components.*;
-import com.siemens.sw360.datahandler.thrift.moderation.ModerationRequest;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.components.summary.SummaryType;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.entitlement.ComponentModerator;
+import org.eclipse.sw360.datahandler.entitlement.ReleaseModerator;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
+import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
@@ -43,15 +43,15 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.siemens.sw360.datahandler.common.CommonUtils.*;
-import static com.siemens.sw360.datahandler.common.Duration.durationOf;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.common.SW360Assert.fail;
-import static com.siemens.sw360.datahandler.permissions.PermissionUtils.makePermission;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.copyFields;
-import static com.siemens.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
-import static com.siemens.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
+import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyFields;
+import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
 
 /**
  * Class for accessing Component information from the database

@@ -6,13 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.users;
+package org.eclipse.sw360.portal.users;
 
 import com.liferay.portal.kernel.events.Action;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

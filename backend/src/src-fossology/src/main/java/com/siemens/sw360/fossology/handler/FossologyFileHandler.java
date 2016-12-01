@@ -6,22 +6,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.handler;
+package org.eclipse.sw360.fossology.handler;
 
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.couchdb.AttachmentConnector;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.SW360Exception;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.attachments.Attachment;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentContent;
-import com.siemens.sw360.datahandler.thrift.attachments.FilledAttachment;
-import com.siemens.sw360.datahandler.thrift.components.ClearingState;
-import com.siemens.sw360.datahandler.thrift.components.ComponentService;
-import com.siemens.sw360.datahandler.thrift.components.FossologyStatus;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.fossology.ssh.FossologyUploader;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.FilledAttachment;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.fossology.ssh.FossologyUploader;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +35,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.all;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.union;
-import static com.siemens.sw360.datahandler.common.CommonUtils.*;
-import static com.siemens.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static com.siemens.sw360.datahandler.common.SW360Assert.failIf;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.failIf;
 import static java.util.Collections.singleton;
 import static org.apache.log4j.Logger.getLogger;
 

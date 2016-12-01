@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.users;
+package org.eclipse.sw360.portal.users;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -18,10 +18,10 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.siemens.sw360.datahandler.thrift.ThriftClients;
-import com.siemens.sw360.datahandler.thrift.users.*;
-import com.siemens.sw360.datahandler.thrift.users.UserGroup;
-import com.siemens.sw360.portal.common.PortalConstants;
+import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.users.*;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static com.siemens.sw360.datahandler.common.SW360Constants.TYPE_USER;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.TYPE_USER;
 
 /**
  * Class with helper utils to convert Liferay users to Thrift users
@@ -54,10 +54,10 @@ public class UserUtils {
         thriftClients = new ThriftClients();
     }
 
-    public static <T> com.siemens.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(T source, ThriftClients thriftClients, Supplier<String> emailSupplier, BiConsumer<com.siemens.sw360.datahandler.thrift.users.User, T> synchronizer) {
+    public static <T> org.eclipse.sw360.datahandler.thrift.users.User synchronizeUserWithDatabase(T source, ThriftClients thriftClients, Supplier<String> emailSupplier, BiConsumer<org.eclipse.sw360.datahandler.thrift.users.User, T> synchronizer) {
         UserService.Iface client = thriftClients.makeUserClient();
 
-        com.siemens.sw360.datahandler.thrift.users.User thriftUser = null;
+        org.eclipse.sw360.datahandler.thrift.users.User thriftUser = null;
 
         try {
             thriftUser = client.getByEmail(emailSupplier.get());
@@ -69,7 +69,7 @@ public class UserUtils {
         try {
             if (thriftUser == null) {
                 log.info("Creating new user.");
-                thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
+                thriftUser = new org.eclipse.sw360.datahandler.thrift.users.User();
                 synchronizer.accept(thriftUser, source);
                 client.addUser(thriftUser);
             } else {
@@ -82,7 +82,7 @@ public class UserUtils {
         return thriftUser;
     }
 
-    public static String displayUser(String email, com.siemens.sw360.datahandler.thrift.users.User user) {
+    public static String displayUser(String email, org.eclipse.sw360.datahandler.thrift.users.User user) {
         String userString;
         if (user != null) {
             userString = "<a href=\"mailto:" + user.getEmail() + "\">" + user.getGivenname() + " " + user.getLastname() + "</a>";
@@ -104,7 +104,7 @@ public class UserUtils {
         return organizations;
     }
 
-    public static void activateLiferayUser(PortletRequest request, com.siemens.sw360.datahandler.thrift.users.User user){
+    public static void activateLiferayUser(PortletRequest request, org.eclipse.sw360.datahandler.thrift.users.User user){
         Optional<User> liferayUser = findLiferayUser(request, user);
         try {
             if (liferayUser.isPresent()) {
@@ -116,7 +116,7 @@ public class UserUtils {
 
     }
 
-    public static void deleteLiferayUser(PortletRequest request, com.siemens.sw360.datahandler.thrift.users.User user){
+    public static void deleteLiferayUser(PortletRequest request, org.eclipse.sw360.datahandler.thrift.users.User user){
         Optional<User> liferayUser = findLiferayUser(request, user);
         try {
             if (liferayUser.isPresent()){
@@ -128,7 +128,7 @@ public class UserUtils {
 
     }
 
-    private static Optional<User> findLiferayUser(PortletRequest request, com.siemens.sw360.datahandler.thrift.users.User user) {
+    private static Optional<User> findLiferayUser(PortletRequest request, org.eclipse.sw360.datahandler.thrift.users.User user) {
         long companyId = getCompanyId(request);
         User liferayUser = null;
         try {
@@ -147,20 +147,20 @@ public class UserUtils {
     public void synchronizeUserWithDatabase(User user) {
         String userEmailAddress = user.getEmailAddress();
 
-        com.siemens.sw360.datahandler.thrift.users.User refreshed = UserCacheHolder.getRefreshedUserFromEmail(userEmailAddress);
+        org.eclipse.sw360.datahandler.thrift.users.User refreshed = UserCacheHolder.getRefreshedUserFromEmail(userEmailAddress);
         if (!equivalent(refreshed, user)) {
             synchronizeUserWithDatabase(user, thriftClients, user::getEmailAddress, UserUtils::fillThriftUserFromLiferayUser);
             UserCacheHolder.getRefreshedUserFromEmail(userEmailAddress);
         }
     }
 
-    private boolean equivalent(com.siemens.sw360.datahandler.thrift.users.User refreshed, User user) {
-        final com.siemens.sw360.datahandler.thrift.users.User thriftUser = new com.siemens.sw360.datahandler.thrift.users.User();
+    private boolean equivalent(org.eclipse.sw360.datahandler.thrift.users.User refreshed, User user) {
+        final org.eclipse.sw360.datahandler.thrift.users.User thriftUser = new org.eclipse.sw360.datahandler.thrift.users.User();
         fillThriftUserFromLiferayUser(thriftUser, user);
         return thriftUser.equals(refreshed);
     }
 
-    public static void fillThriftUserFromUserCSV(final com.siemens.sw360.datahandler.thrift.users.User thriftUser, final UserCSV userCsv) {
+    public static void fillThriftUserFromUserCSV(final org.eclipse.sw360.datahandler.thrift.users.User thriftUser, final UserCSV userCsv) {
         thriftUser.setEmail(userCsv.getEmail());
         thriftUser.setId(userCsv.getEmail());
         thriftUser.setType(TYPE_USER);
@@ -173,7 +173,7 @@ public class UserUtils {
         thriftUser.setWantsMailNotification(userCsv.wantsMailNotification());
     }
 
-    public static void fillThriftUserFromLiferayUser(final com.siemens.sw360.datahandler.thrift.users.User thriftUser, final User user) {
+    public static void fillThriftUserFromLiferayUser(final org.eclipse.sw360.datahandler.thrift.users.User thriftUser, final User user) {
         thriftUser.setEmail(user.getEmailAddress());
         thriftUser.setId(user.getEmailAddress());
         thriftUser.setType(TYPE_USER);
@@ -185,7 +185,7 @@ public class UserUtils {
         thriftUser.setDepartment(getDepartment(user));
     }
 
-    public static void fillThriftUserFromThriftUser(final com.siemens.sw360.datahandler.thrift.users.User thriftUser, final com.siemens.sw360.datahandler.thrift.users.User user) {
+    public static void fillThriftUserFromThriftUser(final org.eclipse.sw360.datahandler.thrift.users.User thriftUser, final org.eclipse.sw360.datahandler.thrift.users.User user) {
         thriftUser.setEmail(user.getEmail());
         thriftUser.setId(user.getEmail());
         thriftUser.setType(TYPE_USER);

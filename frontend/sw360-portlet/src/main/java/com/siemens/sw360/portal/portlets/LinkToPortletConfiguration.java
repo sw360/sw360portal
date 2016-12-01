@@ -7,17 +7,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.portlets;
+package org.eclipse.sw360.portal.portlets;
 
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
-import com.siemens.sw360.portal.portlets.components.ComponentPortlet;
-import com.siemens.sw360.portal.portlets.licenses.LicensesPortlet;
-import com.siemens.sw360.portal.portlets.projects.ProjectPortlet;
-import com.siemens.sw360.portal.portlets.vulnerabilities.VulnerabilitiesPortlet;
+import org.eclipse.sw360.portal.portlets.components.ComponentPortlet;
+import org.eclipse.sw360.portal.portlets.licenses.LicensesPortlet;
+import org.eclipse.sw360.portal.portlets.projects.ProjectPortlet;
+import org.eclipse.sw360.portal.portlets.vulnerabilities.VulnerabilitiesPortlet;
 
 import java.util.Optional;
 

@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.common.datatables;
+package org.eclipse.sw360.portal.common.datatables;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesColumn;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesOrder;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesParameters;
-import com.siemens.sw360.portal.common.datatables.data.DataTablesSearch;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesColumn;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesOrder;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesParameters;
+import org.eclipse.sw360.portal.common.datatables.data.DataTablesSearch;
 
 import javax.portlet.PortletRequest;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.transform;
-import static com.siemens.sw360.datahandler.common.SW360Utils.startsWith;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.startsWith;
 
 /**
  * @author daniele.fognini@tngtech.com

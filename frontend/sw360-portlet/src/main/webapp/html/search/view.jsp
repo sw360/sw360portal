@@ -14,9 +14,9 @@
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<%@ page import="static com.siemens.sw360.portal.common.PortalConstants.KEY_SEARCH_TEXT" %>
-<%@ page import="com.siemens.sw360.datahandler.common.SW360Constants" %>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="static org.eclipse.sw360.portal.common.PortalConstants.KEY_SEARCH_TEXT" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.SW360Constants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:renderURL var="edit">
 </portlet:renderURL>
@@ -24,7 +24,7 @@
 
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 <jsp:useBean id="searchtext" type="java.lang.String"  scope="request"/>
-<jsp:useBean id="documents" type="java.util.List<com.siemens.sw360.datahandler.thrift.search.SearchResult>"  scope="request"/>
+<jsp:useBean id="documents" type="java.util.List<org.eclipse.sw360.datahandler.thrift.search.SearchResult>"  scope="request"/>
 <jsp:useBean id="typeMask" type="java.util.List<java.lang.String>"  scope="request"/>
 
 <div id="header"></div>

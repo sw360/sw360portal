@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology.config;
+package org.eclipse.sw360.fossology.config;
 
 import com.jcraft.jsch.JSch;
 import org.junit.Before;

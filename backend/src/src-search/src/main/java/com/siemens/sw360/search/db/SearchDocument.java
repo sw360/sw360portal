@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.search.db;
+package org.eclipse.sw360.search.db;
 
-import com.siemens.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.siemens.sw360.search.common.SearchConstants.NAME_MAX_LENGTH;
+import static org.eclipse.sw360.search.common.SearchConstants.NAME_MAX_LENGTH;
 
 /**
  * Helper class to help parse JSON documents from lucene-ektorp

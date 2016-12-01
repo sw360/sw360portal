@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.fossology;
+package org.eclipse.sw360.fossology;
 
-import com.siemens.sw360.datahandler.thrift.fossology.FossologyService;
+import org.eclipse.sw360.datahandler.thrift.fossology.FossologyService;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

@@ -18,12 +18,12 @@
     </welcome-file-list>
 
     <listener>
-        <listener-class>com.siemens.sw360.SW360ServiceContextListener</listener-class>
+        <listener-class>org.eclipse.sw360.SW360ServiceContextListener</listener-class>
     </listener>
 
     <servlet>
         <servlet-name>ScheduleService</servlet-name>
-        <servlet-class>com.bosch.osmi.sw360.schedule.service.ScheduleServlet</servlet-class>
+        <servlet-class>org.eclipse.sw360.schedule.service.ScheduleServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

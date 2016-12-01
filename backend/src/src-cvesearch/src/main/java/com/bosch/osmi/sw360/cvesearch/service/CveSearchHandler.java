@@ -7,21 +7,21 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.bosch.osmi.sw360.cvesearch.service;
+package org.eclipse.sw360.cvesearch.service;
 
-import com.bosch.osmi.sw360.cvesearch.datasink.VulnerabilityConnector;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchApiImpl;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchData;
-import com.bosch.osmi.sw360.cvesearch.datasource.CveSearchWrapper;
-import com.bosch.osmi.sw360.cvesearch.entitytranslation.CveSearchDataTranslator;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.components.Component;
-import com.siemens.sw360.datahandler.thrift.components.Release;
-import com.siemens.sw360.datahandler.thrift.cvesearch.CveSearchService;
-import com.siemens.sw360.datahandler.thrift.cvesearch.UpdateType;
-import com.siemens.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.cvesearch.datasink.VulnerabilityConnector;
+import org.eclipse.sw360.cvesearch.datasource.CveSearchApiImpl;
+import org.eclipse.sw360.cvesearch.datasource.CveSearchData;
+import org.eclipse.sw360.cvesearch.datasource.CveSearchWrapper;
+import org.eclipse.sw360.cvesearch.entitytranslation.CveSearchDataTranslator;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.CveSearchService;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.UpdateType;
+import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.bosch.osmi.sw360.cvesearch.helper.VulnerabilityUtils.*;
+import static org.eclipse.sw360.cvesearch.helper.VulnerabilityUtils.*;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 

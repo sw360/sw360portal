@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.common;
+package org.eclipse.sw360.datahandler.common;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.siemens.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 
 import java.util.Collection;
 import java.util.Map;

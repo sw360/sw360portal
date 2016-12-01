@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.datahandler.permissions;
+package org.eclipse.sw360.datahandler.permissions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.Visibility;
-import com.siemens.sw360.datahandler.thrift.projects.Project;
-import com.siemens.sw360.datahandler.thrift.users.RequestedAction;
-import com.siemens.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.siemens.sw360.datahandler.common.CommonUtils.toSingletonSet;
-import static com.siemens.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
-import static com.siemens.sw360.datahandler.permissions.PermissionUtils.isUserAtLeast;
-import static com.siemens.sw360.datahandler.thrift.users.UserGroup.CLEARING_ADMIN;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
+import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.isUserAtLeast;
+import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.CLEARING_ADMIN;
 
 /**
  * Created by bodet on 16/02/15.

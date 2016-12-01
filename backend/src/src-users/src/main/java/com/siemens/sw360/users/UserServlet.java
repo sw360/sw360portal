@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.users;
+package org.eclipse.sw360.users;
 
-import com.siemens.sw360.datahandler.thrift.users.UserService;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.apache.thrift.protocol.TCompactProtocol;
-import com.siemens.sw360.projects.Sw360ThriftServlet;
+import org.eclipse.sw360.projects.Sw360ThriftServlet;
 
 import java.net.MalformedURLException;
 

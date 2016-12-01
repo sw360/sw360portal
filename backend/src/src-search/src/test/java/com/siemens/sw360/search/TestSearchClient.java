@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.search;
+package org.eclipse.sw360.search;
 
-import com.siemens.sw360.datahandler.thrift.search.SearchResult;
-import com.siemens.sw360.datahandler.thrift.search.SearchService;
+import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
+import org.eclipse.sw360.datahandler.thrift.search.SearchService;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;

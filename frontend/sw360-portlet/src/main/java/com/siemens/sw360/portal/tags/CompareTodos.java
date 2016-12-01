@@ -6,14 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.portal.tags;
+package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
-import com.siemens.sw360.datahandler.common.CommonUtils;
-import com.siemens.sw360.datahandler.thrift.licenses.Obligation;
-import com.siemens.sw360.datahandler.thrift.licenses.Todo;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.licenses.Obligation;
+import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
 import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.servlet.jsp.JspException;
@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.copyOf;
-import static com.siemens.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static com.siemens.sw360.portal.tags.TagUtils.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.portal.tags.TagUtils.*;
 
 /**
  * Display the todos that are added or added to/removed from department whitelist

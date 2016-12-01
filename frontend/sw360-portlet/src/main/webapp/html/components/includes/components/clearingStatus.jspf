@@ -1,4 +1,4 @@
-<%@ page import="com.siemens.sw360.portal.common.page.PortletReleasePage" %>
+<%@ page import="org.eclipse.sw360.portal.common.page.PortletReleasePage" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
   ~

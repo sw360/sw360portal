@@ -7,23 +7,23 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360.licenses;
+package org.eclipse.sw360.licenses;
 
 
-import com.siemens.sw360.datahandler.common.DatabaseSettings;
-import com.siemens.sw360.datahandler.permissions.PermissionUtils;
-import com.siemens.sw360.datahandler.thrift.RequestStatus;
-import com.siemens.sw360.datahandler.thrift.licenses.*;
-import com.siemens.sw360.datahandler.thrift.CustomProperties;
-import com.siemens.sw360.datahandler.thrift.users.User;
-import com.siemens.sw360.licenses.db.LicenseDatabaseHandler;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.CustomProperties;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.licenses.db.LicenseDatabaseHandler;
 import org.apache.thrift.TException;
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 
-import static com.siemens.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
 
 /**
  * Implementation of the Thrift service

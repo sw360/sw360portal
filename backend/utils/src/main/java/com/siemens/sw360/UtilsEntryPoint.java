@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.siemens.sw360;
+package org.eclipse.sw360;
 
-import com.siemens.sw360.attachments.db.RemoteAttachmentDownloader;
+import org.eclipse.sw360.attachments.db.RemoteAttachmentDownloader;
 import org.apache.commons.cli.*;
 
 import java.net.MalformedURLException;
