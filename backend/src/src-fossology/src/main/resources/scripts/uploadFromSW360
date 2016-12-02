@@ -57,7 +57,7 @@ checkNotEmpty "$uploadId" || die 4 "cannot parse cp2foss output:" "$cp2foss"
 
 # schedule scanning with all known agents
 # to restrict agents use e.g. "-A agent_monk,agent_nomos"
-fossjobs=$( runWithUserAndPass fossjobs -U "$uploadId" )
+fossjobs=$( runWithUserAndPass fossjobs --groupname "$groupname" -U "$uploadId" )
 
 (($?!=0)) && echo "agent scheduling failed" "$fossjobs"
 
