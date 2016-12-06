@@ -6,12 +6,15 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
+import org.eclipse.sw360.portal.tags.urlutils.UrlWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -181,14 +184,20 @@ public class TagUtils {
         return fieldDisplay;
     }
 
-    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, String id)
-                                                                                     throws IOException, JspException {
+    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, String ids)
+            throws IOException, JspException {
+        addDownloadLink(pageContext, jspWriter, name, Collections.singleton(ids));
+    }
+    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, Collection<String> ids)
+            throws IOException, JspException {
         name = escapeHtml(" " + name);
         jspWriter.write("<a href='");
-        resourceUrl(pageContext)
-                .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD)
-                .withParam(PortalConstants.ATTACHMENT_ID, id)
-                .writeUrlToJspWriter();
+        UrlWriter urlWriter = resourceUrl(pageContext)
+                .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD);
+        for(String id : ids){
+            urlWriter.withParam(PortalConstants.ATTACHMENT_ID, id);
+        }
+        urlWriter.writeUrlToJspWriter();
         jspWriter.write(format(
                 "'><img src='%s/images/downloadEnable.jpg' alt='Download%s' title='Download%s'/>",
                 ((HttpServletRequest) pageContext.getRequest()).getContextPath(), name, name));

@@ -774,6 +774,30 @@
     </tag>
 
     <tag>
+        <name>DisplayDownloadAttachmentBundle</name>
+        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayDownloadAttachment</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>ids</name>
+            <required>true</required>
+            <type>java.lang.Object</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
         <name>out</name>
         <tag-class>org.eclipse.sw360.portal.tags.OutTag</tag-class>
         <body-content>JSP</body-content>

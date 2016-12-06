@@ -33,8 +33,9 @@ import javax.portlet.ResourceResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
@@ -84,23 +85,50 @@ public class AttachmentPortletUtils {
         return connector;
     }
 
+    protected InputStream getStreamToServeAFile(List<AttachmentContent> attachments) throws TException, IOException {
+        if(attachments.size() == 1){
+            return getConnector().getAttachmentStream(attachments.get(0));
+        } else {
+            return getConnector().getAttachmentBundleStream(attachments.stream().collect(Collectors.toSet()));
+        }
+    }
 
     public void serveFile(ResourceRequest request, ResourceResponse response) {
-        String id = request.getParameter(PortalConstants.ATTACHMENT_ID);
+        String[] ids = request.getParameterValues(PortalConstants.ATTACHMENT_ID);
 
+        if(ids == null || ids.length < 1){
+            log.warn("no attachmentId was found in the request passed to serveFile");
+            return;
+        }
+
+        List<AttachmentContent> attachments = new ArrayList<>();
         try {
-            AttachmentContent attachment = client.getAttachmentContent(id);
-            InputStream attachmentStream = getConnector().getAttachmentStream(attachment);
-            try {
-                PortletResponseUtil.sendFile(request, response, attachment.getFilename(), attachmentStream, attachment.getContentType());
-            } catch (IOException e) {
-                log.error("cannot finish writing response", e);
-                response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
-            } finally {
-                closeQuietly(attachmentStream, log);
+            for(String id : ids){
+                attachments.add(client.getAttachmentContent(id));
             }
         } catch (TException e) {
+            log.error("Problem getting the AttachmentContents from the backend", e);
+            return;
+        }
+
+        String filename;
+        String contentType;
+        if(attachments.size() == 1){
+            filename = attachments.get(0).getFilename();
+            contentType = attachments.get(0).getContentType();
+        } else {
+            filename = "AttachmentBundle.zip";
+            contentType = "application/zip";
+        }
+
+        try (InputStream attachmentStream = getStreamToServeAFile(attachments)) {
+            PortletResponseUtil.sendFile(request, response, filename, attachmentStream, contentType);
+        } catch (TException e) {
             log.error("Problem getting the attachment content from the backend", e);
+            return;
+        } catch (IOException e) {
+            log.error("cannot finish writing response", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         }
     }
 
