@@ -78,7 +78,7 @@ public class ComponentDatabaseHandler {
      */
     private final ComponentModerator moderator;
     private final ReleaseModerator releaseModerator;
-    private static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED, AttachmentType.SCAN_RESULT_REPORT, AttachmentType.SCAN_RESULT_REPORT_XML);
+    private static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
 
 
     public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
