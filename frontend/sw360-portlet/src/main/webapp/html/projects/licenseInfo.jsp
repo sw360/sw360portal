@@ -6,7 +6,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-<%@ page import="com.siemens.sw360.portal.common.PortalConstants" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@include file="/html/init.jsp"%>
@@ -22,12 +22,12 @@
 
 
 <c:catch var="attributeNotFoundException">
-    <jsp:useBean id="project" class="com.siemens.sw360.datahandler.thrift.projects.Project" scope="request"/>
-    <jsp:useBean id="sw360User" class="com.siemens.sw360.datahandler.thrift.users.User" scope="request"/>
-    <jsp:useBean id="projectList" type="java.util.List<com.siemens.sw360.datahandler.thrift.projects.ProjectLink>"
+    <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request"/>
+    <jsp:useBean id="sw360User" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request"/>
+    <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"
                  scope="request"/>
     <jsp:useBean id="licenseInfoOutputFormats"
-                 type="java.util.List<com.siemens.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo>"
+                 type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo>"
                  scope="request"/>
 </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">
