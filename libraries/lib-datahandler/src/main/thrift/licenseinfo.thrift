@@ -72,9 +72,9 @@ service LicenseInfoService {
      * get a copyright and license information file on all linked releases and linked releases of linked projects (recursively)
      * output format as specified by outputType
      */
-    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType, 4: map<string, string>releaseIdsToSelectedAttachmentIds);
+    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType, 4: map<string, set<string>>releaseIdsToSelectedAttachmentIds);
 
-    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType, 4: map<string, string>releaseIdsToSelectedAttachmentIds);
+    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType, 4: map<string, set<string>>releaseIdsToSelectedAttachmentIds);
 
     /**
       * returns all available output types

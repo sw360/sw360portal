@@ -8,6 +8,10 @@
  */
 package org.eclipse.sw360.portal.portlets.projects;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -198,15 +202,20 @@ public class ProjectPortletUtils {
         return liferayUser.getExpandoBridge();
     }
 
-    public static Map<String, String> getSelectedReleaseAndAttachmentIdsFromRequest(ResourceRequest request) {
-        Map<String, String> releaseIdToAttachmentId = new HashMap<>();
+    public static Map<String, Set<String>> getSelectedReleaseAndAttachmentIdsFromRequest(ResourceRequest request) {
+        Map<String, Set<String>> releaseIdToAttachmentIds = new HashMap<>();
         String[] checkboxes = request.getParameterValues(PortalConstants.LICENSE_INFO_RELEASE_TO_ATTACHMENT);
         Arrays.stream(checkboxes).forEach(s -> {
             String[] split = s.split(":");
             if (split.length==2){
-                releaseIdToAttachmentId.put(split[0], split[1]);
+                String releaseId = split[0];
+                String attachmentId = split[1];
+                if (!releaseIdToAttachmentIds.containsKey(releaseId)){
+                    releaseIdToAttachmentIds.put(releaseId, new HashSet<>());
+                }
+                releaseIdToAttachmentIds.get(releaseId).add(attachmentId);
             }
         });
-        return releaseIdToAttachmentId;
+        return releaseIdToAttachmentIds;
     }
 }

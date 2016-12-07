@@ -141,12 +141,12 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     }
 
     @Override
-    public String getLicenseInfoFileForProject(String projectId, User user, String outputGeneratorClassName, Map<String, String> releaseIdsToSelectedAttachmentIds) throws TException {
+    public String getLicenseInfoFileForProject(String projectId, User user, String outputGeneratorClassName, Map<String, Set<String>> releaseIdsToSelectedAttachmentIds) throws TException {
         assertId(projectId);
         Project project = projectDatabaseHandler.getProjectById(projectId, user);
         assertNotNull(project);
 
-        Map<Release, String> releaseToAttachmentId = mapKeysToReleases(releaseIdsToSelectedAttachmentIds, user);
+        Map<Release, Set<String>> releaseToAttachmentId = mapKeysToReleases(releaseIdsToSelectedAttachmentIds, user);
 
         Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(releaseToAttachmentId, user);
         for (OutputGenerator generator : outputGenerators) {
@@ -157,12 +157,12 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         throw new TException("Unknown output generator for String output: " + outputGeneratorClassName);
     }
 
-    private Map<Release, String> mapKeysToReleases(Map<String, String> releaseIdsToAttachmentIds, User user) throws TException{
-        Map<Release, String> result = Maps.newHashMap();
+    private Map<Release, Set<String>> mapKeysToReleases(Map<String, Set<String>> releaseIdsToAttachmentIds, User user) throws TException{
+        Map<Release, Set<String>> result = Maps.newHashMap();
         try {
-            releaseIdsToAttachmentIds.forEach((relId, attId) -> {
+            releaseIdsToAttachmentIds.forEach((relId, attIds) -> {
                 try {
-                    result.put(componentDatabaseHandler.getRelease(relId, user), attId);
+                    result.put(componentDatabaseHandler.getRelease(relId, user), attIds);
                 } catch (SW360Exception e) {
                     throw new UncheckedTException(e);
                 }
@@ -174,13 +174,13 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     }
 
     @Override
-    public ByteBuffer getLicenseInfoFileForProjectAsBinary(String projectId, User user, String outputGeneratorClassName, Map<String, String> releaseIdsToSelectedAttachmentIds) throws TException {
+    public ByteBuffer getLicenseInfoFileForProjectAsBinary(String projectId, User user, String outputGeneratorClassName, Map<String, Set<String>> releaseIdsToSelectedAttachmentIds) throws TException {
         assertId(projectId);
         Project project = projectDatabaseHandler.getProjectById(projectId, user);
         assertNotNull(project);
 
-        Map<Release, String> releaseToAttachmentId = mapKeysToReleases(releaseIdsToSelectedAttachmentIds, user);
-        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(releaseToAttachmentId, user);
+        Map<Release, Set<String>> releaseToAttachmentIds = mapKeysToReleases(releaseIdsToSelectedAttachmentIds, user);
+        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(releaseToAttachmentIds, user);
         for (OutputGenerator generator : outputGenerators) {
             if (outputGeneratorClassName.equals(generator.getClass().getName())) {
                 return ByteBuffer.wrap((byte[]) generator.generateOutputFile(projectLicenseInfoResults, project.getName()));
@@ -210,16 +210,19 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         throw new TException("Unknown output format: " + generatorClassName);
     }
 
-    private Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(Map<Release, String> releaseToSelectedAttachmentId, User user) throws TException {
+    private Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(Map<Release, Set<String>> releaseToSelectedAttachmentId, User user) throws TException {
         try {
-            return releaseToSelectedAttachmentId.entrySet().stream().filter(p -> p.getValue() != null)
-                    .map((entry) -> {
-                        try {
-                            return getLicenseInfoForRelease(entry.getKey(), entry.getValue());
-                        } catch (TException e) {
-                            throw new UncheckedTException(e);
-                        }
-                    }).collect(Collectors.toList());
+            return releaseToSelectedAttachmentId.entrySet().stream()
+                    .map((entry) -> entry.getValue().stream()
+                            .filter(Objects::nonNull)
+                            .map(attId -> {
+                                try {
+                                    return getLicenseInfoForRelease(entry.getKey(), attId);
+                                } catch (TException e) {
+                                    throw new UncheckedTException(e);
+                                }
+                            }).reduce(this::mergeLicenseInfos).orElse(noSourceParsingResult())
+                    ).collect(Collectors.toList());
         }catch(UncheckedTException e){
             throw e.getTExceptionCause();
         }

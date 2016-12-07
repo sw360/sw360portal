@@ -147,7 +147,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
         String projectId = request.getParameter(PROJECT_ID);
-        Map<String, String> selectedReleaseAndAttachmentIds = ProjectPortletUtils.getSelectedReleaseAndAttachmentIdsFromRequest(request);
+        Map<String, Set<String>> selectedReleaseAndAttachmentIds = ProjectPortletUtils.getSelectedReleaseAndAttachmentIdsFromRequest(request);
         try {
             Project project = projectClient.getProjectById(projectId, user);
             String projectName = project != null ? project.getName() : "Unknown-Project";
