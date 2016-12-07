@@ -87,7 +87,7 @@
     pageEdit = '<%=PortalConstants.PAGENAME_EDIT%>';
     baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
 
-    var oTable;
+    var vendorsTable;
 
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
@@ -105,7 +105,7 @@
     }
 
     function useSearch( buttonId) {
-        oTable.fnFilter( $('#'+buttonId).val());
+        vendorsTable.fnFilter( $('#'+buttonId).val());
     }
 
     function createVendorsTable() {
@@ -121,7 +121,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#vendorsTable').dataTable({
+        vendorsTable = $('#vendorsTable').dataTable({
             pagingType: "full_numbers",
             data: result,
             columns: [
@@ -148,7 +148,7 @@
                 },
                 success: function (data) {
                     if(data.result == 'SUCCESS')
-                        oTable.fnDeleteRow($('#' + id));
+                        vendorsTable.fnDeleteRow($('#' + id));
                     else {
                         $.alert("I could not delete the vendor!");
                     }

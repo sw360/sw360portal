@@ -128,11 +128,11 @@
         load();
     });
 
-    var oTable;
+    var componentsInfoTable;
 
     //This can not be document ready function as liferay definitions need to be loaded first
     function load() {
-        oTable = configureComponentBasicInfoTable();
+        componentsInfoTable = configureComponentBasicInfoTable();
     }
 
     function configureComponentBasicInfoTable(){
@@ -214,7 +214,7 @@
     }
 
     function useSearch( buttonId) {
-        oTable.fnFilter( $('#'+buttonId).val());
+        componentsInfoTable.fnFilter( $('#'+buttonId).val());
     }
 </script>
 

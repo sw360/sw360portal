@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-var oTable;
+var licensesTable;
 
 function createUrl( paramId, paramVal) {
     var portletURL = Liferay.PortletURL.createURL( baseUrl ).setParameter(pageName,pageDetail).setParameter(paramId,paramVal);
@@ -57,7 +57,7 @@ function getLicenseType(lic) {
 
 function createLicenseTable(data) {
 
-    oTable = $('#licensesTable').dataTable({
+    licensesTable = $('#licensesTable').dataTable({
         "sPaginationType": "full_numbers",
         "iDisplayLength": 10,
         "oLanguage": {
@@ -84,5 +84,5 @@ function createLicenseTable(data) {
 }
 
 function licenseSearch(searchFieldId) {
-    oTable.fnFilter( $('#'+searchFieldId).val());
+    licensesTable.fnFilter( $('#'+searchFieldId).val());
 }

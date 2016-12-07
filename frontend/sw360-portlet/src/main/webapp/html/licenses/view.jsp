@@ -86,7 +86,7 @@
 
 <script>
 
-    var oTable;
+    var licenseTable;
 
     //This can not be document ready function as liferay definitions need to be loaded first
     $(window).load(function() {
@@ -105,7 +105,7 @@
         });
     </core_rt:forEach>
 
-        oTable = $('#licensesTable').dataTable({
+        licenseTable = $('#licensesTable').dataTable({
             "sPaginationType": "full_numbers",
             "iDisplayLength": 10,
             "oLanguage": {
@@ -132,7 +132,7 @@
     }
 
     function useSearch(searchFieldId) {
-        oTable.fnFilter( $('#'+searchFieldId).val());
+        licenseTable.fnFilter( $('#'+searchFieldId).val());
     }
 
 </script>

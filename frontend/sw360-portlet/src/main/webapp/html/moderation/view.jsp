@@ -67,7 +67,7 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
 
 <script>
-    var oTable;
+    var moderationsTable;
 
     //This can not be document ready function as liferay definitions need to be loaded first
     $(window).load(function () {
@@ -75,7 +75,7 @@
     });
 
     function useSearch(searchFieldId) {
-        oTable.fnFilter( $('#'+searchFieldId).val());
+        moderationsTable.fnFilter( $('#'+searchFieldId).val());
     }
 
     function createModerationsTable() {
@@ -107,7 +107,7 @@
         </core_rt:if>
         </core_rt:forEach>
 
-        oTable = $('#moderationsTable').dataTable({
+        moderationsTable = $('#moderationsTable').dataTable({
             pagingType: "full_numbers",
             data: result,
             columns: [

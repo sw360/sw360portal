@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -35,8 +35,7 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
-    var oTable;
-    var oTable;
+    var moderationRequestsTable;
     AUI().use('liferay-portlet-url', function (A) {
         <portlet:namespace/>load();
     });
@@ -54,7 +53,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#tasksubmissionTable').DataTable({
+        moderationRequestsTable = $('#tasksubmissionTable').DataTable({
             pagingType: "full_numbers",
             data: result,
             "iDisplayLength": 10,
@@ -82,7 +81,7 @@
                 },
                 success: function (data) {
                     if (data.result == 'SUCCESS') {
-                        oTable.row('#' + id).remove().draw();
+                        moderationRequestsTable.row('#' + id).remove().draw(false);
                     }
                     else {
                         $.alert("I could not delete the moderation request!");

@@ -190,7 +190,7 @@
 </span>
 
 <script>
-    var oTable;
+    var componentsTable;
 
     var PortletURL;
     AUI().use('liferay-portlet-url', function (A) {
@@ -222,7 +222,7 @@
 
     function useSearch(buttonId) {
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
-        oTable.columns(1).search('^'+val, true).draw();
+        componentsTable.columns(1).search('^'+val, true).draw();
     }
 
     function exportExcel(){
@@ -260,7 +260,7 @@
         });
         </core_rt:forEach>
 
-        oTable = $('#componentsTable').DataTable({
+        componentsTable = $('#componentsTable').DataTable({
             "sPaginationType": "full_numbers",
             "iDisplayLength": 25,
             "aaData": result,
@@ -290,7 +290,7 @@
 
                 success: function (data) {
                     if (data.result == 'SUCCESS') {
-                        oTable.row('#' + id).remove().draw();
+                        componentsTable.row('#' + id).remove().draw(false);
                     }
                     else if (data.result == 'SENT_TO_MODERATOR') {
                         $.alert("You may not delete the component, but a request was sent to a moderator!");
