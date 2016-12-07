@@ -1,5 +1,6 @@
 /*
  * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * With modifications by Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -33,6 +34,7 @@ import static org.eclipse.sw360.cvesearch.helper.VulnerabilityUtils.*;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 
+    public static final String CVESEARCH_HOST_PROPERTY = "cvesearch.host";
     VulnerabilityConnector vulnerabilityConnector;
     CveSearchWrapper cveSearchWrapper;
     Logger log = Logger.getLogger(CveSearchHandler.class);
@@ -46,7 +48,7 @@ public class CveSearchHandler implements CveSearchService.Iface {
         }
 
         Properties props = CommonUtils.loadProperties(CveSearchHandler.class, "/cvesearch.properties");
-        String host = props.getProperty("cvesearch.host","https://localhost:5000");
+        String host = props.getProperty(CVESEARCH_HOST_PROPERTY, "https://localhost:5000");
 
         cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl(host));
     }

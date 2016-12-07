@@ -1,5 +1,6 @@
 /*
  * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * With modifications by Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -9,12 +10,17 @@
  */
 package org.eclipse.sw360.cvesearch.datasource;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CveSearchDataTestHelper {
 
+
+    private static final int CONNECT_TIMEOUT = 10000;
 
     public static boolean isEquivalent(List<CveSearchData> l1, List<CveSearchData> l2){
         int s = l1.size();
@@ -26,5 +32,16 @@ public class CveSearchDataTestHelper {
         return IntStream.range(0,s)
                 .mapToObj(i -> ids1.get(i).equals(ids2.get(i)))
                 .reduce(true, Boolean::logicalAnd);
+    }
+
+    public static boolean isUrlReachable(String url) {
+        try {
+            final URLConnection connection = new URL(url).openConnection();
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
+            connection.connect();
+            return true;
+        } catch (final IOException e) {
+            return false;
+        }
     }
 }

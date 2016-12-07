@@ -1,5 +1,6 @@
 /*
  * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * With modifications by Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -12,6 +13,8 @@ package org.eclipse.sw360.cvesearch.datasource;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.cvesearch.service.CveSearchHandler;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,6 +25,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 import static org.eclipse.sw360.cvesearch.datasource.CveSearchDataTestHelper.isEquivalent;
+import static org.eclipse.sw360.cvesearch.datasource.CveSearchDataTestHelper.isUrlReachable;
 
 public class CveSearchWrapperTest {
     CveSearchApi cveSearchApi;
@@ -113,7 +117,8 @@ public class CveSearchWrapperTest {
     @Before
     public void setUp() {
         Properties props = CommonUtils.loadProperties(CveSearchWrapperTest.class, "/cvesearch.properties");
-        String host = props.getProperty("cvesearch.host","https://cve.circl.lu");
+        String host = props.getProperty(CveSearchHandler.CVESEARCH_HOST_PROPERTY, "https://cve.circl.lu");
+        Assume.assumeTrue("CVE Search host is reachable", isUrlReachable(host));
         cveSearchApi = new CveSearchApiImpl(host);
 
         cveSearchWrapper = new CveSearchWrapper(cveSearchApi);

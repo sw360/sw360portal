@@ -1,5 +1,6 @@
 /*
  * Copyright (c) Bosch Software Innovations GmbH 2016.
+ * With modifications by Siemens AG, 2016.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -11,9 +12,11 @@ package org.eclipse.sw360.cvesearch.entitytranslation;
 
 import org.eclipse.sw360.cvesearch.datasource.CveSearchApiImpl;
 import org.eclipse.sw360.cvesearch.datasource.CveSearchData;
+import org.eclipse.sw360.cvesearch.service.CveSearchHandler;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.CVEReference;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,9 +24,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CveSearchDataTranslatorTest {
+import static org.eclipse.sw360.cvesearch.datasource.CveSearchDataTestHelper.isUrlReachable;
 
-    String HOST = "https://cve.circl.lu";
+public class CveSearchDataTranslatorTest {
 
     CveSearchData cveSearchData;
     String host;
@@ -96,7 +99,8 @@ public class CveSearchDataTranslatorTest {
         cveSearchDataToVulnerabilityTranslator = new CveSearchDataToVulnerabilityTranslator();
 
         Properties props = CommonUtils.loadProperties(CveSearchDataTranslatorTest.class, "/cvesearch.properties");
-        host = props.getProperty("cvesearch.host","http://localhost:5000");
+        host = props.getProperty(CveSearchHandler.CVESEARCH_HOST_PROPERTY, "http://localhost:5000");
+        Assume.assumeTrue("CVE Search host is reachable", isUrlReachable(host));
     }
 
     @Test
