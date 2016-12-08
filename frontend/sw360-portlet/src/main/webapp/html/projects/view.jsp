@@ -69,8 +69,6 @@
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Projects</span>
     <span class="pull-right">
-        <input type="button" id="importbutton" class="addButton"
-               value="Import Projects" onclick="window.location.href='/group/guest/import/'" />
         <input type="button" class="addButton" onclick="window.location.href='<%=addProjectURL%>'" value="Add Project" />
     </span>
 </p>
