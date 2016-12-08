@@ -19,7 +19,7 @@
              scope="request"/>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
 <script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
 
 <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects">

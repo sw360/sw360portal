@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.theme.default.css"/>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
     <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
     <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
     <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
@@ -83,9 +83,9 @@
                 <core_rt:forEach items="${projectLink.linkedReleases}" var="releaseLink" varStatus="releaseloop">
                     <tr id="releaseLinkRow${loop.count}_${releaseloop.count}" data-tt-id="${releaseLink.nodeId}"
                         <core_rt:if test="${loop.index!=0}">data-tt-parent-id="${projectLink.nodeId}"</core_rt:if>
-                        <core_rt:if test="${empty releaseLink.licenseInfoAttachments}">class="highlightedRed"</core_rt:if>
-                        <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) == 1}">class="highlightedGreen"</core_rt:if>
-                        <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) gt 1}">class="highlightedYellow"</core_rt:if>
+                        <core_rt:if test="${empty releaseLink.attachments}">class="highlightedRed"</core_rt:if>
+                        <core_rt:if test="${fn:length(releaseLink.attachments) == 1}">class="highlightedGreen"</core_rt:if>
+                        <core_rt:if test="${fn:length(releaseLink.attachments) gt 1}">class="highlightedYellow"</core_rt:if>
                     >
                         <td></td>
                         <td>
@@ -101,17 +101,17 @@
                         </td>
                     </tr>
                     <core_rt:set var="attachmentSelected" value="false" scope="request"/>
-                    <core_rt:forEach items="${releaseLink.licenseInfoAttachments}" var="attachment" varStatus="attachmentloop">
+                    <core_rt:forEach items="${releaseLink.attachments}" var="attachment" varStatus="attachmentloop">
                         <tr id="attachmentRow${loop.count}_${releaseloop.count}_${attachmentloop.count}" data-tt-id="${releaseLink.nodeId}_${attachment.attachmentContentId}"
                             data-tt-parent-id="${releaseLink.nodeId}"
-                            <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) == 1}">class="highlightedGreen"</core_rt:if>
-                            <core_rt:if test="${fn:length(releaseLink.licenseInfoAttachments) gt 1}">class="highlightedYellow"</core_rt:if>
+                            <core_rt:if test="${fn:length(releaseLink.attachments) == 1}">class="highlightedGreen"</core_rt:if>
+                            <core_rt:if test="${fn:length(releaseLink.attachments) gt 1}">class="highlightedYellow"</core_rt:if>
                         >
                             <td>
                                 <input type="checkbox"
                                        name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_RELEASE_TO_ATTACHMENT%>"
                                        value="${releaseLink.id}:${attachment.attachmentContentId}"
-                                       <core_rt:if test="${!attachmentSelected && (releaseLink.licenseInfoAttachments.size() == 1 || attachment.createdTeam == sw360User.department)}">checked="checked" class="defaultChecked"
+                                       <core_rt:if test="${!attachmentSelected && (releaseLink.attachments.size() == 1 || attachment.createdTeam == sw360User.department)}">checked="checked" class="defaultChecked"
                                             <core_rt:set var="attachmentSelected" value="true" scope="request"/>
                                        </core_rt:if>
                                 />

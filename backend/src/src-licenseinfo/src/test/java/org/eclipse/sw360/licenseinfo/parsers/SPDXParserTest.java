@@ -9,10 +9,10 @@
  */
 package org.eclipse.sw360.licenseinfo.parsers;
 
+import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static org.eclipse.sw360.licenseinfo.TestHelper.*;
-import static org.eclipse.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_EXTERNAL;
 import static org.eclipse.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_INTERNAL;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -61,7 +60,7 @@ public class SPDXParserTest {
     }
 
     private void assertIsResultOfExample(LicenseInfo result){
-        assertLicenseInfo(FILETYPE_SPDX_EXTERNAL, result);
+        assertLicenseInfo(result);
 
         assertThat(result.getFilenames().size(), is(1));
         assertThat(result.getFilenames().get(0), is(spdxExampleFile));
@@ -82,7 +81,7 @@ public class SPDXParserTest {
     public void testIsApplicableTo() throws Exception {
         try {
             Arrays.stream(AttachmentType.values())
-                    .filter(at -> ! SPDXParser.NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(at))
+                    .filter(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES::contains)
                     .forEach(attachmentType -> SPDXParser.ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                             .forEach(extension -> {
                                 String filename = "filename." + extension;
@@ -123,13 +122,13 @@ public class SPDXParserTest {
 
         Attachment attachment = makeAttachment(spdxExampleFile,
                 Arrays.stream(AttachmentType.values())
-                        .filter(at -> ! SPDXParser.NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(at))
+                        .filter(at -> SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES.contains(at))
                         .findAny()
                         .get());
 
         LicenseInfoParsingResult result = parser.getLicenseInfo(attachment);
 
-        assertLicenseInfoParsingResult(FILETYPE_SPDX_EXTERNAL, result);
+        assertLicenseInfoParsingResult(result);
         assertIsResultOfExample(result.getLicenseInfo());
     }
 

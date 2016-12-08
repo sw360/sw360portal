@@ -39,7 +39,7 @@ struct LicenseNameWithText{
 
 struct LicenseInfo {
     10: optional list<string> filenames, // actual sources used
-    11: required string filetype, // actual parser type used
+//    11: required string filetype, // actual parser type used
 
     20: optional set<string> copyrights,
     21: optional set<LicenseNameWithText> licenseNamesWithTexts,

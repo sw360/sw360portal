@@ -11,6 +11,8 @@ package org.eclipse.sw360.licenseinfo;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.attachments.db.AttachmentDatabaseHandler;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
@@ -20,8 +22,6 @@ import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.licenseinfo.outputGenerators.DocxGenerator;
 import org.eclipse.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
@@ -31,8 +31,6 @@ import org.eclipse.sw360.licenseinfo.parsers.AttachmentContentProvider;
 import org.eclipse.sw360.licenseinfo.parsers.CLIParser;
 import org.eclipse.sw360.licenseinfo.parsers.LicenseInfoParser;
 import org.eclipse.sw360.licenseinfo.parsers.SPDXParser;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
@@ -42,7 +40,6 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertId;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.flattenProjectLinkTree;
 
 /**
  * Implementation of the Thrift service
@@ -102,8 +99,9 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                 .filter(a -> a.getAttachmentContentId().equals(selectedAttachmentContentId))
                 .findFirst();
         if (!selectedAttachmentOpt.isPresent()){
-            log.warn(String.format("Attachment selected for license info generation is not found in release's attachments. Release id: %s. Attachment content id: %s", release.getId(), selectedAttachmentContentId));
-            return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
+            String message = String.format("Attachment selected for license info generation is not found in release's attachments. Release id: %s. Attachment content id: %s", release
+                    .getId(), selectedAttachmentContentId);
+            throw new IllegalStateException(message);
         }
         Attachment attachment = selectedAttachmentOpt.get();
 
@@ -130,9 +128,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                     } catch (TException e) {
                         throw new UncheckedTException(e);
                     }
-                }).reduce(this::mergeLicenseInfos)
-                        //can't happen. this branch only gets executed if there is at least one applicable parser
-                        .orElse(noSourceParsingResult());
+                }).reduce(noSourceParsingResult(), this::mergeLicenseInfos);
                 return assignReleaseToLicenseInfoParsingResult(result, release);
             }
         } catch (UncheckedTException e) {
@@ -235,15 +231,11 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         if (lir2.getStatus() != LicenseInfoRequestStatus.SUCCESS){
             return lir1;
         }
-        if (!lir1.isSetLicenseInfo() || !lir2.isSetLicenseInfo() || !lir1.getLicenseInfo().getFiletype().equals(lir2.getLicenseInfo().getFiletype())) {
-            throw new IllegalArgumentException("LicenseInfo filetypes must be equal");
-        }
 
         if (!Objects.equals(lir1.getName(), lir2.getName()) || !Objects.equals(lir1.getVendor(), lir2.getVendor()) || !Objects.equals(lir1.getVersion(), lir2.getVersion())){
             throw new IllegalArgumentException("Method is not intended to merge across releases. Release data must be equal");
         }
-        //use copy constructor to copy filetype
-        LicenseInfo mergedLi = new LicenseInfo(lir1.getLicenseInfo());
+        LicenseInfo mergedLi = new LicenseInfo();
         //merging filenames
         Set<String> filenames = new HashSet<>();
         filenames.addAll(nullToEmptyList(lir1.getLicenseInfo().getFilenames()));

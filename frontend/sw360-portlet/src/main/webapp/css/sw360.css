@@ -412,13 +412,13 @@ input[readonly].clickable {
 }
 
 .highlightedRed {
-    background-color: #ff847f;
+    background-color: #ffdddd;
 }
 
 .highlightedYellow {
-    background-color: #fff466;
+    background-color: #f6e8b5;
 }
 
 .highlightedGreen {
-    background-color: #81ff6d;
+    background-color: #dbffdb;
 }

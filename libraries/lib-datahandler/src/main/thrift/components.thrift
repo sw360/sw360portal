@@ -278,7 +278,7 @@ struct ReleaseLink{
     26: optional string parentNodeId,
 
     31: optional ClearingState clearingState,
-    32: optional list<Attachment> licenseInfoAttachments,
+    32: optional list<Attachment> attachments,
     100: optional set<string> licenseIds,
     101: optional set<string> licenseNames
 }

@@ -55,12 +55,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
@@ -549,7 +552,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(DOCUMENT_ID, id);
                 Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
                 fakeRelations.put(id, ProjectRelationship.UNKNOWN);
-                putLinkedProjectsInRequest(request, fakeRelations);
+                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortLicenseInfoAttachments());
                 LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
                 List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
                 request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
@@ -561,6 +564,17 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
             }
         }
+    }
+
+    private Function<ProjectLink, ProjectLink> filterAndSortLicenseInfoAttachments() {
+        Predicate<Attachment> filter = att -> SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES.contains(att.getAttachmentType());
+        return createProjectLinkMapper(rl -> rl.setAttachments(nullToEmptyList(rl.getAttachments())
+                .stream()
+                .filter(filter)
+                .sorted(Comparator
+                        .comparing(Attachment::getCreatedTeam)
+                        .thenComparing(Comparator.comparing(Attachment::getCreatedOn).reversed()))
+                .collect(Collectors.toList())));
     }
 
     private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory) {

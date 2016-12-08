@@ -11,6 +11,7 @@ package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -78,7 +79,6 @@ public class ComponentDatabaseHandler {
      */
     private final ComponentModerator moderator;
     private final ReleaseModerator releaseModerator;
-    private static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
 
 
     public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
@@ -701,12 +701,8 @@ public class ComponentDatabaseHandler {
         }
         ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
         releaseLink.setClearingState(release.getClearingState());
-        List<Attachment> licenseInfoAttachments = nullToEmptySet(release.getAttachments()).stream()
-                .filter(att -> LICENSE_INFO_ATTACHMENT_TYPES.contains(att.getAttachmentType()))
-                .sorted(Comparator.comparing(Attachment::getCreatedTeam).thenComparing(Comparator.comparing(Attachment::getCreatedOn).reversed()))
-                .collect(Collectors.toList());
-        if (!licenseInfoAttachments.isEmpty()) {
-            releaseLink.setLicenseInfoAttachments(licenseInfoAttachments);
+        if (!nullToEmptySet(release.getAttachments()).isEmpty()) {
+            releaseLink.setAttachments(Lists.newArrayList(release.getAttachments()));
         }
         return releaseLink;
     }

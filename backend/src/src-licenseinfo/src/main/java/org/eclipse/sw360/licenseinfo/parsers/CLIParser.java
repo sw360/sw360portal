@@ -8,19 +8,17 @@
  */
 package org.eclipse.sw360.licenseinfo.parsers;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -36,7 +34,6 @@ import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
@@ -46,7 +43,6 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
  * @author: alex.borodin@evosoft.com
  */
 public class CLIParser extends LicenseInfoParser {
-    public static final String FILETYPE_CLI = "CLI";
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
     private static final String COPYRIGHTS_XPATH = "/ComponentLicenseInformation/Copyright/Content";
@@ -55,19 +51,12 @@ public class CLIParser extends LicenseInfoParser {
     private static final String CLI_ROOT_ELEMENT_NAMESPACE = null;
     private static final String XML_FILE_EXTENSION = ".xml";
 
-    private static final List<AttachmentType> ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
-            AttachmentType.COMPONENT_LICENSE_INFO_XML,
-            AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
-
     public CLIParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
         super(attachmentConnector, attachmentContentProvider);
     }
 
     @Override
     public boolean isApplicableTo(Attachment attachment) throws TException {
-        if (!ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType())){
-            return false;
-        }
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         return attachmentContent.getFilename().endsWith(XML_FILE_EXTENSION) && hasCLIRootElement(attachmentContent);
     }
@@ -101,7 +90,7 @@ public class CLIParser extends LicenseInfoParser {
     @Override
     public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
-        LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename())).setFiletype(FILETYPE_CLI);
+        LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename()));
         LicenseInfoParsingResult result = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
         InputStream attachmentStream = null;
 
