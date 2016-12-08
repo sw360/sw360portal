@@ -9,13 +9,15 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="core_rt" uri="http://java.sun.com/jstl/core_rt" %>
+<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
+
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 
-<%@ taglib prefix="core_rt" uri="http://java.sun.com/jstl/core_rt" %>
-<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
@@ -72,48 +74,8 @@
     </span>
     </label>
     </p>
-    <div id="content">
-        <div class="container-fluid">
-            <div id="myTab" class="row-fluid">
-                <ul class="nav nav-tabs span2">
-                    <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> id="Summary" >    <a href="#tab-Summary">Summary</a></li>
-                    <li <core_rt:if test="${selectedTab == 'Linked Releases'}">              class="active" </core_rt:if>  >                <a href="#tab-linkedReleases">Linked Releases</a></li>
-                    <li <core_rt:if test="${selectedTab == 'Clearing'}">                     class="active" </core_rt:if> id="Clearing" >   <a href="#tab-ClearingDetails">Clearing Details</a></li>
-                    <li <core_rt:if test="${selectedTab == 'Attachments'}">                  class="active" </core_rt:if>  >                <a href="#tab-Attachments">Attachments</a></li>
-                    <core_rt:if test="${cotsMode}">
-                        <li <core_rt:if test="${selectedTab == 'COTSDetails'}"> class="active" </core_rt:if>  ><a href="#tab-CommercialDetails">Commercial Details</a></li>
-                    </core_rt:if>
-                    <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>  ><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
-                </ul>
-                <div class="tab-content span10">
-                    <div id="tab-Summary" class="tab-pane">
-                        <%@include file="/html/components/includes/releases/summaryRelease.jspf" %>
-                        <%@include file="/html/components/includes/vendors/vendorDetail.jspf" %>
-                        <core_rt:set var="documentName"><sw360:ReleaseName release="${release}"/></core_rt:set>
-                        <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
-                        <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
-                    </div>
-                    <div id="tab-linkedReleases" >
-                        <%@include file="/html/utils/includes/linkedReleaseDetails.jspf" %>
-                    </div>
-                    <div id="tab-ClearingDetails">
-                        <%@include file="/html/components/includes/releases/clearingDetails.jspf" %>
-                    </div>
-                    <div id="tab-Attachments">
-                        <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />
-                    </div>
-                    <core_rt:if test="${cotsMode}">
-                        <div id="tab-CommercialDetails">
-                            <%@include file="/html/components/includes/releases/commercialDetails.jspf" %>
-                        </div>
-                    </core_rt:if>
-                    <div id="tab-Vulnerabilities">
-                        <%@include file="/html/components/includes/releases/vulnerabilities.jspf" %>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <core_rt:set var="inReleaseDetailsContext" value="true" scope="request"/>
+    <%@include file="/html/components/includes/releases/detailOverview.jspf"%>
 </core_rt:if>
 <script>
     var tabView;

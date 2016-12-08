@@ -1,4 +1,3 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
@@ -7,6 +6,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
@@ -52,35 +52,8 @@
                                       id="SubscribeButton" onclick="subscribeComponent('SubscribeButton')"  altonclick="unsubscribeComponent('SubscribeButton')" />
     </span>
     </p>
-    <div id="content">
-        <div class="container-fluid">
-            <div id="myTab" class="row-fluid">
-                <ul class="nav nav-tabs span2">
-                    <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
-                    <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
-                    <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
-                    <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>><a href="#tab-Vulnerabilities">Vulnerabilities</a></li>
-                </ul>
-                <div class="tab-content span10">
-                    <div id="tab-Summary" class="tab-pane">
-                        <%@include file="/html/components/includes/components/summary.jspf" %>
-                        <core_rt:set var="documentName"><sw360:out value='${component.name}'/></core_rt:set>
-                        <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
-                        <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
-                    </div>
-                    <div id="tab-ClearingStatus">
-                        <%@include file="/html/components/includes/components/clearingStatus.jspf" %>
-                    </div>
-                    <div id="tab-Attachments">
-                        <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />
-                    </div>
-                    <div id="tab-Vulnerabilities">
-                        <%@include file="/html/components/includes/components/vulnerabilities.jspf" %>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <core_rt:set var="inComponentDetailsContext" value="true" scope="request"/>
+    <%@include file="/html/components/includes/components/detailOverview.jspf"%>
 </core_rt:if>
 
 <script>

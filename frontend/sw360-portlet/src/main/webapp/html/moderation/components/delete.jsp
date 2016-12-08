@@ -1,21 +1,21 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
+
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-
-<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
-
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -40,28 +40,8 @@
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
 
-<div id="content">
-    <div class="container-fluid">
-        <div id="myTab" class="row-fluid">
-            <ul class="nav nav-tabs span2">
-                <li <core_rt:if test="${selectedTab == 'Summary' || empty selectedTab}"> class="active" </core_rt:if> ><a href="#tab-Summary">Summary</a></li>
-                <li <core_rt:if test="${selectedTab == 'Clearing'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Release Overview</a></li>
-                <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
-            </ul>
-            <div class="tab-content span10">
-                <div id="tab-Summary" class="tab-pane">
-                    <%@include file="/html/components/includes/components/summary.jspf" %>
-                </div>
-                <div id="tab-ClearingStatus">
-                    <%@include file="/html/components/includes/components/clearingStatus.jspf" %>
-                </div>
-                <div id="tab-Attachments">
-                    <jsp:include page="/html/utils/includes/attachmentsDetail.jsp"/>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<core_rt:set var="inComponentDetailsContext" value="false" scope="request"/>
+<%@include file="/html/components/includes/components/detailOverview.jspf"%>
 
 <script>
     var tabView;

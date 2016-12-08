@@ -1,14 +1,15 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-<%@include file="/html/init.jsp"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
+
+<%@include file="/html/init.jsp"%>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects />
@@ -43,7 +44,7 @@
     </p>
 
     <core_rt:set var="inProjectDetailsContext" value="true" scope="request"/>
-    <%@include file="/html/projects/detailOverview.jspf"%>
+    <%@include file="/html/projects/includes/detailOverview.jspf"%>
 </core_rt:if>
 <script>
     var tabView;

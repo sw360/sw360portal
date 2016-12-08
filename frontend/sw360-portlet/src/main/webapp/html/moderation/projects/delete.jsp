@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -36,7 +36,7 @@
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
 <core_rt:set var="inProjectDetailsContext" value="false" scope="request"/>
-<%@include file="/html/projects/detailOverview.jspf"%>
+<%@include file="/html/projects/includes/detailOverview.jspf"%>
 <script>
     var tabView;
     var Y = YUI().use(
