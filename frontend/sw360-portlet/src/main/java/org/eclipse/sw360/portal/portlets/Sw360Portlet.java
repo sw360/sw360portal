@@ -37,10 +37,9 @@ import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.portal.common.PortalConstants.PROJECT_LIST;
@@ -326,12 +325,30 @@ abstract public class Sw360Portlet extends MVCPortlet {
     }
 
     protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
+        putLinkedProjectsInRequest(request, projectIdToRelationship, Function.identity());
+    }
+
+    protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship, Function<ProjectLink, ProjectLink> projectLinkMapper) {
         final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjectsAsFlatList(projectIdToRelationship, thriftClients, log);
-        request.setAttribute(PROJECT_LIST, linkedProjects);
+        List<ProjectLink> mappedProjecLinks = linkedProjects.stream().map(projectLinkMapper).collect(Collectors.toList());
+        request.setAttribute(PROJECT_LIST, mappedProjecLinks);
     }
 
     protected void putDirectlyLinkedProjectsInRequest(PortletRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
         final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log);
         request.setAttribute(PROJECT_LIST, linkedProjects);
     }
+
+    public Function<ProjectLink, ProjectLink> createProjectLinkMapper(Function<ReleaseLink, ReleaseLink> releaseLinkMapper){
+        return (projectLink) -> {
+            List<ReleaseLink> mappedReleaseLinks = projectLink
+                    .getLinkedReleases()
+                    .stream()
+                    .map(releaseLinkMapper)
+                    .collect(Collectors.toList());
+            projectLink.setLinkedReleases(mappedReleaseLinks);
+            return projectLink;
+        };
+    }
+
 }

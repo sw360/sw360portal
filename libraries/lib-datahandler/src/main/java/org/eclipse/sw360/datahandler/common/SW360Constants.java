@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import static com.google.common.collect.Sets.newHashSet;
  * Utility class with definitions for the CouchDB connection
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class SW360Constants {
 
@@ -61,6 +63,8 @@ public class SW360Constants {
                     .put(TYPE_RELEASE, "name version")
                     .put(TYPE_PROJECT, "name")
                     .build();
+
+    public static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
 
     public static Collection<AttachmentType> allowedAttachmentTypes(String documentType) {
         Set<AttachmentType> types = newHashSet(AttachmentType.values());

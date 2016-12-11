@@ -9,6 +9,7 @@
  */
 package org.eclipse.sw360.licenseinfo;
 
+import org.apache.commons.io.input.ReaderInputStream;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -18,7 +19,6 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.licenseinfo.parsers.AttachmentContentProvider;
-import org.apache.commons.io.input.ReaderInputStream;
 
 import java.io.InputStream;
 import java.io.StringReader;
@@ -96,14 +96,13 @@ public class TestHelper {
 
     //==================================================================================================================
     // Assertions:
-    public static void assertLicenseInfo(String expectedFiletype, LicenseInfo info){
-        assertLicenseInfo(expectedFiletype, info, true);
+    public static void assertLicenseInfo(LicenseInfo info){
+        assertLicenseInfo(info, true);
     }
 
-    public static void assertLicenseInfo(String expectedFiletype, LicenseInfo info, boolean assertNonempty){
+    public static void assertLicenseInfo(LicenseInfo info, boolean assertNonempty){
         assertThat(info.getFilenames(), notNullValue());
         assertThat(info.getFilenames().size(), greaterThan(0));
-        assertThat(info.getFiletype(), is(expectedFiletype));
 
         if(assertNonempty){
             assertThat(info.getCopyrights(), notNullValue());
@@ -115,13 +114,13 @@ public class TestHelper {
         }
     }
 
-    public static void assertLicenseInfoParsingResult(String expectedFiletype, LicenseInfoParsingResult result){
-        assertLicenseInfoParsingResult(expectedFiletype, result, LicenseInfoRequestStatus.SUCCESS);
+    public static void assertLicenseInfoParsingResult(LicenseInfoParsingResult result){
+        assertLicenseInfoParsingResult(result, LicenseInfoRequestStatus.SUCCESS);
     }
 
-    public static void assertLicenseInfoParsingResult(String expectedFiletype, LicenseInfoParsingResult result, LicenseInfoRequestStatus status){
+    public static void assertLicenseInfoParsingResult(LicenseInfoParsingResult result, LicenseInfoRequestStatus status){
         assertThat(result.getStatus(), is(status));
         assertThat(result.getLicenseInfo(), notNullValue());
-        assertLicenseInfo(expectedFiletype, result.getLicenseInfo(), status == LicenseInfoRequestStatus.SUCCESS);
+        assertLicenseInfo(result.getLicenseInfo(), status == LicenseInfoRequestStatus.SUCCESS);
     }
 }

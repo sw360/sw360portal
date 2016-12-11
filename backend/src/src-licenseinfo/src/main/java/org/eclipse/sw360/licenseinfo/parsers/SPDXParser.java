@@ -11,22 +11,20 @@
 package org.eclipse.sw360.licenseinfo.parsers;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SPDXDocumentFactory;
 import org.spdx.rdfparser.license.*;
 import org.spdx.rdfparser.model.SpdxDocument;
-import org.spdx.rdfparser.model.SpdxItem;
 
 import java.io.File;
 import java.io.InputStream;
@@ -43,33 +41,11 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
  * @author: maximilian.huber@tngtech.com
  */
 public class SPDXParser extends LicenseInfoParser {
-    public static final String FILETYPE_SPDX_EXTERNAL = "SPDX";
     protected static final String FILETYPE_SPDX_INTERNAL = "RDF/XML";
     protected static final List<String> ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS = ImmutableList.of(
             "rdf",
             "spdx" // usually used for tag:value format
     );
-    protected static final List<AttachmentType> NOT_ACCEPTABLE_ATTACHMENT_TYPES = ImmutableList.of(
-            AttachmentType.SOURCE,
-            AttachmentType.DESIGN,
-            AttachmentType.REQUIREMENT,
-            AttachmentType.CLEARING_REPORT,
-            AttachmentType.SOURCE_SELF,
-            AttachmentType.BINARY,
-            AttachmentType.BINARY_SELF,
-            AttachmentType.DECISION_REPORT,
-            AttachmentType.LEGAL_EVALUATION,
-            AttachmentType.LICENSE_AGREEMENT,
-            AttachmentType.SCREENSHOT
-    );
-    // Thus acceptable attachment types are:
-    //
-    //  - AttachmentType.DOCUMENT
-    //  - AttachmentType.COMPONENT_LICENSE_INFO_XML
-    //  - AttachmentType.COMPONENT_LICENSE_INFO_COMBINED
-    //  - AttachmentType.SCAN_RESULT_REPORT
-    //  - AttachmentType.SCAN_RESULT_REPORT_XML
-    //  - AttachmentType.OTHER
 
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
@@ -86,7 +62,6 @@ public class SPDXParser extends LicenseInfoParser {
         isAcceptable &= ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
                 .map(extension -> lowerFileName.endsWith(extension))
                 .reduce(false, (b1, b2) -> b1 || b2);
-        isAcceptable &= ! NOT_ACCEPTABLE_ATTACHMENT_TYPES.contains(attachment.getAttachmentType());
 
         // TODO: test for namespace `spdx` in rdf file (maybe to much overhead? Better try parsing and die?)
 
@@ -187,7 +162,7 @@ public class SPDXParser extends LicenseInfoParser {
             e.printStackTrace();
         }
 
-        return Optional.of(result.setFiletype(FILETYPE_SPDX_EXTERNAL));
+        return Optional.of(result);
     }
 
     protected Optional<SpdxDocument> parseAsSpdx(AttachmentContent attachmentContent){

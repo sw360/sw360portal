@@ -121,6 +121,7 @@ public class PortalConstants {
     public static final String PROJECT_TYPE;
     public static final String EXTENDED_EXCEL_EXPORT = "extendedExcelExport";
     public static final String PROJECT_NOT_FOUND = "projectNotFound";
+    public static final String PAGENAME_LICENSE_INFO = "generateLicenseInfo";
 
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
@@ -171,6 +172,8 @@ public class PortalConstants {
     //! Specialized keys for licenseInfo
     public static final String LICENSE_INFO_OUTPUT_FORMATS = "licenseInfoOutputFormats";
     public static final String LICENSE_INFO_SELECTED_OUTPUT_FORMAT = "licenseInfoSelectedOutputFormat";
+    public static final String LICENSE_INFO_RELEASE_TO_ATTACHMENT = "licenseInfoAttachmentSelected";
+    public static final String SW360_USER = "sw360User";
 
     //! Serve resource generic keywords
     public static final String ACTION = "action";

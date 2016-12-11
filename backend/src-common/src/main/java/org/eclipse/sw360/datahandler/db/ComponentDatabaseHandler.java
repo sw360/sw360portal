@@ -11,6 +11,7 @@ package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -624,21 +625,15 @@ public class ComponentDatabaseHandler {
     // HELPER SERVICES //
     /////////////////////
 
-    public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap) {
-        List<ReleaseLink> out;
-
-        CountingStack<String> visitedIds = new CountingStack<>();
-
-        out = iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
-
-        return out;
+    List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap, CountingStack<String> visitedIds) {
+        return iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
     }
 
     public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations) {
 
         final Map<String, Release> releaseMap = getAllReleasesIdMap();
 
-        return getLinkedReleases(relations, releaseMap);
+        return getLinkedReleases(relations, releaseMap, new CountingStack<>());
     }
 
     public Map<String, Release> getAllReleasesIdMap() {
@@ -706,6 +701,9 @@ public class ComponentDatabaseHandler {
         }
         ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
         releaseLink.setClearingState(release.getClearingState());
+        if (!nullToEmptySet(release.getAttachments()).isEmpty()) {
+            releaseLink.setAttachments(Lists.newArrayList(release.getAttachments()));
+        }
         return releaseLink;
     }
 

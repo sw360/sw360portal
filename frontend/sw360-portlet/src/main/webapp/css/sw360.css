@@ -410,3 +410,15 @@ input[readonly].clickable {
 .mapDisplayChildItemLeft {
     font-weight:bold;
 }
+
+.highlightedRed {
+    background-color: #ffdddd;
+}
+
+.highlightedYellow {
+    background-color: #f6e8b5;
+}
+
+.highlightedGreen {
+    background-color: #dbffdb;
+}

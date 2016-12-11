@@ -55,12 +55,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
@@ -147,19 +150,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
         String projectId = request.getParameter(PROJECT_ID);
+        Map<String, Set<String>> selectedReleaseAndAttachmentIds = ProjectPortletUtils.getSelectedReleaseAndAttachmentIdsFromRequest(request);
         try {
             Project project = projectClient.getProjectById(projectId, user);
             String projectName = project != null ? project.getName() : "Unknown-Project";
             String timestamp = SW360Utils.getCreatedOn();
             OutputFormatInfo outputFormatInfo = licenseInfoClient.getOutputFormatInfoForGeneratorClass(generatorClassName);
             String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + outputFormatInfo.getFileExtension();
-            if(outputFormatInfo.isOutputBinary){
-                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName);
+            if (outputFormatInfo.isOutputBinary) {
+                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName, selectedReleaseAndAttachmentIds);
                 byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
                 licenseInfoByteBuffer.get(licenseInfoByteArray);
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, "text/plain");
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, outputFormatInfo.getMimeType());
             } else {
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient.getLicenseInfoFileForProject(projectId, user, generatorClassName).getBytes(), "text/plain");
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient
+                        .getLicenseInfoFileForProject(projectId, user, generatorClassName, selectedReleaseAndAttachmentIds)
+                        .getBytes(), outputFormatInfo.getMimeType());
             }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
@@ -433,6 +439,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         } else if (PAGENAME_DUPLICATE.equals(pageName)) {
             prepareProjectDuplicate(request);
             include("/html/projects/edit.jsp", request, response);
+        } else if (PAGENAME_LICENSE_INFO.equals(pageName)) {
+            prepareLicenseInfo(request, response);
+            include("/html/projects/licenseInfo.jsp", request, response);
         } else {
             prepareStandardView(request);
             super.doView(request, response);
@@ -508,16 +517,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
                 setAttachmentsInRequest(request, project.getAttachments());
-                putLinkedProjectsInRequest(request, project.getLinkedProjects());
+                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
+                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
+                putLinkedProjectsInRequest(request, fakeRelations);
                 putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
                 Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
                 request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
-                LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
-                List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
-                request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
-
                 putVulnerabilitiesInRequest(request, id, user);
                 request.setAttribute(
                         VULNERABILITY_RATINGS_EDITABLE,
@@ -530,6 +537,44 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
             }
         }
+    }
+
+    private void prepareLicenseInfo(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        request.setAttribute(PortalConstants.SW360_USER, user);
+        String id = request.getParameter(PROJECT_ID);
+        request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
+        if (id != null) {
+            try {
+                ProjectService.Iface client = thriftClients.makeProjectClient();
+                Project project = client.getProjectById(id, user);
+                request.setAttribute(PROJECT, project);
+                request.setAttribute(DOCUMENT_ID, id);
+                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
+                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
+                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortLicenseInfoAttachments());
+                LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+                List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
+                request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
+
+                addProjectBreadcrumb(request, response, project);
+
+            } catch (TException e) {
+                log.error("Error fetching project from backend!", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
+            }
+        }
+    }
+
+    private Function<ProjectLink, ProjectLink> filterAndSortLicenseInfoAttachments() {
+        Predicate<Attachment> filter = att -> SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES.contains(att.getAttachmentType());
+        return createProjectLinkMapper(rl -> rl.setAttachments(nullToEmptyList(rl.getAttachments())
+                .stream()
+                .filter(filter)
+                .sorted(Comparator
+                        .comparing(Attachment::getCreatedTeam)
+                        .thenComparing(Comparator.comparing(Attachment::getCreatedOn).reversed()))
+                .collect(Collectors.toList())));
     }
 
     private String formatedMessageForVul(List<VulnerabilityCheckStatus> statusHistory) {

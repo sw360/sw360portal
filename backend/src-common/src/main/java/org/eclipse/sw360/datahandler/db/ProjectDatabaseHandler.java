@@ -270,7 +270,7 @@ public class ProjectDatabaseHandler {
             if (project != null) {
                 projectLink = new ProjectLink(id, project.name);
                 if (project.isSetReleaseIdToUsage()){
-                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage(), releaseMap);
+                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage(), releaseMap, visitedIds);
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
 

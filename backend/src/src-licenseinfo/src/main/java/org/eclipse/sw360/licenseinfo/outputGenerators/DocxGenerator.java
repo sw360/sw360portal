@@ -24,7 +24,7 @@ import static org.eclipse.sw360.licenseinfo.outputGenerators.DocxUtils.*;
 public class DocxGenerator extends OutputGenerator<byte[]> {
 
     public DocxGenerator() {
-        super("docx", "License information as DOCX", true);
+        super("docx", "License information as DOCX", true, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
     }
 
     @Override

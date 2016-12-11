@@ -27,7 +27,8 @@ struct OutputFormatInfo{
     1: optional string fileExtension,
     2: optional string description,
     3: optional string generatorClassName,
-    4: bool isOutputBinary
+    4: bool isOutputBinary,
+    5: optional string mimeType,
 }
 
 struct LicenseNameWithText{
@@ -38,7 +39,7 @@ struct LicenseNameWithText{
 
 struct LicenseInfo {
     10: optional list<string> filenames, // actual sources used
-    11: required string filetype, // actual parser type used
+//    11: required string filetype, // actual parser type used
 
     20: optional set<string> copyrights,
     21: optional set<LicenseNameWithText> licenseNamesWithTexts,
@@ -60,20 +61,20 @@ service LicenseInfoService {
     /**
      * Returns the CLI contained in the attachment, if any
      * */
-    LicenseInfoParsingResult getLicenseInfoForAttachment(1: Attachment attachment);
+//    LicenseInfoParsingResult getLicenseInfoForAttachment(1: Attachment attachment);
 
     /**
      * Returns the CLI for the given release.
      * */
-    LicenseInfoParsingResult getLicenseInfoForRelease(1: Release release);
+//    LicenseInfoParsingResult getLicenseInfoForRelease(1: Release release, 2: string selectedAttachmentContentId);
 
     /**
      * get a copyright and license information file on all linked releases and linked releases of linked projects (recursively)
      * output format as specified by outputType
      */
-    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType);
+    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType, 4: map<string, set<string>>releaseIdsToSelectedAttachmentIds);
 
-    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType);
+    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType, 4: map<string, set<string>>releaseIdsToSelectedAttachmentIds);
 
     /**
       * returns all available output types
