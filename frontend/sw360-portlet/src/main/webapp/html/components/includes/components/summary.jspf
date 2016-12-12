@@ -74,7 +74,7 @@
     </tr>
     <tr>
         <td>Mailing list:</td>
-        <td><sw360:DisplayLink target="${component.mailinglist}"/></td>
+        <td><sw360:DisplayLink target="mailto:${component.mailinglist}" text="${component.mailinglist}"/></td>
     </tr>
     <tr>
         <td>Main licenses of contained releases: </td>

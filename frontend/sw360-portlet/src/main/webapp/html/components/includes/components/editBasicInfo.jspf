@@ -55,17 +55,17 @@
     <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="comp_homeurl">Homepage URL</label>
-            <input class="toplabelledInput" id="comp_homeurl" name="<portlet:namespace/><%=Component._Fields.HOMEPAGE%>" type="text" align="middle"
+            <input class="toplabelledInput" id="comp_homeurl" name="<portlet:namespace/><%=Component._Fields.HOMEPAGE%>" type="URL" align="middle"
                    value="<sw360:out value="${component.homepage}"/>" placeholder="Enter Home Url"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="comp_wikiurl">Wiki URL</label>
-            <input class="toplabelledInput" id="comp_wikiurl" name="<portlet:namespace/><%=Component._Fields.WIKI%>" type="text" align="middle"
+            <input class="toplabelledInput" id="comp_wikiurl" name="<portlet:namespace/><%=Component._Fields.WIKI%>" type="URL" align="middle"
                    placeholder="Enter Wiki Url" value="<sw360:out value="${component.wiki}"/>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="comp_blogurl">Blog URL</label>
-            <input class="toplabelledInput" id="comp_blogurl" name="<portlet:namespace/><%=Component._Fields.BLOG%>" type="text" align="middle"
+            <input class="toplabelledInput" id="comp_blogurl" name="<portlet:namespace/><%=Component._Fields.BLOG%>" type="URL" align="middle"
                    placeholder="Enter Blog Url" value="<sw360:out value="${component.blog}"/>"/>
         </td>
     </tr>

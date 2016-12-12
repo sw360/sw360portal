@@ -46,7 +46,7 @@
         </tr>
         <tr>
             <td>Download URL:</td>
-            <td><sw360:out value="${release.downloadurl}"/></td>
+            <td><sw360:DisplayLink target="${release.downloadurl}"/></td>
         </tr>
 
         <tr>
@@ -89,7 +89,7 @@
 
             <tr>
                 <td>Repository:</td>
-                <td><sw360:out value="${release.repository.url} (${release.repository.repositorytype})"/></td>
+                <td><sw360:DisplayLink target="${release.repository.url}"/> <sw360:out value="(${release.repository.repositorytype})"/></td>
             </tr>
         </core_rt:if>
     </table>

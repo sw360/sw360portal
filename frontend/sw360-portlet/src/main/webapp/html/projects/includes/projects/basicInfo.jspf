@@ -89,14 +89,14 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_url">HomePage URL</label>
             <input class="toplabelledInput" id="proj_url" name="<portlet:namespace/><%=Project._Fields.HOMEPAGE%>"
-                   type="text"
+                   type="URL"
                    value="<sw360:out value="${project.homepage}"/>" placeholder="Enter Home Url"/>
         </td>
 
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_wiki">Wiki URL</label>
             <input class="toplabelledInput" id="proj_wiki" name="<portlet:namespace/><%=Project._Fields.WIKI%>"
-                   type="text"
+                   type="URL"
                    value="<sw360:out value="${project.wiki}"/>" placeholder="Enter Wiki Url"/>
         </td>
 
