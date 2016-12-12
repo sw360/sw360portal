@@ -13,9 +13,11 @@ package org.eclipse.sw360.licenses;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
 import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.CustomProperties;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.licenses.db.LicenseDatabaseHandler;
 import org.apache.thrift.TException;
 
@@ -293,4 +295,13 @@ public class LicenseHandler implements LicenseService.Iface {
         }
         return handler.addOrUpdateCustomProperties(customProperties);
     }
+
+    @Override
+    public RequestSummary deleteAllLicenseInformation(User user) {
+        if(! PermissionUtils.isUserAtLeast(UserGroup.ADMIN, user)){
+            return new RequestSummary().setRequestStatus(RequestStatus.FAILURE);
+        }
+        return handler.deleteAllLicenseInformation();
+    }
+
 }

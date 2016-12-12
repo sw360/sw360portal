@@ -132,6 +132,8 @@ public class PortalConstants {
     public static final String DUPLICATE_RELEASE_SOURCES = "duplicateReleaseSources";
     public static final String DUPLICATE_COMPONENTS = "duplicateComponents";
     public static final String DUPLICATE_PROJECTS = "duplicateProjects";
+    public static final String ACTION_DELETE_ALL_LICENSE_INFORMATION = "deleteAllLicenseInformation";
+
 
     //! Specialized keys for vulnerability management
     public static final String VULNERABILITY = "vulnerability";

@@ -9,10 +9,14 @@
 package org.eclipse.sw360.portal.portlets.admin;
 
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -44,6 +48,9 @@ public class DatabaseSanitation extends Sw360Portlet {
         if (PortalConstants.DUPLICATES.equals(action)) {
                  serveDuplicates(request,response);
         }
+        if(PortalConstants.ACTION_DELETE_ALL_LICENSE_INFORMATION.equals(action)){
+            deleteAllLicenseInformation(request, response);
+        }
     }
 
     private void serveDuplicates(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
@@ -73,6 +80,17 @@ public class DatabaseSanitation extends Sw360Portlet {
             request.setAttribute(PortalConstants.DUPLICATE_COMPONENTS, duplicateComponents);
             request.setAttribute(PortalConstants.DUPLICATE_PROJECTS, duplicateProjects);
             include("/html/admin/databaseSanitation/duplicatesAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
+        }
+    }
+
+    private void deleteAllLicenseInformation(ResourceRequest request, ResourceResponse response){
+        User user = UserCacheHolder.getUserFromRequest(request);
+        LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
+        try {
+            RequestSummary requestSummary = licenseClient.deleteAllLicenseInformation(user);
+            renderRequestSummary(request, response, requestSummary);
+        } catch (TException te){
+            log.error("Got TException when trying to delete all license information." ,te);
         }
     }
 }
