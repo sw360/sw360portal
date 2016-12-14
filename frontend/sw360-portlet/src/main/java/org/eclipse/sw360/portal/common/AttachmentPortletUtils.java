@@ -53,6 +53,7 @@ import static java.net.URLConnection.guessContentTypeFromStream;
 public class AttachmentPortletUtils {
 
     private static final Logger log = Logger.getLogger(AttachmentPortletUtils.class);
+    private static final String DEFAULT_ATTACHMENT_BUNDLE_NAME = "AttachmentBundle.zip";
     private final ThriftClients thriftClients;
     private AttachmentService.Iface client;
 
@@ -94,30 +95,52 @@ public class AttachmentPortletUtils {
     }
 
     public void serveFile(ResourceRequest request, ResourceResponse response) {
+        serveFile(request, response, Optional.empty());
+    }
+
+    public void serveFile(ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName) {
         String[] ids = request.getParameterValues(PortalConstants.ATTACHMENT_ID);
 
-        if(ids == null || ids.length < 1){
+        if(ids != null && ids.length >= 1){
+            serveAttachmentBundle(new HashSet<>(Arrays.asList(ids)), request, response, downloadFileName);
+        }else{
             log.warn("no attachmentId was found in the request passed to serveFile");
-            return;
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         }
+    }
 
+    public void serveAttachmentBundle(Collection<String> ids, ResourceRequest request, ResourceResponse response){
+        serveAttachmentBundle(ids, request, response, Optional.empty());
+    }
+
+    public void serveAttachmentBundle(Collection<String> ids, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
         List<AttachmentContent> attachments = new ArrayList<>();
         try {
             for(String id : ids){
                 attachments.add(client.getAttachmentContent(id));
             }
+
+            serveAttachmentBundle(attachments, request, response, downloadFileName);
         } catch (TException e) {
             log.error("Problem getting the AttachmentContents from the backend", e);
-            return;
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         }
+    }
 
+    public void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response){
+        serveAttachmentBundle(attachments, request, response, Optional.empty());
+    }
+
+    public void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
         String filename;
         String contentType;
         if(attachments.size() == 1){
-            filename = attachments.get(0).getFilename();
+            filename = downloadFileName
+                    .orElse(attachments.get(0).getFilename());
             contentType = attachments.get(0).getContentType();
         } else {
-            filename = "AttachmentBundle.zip";
+            filename = downloadFileName
+                    .orElse(DEFAULT_ATTACHMENT_BUNDLE_NAME);
             contentType = "application/zip";
         }
 
@@ -125,7 +148,7 @@ public class AttachmentPortletUtils {
             PortletResponseUtil.sendFile(request, response, filename, attachmentStream, contentType);
         } catch (TException e) {
             log.error("Problem getting the attachment content from the backend", e);
-            return;
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         } catch (IOException e) {
             log.error("cannot finish writing response", e);
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");

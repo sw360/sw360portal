@@ -110,14 +110,25 @@
 <core_rt:if test="${inProjectDetailsContext}">
 <span class="pull-right">
     <input type="submit" id="downloadLicenseInfoButton" value="Generate License Info" class="addButton"/>
+    <input type="submit" id="downloadSourceCodeBundleButton" value="Generate Source Code Bundle" class="addButton"/>
 </span>
 </core_rt:if>
 <script>
     function downloadLicenseInfo() {
-        window.location.href = '<portlet:renderURL ><portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_LICENSE_INFO%>"/></portlet:renderURL>';
+        window.location.href = '<portlet:renderURL> \
+          <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/> \
+          <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_LICENSE_INFO%>"/> \
+        </portlet:renderURL>';
+    }
+    function downloadSourceCodeBundleButton() {
+        window.location.href = '<portlet:renderURL> \
+          <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/> \
+          <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_SOURCE_CODE_BUNDLE%>"/> \
+        </portlet:renderURL>';
     }
     $(window).load(function () {
         $("#LinkedProjectsInfo").treetable({expandable: true});
         $('#downloadLicenseInfoButton').click(downloadLicenseInfo);
+        $('#downloadSourceCodeBundleButton').click(downloadSourceCodeBundleButton);
     });
 </script>

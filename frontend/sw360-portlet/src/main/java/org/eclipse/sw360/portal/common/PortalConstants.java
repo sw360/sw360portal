@@ -122,6 +122,7 @@ public class PortalConstants {
     public static final String EXTENDED_EXCEL_EXPORT = "extendedExcelExport";
     public static final String PROJECT_NOT_FOUND = "projectNotFound";
     public static final String PAGENAME_LICENSE_INFO = "generateLicenseInfo";
+    public static final String PAGENAME_SOURCE_CODE_BUNDLE = "generateSourceCodeBundle";
 
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
@@ -223,6 +224,7 @@ public class PortalConstants {
     public static final String VIEW_LINKED_RELEASES = "view_linked_releases";
     public static final String LIST_NEW_LINKED_RELEASES = "add_to_linked_releases";
     public static final String DOWNLOAD_LICENSE_INFO = "DownloadLicenseInfo";
+    public static final String DOWNLOAD_SOURCE_CODE_BUNDLE = "DownloadSourceCodeBundle";
 
     //component actions
     public static final String ADD_VENDOR = "add_vendor";
@@ -326,5 +328,4 @@ public class PortalConstants {
     private PortalConstants() {
         // Utility class with only static functions
     }
-
 }

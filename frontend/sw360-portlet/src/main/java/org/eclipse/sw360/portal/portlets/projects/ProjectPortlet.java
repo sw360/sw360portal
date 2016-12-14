@@ -25,6 +25,7 @@ import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
@@ -137,6 +138,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             exportExcel(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
             downloadLicenseInfo(request, response);
+        } else if (PortalConstants.DOWNLOAD_SOURCE_CODE_BUNDLE.equals(action)) {
+            downloadSourceCodeBundle(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
@@ -169,6 +172,32 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
+        }
+    }
+
+    private String getSourceCodeBundleName(ResourceRequest request) throws TException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+        String projectId = request.getParameter(PROJECT_ID);
+        Project project = projectClient.getProjectById(projectId, user);
+        String timestamp = SW360Utils.getCreatedOn();
+        return "SourceCodeBundle-" + project.getName() + "-" + timestamp + ".zip";
+    }
+
+    private void downloadSourceCodeBundle(ResourceRequest request, ResourceResponse response) {
+
+        Map<String, Set<String>> selectedReleaseAndAttachmentIds = ProjectPortletUtils.getSelectedReleaseAndAttachmentIdsFromRequest(request);
+        Set<String> selectedAttachmentIds = new HashSet<>();
+        selectedReleaseAndAttachmentIds.entrySet()
+                .forEach(e -> selectedAttachmentIds.addAll(e.getValue()));
+
+        try {
+            String sourceCodeBundleName = getSourceCodeBundleName(request);
+
+            new AttachmentPortletUtils()
+                    .serveAttachmentBundle(selectedAttachmentIds,request,response, Optional.of(sourceCodeBundleName));
+        } catch (TException e) {
+            log.error("Failed to get project metadata", e);
         }
     }
 
@@ -442,6 +471,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         } else if (PAGENAME_LICENSE_INFO.equals(pageName)) {
             prepareLicenseInfo(request, response);
             include("/html/projects/licenseInfo.jsp", request, response);
+        } else if (PAGENAME_SOURCE_CODE_BUNDLE.equals(pageName)) {
+            prepareSourceCodeBundle(request, response);
+            include("/html/projects/sourceCodeBundle.jsp", request, response);
         } else {
             prepareStandardView(request);
             super.doView(request, response);
@@ -552,7 +584,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(DOCUMENT_ID, id);
                 Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
                 fakeRelations.put(id, ProjectRelationship.UNKNOWN);
-                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortLicenseInfoAttachments());
+                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES));
                 LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
                 List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
                 request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
@@ -566,8 +598,32 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private Function<ProjectLink, ProjectLink> filterAndSortLicenseInfoAttachments() {
-        Predicate<Attachment> filter = att -> SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES.contains(att.getAttachmentType());
+    private void prepareSourceCodeBundle(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        request.setAttribute(PortalConstants.SW360_USER, user);
+        String id = request.getParameter(PROJECT_ID);
+        request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
+        if (id != null) {
+            try {
+                ProjectService.Iface client = thriftClients.makeProjectClient();
+                Project project = client.getProjectById(id, user);
+                request.setAttribute(PROJECT, project);
+                request.setAttribute(DOCUMENT_ID, id);
+                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
+                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
+                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortAttachments(SW360Constants.SOURCE_CODE_ATTACHMENT_TYPES));
+
+                addProjectBreadcrumb(request, response, project);
+
+            } catch (TException e) {
+                log.error("Error fetching project from backend!", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
+            }
+        }
+    }
+
+    private Function<ProjectLink, ProjectLink> filterAndSortAttachments(Collection<AttachmentType> attachmentTypes) {
+        Predicate<Attachment> filter = att -> attachmentTypes.contains(att.getAttachmentType());
         return createProjectLinkMapper(rl -> rl.setAttachments(nullToEmptyList(rl.getAttachments())
                 .stream()
                 .filter(filter)
