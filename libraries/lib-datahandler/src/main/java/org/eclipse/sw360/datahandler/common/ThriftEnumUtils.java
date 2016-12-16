@@ -192,6 +192,13 @@ public class ThriftEnumUtils {
             VerificationState.INCORRECT, "Incorrect"
     );
 
+    private static final ImmutableMap<ECCStatus, String> MAP_ECC_STATUS_STRING = ImmutableMap.of(
+            ECCStatus.OPEN, "Open" ,
+            ECCStatus.IN_PROGRESS, "In Progress" ,
+            ECCStatus.APPROVED, "Approved",
+            ECCStatus.REJECTED, "Rejected"
+    );
+
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
             .put(SourceDatabase.class, MAP_SOURCE_DATABASE_STRING)
@@ -212,6 +219,7 @@ public class ThriftEnumUtils {
             .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
             .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
             .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)
+            .put(ECCStatus.class, MAP_ECC_STATUS_STRING)
             .build();
 
     public static String enumToString(TEnum value) {

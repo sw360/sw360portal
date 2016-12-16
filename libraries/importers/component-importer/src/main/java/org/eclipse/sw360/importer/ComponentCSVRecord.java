@@ -25,10 +25,12 @@ import java.util.List;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isValidUrl;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
 
 /**
  * @author daniele.fognini@tngtech.com
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentCSVRecord extends ComponentAwareCSVRecord {
 //    private final String componentName;
@@ -66,11 +68,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
     private final String vendorName;
     private final String vendorShortname;
     private final String vendorUrl;
-    private final String cIAL;
-    private final String cIECCN;
     private final String cIExternalSupplierID;
-    private final String cIAssessorContactPerson;
-    private final String cIAssessorDepartment;
     private final String cIAdditionalInfo;
     private final String cIEvaluated;
     private final String cIProcStart;
@@ -93,7 +91,14 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
     private final Boolean cILicenseAgreement;
     private final Boolean cIComponentClearingReport;
     private final Integer cICountOfSecurityVn;
-
+    private final String eccStatus;
+    private final String eccAL;
+    private final String eccECCN;
+    private final String eccMaterialIndexNumber;
+    private final String eccComment;
+    private final String eccAssessorContactPerson;
+    private final String eccAssessorDepartment;
+    private final String eccAssessmentDate;
 
     ComponentCSVRecord(String componentName, String componentDescription, String componentCreatedOn,
                        String componentType, String componentCreatedBy, String componentSubscribers,
@@ -106,8 +111,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                        String releaseContributors, String releaseModerators, String releaseSubscribers,
                        String releaseLanguages, String releaseOperatingSystems, String releaseMainLicenseIds,
                        String releaseDownloadURL, String vendorName, String vendorShortname, String vendorUrl,
-                       String cIAL, String cIECCN, String cIExternalSupplierID, String cIAssessorContactPerson,
-                       String cIAssessorDepartment, String cIAdditionalInfo, String cIEvaluated,
+                       String cIExternalSupplierID, String cIAdditionalInfo, String cIEvaluated,
                        String cIProcStart, String cIRequestId, String cIScanned, String cIClearingStandard,
                        String cIComment, String cIExternalUrl, Boolean cIBinariesOriginalFromCommunity,
                        Boolean cIBinariesSelfMade, Boolean cIComponentLicenseInformation,
@@ -115,7 +119,9 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                        Boolean cISourceCodeToolMade, Boolean cISourceCodeSelfMade, Boolean cIScreenshotOfWebSite,
                        Boolean cIFinalizedLicenseScanReport, Boolean cILicenseScanReportResult, Boolean cILegalEvaluation,
                        Boolean cILicenseAgreement, Boolean cIComponentClearingReport,
-                       Integer cICountOfSecurityVn) {
+                       Integer cICountOfSecurityVn, String eccStatus, String eccAL, String eccECCN,
+                       String eccMaterialIndexNumber, String eccComment, String eccAssessorContactPerson,
+                       String eccAssessorDepartment, String eccAssessmentDate) {
 //        this.componentName = componentName;
 //        this.releaseName = releaseName;
 //        this.releaseVersion = releaseVersion;
@@ -153,11 +159,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         this.vendorName = vendorName;
         this.vendorShortname = vendorShortname;
         this.vendorUrl = vendorUrl;
-        this.cIAL = cIAL;
-        this.cIECCN = cIECCN;
         this.cIExternalSupplierID = cIExternalSupplierID;
-        this.cIAssessorContactPerson = cIAssessorContactPerson;
-        this.cIAssessorDepartment = cIAssessorDepartment;
         this.cIAdditionalInfo = cIAdditionalInfo;
         this.cIEvaluated = cIEvaluated;
         this.cIProcStart = cIProcStart;
@@ -180,6 +182,14 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         this.cILicenseAgreement = cILicenseAgreement;
         this.cIComponentClearingReport = cIComponentClearingReport;
         this.cICountOfSecurityVn = cICountOfSecurityVn;
+        this.eccStatus = eccStatus;
+        this.eccAL = eccAL;
+        this.eccECCN = eccECCN;
+        this.eccMaterialIndexNumber = eccMaterialIndexNumber;
+        this.eccComment = eccComment;
+        this.eccAssessorContactPerson = eccAssessorContactPerson;
+        this.eccAssessorDepartment = eccAssessorDepartment;
+        this.eccAssessmentDate = eccAssessmentDate;
     }
 
     //Helpers
@@ -202,19 +212,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
     public boolean isSetAttachmentContent() {return isValidUrl(releaseDownloadURL);}
 
     private boolean isSetClearingInformation() {
-        if (!isNullOrEmpty(cIAL)) {
-            return true;
-        }
-        if (!isNullOrEmpty(cIECCN)) {
-            return true;
-        }
         if (!isNullOrEmpty(cIExternalSupplierID)) {
-            return true;
-        }
-        if (!isNullOrEmpty(cIAssessorContactPerson)) {
-            return true;
-        }
-        if (!isNullOrEmpty(cIAssessorDepartment)) {
             return true;
         }
         if (!isNullOrEmpty(cIAdditionalInfo)) {
@@ -285,6 +283,34 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
             return true;
         }
 
+        return false;
+    }
+
+    private boolean isSetEccInformation() {
+        if (!isNullOrEmpty(eccStatus)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccAL)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccECCN)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccMaterialIndexNumber)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccComment)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccAssessorContactPerson)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccAssessorDepartment)) {
+            return true;
+        }
+        if (!isNullOrEmpty(eccAssessmentDate)) {
+            return true;
+        }
         return false;
     }
 
@@ -415,8 +441,12 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
             release.setMainLicenseIds(CommonUtils.splitToSet(releaseMainLicenseIds));
         }
 
-        if(isSetClearingInformation())
-        release.setClearingInformation(getClearingInformation());
+        if (isSetClearingInformation()) {
+            release.setClearingInformation(getClearingInformation());
+        }
+        if (isSetEccInformation()) {
+            release.setEccInformation(getEccInformation());
+        }
 
         //TODO: There should be only one SOURCE per Release
         if(attachments!=null) {
@@ -455,20 +485,8 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
     public ClearingInformation getClearingInformation() {
         ClearingInformation clearingInformation = new ClearingInformation();
 
-        if (!isNullOrEmpty(cIAL)) {
-            clearingInformation.setAL(cIAL);
-        }
-        if (!isNullOrEmpty(cIECCN)) {
-            clearingInformation.setECCN(cIECCN);
-        }
         if (!isNullOrEmpty(cIExternalSupplierID)) {
             clearingInformation.setExternalSupplierID(cIExternalSupplierID);
-        }
-        if (!isNullOrEmpty(cIAssessorContactPerson)) {
-            clearingInformation.setAssessorContactPerson(cIAssessorContactPerson);
-        }
-        if (!isNullOrEmpty(cIAssessorDepartment)) {
-            clearingInformation.setAssessorDepartment(cIAssessorDepartment);
         }
         if (!isNullOrEmpty(cIAdditionalInfo)) {
             clearingInformation.setAdditionalRequestInfo(cIAdditionalInfo);
@@ -542,6 +560,37 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         return clearingInformation;
     }
 
+    public EccInformation getEccInformation() {
+        EccInformation eccInformation = newDefaultEccInformation();
+
+        if (!isNullOrEmpty(eccStatus)) {
+            final ECCStatus eccs = ThriftEnumUtils.stringToEnum(eccStatus, ECCStatus.class);
+            eccInformation.setEccStatus(eccs);
+        }
+        if (!isNullOrEmpty(eccAL)) {
+            eccInformation.setAL(eccAL);
+        }
+        if (!isNullOrEmpty(eccECCN)) {
+            eccInformation.setECCN(eccECCN);
+        }
+        if (!isNullOrEmpty(eccMaterialIndexNumber)) {
+            eccInformation.setMaterialIndexNumber(eccMaterialIndexNumber);
+        }
+        if (!isNullOrEmpty(eccComment)) {
+            eccInformation.setEccComment(eccComment);
+        }
+        if (!isNullOrEmpty(eccAssessorContactPerson)) {
+            eccInformation.setAssessorContactPerson(eccAssessorContactPerson);
+        }
+        if (!isNullOrEmpty(eccAssessorDepartment)) {
+            eccInformation.setAssessorDepartment(eccAssessorDepartment);
+        }
+        if (!isNullOrEmpty(eccAssessmentDate)) {
+            eccInformation.setAssessmentDate(eccAssessmentDate);
+        }
+        return eccInformation;
+    }
+
 
     public List<AttachmentContent> getAttachmentContents() {
         List<AttachmentContent> attachments = new ArrayList<>();
@@ -613,11 +662,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add(nullToEmptyString(vendorName));
         elements.add(nullToEmptyString(vendorShortname));
         elements.add(nullToEmptyString(vendorUrl));
-        elements.add(nullToEmptyString(cIAL));
-        elements.add(nullToEmptyString(cIECCN));
         elements.add(nullToEmptyString(cIExternalSupplierID));
-        elements.add(nullToEmptyString(cIAssessorContactPerson));
-        elements.add(nullToEmptyString(cIAssessorDepartment));
         elements.add(nullToEmptyString(cIAdditionalInfo));
         elements.add(nullToEmptyString(cIEvaluated));
         elements.add(nullToEmptyString(cIProcStart));
@@ -640,6 +685,14 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add(nullToEmptyString(cILicenseAgreement));
         elements.add(nullToEmptyString(cIComponentClearingReport));
         elements.add(nullToEmptyString(cICountOfSecurityVn));
+        elements.add(nullToEmptyString(eccStatus));
+        elements.add(nullToEmptyString(eccAL));
+        elements.add(nullToEmptyString(eccECCN));
+        elements.add(nullToEmptyString(eccMaterialIndexNumber));
+        elements.add(nullToEmptyString(eccComment));
+        elements.add(nullToEmptyString(eccAssessorContactPerson));
+        elements.add(nullToEmptyString(eccAssessorDepartment));
+        elements.add(nullToEmptyString(eccAssessmentDate));
 
         return elements;
     }
@@ -682,11 +735,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add("vendorName");
         elements.add("vendorShortname");
         elements.add(SampleOptions.URL_OPTION);
-        elements.add("Ausfuhrliste");
-        elements.add("European control classification number");
         elements.add("cIExternalSupplierID");
-        elements.add(SampleOptions.USER_OPTION);
-        elements.add("cIAssessorDepartment");
         elements.add("cIAdditionalInfo");
         elements.add(SampleOptions.DATE_OPTION);
         elements.add(SampleOptions.DATE_OPTION);
@@ -711,6 +760,15 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add(SampleOptions.BOOL_OPTION);
 
         elements.add(SampleOptions.NUMBER_OPTION);
+
+        elements.add("ECC Status");
+        elements.add("Ausfuhrliste");
+        elements.add("European control classification number");
+        elements.add("eccMaterialIndexNumber");
+        elements.add("eccComment");
+        elements.add(SampleOptions.USER_OPTION);
+        elements.add("eccAssessorDepartment");
+        elements.add(SampleOptions.DATE_OPTION);
 
         return elements;
     }
@@ -751,11 +809,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add("vendorName");
         elements.add("vendorShortname");
         elements.add("vendorUrl");
-        elements.add("cIAL");
-        elements.add("cIECCN");
         elements.add("cIExternalSupplierID");
-        elements.add("cIAssessorContactPerson");
-        elements.add("cIAssessorDepartment");
         elements.add("cIAdditionalInfo");
         elements.add("cIEvaluated");
         elements.add("cIProcStart");
@@ -778,6 +832,14 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
         elements.add("cILicenseAgreement");
         elements.add("cIComponentClearingReport");
         elements.add("cICountOfSecurityVn");
+        elements.add("eccStatus");
+        elements.add("eccAL");
+        elements.add("eccECCN");
+        elements.add("eccMaterialIndexNumber");
+        elements.add("eccComment");
+        elements.add("eccAssessorContactPerson");
+        elements.add("eccAssessorDepartment");
+        elements.add("eccAssessmentDate");
 
         return elements;
     }
@@ -827,11 +889,7 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorShortname='" + vendorShortname + '\'' +
                 ", vendorUrl='" + vendorUrl + '\'' +
-                ", cIAL='" + cIAL + '\'' +
-                ", cIECCN='" + cIECCN + '\'' +
                 ", cIExternalSupplierID='" + cIExternalSupplierID + '\'' +
-                ", cIAssessorContactPerson='" + cIAssessorContactPerson + '\'' +
-                ", cIAssessorDepartment='" + cIAssessorDepartment + '\'' +
                 ", cIAdditionalInfo='" + cIAdditionalInfo + '\'' +
                 ", cIEvaluated='" + cIEvaluated + '\'' +
                 ", cIProcStart='" + cIProcStart + '\'' +
@@ -854,6 +912,14 @@ public class ComponentCSVRecord extends ComponentAwareCSVRecord {
                 ", cILicenseAgreement=" + cILicenseAgreement +
                 ", cIComponentClearingReport=" + cIComponentClearingReport +
                 ", cICountOfSecurityVn=" + cICountOfSecurityVn +
+                ", eccStatus='" + eccStatus + '\'' +
+                ", eccAL='" + eccAL + '\'' +
+                ", eccECCN='" + eccECCN + '\'' +
+                ", eccMaterialIndexNumber='" + eccMaterialIndexNumber + '\'' +
+                ", eccComment='" + eccComment + '\'' +
+                ", eccAssessorContactPerson='" + eccAssessorContactPerson + '\'' +
+                ", eccAssessorDepartment='" + eccAssessorDepartment + '\'' +
+                ", eccAssessmentDate='" + eccAssessmentDate + '\'' +
                 '}';
     }
 }

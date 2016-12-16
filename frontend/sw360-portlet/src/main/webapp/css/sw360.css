@@ -360,6 +360,14 @@ input[readonly].clickable {
     background: #e95850;
 }
 
+.backgroundWarning {
+    background: #e9e17e;
+}
+
+.backgroundOK {
+    background: #9de997;
+}
+
 .backgroundGrey {
     background: #aaaaaa;
 }

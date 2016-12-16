@@ -102,6 +102,9 @@ public class PortletUtils {
     public static UserGroup getUserGroupFromString(String enumNumber) {
         return  UserGroup.findByValue(parseInt(enumNumber));
     }
+    public static ECCStatus getEccStatusFromString(String enumNumber) {
+        return  ECCStatus.findByValue(parseInt(enumNumber));
+    }
 
     public static <U extends TFieldIdEnum, T extends TBase<T, U>> void setFieldValue(PortletRequest request, T instance, U field, FieldMetaData fieldMetaData, String prefix) {
 
@@ -149,6 +152,8 @@ public class PortletUtils {
             return getVisibilityFromString(value);
         else if (field == User._Fields.USER_GROUP)
             return getUserGroupFromString(value);
+        else if (field == EccInformation._Fields.ECC_STATUS)
+            return getEccStatusFromString(value);
         else {
             log.error("Missing case in enumFromString, unknown field was " + field.toString());
             return null;

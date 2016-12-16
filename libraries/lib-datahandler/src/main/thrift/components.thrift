@@ -85,6 +85,13 @@ enum ClearingState {
     APPROVED = 4,
 }
 
+enum ECCStatus {
+    OPEN = 0,
+    IN_PROGRESS = 1,
+    APPROVED = 2,
+    REJECTED = 3,
+}
+
 enum MainlineState {
     OPEN = 0,
     MAINLINE = 1,
@@ -106,15 +113,27 @@ struct COTSDetails{
     5: optional string ossInformationURL,
     6: optional bool usageRightAvailable,
 }
-struct ClearingInformation {
-    // supplier / ec info
-    1: optional string AL, // German Ausfuhrliste
-    2: optional string ECCN, // European control classification number
-    3: optional string externalSupplierID, // foreign key fur SCM software TODO mcj move to component
+struct EccInformation{
+    1: optional ECCStatus eccStatus, // Status of ECC assessment
+    2: optional string AL, // German Ausfuhrliste
+    3: optional string ECCN, // European control classification number
     4: optional string assessorContactPerson, // email of ECC person
     5: optional string assessorDepartment, // department of ECC person
     6: optional string eccComment, // comments for ecc information
     7: optional string materialIndexNumber, // six digit material index number, string for convenience
+    8: optional string assessmentDate, // Date - YYYY-MM-dd, date of the last editing of ECC information
+}
+struct ClearingInformation {
+    // supplier / ec info
+//    1: optional string AL, // German Ausfuhrliste // moved to EccInformation
+//    2: optional string ECCN, // European control classification number // moved to EccInformation
+    3: optional string externalSupplierID, // foreign key fur SCM software TODO mcj move to component
+//    4: optional string assessorContactPerson, // email of ECC person // moved to EccInformation
+//    5: optional string assessorDepartment, // department of ECC person // moved to EccInformation
+//    6: optional string eccComment, // comments for ecc information // moved to EccInformation
+//    7: optional string materialIndexNumber, // six digit material index number, string for convenience // moved to EccInformation
+//    8: optional string assessmentDate, // Date - YYYY-MM-dd, date of the last editing of ECC information // moved to EccInformation
+//    9: optional ECCStatus eccStatus, // Status of ECC assessment // moved to EccInformation
 
     // clearing related metadata part 1: strings,
     12: optional string additionalRequestInfo, //
@@ -189,6 +208,7 @@ struct Release {
     51: optional set<string> languages,
     53: optional set<string> operatingSystems,
     54: optional COTSDetails cotsDetails,
+    55: optional EccInformation eccInformation,
 
     65: optional set<string> mainLicenseIds,
 

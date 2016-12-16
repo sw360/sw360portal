@@ -8,16 +8,14 @@
  */
 package org.eclipse.sw360.importer;
 
-import org.eclipse.sw360.datahandler.thrift.components.ClearingInformation;
-import org.eclipse.sw360.datahandler.thrift.components.Component;
-import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.datahandler.thrift.components.Repository;
+import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.apache.commons.csv.CSVRecord;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 /**
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<ComponentCSVRecord>{
 
@@ -56,14 +54,16 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
     private String vendorShortname;
     private String vendorUrl;
     
-    private String cIAL;
-    private String cIECCN;
-    private String cIExternalSupplierID;
-    private String cIAssessorContactPerson;
-    private String cIAssessorDepartment;
-    private String cIEccComment;
-    private String cIMaterialIndexNumber;
+    private String eccStatus;
+    private String eccAL;
+    private String eccECCN;
+    private String eccMaterialIndexNumber;
+    private String eccComment;
+    private String eccAssessorContactPerson;
+    private String eccAssessorDepartment;
+    private String eccAssessmentDate;
 
+    private String cIExternalSupplierID;
     private String cIAdditionalInfo;
     private String cIEvaluated;
     private String cIProcStart;
@@ -109,9 +109,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
                 releaseRepostitoryType, releaseMainlineState, releaseClearingState,
                 releaseContributors, releaseModerators, releaseSubscribers,
                 releaseLanguages, releaseOperatingSystems, releaseMainLicenseNames,
-                releaseDownloadURL, vendorName, vendorShortname, vendorUrl,
-                cIAL, cIECCN, cIExternalSupplierID, cIAssessorContactPerson,
-                cIAssessorDepartment, cIAdditionalInfo, cIEvaluated,
+                releaseDownloadURL, vendorName, vendorShortname, vendorUrl, cIExternalSupplierID, cIAdditionalInfo, cIEvaluated,
                 cIProcStart, cIRequestId, cIScanned, cIClearingStandard,
                 cIComment, cIExternalUrl, cIBinariesOriginalFromCommunity,
                 cIBinariesSelfMade, cIComponentLicenseInformation,
@@ -119,7 +117,8 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
                 cISourceCodeToolMade, cISourceCodeSelfMade, cIScreenshotOfWebSite,
                 cIFinalizedLicenseScanReport, cILicenseScanReportResult, cILegalEvaluation,
                 cILicenseAgreement, cIComponentClearingReport,
-                cICountOfSecurityVn);
+                cICountOfSecurityVn, eccStatus, eccAL, eccECCN, eccMaterialIndexNumber, eccComment,
+                eccAssessorContactPerson, eccAssessorDepartment, eccAssessmentDate);
     }
 
     ComponentCSVRecordBuilder() {
@@ -157,11 +156,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         vendorName = null;
         vendorShortname = null;
         vendorUrl = null;
-        cIAL = null;
-        cIECCN = null;
         cIExternalSupplierID = null;
-        cIAssessorContactPerson = null;
-        cIAssessorDepartment = null;
         cIAdditionalInfo = null;
         cIEvaluated = null;
         cIProcStart = null;
@@ -184,6 +179,14 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         cILicenseAgreement = null;
         cIComponentClearingReport = null;
         cICountOfSecurityVn = null;
+        eccStatus = null;
+        eccAL = null;
+        eccECCN = null;
+        eccMaterialIndexNumber = null;
+        eccComment = null;
+        eccAssessorContactPerson = null;
+        eccAssessorDepartment = null;
+        eccAssessmentDate = null;
     }
 
     ComponentCSVRecordBuilder(CSVRecord record) {
@@ -225,11 +228,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         vendorName = record.get(i++);
         vendorShortname = record.get(i++);
         vendorUrl = record.get(i++);
-        cIAL = record.get(i++);
-        cIECCN = record.get(i++);
         cIExternalSupplierID = record.get(i++);
-        cIAssessorContactPerson = record.get(i++);
-        cIAssessorDepartment = record.get(i++);
         cIAdditionalInfo = record.get(i++);
         cIEvaluated = record.get(i++);
         cIProcStart = record.get(i++);
@@ -255,7 +254,16 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         cIComponentClearingReport = getBoolOrNull(record.get(i++));
 
         // Int
-        cICountOfSecurityVn = getIntegerOrNull(record.get(i));
+        cICountOfSecurityVn = getIntegerOrNull(record.get(i++));
+
+        eccStatus = record.get(i++);
+        eccAL = record.get(i++);
+        eccECCN = record.get(i++);
+        eccMaterialIndexNumber = record.get(i++);
+        eccComment = record.get(i++);
+        eccAssessorContactPerson = record.get(i++);
+        eccAssessorDepartment = record.get(i++);
+        eccAssessmentDate = record.get(i);
 
         // Default copies:
         releaseCreatedBy = alternative(releaseCreatedBy, componentCreatedBy);
@@ -297,11 +305,7 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
     }
 
     public ComponentCSVRecordBuilder fill(ClearingInformation cI) {
-        setcIAL(cI.getAL());
-        setcIECCN(cI.getECCN());
         setcIExternalSupplierID(cI.getExternalSupplierID());
-        setcIAssessorContactPerson(cI.getAssessorContactPerson());
-        setcIAssessorDepartment(cI.getAssessorDepartment());
         setcIAdditionalInfo(cI.getAdditionalRequestInfo());
         setcIEvaluated(cI.getEvaluated());
         setcIProcStart(cI.getProcStart());
@@ -330,6 +334,18 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         return this;
     }
 
+    public ComponentCSVRecordBuilder fill(EccInformation eccInfo) {
+        setEccStatus(getEnumStringOrNull(eccInfo.getEccStatus()));
+        setEccAL(eccInfo.getAL());
+        setEccECCN(eccInfo.getECCN());
+        setEccMaterialIndexNumber(eccInfo.getMaterialIndexNumber());
+        setEccComment(eccInfo.getEccComment());
+        setEccAssessorContactPerson(eccInfo.getAssessorContactPerson());
+        setEccAssessorDepartment(eccInfo.getAssessorDepartment());
+        setEccAssessmentDate(eccInfo.getAssessmentDate());
+        return this;
+    }
+
     public ComponentCSVRecordBuilder fill(Repository repository) {
         setReleaseRepostitoryType(getEnumStringOrNull(repository.getRepositorytype()));
         setReleaseRepostitoryURL(repository.getUrl());
@@ -342,6 +358,9 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
 
         if (release.isSetClearingInformation())
             fill(release.getClearingInformation());
+
+        if (release.isSetEccInformation())
+            fill(release.getEccInformation());
 
         if (release.isSetRepository())
             fill(release.getRepository());
@@ -496,24 +515,8 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
         this.vendorUrl = vendorUrl;
     }
 
-    public void setcIAL(String cIAL) {
-        this.cIAL = cIAL;
-    }
-
-    public void setcIECCN(String cIECCN) {
-        this.cIECCN = cIECCN;
-    }
-
     public void setcIExternalSupplierID(String cIExternalSupplierID) {
         this.cIExternalSupplierID = cIExternalSupplierID;
-    }
-
-    public void setcIAssessorContactPerson(String cIAssessorContactPerson) {
-        this.cIAssessorContactPerson = cIAssessorContactPerson;
-    }
-
-    public void setcIAssessorDepartment(String cIAssessorDepartment) {
-        this.cIAssessorDepartment = cIAssessorDepartment;
     }
 
     public void setcIAdditionalInfo(String cIAdditionalInfo) {
@@ -602,5 +605,37 @@ public class ComponentCSVRecordBuilder extends  CustomizedCSVRecordBuilder<Compo
 
     public void setcICountOfSecurityVn(Integer cICountOfSecurityVn) {
         this.cICountOfSecurityVn = cICountOfSecurityVn;
+    }
+
+    public void setEccStatus(String eccStatus) {
+        this.eccStatus = eccStatus;
+    }
+
+    public void setEccAL(String eccAL) {
+        this.eccAL = eccAL;
+    }
+
+    public void setEccECCN(String eccECCN) {
+        this.eccECCN = eccECCN;
+    }
+
+    public void setEccMaterialIndexNumber(String eccMaterialIndexNumber) {
+        this.eccMaterialIndexNumber = eccMaterialIndexNumber;
+    }
+
+    public void setEccComment(String eccComment) {
+        this.eccComment = eccComment;
+    }
+
+    public void setEccAssessorContactPerson(String eccAssessorContactPerson) {
+        this.eccAssessorContactPerson = eccAssessorContactPerson;
+    }
+
+    public void setEccAssessorDepartment(String eccAssessorDepartment) {
+        this.eccAssessorDepartment = eccAssessorDepartment;
+    }
+
+    public void setEccAssessmentDate(String eccAssessmentDate) {
+        this.eccAssessmentDate = eccAssessmentDate;
     }
 }

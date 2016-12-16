@@ -235,66 +235,6 @@
     </tr>
 </table>
 
-<table class="table info_table" id="ECCInformation" title="ECC Information">
-    <thead>
-    <tr>
-        <th colspan="3" class="headlabel">ECC Information</th>
-    </tr>
-    </thead>
-    <tr>
-
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="AL">Ausfuhrliste</label>
-            <input id="AL"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.AL%>"
-                   type="text"
-                   placeholder="Enter AL"
-                   value="<sw360:out value="${release.clearingInformation.AL}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="ECCN">ECCN</label>
-            <input id="ECCN"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECCN%>"
-                   type="text"
-                   placeholder="Enter ECCN"
-                   value="<sw360:out value="${release.clearingInformation.ECCN}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="materialIndexNumber">Material Index Number</label>
-            <input id="materialIndexNumber"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.MATERIAL_INDEX_NUMBER%>"
-                   type="text"
-                   placeholder="Enter material index number"
-                   value="<sw360:out value="${release.clearingInformation.materialIndexNumber}"/>"/>
-        </td>
-    </tr>
-    <tr>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="assessorContactPerson">Assessor contact person</label>
-            <input id="assessorContactPerson"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_CONTACT_PERSON%>"
-                   type="text"
-                   placeholder="Enter assessor contact person"
-                   value="<sw360:out value="${release.clearingInformation.assessorContactPerson}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="assessorDepartment">Assessor Department</label>
-            <input id="assessorDepartment"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ASSESSOR_DEPARTMENT%>"
-                   type="text"
-                   placeholder="Enter assessor Department"
-                   value="<sw360:out value="${release.clearingInformation.assessorDepartment}"/>"/>
-        </td>
-        <td width="33%">
-            <label class="textlabel stackedLabel " for="ECCComment">ECC Comment</label>
-            <input id="ECCComment"
-                   name="<portlet:namespace/><%=Release._Fields.CLEARING_INFORMATION%><%=ClearingInformation._Fields.ECC_COMMENT%>"
-                   type="text"
-                   placeholder="Enter ECC comment"
-                   value="<sw360:out value="${release.clearingInformation.eccComment}"/>"/>
-        </td>
-    </tr>
-</table>
 <table class="table info_table" id="SupplementalInformation" title="Supplemental Information">
     <thead>
     <tr>

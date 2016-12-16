@@ -36,6 +36,7 @@ import java.util.concurrent.*;
 
 import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.*;
@@ -985,5 +986,35 @@ public class ComponentDatabaseHandlerTest {
         final Map<String, List<String>> duplicateReleases = handler.getDuplicateReleases();
 
         assertThat(duplicateReleases.size(), is(0));
+    }
+
+    @Test
+    public void testHasChangesInEccFields() throws Exception {
+        Release original = handler.getRelease("R1A", user1);
+        original.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson(null);
+        assertThat(handler.hasChangesInEccFields(original, original), is(false));
+        ComponentDatabaseHandler.ECC_FIELDS.forEach(
+                f -> {
+                    Release changed;
+                    try {
+                        changed = ensureEccInformationIsSet(handler.getRelease("R1A", user1));
+                    } catch (SW360Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    switch(f) {
+                        case ECC_STATUS:
+                            changed.getEccInformation().setFieldValue(f, ECCStatus.IN_PROGRESS);
+                            break;
+                        default:
+                            changed.getEccInformation().setFieldValue(f, "string value");
+                    }
+                    assertThat("Field " + f + " did not trigger ecc change flag", handler.hasChangesInEccFields(changed, original), is(true));
+                }
+        );
+
+        Release changed = handler.getRelease("R1A", user1);
+        changed.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson("");
+        assertThat(handler.hasChangesInEccFields(changed, original), is(false));
+
     }
 }

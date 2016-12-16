@@ -380,4 +380,8 @@ public class SW360Utils {
         if (releases == null) return Collections.emptyList();
         return releases.stream().map(SW360Utils::printName).collect(Collectors.toList());
     }
+
+    public static EccInformation newDefaultEccInformation(){
+        return new EccInformation().setEccStatus(ECCStatus.OPEN);
+    }
 }

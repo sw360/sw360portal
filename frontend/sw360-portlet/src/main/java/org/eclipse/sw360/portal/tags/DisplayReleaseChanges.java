@@ -10,9 +10,7 @@ package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import org.eclipse.sw360.datahandler.thrift.components.COTSDetails;
-import org.eclipse.sw360.datahandler.thrift.components.ClearingInformation;
-import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
@@ -23,6 +21,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
 import static org.eclipse.sw360.portal.tags.TagUtils.*;
 
 /**
@@ -87,6 +86,7 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
                     case RELEASE_ID_TO_RELATIONSHIP:
                     case CLEARING_INFORMATION:
                     case COTS_DETAILS:
+                    case ECC_INFORMATION:
                         break;
                     default:
                         FieldMetaData fieldMetaData = Release.metaDataMap.get(field);
@@ -110,9 +110,10 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             renderReleaseIdToRelationship(releaseRelationshipDisplay);
 
             String clearingInformationDisplay = renderClearingInformation();
+            String eccInformationDisplay = renderEccInformation();
             String cotsDetailDisplay = renderCOTSDetails();
 
-            jspWriter.print(renderString + releaseRelationshipDisplay.toString() + clearingInformationDisplay + cotsDetailDisplay);
+            jspWriter.print(renderString + releaseRelationshipDisplay.toString() + clearingInformationDisplay + eccInformationDisplay + cotsDetailDisplay);
         } catch (Exception e) {
             throw new JspException(e);
         }
@@ -166,6 +167,13 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             if (!additions.isSet(field)) {
                 additions.setFieldValue(field, new ClearingInformation());
             }
+        } else if (field == Release._Fields.ECC_INFORMATION){
+            if (!deletions.isSet(field)) {
+                deletions.setFieldValue(field, newDefaultEccInformation());
+            }
+            if (!additions.isSet(field)) {
+                additions.setFieldValue(field, newDefaultEccInformation());
+            }
         } else if (field == Release._Fields.COTS_DETAILS){
             if (!deletions.isSet(field)) {
                 deletions.setFieldValue(field, new COTSDetails());
@@ -195,6 +203,32 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
                     field, fieldMetaData, "");
         }
         return "<h3> Changes in Clearing Information </h3>"
+                + String.format("<table class=\"%s\" id=\"%schanges\" >", tableClasses, idPrefix)
+                + String.format("<thead><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
+                FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL)
+                + display.toString() + "</tbody></table>";
+
+
+    }
+
+    private String renderEccInformation() {
+        if (!ensureSomethingTodoAndNoNull(Release._Fields.ECC_INFORMATION)) {
+            return "";
+        }
+        StringBuilder display = new StringBuilder();
+        if (! actual.isSet(Release._Fields.ECC_INFORMATION)){
+            actual.eccInformation = newDefaultEccInformation();
+        }
+        for (EccInformation._Fields field : EccInformation._Fields.values()) {
+            FieldMetaData fieldMetaData = EccInformation.metaDataMap.get(field);
+            displaySimpleFieldOrSet(
+                    display,
+                    actual.getEccInformation(),
+                    additions.getEccInformation(),
+                    deletions.getEccInformation(),
+                    field, fieldMetaData, "");
+        }
+        return "<h3> Changes in ECC Information </h3>"
                 + String.format("<table class=\"%s\" id=\"%schanges\" >", tableClasses, idPrefix)
                 + String.format("<thead><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>",
                 FIELD_NAME, CURRENT_VAL, DELETED_VAL, SUGGESTED_VAL)
