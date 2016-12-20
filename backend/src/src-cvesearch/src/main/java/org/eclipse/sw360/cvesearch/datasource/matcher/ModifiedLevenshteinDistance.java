@@ -9,8 +9,6 @@
  */
 package org.eclipse.sw360.cvesearch.datasource.matcher;
 
-import java.util.Optional;
-
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 public class ModifiedLevenshteinDistance {
@@ -23,32 +21,32 @@ public class ModifiedLevenshteinDistance {
     public static class LevenshteinCost {
 
         private final int d;
-        private final boolean consumed;
+        private final boolean matched;
 
         public LevenshteinCost(int d){
             this.d = d;
-            this.consumed = false;
+            this.matched = false;
         }
 
-        private LevenshteinCost(int d, boolean consumed){
+        private LevenshteinCost(int d, boolean matched){
             this.d = d;
-            this.consumed = consumed;
+            this.matched = matched;
         }
 
         public int getD() {
             return d;
         }
 
-        public boolean hasConsumed() {
-            return consumed;
+        public boolean hasMatched() {
+            return matched;
         }
 
         public LevenshteinCost increment() {
-            return new LevenshteinCost(d + 1, consumed);
+            return new LevenshteinCost(d + 1, matched);
         }
 
-        public LevenshteinCost incrementOrConsume(boolean hasConsumed) {
-            if(hasConsumed){
+        public LevenshteinCost incrementOrMatch(boolean hasMatched) {
+            if(hasMatched){
                 return new LevenshteinCost(d, true);
             }else{
                 return this.increment();
@@ -60,7 +58,7 @@ public class ModifiedLevenshteinDistance {
                 return le;
             }
             if(d == le.getD()){
-                return new LevenshteinCost(d, consumed || le.hasConsumed());
+                return new LevenshteinCost(d, matched || le.hasMatched());
             }
             return this;
         }
@@ -68,8 +66,11 @@ public class ModifiedLevenshteinDistance {
 
     /**
      * This is a modified Levenshtein distance in which
-     * - skipping prefixes and postfixes of the haystack does not cost anything
+     * - allows skipping prefixes and postfixes of the haystack without any cost
+     *   - with the restriction that one is not allowed to skip "everything"
+     * - is case insensitive
      * - if one of the strings is empty the distance Integer.MAX_VALUE is returned
+     * - if no char from the needle is in the haystack the distance Integer.MAX_VALUE is returned
      *
      * @param needle
      * @param haystack
@@ -81,8 +82,11 @@ public class ModifiedLevenshteinDistance {
 
     /**
      * This is a modified Levenshtein distance in which
-     * - skipping prefixes and postfixes of the haystack does not cost anything
+     * - allows skipping prefixes and postfixes of the haystack without any cost
+     *   - with the restriction that one is not allowed to skip "everything"
+     * - is case insensitive
      * - if one of the strings is empty the distance Integer.MAX_VALUE is returned
+     * - if no char from the needle is in the haystack the distance Integer.MAX_VALUE is returned
      *
      * @param needle
      * @param haystack
@@ -103,7 +107,7 @@ public class ModifiedLevenshteinDistance {
 
         for (int i = 0; i < needleLength; i++) oldcost[i] = new LevenshteinCost(i);
 
-        int savedCostsWhenSkippedSpaceSeparatedPrefix                 = 0;
+        int savedCostsWhenSkippedSpaceSeparatedPrefix = 0;
         LevenshteinCost minimalCostsWhenSkippedSpaceSeperatedPostfix = new LevenshteinCost(Integer.MAX_VALUE);
         for (int j = 1; j < haystackLength; j++) {
             //=========================================================================================================
@@ -116,7 +120,7 @@ public class ModifiedLevenshteinDistance {
             //=========================================================================================================
             for(int i = 1; i < needleLength; i++) {
                 boolean charsMatch = Character.toLowerCase(needle.charAt(i - 1)) == Character.toLowerCase(haystack.charAt(j - 1));
-                LevenshteinCost costReplace = oldcost[i - 1].incrementOrConsume(charsMatch);
+                LevenshteinCost costReplace = oldcost[i - 1].incrementOrMatch(charsMatch);
                 LevenshteinCost costInsert  = oldcost[i].increment();
                 LevenshteinCost costDelete  = curcost[i - 1].increment();
 
@@ -137,7 +141,7 @@ public class ModifiedLevenshteinDistance {
         LevenshteinCost finalCost = oldcost[needleLength - 1]
                 .merge(minimalCostsWhenSkippedSpaceSeperatedPostfix);
 
-        if(finalCost.hasConsumed()){
+        if(finalCost.hasMatched()){
             return finalCost.getD();
         }else{
             return Integer.MAX_VALUE;
