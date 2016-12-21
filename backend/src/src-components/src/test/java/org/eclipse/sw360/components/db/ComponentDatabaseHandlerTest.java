@@ -390,7 +390,7 @@ public class ComponentDatabaseHandlerTest {
         ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
                 .setComment("Important linked release")
                 .setNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR1B_R1A, releaseLinkR2A_R1A));
+                .setSubreleases(Arrays.asList(releaseLinkR2A_R1A, releaseLinkR1B_R1A));
 
         assertThat(linkedReleases, contains(releaseLinkR1A));
     }
@@ -441,7 +441,7 @@ public class ComponentDatabaseHandlerTest {
         ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
                 .setComment("Important linked release")
                 .setNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR1B, releaseLinkR2A_R1A));
+                .setSubreleases(Arrays.asList(releaseLinkR2A_R1A, releaseLinkR1B));
 
         assertThat(linkedReleases, contains(releaseLinkR1A));
     }

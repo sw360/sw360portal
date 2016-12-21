@@ -51,11 +51,13 @@
         <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
             <thead>
             <tr>
-                <th colspan="4" class="headlabel">Linked Releases And Projects</th>
+                <th colspan="6" class="headlabel">Linked Releases And Projects</th>
             </tr>
             <tr>
                 <th><input type="checkbox" checked="checked" id="selectAllCheckbox"/></th>
                 <th>Name</th>
+                <th>Type</th>
+                <th>Clearing State</th>
                 <th>Uploaded by</th>
                 <th>Clearing Team</th>
             </tr>
@@ -71,7 +73,14 @@
                         <td></td>
                         <td>
                             <a href="<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />"><sw360:out
-                                    value="${projectLink.name} ${projectLink.version}"/></a>
+                                    value="${projectLink.name}" maxChar="50"/> <sw360:out
+                                    value="${projectLink.version}"/></a>
+                        </td>
+                        <td>
+                            <sw360:DisplayEnum value="${projectLink.projectType}"/>
+                        </td>
+                        <td>
+                            <sw360:DisplayEnum value="${projectLink.clearingState}"/>
                         </td>
                         <td>
                         </td>
@@ -89,11 +98,15 @@
                     >
                         <td></td>
                         <td>
-                            <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
-                                <sw360:out value="${releaseLink.vendor}"/><core_rt:if
-                                    test="${not empty releaseLink.vendor}">&nbsp;</core_rt:if><sw360:out
-                                    value="${releaseLink.name} ${releaseLink.version}"/>
-                            </a>
+                            <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />"><sw360:out
+                                    value="${releaseLink.vendor} ${releaseLink.name}" maxChar="50"/> <sw360:out
+                                    value="${releaseLink.version}"/></a>
+                        </td>
+                        <td>
+                            <sw360:DisplayEnum value="${releaseLink.componentType}"/>
+                        </td>
+                        <td>
+                            <sw360:DisplayEnum value="${releaseLink.clearingState}"/>
                         </td>
                         <td>
                         </td>
@@ -119,6 +132,10 @@
                             <td>
                                 <sw360:out value="${attachment.filename}"/>
                             </td>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
                             <td>
                                 <sw360:DisplayUserEmail email="${attachment.createdBy}"/>
                             </td>

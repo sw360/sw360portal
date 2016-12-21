@@ -47,6 +47,12 @@ enum ProjectRelationship {
     DUPLICATE = 3,
 }
 
+enum ProjectClearingState {
+    OPEN = 0,
+    IN_PROGRESS = 1,
+    CLOSED = 2,
+}
+
 struct Project {
 
     // General information
@@ -67,6 +73,7 @@ struct Project {
     13: optional ProjectState state,
     15: optional ProjectType projectType,
     16: optional string tag,// user defined tags
+    17: optional ProjectClearingState clearingState,
 
     // User details
     21: optional string createdBy,
@@ -111,6 +118,8 @@ struct ProjectLink {
 //    5: optional string parentId,
     6: optional string nodeId,
     7: optional string parentNodeId,
+    8: optional ProjectType projectType,
+    9: optional ProjectClearingState clearingState,
     10: optional list<ReleaseLink> linkedReleases,
     11: optional list<ProjectLink> subprojects,
 }

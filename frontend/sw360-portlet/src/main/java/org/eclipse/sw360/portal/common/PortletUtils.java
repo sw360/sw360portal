@@ -24,6 +24,7 @@ import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.UpdateType;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -92,6 +93,10 @@ public class PortletUtils {
         return ProjectState.findByValue(parseInt(enumNumber));
     }
 
+    public static ProjectClearingState getProjectClearingStateFromString(String enumNumber) {
+        return ProjectClearingState.findByValue(parseInt(enumNumber));
+    }
+
     public static ProjectType getProjectTypeFromString(String enumNumber) {
         return ProjectType.findByValue(parseInt(enumNumber));
     }
@@ -141,6 +146,8 @@ public class PortletUtils {
             return getMainlineStatefromString(value);
         else if (field == Project._Fields.STATE)
             return getProjectStateFromString(value);
+        else if (field == Project._Fields.CLEARING_STATE)
+            return getProjectClearingStateFromString(value);
         else if (field == Project._Fields.PROJECT_TYPE)
             return getProjectTypeFromString(value);
         else if (field == Project._Fields.VISBILITY)

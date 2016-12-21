@@ -31,6 +31,10 @@
         <td><sw360:DisplayEnum value="${project.visbility}"/></td>
     </tr>
     <tr>
+        <td>Project clearing state:</td>
+        <td><sw360:DisplayEnum value="${project.clearingState}"/></td>
+    </tr>
+    <tr>
         <td>Clearing details:</td>
         <td>
             New releases:

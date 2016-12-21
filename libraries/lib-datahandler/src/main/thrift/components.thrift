@@ -279,6 +279,7 @@ struct ReleaseLink{
 
     31: optional ClearingState clearingState,
     32: optional list<Attachment> attachments,
+    33: optional ComponentType componentType,
     100: optional set<string> licenseIds,
     101: optional set<string> licenseNames
 }

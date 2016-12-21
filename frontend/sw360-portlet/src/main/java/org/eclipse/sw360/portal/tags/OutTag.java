@@ -13,6 +13,8 @@ import org.apache.taglibs.standard.tag.common.core.OutSupport;
 
 import javax.servlet.jsp.JspException;
 
+import java.io.IOException;
+
 import static java.util.regex.Matcher.quoteReplacement;
 
 /**
@@ -38,9 +40,14 @@ public class OutTag extends OutSupport {
     @Override
     public int doStartTag() throws JspException {
         if (value instanceof String) {
+            boolean abbreviated = false;
             String candidate = (String) this.value;
+            String originalValue = candidate;
             if (maxChar > 4) {
                 candidate = StringUtils.abbreviate(candidate, maxChar);
+                if (!originalValue.equals(candidate)){
+                    abbreviated = true;
+                }
             }
 
             if (stripNewlines){
@@ -52,6 +59,17 @@ public class OutTag extends OutSupport {
                 candidate = escapeInDoubleQuote(candidate);
             }
             this.value = candidate;
+
+            if (abbreviated) {
+                try {
+                    this.pageContext.getOut().write("<span title=\"" + escapeInDoubleQuote(originalValue) + "\">");
+                    int i = super.doStartTag();
+                    this.pageContext.getOut().write("</span>");
+                    return i;
+                } catch (IOException e) {
+                    throw new JspException(e.toString(), e);
+                }
+            }
         }
         return super.doStartTag();
     }

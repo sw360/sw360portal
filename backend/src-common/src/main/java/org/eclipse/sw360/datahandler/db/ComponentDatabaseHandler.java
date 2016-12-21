@@ -79,6 +79,7 @@ public class ComponentDatabaseHandler {
      */
     private final ComponentModerator moderator;
     private final ReleaseModerator releaseModerator;
+    private static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
 
 
     public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
@@ -652,6 +653,8 @@ public class ComponentDatabaseHandler {
                 out.add(releaseLinkOptional.get());
             }
         }
+        out.sort(Comparator.<ReleaseLink, String>comparing(rl -> (nullToEmptyString(rl.getVendor())+rl.getName()).toLowerCase())
+                .thenComparing(ReleaseLink::getVersion));
         return out;
     }
 
@@ -700,7 +703,12 @@ public class ComponentDatabaseHandler {
             fullname = vendor != null ? vendor.getFullname() : "";
         }
         ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
-        releaseLink.setClearingState(release.getClearingState());
+        releaseLink
+                .setClearingState(release.getClearingState())
+                .setComponentType(
+                        Optional.ofNullable(componentRepository.get(release.getComponentId()))
+                                .map(Component::getComponentType)
+                                .orElse(null));
         if (!nullToEmptySet(release.getAttachments()).isEmpty()) {
             releaseLink.setAttachments(Lists.newArrayList(release.getAttachments()));
         }
