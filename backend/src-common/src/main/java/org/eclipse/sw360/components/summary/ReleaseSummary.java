@@ -10,9 +10,14 @@ package org.eclipse.sw360.components.summary;
 
 import com.google.common.base.Strings;
 import org.eclipse.sw360.datahandler.db.VendorRepository;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.Release._Fields;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.exporter.ReleaseExporter;
+
+import java.util.*;
+import java.util.function.Function;
 
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
 
@@ -35,7 +40,26 @@ public class ReleaseSummary extends DocumentSummary<Release> {
     }
 
     @Override
+    public List<Release> makeSummary(SummaryType type, Collection<Release> fullDocuments) {
+        if (fullDocuments == null) return Collections.emptyList();
+
+        Map<String, Vendor> vendorById = ThriftUtils.getIdMap(vendorRepository.getAll());
+
+        List<Release> documents = new ArrayList<>(fullDocuments.size());
+        for (Release fullDocument : fullDocuments) {
+            Release document = summary(type, fullDocument, vendorById::get);
+            if (document != null) documents.add(document);
+        }
+        return documents;
+    }
+
+
+    @Override
     protected Release summary(SummaryType type, Release document) {
+        return summary(type, document, vendorRepository::get);
+    }
+
+    protected Release summary(SummaryType type, Release document, Function<String, Vendor> vendorProvider) {
         Release copy = new Release();
         if(type == SummaryType.DETAILED_EXPORT_SUMMARY){
            setDetailedExportSummaryFields(document, copy);
@@ -48,7 +72,8 @@ public class ReleaseSummary extends DocumentSummary<Release> {
         if (document.isSetVendorId()) {
             final String vendorId = document.getVendorId();
             if (!Strings.isNullOrEmpty(vendorId)) {
-                copy.setVendor(vendorRepository.get(vendorId));
+                Vendor vendor = vendorProvider.apply(vendorId);
+                copy.setVendor(vendor);
             }
         }
         return copy;
@@ -79,6 +104,7 @@ public class ReleaseSummary extends DocumentSummary<Release> {
         copyField(document, copy, _Fields.OPERATING_SYSTEMS);
         copyField(document, copy, _Fields.ATTACHMENTS);
         copyField(document, copy, _Fields.MAIN_LICENSE_IDS);
+        copyField(document, copy, _Fields.ECC_INFORMATION);
     }
 
 }

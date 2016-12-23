@@ -746,4 +746,35 @@
             <role-name>user</role-name>
         </security-role-ref>
     </portlet>
+
+    <portlet>
+        <portlet-name>ecc</portlet-name>
+        <display-name>ECC</display-name>
+        <portlet-class>
+            org.eclipse.sw360.portal.portlets.ecc.EccPortlet
+        </portlet-class>
+        <init-param>
+            <name>view-template</name>
+            <value>/html/ecc/view.jsp</value>
+        </init-param>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>ECC</title>
+            <short-title>ECC</short-title>
+            <keywords/>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
 </portlet-app>

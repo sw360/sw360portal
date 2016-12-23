@@ -81,7 +81,6 @@ public class ComponentDatabaseHandler {
      */
     private final ComponentModerator moderator;
     private final ReleaseModerator releaseModerator;
-    private static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
     public static final List<EccInformation._Fields> ECC_FIELDS = Arrays.asList(EccInformation._Fields.ECC_STATUS, EccInformation._Fields.AL, EccInformation._Fields.ECCN, EccInformation._Fields.MATERIAL_INDEX_NUMBER, EccInformation._Fields.ECC_COMMENT, EccInformation._Fields.ASSESSOR_CONTACT_PERSON, EccInformation._Fields.ASSESSMENT_DATE, EccInformation._Fields.ASSESSOR_DEPARTMENT);
 
 
@@ -142,7 +141,9 @@ public class ComponentDatabaseHandler {
     }
 
     public List<Release> getReleaseSummary() {
-        return releaseRepository.getReleaseSummary();
+        List<Release> releases = releaseRepository.getReleaseSummary();
+        releases.forEach(ThriftValidate::ensureEccInformationIsSet);
+        return releases;
     }
 
     public List<Component> getRecentComponents() {
