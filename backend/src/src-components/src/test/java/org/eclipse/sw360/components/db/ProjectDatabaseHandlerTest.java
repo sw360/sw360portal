@@ -47,7 +47,6 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectDatabaseHandlerTest {
 
-    private static final String url = DatabaseSettings.COUCH_DB_URL;
     private static final String dbName = DatabaseSettings.COUCH_DB_DATABASE;
     private static final String attachmentsDbName = DatabaseSettings.COUCH_DB_ATTACHMENTS;
 

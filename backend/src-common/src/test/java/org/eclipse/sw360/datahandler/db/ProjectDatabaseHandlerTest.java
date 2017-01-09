@@ -18,6 +18,7 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -36,12 +37,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectDatabaseHandlerTest {
 
-    private static final String url = DatabaseSettings.COUCH_DB_URL;
     private static final String dbName = DatabaseSettings.COUCH_DB_DATABASE;
     private static final String attachmentDbName = DatabaseSettings.COUCH_DB_ATTACHMENTS;
+    private static final String attachmentsDbName = DatabaseSettings.COUCH_DB_ATTACHMENTS;
 
     private static final User user1 = new User().setEmail("user1").setDepartment("AB CD EF");
     private static final User user2 = new User().setEmail("user2").setDepartment("AB CD FE");
@@ -52,6 +55,9 @@ public class ProjectDatabaseHandlerTest {
     ProjectDatabaseHandler handler;
     @Before
     public void setUp() throws Exception {
+        assertTestString(dbName);
+        assertTestString(attachmentsDbName);
+
         List<Project> projects = new ArrayList<>();
 
         projects.add(new Project().setId("P1").setName("Project1").setBusinessUnit("AB CD EF").setCreatedBy("user1"));
@@ -60,20 +66,21 @@ public class ProjectDatabaseHandlerTest {
         projects.add(new Project().setId("P3").setName("Project3").setBusinessUnit("AB CD EF").setCreatedBy("user3"));
 
         // Create the database
-        TestUtils.createDatabase(url, dbName);
+        TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
 
         // Prepare the database
-        DatabaseConnector databaseConnector = new DatabaseConnector(url, dbName);
+        DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
         for (Project project : projects) {
             databaseConnector.add(project);
         }
-        handler = new ProjectDatabaseHandler(url, dbName, attachmentDbName,moderator);
+        ComponentDatabaseHandler componentHandler = new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName);
+        handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentDbName, moderator, componentHandler);
     }
 
     @After
     public void tearDown() throws Exception {
         // Delete the database
-        TestUtils.deleteDatabase(url, dbName);
+        TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
     }
 
 
@@ -209,14 +216,14 @@ public class ProjectDatabaseHandlerTest {
     }
 
 
-    @Test
+    @Ignore("One is no longer able to create duplicate projects in the db")
     public void testDuplicateProjectIsFound() throws Exception {
 
         String originalProjectId = "P1";
         final Project tmp = handler.getProjectById(originalProjectId, user1);
         tmp.unsetId();
         tmp.unsetRevision();
-        String newProjectId = handler.addProject(tmp, user1);
+        String newProjectId = handler.addProject(tmp, user1).getId();
 
         final Map<String, List<String>> duplicateProjects = handler.getDuplicateProjects();
 
