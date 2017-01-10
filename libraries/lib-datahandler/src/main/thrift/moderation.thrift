@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -83,6 +83,14 @@ service ModerationService {
       * set requestingUser of moderation request to use
       **/
     RequestStatus createReleaseRequest(1: Release release, 2: User user);
+
+    /**
+      * write moderation request for release to database by comparing release with corresponding document in database
+      * and writing difference as additions and deletions to moderation request,
+      * set requestingUser of moderation request to use
+      * The moderation request is sent to ECC_ADMINs
+      **/
+    RequestStatus createReleaseRequestForEcc(1: Release release, 2: User user);
 
     /**
       * write moderation request for project to database by comparing project with corresponding document in database

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -22,6 +22,7 @@ import java.util.Set;
  * @author gerrit.grenzebach@tngtech.com
  * @author andreas.reichel@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class PortalConstants {
 
@@ -35,6 +36,7 @@ public class PortalConstants {
     //! Role names
     public static final String ROLENAME_ADMIN = "Administrator";
     public static final String ROLENAME_CLEARING_ADMIN = "Clearing Admin";
+    public static final String ROLENAME_ECC_ADMIN = "ECC Admin";
 
     //! Standard keys for Lists and their size
     public static final String KEY_SUMMARY = "documents";

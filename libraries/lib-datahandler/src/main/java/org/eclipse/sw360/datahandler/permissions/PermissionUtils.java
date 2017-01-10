@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,6 +22,7 @@ import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
  *
  * @author cedric.bodet@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class PermissionUtils {
 
@@ -37,6 +38,10 @@ public class PermissionUtils {
         return isInGroup(user, UserGroup.CLEARING_ADMIN);
     }
 
+    public static boolean isEccAdmin(User user) {
+        return isInGroup(user, UserGroup.ECC_ADMIN);
+    }
+
     private static boolean isInGroup(User user, UserGroup userGroup) {
         return user != null && user.isSetUserGroup() && user.getUserGroup() == userGroup;
     }
@@ -47,6 +52,8 @@ public class PermissionUtils {
                 return isNormalUser(user) || isClearingAdmin(user) || isAdmin(user);
             case CLEARING_ADMIN:
                 return isClearingAdmin(user) || isAdmin(user);
+            case ECC_ADMIN:
+                return isEccAdmin(user) || isAdmin(user);
             case ADMIN:
                 return isAdmin(user);
             default:

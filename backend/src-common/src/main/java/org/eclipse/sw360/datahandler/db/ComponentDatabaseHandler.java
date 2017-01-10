@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -19,6 +19,7 @@ import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.entitlement.ComponentModerator;
 import org.eclipse.sw360.datahandler.entitlement.ReleaseModerator;
+import org.eclipse.sw360.datahandler.permissions.DocumentPermissions;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -434,11 +435,14 @@ public class ComponentDatabaseHandler {
         if (actual.equals(release)) {
             return RequestStatus.SUCCESS;
         }
-        if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
+        DocumentPermissions<Release> permissions = makePermission(actual, user);
+        boolean hasChangesInEccFields = hasChangesInEccFields(release, actual);
+        if ((hasChangesInEccFields && permissions.isActionAllowed(RequestedAction.WRITE_ECC)) ||
+                (!hasChangesInEccFields && permissions.isActionAllowed(RequestedAction.WRITE))) {
             copyFields(actual, release, immutableFields);
 
             autosetReleaseClearingState(release, actual);
-            if (hasChangesInEccFields(release, actual)) {
+            if (hasChangesInEccFields) {
                 autosetEccUpdaterInfo(release, user);
             }
 
@@ -448,7 +452,11 @@ public class ComponentDatabaseHandler {
             attachmentConnector.deleteAttachmentDifference(nullToEmptySet(actual.getAttachments()),nullToEmptySet(release.getAttachments()));
 
         } else {
-            return releaseModerator.updateRelease(release, user);
+            if (hasChangesInEccFields) {
+                return releaseModerator.updateReleaseEccInfo(release, user);
+            } else {
+                return releaseModerator.updateRelease(release, user);
+            }
         }
 
         return RequestStatus.SUCCESS;

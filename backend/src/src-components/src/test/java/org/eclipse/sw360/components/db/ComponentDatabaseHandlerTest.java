@@ -23,6 +23,7 @@ import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.*;
@@ -106,6 +107,7 @@ public class ComponentDatabaseHandlerTest {
         Release release1a = new Release().setId("R1A").setComponentId("C1").setName("component1").setVersion("releaseA").setCreatedBy(email1).setVendorId("V1");
         releases.add(release1a);
         Release release1b = new Release().setId("R1B").setComponentId("C1").setName("component1").setVersion("releaseB").setCreatedBy(email2).setVendorId("V2");
+        release1b.setEccInformation(new EccInformation().setAL("AL"));
         release1b.addToSubscribers(email1);
         releases.add(release1b);
         Release release2a = new Release().setId("R2A").setComponentId("C2").setName("component2").setVersion("releaseA").setCreatedBy(email1).setVendorId("V3");
@@ -861,6 +863,20 @@ public class ComponentDatabaseHandlerTest {
         verify(releaseModerator).updateRelease(release, user1);
     }
 
+    @Test
+    public void testEccUpdateSentToEccModeration() throws Exception {
+        Release release = releases.get(1);
+        String expected = release.getEccInformation().getAL();
+        release.getEccInformation().setAL("UPDATED");
+
+        when(releaseModerator.updateReleaseEccInfo(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
+        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.immutableOfRelease());
+        Release actual = handler.getRelease("R1B", user1);
+
+        assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
+        assertEquals(expected, actual.getEccInformation().getAL());
+        verify(releaseModerator).updateReleaseEccInfo(release, user1);
+    }
     @Test
     public void testDeleteComponent() throws Exception {
         RequestStatus status = handler.deleteComponent("C3", user1);

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,6 +25,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInfor
  * Moderation for the component service
  *
  * @author birgit.heydenreich@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ReleaseModerator extends Moderator<Release._Fields, Release> {
 
@@ -43,6 +44,18 @@ public class ReleaseModerator extends Moderator<Release._Fields, Release> {
         try {
             ModerationService.Iface client = thriftClients.makeModerationClient();
             client.createReleaseRequest(release, user);
+            return RequestStatus.SENT_TO_MODERATOR;
+        } catch (TException e) {
+            log.error("Could not moderate release " + release.getId() + " for User " + user.getEmail(), e);
+            return RequestStatus.FAILURE;
+        }
+    }
+
+    public RequestStatus updateReleaseEccInfo(Release release, User user) {
+
+        try {
+            ModerationService.Iface client = thriftClients.makeModerationClient();
+            client.createReleaseRequestForEcc(release, user);
             return RequestStatus.SENT_TO_MODERATOR;
         } catch (TException e) {
             log.error("Could not moderate release " + release.getId() + " for User " + user.getEmail(), e);

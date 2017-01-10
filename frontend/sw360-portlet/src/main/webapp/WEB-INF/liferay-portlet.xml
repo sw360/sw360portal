@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
@@ -314,5 +314,9 @@
     <role-mapper>
         <role-name>user</role-name>
         <role-link>User</role-link>
+    </role-mapper>
+    <role-mapper>
+        <role-name>ecc-admin</role-name>
+        <role-link>ECC Admin</role-link>
     </role-mapper>
 </liferay-portlet-app>

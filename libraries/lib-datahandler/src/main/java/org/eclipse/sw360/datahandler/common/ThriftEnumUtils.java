@@ -176,7 +176,8 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.of(
             UserGroup.USER, "User" ,
             UserGroup.CLEARING_ADMIN, "Clearing Admin" ,
-            UserGroup.ADMIN, "Admin"
+            UserGroup.ADMIN, "Admin",
+            UserGroup.ECC_ADMIN, "ECC Admin"
           );
 
     private static final ImmutableMap<VulnerabilityRatingForProject, String> MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING = ImmutableMap.of(

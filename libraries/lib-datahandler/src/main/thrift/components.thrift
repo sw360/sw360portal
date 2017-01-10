@@ -125,15 +125,15 @@ struct EccInformation{
 }
 struct ClearingInformation {
     // supplier / ec info
-//    1: optional string AL, // German Ausfuhrliste // moved to EccInformation
-//    2: optional string ECCN, // European control classification number // moved to EccInformation
+//    1: optional string AL, // moved to EccInformation
+//    2: optional string ECCN, // moved to EccInformation
     3: optional string externalSupplierID, // foreign key fur SCM software TODO mcj move to component
-//    4: optional string assessorContactPerson, // email of ECC person // moved to EccInformation
-//    5: optional string assessorDepartment, // department of ECC person // moved to EccInformation
-//    6: optional string eccComment, // comments for ecc information // moved to EccInformation
-//    7: optional string materialIndexNumber, // six digit material index number, string for convenience // moved to EccInformation
-//    8: optional string assessmentDate, // Date - YYYY-MM-dd, date of the last editing of ECC information // moved to EccInformation
-//    9: optional ECCStatus eccStatus, // Status of ECC assessment // moved to EccInformation
+//    4: optional string assessorContactPerson, // moved to EccInformation
+//    5: optional string assessorDepartment, // moved to EccInformation
+//    6: optional string eccComment, // moved to EccInformation
+//    7: optional string materialIndexNumber, // moved to EccInformation
+//    8: optional string assessmentDate, // moved to EccInformation
+//    9: optional ECCStatus eccStatus, // moved to EccInformation
 
     // clearing related metadata part 1: strings,
     12: optional string additionalRequestInfo, //
