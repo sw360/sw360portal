@@ -25,11 +25,11 @@
 <core_rt:set var="project" value="${actual_project}" scope="request"/>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
-<script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Project:  <sw360:ProjectName project="${project}"/></span>

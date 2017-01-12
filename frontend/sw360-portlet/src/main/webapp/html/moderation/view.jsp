@@ -87,12 +87,12 @@
     </div>
 </div>
 
-<script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
 
 <script>
     var tabView;
@@ -209,7 +209,7 @@
     }
 </script>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">

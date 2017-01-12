@@ -78,7 +78,7 @@
 
 
 <core_rt:if test="${not empty documentID}">
-    <script src="<%=request.getContextPath()%>/js/external/resumable.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/webjars/resumable.js/1.0.3/resumable.js" type="text/javascript"></script>
     <script src="<%=request.getContextPath()%>/js/resumableAttachments.js" type="text/javascript"></script>
 
     <script>

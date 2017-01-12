@@ -75,10 +75,10 @@
     </table>
 </div>
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
-<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
+<script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 
 <script>
 
