@@ -10,8 +10,10 @@ package org.eclipse.sw360.components.summary;
 
 import com.google.common.collect.ImmutableSet;
 import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.junit.Test;
@@ -65,6 +67,9 @@ public class ProjectSummaryTest {
                     break;
                 case RELEASE_CLEARING_STATE_SUMMARY:
                     project.releaseClearingStateSummary = new ReleaseClearingStateSummary();
+                    break;
+                case CLEARING_STATE:
+                    project.clearingState = ProjectClearingState.OPEN;
                     break;
                 default: //most fields are string
                     project.setFieldValue(renderedField, "asd");
