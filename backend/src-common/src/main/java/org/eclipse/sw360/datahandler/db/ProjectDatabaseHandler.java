@@ -281,7 +281,8 @@ public class ProjectDatabaseHandler {
                         .setRelation(relationship)
                         .setVersion(project.getVersion())
                         .setProjectType(project.getProjectType())
-                        .setClearingState(project.getClearingState());
+                        .setClearingState(project.getClearingState())
+                        .setTreeLevel(visitedIds.size() - 1);
                 if (project.isSetLinkedProjects()) {
                     List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), id, visitedIds, projectMap, releaseMap);
                     projectLink.setSubprojects(subprojectLinks);

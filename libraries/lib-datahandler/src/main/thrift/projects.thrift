@@ -122,6 +122,7 @@ struct ProjectLink {
     9: optional ProjectClearingState clearingState,
     10: optional list<ReleaseLink> linkedReleases,
     11: optional list<ProjectLink> subprojects,
+    12: optional i32 treeLevel, //zero-based level in the ProjectLink tree, i.e. root has level 0
 }
 
 service ProjectService {
