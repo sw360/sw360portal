@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,12 +10,11 @@ package org.eclipse.sw360.portal.portlets.homepage;
 
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
-import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
-import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
+import org.eclipse.sw360.portal.portlets.moderation.ModerationPortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -45,21 +44,8 @@ public class MyTaskSubmissionsPortlet extends Sw360Portlet {
         }
     }
     private void serveDeleteModerationRequest(ResourceRequest request, ResourceResponse response) throws IOException {
-        RequestStatus requestStatus = deleteModerationRequest(request, log);
+        RequestStatus requestStatus = ModerationPortletUtils.deleteModerationRequest(request, log);
         serveRequestStatus(request, response, requestStatus, "Problem removing moderation request", log);
-    }
-    public static RequestStatus deleteModerationRequest(PortletRequest request, Logger log) {
-        String id = request.getParameter(PortalConstants.MODERATION_ID);
-        if (id != null) {
-            try {
-                ModerationService.Iface client = new ThriftClients().makeModerationClient();
-                return client.deleteModerationRequest(id, UserCacheHolder.getUserFromRequest(request));
-
-            } catch (TException e) {
-                log.error("Could not delete moderation request from DB", e);
-            }
-        }
-        return RequestStatus.FAILURE;
     }
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {

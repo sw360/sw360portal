@@ -188,22 +188,24 @@ div.content2 {
     height: 160px;
 }
 
-.searchbar {
+#searchInput .searchbar {
     display: inline-block;
     color: #cccccc;
-    margin-left: 1em;
-
     width: 90%;
     padding: 5px;
     height: 20px;
 }
 
-.searchbutton {
+#searchInput .searchbutton {
     display: inline-block;
 
-    /*padding: 5px 20px 5px 20px; */
-    /*border: none; */
-    /*font-weight:bold;*/
+    padding: 5px 20px 5px 20px;
+    border: none;
+    font-weight:bold;
+}
+
+#searchInput table {
+    width: 100%;
 }
 
 .nav-tabs {
