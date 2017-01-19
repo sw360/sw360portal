@@ -23,6 +23,7 @@ public class ErrorMessages {
     public static final String RELEASE_DUPLICATE ="Release could not be added, since a release with the same name and version already exists.";
     public static final String ERROR_GETTING_PROJECT = "Error fetching project from backend.";
     public static final String ERROR_GETTING_COMPONENT = "Error fetching component from backend.";
+    public static final String ERROR_GETTING_LICENSE = "Error fetching license from backend.";
     public static final String ERROR_GETTING_RELEASE = "Error fetching release from backend.";
     public static final String LICENSE_USED_BY_RELEASE =  "Request could not be processed, as license is used by at least one release!";
     public static final String DOCUMENT_USED_BY_PROJECT_OR_RELEASE = "Document could not be processed, as it is used by other Projects or Releases!";
@@ -68,6 +69,7 @@ public class ErrorMessages {
             .add(ERROR_GETTING_PROJECT)
             .add(ERROR_GETTING_COMPONENT)
             .add(ERROR_GETTING_RELEASE)
+            .add(ERROR_GETTING_LICENSE)
             .build();
 
     private ErrorMessages() {

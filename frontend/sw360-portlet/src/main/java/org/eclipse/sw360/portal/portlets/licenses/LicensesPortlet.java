@@ -21,6 +21,7 @@ import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.exporter.LicenseExporter;
+import org.eclipse.sw360.portal.common.ErrorMessages;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
@@ -114,6 +115,7 @@ public class LicensesPortlet extends Sw360Portlet {
             request.setAttribute(LICENSE_TYPE_CHOICE, licenseTypes);
         }catch(TException e){
             log.error("Error fetching license types from backend", e);
+            setSW360SessionError(request, ErrorMessages.ERROR_GETTING_LICENSE);
         }
 
         if (id != null) {
@@ -123,6 +125,7 @@ public class LicensesPortlet extends Sw360Portlet {
                 addLicenseBreadcrumb(request, response, license);
             } catch (TException e) {
                 log.error("Error fetching license details from backend", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_LICENSE);
             }
         } else {
             if (request.getAttribute(KEY_LICENSE_DETAIL) == null){
@@ -183,6 +186,7 @@ public class LicensesPortlet extends Sw360Portlet {
 
             } catch (TException e) {
                 log.error("Error fetching license details from backend", e);
+                setSW360SessionError(request, ErrorMessages.ERROR_GETTING_LICENSE);
             }
         }
     }

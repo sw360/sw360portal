@@ -8,22 +8,13 @@
  */
 package org.eclipse.sw360.portal.tags;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import org.eclipse.sw360.datahandler.thrift.ThriftClients;
-import org.eclipse.sw360.datahandler.thrift.licenses.License;
-import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
-import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.google.common.collect.Collections2.transform;
-import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractField;
-import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractId;
 
 /**
  * This displays a user in Edit mode
@@ -60,11 +51,7 @@ public class DisplayLicensesEdit extends NameSpaceAwareTag {
         try {
 
             if (licenseIds != null && !licenseIds.isEmpty()) {
-                LicenseService.Iface licenseClient = new ThriftClients().makeLicenseClient();
-                String department = UserCacheHolder.getUserFromEmail(userEmail).getDepartment();
-
-                printLicenses(display, licenseClient.getByIds(licenseIds,department));
-
+                printLicenses(display, licenseIds);
             } else {
                 printEmptyLicenses(display);
             }
@@ -82,15 +69,11 @@ public class DisplayLicensesEdit extends NameSpaceAwareTag {
                 .append(String.format("<input class=\"clickable\" type=\"text\" readonly=\"\" placeholder=\"Click to set Licenses\" id=\"%sDisplay\" onclick=\"%s\" />", id, onclick));
     }
 
-    private void printLicenses(StringBuilder display, Collection<License> licenses) {
-        Joiner commaJoiner = Joiner.on(", ");
-        Function<License, String> nameExtract = extractField(License._Fields.FULLNAME, String.class);
-
-        String licenseIdsStr = commaJoiner.join(transform(licenses, extractId()));
-        String licenseNamesStr = commaJoiner.join(transform(licenses, nameExtract));
+    private void printLicenses(StringBuilder display, Collection<String> licenseIds) {
+        String licenseIdsStr = Joiner.on(", ").join(licenseIds);
 
         display.append(String.format("<label class=\"textlabel stackedLabel\" for=\"%sDisplay\">Licenses</label>", id))
                 .append(String.format("<input type=\"hidden\" readonly=\"\" value=\"%s\" id=\"%s\" name=\"%s%s\"/>", licenseIdsStr, id, namespace, id))
-                .append(String.format("<input class=\"clickable\" type=\"text\" readonly=\"\" value=\"%s\" id=\"%sDisplay\" onclick=\"%s\" />", licenseNamesStr, id, onclick));
+                .append(String.format("<input class=\"clickable\" type=\"text\" readonly=\"\" value=\"%s\" id=\"%sDisplay\" onclick=\"%s\" />", licenseIdsStr, id, onclick));
     }
 }
