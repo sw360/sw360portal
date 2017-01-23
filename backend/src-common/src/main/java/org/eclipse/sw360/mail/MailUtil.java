@@ -8,15 +8,17 @@
  */
  package org.eclipse.sw360.mail;
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Provides the possiblity to send mail from SW360
@@ -109,10 +111,13 @@ public class MailUtil {
             log.info("Problem fetching user:" + e);
             return false;
         }
-        if (!user.isSetWantsMailNotification()){
-            return true;
+        if(user != null) {
+            if(!user.isSetWantsMailNotification()) {
+                return true;
+            }
+            return user.wantsMailNotification;
         }
-        return user.wantsMailNotification;
+        return false;
     }
 
     private boolean isMailingEnabledAndValid() {

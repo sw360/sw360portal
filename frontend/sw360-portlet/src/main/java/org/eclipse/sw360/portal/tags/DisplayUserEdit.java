@@ -14,6 +14,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
+import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.servlet.jsp.JspException;
@@ -35,6 +36,7 @@ public class DisplayUserEdit extends NameSpaceAwareTag {
     private String description;
     private Boolean multiUsers;
     private Boolean readonly = false;
+    private Logger log = Logger.getLogger(DisplayUserEdit.class);
 
     public void setMultiUsers(Boolean multiUsers) {
         this.multiUsers = multiUsers;
@@ -95,11 +97,13 @@ public class DisplayUserEdit extends NameSpaceAwareTag {
                     if (!Strings.isNullOrEmpty(email))
                         user = client.getByEmail(email);
                 } catch (TException e) {
-                    user = null;
+                    log.info("User with email=" + email + " not found in DB");
                 }
+                emailList.add(email);
                 if (user != null) {
-                    emailList.add(email);
                     userList.add(user.getFullname());
+                } else {
+                    userList.add(email);
                 }
             }
 
