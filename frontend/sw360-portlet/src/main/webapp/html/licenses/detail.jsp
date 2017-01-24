@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
@@ -14,18 +15,20 @@
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
-
-<jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
-<jsp:useBean id="licenseDetail" class="org.eclipse.sw360.datahandler.thrift.licenses.License" scope="request"/>
-<jsp:useBean id="moderationLicenseDetail" class="org.eclipse.sw360.datahandler.thrift.licenses.License"
-             scope="request"/>
-<jsp:useBean id="added_todos_from_moderation_request"
-             type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
-<jsp:useBean id="db_todos_from_moderation_request"
-             type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
-<jsp:useBean id="isUserAtLeastClearingAdmin" class="java.lang.String" scope="request"/>
-<jsp:useBean id="obligationList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Obligation>"
-             scope="request"/>
+<c:catch var="attributeNotFoundException">
+    <jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
+    <jsp:useBean id="licenseDetail" class="org.eclipse.sw360.datahandler.thrift.licenses.License" scope="request"/>
+    <jsp:useBean id="moderationLicenseDetail" class="org.eclipse.sw360.datahandler.thrift.licenses.License"
+                 scope="request"/>
+    <jsp:useBean id="added_todos_from_moderation_request"
+                 type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
+    <jsp:useBean id="db_todos_from_moderation_request"
+                 type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Todo>" scope="request"/>
+    <jsp:useBean id="isUserAtLeastClearingAdmin" class="java.lang.String" scope="request"/>
+    <jsp:useBean id="obligationList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenses.Obligation>"
+                 scope="request"/>
+</c:catch>
+<%@include file="/html/utils/includes/logError.jspf" %>
 
 <portlet:actionURL var="editLicenseTodosURL" name="updateWhiteList">
     <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}"/>
@@ -42,20 +45,20 @@
 <portlet:actionURL var="editExternalLinkURL" name="editExternalLink">
     <portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}" />
 </portlet:actionURL>
-
-<div id="header"></div>
-<p class="pageHeader"><span
-        class="pageHeaderBigSpan">License: ${licenseDetail.fullname} (${licenseDetail.shortname})</span>
-    <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
+<core_rt:if test="${empty attributeNotFoundException}">
+    <div id="header"></div>
+    <p class="pageHeader"><span
+            class="pageHeaderBigSpan">License: ${licenseDetail.fullname} (${licenseDetail.shortname})</span>
+        <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
          <span class="pull-right">
              <input type="button" onclick="editLicense()" id="edit" value="Edit License Details and Text"
                     class="addButton">
          </span>
-    </core_rt:if>
-</p>
-<core_rt:set var="editMode" value="true" scope="request"/>
-<%@include file="includes/detailOverview.jspf" %>
-
+        </core_rt:if>
+    </p>
+    <core_rt:set var="editMode" value="true" scope="request"/>
+    <%@include file="includes/detailOverview.jspf" %>
+</core_rt:if>
 <script>
     var Y = YUI().use(
             'aui-tabview',

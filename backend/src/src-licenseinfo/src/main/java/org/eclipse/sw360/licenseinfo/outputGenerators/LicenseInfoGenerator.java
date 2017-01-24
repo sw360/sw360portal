@@ -10,6 +10,7 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
@@ -41,6 +42,9 @@ public class LicenseInfoGenerator extends OutputGenerator<String> {
 
             Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
                     .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
+
+            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
+
             Set<String> licenses = projectLicenseInfoResults.stream()
                     .map(LicenseInfoParsingResult::getLicenseInfo)
                     .filter(Objects::nonNull)
@@ -53,8 +57,20 @@ public class LicenseInfoGenerator extends OutputGenerator<String> {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
 
-            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
             vc.put(LICENSES_CONTEXT_PROPERTY, licenses);
+
+            Map<String, Set<String>> acknowledgements = Maps.filterValues(Maps.transformValues(licenseInfos, pr -> Optional
+                    .ofNullable(pr.getLicenseInfo())
+                    .map(LicenseInfo::getLicenseNamesWithTexts)
+                    .filter(Objects::nonNull)
+                    .map(s -> s
+                            .stream()
+                            .map(LicenseNameWithText::getAcknowledgements)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet()))
+                    .orElse(Collections.emptySet())), set -> !set.isEmpty());
+
+            vc.put(ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, acknowledgements);
 
             StringWriter sw = new StringWriter();
             Velocity.mergeTemplate(LICENSE_INFO_TEMPLATE_FILE, "utf-8", vc, sw);

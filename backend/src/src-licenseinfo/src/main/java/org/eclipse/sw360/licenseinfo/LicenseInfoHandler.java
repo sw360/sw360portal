@@ -51,6 +51,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     public static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
     public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
     public static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
+    public static final String ACKNOWLEDGEMENTS_CONTEXT_PROPERTY = "acknowledgements";
 
     private final LicenseInfoParser[] parsers;
 

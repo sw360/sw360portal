@@ -15,8 +15,6 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
-import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
 import org.apache.thrift.TException;
 import org.apache.thrift.meta_data.FieldMetaData;
@@ -175,8 +173,6 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
         }
         StringBuilder candidate = new StringBuilder();
         try {
-            UserService.Iface userClient = new ThriftClients().makeUserClient();
-            User user = userClient.getByEmail(actual.getCreatedBy());
             ProjectService.Iface client = new ThriftClients().makeProjectClient();
             //use getLinkedProjects, as it does not check permissions
             for (ProjectLink projectLink : client.getLinkedProjects(filteredMap)) {
@@ -206,8 +202,6 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
 
         StringBuilder candidate = new StringBuilder();
         try {
-            UserService.Iface userClient = new ThriftClients().makeUserClient();
-            User user = userClient.getByEmail(actual.getCreatedBy());
             ProjectService.Iface client = new ThriftClients().makeProjectClient();
 
             Map<String, ProjectRelationship> changeMap= new HashMap<>();

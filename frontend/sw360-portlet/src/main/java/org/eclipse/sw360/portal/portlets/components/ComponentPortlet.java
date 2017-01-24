@@ -375,7 +375,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 DocumentState documentState = component.getDocumentState();
 
                 addEditDocumentMessage(request, permissions, documentState);
-                setUsingDocs(request, user, client, component.getReleaseIds());
+                Set<String> releaseIds = SW360Utils.getReleaseIds(component.getReleases());
+                setUsingDocs(request, user, client, releaseIds);
             } catch (TException e) {
                 log.error("Error fetching component from backend!", e);
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_COMPONENT);

@@ -10,6 +10,7 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
@@ -23,6 +24,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.licenseinfo.LicenseInfoHandler.ACKNOWLEDGEMENTS_CONTEXT_PROPERTY;
 import static org.eclipse.sw360.licenseinfo.LicenseInfoHandler.LICENSE_INFO_RESULTS_CONTEXT_PROPERTY;
 import static org.eclipse.sw360.licenseinfo.LicenseInfoHandler.ALL_LICENSE_NAMES_WITH_TEXTS;
 
@@ -65,6 +67,19 @@ public class XhtmlGenerator extends OutputGenerator<String> {
                     .orElse(Collections.emptySet());
 
             vc.put(ALL_LICENSE_NAMES_WITH_TEXTS, licenseNamesWithTexts);
+
+            Map<String, Set<String>> acknowledgements = Maps.filterValues(Maps.transformValues(licenseInfos, pr -> Optional
+                    .ofNullable(pr.getLicenseInfo())
+                    .map(LicenseInfo::getLicenseNamesWithTexts)
+                    .filter(Objects::nonNull)
+                    .map(s -> s
+                            .stream()
+                            .map(LicenseNameWithText::getAcknowledgements)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet()))
+                    .orElse(Collections.emptySet())), set -> !set.isEmpty());
+
+            vc.put(ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, acknowledgements);
 
             StringWriter sw = new StringWriter();
             Velocity.mergeTemplate(XHTML_TEMPLATE_FILE, "utf-8", vc, sw);

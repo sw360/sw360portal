@@ -51,10 +51,11 @@
         <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
             <thead>
             <tr>
-                <th colspan="6" class="headlabel">Linked Releases And Projects</th>
+                <th colspan="7" class="headlabel">Linked Releases And Projects</th>
             </tr>
             <tr>
                 <th><input type="checkbox" checked="checked" id="selectAllCheckbox"/></th>
+                <th>Lvl</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Clearing State</th>
@@ -71,6 +72,9 @@
                                 test="${not empty projectLink.parentNodeId}">data-tt-parent-id="${projectLink.parentNodeId}"</core_rt:if>
                     >
                         <td></td>
+                        <td>
+                            <sw360:out value="${projectLink.treeLevel}"/>
+                        </td>
                         <td>
                             <a href="<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />"><sw360:out
                                     value="${projectLink.name}" maxChar="50"/> <sw360:out
@@ -97,6 +101,9 @@
                         <core_rt:if test="${fn:length(releaseLink.attachments) gt 1}">class="highlightedYellow"</core_rt:if>
                     >
                         <td></td>
+                        <td>
+                            <sw360:out value="${projectLink.treeLevel + 1}"/>
+                        </td>
                         <td>
                             <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />"><sw360:out
                                     value="${releaseLink.vendor} ${releaseLink.name}" maxChar="50"/> <sw360:out
@@ -130,6 +137,9 @@
                                 />
                             </td>
                             <td>
+                                <sw360:out value="${projectLink.treeLevel + 1}"/>
+                            </td>
+                            <td>
                                 <sw360:out value="${attachment.filename}"/>
                             </td>
                             </td>
@@ -148,7 +158,7 @@
             </core_rt:forEach>
             <core_rt:if test="${projectList.size() < 1 and $releaseList.size() < 1}">
                 <tr>
-                    <td colspan="4">No linked releases or projects</td>
+                    <td colspan="7">No linked releases or projects</td>
                 </tr>
             </core_rt:if>
             </tbody>
@@ -167,7 +177,7 @@
 
 <script>
     $(window).load(function () {
-        $("#LinkedProjectsInfo").treetable({expandable: true, column: 1, initialState: "expanded"});
+        $("#LinkedProjectsInfo").treetable({expandable: true, column: 2, initialState: "expanded"});
         $("#selectAllCheckbox").on("change", function() {
             var uncheckAll = function() {
                 $("#LinkedProjectsInfo").find(":checkbox:not(#selectAllCheckbox)").each(function () {

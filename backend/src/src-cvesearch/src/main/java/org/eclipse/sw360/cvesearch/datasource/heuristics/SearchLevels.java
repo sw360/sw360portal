@@ -168,7 +168,7 @@ public class SearchLevels {
 
         return vendorProductList.stream()
                 .map(match -> new NeedleWithMeta(cpeBuilder.apply(match.getNeedle()),
-                        "heuristic (dist. " + match.getDistance() + ")"))
+                        "heuristic (dist. " + (useVersionInformation ? "0" : "1") + match.getDistance() + ")"))
                 .collect(Collectors.toList());
     }
 

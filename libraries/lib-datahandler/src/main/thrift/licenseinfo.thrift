@@ -35,6 +35,7 @@ struct LicenseNameWithText{
     1: optional string licenseName,
     2: optional string licenseText,
     3: optional i32 id,
+    4: optional string acknowledgements,
 }
 
 struct LicenseInfo {
