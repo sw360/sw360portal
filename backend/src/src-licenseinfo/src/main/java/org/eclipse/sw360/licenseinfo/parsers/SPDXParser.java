@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 
 /**
  * @author: alex.borodin@evosoft.com
@@ -152,7 +153,7 @@ public class SPDXParser extends LicenseInfoParser {
                             result.getLicenseNamesWithTexts()
                                     .add(new LicenseNameWithText()
                                             .setLicenseText(extractedLicenseInfo.getExtractedText())
-                                            .setLicenseName(extractedLicenseInfo.getName())
+                                            .setLicenseName(extractLicenseName(extractedLicenseInfo))
                                     )
             );
             Arrays.stream(doc.getDocumentDescribes()).forEach(
@@ -163,6 +164,10 @@ public class SPDXParser extends LicenseInfoParser {
         }
 
         return Optional.of(result);
+    }
+
+    private String extractLicenseName(ExtractedLicenseInfo extractedLicenseInfo){
+        return ! isNullEmptyOrWhitespace(extractedLicenseInfo.getName()) ? extractedLicenseInfo.getName() : extractedLicenseInfo.getLicenseId();
     }
 
     protected Optional<SpdxDocument> parseAsSpdx(AttachmentContent attachmentContent){

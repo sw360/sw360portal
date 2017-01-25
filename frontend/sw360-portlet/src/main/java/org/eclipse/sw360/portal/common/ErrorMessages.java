@@ -41,6 +41,7 @@ public class ErrorMessages {
     public static final String EXTERNAL_ID_ALREADY_EXISTS = "External id already exists.";
     public static final String DEFAULT_ERROR_MESSAGE = "Request could not be processed.";
     public static final String DOCUMENT_NOT_AVAILABLE = "The requested document is not available.";
+    public static final String LICENSE_SHORTNAME_TAKEN = "License shortname is already taken.";
 
     //this map is used in errorKeyToMessage.jspf to generate key-value pairs for the liferay-ui error tag
     public static final ImmutableList<String> allErrorMessages = ImmutableList.<String>builder()
@@ -70,6 +71,7 @@ public class ErrorMessages {
             .add(ERROR_GETTING_COMPONENT)
             .add(ERROR_GETTING_RELEASE)
             .add(ERROR_GETTING_LICENSE)
+            .add(LICENSE_SHORTNAME_TAKEN)
             .build();
 
     private ErrorMessages() {

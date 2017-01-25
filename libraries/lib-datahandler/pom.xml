@@ -29,7 +29,7 @@
                 <artifactId>maven-thrift-plugin</artifactId>
                 <version>0.1.11</version>
                 <configuration>
-                    <thriftExecutable>/usr/local/bin/thrift</thriftExecutable>
+                    <thriftExecutable>thrift</thriftExecutable>
                 </configuration>
                 <executions>
                     <execution>
@@ -97,6 +97,17 @@
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
             <version>${ektorp.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>net.sourceforge.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stephenc.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+            <version>1.3.9-1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

@@ -16,6 +16,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
@@ -45,6 +46,7 @@ import java.util.*;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
+import static org.eclipse.sw360.datahandler.thrift.projects.projectsConstants.CLEARING_TEAM_UNKNOWN;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
@@ -251,11 +253,12 @@ public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
                 Project project = client.getProjectById(projectId, user);
                 clearingTeam = project.getClearingTeam();
             } catch (TException e) {
+                renderRequestStatus(request, response, RequestStatus.FAILURE);
                 log.error("Problem with project client", e);
             }
         }
 
-        if (!isNullOrEmpty(clearingTeam)) {
+        if ( ! isNullOrEmpty(clearingTeam) && ! CLEARING_TEAM_UNKNOWN.equals(clearingTeam)) {
             List<String> releaseIds = Arrays.asList(releaseIdArray);
             try {
                 FossologyService.Iface fossologyClient = thriftClients.makeFossologyClient();
@@ -263,9 +266,11 @@ public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
                 renderRequestStatus(request, response, fossologyClient.sendReleasesToFossology(releaseIds, UserCacheHolder.getUserFromRequest(request), clearingTeam));
 
             } catch (TException e) {
+                renderRequestStatus(request, response, RequestStatus.FAILURE);
                 log.error("Problem with fossology client", e);
             }
         } else {
+            renderRequestStatus(request, response, RequestStatus.FAILURE);
             log.error("Cannot decide on a clearing team for project " + projectId);
         }
     }
