@@ -46,7 +46,13 @@
 <sw360:DisplayComponentChanges actual="${actual_component}" additions="${moderationRequest.componentAdditions}" deletions="${moderationRequest.componentDeletions}" idPrefix="basicFields" tableClasses="table info_table" />
 
 <h3>Attachments</h3>
-<sw360:CompareAttachments actual="${actual_component.attachments}" additions="${moderationRequest.componentAdditions.attachments}"  deletions="${moderationRequest.componentDeletions.attachments}" idPrefix="attachments" tableClasses="table info_table" />
+<sw360:CompareAttachments actual="${actual_component.attachments}"
+                          additions="${moderationRequest.componentAdditions.attachments}"
+                          deletions="${moderationRequest.componentDeletions.attachments}"
+                          idPrefix="attachments"
+                          tableClasses="table info_table"
+                          contextType="${component.type}"
+                          contextId="${component.id}"/>
 
 <h2>Current Component</h2>
 <core_rt:set var="inComponentDetailsContext" value="false" scope="request"/>

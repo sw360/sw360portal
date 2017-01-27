@@ -18,6 +18,8 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -79,29 +82,29 @@ public class CLIParserTest {
 
     @Test
     public void testIsApplicableTo() throws Exception {
-        when(connector.getAttachmentStream(content)).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
-        assertTrue(parser.isApplicableTo(attachment));
+        when(connector.getAttachmentStream(eq(content), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
+        assertTrue(parser.isApplicableTo(attachment, new User(), new Project()));
     }
 
     @Test
     public void testIsApplicableToFailsOnIncorrectRootElement() throws Exception {
         AttachmentContent content = new AttachmentContent().setId("A1").setFilename("a.xml").setContentType("application/xml");
-        when(connector.getAttachmentStream(content)).thenReturn(new ReaderInputStream(new StringReader("<wrong-root/>")));
-        assertFalse(parser.isApplicableTo(attachment));
+        when(connector.getAttachmentStream(eq(content), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader("<wrong-root/>")));
+        assertFalse(parser.isApplicableTo(attachment, new User(), new Project()));
     }
 
     @Test
     public void testIsApplicableToFailsOnMalformedXML() throws Exception {
         AttachmentContent content = new AttachmentContent().setId("A1").setFilename("a.xml").setContentType("application/xml");
-        when(connector.getAttachmentStream(content)).thenReturn(new ReaderInputStream(new StringReader("this is not an xml file")));
-        assertFalse(parser.isApplicableTo(attachment));
+        when(connector.getAttachmentStream(eq(content), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader("this is not an xml file")));
+        assertFalse(parser.isApplicableTo(attachment, new User(), new Project()));
     }
 
     @Test
     public void testGetCLI() throws Exception {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
-        when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
-        LicenseInfoParsingResult res = parser.getLicenseInfos(cliAttachment).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
+        when(connector.getAttachmentStream(anyObject(), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
+        LicenseInfoParsingResult res = parser.getLicenseInfos(cliAttachment, new User(), new Project()).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
         assertLicenseInfoParsingResult(res);
         assertThat(res.getStatus(), is(LicenseInfoRequestStatus.SUCCESS));
         assertThat(res.getLicenseInfo(), notNullValue());
@@ -117,8 +120,8 @@ public class CLIParserTest {
     @Test
     public void testGetCLIFailsOnMalformedXML() throws Exception {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
-        when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE.replaceAll("</Content>", "</Broken>"))));
-        LicenseInfoParsingResult res = parser.getLicenseInfos(cliAttachment).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
+        when(connector.getAttachmentStream(anyObject(), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE.replaceAll("</Content>", "</Broken>"))));
+        LicenseInfoParsingResult res = parser.getLicenseInfos(cliAttachment, new User(), new Project()).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
         assertLicenseInfoParsingResult(res, LicenseInfoRequestStatus.FAILURE);
         assertThat(res.getStatus(), is(LicenseInfoRequestStatus.FAILURE));
         assertThat(res.getLicenseInfo(), notNullValue());

@@ -17,7 +17,9 @@ import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
 
 /**
@@ -30,12 +32,16 @@ public class ReleasePermissions extends DocumentPermissions<Release> {
 
     private final Set<String> moderators;
     private final Set<String> contributors;
+    private final Set<String> attachmentContentIds;
 
     protected ReleasePermissions(Release document, User user) {
         super(document, user);
 
-        moderators = Sets.union(toSingletonSet(document.createdBy), CommonUtils.nullToEmptySet(document.moderators));
-        contributors = Sets.union(moderators, CommonUtils.nullToEmptySet(document.contributors));
+        moderators = Sets.union(toSingletonSet(document.createdBy), nullToEmptySet(document.moderators));
+        contributors = Sets.union(moderators, nullToEmptySet(document.contributors));
+        attachmentContentIds = nullToEmptySet(document.getAttachments()).stream()
+                .map(a -> a.getAttachmentContentId())
+                .collect(Collectors.toSet());
 
     }
 
@@ -61,5 +67,10 @@ public class ReleasePermissions extends DocumentPermissions<Release> {
     @Override
     protected Set<String> getModerators() {
         return moderators;
+    }
+
+    @Override
+    protected Set<String> getAttachmentContentIds() {
+        return attachmentContentIds;
     }
 }

@@ -16,7 +16,9 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
 
 /**
@@ -29,12 +31,16 @@ public class ComponentPermissions extends DocumentPermissions<Component> {
 
     private final Set<String> createdBy;
     private final Set<String> moderators;
+    private final Set<String> attachmentContentIds;
 
     protected ComponentPermissions(Component document, User user) {
         super(document, user);
         //Should depend on permissions of contained releases
         this.createdBy = toSingletonSet(document.createdBy);
-        moderators = Sets.union(toSingletonSet(document.createdBy), CommonUtils.nullToEmptySet(document.moderators));
+        moderators = Sets.union(toSingletonSet(document.createdBy), nullToEmptySet(document.moderators));
+        attachmentContentIds = nullToEmptySet(document.getAttachments()).stream()
+                .map(a -> a.getAttachmentContentId())
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -55,6 +61,11 @@ public class ComponentPermissions extends DocumentPermissions<Component> {
     @Override
     protected Set<String> getModerators() {
         return moderators;
+    }
+
+    @Override
+    protected Set<String> getAttachmentContentIds() {
+        return attachmentContentIds;
     }
 
 }

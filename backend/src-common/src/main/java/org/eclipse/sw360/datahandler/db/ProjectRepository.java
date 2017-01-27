@@ -8,7 +8,6 @@
  */
 package org.eclipse.sw360.datahandler.db;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 import org.eclipse.sw360.components.summary.ProjectSummary;
 import org.eclipse.sw360.components.summary.SummaryType;
@@ -245,7 +244,7 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
          *  this is to refactor if say an enum value gets renamed...
          * **/
         final List<Project> all = getAll();
-        return FluentIterable.from(all).filter(ProjectPermissions.isVisible(user)).toSet();
+        return all.stream().filter(ProjectPermissions.isVisible(user)::apply).collect(Collectors.toSet());
     }
 
     public List<Project> searchByName(String name, User user) {

@@ -63,7 +63,13 @@
 <sw360:DisplayReleaseChanges actual="${actual_release}" additions="${moderationRequest.releaseAdditions}" deletions="${moderationRequest.releaseDeletions}" idPrefix="basicFields" tableClasses="table info_table"/>
 
 <h3>Attachments</h3>
-<sw360:CompareAttachments actual="${actual_release.attachments}" additions="${moderationRequest.releaseAdditions.attachments}" deletions="${moderationRequest.releaseDeletions.attachments}" idPrefix="attachments" tableClasses="table info_table" />
+<sw360:CompareAttachments actual="${actual_release.attachments}"
+                          additions="${moderationRequest.releaseAdditions.attachments}"
+                          deletions="${moderationRequest.releaseDeletions.attachments}"
+                          idPrefix="attachments"
+                          tableClasses="table info_table"
+                          contextType="${component.type}"
+                          contextId="${component.id}"/>
 
 <h2>Current Release</h2>
 <core_rt:set var="inReleaseDetailsContext" value="false" scope="request"/>

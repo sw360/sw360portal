@@ -10,6 +10,7 @@
 package org.eclipse.sw360.licenseinfo;
 
 import org.apache.commons.io.input.ReaderInputStream;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -29,6 +30,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -76,20 +79,20 @@ public class TestHelper {
             return store.get(attachmentContentId);
         }
 
-        public AttachmentContentStore put(String filename, String fileContent) throws SW360Exception {
+        public AttachmentContentStore put(String filename, String fileContent) throws TException {
             AttachmentContent attachmentContent = makeAttachmentContent(filename);
             store.put(attachmentContent.getId(), attachmentContent);
-            when(connectorMock.getAttachmentStream(attachmentContent)).thenReturn(new ReaderInputStream(new StringReader(fileContent)));
+            when(connectorMock.getAttachmentStream(eq(attachmentContent), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader(fileContent)));
             return this;
         }
 
-        public AttachmentContentStore put(String filename) throws SW360Exception {
+        public AttachmentContentStore put(String filename) throws TException {
             return put(makeAttachmentContent(filename));
         }
 
-        public AttachmentContentStore put(AttachmentContent attachmentContent) throws SW360Exception {
+        public AttachmentContentStore put(AttachmentContent attachmentContent) throws TException {
             store.put(attachmentContent.getId(), attachmentContent);
-            when(connectorMock.getAttachmentStream(attachmentContent)).thenReturn(makeAttachmentContentStream(attachmentContent.getFilename()));
+            when(connectorMock.getAttachmentStream(eq(attachmentContent), anyObject(), anyObject())).thenReturn(makeAttachmentContentStream(attachmentContent.getFilename()));
             return this;
         }
     }

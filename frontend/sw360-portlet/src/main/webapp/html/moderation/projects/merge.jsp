@@ -40,8 +40,13 @@
 <sw360:DisplayProjectChanges actual="${actual_project}" additions="${moderationRequest.projectAdditions}" deletions="${moderationRequest.projectDeletions}" idPrefix="basicFields" tableClasses="table info_table"/>
 
 <h3>Attachments</h3>
-<sw360:CompareAttachments actual="${actual_project.attachments}" additions="${moderationRequest.projectAdditions.attachments}" deletions="${moderationRequest.projectDeletions.attachments}" idPrefix="attachments" tableClasses="table info_table" />
-
+<sw360:CompareAttachments actual="${actual_project.attachments}"
+                          additions="${moderationRequest.projectAdditions.attachments}"
+                          deletions="${moderationRequest.projectDeletions.attachments}"
+                          idPrefix="attachments"
+                          tableClasses="table info_table"
+                          contextType="${project.type}"
+                          contextId="${project.id}"/>
 
 <h2>Current Project</h2>
 <core_rt:set var="inProjectDetailsContext" value="false" scope="request"/>

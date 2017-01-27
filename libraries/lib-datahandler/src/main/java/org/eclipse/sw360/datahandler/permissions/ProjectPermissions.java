@@ -12,6 +12,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
@@ -21,8 +22,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.isUserAtLeast;
@@ -39,6 +42,7 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
 
     private final Set<String> moderators;
     private final Set<String> contributors;
+    private final Set<String> attachmentContentIds;
 
     protected ProjectPermissions(Project document, User user) {
         super(document, user);
@@ -46,13 +50,16 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
         moderators = new ImmutableSet.Builder<String>()
                 .addAll(toSingletonSet(document.getCreatedBy()))
                 .addAll(toSingletonSet(document.getProjectResponsible()))
-                .addAll(CommonUtils.nullToEmptySet(document.getModerators()))
+                .addAll(nullToEmptySet(document.getModerators()))
                 .build();
         contributors = new ImmutableSet.Builder<String>()
                 .addAll(moderators)
-                .addAll(CommonUtils.nullToEmptySet(document.getContributors()))
+                .addAll(nullToEmptySet(document.getContributors()))
                 .addAll(toSingletonSet(document.getLeadArchitect()))
                 .build();
+        attachmentContentIds = nullToEmptySet(document.getAttachments()).stream()
+                .map(a -> a.getAttachmentContentId())
+                .collect(Collectors.toSet());
     }
 
     public static boolean isUserInBU(Project document, String bu) {
@@ -74,29 +81,26 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
 
     @NotNull
     public static Predicate<Project> isVisible(final User user) {
-        return new Predicate<Project>() {
-            @Override
-            public boolean apply(Project input) {
-                Visibility visbility = input.getVisbility();
-                if (visbility == null) {
-                    visbility = Visibility.BUISNESSUNIT_AND_MODERATORS; // the current default
-                }
-
-                switch (visbility) {
-                    case PRIVATE:
-                        return user.getEmail().equals(input.getCreatedBy());
-                    case ME_AND_MODERATORS: {
-                        return userIsEquivalentToModeratorinProject(input, user.getEmail());
-                    }
-                    case BUISNESSUNIT_AND_MODERATORS: {
-                        return isUserInBU(input, user.getDepartment()) || userIsEquivalentToModeratorinProject(input, user.getEmail()) || isUserAtLeast(CLEARING_ADMIN, user);
-                    }
-                    case EVERYONE:
-                        return true;
-                }
-
-                return false;
+        return input -> {
+            Visibility visbility = input.getVisbility();
+            if (visbility == null) {
+                visbility = Visibility.BUISNESSUNIT_AND_MODERATORS; // the current default
             }
+
+            switch (visbility) {
+                case PRIVATE:
+                    return user.getEmail().equals(input.getCreatedBy());
+                case ME_AND_MODERATORS: {
+                    return userIsEquivalentToModeratorinProject(input, user.getEmail());
+                }
+                case BUISNESSUNIT_AND_MODERATORS: {
+                    return isUserInBU(input, user.getDepartment()) || userIsEquivalentToModeratorinProject(input, user.getEmail()) || isUserAtLeast(CLEARING_ADMIN, user);
+                }
+                case EVERYONE:
+                    return true;
+            }
+
+            return false;
         };
     }
 
@@ -140,6 +144,11 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
     @Override
     protected Set<String> getModerators() {
         return moderators;
+    }
+
+    @Override
+    protected Set<String> getAttachmentContentIds() {
+        return attachmentContentIds;
     }
 
 }

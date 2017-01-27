@@ -10,6 +10,7 @@ import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
 import org.eclipse.sw360.portal.tags.urlutils.UrlWriter;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -226,16 +227,18 @@ public class TagUtils {
         return fieldDisplay;
     }
 
-    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, String ids)
+    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, String id, String contextType, String contextId)
             throws IOException, JspException {
-        addDownloadLink(pageContext, jspWriter, name, Collections.singleton(ids));
+        addDownloadLink(pageContext, jspWriter, name, Collections.singleton(id), contextType, contextId);
     }
-    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, Collection<String> ids)
+    public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, Collection<String> ids, String contextType, String contextId)
             throws IOException, JspException {
         name = escapeHtml(" " + name);
         jspWriter.write("<a href='");
         UrlWriter urlWriter = resourceUrl(pageContext)
-                .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD);
+                .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD)
+                .withParam(PortalConstants.CONTEXT_TYPE, contextType)
+                .withParam(PortalConstants.CONTEXT_ID, contextId);
         for(String id : ids){
             urlWriter.withParam(PortalConstants.ATTACHMENT_ID, id);
         }

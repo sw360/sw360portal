@@ -19,6 +19,7 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -51,24 +52,24 @@ public class CLIParser extends AbstractCLIParser {
     }
 
     @Override
-    public boolean isApplicableTo(Attachment attachment) throws TException {
+    public <T> boolean isApplicableTo(Attachment attachment, User user, T context) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
-        return attachmentContent.getFilename().endsWith(XML_FILE_EXTENSION) && hasCLIRootElement(attachmentContent);
+        return attachmentContent.getFilename().endsWith(XML_FILE_EXTENSION) && hasCLIRootElement(attachmentContent, user, context);
     }
 
-    private boolean hasCLIRootElement(AttachmentContent content) {
-        return hasThisXMLRootElement(content, CLI_ROOT_ELEMENT_NAMESPACE, CLI_ROOT_ELEMENT_NAME);
+    private <T> boolean hasCLIRootElement(AttachmentContent content, User user, T context) throws TException {
+        return hasThisXMLRootElement(content, CLI_ROOT_ELEMENT_NAMESPACE, CLI_ROOT_ELEMENT_NAME, user, context);
     }
 
     @Override
-    public List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException {
+    public <T> List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment, User user, T context) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename()));
         LicenseInfoParsingResult result = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
         InputStream attachmentStream = null;
 
         try {
-            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
+            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent, user, context);
             Document doc = getDocument(attachmentStream);
 
             Set<String> copyrights = getCopyrights(doc);

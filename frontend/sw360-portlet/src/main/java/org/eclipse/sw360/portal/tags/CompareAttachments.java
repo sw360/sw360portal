@@ -44,6 +44,8 @@ public class CompareAttachments extends ContextAwareTag {
     private Set<Attachment> deletions;
     private String tableClasses = "";
     private String idPrefix = "";
+    private String contextType;
+    private String contextId;
 
     public void setActual(Set<Attachment> actual) {
         this.actual = nullToEmptySet(actual);
@@ -65,13 +67,21 @@ public class CompareAttachments extends ContextAwareTag {
         this.idPrefix = idPrefix;
     }
 
+    public void setContextId(String contextId) {
+        this.contextId = contextId;
+    }
+
+    public void setContextType(String contextType) {
+        this.contextType = contextType;
+    }
+
     public int doStartTag() throws JspException {
 
         JspWriter jspWriter = pageContext.getOut();
         StringBuilder display = new StringBuilder();
 
         try {
-            renderAttachments(jspWriter, actual, additions, deletions);
+            renderAttachments(jspWriter, actual, additions, deletions, contextType, contextId);
 
             String renderString = display.toString();
 
@@ -89,7 +99,8 @@ public class CompareAttachments extends ContextAwareTag {
     private void renderAttachments(JspWriter jspWriter,
                                    Set<Attachment> currentAttachments,
                                    Set<Attachment> addedAttachments ,
-                                   Set<Attachment> deletedAttachments) throws JspException, IOException {
+                                   Set<Attachment> deletedAttachments,
+                                   String contextType, String contextId) throws JspException, IOException {
 
         Map<String, Attachment> currentAttachmentsById = getAttachmentsById(currentAttachments);
         Map<String, Attachment> addedAttachmentsById = getAttachmentsById(addedAttachments);
@@ -104,20 +115,21 @@ public class CompareAttachments extends ContextAwareTag {
         deletedAttachmentIds = Sets.difference(deletedAttachmentIds, commonAttachmentIds);
         deletedAttachmentIds = Sets.intersection(deletedAttachmentIds, currentAttachmentIds);//remove what was deleted already in the database
 
-        renderAttachmentList(jspWriter, currentAttachmentsById, deletedAttachmentIds, "Deleted");
-        renderAttachmentList(jspWriter, addedAttachmentsById, addedAttachmentIds, "Added");
+        renderAttachmentList(jspWriter, currentAttachmentsById, deletedAttachmentIds, "Deleted", contextType, contextId);
+        renderAttachmentList(jspWriter, addedAttachmentsById, addedAttachmentIds, "Added", contextType, contextId);
         renderAttachmentComparison(jspWriter, currentAttachmentsById, deletedAttachmentsById, addedAttachmentsById, commonAttachmentIds);
     }
 
     private void renderAttachmentList(JspWriter jspWriter,
                                       Map<String, Attachment> allAttachments,
-                                      Set<String> attachmentIds, String msg) throws JspException, IOException {
+                                      Set<String> attachmentIds, String msg,
+                                      String contextType, String contextId) throws JspException, IOException {
         if (attachmentIds.isEmpty()) return;
         jspWriter.write(String.format("<table class=\"%s\" id=\"%s%s\" >", tableClasses, idPrefix, msg));
 
         renderAttachmentRowHeader(jspWriter, msg);
         for (String attachmentId : attachmentIds) {
-            renderAttachmentRow(jspWriter, allAttachments.get(attachmentId));
+            renderAttachmentRow(jspWriter, allAttachments.get(attachmentId), contextType, contextId);
         }
 
         jspWriter.write("</table>");
@@ -131,7 +143,7 @@ public class CompareAttachments extends ContextAwareTag {
         jspWriter.write("</tr></thead>");
     }
 
-    private void renderAttachmentRow(JspWriter jspWriter, Attachment attachment) throws JspException, IOException {
+    private void renderAttachmentRow(JspWriter jspWriter, Attachment attachment, String contextType, String contextId) throws JspException, IOException {
         jspWriter.write("<tr>");
         for (Attachment._Fields field : RELEVANT_FIELDS) {
             FieldMetaData fieldMetaData = Attachment.metaDataMap.get(field);
@@ -139,7 +151,7 @@ public class CompareAttachments extends ContextAwareTag {
             if(field.equals(Attachment._Fields.FILENAME)){
                 jspWriter.append(String.format("<td>%s", getDisplayString(fieldMetaData.valueMetaData.type, fieldValue)));
                 jspWriter.write("<br/>");
-                addDownloadLink(pageContext, jspWriter, attachment.getFilename(), attachment.getAttachmentContentId());
+                addDownloadLink(pageContext, jspWriter, attachment.getFilename(), attachment.getAttachmentContentId(), contextType, contextId);
                 jspWriter.append("</td>");
             } else {
                 jspWriter.append(String.format("<td>%s</td>", getDisplayString(fieldMetaData.valueMetaData.type, fieldValue)));

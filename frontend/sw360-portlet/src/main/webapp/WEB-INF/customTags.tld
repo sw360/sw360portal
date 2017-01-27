@@ -507,6 +507,18 @@
             <type>java.util.Set</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>contextType</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>contextId</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
 
         <attribute>
             <name>idPrefix</name>
@@ -829,6 +841,18 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>contextType</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>contextId</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>name</name>
             <required>false</required>
             <type>java.lang.String</type>
@@ -855,6 +879,18 @@
         <attribute>
             <name>name</name>
             <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>contextType</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>contextId</name>
+            <required>true</required>
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
