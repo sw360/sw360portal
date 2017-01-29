@@ -19,7 +19,10 @@
 <table class="table info_table " id="attachmentDetail" title="Attachment Information">
     <thead>
     <tr>
-        <th colspan="6" class="headlabel">Attachments</th>
+        <th colspan="6" class="headlabel">
+            Attachments
+            <sw360:DisplayDownloadAttachmentBundle ids="${attachments}" name="${AttachmentBundle.zip}"/>
+        </th>
     </tr>
     </thead>
     <tbody>

@@ -14,15 +14,19 @@ import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.common.Duration;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
-import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.apache.log4j.Logger;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.DocumentNotFoundException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 
@@ -70,6 +74,39 @@ public class AttachmentStreamConnector {
         }
 
         return readAttachmentStream(attachment);
+    }
+
+    /**
+     * It is highly recommended to close this stream after using to avoid connection leak
+     */
+    public InputStream getAttachmentBundleStream(Set<AttachmentContent> attachments) throws IOException {
+        PipedInputStream in = new PipedInputStream();
+        PipedOutputStream out = new PipedOutputStream(in);
+
+        new Thread(() -> {
+            byte[] buffer = new byte[1024];
+            int length;
+
+            try(ZipOutputStream zip = new ZipOutputStream(out)){
+                for(AttachmentContent attachment : attachments) {
+                    // TODO: handle attachments with equal name
+                    ZipEntry zipEntry = new ZipEntry(attachment.getFilename());
+                    zip.putNextEntry(zipEntry);
+
+                    try(InputStream attachmentStream = getAttachmentStream(attachment)) {
+                        while ((length = attachmentStream.read(buffer)) >= 0) {
+                            zip.write(buffer, 0, length);
+                        }
+                    }
+
+                    zip.closeEntry();
+                }
+            } catch (IOException | SW360Exception e) {
+                log.error("failed to write zip stream", e);
+            }
+        }).start();
+
+        return in;
     }
 
     private AttachmentContent downloadRemoteAttachmentAndUpdate(AttachmentContent attachmentContent) throws SW360Exception {

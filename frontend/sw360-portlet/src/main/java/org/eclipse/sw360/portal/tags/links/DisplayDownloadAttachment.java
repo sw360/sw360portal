@@ -8,10 +8,17 @@
  */
 package org.eclipse.sw360.portal.tags.links;
 
+import org.apache.log4j.Logger;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.portal.tags.ContextAwareTag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.eclipse.sw360.portal.tags.TagUtils.addDownloadLink;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
@@ -22,14 +29,15 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
  * @author daniele.fognini@tngtech.com
  */
 public class DisplayDownloadAttachment extends ContextAwareTag {
-    private String id;
+    protected Collection<String> ids = Collections.emptySet();
     private String name = "";
+    private Logger log = Logger.getLogger(DisplayDownloadAttachment.class);
 
     @Override
     public int doStartTag() throws JspException {
         try {
             JspWriter jspWriter = pageContext.getOut();
-            addDownloadLink(pageContext, jspWriter, name, id);
+            addDownloadLink(pageContext, jspWriter, name, ids);
         } catch (Exception e) {
             throw new JspException(e);
         }
@@ -38,7 +46,29 @@ public class DisplayDownloadAttachment extends ContextAwareTag {
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.ids = Collections.singleton(id);
+    }
+
+    public void setIds(Object object) {
+        if (object != null){
+            if (object instanceof Collection<?>) {
+                Collection<?> collection = (Collection<?>) object;
+                if (collection.size() > 0) {
+                    Set<String> ids = new HashSet<>();
+                    Object elem = collection.stream().findAny().get();
+                    if(elem instanceof Attachment){
+                        collection.forEach(
+                                e -> ids.add((((Attachment) e).attachmentContentId))
+                        );
+                    } else {
+                        log.error("Unhandled element type");
+                    }
+                    this.ids = ids;
+                }
+            } else {
+                log.error("Unhandled collection type");
+            }
+        }
     }
 
     public void setName(String name) {

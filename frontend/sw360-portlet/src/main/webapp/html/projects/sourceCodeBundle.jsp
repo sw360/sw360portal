@@ -16,7 +16,7 @@
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
 <portlet:resourceURL var="downloadLicenseInfoURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_LICENSE_INFO%>'/>
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_SOURCE_CODE_BUNDLE%>'/>
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${requestScope.project.id}"/>
 </portlet:resourceURL>
 
@@ -25,9 +25,6 @@
     <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request"/>
     <jsp:useBean id="sw360User" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request"/>
     <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"
-                 scope="request"/>
-    <jsp:useBean id="licenseInfoOutputFormats"
-                 type="java.util.List<org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo>"
                  scope="request"/>
 </c:catch>
 <core_rt:if test="${empty attributeNotFoundException}">
@@ -43,44 +40,16 @@
     <script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
 
     <div id="header"></div>
-    <p class="pageHeader"><span class="pageHeaderBigSpan">Generate License Information File For Project <sw360:ProjectName project="${project}"/></span>
+    <p class="pageHeader"><span class="pageHeaderBigSpan">Generate Source Code Bundle For Project <sw360:ProjectName project="${project}"/></span>
     </p>
 
     <div id="content" >
         <form id="downloadLicenseInfoForm" name="downloadLicenseInfoForm" action="<%=downloadLicenseInfoURL%>" method="post">
             <%@include file="/html/projects/includes/attachmentSelectTable.jspf" %>
             <span class="pull-right">
-               <select class="toplabelledInput, formatSelect" id="<%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>"
-                       name="<portlet:namespace/><%=PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT%>">
-                                   <sw360:DisplayOutputFormats options='${licenseInfoOutputFormats}'/>
-               </select>
-               <input type="submit" id="downloadLicenseInfoButton" value="Download File" class="addButton"/>
+               <input type="submit" value="Download File" class="addButton"/>
             </span>
         </form>
 
     </div>
-
-
-<script>
-    $(window).load(function () {
-        $("#LinkedProjectsInfo").treetable({expandable: true, column: 2, initialState: "expanded"});
-        $("#selectAllCheckbox").on("change", function() {
-            var uncheckAll = function() {
-                $("#LinkedProjectsInfo").find(":checkbox:not(#selectAllCheckbox)").each(function () {
-                    this.checked = false;
-                })
-
-            };
-            if (this.checked){
-                uncheckAll();
-                $("#LinkedProjectsInfo").find(":checkbox.defaultChecked").each(function () {
-                    this.checked = true;
-                })
-            } else {
-                uncheckAll();
-            }
-        })
-    });
-
-</script>
 </core_rt:if>
