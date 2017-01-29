@@ -54,6 +54,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
+import static org.eclipse.sw360.portal.common.PortletUtils.getVerificationState;
 
 /**
  * Component portlet implementation
@@ -645,7 +646,15 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             addToVulnerabilityVerifications(vulnerabilityVerifications, vulnerabilityTooltips, vulnerability);
             addToMatchedByHistogram(matchedByHistogram, vulnerability);
         }
-
+        if (PermissionUtils.isAdmin(UserCacheHolder.getUserFromRequest(request))) {
+            long numberOfIncorrectVuls = vuls.stream()
+                    .filter(v -> VerificationState.INCORRECT.equals(getVerificationState(v)))
+                    .count();
+            request.setAttribute(NUMBER_OF_INCORRECT_VULNERABILITIES, numberOfIncorrectVuls);
+            request.setAttribute(NUMBER_OF_CHECKED_OR_UNCHECKED_VULNERABILITIES, vuls.size()- numberOfIncorrectVuls);
+        } else {
+            request.setAttribute(NUMBER_OF_CHECKED_OR_UNCHECKED_VULNERABILITIES, (long) vuls.size());
+        }
         request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
         request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
         request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);

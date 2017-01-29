@@ -18,7 +18,6 @@
 <portlet:resourceURL var="updateVulnerabilityVerification">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.UPDATE_VULNERABILITY_VERIFICATION%>"/>
 </portlet:resourceURL>
-<jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
 <jsp:useBean id="vulnerabilityVerificationTooltips" type="java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>"
              scope="request"/>
 <jsp:useBean id="vulnerabilityMatchedByHistogram" type="java.util.Map<java.lang.String, java.lang.Integer>" scope="request"/>
@@ -174,6 +173,8 @@
                         document.getElementById(selectId).value = oldValue;
                         break;
                     case '<%=RequestStatus.SUCCESS%>':
+                        document.getElementById("numberOfVulnerabilitiesDiv").class ="numberOfVulnerabilitiesNeedUpdate";
+                        document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='&#8634;';
                         document.getElementById(selectId).title = "You just changed this value.";
                         break;
                     default:
