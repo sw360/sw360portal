@@ -422,3 +422,7 @@ input[readonly].clickable {
 .highlightedGreen {
     background-color: #dbffdb;
 }
+
+.numberOfVulnerabilitiesNeedUpdate {
+    font-size:16px;
+}

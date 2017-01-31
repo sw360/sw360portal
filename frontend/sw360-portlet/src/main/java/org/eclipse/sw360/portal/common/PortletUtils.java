@@ -14,9 +14,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
-import org.eclipse.sw360.datahandler.thrift.ModerationState;
-import org.eclipse.sw360.datahandler.thrift.RequestStatus;
-import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
@@ -37,10 +35,7 @@ import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.portlet.PortletRequest;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -300,5 +295,17 @@ public class PortletUtils {
         } else {
             return addToMatchedByHistogram(matchedByHistogram, isMatchedByUnknown);
         }
+    }
+
+    public static VerificationState getVerificationState(VulnerabilityDTO vul){
+        if(vul.isSetReleaseVulnerabilityRelation()){
+            if(vul.getReleaseVulnerabilityRelation().isSetVerificationStateInfo()){
+                List<VerificationStateInfo> history = vul.getReleaseVulnerabilityRelation().getVerificationStateInfo();
+                if(history.size()>0) {
+                    return history.get(history.size() - 1).getVerificationState();
+                }
+            }
+        }
+        return VerificationState.NOT_CHECKED;
     }
 }
