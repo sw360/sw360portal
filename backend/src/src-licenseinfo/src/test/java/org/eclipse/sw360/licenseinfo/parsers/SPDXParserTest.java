@@ -65,7 +65,7 @@ public class SPDXParserTest {
         assertThat(result.getFilenames().size(), is(1));
         assertThat(result.getFilenames().get(0), is(spdxExampleFile));
 
-        assertThat(result.getLicenseNamesWithTextsSize(), is(5));
+        assertThat(result.getLicenseNamesWithTextsSize(), is(7));
         assertThat(result.getLicenseNamesWithTexts()
                 .stream()
                 .map(lt -> lt.getLicenseText())
