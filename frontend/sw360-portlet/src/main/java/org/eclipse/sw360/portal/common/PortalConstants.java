@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -22,6 +22,7 @@ import java.util.Set;
  * @author gerrit.grenzebach@tngtech.com
  * @author andreas.reichel@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class PortalConstants {
 
@@ -73,6 +74,7 @@ public class PortalConstants {
     public static final String MODERATION_ID = "moderationId";
     public static final String MODERATION_REQUEST = "moderationRequest";
     public static final String MODERATION_REQUESTS = "moderationRequests";
+    public static final String CLOSED_MODERATION_REQUESTS = "closedModerationRequests";
     public static final String DELETE_MODERATION_REQUEST = "deleteModerationRequest";
 
     //! Specialized keys for components

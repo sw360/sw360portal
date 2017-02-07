@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -48,6 +48,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ModerationDatabaseHandler {
 
@@ -117,9 +118,9 @@ public class ModerationDatabaseHandler {
     public RequestStatus deleteModerationRequest(String id, User user){
         ModerationRequest moderationRequest = repository.get(id);
         if(moderationRequest!=null) {
-            if (moderationRequest.getRequestingUser().equals(user.getEmail())) {
-                repository.remove(id);
-                return RequestStatus.SUCCESS;
+            if (hasPermissionToDeleteModerationRequest(user, moderationRequest)) {
+                boolean succeeded = repository.remove(id);
+                return succeeded ? RequestStatus.SUCCESS : RequestStatus.FAILURE;
             } else {
                 log.error("Problems deleting moderation request: User " + user.getEmail() + " tried to delete " +
                         "moderation request of user " + moderationRequest.getRequestingUser());
@@ -128,6 +129,11 @@ public class ModerationDatabaseHandler {
         }
         log.error("Moderation request to delete was null.");
         return RequestStatus.FAILURE;
+    }
+
+    private boolean hasPermissionToDeleteModerationRequest(User user, ModerationRequest moderationRequest) {
+        boolean isCreator = moderationRequest.getRequestingUser().equals(user.getEmail());
+        return isCreator || PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user);
     }
 
     public void refuseRequest(String requestId) {

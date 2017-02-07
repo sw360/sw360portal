@@ -86,10 +86,10 @@
         <tbody style="background-color: #f8f7f7; border: none;">
         <tr>
             <td>
-                <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;"
+                <input type="text" class="searchbar"
                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')" />
                 <br/>
-                <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
+                <input type="button" class="searchbutton"
                        name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')" />
             </td>
         </tr>
@@ -109,29 +109,29 @@
             <tr>
                 <td>
                     <label for="project_name">Project Name</label>
-                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.NAME%>"
+                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.NAME%>"
                            value="${name}" id="project_name" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project_type">Project Type</label>
-                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
+                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
                            value="${projectType}" id="project_type" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project_responsible">Project Responsible (Email)</label>
-                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.PROJECT_RESPONSIBLE%>"
+                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.PROJECT_RESPONSIBLE%>"
                            value="${projectResponsible}" id="project_responsible" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="group">Group</label>
-                    <select class="toplabelledInput, filterInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
-                            style="width: 90%; padding: 5px; color: gray; min-height: 28px;">
+                    <select class="searchbar toplabelledInput filterInput" id="group" name="<portlet:namespace/><%=Project._Fields.BUSINESS_UNIT%>"
+                            style="min-height: 28px;">
                         <option value="" class="textlabel stackedLabel"
                                 <core_rt:if test="${empty businessUnit}"> selected="selected"</core_rt:if>
                         ></option>
@@ -146,14 +146,14 @@
             <tr>
                 <td>
                     <label for="state">State</label>
-                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.STATE%>"
+                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.STATE%>"
                            value="${state}" id="state" class="filterInput">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="tag">Tag</label>
-                    <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;" name="<portlet:namespace/><%=Project._Fields.TAG%>"
+                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.TAG%>"
                            value="${tag}" id="tag" class="filterInput">
                 </td>
             </tr>
