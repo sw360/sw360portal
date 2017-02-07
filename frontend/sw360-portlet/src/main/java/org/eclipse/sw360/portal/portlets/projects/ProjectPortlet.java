@@ -198,7 +198,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             String sourceCodeBundleName = getSourceCodeBundleName(request);
 
             new AttachmentPortletUtils()
-                    .serveAttachmentBundle(selectedAttachmentIds,request,response, Optional.of(sourceCodeBundleName));
+                    .serveAttachmentBundleByIds(selectedAttachmentIds,request,response, Optional.of(sourceCodeBundleName));
         } catch (TException e) {
             log.error("Failed to get project metadata", e);
         }

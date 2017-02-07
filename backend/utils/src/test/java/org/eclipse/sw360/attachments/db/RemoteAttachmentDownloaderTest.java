@@ -98,15 +98,11 @@ public class RemoteAttachmentDownloaderTest {
         ExecutorService executor = newSingleThreadExecutor();
 
         try {
-            Future<Integer> future = executor.submit(new Callable<Integer>() {
-                @Override
-                public Integer call() throws Exception {
-                    return retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout);
-                }
-            });
+            Future<Integer> future = executor.submit(() ->
+                    retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout));
 
             try {
-                Integer downloadedSuccessfully = future.get(1, TimeUnit.MINUTES);
+                Integer downloadedSuccessfully = future.get(4, TimeUnit.MINUTES);
                 assertThat(downloadedSuccessfully, is(0));
             } catch (TimeoutException e) {
                 fail("retriever got stuck on a black hole");

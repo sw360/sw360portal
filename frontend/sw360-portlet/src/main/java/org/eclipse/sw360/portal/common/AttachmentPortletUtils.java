@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2015.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,7 +23,6 @@ import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
-import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -32,15 +33,17 @@ import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static java.net.URLConnection.guessContentTypeFromName;
 import static java.net.URLConnection.guessContentTypeFromStream;
+import static org.apache.commons.io.FilenameUtils.getName;
 
 /**
  * Portlet helpers
@@ -94,50 +97,52 @@ public class AttachmentPortletUtils {
         }
     }
 
-    public void serveFile(ResourceRequest request, ResourceResponse response) {
+    public void serveFile(ResourceRequest request, ResourceResponse response) throws IOException {
         serveFile(request, response, Optional.empty());
     }
 
-    public void serveFile(ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName) {
-        String[] ids = request.getParameterValues(PortalConstants.ATTACHMENT_ID);
-
-        if(ids != null && ids.length >= 1){
-            serveAttachmentBundle(new HashSet<>(Arrays.asList(ids)), request, response, downloadFileName);
-        }else{
+    protected Optional<Set<String>> getAttachmentIDsFromRequent(ResourceRequest request, ResourceResponse response) {
+        String[] rawIds = request.getParameterValues(PortalConstants.ATTACHMENT_ID);
+        if(rawIds == null || rawIds.length == 0){
             log.warn("no attachmentId was found in the request passed to serveFile");
-            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
+            return Optional.empty();
         }
+        return Optional.of(new HashSet<>(Arrays.asList(rawIds)));
     }
 
-    public void serveAttachmentBundle(Collection<String> ids, ResourceRequest request, ResourceResponse response){
-        serveAttachmentBundle(ids, request, response, Optional.empty());
-    }
-
-    public void serveAttachmentBundle(Collection<String> ids, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
-        List<AttachmentContent> attachments = new ArrayList<>();
+    protected Optional<List<AttachmentContent>> getAttachmentContentsByIds(Collection<String> attachmentIds, ResourceResponse response) {
         try {
-            for(String id : ids){
+            List<AttachmentContent> attachments = new ArrayList<>();
+            for(String id : attachmentIds){
                 attachments.add(client.getAttachmentContent(id));
             }
-
-            serveAttachmentBundle(attachments, request, response, downloadFileName);
+            return Optional.of(attachments);
         } catch (TException e) {
             log.error("Problem getting the AttachmentContents from the backend", e);
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         }
+        return Optional.empty();
     }
 
-    public void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response){
-        serveAttachmentBundle(attachments, request, response, Optional.empty());
+    public void serveFile(ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName) throws IOException {
+        getAttachmentIDsFromRequent(request, response)
+                .ifPresent(ids -> serveAttachmentBundleByIds(ids, request, response, downloadFileName));
     }
 
-    public void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
+    public void serveAttachmentBundleByIds(Collection<String> attachmentIds, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
+        getAttachmentContentsByIds(attachmentIds, response)
+                .ifPresent(attachments -> serveAttachmentBundle(attachments, request, response, downloadFileName));
+    }
+
+    protected void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
         String filename;
         String contentType;
         if(attachments.size() == 1){
+            AttachmentContent singleAttachment = attachments.stream().findAny().get();
             filename = downloadFileName
-                    .orElse(attachments.get(0).getFilename());
-            contentType = attachments.get(0).getContentType();
+                    .orElse(singleAttachment.getFilename());
+            contentType = singleAttachment.getContentType();
         } else {
             filename = downloadFileName
                     .orElse(DEFAULT_ATTACHMENT_BUNDLE_NAME);
@@ -325,5 +330,41 @@ public class AttachmentPortletUtils {
         } catch (TException e){
             log.error("Could not delete attachments from database.",e);
         }
+    }
+
+    public AttachmentContent addRemoteAttachment(ResourceRequest request) {
+        String rawUrl = request.getParameter("url");
+        if (rawUrl == null || rawUrl.length() == 0){
+            log.info("Empty URL given in request, ignore request");
+            return null;
+        }
+        URL url;
+        try {
+            url = new URL(rawUrl);
+        } catch (MalformedURLException e) {
+            log.info("Invalid URL given in request, ignore request: ", e);
+            return null;
+        }
+
+        String filename = request.getParameter("Filename");
+        if (filename == null || filename.length() == 0){
+            filename = getName(url.getPath());
+        }
+
+        AttachmentContent attachmentContent = new AttachmentContent()
+                .setContentType("application/octet-stream")
+                .setFilename(filename)
+                .setRemoteUrl(url.toString())
+                .setOnlyRemote(true)
+                .setWantsToStayRemote(true);
+
+        AttachmentService.Iface client = thriftClients.makeAttachmentClient();
+        try {
+            attachmentContent = client.makeAttachmentContent(attachmentContent);
+        } catch (TException e) {
+            log.error("failed to write remote attachment to DB. url=["+url.toString()+"] filename=["+filename, e);
+            return null;
+        }
+        return attachmentContent;
     }
 }

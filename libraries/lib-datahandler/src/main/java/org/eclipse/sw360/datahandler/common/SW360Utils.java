@@ -29,7 +29,6 @@ import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;

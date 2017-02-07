@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2016.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,8 +25,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -70,7 +71,25 @@ public class AttachmentStreamConnector {
         assertNotNull(attachment);
 
         if (attachment.isOnlyRemote()) {
-            attachment = downloadRemoteAttachmentAndUpdate(attachment);
+            try {
+                int responseCode = attachmentContentDownloader.getResponseCode(attachment);
+
+                if (responseCode >= 300) {
+                    String msg = "Tried to download remote attachment " + attachment.getId() + " but request returned response code=" + responseCode;
+                    log.warn(msg);
+                    throw new SW360Exception(msg);
+                }
+            } catch (IOException e) {
+                String msg = "Failed to determine response code of attachment " + attachment.getId();
+                log.error(msg, e);
+                throw new SW360Exception(msg);
+            }
+
+            if (attachment.isWantsToStayRemote()) {
+                return downloadRemoteAttachment(attachment);
+            }else{
+                attachment = downloadRemoteAttachmentAndUpdate(attachment);
+            }
         }
 
         return readAttachmentStream(attachment);
@@ -109,17 +128,18 @@ public class AttachmentStreamConnector {
         return in;
     }
 
-    private AttachmentContent downloadRemoteAttachmentAndUpdate(AttachmentContent attachmentContent) throws SW360Exception {
-        final InputStream downloadStream;
-
+    private InputStream downloadRemoteAttachment(AttachmentContent attachmentContent) throws SW360Exception {
         try {
-            downloadStream = attachmentContentDownloader.download(attachmentContent, downloadTimeout);
+            return attachmentContentDownloader.download(attachmentContent, downloadTimeout);
         } catch (IOException e) {
             String msg = "Cannot download attachment " + attachmentContent.getId() + " from URL";
             log.error(msg, e);
             throw new SW360Exception(msg);
         }
+    }
 
+    private AttachmentContent downloadRemoteAttachmentAndUpdate(AttachmentContent attachmentContent) throws SW360Exception {
+        final InputStream downloadStream = downloadRemoteAttachment(attachmentContent);
 
         uploadAttachment(attachmentContent, downloadStream);
 
@@ -213,5 +233,9 @@ public class AttachmentStreamConnector {
 
     private String getPartFileName(AttachmentContent attachment, int part) {
         return attachment.getFilename() + "_part" + part;
+    }
+
+    public Map<String,Integer> getResponseCodes(List<AttachmentContent> attachments) throws IOException {
+        return attachmentContentDownloader.getResponseCodes(attachments);
     }
 }

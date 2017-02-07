@@ -211,6 +211,7 @@ public class PortalConstants {
     public static final String ATTACHMENT_LIST = ATTACHMENT_PREFIX + "List";
     public static final String ATTACHMENT_LINK_TO = ATTACHMENT_PREFIX + "LinkTo";
     public static final String ATTACHMENT_DOWNLOAD = ATTACHMENT_PREFIX + "Download";
+    public static final String REMOTE_ATTACHMENT_ADD_TO = ATTACHMENT_PREFIX + "AddRemoteAtt";
 
     public static final String ATTACHMENT_DELETE_ON_CANCEL = "attachmentDeleteOnCancel";
 

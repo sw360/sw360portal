@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -95,18 +96,25 @@ public class AttachmentConnector extends AttachmentStreamConnector {
         deleteAttachmentsByIds(Sets.difference(getAttachmentContenIds(before), getAttachmentContenIds(after)));
     }
 
-    public String getSha1FromAttachmentContentId(String attachmentContentId) {
+    public Optional<String> getSha1FromAttachmentContentId(String attachmentContentId) {
         InputStream attachmentStream = null;
         try {
             AttachmentContent attachmentContent = getAttachmentContent(attachmentContentId);
+            if (attachmentContent == null) {
+                throw new SW360Exception("Failed to get Attachment for id=" + attachmentContentId);
+            }
+
+            if(attachmentContent.isOnlyRemote()){
+                return Optional.empty();
+            }
             attachmentStream = readAttachmentStream(attachmentContent);
-            return sha1Hex(attachmentStream);
+            return Optional.of(sha1Hex(attachmentStream));
         } catch (SW360Exception e) {
             log.error("Problem retrieving content of attachment", e);
-            return "";
+            return Optional.empty();
         } catch (IOException e) {
             log.error("Problem computing the sha1 checksum", e);
-            return "";
+            return Optional.empty();
         } finally {
             closeQuietly(attachmentStream, log);
         }
@@ -115,8 +123,10 @@ public class AttachmentConnector extends AttachmentStreamConnector {
     public void setSha1ForAttachments(Set<Attachment> attachments){
         for(Attachment attachment : attachments){
             if(isNullOrEmpty(attachment.getSha1())){
-                String sha1 = getSha1FromAttachmentContentId(attachment.getAttachmentContentId());
-                attachment.setSha1(sha1);
+                Optional<String> sha1 = getSha1FromAttachmentContentId(attachment.getAttachmentContentId());
+                if(sha1.isPresent()) {
+                    attachment.setSha1(sha1.get());
+                }
             }
         }
     }
