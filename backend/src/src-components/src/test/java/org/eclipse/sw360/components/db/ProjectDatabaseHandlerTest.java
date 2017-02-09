@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -142,10 +142,10 @@ public class ProjectDatabaseHandlerTest {
 
         final List<ProjectLink> linkedProjects = completionFuture.get();
 
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA").setComment("used").setNodeId("R1A_1").setComponentType(ComponentType.OSS);
-        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB").setComment("abused").setNodeId("R1B_1").setComponentType(ComponentType.OSS);
-        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA").setComment("used").setNodeId("R2A_1");
-        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB").setComment("considered for use").setNodeId("R2B_1");
+        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA", "vendor component1 releaseA").setComment("used").setNodeId("R1A_1").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB", "vendor component1 releaseB").setComment("abused").setNodeId("R1B_1").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA", "vendor component2 releaseA").setComment("used").setNodeId("R2A_1");
+        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB", "vendor component2 releaseB").setComment("considered for use").setNodeId("R2B_1");
 
         ProjectLink link3 = new ProjectLink("P3", "project3")
                 .setRelation(ProjectRelationship.REFERRED)

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -285,8 +285,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
 
-                final String fullname = vendor != null ? vendor.getFullname() : "";
-                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), fullname, release.getName(), release.getVersion());
+                final String vendorName = vendor != null ? vendor.getShortname() : "";
+                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release));
                 linkedRelease.setReleaseRelationship(ReleaseRelationship.CONTAINED);
                 linkedReleases.add(linkedRelease);
             }

@@ -690,12 +690,9 @@ public class ComponentDatabaseHandler {
         for (Map.Entry<String, ?> entry : relations.entrySet()) {
             String id = entry.getKey();
             Optional<ReleaseLink> releaseLinkOptional = createReleaseLink(id, entry.getValue(), parentId, visitedIds, releaseMap);
-            if (releaseLinkOptional.isPresent()) {
-                out.add(releaseLinkOptional.get());
-            }
+            releaseLinkOptional.ifPresent(out::add);
         }
-        out.sort(Comparator.<ReleaseLink, String>comparing(rl -> (nullToEmptyString(rl.getVendor())+rl.getName()).toLowerCase())
-                .thenComparing(ReleaseLink::getVersion));
+        out.sort(SW360Utils.RELEASE_LINK_COMPARATOR);
         return out;
     }
 
@@ -738,12 +735,13 @@ public class ComponentDatabaseHandler {
 
     @NotNull
     private ReleaseLink getReleaseLink(Release release) {
-        String fullname = "";
+        String vendorName = "";
         if (!isNullOrEmpty(release.getVendorId())) {
             final Vendor vendor = vendorRepository.get(release.getVendorId());
-            fullname = vendor != null ? vendor.getFullname() : "";
+            vendorName = vendor != null ? vendor.getShortname() : "";
+            release.setVendor(vendor);
         }
-        ReleaseLink releaseLink = new ReleaseLink(release.id, fullname, release.name, release.version);
+        ReleaseLink releaseLink = new ReleaseLink(release.id, vendorName, release.name, release.version, SW360Utils.printFullname(release));
         releaseLink
                 .setClearingState(release.getClearingState())
                 .setComponentType(
