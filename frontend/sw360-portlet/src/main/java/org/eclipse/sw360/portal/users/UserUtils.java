@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -40,6 +40,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Constants.TYPE_USER;
  * Class with helper utils to convert Liferay users to Thrift users
  *
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class UserUtils {
 
@@ -211,6 +212,7 @@ public class UserUtils {
 
             if (roleNames.contains(PortalConstants.ROLENAME_ADMIN)) return UserGroup.ADMIN;
             else if (roleNames.contains(PortalConstants.ROLENAME_CLEARING_ADMIN)) return UserGroup.CLEARING_ADMIN;
+            else if (roleNames.contains(PortalConstants.ROLENAME_ECC_ADMIN)) return UserGroup.ECC_ADMIN;
 
         } catch (SystemException e) {
             log.error("Problem retrieving UserGroup", e);
@@ -238,6 +240,8 @@ public class UserUtils {
                 return RoleConstants.USER;
             case CLEARING_ADMIN:
                 return PortalConstants.ROLENAME_CLEARING_ADMIN;
+            case ECC_ADMIN:
+                return PortalConstants.ROLENAME_ECC_ADMIN;
             case ADMIN:
                 return RoleConstants.ADMINISTRATOR;
         }

@@ -44,6 +44,7 @@ public class ReleaseExporter extends ExcelExporter<Release> {
                 "clearing team with FOSSology status");
         nameToDisplayName.put(Release._Fields.ATTACHMENT_IN_FOSSOLOGY.getFieldName(), "attachment in FOSSology");
         nameToDisplayName.put(Release._Fields.CLEARING_INFORMATION.getFieldName(), "clearing information");
+        nameToDisplayName.put(Release._Fields.ECC_INFORMATION.getFieldName(), "ECC information");
         nameToDisplayName.put(Release._Fields.COTS_DETAILS.getFieldName(), "COTS details");
         nameToDisplayName.put(Release._Fields.MAIN_LICENSE_IDS.getFieldName(), "main license IDs");
         nameToDisplayName.put(Release._Fields.DOWNLOADURL.getFieldName(), "downloadurl");
@@ -76,7 +77,7 @@ public class ReleaseExporter extends ExcelExporter<Release> {
     }
 
     private static List<String> makeHeaders() {
-        List<String> headers = new ArrayList();
+        List<String> headers = new ArrayList<>();
         for (Release._Fields field : RELEASE_RENDERED_FIELDS) {
             addToHeaders(headers, field);
         }
@@ -91,12 +92,16 @@ public class ReleaseExporter extends ExcelExporter<Release> {
                         .forEach(f -> headers.add("vendor " + f.getFieldName()));
                 break;
             case COTS_DETAILS:
-                COTSDetails.metaDataMap.keySet().stream()
+                COTSDetails.metaDataMap.keySet()
                         .forEach(f -> headers.add("COTS details: " + f.getFieldName()));
                 break;
             case CLEARING_INFORMATION:
-                ClearingInformation.metaDataMap.keySet().stream()
+                ClearingInformation.metaDataMap.keySet()
                         .forEach(f -> headers.add("clearing information: " + f.getFieldName()));
+                break;
+            case ECC_INFORMATION:
+                EccInformation.metaDataMap.keySet()
+                        .forEach(f -> headers.add("ECC information: " + f.getFieldName()));
                 break;
             default:
                 headers.add(displayNameFor(field.getFieldName(), nameToDisplayName));
@@ -124,7 +129,7 @@ public class ReleaseExporter extends ExcelExporter<Release> {
         @Override
         public SubTable makeRows(Release release) throws SW360Exception {
             if(! release.isSetAttachments()){
-                release.setAttachments(Collections.EMPTY_SET);
+                release.setAttachments(Collections.emptySet());
             }
             List<String> row = new ArrayList<>();
             for (Release._Fields renderedField : RELEASE_RENDERED_FIELDS) {
@@ -144,6 +149,9 @@ public class ReleaseExporter extends ExcelExporter<Release> {
                 case CLEARING_INFORMATION:
                     addClearingInformationToRow(release.getClearingInformation(), row);
                     break;
+                case ECC_INFORMATION:
+                    addEccInformationToRow(release.getEccInformation(), row);
+                    break;
                 case RELEASE_ID_TO_RELATIONSHIP:
                     addReleaseIdToRelationShipToRow(release.getReleaseIdToRelationship(), row);
                     break;
@@ -157,53 +165,48 @@ public class ReleaseExporter extends ExcelExporter<Release> {
         }
 
         private void addVendorToRow(Vendor vendor, List<String> row) {
-            if (vendor != null) {
-                Vendor.metaDataMap.keySet().stream()
-                        .filter(f -> ! VENDOR_IGNORED_FIELDS.contains(f))
-                        .forEach(f -> {
-                            if (vendor.isSet(f)) {
-                                row.add(fieldValueAsString(vendor.getFieldValue(f)));
-                            } else {
-                                row.add("");
-                            }
-                        });
-            } else {
-                Vendor.metaDataMap.keySet().stream()
-                        .filter(f -> ! VENDOR_IGNORED_FIELDS.contains(f))
-                        .forEach(f -> row.add(""));
-            }
+            Vendor.metaDataMap.keySet().stream()
+                    .filter(f -> !VENDOR_IGNORED_FIELDS.contains(f))
+                    .forEach(f -> {
+                        if (vendor != null && vendor.isSet(f)) {
+                            row.add(fieldValueAsString(vendor.getFieldValue(f)));
+                        } else {
+                            row.add("");
+                        }
+                    });
         }
 
         private void addCotsDetailsToRow(COTSDetails cotsDetails, List<String> row) {
-            if (cotsDetails != null) {
-                COTSDetails.metaDataMap.keySet().stream()
-                        .forEach(f -> {
-                            if (cotsDetails.isSet(f)) {
-                                row.add(fieldValueAsString(cotsDetails.getFieldValue(f)));
-                            } else {
-                                row.add("");
-                            }
-                        });
-            } else {
-                COTSDetails.metaDataMap.keySet().stream()
-                        .forEach(f -> row.add(""));
-            }
+            COTSDetails.metaDataMap.keySet()
+                    .forEach(f -> {
+                        if (cotsDetails != null && cotsDetails.isSet(f)) {
+                            row.add(fieldValueAsString(cotsDetails.getFieldValue(f)));
+                        } else {
+                            row.add("");
+                        }
+                    });
         }
 
         private void addClearingInformationToRow(ClearingInformation clearingInformation, List<String> row) {
-            if (clearingInformation != null) {
-                ClearingInformation.metaDataMap.keySet().stream()
+            ClearingInformation.metaDataMap.keySet()
+                    .forEach(f -> {
+                        if (clearingInformation != null && clearingInformation.isSet(f)) {
+                            row.add(fieldValueAsString(clearingInformation.getFieldValue(f)));
+                        } else {
+                            row.add("");
+                        }
+                    });
+        }
+
+        private void addEccInformationToRow(EccInformation eccInformation, List<String> row) {
+                EccInformation.metaDataMap.keySet()
                         .forEach(f -> {
-                            if (clearingInformation.isSet(f)) {
-                                row.add(fieldValueAsString(clearingInformation.getFieldValue(f)));
+                            if (eccInformation != null && eccInformation.isSet(f)) {
+                                row.add(fieldValueAsString(eccInformation.getFieldValue(f)));
                             } else {
                                 row.add("");
                             }
                         });
-            } else {
-                ClearingInformation.metaDataMap.keySet().stream()
-                        .forEach(f -> row.add(""));
-            }
         }
 
         private void addReleaseIdToRelationShipToRow(Map<String, ReleaseRelationship> releaseIdToRelationship, List<String> row) throws SW360Exception {

@@ -171,6 +171,17 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayUserGroup</name>
+        <tag-class>org.eclipse.sw360.portal.tags.DisplayUserGroup</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>email</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplayUserEdit</name>
         <tag-class>org.eclipse.sw360.portal.tags.DisplayUserEdit</tag-class>
         <body-content>empty</body-content>

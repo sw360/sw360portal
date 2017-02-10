@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -19,6 +19,7 @@ import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.entitlement.ComponentModerator;
 import org.eclipse.sw360.datahandler.entitlement.ReleaseModerator;
+import org.eclipse.sw360.datahandler.permissions.DocumentPermissions;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyFields;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
 
@@ -79,7 +82,7 @@ public class ComponentDatabaseHandler {
      */
     private final ComponentModerator moderator;
     private final ReleaseModerator releaseModerator;
-    private static final Collection<AttachmentType> LICENSE_INFO_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.COMPONENT_LICENSE_INFO_XML, AttachmentType.COMPONENT_LICENSE_INFO_COMBINED);
+    public static final List<EccInformation._Fields> ECC_FIELDS = Arrays.asList(EccInformation._Fields.ECC_STATUS, EccInformation._Fields.AL, EccInformation._Fields.ECCN, EccInformation._Fields.MATERIAL_INDEX_NUMBER, EccInformation._Fields.ECC_COMMENT, EccInformation._Fields.ASSESSOR_CONTACT_PERSON, EccInformation._Fields.ASSESSMENT_DATE, EccInformation._Fields.ASSESSOR_DEPARTMENT);
 
 
     public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
@@ -139,7 +142,9 @@ public class ComponentDatabaseHandler {
     }
 
     public List<Release> getReleaseSummary() {
-        return releaseRepository.getReleaseSummary();
+        List<Release> releases = releaseRepository.getReleaseSummary();
+        releases.forEach(ThriftValidate::ensureEccInformationIsSet);
+        return releases;
     }
 
     public List<Component> getRecentComponents() {
@@ -218,6 +223,8 @@ public class ComponentDatabaseHandler {
         if (user != null) {
             makePermission(release, user).fillPermissions();
         }
+
+        ensureEccInformationIsSet(release);
 
         return release;
     }
@@ -428,10 +435,16 @@ public class ComponentDatabaseHandler {
         if (actual.equals(release)) {
             return RequestStatus.SUCCESS;
         }
-        if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
+        DocumentPermissions<Release> permissions = makePermission(actual, user);
+        boolean hasChangesInEccFields = hasChangesInEccFields(release, actual);
+        if ((hasChangesInEccFields && permissions.isActionAllowed(RequestedAction.WRITE_ECC)) ||
+                (!hasChangesInEccFields && permissions.isActionAllowed(RequestedAction.WRITE))) {
             copyFields(actual, release, immutableFields);
 
             autosetReleaseClearingState(release, actual);
+            if (hasChangesInEccFields) {
+                autosetEccUpdaterInfo(release, user);
+            }
 
             releaseRepository.update(release);
             updateReleaseDependentFieldsForComponentId(release.getComponentId());
@@ -439,10 +452,38 @@ public class ComponentDatabaseHandler {
             attachmentConnector.deleteAttachmentDifference(nullToEmptySet(actual.getAttachments()),nullToEmptySet(release.getAttachments()));
 
         } else {
-            return releaseModerator.updateRelease(release, user);
+            if (hasChangesInEccFields) {
+                return releaseModerator.updateReleaseEccInfo(release, user);
+            } else {
+                return releaseModerator.updateRelease(release, user);
+            }
         }
 
         return RequestStatus.SUCCESS;
+    }
+
+    public boolean hasChangesInEccFields(Release release, Release actual) {
+        ensureEccInformationIsSet(release);
+        ensureEccInformationIsSet(actual);
+        Function<EccInformation._Fields, Boolean> fieldChanged = f -> {
+            Object changedValue = release.getEccInformation().getFieldValue(f);
+            Object originalValue = actual.getEccInformation().getFieldValue(f);
+
+            return !((changedValue == originalValue)
+                    || (changedValue != null && changedValue.equals(originalValue))
+                    || ("".equals(changedValue) && originalValue == null)
+                    || (changedValue == null && "".equals(originalValue)));
+        };
+        return ECC_FIELDS
+                .stream().map(fieldChanged)
+                .reduce(false, Boolean::logicalOr);
+    }
+
+    private void autosetEccUpdaterInfo(Release release, User user) {
+        ensureEccInformationIsSet(release);
+        release.getEccInformation().setAssessmentDate(SW360Utils.getCreatedOn());
+        release.getEccInformation().setAssessorContactPerson(user.getEmail());
+        release.getEccInformation().setAssessorDepartment(user.getDepartment());
     }
 
     private void prepareRelease(Release release) throws SW360Exception {
@@ -853,6 +894,7 @@ public class ComponentDatabaseHandler {
         vendorRepository.fillVendor(release);
         release.setPermissions(makePermission(release, user).getPermissionMap());
         release.setDocumentState(documentState);
+        ensureEccInformationIsSet(release);
         return release;
     }
 

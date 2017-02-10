@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,6 +24,7 @@ import static org.eclipse.sw360.datahandler.thrift.users.RequestedAction.*;
  * Created by bodet on 16/02/15.
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public abstract class DocumentPermissions<T> {
 
@@ -78,6 +79,8 @@ public abstract class DocumentPermissions<T> {
             case USERS:
             case CLEARING:
                 return PermissionUtils.isAdmin(user) || isModerator();
+            case WRITE_ECC:
+                return PermissionUtils.isAdmin(user);
             default:
                 throw new IllegalArgumentException("Unknown action: " + action);
         }

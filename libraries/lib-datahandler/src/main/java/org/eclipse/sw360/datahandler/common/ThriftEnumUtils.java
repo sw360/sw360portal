@@ -176,7 +176,8 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.of(
             UserGroup.USER, "User" ,
             UserGroup.CLEARING_ADMIN, "Clearing Admin" ,
-            UserGroup.ADMIN, "Admin"
+            UserGroup.ADMIN, "Admin",
+            UserGroup.ECC_ADMIN, "ECC Admin"
           );
 
     private static final ImmutableMap<VulnerabilityRatingForProject, String> MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING = ImmutableMap.of(
@@ -190,6 +191,13 @@ public class ThriftEnumUtils {
             VerificationState.NOT_CHECKED, "Not Checked" ,
             VerificationState.CHECKED, "Checked" ,
             VerificationState.INCORRECT, "Incorrect"
+    );
+
+    private static final ImmutableMap<ECCStatus, String> MAP_ECC_STATUS_STRING = ImmutableMap.of(
+            ECCStatus.OPEN, "Open" ,
+            ECCStatus.IN_PROGRESS, "In Progress" ,
+            ECCStatus.APPROVED, "Approved",
+            ECCStatus.REJECTED, "Rejected"
     );
 
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
@@ -212,6 +220,7 @@ public class ThriftEnumUtils {
             .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
             .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
             .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)
+            .put(ECCStatus.class, MAP_ECC_STATUS_STRING)
             .build();
 
     public static String enumToString(TEnum value) {

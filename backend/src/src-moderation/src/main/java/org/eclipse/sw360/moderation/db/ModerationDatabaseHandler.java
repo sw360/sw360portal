@@ -35,9 +35,11 @@ import org.eclipse.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.http.HttpClient;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -176,6 +178,10 @@ public class ModerationDatabaseHandler {
     }
 
     public RequestStatus createRequest(Release release, User user, Boolean isDeleteRequest) {
+        return createRequest(release, user, isDeleteRequest, this::getStandardReleaseModerators);
+    }
+
+    public RequestStatus createRequest(Release release, User user, Boolean isDeleteRequest, Function<Release, Set<String>> moderatorsProvider) {
         Release dbrelease;
         try {
             dbrelease = componentDatabaseHandler.getRelease(release.getId(), user);
@@ -183,17 +189,7 @@ public class ModerationDatabaseHandler {
             log.error("Could not get original release from database. Could not generate moderation request.", e);
             return RequestStatus.FAILURE;
         }
-        // Define moderators
-        Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, dbrelease.getCreatedBy());
-        CommonUtils.addAll(moderators, dbrelease.getModerators());
-        try{
-            String department =  getDepartmentByUserEmail(release.getCreatedBy());
-            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
-        } catch (TException e){
-            log.error("Could not get user from database. Clearing admins not added as moderators, since department is missing.");
-        }
-        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        Set<String> moderators = moderatorsProvider.apply(dbrelease);
 
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, release.getId(), moderators);
 
@@ -208,6 +204,40 @@ public class ModerationDatabaseHandler {
         request = generator.setAdditionsAndDeletions(request, release, dbrelease);
         addOrUpdate(request);
         return RequestStatus.SENT_TO_MODERATOR;
+    }
+
+    @NotNull
+    private Set<String> getStandardReleaseModerators(Release release) {
+        // Define moderators
+        Set<String> moderators = new HashSet<>();
+        CommonUtils.add(moderators, release.getCreatedBy());
+        CommonUtils.addAll(moderators, release.getModerators());
+        try{
+            String department =  getDepartmentByUserEmail(release.getCreatedBy());
+            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
+        } catch (TException e){
+            log.error("Could not get users from database. Clearing admins not added as moderators, since department is missing.");
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        return moderators;
+    }
+
+    @NotNull
+    private Set<String> getEccReleaseModerators(Release release) {
+        // Define moderators
+        Set<String> moderators = new HashSet<>();
+        try{
+            String department =  getDepartmentByUserEmail(release.getCreatedBy());
+            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ECC_ADMIN, department));
+        } catch (TException e){
+            log.error("Could not get users from database. ECC admins not added as moderators, since department is missing.");
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        return moderators;
+    }
+
+    public Function<Release, Set<String>> getEccModeratorsProvider() {
+        return this::getEccReleaseModerators;
     }
 
     public RequestStatus createRequest(Project project, User user, Boolean isDeleteRequest) {
@@ -391,6 +421,4 @@ public class ModerationDatabaseHandler {
             mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST, MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST, true);
         }
     }
-
-
 }

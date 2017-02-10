@@ -30,6 +30,7 @@ import javax.portlet.ResourceRequest;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
 
 /**
  * Component portlet implementation
@@ -51,6 +52,9 @@ public abstract class ComponentPortletUtils {
                     break;
                 case CLEARING_INFORMATION:
                     release.setFieldValue(field, getClearingInformationFromRequest(request));
+                    break;
+                case ECC_INFORMATION:
+                    release.setFieldValue(field, getEccInformationFromRequest(request));
                     break;
                 case COTS_DETAILS:
                     release.setFieldValue(field, getCOTSDetailsFromRequest(request));
@@ -83,6 +87,15 @@ public abstract class ComponentPortletUtils {
         }
 
         return clearingInformation;
+    }
+
+    private static EccInformation getEccInformationFromRequest(PortletRequest request) {
+        EccInformation eccInformation = newDefaultEccInformation();
+        for (EccInformation._Fields field : EccInformation._Fields.values()) {
+            setFieldValue(request, eccInformation, field);
+        }
+
+        return eccInformation;
     }
 
     private static COTSDetails getCOTSDetailsFromRequest(PortletRequest request) {
@@ -150,6 +163,10 @@ public abstract class ComponentPortletUtils {
 
     private static void setFieldValue(PortletRequest request, ClearingInformation clearingInformation, ClearingInformation._Fields field) {
         PortletUtils.setFieldValue(request, clearingInformation, field, ClearingInformation.metaDataMap.get(field), Release._Fields.CLEARING_INFORMATION.toString());
+    }
+
+    private static void setFieldValue(PortletRequest request, EccInformation eccInformation, EccInformation._Fields field) {
+        PortletUtils.setFieldValue(request, eccInformation, field, EccInformation.metaDataMap.get(field), Release._Fields.ECC_INFORMATION.toString());
     }
 
     private static void setFieldValue(PortletRequest request, COTSDetails cotsDetails, COTSDetails._Fields field) {

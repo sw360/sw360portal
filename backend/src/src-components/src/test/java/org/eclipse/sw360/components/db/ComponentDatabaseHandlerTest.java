@@ -23,6 +23,7 @@ import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.*;
@@ -36,6 +37,7 @@ import java.util.concurrent.*;
 
 import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.*;
@@ -105,6 +107,7 @@ public class ComponentDatabaseHandlerTest {
         Release release1a = new Release().setId("R1A").setComponentId("C1").setName("component1").setVersion("releaseA").setCreatedBy(email1).setVendorId("V1");
         releases.add(release1a);
         Release release1b = new Release().setId("R1B").setComponentId("C1").setName("component1").setVersion("releaseB").setCreatedBy(email2).setVendorId("V2");
+        release1b.setEccInformation(new EccInformation().setAL("AL"));
         release1b.addToSubscribers(email1);
         releases.add(release1b);
         Release release2a = new Release().setId("R2A").setComponentId("C2").setName("component2").setVersion("releaseA").setCreatedBy(email1).setVendorId("V3");
@@ -861,6 +864,20 @@ public class ComponentDatabaseHandlerTest {
     }
 
     @Test
+    public void testEccUpdateSentToEccModeration() throws Exception {
+        Release release = releases.get(1);
+        String expected = release.getEccInformation().getAL();
+        release.getEccInformation().setAL("UPDATED");
+
+        when(releaseModerator.updateReleaseEccInfo(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
+        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.immutableOfRelease());
+        Release actual = handler.getRelease("R1B", user1);
+
+        assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
+        assertEquals(expected, actual.getEccInformation().getAL());
+        verify(releaseModerator).updateReleaseEccInfo(release, user1);
+    }
+    @Test
     public void testDeleteComponent() throws Exception {
         RequestStatus status = handler.deleteComponent("C3", user1);
         assertEquals(RequestStatus.SUCCESS, status);
@@ -985,5 +1002,35 @@ public class ComponentDatabaseHandlerTest {
         final Map<String, List<String>> duplicateReleases = handler.getDuplicateReleases();
 
         assertThat(duplicateReleases.size(), is(0));
+    }
+
+    @Test
+    public void testHasChangesInEccFields() throws Exception {
+        Release original = handler.getRelease("R1A", user1);
+        original.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson(null);
+        assertThat(handler.hasChangesInEccFields(original, original), is(false));
+        ComponentDatabaseHandler.ECC_FIELDS.forEach(
+                f -> {
+                    Release changed;
+                    try {
+                        changed = ensureEccInformationIsSet(handler.getRelease("R1A", user1));
+                    } catch (SW360Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    switch(f) {
+                        case ECC_STATUS:
+                            changed.getEccInformation().setFieldValue(f, ECCStatus.IN_PROGRESS);
+                            break;
+                        default:
+                            changed.getEccInformation().setFieldValue(f, "string value");
+                    }
+                    assertThat("Field " + f + " did not trigger ecc change flag", handler.hasChangesInEccFields(changed, original), is(true));
+                }
+        );
+
+        Release changed = handler.getRelease("R1A", user1);
+        changed.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson("");
+        assertThat(handler.hasChangesInEccFields(changed, original), is(false));
+
     }
 }
