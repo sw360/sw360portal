@@ -50,4 +50,58 @@ for release_row in releases_with_clearing_info:
     if changed:
         db.save(release)
 
-print 'Done'
+print 'Done with releases.'
+               
+# --------------------------------
+               
+print 'Moving moderation release additions ecc fields to eccInformation'
+ 
+moderations_with_release_additions_fun = '''function(doc){
+    if (doc.type=="moderation" && doc.releaseAdditions && doc.releaseAdditions.clearingInformation){
+        emit(doc._id, doc)
+    }
+}'''
+ 
+moderations_with_release_additions = db.query(moderations_with_release_additions_fun)
+ 
+for moderation_row in moderations_with_release_additions:
+    moderation = moderation_row.value
+    release_additions = moderation['releaseAdditions']
+    release_additions[ECC_INFORMATION] = {}
+    changed = False
+    for field in ['AL', 'ECCN', 'assessorContactPerson', 'assessorDepartment', 'assessmentDate', 'eccComment', 'eccStatus', 'materialIndexNumber']:
+        if field in release_additions[CLEARING_INFORMATION]:
+            release_additions[ECC_INFORMATION][field] = release_additions[CLEARING_INFORMATION][field]
+            del release_additions[CLEARING_INFORMATION][field]
+            changed = True
+    if changed:
+        db.save(moderation)    
+               
+print 'Done with moderation release addition.'
+ 
+# --------------------------------
+ 
+print 'Moving moderation release deletions ecc fields to eccInformation'
+ 
+moderations_with_release_deletions_fun = '''function(doc){
+    if (doc.type=="moderation" && doc.releaseDeletions && doc.releaseDeletions.clearingInformation){
+        emit(doc._id, doc)
+    }
+}'''
+ 
+moderations_with_release_deletions = db.query(moderations_with_release_deletions_fun)
+ 
+for moderation_row in moderations_with_release_deletions:
+    moderation = moderation_row.value
+    release_deletions = moderation['releaseDeletions']
+    release_deletions[ECC_INFORMATION] = {}
+    changed = False
+    for field in ['AL', 'ECCN', 'assessorContactPerson', 'assessorDepartment', 'assessmentDate', 'eccComment', 'eccStatus', 'materialIndexNumber']:
+        if field in release_deletions[CLEARING_INFORMATION]:
+            release_deletions[ECC_INFORMATION][field] = release_deletions[CLEARING_INFORMATION][field]
+            del release_deletions[CLEARING_INFORMATION][field]
+            changed = True
+    if changed:
+        db.save(moderation)    
+               
+print 'Done with moderation release deletions.'
