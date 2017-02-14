@@ -771,7 +771,10 @@
             <role-name>administrator</role-name>
         </security-role-ref>
         <security-role-ref>
-            <role-name>ecc-admin</role-name>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
         </security-role-ref>
     </portlet>
 </portlet-app>
