@@ -315,8 +315,4 @@
         <role-name>user</role-name>
         <role-link>User</role-link>
     </role-mapper>
-    <role-mapper>
-        <role-name>ecc-admin</role-name>
-        <role-link>ECC Admin</role-link>
-    </role-mapper>
 </liferay-portlet-app>
