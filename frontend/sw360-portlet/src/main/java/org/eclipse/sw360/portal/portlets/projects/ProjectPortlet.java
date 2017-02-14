@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -50,6 +50,7 @@ import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.eclipse.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
 import java.io.IOException;
@@ -487,6 +488,49 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        Map<String, Set<String>> filterMap = loadFilterMapFromRequest(request);
+        loadAndStoreStickyProjectGroup(request, user, filterMap);
+        String id = request.getParameter(Project._Fields.ID.toString());
+        return findProjectsByFiltersOrId(filterMap, id, user);
+    }
+
+    private void loadAndStoreStickyProjectGroup(PortletRequest request, User user, Map<String, Set<String>> filterMap) {
+        String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
+        if (null == groupFilterValue) {
+            addStickyProjectGroupToFilters(request, user, filterMap);
+        } else {
+            ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
+        }
+    }
+
+    private List<Project> findProjectsByFiltersOrId(Map<String, Set<String>> filterMap, String id, User user) {
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+        List<Project> projectList;
+        try {
+            if (!isNullOrEmpty(id)){ // the presence of the id signals to load linked projects hierarchy instead of using filters
+                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
+                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
+                final Collection<ProjectLink> projectLinks = SW360Utils.getLinkedProjectsAsFlatList(fakeRelations, thriftClients, log);
+                List<String> linkedProjectIds = projectLinks.stream().map(ProjectLink::getId).collect(Collectors.toList());
+                projectList = projectClient.getProjectsById(linkedProjectIds, user);
+            } else {
+                if (filterMap.isEmpty()) {
+                    projectList = projectClient.getAccessibleProjectsSummary(user);
+                } else {
+                    projectList = projectClient.refineSearch(null, filterMap, user);
+                }
+            }
+            projectList = getWithFilledClearingStateSummary(projectList, user);
+        } catch (TException e) {
+            log.error("Could not search projects in backend ", e);
+            projectList = Collections.emptyList();
+        }
+        return projectList;
+    }
+
+    @NotNull
+    private Map<String, Set<String>> loadFilterMapFromRequest(PortletRequest request) {
         Map<String, Set<String>> filterMap = new HashMap<>();
         for (Project._Fields filteredField : projectFilteredFields) {
             String parameter = request.getParameter(filteredField.toString());
@@ -499,31 +543,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
         }
-
-        List<Project> projectList;
-
-        final User user = UserCacheHolder.getUserFromRequest(request);
-        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
-
-        String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
-        if (null == groupFilterValue) {
-            addStickyProjectGroupToFilters(request, user, filterMap);
-        } else {
-            ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
-        }
-        try {
-            if (filterMap.isEmpty()) {
-                projectList = projectClient.getAccessibleProjectsSummary(user);
-            } else {
-                projectList = projectClient.refineSearch(null, filterMap, user);
-            }
-            projectList = getWithFilledClearingStateSummary(projectList, user);
-
-        } catch (TException e) {
-            log.error("Could not search projects in backend ", e);
-            projectList = Collections.emptyList();
-        }
-        return projectList;
+        return filterMap;
     }
 
     private void addStickyProjectGroupToFilters(PortletRequest request, User user, Map<String, Set<String>> filterMap){

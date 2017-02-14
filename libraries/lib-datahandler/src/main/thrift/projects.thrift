@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -190,7 +190,7 @@ service ProjectService {
      * get multiple projects by id, if they are visible to the user
      * (part of project CRUD support)
      */
-    list<Project> getProjectsById(1: set<string> id, 2: User user);
+    list<Project> getProjectsById(1: list<string> id, 2: User user);
 
     /**
      * get project by id, with moderation requests of user applied

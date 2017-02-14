@@ -179,7 +179,7 @@
             <option value="false">Projects only</option>
             <option value="true">Projects with linked releases</option>
         </select>
-        <input type="button" class="addButton" id="exportExcelButton" value="Export Excel" class="addButton" onclick="exportExcel()"/>
+        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
 </span>
 
 
@@ -198,7 +198,7 @@
 </div>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css"><link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js" type="text/javascript"></script>
@@ -212,10 +212,9 @@
     AUI().use('liferay-portlet-url', function (A) {
         PortletURL = Liferay.PortletURL;
         load();
-        $('#exportbutton').click(exportExcel);
-        $('.filterInput').on('input', function() {
-            $('#exportExcelButton').prop('disabled', true);
-            <%--when filters are actually applied, page is refreshed and exportExcelButton enabled automatically--%>
+        $('.filterInput').on('input', function () {
+            $('#exportSpreadsheetButton').prop('disabled', true);
+            <%--when filters are actually applied, page is refreshed and exportSpreadsheetButton enabled automatically--%>
         });
     });
 
@@ -227,27 +226,27 @@
 
     function makeProjectUrl(projectId, page) {
         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
-                .setParameter('<%=PortalConstants.PAGENAME%>', page)
-                .setParameter('<%=PortalConstants.PROJECT_ID%>', projectId);
+            .setParameter('<%=PortalConstants.PAGENAME%>', page)
+            .setParameter('<%=PortalConstants.PROJECT_ID%>', projectId);
         return portletURL.toString();
     }
 
     function renderProjectActions(id, type, row) {
         <%--TODO most of this can be simplified to CSS properties --%>
         return "<img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'/" +
-                " onclick='openSelectClearingDialog(\"" + id + "\", \"projectAction" + id + "\")' " +
-                " alt='SelectClearing' title='send to Fossology'>" +
-                "<span id='projectAction" + id + "'></span>"
-                + renderLinkTo(
-                        makeProjectUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
-                        "",
-                        "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
-                + renderLinkTo(
-                        makeProjectUrl(id, '<%=PortalConstants.PAGENAME_DUPLICATE%>'),
-                        "",
-                        "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
-                + "<img src='<%=request.getContextPath()%>/images/Trash.png'" +
-                " onclick=\"deleteProject('" + id + "', '<b>" + replaceSingleQuote(row.name) + "</b>'," + replaceSingleQuote(row.linkedProjectsSize) + ","+ replaceSingleQuote(row.linkedReleasesSize) +","+ replaceSingleQuote(row.attachmentsSize) +")\" alt='Delete' title='Delete'/>";
+            " onclick='openSelectClearingDialog(\"" + id + "\", \"projectAction" + id + "\")' " +
+            " alt='SelectClearing' title='send to Fossology'>" +
+            "<span id='projectAction" + id + "'></span>"
+            + renderLinkTo(
+                makeProjectUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
+                "",
+                "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
+            + renderLinkTo(
+                makeProjectUrl(id, '<%=PortalConstants.PAGENAME_DUPLICATE%>'),
+                "",
+                "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
+            + "<img src='<%=request.getContextPath()%>/images/Trash.png'" +
+            " onclick=\"deleteProject('" + id + "', '<b>" + replaceSingleQuote(row.name) + "</b>'," + replaceSingleQuote(row.linkedProjectsSize) + "," + replaceSingleQuote(row.linkedReleasesSize) + "," + replaceSingleQuote(row.attachmentsSize) + ")\" alt='Delete' title='Delete'/>";
     }
 
     function renderProjectNameLink(name, type, row) {
@@ -262,7 +261,7 @@
 
     }
     function createProjectsTable() {
-       var result = [];
+        var result = [];
 
         <core_rt:forEach items="${projectList}" var="project">
         result.push({
@@ -270,161 +269,161 @@
             "id": '${project.id}',
             "name": '<sw360:ProjectName project="${project}"/>',
             "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
-            "state":"<sw360:DisplayEnum value='${project.state}'/>",
-            "clearing":'<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
-            "responsible":'<sw360:DisplayUserEmail email="${project.projectResponsible}"/>',
-            "linkedProjectsSize" : '${project.linkedProjectsSize}',
-            "linkedReleasesSize" : '${project.releaseIdToUsageSize}',
-            "attachmentsSize" : '${project.attachmentsSize}'
+            "state": "<sw360:DisplayEnum value='${project.state}'/>",
+            "clearing": '<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
+            "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}"/>',
+            "linkedProjectsSize": '${project.linkedProjectsSize}',
+            "linkedReleasesSize": '${project.releaseIdToUsageSize}',
+            "attachmentsSize": '${project.attachmentsSize}'
         });
         </core_rt:forEach>
 
-         projectsTable = $('#projectsTable').DataTable({
-             "sPaginationType": "full_numbers",
-             "aaData": result,
-             search: {smart: false},
-             "aoColumns": [
-                 {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
-                 {title: "Description", data: "description"},
-                 {title: "Project Responsible", data: "responsible"},
-                 {title: "State", data: "state", render: {display: displayEscaped}},
-                 {title: "Clearing Status", data: "clearing"},
-                 {title: "Actions", data: "id", render: {display: renderProjectActions}}
-             ]
-         });
+        projectsTable = $('#projectsTable').DataTable({
+            "sPaginationType": "full_numbers",
+            "aaData": result,
+            search: {smart: false},
+            "aoColumns": [
+                {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
+                {title: "Description", data: "description"},
+                {title: "Project Responsible", data: "responsible"},
+                {title: "State", data: "state", render: {display: displayEscaped}},
+                {title: "Clearing Status", data: "clearing"},
+                {title: "Actions", data: "id", render: {display: renderProjectActions}}
+            ]
+        });
 
-         $('#projectsTable_filter').hide();
-         $('#projectsTable_first').hide();
-         $('#projectsTable_last').hide();
-     }
+        $('#projectsTable_filter').hide();
+        $('#projectsTable_first').hide();
+        $('#projectsTable_last').hide();
+    }
 
 
-     function createUrl_comp(paramId, paramVal) {
-         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
-                 .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
-         return portletURL.toString();
-     }
+    function createUrl_comp(paramId, paramVal) {
+        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+            .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
+        return portletURL.toString();
+    }
 
-     function createDetailURLfromProjectId(paramVal) {
-         return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
-     }
+    function createDetailURLfromProjectId(paramVal) {
+        return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
+    }
 
-    function exportExcel() {
+    function exportSpreadsheet() {
         $('#keywordsearchinput').val("");
         useSearch('keywordsearchinput');
 
-         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-                 .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-         portletURL.setParameter('<%=Project._Fields.NAME%>',$('#project_name').val());
-         portletURL.setParameter('<%=Project._Fields.TYPE%>',$('#project_type').val());
-         portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>',$('#project_responsible').val());
-         portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>',$('#group').val());
-         portletURL.setParameter('<%=Project._Fields.STATE%>',$('#state').val());
-         portletURL.setParameter('<%=Project._Fields.TAG%>',$('#tag').val());
-         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
+        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+        portletURL.setParameter('<%=Project._Fields.NAME%>', $('#project_name').val());
+        portletURL.setParameter('<%=Project._Fields.TYPE%>', $('#project_type').val());
+        portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>', $('#project_responsible').val());
+        portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>', $('#group').val());
+        portletURL.setParameter('<%=Project._Fields.STATE%>', $('#state').val());
+        portletURL.setParameter('<%=Project._Fields.TAG%>', $('#tag').val());
+        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>', $('#extendedByReleases').val());
 
-         window.location.href = portletURL.toString();
-     }
+        window.location.href = portletURL.toString();
+    }
 
-     function openSelectClearingDialog(projectId, fieldId) {
-         $('#projectId').val(projectId);
+    function openSelectClearingDialog(projectId, fieldId) {
+        $('#projectId').val(projectId);
 
-         setFormSubmit(fieldId);
-         fillClearingFormAndOpenDialog(projectId);
-     }
+        setFormSubmit(fieldId);
+        fillClearingFormAndOpenDialog(projectId);
+    }
 
     function deleteProject(projectId, name, linkedProjectsSize, linkedReleasesSize, attachmentsSize) {
 
-         function deleteProjectInternal() {
-             jQuery.ajax({
-                 type: 'POST',
-                 url: '<%=deleteAjaxURL%>',
-                 cache: false,
-                 data: {
-                     "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
-                 },
-                 success: function (data) {
-                     if (data.result == 'SUCCESS') {
-                         projectsTable.row('#' + projectId).remove().draw(false);
-                     }
-                     else if (data.result == 'SENT_TO_MODERATOR') {
-                         $.alert("You may not delete the project, but a request was sent to a moderator!");
-                     } else if (data.result == 'IN_USE') {
-                         $.alert("The project cannot be deleted, since it is used by another project!");
-                     }
-                     else {
-                         $.alert("I could not delete the project!");
-                     }
-                 },
-                 error: function () {
-                     $.alert("I could not delete the project!");
-                 }
-             });
+        function deleteProjectInternal() {
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=deleteAjaxURL%>',
+                cache: false,
+                data: {
+                    "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
+                },
+                success: function (data) {
+                    if (data.result == 'SUCCESS') {
+                        projectsTable.row('#' + projectId).remove().draw(false);
+                    }
+                    else if (data.result == 'SENT_TO_MODERATOR') {
+                        $.alert("You may not delete the project, but a request was sent to a moderator!");
+                    } else if (data.result == 'IN_USE') {
+                        $.alert("The project cannot be deleted, since it is used by another project!");
+                    }
+                    else {
+                        $.alert("I could not delete the project!");
+                    }
+                },
+                error: function () {
+                    $.alert("I could not delete the project!");
+                }
+            });
 
-         }
+        }
 
-         var confirmMessage = "Do you really want to delete the project " + name + " ?";
-         confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "<br/><br/>The project " + name +  " contains<br/><ul>" : "";
-         confirmMessage += (linkedProjectsSize > 0) ? "<li>" + linkedProjectsSize + " linked projects</li>" : "";
-         confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
-         confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
-         confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "</ul>" : "";
+        var confirmMessage = "Do you really want to delete the project " + name + " ?";
+        confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "<br/><br/>The project " + name + " contains<br/><ul>" : "";
+        confirmMessage += (linkedProjectsSize > 0) ? "<li>" + linkedProjectsSize + " linked projects</li>" : "";
+        confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
+        confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
+        confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "</ul>" : "";
 
-         deleteConfirmed(confirmMessage, deleteProjectInternal);
-     }
+        deleteConfirmed(confirmMessage, deleteProjectInternal);
+    }
 
-     function fillClearingFormAndOpenDialog(projectId) {
-         jQuery.ajax({
-             type: 'POST',
-             url: '<%=projectReleasesAjaxURL%>',
-             cache: false,
-             data: {
-                 "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
-             },
-             success: function (data) {
-                 $('#fossologyClearingTable').find('tbody').html(data);
-                 openDialog('fossologyClearing', 'fossologyClearingForm', .4, .5);
-             },
-             error: function () {
-                 alert("I could not get any releases!");
-             }
-         });
-     }
+    function fillClearingFormAndOpenDialog(projectId) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '<%=projectReleasesAjaxURL%>',
+            cache: false,
+            data: {
+                "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
+            },
+            success: function (data) {
+                $('#fossologyClearingTable').find('tbody').html(data);
+                openDialog('fossologyClearing', 'fossologyClearingForm', .4, .5);
+            },
+            error: function () {
+                alert("I could not get any releases!");
+            }
+        });
+    }
 
-     function setFormSubmit(fieldId) {
-         $('#fossologyClearingForm').submit(function (e) {
-             e.preventDefault();
-             closeOpenDialogs();
+    function setFormSubmit(fieldId) {
+        $('#fossologyClearingForm').submit(function (e) {
+            e.preventDefault();
+            closeOpenDialogs();
 
-             jQuery.ajax({
-                 type: 'POST',
-                 url: '<%=projectReleasesSendURL%>',
-                 cache: false,
-                 data: $('form#fossologyClearingForm').serialize(),
-                 success: function (data) {
-                     if (data.result) {
-                         if (data.result == "FAILURE") {
-                             $('#' + fieldId).html("Error");
-                         }
-                         else {
-                             $('#' + fieldId).html("Sent");
-                         }
-                     }
-                 },
-                 error: function () {
-                     alert("I could not upload the files");
-                 }
-             })
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=projectReleasesSendURL%>',
+                cache: false,
+                data: $('form#fossologyClearingForm').serialize(),
+                success: function (data) {
+                    if (data.result) {
+                        if (data.result == "FAILURE") {
+                            $('#' + fieldId).html("Error");
+                        }
+                        else {
+                            $('#' + fieldId).html("Sent");
+                        }
+                    }
+                },
+                error: function () {
+                    alert("I could not upload the files");
+                }
+            })
 
-         });
+        });
 
-     }
+    }
 
-     function selectAll(form) {
-         $(form).find(':checkbox').prop("checked", true);
-     }
+    function selectAll(form) {
+        $(form).find(':checkbox').prop("checked", true);
+    }
 
- </script>
+</script>
 
  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
