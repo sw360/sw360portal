@@ -31,15 +31,7 @@ public class CveSearchWrapper {
     private Heuristic heuristic;
 
     public CveSearchWrapper(CveSearchApi cveSearchApi) {
-        SearchLevels searchLevels = new SearchLevels();
-
-        // TODO: remove once decided
-        if (false) {
-            searchLevels.addBasicSearchlevels();
-        }else{
-            searchLevels.addGuessingSearchLevels(cveSearchApi, VENDOR_THRESHOLD, PRODUCT_THRESHOLD, CUTOFF);
-        }
-
+        SearchLevels searchLevels = new SearchLevels(cveSearchApi, VENDOR_THRESHOLD, PRODUCT_THRESHOLD, CUTOFF);
         heuristic = new Heuristic(searchLevels, cveSearchApi);
     }
 
