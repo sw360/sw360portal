@@ -21,17 +21,12 @@ import org.apache.log4j.Logger;
 
 public class CveSearchWrapper {
 
-    // TODO: finetuning of these parameters
-    private final int VENDOR_THRESHOLD  = 1;
-    private final int PRODUCT_THRESHOLD = 0;
-    private final int CUTOFF            = 6;
-
     Logger log = Logger.getLogger(CveSearchWrapper.class);
 
     private Heuristic heuristic;
 
     public CveSearchWrapper(CveSearchApi cveSearchApi) {
-        SearchLevels searchLevels = new SearchLevels(cveSearchApi, VENDOR_THRESHOLD, PRODUCT_THRESHOLD, CUTOFF);
+        SearchLevels searchLevels = new SearchLevels(cveSearchApi);
         heuristic = new Heuristic(searchLevels, cveSearchApi);
     }
 
