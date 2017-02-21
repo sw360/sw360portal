@@ -155,7 +155,10 @@
             <sw360:DisplayUserEdit emails="${project.contributors}" id="<%=Project._Fields.CONTRIBUTORS.toString()%>"
                                    description="Contributors" multiUsers="true"/>
         </td>
-        <td width="33%"/>
+        <td width="33%">
+            <sw360:DisplayUserEdit emails="${project.securityResponsibles}" id="<%=Project._Fields.SECURITY_RESPONSIBLES.toString()%>"
+                                   description="Security Responsibles" multiUsers="true"/>
+        </td>
     </tr>
 
 </table>

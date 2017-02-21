@@ -85,6 +85,10 @@
         <td><sw360:DisplayUserEmailCollection value="${project.contributors}"/></td>
     </tr>
     <tr>
+        <td>Security Responsibles:</td>
+        <td><sw360:DisplayUserEmailCollection value="${project.securityResponsibles}"/></td>
+    </tr>
+    <tr>
         <td>Homepage:</td>
         <td><sw360:DisplayLink target="${project.homepage}"/></td>
     </tr>
