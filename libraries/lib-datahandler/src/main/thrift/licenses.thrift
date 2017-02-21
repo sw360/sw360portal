@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -124,7 +124,7 @@ service LicenseService {
     /**
      * Add a new todo object to database, return id
      **/
-    string addTodo(1:Todo todo);
+    string addTodo(1:Todo todo, 2: User user);
 
     /**
     * Add an existing todo to a license or generate moderation request if user has no permission
@@ -177,34 +177,34 @@ service LicenseService {
     list<License> getDetailedLicenseSummary(1: string organisation, 2: list<string> identifiers);
 
     /**
-     * bulk add for import of license archive
+     * bulk add for import of license archive, returns input risk categories if successful, null otherwise
      **/
-    list<RiskCategory> addRiskCategories(1: list <RiskCategory> riskCategories);
+    list<RiskCategory> addRiskCategories(1: list <RiskCategory> riskCategories, 2: User user);
 
     /**
      * bulk add for import of license archive, returns input risks if successful, null otherwise
      **/
-    list<Risk> addRisks(1: list <Risk> risks);
+    list<Risk> addRisks(1: list <Risk> risks, 2: User user);
 
     /**
-     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     * bulk add for import of license archive, returns input obligations if successful, null otherwise
      **/
-    list<Obligation> addObligations(1: list <Obligation> obligations);
+    list<Obligation> addObligations(1: list <Obligation> obligations, 2: User user);
 
     /**
-     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     * bulk add for import of license archive, returns input license types if successful, null otherwise
      **/
-    list<LicenseType> addLicenseTypes(1: list <LicenseType> licenseTypes);
+    list<LicenseType> addLicenseTypes(1: list <LicenseType> licenseTypes, 2: User user);
 
     /**
-     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     * bulk add for import of license archive, returns input licenses if successful, null otherwise
      **/
-    list<License> addLicenses(1: list <License> licenses);
+    list<License> addLicenses(1: list <License> licenses, 2: User user);
 
     /**
-     * bulk add for import of license archive, returns input risks if successful, null otherwise
+     * bulk add for import of license archive, returns input todos if successful, null otherwise
      **/
-    list<Todo> addTodos(1: list <Todo> todos);
+    list<Todo> addTodos(1: list <Todo> todos, 2: User user);
 
     /**
      * get complete list of risk categories

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -47,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.portlet.*;
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.zip.ZipOutputStream;
 
 import static org.eclipse.sw360.commonIO.ConvertRecord.*;
@@ -212,23 +213,21 @@ public class ComponentUploadPortlet extends Sw360Portlet {
     private void printComponentAttachments(Component component, List<Iterable<String>> csvRows) throws IOException {
         final Set<Attachment> attachments = component.getAttachments();
 
-        if (attachments != null && !attachments.isEmpty()) {
-            for (Attachment attachment : attachments) {
-                final ComponentAttachmentCSVRecordBuilder componentAttachmentCSVRecordBuilder = ComponentAttachmentCSVRecord.builder();
-                componentAttachmentCSVRecordBuilder.fill(component);
-                componentAttachmentCSVRecordBuilder.fill(attachment);
-                csvRows.add(componentAttachmentCSVRecordBuilder.build().getCSVIterable());
-            }
-        }
+        printAttachments(attachments, csvRows, builder -> builder.fill(component));
     }
 
     private void printReleaseAttachments(Release release, List<Iterable<String>> csvRows) throws IOException {
         final Set<Attachment> attachments = release.getAttachments();
 
+        printAttachments(attachments, csvRows, builder -> builder.fill(release));
+    }
+
+    private void printAttachments(Set<Attachment> attachments, List<Iterable<String>> csvRows, Consumer<ComponentAttachmentCSVRecordBuilder> containingObjectPrinter) {
         if (attachments != null && !attachments.isEmpty()) {
             for (Attachment attachment : attachments) {
-                final ComponentAttachmentCSVRecordBuilder componentAttachmentCSVRecordBuilder = ComponentAttachmentCSVRecord.builder();
-                componentAttachmentCSVRecordBuilder.fill(release);
+                final ComponentAttachmentCSVRecordBuilder componentAttachmentCSVRecordBuilder = ComponentAttachmentCSVRecord
+                        .builder();
+                containingObjectPrinter.accept(componentAttachmentCSVRecordBuilder);
                 componentAttachmentCSVRecordBuilder.fill(attachment);
                 csvRows.add(componentAttachmentCSVRecordBuilder.build().getCSVIterable());
             }
@@ -400,14 +399,14 @@ public class ComponentUploadPortlet extends Sw360Portlet {
 
                 log.debug("Parsing risk categories ...");
                 Map<Integer, RiskCategory> riskCategoryMap = getIdentifierToTypeMapAndWriteMissingToDatabase(licenseClient,
-                        inputMap.get(RISK_CATEGORY_FILE), RiskCategory.class, Integer.class);
+                        inputMap.get(RISK_CATEGORY_FILE), RiskCategory.class, Integer.class, user);
 
                 log.debug("Parsing risks ...");
-                Map<Integer, Risk> riskMap = getIntegerRiskMap(licenseClient, riskCategoryMap, inputMap.get(RISK_FILE));
+                Map<Integer, Risk> riskMap = getIntegerRiskMap(licenseClient, riskCategoryMap, inputMap.get(RISK_FILE), user);
 
                 log.debug("Parsing obligations ...");
                 Map<Integer, Obligation> obligationMap = getIdentifierToTypeMapAndWriteMissingToDatabase(licenseClient,
-                        inputMap.get(OBLIGATION_FILE), Obligation.class, Integer.class);
+                        inputMap.get(OBLIGATION_FILE), Obligation.class, Integer.class, user);
 
                 log.debug("Parsing obligation todos ...");
                 List<CSVRecord> obligationTodoRecords = readAsCSVRecords(inputMap.get(OBLIGATION_TODO_FILE));
@@ -415,10 +414,10 @@ public class ComponentUploadPortlet extends Sw360Portlet {
 
                 log.debug("Parsing license types ...");
                 Map<Integer, LicenseType> licenseTypeMap = getIdentifierToTypeMapAndWriteMissingToDatabase(licenseClient,
-                        inputMap.get(LICENSETYPE_FILE), LicenseType.class, Integer.class);
+                        inputMap.get(LICENSETYPE_FILE), LicenseType.class, Integer.class, user);
 
                 log.debug("Parsing todos ...");
-                Map<Integer, Todo> todoMap = getTodoMapAndWriteMissingToDatabase(licenseClient, obligationMap, obligationTodoMapping, inputMap.get(TODO_FILE));
+                Map<Integer, Todo> todoMap = getTodoMapAndWriteMissingToDatabase(licenseClient, obligationMap, obligationTodoMapping, inputMap.get(TODO_FILE), user);
 
                 if(inputMap.containsKey(CUSTOM_PROPERTIES_FILE)) {
                     log.debug("Parsing custom properties ...");
@@ -429,7 +428,7 @@ public class ComponentUploadPortlet extends Sw360Portlet {
                     List<CSVRecord> todoPropertiesRecord = readAsCSVRecords(inputMap.get(TODO_CUSTOM_PROPERTIES_FILE));
                     Map<Integer, Set<Integer>> todoPropertiesMap = convertRelationalTableWithIntegerKeys(todoPropertiesRecord);
 
-                    todoMap = updateTodoMapWithCustomPropertiesAndWriteToDatabase(licenseClient, todoMap, customPropertiesMap, todoPropertiesMap);
+                    todoMap = updateTodoMapWithCustomPropertiesAndWriteToDatabase(licenseClient, todoMap, customPropertiesMap, todoPropertiesMap, user);
                 }
 
                 log.debug("Parsing license todos ...");
@@ -445,7 +444,7 @@ public class ComponentUploadPortlet extends Sw360Portlet {
                 List<CSVRecord> licenseRecord = readAsCSVRecords(inputMap.get(LICENSE_FILE));
 
                 final List<License> licensesToAdd = ConvertRecord.fillLicenses(licenseRecord, licenseTypeMap, todoMap, riskMap, licenseTodoMap, licenseRiskMap);
-                addLicenses(licenseClient, licensesToAdd, log);
+                addLicenses(licenseClient, licensesToAdd, log, user);
 
             } else {
                 throw new SW360Exception("Invalid file format");

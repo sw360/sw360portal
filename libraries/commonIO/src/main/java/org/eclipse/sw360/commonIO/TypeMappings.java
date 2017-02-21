@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -154,21 +154,21 @@ public class TypeMappings {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> List<T> addAlltoDB(LicenseService.Iface licenseClient, Class<T> clazz, List<T> candidates) throws TException {
+    public static <T> List<T> addAlltoDB(LicenseService.Iface licenseClient, Class<T> clazz, List<T> candidates, User user) throws TException {
         if (candidates != null && !candidates.isEmpty()) {
             if (clazz.equals(LicenseType.class)) {
-                return (List<T>) licenseClient.addLicenseTypes((List<LicenseType>) candidates);
+                return (List<T>) licenseClient.addLicenseTypes((List<LicenseType>) candidates, user);
             } else if (clazz.equals(Obligation.class)) {
-                return (List<T>) licenseClient.addObligations((List<Obligation>) candidates);
+                return (List<T>) licenseClient.addObligations((List<Obligation>) candidates, user);
             } else if (clazz.equals(RiskCategory.class)) {
-                return (List<T>) licenseClient.addRiskCategories((List<RiskCategory>) candidates);
+                return (List<T>) licenseClient.addRiskCategories((List<RiskCategory>) candidates, user);
             }
         }
         throw new SW360Exception("Unknown Type requested");
     }
 
     @NotNull
-    public static <T, U> Map<U, T> getIdentifierToTypeMapAndWriteMissingToDatabase(LicenseService.Iface licenseClient, InputStream in, Class<T> clazz, Class<U> uClass) throws TException {
+    public static <T, U> Map<U, T> getIdentifierToTypeMapAndWriteMissingToDatabase(LicenseService.Iface licenseClient, InputStream in, Class<T> clazz, Class<U> uClass, User user) throws TException {
         Map<U, T> typeMap;
         List<CSVRecord> records = ImportCSV.readAsCSVRecords(in);
         final List<T> recordsToAdd = simpleConvert(records, clazz);
@@ -177,7 +177,7 @@ public class TypeMappings {
         final ImmutableList<T> filteredList = getElementsWithIdentifiersNotInMap(getIdentifier(clazz, uClass), typeMap, recordsToAdd);
         List<T> added = null;
         if (filteredList.size() > 0) {
-            added = addAlltoDB(licenseClient, clazz, filteredList);
+            added = addAlltoDB(licenseClient, clazz, filteredList, user);
         }
         if (added != null)
             typeMap.putAll(Maps.uniqueIndex(added, getIdentifier(clazz, uClass)));
@@ -185,7 +185,7 @@ public class TypeMappings {
     }
 
     @NotNull
-    public static Map<Integer, Risk> getIntegerRiskMap(LicenseService.Iface licenseClient, Map<Integer, RiskCategory> riskCategoryMap, InputStream in) throws TException {
+    public static Map<Integer, Risk> getIntegerRiskMap(LicenseService.Iface licenseClient, Map<Integer, RiskCategory> riskCategoryMap, InputStream in, User user) throws TException {
         List<CSVRecord> riskRecords = ImportCSV.readAsCSVRecords(in);
         final List<Risk> risksToAdd = ConvertRecord.convertRisks(riskRecords, riskCategoryMap);
         final List<Risk> risks = CommonUtils.nullToEmptyList(licenseClient.getRisks());
@@ -193,7 +193,7 @@ public class TypeMappings {
         final ImmutableList<Risk> filteredList = getElementsWithIdentifiersNotInMap(getRiskIdentifier(), riskMap, risksToAdd);
         List<Risk> addedRisks = null;
         if (filteredList.size() > 0) {
-            addedRisks = licenseClient.addRisks(filteredList);
+            addedRisks = licenseClient.addRisks(filteredList, user);
         }
         if (addedRisks != null)
             riskMap.putAll(Maps.uniqueIndex(addedRisks, getRiskIdentifier()));
@@ -201,7 +201,7 @@ public class TypeMappings {
     }
 
     @NotNull
-    public static Map<Integer, Todo> getTodoMapAndWriteMissingToDatabase(LicenseService.Iface licenseClient, Map<Integer, Obligation> obligationMap, Map<Integer, Set<Integer>> obligationTodoMapping, InputStream in) throws TException {
+    public static Map<Integer, Todo> getTodoMapAndWriteMissingToDatabase(LicenseService.Iface licenseClient, Map<Integer, Obligation> obligationMap, Map<Integer, Set<Integer>> obligationTodoMapping, InputStream in, User user) throws TException {
         List<CSVRecord> todoRecords = ImportCSV.readAsCSVRecords(in);
         final List<Todo> todos = CommonUtils.nullToEmptyList(licenseClient.getTodos());
         Map<Integer, Todo> todoMap = Maps.newHashMap(Maps.uniqueIndex(todos, getTodoIdentifier()));
@@ -212,7 +212,7 @@ public class TypeMappings {
         //insertCustomProperties
 
         if (filteredTodos.size() > 0) {
-            final List<Todo> addedTodos = licenseClient.addTodos(filteredTodos);
+            final List<Todo> addedTodos = licenseClient.addTodos(filteredTodos, user);
             if (addedTodos != null) {
                 final ImmutableMap<Integer, Todo> addedTodoMap = Maps.uniqueIndex(addedTodos, getTodoIdentifier());
                 todoMap.putAll(addedTodoMap);
@@ -222,7 +222,7 @@ public class TypeMappings {
     }
 
     @NotNull
-    public static Map<Integer, Todo> updateTodoMapWithCustomPropertiesAndWriteToDatabase(LicenseService.Iface licenseClient, Map<Integer, Todo> todoMap, Map<Integer, PropertyWithValue> customPropertiesMap, Map<Integer, Set<Integer>> todoPropertiesMap) throws TException {
+    public static Map<Integer, Todo> updateTodoMapWithCustomPropertiesAndWriteToDatabase(LicenseService.Iface licenseClient, Map<Integer, Todo> todoMap, Map<Integer, PropertyWithValue> customPropertiesMap, Map<Integer, Set<Integer>> todoPropertiesMap, User user) throws TException {
         for(Integer todoId : todoPropertiesMap.keySet()){
             Todo todo = todoMap.get(todoId);
             if(! todo.isSetCustomPropertyToValue()){
@@ -235,7 +235,7 @@ public class TypeMappings {
         }
 
         if (todoMap.values().size() > 0) {
-            final List<Todo> addedTodos = licenseClient.addTodos(todoMap.values().stream().collect(Collectors.toList()));
+            final List<Todo> addedTodos = licenseClient.addTodos(todoMap.values().stream().collect(Collectors.toList()), user);
             if (addedTodos != null) {
                 final ImmutableMap<Integer, Todo> addedTodoMap = Maps.uniqueIndex(addedTodos, getTodoIdentifier());
                 todoMap.putAll(addedTodoMap);
