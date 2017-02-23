@@ -85,6 +85,7 @@ struct Project {
 //    26: optional set<string> comoderators, //deleted
     27: optional set<string> contributors = [],
     28: optional Visibility visbility = sw360.Visibility.BUISNESSUNIT_AND_MODERATORS,
+    129: optional set<string> securityResponsibles = [],
 
     // Linked objects
     30: optional map<string, ProjectRelationship> linkedProjects,  //id, relationship

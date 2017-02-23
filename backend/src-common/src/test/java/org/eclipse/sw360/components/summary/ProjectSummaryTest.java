@@ -55,6 +55,9 @@ public class ProjectSummaryTest {
                 case CONTRIBUTORS:
                     project.contributors= ImmutableSet.of("contributor1@sw360.org","contributor2@sw360.org");
                     break;
+                case SECURITY_RESPONSIBLES:
+                    project.securityResponsibles = ImmutableSet.of("securityresponsible1@sw360.org","securityresponsible2@sw360.org");
+                    break;
                 case VISBILITY:
                     project.visbility = Visibility.EVERYONE;
                     break;
