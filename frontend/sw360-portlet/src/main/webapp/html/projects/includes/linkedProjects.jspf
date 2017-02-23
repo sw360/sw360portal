@@ -1,5 +1,7 @@
-<%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
+<%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %><%--
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -109,6 +111,12 @@
 </table>
 <core_rt:if test="${inProjectDetailsContext}">
 <span class="pull-right">
+    <select class="toplabelledInput formatSelect" id="extendedByReleases" name="extendedByReleases">
+        <option value="false">Projects only</option>
+        <option value="true">Projects with linked releases</option>
+    </select>
+    <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
+
     <input type="submit" id="downloadLicenseInfoButton" value="Generate License Info" class="addButton"/>
     <input type="submit" id="downloadSourceCodeBundleButton" value="Generate Source Code Bundle" class="addButton"/>
 </span>
@@ -131,4 +139,12 @@
         $('#downloadLicenseInfoButton').click(downloadLicenseInfo);
         $('#downloadSourceCodeBundleButton').click(downloadSourceCodeBundleButton);
     });
+
+    function exportSpreadsheet() {
+        var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+        portletURL.setParameter('<%=Project._Fields.ID%>','${project.id}');
+        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
+        window.location.href = portletURL.toString();
+    }
 </script>

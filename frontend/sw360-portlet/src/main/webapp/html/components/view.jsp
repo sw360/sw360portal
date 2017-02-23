@@ -186,7 +186,7 @@
             <option value="false">Components only</option>
             <option value="true">Components with releases</option>
         </select>
-        <input type="button" class="addButton" id="exportExcelButton" value="Export Excel" class="addButton" onclick="exportExcel()"/>
+        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
 </span>
 
 <script>
@@ -197,7 +197,7 @@
         PortletURL = Liferay.PortletURL;
         load();
         $('.filterInput').on('input', function() {
-            $('#exportExcelButton').prop('disabled', true);
+            $('#exportSpreadsheetButton').prop('disabled', true);
         });
     });
 
@@ -207,7 +207,6 @@
         prepareAutocompleteForMultipleHits('operating_systems', ${operatingSystemsAutoC});
         prepareAutocompleteForMultipleHits('vendor_names', ${vendorList});
         createComponentsTable();
-        $('#exportbutton').click(exportExcel);
     }
 
     function createUrl_comp(paramId, paramVal) {
@@ -225,7 +224,7 @@
         componentsTable.columns(1).search('^'+val, true).draw();
     }
 
-    function exportExcel(){
+    function exportSpreadsheet(){
         $('#keywordsearchinput').val("");
         useSearch('keywordsearchinput');
 

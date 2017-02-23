@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -197,7 +197,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
         private List<Project> getProjects(Set<String> ids, User user) throws SW360Exception {
             List<Project> projects;
             try {
-                projects = projectClient.getProjectsById(ids, user);
+                projects = projectClient.getProjectsById(new ArrayList<>(ids), user);
             } catch (TException e) {
                 throw new SW360Exception("Error fetching linked projects");
             }

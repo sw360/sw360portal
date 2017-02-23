@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -53,10 +53,7 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public List<Project> refineSearch(String text, Map<String, Set<String>> subQueryRestrictions,User user) throws TException {
         List<Project> foundProjects = searchHandler.search(text, subQueryRestrictions, user);
-        foundProjects.stream()
-                .forEach(p -> p.releaseIds = p.isSetReleaseIdToUsage()
-                                ? p.releaseIdToUsage.keySet()
-                                : Collections.EMPTY_SET);
+        foundProjects.forEach(p -> p.releaseIds = p.isSetReleaseIdToUsage() ? p.releaseIdToUsage.keySet() : Collections.EMPTY_SET);
         return foundProjects;
     }
 
@@ -122,7 +119,7 @@ public class ProjectHandler implements ProjectService.Iface {
     }
 
     @Override
-    public List<Project> getProjectsById(Set<String> id, User user) throws TException {
+    public List<Project> getProjectsById(List<String> id, User user) throws TException {
         assertUser(user);
         assertNotNull(id);
         return handler.getProjectsById(id,user);

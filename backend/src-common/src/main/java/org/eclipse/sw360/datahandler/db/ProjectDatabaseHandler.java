@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
+import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.Duration;
@@ -338,9 +339,9 @@ public class ProjectDatabaseHandler {
         return project;
     }
 
-    public List<Project> getProjectsById(Set<String> id, User user) {
+    public List<Project> getProjectsById(List<String> id, User user) {
 
-        List<Project> projects = repository.get(id);
+        List<Project> projects = repository.makeSummaryFromFullDocs(SummaryType.SUMMARY, repository.get(id));
 
         List<Project> output = new ArrayList<>();
         for (Project project : projects) {
