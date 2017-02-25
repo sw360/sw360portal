@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -290,6 +290,7 @@ struct ReleaseLink{
     2: required string vendor,
     5: required string name,
     10: required string version,
+    11: required string longName,
     15: optional string comment,
     16: optional ReleaseRelationship releaseRelationship,
 //    20: optional string parentId,

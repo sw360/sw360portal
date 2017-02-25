@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
@@ -24,12 +24,10 @@
 <table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases Hierarchy">
     <thead>
     <tr>
-        <th colspan="6" class="headlabel">Linked Releases Hierarchy</th>
+        <th colspan="4" class="headlabel">Linked Releases Hierarchy</th>
     </tr>
     <tr>
-        <th>Release name</th>
-        <th>Vendor</th>
-        <th>Release version</th>
+        <th>Name</th>
         <th>Release relation</th>
         <th>License names</th>
         <th>Clearing state</th>
@@ -43,14 +41,8 @@
         >
             <td>
                 <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
-                    <sw360:out value="${releaseLink.name}"/>
+                    <sw360:out value="${releaseLink.longName}"/>
                 </a>
-            </td>
-            <td>
-                <sw360:out value="${releaseLink.vendor}"/>
-            </td>
-            <td>
-                <sw360:out value="${releaseLink.version}"/>
             </td>
             <td>
                 <core_rt:if test="${!releaseLink.setReleaseRelationship}">
@@ -74,7 +66,7 @@
 
     <core_rt:if test="${releaseList.size() < 1}">
         <tr>
-            <td colspan="6"> No linked releases</td>
+            <td colspan="4"> No linked releases</td>
         </tr>
     </core_rt:if>
 

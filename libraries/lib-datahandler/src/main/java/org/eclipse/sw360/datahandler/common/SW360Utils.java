@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -55,6 +55,7 @@ public class SW360Utils {
 
     public static final String FORMAT_DATE = "yyyy-MM-dd";
     public static final String FORMAT_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
+    public static final Comparator<ReleaseLink> RELEASE_LINK_COMPARATOR = Comparator.comparing(rl -> getReleaseFullname(rl.getVendor(), rl.getName(), rl.getVersion()).toLowerCase());
 
     private static Joiner spaceJoiner = Joiner.on(" ");
 
@@ -176,6 +177,27 @@ public class SW360Utils {
         }
 
         return getVersionedName(release.getName(), release.getVersion());
+    }
+
+    public static String printFullname(Release release) {
+        if (release == null || isNullOrEmpty(release.getName())) {
+            return "New Release";
+        }
+        String vendorName = Optional.ofNullable(release.getVendor()).map(Vendor::getShortname).orElse(null);
+        return getReleaseFullname(vendorName, release.getName(), release.getVersion());
+    }
+
+    @NotNull
+    public static String getReleaseFullname(String vendorName, String releaseName, String version) {
+        StringBuilder sb = new StringBuilder();
+        if (!isNullOrEmpty(vendorName)){
+            sb.append(vendorName).append(" ");
+        }
+        sb.append(releaseName);
+        if (!isNullOrEmpty(version)){
+            sb.append(" ").append(version);
+        }
+        return sb.toString();
     }
 
     public static String printName(Project project) {

@@ -1,6 +1,6 @@
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -22,7 +22,11 @@
         <table id="releasesTable" cellpadding="0" cellspacing="0" border="0" class="display">
             <tfoot>
             <tr>
-                <th colspan="5"></th>
+                <th width="30%"></th>
+                <th width="30%"></th>
+                <th></th>
+                <th></th>
+                <th></th>
             </tr>
             </tfoot>
         </table>
@@ -48,11 +52,7 @@
         <core_rt:forEach items="${releasesAndProjects.entrySet()}" var="releasesAndProject">
         result.push({
             "DT_RowId": "${releasesAndProject.key.id}",
-            "0": {
-                display: "<sw360:DisplayReleaseLink release="${releasesAndProject.key}"/>",
-                name: "<sw360:out value="${releasesAndProject.key.name}"/>",
-                version: "<sw360:out value="${releasesAndProject.key.version}"/>"
-            },
+            "0": "<sw360:DisplayReleaseLink release="${releasesAndProject.key}" showFullname="true"/>",
             "1": "<sw360:out value="${releasesAndProject.value}"/>",
             "2": "<span id='releaseClearingState${releasesAndProject.key.id}'><sw360:DisplayEnum value="${releasesAndProject.key.clearingState}"/></span>",
             "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>"
@@ -63,7 +63,7 @@
         releaseClearingTable = $('#releasesTable').DataTable({
             data: result,
             columns: [
-                {title: "Release", type: "version", render: renderVersion},
+                {title: "Name"},
                 {title: "Project Origin"},
                 {title: "Release Clearing State"},
                 {title: "Release Mainline State"},

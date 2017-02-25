@@ -342,9 +342,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
-                final String fullname = vendor != null ? vendor.getFullname() : "";
+                final String vendorName = vendor != null ? vendor.getShortname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(),
-                        fullname, release.getName(), release.getVersion());
+                        vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release));
                 linkedReleases.add(linkedRelease);
             }
         } catch (TException e) {
