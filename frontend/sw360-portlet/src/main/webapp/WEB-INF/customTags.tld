@@ -588,6 +588,35 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayModerationRequestLink</name>
+        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayLinkToModerationRequest</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>moderationRequest</name>
+            <required>false</required>
+            <type>org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>moderationRequestId</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>showName</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>ProjectName</name>
         <tag-class>org.eclipse.sw360.portal.tags.ProjectName</tag-class>
         <body-content>empty</body-content>

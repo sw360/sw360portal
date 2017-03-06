@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -42,7 +42,7 @@
         <core_rt:forEach items="${moderationRequests}" var="moderation">
         result.push({
             "DT_RowId": "${moderation.id}",
-            "0": '<sw360:out value="${moderation.documentName}"/>',
+            "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
             "1": '<sw360:out value="${moderation.moderationState}"/>'
         });
         </core_rt:forEach>

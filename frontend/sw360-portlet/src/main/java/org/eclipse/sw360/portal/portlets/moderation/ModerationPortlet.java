@@ -308,7 +308,9 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
                 ModerationService.Iface client = thriftClients.makeModerationClient();
                 moderationRequest = client.getModerationRequestById(id);
-                if(moderationRequest.getModerationState().equals(ModerationState.PENDING) || moderationRequest.getModerationState().equals(ModerationState.INPROGRESS)) {
+                boolean actionsAllowed = moderationRequest.getModerators().contains(user.getEmail()) && ModerationPortletUtils.isOpenModerationRequest(moderationRequest);
+                request.setAttribute(PortalConstants.MODERATION_ACTIONS_ALLOWED, actionsAllowed);
+                if(actionsAllowed) {
                     SessionMessages.add(request, "request_processed", "You have assigned yourself to this moderation request.");
                     client.setInProgress(id, user);
                 }
