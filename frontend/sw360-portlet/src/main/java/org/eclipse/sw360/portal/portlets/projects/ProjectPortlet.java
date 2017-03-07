@@ -43,6 +43,7 @@ import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.*;
 import org.eclipse.sw360.exporter.ProjectExporter;
+import org.eclipse.sw360.exporter.ReleaseExporter;
 import org.eclipse.sw360.portal.common.*;
 import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
 import org.eclipse.sw360.portal.users.LifeRayUserSession;
@@ -67,6 +68,7 @@ import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
@@ -135,6 +137,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             updateVulnerabilityRating(request, response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
+        } else if (PortalConstants.EXPORT_CLEARING_TO_EXCEL.equals(action)) {
+            exportReleasesSpreadsheet(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
             downloadLicenseInfo(request, response);
         } else if (PortalConstants.DOWNLOAD_SOURCE_CODE_BUNDLE.equals(action)) {
@@ -256,8 +260,29 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     thriftClients.makeProjectClient(),
                     user,
                     extendedByReleases);
-            PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
+            log.error("An error occurred while generating the Excel export", e);
+        }
+    }
+
+    private void exportReleasesSpreadsheet(ResourceRequest request, ResourceResponse response) {
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        try {
+            String id = request.getParameter(PROJECT_ID);
+            Project project = null;
+            if (!isNullOrEmpty(id)) {
+                project = thriftClients.makeProjectClient().getProjectById(id, user);
+            }
+            if (project != null) {
+                Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
+                List<Release> releases = releaseStringMap.keySet().stream().sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
+                ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient());
+                PortletResponseUtil.sendFile(request, response,
+                        String.format("releases-%s-%s-%s.xlsx", project.getName(), project.getVersion(), SW360Utils.getCreatedOn()),
+                        exporter.makeExcelExport(releases), CONTENT_TYPE_OPENXML_SPREADSHEET);
+            }
+        } catch (IOException | TException e) {
             log.error("An error occurred while generating the Excel export", e);
         }
     }

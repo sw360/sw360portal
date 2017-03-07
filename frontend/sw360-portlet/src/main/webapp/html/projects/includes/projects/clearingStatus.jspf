@@ -30,6 +30,12 @@
             </tr>
             </tfoot>
         </table>
+        <core_rt:if test="${inProjectDetailsContext}">
+            <div class="clear-float"></div>
+            <span class="pull-right">
+                <input type="button" class="addButton" id="exportReleasesSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportReleasesSpreadsheet()"/>
+            </span>
+        </core_rt:if>
     </div>
 </core_rt:if>
 
@@ -75,6 +81,13 @@
         $('#releasesTable_first').hide();
         $('#releasesTable_last').hide();
 
+    }
+
+    function exportReleasesSpreadsheet() {
+        var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_CLEARING_TO_EXCEL%>');
+        portletURL.setParameter('<%=PortalConstants.PROJECT_ID%>','${project.id}');
+        window.location.href = portletURL.toString();
     }
 
     //This can not be document ready function as liferay definitions need to be loaded first

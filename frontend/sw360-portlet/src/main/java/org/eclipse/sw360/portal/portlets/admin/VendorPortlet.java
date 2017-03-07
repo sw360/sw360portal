@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
@@ -75,7 +76,7 @@ public class VendorPortlet extends Sw360Portlet {
             VendorService.Iface client = thriftClients.makeVendorClient();
             List<Vendor> vendors = client.getAllVendors();
 
-            PortletResponseUtil.sendFile(request, response, "Vendors.xlsx", exporter.makeExcelExport(vendors), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            PortletResponseUtil.sendFile(request, response, "Vendors.xlsx", exporter.makeExcelExport(vendors), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | TException e) {
             log.error("An error occured while generating the Excel export", e);
         }
