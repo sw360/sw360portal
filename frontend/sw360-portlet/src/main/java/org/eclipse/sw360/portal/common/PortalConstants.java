@@ -275,6 +275,7 @@ public class PortalConstants {
 
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
+    public static final String EXPORT_CLEARING_TO_EXCEL = "export_clearing_to_excel";
     public static final String EXPORT_ID = "export_id";
 
     // Import Projects

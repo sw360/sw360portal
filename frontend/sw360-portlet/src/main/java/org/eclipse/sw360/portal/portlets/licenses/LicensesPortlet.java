@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.TMP_TODO_ID_PREFIX;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 /**
@@ -83,7 +84,7 @@ public class LicensesPortlet extends Sw360Portlet {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             List<License> licenses = client.getLicenseSummaryForExport();
 
-            PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | TException e) {
             log.error("An error occurred while generating the Excel export", e);
         }
