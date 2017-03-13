@@ -12,6 +12,7 @@ package org.eclipse.sw360.datahandler.common;
 
 
 import com.google.common.collect.ImmutableMap;
+import org.eclipse.sw360.datahandler.thrift.Ternary;
 import org.eclipse.sw360.datahandler.thrift.VerificationState;
 import org.eclipse.sw360.datahandler.thrift.ModerationState;
 import org.eclipse.sw360.datahandler.thrift.Visibility;
@@ -52,6 +53,10 @@ public class ThriftEnumUtils {
             .put(ComponentType.FREESOFTWARE, "Freeware")
             .build();
 
+    private static final ImmutableMap<Ternary,String> Map_TERNARY_STRING = ImmutableMap.of(
+            Ternary.UNDEFINED, "undefined",
+            Ternary.NO, "no",
+            Ternary.YES, "yes");
 
     private static final ImmutableMap<ProjectType, String> MAP_PROJECT_TYPE_STRING = ImmutableMap.of(
             ProjectType.CUSTOMER, "Customer Project" ,
@@ -202,6 +207,7 @@ public class ThriftEnumUtils {
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
             .put(ComponentType.class, MAP_COMPONENT_TYPE_STRING)
+            .put(Ternary.class, Map_TERNARY_STRING)
             .put(ProjectType.class, MAP_PROJECT_TYPE_STRING)
             .put(AttachmentType.class, MAP_ATTACHMENT_TYPE_STRING)
             .put(ClearingState.class, MAP_CLEARING_STATUS_STRING)

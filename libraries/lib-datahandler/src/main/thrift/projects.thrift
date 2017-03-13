@@ -252,5 +252,5 @@ service ProjectService {
     /**
     * get the same list of projects back, but with filled release clearing state summaries
      */
-    list<Project> fillClearingStateSummary(list<Project> projects, User user);
+    list<Project> fillClearingStateSummary(1: list<Project> projects, 2: User user);
 }

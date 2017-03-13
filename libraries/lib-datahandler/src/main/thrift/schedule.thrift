@@ -47,9 +47,9 @@ service ScheduleService {
 
     RequestStatusWithBoolean isAnyServiceScheduled(1: User user);
 
-    i32 getFirstRunOffset(string serviceName);
+    i32 getFirstRunOffset(1: string serviceName);
 
-    string getNextSync(string serviceName);
+    string getNextSync(1: string serviceName);
 
-    i32 getInterval(string serviceName);
+    i32 getInterval(1: string serviceName);
 }

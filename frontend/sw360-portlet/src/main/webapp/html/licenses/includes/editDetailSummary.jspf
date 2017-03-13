@@ -1,5 +1,6 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.licenses.LicenseType" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.licenses.License" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.Ternary" %>
 <%--
   ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
   ~
@@ -50,21 +51,23 @@
   <tr>
     <td width="33%">
       <label class="checkboxlabel" for="gpl2">
-        <input id="gpl2" type="checkbox"
-               name="<portlet:namespace/><%=License._Fields.GPLV2_COMPAT%>"
-               value="<sw360:out value="${licenseDetail.GPLv2Compat}"/>"
-                <core_rt:if test="${licenseDetail.GPLv2Compat == 'true'}"> checked="checked" </core_rt:if>
-        />
-        GPL-2.0 compatibility</label>
+        GPL-2.0 compatibility:
+         <select class="toplabelledInput" id="gpl2"
+                name="<portlet:namespace/><%=License._Fields.GPLV2_COMPAT%>"
+                style="min-width: 162px; min-height: 28px;">
+          <sw360:DisplayEnumOptions type="<%=Ternary.class%>" selected="${licenseDetail.GPLv2Compat}"/>
+        </select>
+      </label>
     </td>
     <td width="33%">
       <label class="checkboxlabel" for="gpl3">
-        <input id="gpl3" type="checkbox"
-               name="<portlet:namespace/><%=License._Fields.GPLV3_COMPAT%>"
-               value="<sw360:out value="${licenseDetail.GPLv3Compat}"/>"
-                <core_rt:if test="${licenseDetail.GPLv3Compat == 'true'}"> checked="checked" </core_rt:if>
-        />
-        GPL-3.0 compatibility</label>
+        GPL-3.0 compatibility:
+        <select class="toplabelledInput" id="gpl3"
+                name="<portlet:namespace/><%=License._Fields.GPLV3_COMPAT%>"
+                style="min-width: 162px; min-height: 28px;">
+          <sw360:DisplayEnumOptions type="<%=Ternary.class%>" selected="${licenseDetail.GPLv3Compat}"/>
+        </select>
+      </label>
     </td>
 
     <td width="33%"></td>
