@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -42,7 +42,6 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPen
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
-import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.*;
 
@@ -220,7 +219,10 @@ public class LicenseDatabaseHandler {
      *
      * @return ID of the added todo.
      */
-    public String addTodo(@NotNull Todo todo) throws SW360Exception {
+    public String addTodo(@NotNull Todo todo, User user) throws SW360Exception {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         prepareTodo(todo);
         todoRepository.add(todo);
 
@@ -239,7 +241,7 @@ public class LicenseDatabaseHandler {
                 todo.unsetId();
             }
             todo.unsetObligations();
-            String todoId = addTodo(todo);
+            String todoId = addTodo(todo, user);
             license.addToTodoDatabaseIds(todoId);
             licenseRepository.update(license);
             return RequestStatus.SUCCESS;
@@ -271,7 +273,7 @@ public class LicenseDatabaseHandler {
             List<Todo> todos = todoRepository.get(license.todoDatabaseIds);
             for (Todo todo : todos) {
                 String todoId = todo.getId();
-                Set<String> currentWhitelist = todo.whitelist != null ? todo.whitelist : new HashSet<String>();
+                Set<String> currentWhitelist = todo.whitelist != null ? todo.whitelist : new HashSet<>();
 
                 // Add to whitelist if necessary
                 if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(businessUnit)) {
@@ -293,7 +295,7 @@ public class LicenseDatabaseHandler {
             List<Todo> todos = licenseForModerationRequest.getTodos();
             for (Todo todo : todos) {
                 String todoId = todo.getId();
-                Set<String> currentWhitelist = todo.whitelist != null ? todo.whitelist : new HashSet<String>();
+                Set<String> currentWhitelist = todo.whitelist != null ? todo.whitelist : new HashSet<>();
 
                 // Add to whitelist if necessary
                 if (whitelistTodos.contains(todoId) && !currentWhitelist.contains(businessUnit)) {
@@ -369,16 +371,16 @@ public class LicenseDatabaseHandler {
     }
 
 
-    public static <T> List<T> getEntriesFromIds(final Map<String, T> map, Set<String> ids) {
+    private static <T> List<T> getEntriesFromIds(final Map<String, T> map, Set<String> ids) {
         return ids
                 .stream()
-                .map(input -> map.get(input))
-                .filter(input -> input !=null)
+                .map(map::get)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) {
-        if (PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)) {
+        if (makePermission(inputLicense, user).isActionAllowed(RequestedAction.WRITE)) {
             String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
 
             License dbLicense = null;
@@ -394,7 +396,7 @@ public class LicenseDatabaseHandler {
                 isNewLicense = false;
             }
 
-            dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit);
+            dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit, user);
 
             if(isNewLicense) {
                 licenseRepository.add(dbLicense);
@@ -406,13 +408,13 @@ public class LicenseDatabaseHandler {
         return RequestStatus.FAILURE;
     }
 
-    private License updateLicenseFromInputLicense(License license, License inputLicense, String businessUnit){
+    private License updateLicenseFromInputLicense(License license, License inputLicense, String businessUnit, User user){
         if(inputLicense.isSetTodos()) {
             for (Todo todo : inputLicense.getTodos()) {
                 if (isTemporaryTodo(todo)) {
                     todo.unsetId();
                     try {
-                        String todoDatabaseId = addTodo(todo);
+                        String todoDatabaseId = addTodo(todo, user);
                         license.addToTodoDatabaseIds(todoDatabaseId);
                     } catch (SW360Exception e) {
                         log.error("Error adding todo to database.");
@@ -459,14 +461,6 @@ public class LicenseDatabaseHandler {
             log.error("Could not get original license when updating from moderation request.");
             return RequestStatus.FAILURE;
         }
-    }
-
-    public License getLicenseFromRepository(String id) throws SW360Exception {
-        License license = licenseRepository.get(id);
-        if (license == null) {
-            throw fail("Could not fetch license from database! id=" + id);
-        }
-        return license;
     }
 
     public List<License> getDetailedLicenseSummaryForExport(String organisation, List<String> identifiers) {
@@ -524,7 +518,10 @@ public class LicenseDatabaseHandler {
         return licenseTypes;
     }
 
-    public List<RiskCategory> addRiskCategories(List<RiskCategory> riskCategories) throws SW360Exception {
+    public List<RiskCategory> addRiskCategories(List<RiskCategory> riskCategories, User user) throws SW360Exception {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         for (RiskCategory riskCategory : riskCategories) {
             prepareRiskCategory(riskCategory);
         }
@@ -535,7 +532,10 @@ public class LicenseDatabaseHandler {
         } else return null;
     }
 
-    public List<Risk> addRisks(List<Risk> risks) throws SW360Exception {
+    public List<Risk> addRisks(List<Risk> risks, User user) throws SW360Exception {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         for (Risk risk : risks) {
             prepareRisk(risk);
         }
@@ -546,14 +546,20 @@ public class LicenseDatabaseHandler {
         } else return null;
     }
 
-    public List<LicenseType> addLicenseTypes(List<LicenseType> licenseTypes) {
+    public List<LicenseType> addLicenseTypes(List<LicenseType> licenseTypes, User user) {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         final List<DocumentOperationResult> documentOperationResults = licenseTypeRepository.executeBulk(licenseTypes);
         if (documentOperationResults.isEmpty()) {
             return licenseTypes;
         } else return null;
     }
 
-    public List<License> addLicenses(List<License> licenses) throws SW360Exception {
+    public List<License> addLicenses(List<License> licenses, User user) throws SW360Exception {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         for (License license : licenses) {
             prepareLicense(license);
         }
@@ -564,7 +570,10 @@ public class LicenseDatabaseHandler {
         } else return null;
     }
 
-    public List<Obligation> addObligations(List<Obligation> obligations) throws SW360Exception {
+    public List<Obligation> addObligations(List<Obligation> obligations, User user) throws SW360Exception {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         for (Obligation obligation : obligations) {
             prepareObligation(obligation);
         }
@@ -575,7 +584,10 @@ public class LicenseDatabaseHandler {
         } else return null;
     }
 
-    public List<Todo> addTodos(List<Todo> todos) throws SW360Exception {
+    public List<Todo> addTodos(List<Todo> todos, User user) throws SW360Exception {
+        if (!PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return null;
+        }
         for (Todo todo : todos) {
             prepareTodo(todo);
         }
@@ -630,8 +642,8 @@ public class LicenseDatabaseHandler {
 
     private void fillRisks(List<Risk> risks) {
         final List<RiskCategory> riskCategories = riskCategoryRepository.get(risks.stream()
-                .map(input -> input.getRiskCategoryDatabaseId())
-                .filter(input -> input != null)
+                .map(Risk::getRiskCategoryDatabaseId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
 
         final Map<String, RiskCategory> idMap = ThriftUtils.getIdMap(riskCategories);

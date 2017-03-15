@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -79,34 +79,34 @@ public class LicenseHandler implements LicenseService.Iface {
     }
 
     @Override
-    public List<RiskCategory> addRiskCategories(List<RiskCategory> riskCategories) throws TException {
-        return handler.addRiskCategories(riskCategories);
+    public List<RiskCategory> addRiskCategories(List<RiskCategory> riskCategories, User user) throws TException {
+        return handler.addRiskCategories(riskCategories, user);
     }
 
     @Override
-    public List<Risk> addRisks(List<Risk> risks) throws TException {
-        return handler.addRisks(risks);
+    public List<Risk> addRisks(List<Risk> risks, User user) throws TException {
+        return handler.addRisks(risks, user);
     }
 
     @Override
-    public List<Obligation> addObligations(List<Obligation> obligations) throws TException {
-        return handler.addObligations(obligations);
+    public List<Obligation> addObligations(List<Obligation> obligations, User user) throws TException {
+        return handler.addObligations(obligations, user);
 
     }
 
     @Override
-    public List<LicenseType> addLicenseTypes(List<LicenseType> licenseTypes) throws TException {
-        return handler.addLicenseTypes(licenseTypes);
+    public List<LicenseType> addLicenseTypes(List<LicenseType> licenseTypes, User user) throws TException {
+        return handler.addLicenseTypes(licenseTypes, user);
     }
 
     @Override
-    public List<License> addLicenses(List<License> licenses) throws TException {
-        return handler.addLicenses(licenses);
+    public List<License> addLicenses(List<License> licenses, User user) throws TException {
+        return handler.addLicenses(licenses, user);
     }
 
     @Override
-    public List<Todo> addTodos(List<Todo> todos) throws TException {
-        return handler.addTodos(todos);
+    public List<Todo> addTodos(List<Todo> todos, User user) throws TException {
+        return handler.addTodos(todos, user);
 
     }
 
@@ -237,11 +237,11 @@ public class LicenseHandler implements LicenseService.Iface {
      * Add a new todo object
      */
     @Override
-    public String addTodo(Todo todo) throws TException {
+    public String addTodo(Todo todo, User user) throws TException {
         assertNotNull(todo);
         assertIdUnset(todo.getId());
 
-        return handler.addTodo(todo);
+        return handler.addTodo(todo, user);
     }
 
     /**
