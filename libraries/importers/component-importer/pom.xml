@@ -14,7 +14,7 @@
     <parent>
         <artifactId>importers</artifactId>
         <groupId>org.eclipse.sw360</groupId>
-        <version>0.0.0</version>
+        <version>${project.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

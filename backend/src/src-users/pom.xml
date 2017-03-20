@@ -15,7 +15,7 @@
     <parent>
         <artifactId>backend-src</artifactId>
         <groupId>org.eclipse.sw360</groupId>
-        <version>0.0.0</version>
+        <version>${project.version}</version>
     </parent>
 
     <artifactId>src-users</artifactId>

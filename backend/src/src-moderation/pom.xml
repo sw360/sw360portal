@@ -13,7 +13,7 @@
     <parent>
         <artifactId>backend-src</artifactId>
         <groupId>org.eclipse.sw360</groupId>
-        <version>0.0.0</version>
+        <version>${project.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.eclipse.sw360</groupId>
             <artifactId>src-licenses</artifactId>
-            <version>0.0.0</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

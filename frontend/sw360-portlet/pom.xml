@@ -16,7 +16,7 @@
     <parent>
         <artifactId>frontend</artifactId>
         <groupId>org.eclipse.sw360</groupId>
-        <version>0.0.0</version>
+        <version>${project.version}</version>
     </parent>
 
     <artifactId>sw360-portlet</artifactId>

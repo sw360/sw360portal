@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.eclipse.sw360</groupId>
             <artifactId>datahandler</artifactId>
-            <version>0.0.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.liferay.portal</groupId>
@@ -32,14 +32,14 @@
         <dependency>
             <groupId>org.eclipse.sw360</groupId>
             <artifactId>src-vulnerabilities</artifactId>
-            <version>0.0.0</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <parent>
         <groupId>org.eclipse.sw360</groupId>
         <artifactId>backend-src</artifactId>
-        <version>0.0.0</version>
+        <version>${project.version}</version>
     </parent>
 
     <developers>

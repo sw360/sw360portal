@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.eclipse.sw360</groupId>
         <artifactId>backend-src</artifactId>
-        <version>0.0.0</version>
+        <version>${project.version}</version>
     </parent>
 
     <artifactId>src-fossology</artifactId>
