@@ -96,8 +96,17 @@
         <jsp:include page="/html/utils/includes/searchReleases.jsp" />
         <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
         <jsp:include page="/html/utils/includes/searchUsers.jsp" />
+
+        <core_rt:if test="${not addMode}" >
+            <input type="button" id="formSubmit2" value="Update Project" class="addButton">
+        </core_rt:if>
+        <core_rt:if test="${addMode}" >
+            <input type="button" id="formSubmit2" value="Add Project" class="addButton">
+        </core_rt:if>
+        <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
     </div>
 </core_rt:if>
+
 <script>
     function cancel() {
         deleteAttachmentsOnCancel();
@@ -137,7 +146,7 @@
             invalidHandler: invalidHandlerShowErrorTab
         });
 
-        $('#formSubmit').click(
+        $('#formSubmit, #formSubmit2').click(
                 function() {
                     $('#projectEditForm').submit();
                 }
