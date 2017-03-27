@@ -1,6 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
- * Copyright Siemens AG, 2016.
+ * Copyright Siemens AG, 2016-2017.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -70,7 +70,7 @@ public class SPDXParser extends LicenseInfoParser {
     }
 
     @Override
-    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
+    public List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         LicenseInfo emptyResult = new LicenseInfo()
                 .setFilenames(Arrays.asList(attachmentContent.getFilename()));
@@ -79,12 +79,12 @@ public class SPDXParser extends LicenseInfoParser {
                 .flatMap(d -> addSpdxContentToCLI(emptyResult, d));
 
         if(licenseInfo.isPresent()){
-            return new LicenseInfoParsingResult()
+            return Collections.singletonList(new LicenseInfoParsingResult()
                     .setLicenseInfo(licenseInfo.get())
-                    .setStatus(LicenseInfoRequestStatus.SUCCESS);
+                    .setStatus(LicenseInfoRequestStatus.SUCCESS));
         }else{
-            return new LicenseInfoParsingResult()
-                    .setStatus(LicenseInfoRequestStatus.FAILURE);
+            return Collections.singletonList(new LicenseInfoParsingResult()
+                    .setStatus(LicenseInfoRequestStatus.FAILURE));
         }
     }
 

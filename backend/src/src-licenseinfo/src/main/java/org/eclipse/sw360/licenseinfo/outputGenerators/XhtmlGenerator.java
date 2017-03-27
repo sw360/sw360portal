@@ -18,7 +18,6 @@ import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -73,8 +72,10 @@ public class XhtmlGenerator extends OutputGenerator<String> {
                 .forEach((LicenseInfo li) -> li.setLicenseNamesWithTexts(sortSet(li.getLicenseNamesWithTexts(), LicenseNameWithText::getId)));
     }
 
-    @NotNull
     private static <U, K extends Comparable<K>> SortedSet<U> sortSet(Set<U> unsorted, Function<U, K> keyExtractor) {
+        if (unsorted == null) {
+            return null;
+        }
         SortedSet<U> sorted = new TreeSet<>(Comparator.comparing(keyExtractor));
         sorted.addAll(unsorted);
         if (sorted.size() != unsorted.size()){

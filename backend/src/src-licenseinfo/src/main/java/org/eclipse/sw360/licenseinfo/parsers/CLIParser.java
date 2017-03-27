@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,10 +27,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,33 +67,11 @@ public class CLIParser extends LicenseInfoParser {
     }
 
     private boolean hasCLIRootElement(AttachmentContent content) {
-        XMLInputFactory xmlif = XMLInputFactory.newFactory();
-        XMLStreamReader xmlStreamReader = null;
-        InputStream attachmentStream = null;
-        try {
-            attachmentStream = attachmentConnector.getAttachmentStream(content);
-            xmlStreamReader = xmlif.createXMLStreamReader(attachmentStream);
-
-            //skip to first element
-            while(xmlStreamReader.hasNext() && xmlStreamReader.next() != XMLStreamConstants.START_ELEMENT);
-            xmlStreamReader.require(XMLStreamConstants.START_ELEMENT, CLI_ROOT_ELEMENT_NAMESPACE, CLI_ROOT_ELEMENT_NAME);
-            return true;
-        } catch (XMLStreamException | SW360Exception e) {
-            return false;
-        } finally {
-            if (null != xmlStreamReader){
-                try {
-                    xmlStreamReader.close();
-                } catch (XMLStreamException e) {
-                    // ignore it
-                }
-            }
-            closeQuietly(attachmentStream, log);
-        }
+        return hasThisXMLRootElement(content, CLI_ROOT_ELEMENT_NAMESPACE, CLI_ROOT_ELEMENT_NAME);
     }
 
     @Override
-    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
+    public List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename()));
         LicenseInfoParsingResult result = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
@@ -122,7 +96,7 @@ public class CLIParser extends LicenseInfoParser {
         } finally {
             closeQuietly(attachmentStream, log);
         }
-        return result;
+        return Collections.singletonList(result);
     }
 
     private Set<String> nodeListToStringSet(NodeList nodes){
