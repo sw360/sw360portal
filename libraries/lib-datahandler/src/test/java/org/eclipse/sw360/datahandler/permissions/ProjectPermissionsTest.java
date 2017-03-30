@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,6 +25,7 @@ import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.*;
 
 /**
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 
 @RunWith(DataProviderRunner.class)
@@ -55,6 +56,7 @@ public class ProjectPermissionsTest extends ScenarioTest<GivenProject, WhenCompu
                 //strangers: rights increase with user group
                 {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, USER, READ },
                 {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, CLEARING_ADMIN, ATTACHMENTS },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, ECC_ADMIN, READ },
                 {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, ADMIN, CLEARING },
         };
         // @formatter:on
@@ -64,6 +66,36 @@ public class ProjectPermissionsTest extends ScenarioTest<GivenProject, WhenCompu
     @UseDataProvider("highestAllowedActionProvider")
     public void testHighestAllowedAction(GivenProject.ProjectRole role, String user, String requestingUser, UserGroup requestingUserGroup, RequestedAction highestAllowedAction) throws Exception {
         given().a_project_with_$_$(role,user);
+        when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(requestingUser, requestingUserGroup);
+        then().the_highest_allowed_action_should_be(highestAllowedAction);
+    }
+
+    @DataProvider
+    public static Object[][] highestAllowedActionForClosedProjectProvider() {
+        // @formatter:off
+        return new Object[][] {
+                //own permissions checks
+                //very privileged
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theUser, USER, READ },
+                {GivenProject.ProjectRole.MODERATOR, theUser, theUser, USER, READ },
+                {GivenProject.ProjectRole.PROJECT_RESPONSIBLE, theUser, theUser, USER, READ },
+                //less privileged
+                {GivenProject.ProjectRole.LEAD_ARCHITECT, theUser, theUser, USER, READ },
+                {GivenProject.ProjectRole.CONTRIBUTOR, theUser, theUser, USER, READ },
+
+                //strangers: rights increase with user group
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, USER, READ },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, CLEARING_ADMIN, ATTACHMENTS },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, ECC_ADMIN, READ },
+                {GivenProject.ProjectRole.CREATED_BY, theUser, theOtherUser, ADMIN, CLEARING },
+        };
+        // @formatter:on
+    }
+
+    @Test
+    @UseDataProvider("highestAllowedActionForClosedProjectProvider")
+    public void testHighestAllowedActionForClosedProject(GivenProject.ProjectRole role, String user, String requestingUser, UserGroup requestingUserGroup, RequestedAction highestAllowedAction) throws Exception {
+        given().a_closed_project_with_$_$(role,user);
         when().the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(requestingUser, requestingUserGroup);
         then().the_highest_allowed_action_should_be(highestAllowedAction);
     }

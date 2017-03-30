@@ -26,6 +26,7 @@ import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.moderation.DocumentType;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
@@ -251,9 +252,11 @@ public class ModerationDatabaseHandler {
 
         // Define moderators
         Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, dbproject.getCreatedBy());
-        CommonUtils.add(moderators, dbproject.getProjectResponsible());
-        CommonUtils.addAll(moderators, dbproject.getModerators());
+        if (dbproject.getClearingState() != ProjectClearingState.CLOSED){
+            CommonUtils.add(moderators, dbproject.getCreatedBy());
+            CommonUtils.add(moderators, dbproject.getProjectResponsible());
+            CommonUtils.addAll(moderators, dbproject.getModerators());
+        }
         CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, dbproject.getBusinessUnit()));
         CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
