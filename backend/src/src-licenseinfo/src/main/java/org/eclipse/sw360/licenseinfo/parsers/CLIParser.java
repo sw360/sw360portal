@@ -9,6 +9,7 @@
 package org.eclipse.sw360.licenseinfo.parsers;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
@@ -102,7 +103,7 @@ public class CLIParser extends LicenseInfoParser {
     private Set<String> nodeListToStringSet(NodeList nodes){
         Set<String> strings = Sets.newHashSet();
         for (int i = 0; i < nodes.getLength(); i++){
-            strings.add(nodes.item(i).getTextContent().trim());
+            strings.add(StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeXml(nodes.item(i).getTextContent().trim())));
         }
         return strings;
     }
@@ -112,9 +113,20 @@ public class CLIParser extends LicenseInfoParser {
         for (int i = 0; i < nodes.getLength(); i++){
             licenseNamesWithTexts.add(
                     new LicenseNameWithText()
-                    .setLicenseText(findNamedSubelement(nodes.item(i), LICENSE_CONTENT_ELEMENT_NAME).map(Node::getTextContent).map(String::trim).orElse(null))
-                    .setAcknowledgements(findNamedSubelement(nodes.item(i), LICENSE_ACKNOWLEDGEMENTS_ELEMENT_NAME).map(Node::getTextContent).map(String::trim).orElse(null))
-                    .setLicenseName(Optional.ofNullable(nodes.item(i).getAttributes().getNamedItem(LICENSENAME_ATTRIBUTE_NAME))
+                            .setLicenseText(findNamedSubelement(nodes.item(i), LICENSE_CONTENT_ELEMENT_NAME)
+                                    .map(Node::getTextContent)
+                                    .map(String::trim)
+                                    .map(StringEscapeUtils::unescapeXml)
+                                    .map(StringEscapeUtils::unescapeHtml)
+                                    .orElse(null))
+                            .setAcknowledgements(findNamedSubelement(nodes.item(i), LICENSE_ACKNOWLEDGEMENTS_ELEMENT_NAME)
+                                    .map(Node::getTextContent)
+                                    .map(String::trim)
+                                    .map(StringEscapeUtils::unescapeXml)
+                                    .map(StringEscapeUtils::unescapeHtml)
+                                    .orElse(null))
+                            .setLicenseName(Optional
+                                    .ofNullable(nodes.item(i).getAttributes().getNamedItem(LICENSENAME_ATTRIBUTE_NAME))
                             .map(Node::getNodeValue).orElse(LICENSE_NAME_UNKNOWN))
             );
         }

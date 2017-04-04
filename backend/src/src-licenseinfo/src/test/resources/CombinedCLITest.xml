@@ -15,7 +15,7 @@
 ]]></Acknowledgements>
     </License>
     <License type="other" name="License3" subtype="other" srcFile="some_cli_file.xml" srcComponent="1234">
-        <Content><![CDATA[License3Text
+        <Content><![CDATA[License3&amp;&apos;Text
 ]]></Content>
         <Files><![CDATA[\contrib\file3.c
 ]]></Files>

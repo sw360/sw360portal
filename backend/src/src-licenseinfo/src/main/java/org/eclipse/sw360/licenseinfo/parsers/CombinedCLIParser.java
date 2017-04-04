@@ -10,6 +10,7 @@ package org.eclipse.sw360.licenseinfo.parsers;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
@@ -153,7 +154,12 @@ public class CombinedCLIParser extends LicenseInfoParser {
         for (int i = 0; i < nodes.getLength(); i++){
             Optional<Node> externalIdOptional = findNamedAttribute(nodes.item(i), externalIdAttributeName);
             String externalId = externalIdOptional.map(Node::getNodeValue).orElse(null);
-            String contentText = findNamedSubelement(nodes.item(i), contentElementName).map(Node::getTextContent).map(String::trim).orElse(null);
+            String contentText = findNamedSubelement(nodes.item(i), contentElementName)
+                    .map(Node::getTextContent)
+                    .map(String::trim)
+                    .map(StringEscapeUtils::unescapeXml)
+                    .map(StringEscapeUtils::unescapeHtml)
+                    .orElse(null);
             if (!result.containsKey(externalId)){
                 result.put(externalId, Sets.newHashSet());
             }
@@ -172,10 +178,14 @@ public class CombinedCLIParser extends LicenseInfoParser {
                     .setLicenseText(findNamedSubelement(nodes.item(i), LICENSE_CONTENT_ELEMENT_NAME)
                             .map(Node::getTextContent)
                             .map(String::trim)
+                            .map(StringEscapeUtils::unescapeXml)
+                            .map(StringEscapeUtils::unescapeHtml)
                             .orElse(null))
                     .setAcknowledgements(findNamedSubelement(nodes.item(i), LICENSE_ACKNOWLEDGEMENTS_ELEMENT_NAME)
                             .map(Node::getTextContent)
                             .map(String::trim)
+                            .map(StringEscapeUtils::unescapeXml)
+                            .map(StringEscapeUtils::unescapeHtml)
                             .orElse(null))
                     .setLicenseName(Optional
                             .ofNullable(nodes.item(i).getAttributes().getNamedItem(LICENSENAME_ATTRIBUTE_NAME))

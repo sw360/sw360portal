@@ -118,7 +118,7 @@ public class CombinedCLIParserTest {
         assertThat(res.getLicenseInfo().getFilenames(), containsInAnyOrder("a.xml"));
         assertThat(res.getLicenseInfo().getLicenseNamesWithTexts().size(), is(3));
         assertThat(res.getLicenseInfo().getLicenseNamesWithTexts().stream().map(LicenseNameWithText::getLicenseText).collect(Collectors.toSet()),
-                containsInAnyOrder("License1Text", "License2Text", "License3Text"));
+                containsInAnyOrder("License1Text", "License2Text", "License3&'Text"));
         LicenseNameWithText l2 = res.getLicenseInfo().getLicenseNamesWithTexts().stream().filter(l -> l.getLicenseName().equals("License2")).findFirst().orElseThrow(AssertionError::new);
         assertThat(l2.getAcknowledgements(), is("License2Acknowledgements"));
         assertThat(res.getLicenseInfo().getCopyrights().size(), is(5));
