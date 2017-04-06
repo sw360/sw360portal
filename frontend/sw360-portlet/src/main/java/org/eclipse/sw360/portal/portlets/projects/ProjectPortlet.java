@@ -143,6 +143,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             downloadLicenseInfo(request, response);
         } else if (PortalConstants.DOWNLOAD_SOURCE_CODE_BUNDLE.equals(action)) {
             downloadSourceCodeBundle(request, response);
+        } else if (PortalConstants.GET_CLEARING_STATE_SUMMARY.equals(action)) {
+            serveGetClearingStateSummaries(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
@@ -204,9 +206,43 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
+    private void serveGetClearingStateSummaries(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        List<Project> projects;
+        String ids[] = request.getParameterValues(Project._Fields.ID.toString()+"[]");
+        if (ids == null || ids.length == 0) {
+            JSONArray jsonResponse = createJSONArray();
+            writeJSON(request, response, jsonResponse);
+        } else {
+            try {
+                ProjectService.Iface client = thriftClients.makeProjectClient();
+                projects = client.getProjectsById(Arrays.asList(ids), user);
+            } catch (TException e) {
+                log.error("Could not fetch project summary from backend!", e);
+                projects = Collections.emptyList();
+            }
+
+            projects = getWithFilledClearingStateSummary(projects, user);
+
+            JSONArray jsonResponse = createJSONArray();
+            ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
+            for (Project project : projects) {
+                try {
+                    JSONObject row = createJSONObject();
+                    row.put("id", project.getId());
+                    row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
+                    jsonResponse.put(row);
+                } catch (JSONException e) {
+                    log.error("cannot serialize json", e);
+                }
+            }
+            writeJSON(request, response, jsonResponse);
+        }
+    }
+
     private void serveListProjects(ResourceRequest request, ResourceResponse response) throws IOException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        Collection<Project> projects = getWithFilledClearingStateSummary(new ArrayList<>(getAccessibleProjects(user)), user);
+        Collection<Project> projects = new ArrayList<>(getAccessibleProjects(user));
 
         JSONObject jsonResponse = createJSONObject();
         JSONArray data = createJSONArray();
@@ -546,7 +582,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     projectList = projectClient.refineSearch(null, filterMap, user);
                 }
             }
-            projectList = getWithFilledClearingStateSummary(projectList, user);
         } catch (TException e) {
             log.error("Could not search projects in backend ", e);
             projectList = Collections.emptyList();

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
@@ -64,6 +64,10 @@
 
 <portlet:actionURL var="applyFiltersURL" name="applyFilters">
 </portlet:actionURL>
+
+<portlet:resourceURL var="loadClearingStateAjaxURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.GET_CLEARING_STATE_SUMMARY%>'/>
+</portlet:resourceURL>
 
 <div id="header"></div>
 <p class="pageHeader">
@@ -253,11 +257,11 @@
         return renderLinkTo(makeProjectUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
     }
 
-
     function load() {
         prepareAutocompleteForMultipleHits('state', ${stateAutoC});
         prepareAutocompleteForMultipleHits('project_type', ${projectTypeAutoC});
         createProjectsTable();
+        loadClearingStateSummaries();
 
     }
     function createProjectsTable() {
@@ -270,8 +274,8 @@
             "name": '<sw360:ProjectName project="${project}"/>',
             "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
             "state": "<sw360:DisplayEnum value='${project.state}'/>",
-            "clearing": '<sw360:DisplayReleaseClearingStateSummary releaseClearingStateSummary="${project.releaseClearingStateSummary}"/>',
-            "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}"/>',
+            "clearing": 'Not loaded yet',
+            "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
             "linkedProjectsSize": '${project.linkedProjectsSize}',
             "linkedReleasesSize": '${project.releaseIdToUsageSize}',
             "attachmentsSize": '${project.attachmentsSize}'
@@ -297,6 +301,49 @@
         $('#projectsTable_last').hide();
     }
 
+    const clearingColumnIndex = 4;
+
+    function loadClearingStateSummaries() {
+        var tableData = projectsTable.data();
+        var ids = [];
+        for (var i = 0; i < tableData.length; i++) {
+            ids.push(tableData[i].id);
+            var cell = projectsTable.cell(i, clearingColumnIndex);
+            cell.data("Loading...");
+        }
+        jQuery.ajax({
+            type: 'POST',
+            url: '<%=loadClearingStateAjaxURL%>',
+            cache: false,
+            data: {
+                "<portlet:namespace/><%=Project._Fields.ID%>": ids
+            },
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    var cell = projectsTable.cell("#" + response[i].id, clearingColumnIndex);
+                    cell.data(displayClearingStateSummary(response[i].clearing));
+                }
+            },
+            error: function () {
+                for (var i = 0; i < tableData.length; i++) {
+                    var cell = projectsTable.cell("#" + tableData[i].id, clearingColumnIndex);
+                    cell.data("Failed to load");
+                }
+            }
+        });
+    }
+
+    function displayClearingStateSummary(clearing){
+        var releaseCounts;
+        function d(v){return v == undefined ? "0" : v;}
+        if (clearing) {
+            releaseCounts = d(clearing.newRelease) + " " + d(clearing.underClearing) + " " + d(clearing.underClearingByProjectTeam) + " " + d(clearing.reportAvailable) + " " + d(clearing.approved);
+        } else {
+            releaseCounts = "Not available";
+        }
+
+        return "<span title=\"new release, under clearing, under clearing by the project clearing team, report available, approved\">" + releaseCounts + "</span>";
+    }
 
     function createUrl_comp(paramId, paramVal) {
         var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
