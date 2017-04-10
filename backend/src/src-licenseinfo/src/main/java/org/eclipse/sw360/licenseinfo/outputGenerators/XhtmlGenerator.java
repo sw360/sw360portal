@@ -73,8 +73,8 @@ public class XhtmlGenerator extends OutputGenerator<String> {
     }
 
     private static <U, K extends Comparable<K>> SortedSet<U> sortSet(Set<U> unsorted, Function<U, K> keyExtractor) {
-        if (unsorted == null) {
-            return null;
+        if (unsorted == null || unsorted.isEmpty()) {
+            return Collections.emptySortedSet();
         }
         SortedSet<U> sorted = new TreeSet<>(Comparator.comparing(keyExtractor));
         sorted.addAll(unsorted);

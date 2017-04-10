@@ -40,31 +40,5 @@ public abstract class LicenseInfoParser {
 
     public abstract boolean isApplicableTo(Attachment attachmentContent) throws TException;
 
-    protected boolean hasThisXMLRootElement(AttachmentContent content, String rootElementNamespace, String rootElementName) {
-        XMLInputFactory xmlif = XMLInputFactory.newFactory();
-        XMLStreamReader xmlStreamReader = null;
-        InputStream attachmentStream = null;
-        try {
-            attachmentStream = attachmentConnector.getAttachmentStream(content);
-            xmlStreamReader = xmlif.createXMLStreamReader(attachmentStream);
-
-            //skip to first element
-            while(xmlStreamReader.hasNext() && xmlStreamReader.next() != XMLStreamConstants.START_ELEMENT);
-            xmlStreamReader.require(XMLStreamConstants.START_ELEMENT, rootElementNamespace, rootElementName);
-            return true;
-        } catch (XMLStreamException | SW360Exception e) {
-            return false;
-        } finally {
-            if (null != xmlStreamReader){
-                try {
-                    xmlStreamReader.close();
-                } catch (XMLStreamException e) {
-                    // ignore it
-                }
-            }
-            closeQuietly(attachmentStream, LicenseInfoParser.log);
-        }
-    }
-
     public abstract List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException;
 }

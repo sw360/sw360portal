@@ -10,7 +10,6 @@ package org.eclipse.sw360.licenseinfo.parsers;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
@@ -25,22 +24,18 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
@@ -49,21 +44,16 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
  * Class for extracting copyright and license information from a simple XML file
  * @author: alex.borodin@evosoft.com
  */
-public class CombinedCLIParser extends LicenseInfoParser {
+public class CombinedCLIParser extends AbstractCLIParser{
 
     private static final Logger log = Logger.getLogger(CombinedCLIParser.class);
     private static final String COPYRIGHTS_XPATH = "/CombinedCLI/Copyright";
     private static final String LICENSES_XPATH = "/CombinedCLI/License";
     private static final String COPYRIGHT_CONTENT_ELEMENT_NAME = "Content";
     private static final String EXTERNAL_ID_ATTRIBUTE_NAME = "srcComponent";
-    private static final String LICENSE_CONTENT_ELEMENT_NAME = "Content";
-    private static final String LICENSE_ACKNOWLEDGEMENTS_ELEMENT_NAME = "Acknowledgements";
     private static final String COMBINED_CLI_ROOT_ELEMENT_NAME = "CombinedCLI";
     private static final String COMBINED_CLI_ROOT_ELEMENT_NAMESPACE = null;
-    private static final String XML_FILE_EXTENSION = ".xml";
 
-    private static final String LICENSENAME_ATTRIBUTE_NAME = "name";
-    private static final String LICENSE_NAME_UNKNOWN = "License name unknown";
     private static final String PROPERTIES_FILE_PATH = "/sw360.properties";
     public static final String EXTERNAL_ID_CORRELATION_KEY = "combined.cli.parser.external.id.correlation.key";
 
@@ -101,43 +91,54 @@ public class CombinedCLIParser extends LicenseInfoParser {
         Map<String, Release> releasesByExternalId = prepareReleasesByExternalId(getCorrelationKey());
 
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
             attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
-            Document doc = builder.parse(attachmentStream);
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            XPathExpression copyrightsExpr = xpath.compile(COPYRIGHTS_XPATH);
-            XPathExpression licensesExpr = xpath.compile(LICENSES_XPATH);
-            NodeList copyrightNodes = (NodeList) copyrightsExpr.evaluate(doc, XPathConstants.NODESET);
-            NodeList licenseNodes = (NodeList) licensesExpr.evaluate(doc, XPathConstants.NODESET);
-            Map<String, Set<String>> copyrightSetsByExternalId = nodeListToStringSetsByExternalId(copyrightNodes, EXTERNAL_ID_ATTRIBUTE_NAME, COPYRIGHT_CONTENT_ELEMENT_NAME);
-            Map<String, Set<LicenseNameWithText>> licenseNamesWithTextsByExternalId = nodeListToLicenseNamesWithTextsSetsByExternalId(licenseNodes, EXTERNAL_ID_ATTRIBUTE_NAME);
+            Document doc = getDocument(attachmentStream);
+
+            Map<String, Set<String>> copyrightSetsByExternalId = getCopyrightSetsByExternalIdsMap(doc);
+            Map<String, Set<LicenseNameWithText>> licenseNamesWithTextsByExternalId = getLicenseNamesWithTextsByExternalIdsMap(doc);
+
             Set<String> allExternalIds = Sets.union(copyrightSetsByExternalId.keySet(), licenseNamesWithTextsByExternalId.keySet());
             allExternalIds.forEach(extId -> {
-                LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename()));
-                licenseInfo.setCopyrights(copyrightSetsByExternalId.get(extId));
-                licenseInfo.setLicenseNamesWithTexts(licenseNamesWithTextsByExternalId.get(extId));
-                LicenseInfoParsingResult parsingResult = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
-                Release release = releasesByExternalId.get(extId);
-                if (release != null) {
-                    parsingResult.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
-                    parsingResult.setName(release.getName());
-                    parsingResult.setVersion(release.getVersion());
-                } else {
-                    parsingResult.setName("No info found for external component ID " + extId);
-                }
-                parsingResult.setStatus(LicenseInfoRequestStatus.SUCCESS);
+                LicenseInfoParsingResult parsingResult = getLicenseInfoParsingResultForExternalId(attachmentContent, releasesByExternalId, copyrightSetsByExternalId, licenseNamesWithTextsByExternalId, extId);
                 parsingResults.add(parsingResult);
             });
         } catch (ParserConfigurationException | IOException | XPathExpressionException | SAXException | SW360Exception e) {
             log.error(e);
             parsingResults.add(new LicenseInfoParsingResult()
                     .setStatus(LicenseInfoRequestStatus.FAILURE)
-                    .setMessage("Error while parsing CLI file: " + e.toString()));
+                    .setMessage("Error while parsing combined CLI file: " + e.toString()));
         } finally {
             closeQuietly(attachmentStream, log);
         }
         return parsingResults;
+    }
+
+    private Map<String, Set<LicenseNameWithText>> getLicenseNamesWithTextsByExternalIdsMap(Document doc) throws XPathExpressionException {
+        NodeList licenseNodes = getNodeListByXpath(doc, LICENSES_XPATH);
+        return nodeListToLicenseNamesWithTextsSetsByExternalId(licenseNodes, EXTERNAL_ID_ATTRIBUTE_NAME);
+    }
+
+    private Map<String, Set<String>> getCopyrightSetsByExternalIdsMap(Document doc) throws XPathExpressionException {
+        NodeList copyrightNodes = getNodeListByXpath(doc, COPYRIGHTS_XPATH);
+        return nodeListToStringSetsByExternalId(copyrightNodes, EXTERNAL_ID_ATTRIBUTE_NAME, COPYRIGHT_CONTENT_ELEMENT_NAME);
+    }
+
+    @NotNull
+    private LicenseInfoParsingResult getLicenseInfoParsingResultForExternalId(AttachmentContent attachmentContent, Map<String, Release> releasesByExternalId, Map<String, Set<String>> copyrightSetsByExternalId, Map<String, Set<LicenseNameWithText>> licenseNamesWithTextsByExternalId, String extId) {
+        LicenseInfo licenseInfo = new LicenseInfo().setFilenames(Arrays.asList(attachmentContent.getFilename()));
+        licenseInfo.setCopyrights(copyrightSetsByExternalId.get(extId));
+        licenseInfo.setLicenseNamesWithTexts(licenseNamesWithTextsByExternalId.get(extId));
+        LicenseInfoParsingResult parsingResult = new LicenseInfoParsingResult().setLicenseInfo(licenseInfo);
+        Release release = releasesByExternalId.get(extId);
+        if (release != null) {
+            parsingResult.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
+            parsingResult.setName(release.getName());
+            parsingResult.setVersion(release.getVersion());
+        } else {
+            parsingResult.setName("No info found for external component ID " + extId);
+        }
+        parsingResult.setStatus(LicenseInfoRequestStatus.SUCCESS);
+        return parsingResult;
     }
 
     private Map<String, Release> prepareReleasesByExternalId(String correlationKey) {
@@ -155,10 +156,7 @@ public class CombinedCLIParser extends LicenseInfoParser {
             Optional<Node> externalIdOptional = findNamedAttribute(nodes.item(i), externalIdAttributeName);
             String externalId = externalIdOptional.map(Node::getNodeValue).orElse(null);
             String contentText = findNamedSubelement(nodes.item(i), contentElementName)
-                    .map(Node::getTextContent)
-                    .map(String::trim)
-                    .map(StringEscapeUtils::unescapeXml)
-                    .map(StringEscapeUtils::unescapeHtml)
+                    .map(AbstractCLIParser::normalizeEscapedXhtml)
                     .orElse(null);
             if (!result.containsKey(externalId)){
                 result.put(externalId, Sets.newHashSet());
@@ -171,74 +169,18 @@ public class CombinedCLIParser extends LicenseInfoParser {
     private Map<String, Set<LicenseNameWithText>> nodeListToLicenseNamesWithTextsSetsByExternalId(NodeList nodes, String externalIdAttributeName){
         Map<String, Set<LicenseNameWithText>> result = Maps.newHashMap();
         for (int i = 0; i < nodes.getLength(); i++){
-            Optional<Node> externalIdOptional = findNamedAttribute(nodes.item(i), externalIdAttributeName);
+            Node node = nodes.item(i);
+            Optional<Node> externalIdOptional = findNamedAttribute(node, externalIdAttributeName);
             String externalId = externalIdOptional.map(Node::getNodeValue).orElse(null);
 
-            LicenseNameWithText licenseNameWithText = new LicenseNameWithText()
-                    .setLicenseText(findNamedSubelement(nodes.item(i), LICENSE_CONTENT_ELEMENT_NAME)
-                            .map(Node::getTextContent)
-                            .map(String::trim)
-                            .map(StringEscapeUtils::unescapeXml)
-                            .map(StringEscapeUtils::unescapeHtml)
-                            .orElse(null))
-                    .setAcknowledgements(findNamedSubelement(nodes.item(i), LICENSE_ACKNOWLEDGEMENTS_ELEMENT_NAME)
-                            .map(Node::getTextContent)
-                            .map(String::trim)
-                            .map(StringEscapeUtils::unescapeXml)
-                            .map(StringEscapeUtils::unescapeHtml)
-                            .orElse(null))
-                    .setLicenseName(Optional
-                            .ofNullable(nodes.item(i).getAttributes().getNamedItem(LICENSENAME_ATTRIBUTE_NAME))
-                            .map(Node::getNodeValue)
-                            .orElse(LICENSE_NAME_UNKNOWN));
+            LicenseNameWithText licenseNameWithText = getLicenseNameWithTextFromLicenseNode(node);
 
-            if (!result.containsKey(externalId)){
+            if (!result.containsKey(externalId)) {
                 result.put(externalId, Sets.newHashSet());
             }
             result.get(externalId).add(licenseNameWithText);
 
         }
         return result;
-    }
-
-    private Optional<Node> findNamedAttribute(Node node, String name){
-        NamedNodeMap childNodes = node.getAttributes();
-        return Optional.ofNullable(childNodes.getNamedItem(name));
-    }
-
-    private Optional<Node> findNamedSubelement(Node node, String name){
-        NodeList childNodes = node.getChildNodes();
-        return streamFromNodeList(childNodes).filter(n -> n.getNodeName().equals(name)).findFirst();
-    }
-
-    private Stream<Node> streamFromNodeList(NodeList nodes){
-        Iterator<Node> iter = new NodeListIterator(nodes);
-        Iterable<Node> iterable = () -> iter;
-        return StreamSupport.stream(iterable.spliterator(), false);
-    }
-
-    class NodeListIterator implements Iterator<Node>{
-        private final NodeList nodes;
-        private int i;
-
-        public NodeListIterator(NodeList nodes) {
-            this.nodes = nodes;
-            this.i = 0;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return i < nodes.getLength();
-        }
-
-        @Override
-        public Node next() {
-            if (hasNext()){
-                i++;
-                return nodes.item(i-1);
-            } else {
-                throw new NoSuchElementException();
-            }
-        }
     }
 }
