@@ -839,8 +839,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project newProject = PortletUtils.cloneProject(emailFromRequest, department, client.getProjectById(id, user));
                 setAttachmentsInRequest(request, newProject.getAttachments());
                 request.setAttribute(PROJECT, newProject);
-                putLinkedProjectsInRequest(request, newProject.getLinkedProjects());
-                putLinkedReleasesInRequest(request, newProject.getReleaseIdToUsage());
+                putDirectlyLinkedProjectsInRequest(request, newProject.getLinkedProjects());
+                putDirectlyLinkedReleasesInRequest(request, newProject.getReleaseIdToUsage());
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             } else {
                 Project project = new Project();
@@ -848,8 +848,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 setAttachmentsInRequest(request, project.getAttachments());
 
                 request.setAttribute(PROJECT, project);
-                putLinkedProjectsInRequest(request, Collections.emptyMap());
-                putLinkedReleasesInRequest(request, Collections.emptyMap());
+                putDirectlyLinkedProjectsInRequest(request, Collections.emptyMap());
+                putDirectlyLinkedReleasesInRequest(request, Collections.emptyMap());
 
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             }
