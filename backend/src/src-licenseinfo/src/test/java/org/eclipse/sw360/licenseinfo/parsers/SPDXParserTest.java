@@ -126,7 +126,7 @@ public class SPDXParserTest {
                         .findAny()
                         .get());
 
-        LicenseInfoParsingResult result = parser.getLicenseInfo(attachment);
+        LicenseInfoParsingResult result = parser.getLicenseInfos(attachment).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
 
         assertLicenseInfoParsingResult(result);
         assertIsResultOfExample(result.getLicenseInfo());

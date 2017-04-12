@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016.
+ * Copyright Siemens AG, 2016-2017.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  * Part of the SW360 Portal Project.
  *
@@ -101,7 +101,7 @@ public class CLIParserTest {
     public void testGetCLI() throws Exception {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
         when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE)));
-        LicenseInfoParsingResult res = parser.getLicenseInfo(cliAttachment);
+        LicenseInfoParsingResult res = parser.getLicenseInfos(cliAttachment).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
         assertLicenseInfoParsingResult(res);
         assertThat(res.getStatus(), is(LicenseInfoRequestStatus.SUCCESS));
         assertThat(res.getLicenseInfo(), notNullValue());
@@ -118,7 +118,7 @@ public class CLIParserTest {
     public void testGetCLIFailsOnMalformedXML() throws Exception {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
         when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(CLI_TESTFILE.replaceAll("</Content>", "</Broken>"))));
-        LicenseInfoParsingResult res = parser.getLicenseInfo(cliAttachment);
+        LicenseInfoParsingResult res = parser.getLicenseInfos(cliAttachment).stream().findFirst().orElseThrow(()->new RuntimeException("Parser returned empty LisenceInfoParsingResult list"));
         assertLicenseInfoParsingResult(res, LicenseInfoRequestStatus.FAILURE);
         assertThat(res.getStatus(), is(LicenseInfoRequestStatus.FAILURE));
         assertThat(res.getLicenseInfo(), notNullValue());
