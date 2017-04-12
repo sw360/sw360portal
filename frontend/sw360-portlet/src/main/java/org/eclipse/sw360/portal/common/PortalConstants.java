@@ -131,6 +131,7 @@ public class PortalConstants {
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
     public static final String MISSING_USER_LIST = "missingUserList";
+    public static final String GET_CLEARING_STATE_SUMMARY = "getClearingStateSummary";
 
     //! Specialized keys for database Sanitation
     public static final String DUPLICATE_RELEASES = "duplicateReleases";

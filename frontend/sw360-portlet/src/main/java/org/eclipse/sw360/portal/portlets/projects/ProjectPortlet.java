@@ -123,9 +123,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
 
-        if (PortalConstants.PROJECT_LIST.equals(action)) {
-            serveListProjects(request, response);
-        } else if (PortalConstants.VIEW_LINKED_PROJECTS.equals(action)) {
+        if (PortalConstants.VIEW_LINKED_PROJECTS.equals(action)) {
             serveLinkedProjects(request, response);
         } else if (PortalConstants.REMOVE_PROJECT.equals(action)) {
             serveRemoveProject(request, response);
@@ -143,6 +141,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             downloadLicenseInfo(request, response);
         } else if (PortalConstants.DOWNLOAD_SOURCE_CODE_BUNDLE.equals(action)) {
             downloadSourceCodeBundle(request, response);
+        } else if (PortalConstants.GET_CLEARING_STATE_SUMMARY.equals(action)) {
+            serveGetClearingStateSummaries(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
@@ -204,34 +204,38 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void serveListProjects(ResourceRequest request, ResourceResponse response) throws IOException {
+    private void serveGetClearingStateSummaries(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        Collection<Project> projects = getWithFilledClearingStateSummary(new ArrayList<>(getAccessibleProjects(user)), user);
-
-        JSONObject jsonResponse = createJSONObject();
-        JSONArray data = createJSONArray();
-        ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
-
-        for (Project project : projects) {
+        List<Project> projects;
+        String ids[] = request.getParameterValues(Project._Fields.ID.toString()+"[]");
+        if (ids == null || ids.length == 0) {
+            JSONArray jsonResponse = createJSONArray();
+            writeJSON(request, response, jsonResponse);
+        } else {
             try {
-                JSONObject row = createJSONObject();
-                row.put("id", project.getId());
-                row.put("name", printName(project));
-                String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
-                row.put("state", ThriftEnumUtils.enumToString(project.getState()));
-                row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
-                row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
-
-                data.put(row);
-            } catch (JSONException e) {
-                log.error("cannot serialize json", e);
+                ProjectService.Iface client = thriftClients.makeProjectClient();
+                projects = client.getProjectsById(Arrays.asList(ids), user);
+            } catch (TException e) {
+                log.error("Could not fetch project summary from backend!", e);
+                projects = Collections.emptyList();
             }
+
+            projects = getWithFilledClearingStateSummary(projects, user);
+
+            JSONArray jsonResponse = createJSONArray();
+            ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
+            for (Project project : projects) {
+                try {
+                    JSONObject row = createJSONObject();
+                    row.put("id", project.getId());
+                    row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
+                    jsonResponse.put(row);
+                } catch (JSONException e) {
+                    log.error("cannot serialize json", e);
+                }
+            }
+            writeJSON(request, response, jsonResponse);
         }
-
-        jsonResponse.put("data", data);
-
-        writeJSON(request, response, jsonResponse);
     }
 
     @Override
@@ -546,7 +550,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     projectList = projectClient.refineSearch(null, filterMap, user);
                 }
             }
-            projectList = getWithFilledClearingStateSummary(projectList, user);
         } catch (TException e) {
             log.error("Could not search projects in backend ", e);
             projectList = Collections.emptyList();
