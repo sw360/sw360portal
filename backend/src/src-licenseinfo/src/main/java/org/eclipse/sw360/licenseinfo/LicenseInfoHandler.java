@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,10 +27,7 @@ import org.eclipse.sw360.licenseinfo.outputGenerators.DocxGenerator;
 import org.eclipse.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
 import org.eclipse.sw360.licenseinfo.outputGenerators.OutputGenerator;
 import org.eclipse.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
-import org.eclipse.sw360.licenseinfo.parsers.AttachmentContentProvider;
-import org.eclipse.sw360.licenseinfo.parsers.CLIParser;
-import org.eclipse.sw360.licenseinfo.parsers.LicenseInfoParser;
-import org.eclipse.sw360.licenseinfo.parsers.SPDXParser;
+import org.eclipse.sw360.licenseinfo.parsers.*;
 
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
@@ -81,6 +78,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         parsers = new LicenseInfoParser[]{
                 new SPDXParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
                 new CLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
+                new CombinedCLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider, componentDatabaseHandler),
         };
 
         outputGenerators = new OutputGenerator[]{
@@ -90,9 +88,9 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         };
     }
 
-    private LicenseInfoParsingResult getLicenseInfoForRelease(Release release, String selectedAttachmentContentId) throws TException{
+    private List<LicenseInfoParsingResult> getLicenseInfosForRelease(Release release, String selectedAttachmentContentId) throws TException{
         if(release == null){
-            return noSourceParsingResult();
+            return Collections.singletonList(noSourceParsingResult());
         }
         Optional<Attachment> selectedAttachmentOpt = release
                 .getAttachments()
@@ -121,20 +119,25 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                 return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
             } else {
                 if (applicableParsers.size() > 1){
-                    log.info("More than one parser claims to be able to parse attachment with contend id "+selectedAttachmentContentId + ". Results from multiple parsers will be merged.");
+                    log.info("More than one parser claims to be able to parse attachment with contend id "+selectedAttachmentContentId);
                 }
-                LicenseInfoParsingResult result = applicableParsers.stream().map(parser -> {
+                List<LicenseInfoParsingResult> results = applicableParsers.stream().map(parser -> {
                     try {
-                        return parser.getLicenseInfo(attachment);
+                        return parser.getLicenseInfos(attachment);
                     } catch (TException e) {
                         throw new UncheckedTException(e);
                     }
-                }).reduce(noSourceParsingResult(), this::mergeLicenseInfos);
-                return assignReleaseToLicenseInfoParsingResult(result, release);
+                }).flatMap(Collection::stream)
+                        .collect(Collectors.toList());
+                return assignReleaseToLicenseInfoParsingResults(results, release);
             }
         } catch (UncheckedTException e) {
             throw e.getTExceptionCause();
         }
+    }
+
+    private List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResult(LicenseInfoParsingResult licenseInfoParsingResult, Release release) {
+        return assignReleaseToLicenseInfoParsingResults(Collections.singletonList(licenseInfoParsingResult), release);
     }
 
     @Override
@@ -207,19 +210,19 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         throw new TException("Unknown output format: " + generatorClassName);
     }
 
-    private Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(Map<Release, Set<String>> releaseToSelectedAttachmentId, User user) throws TException {
+    private Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(Map<Release, Set<String>> releaseToSelectedAttachmentIds, User user) throws TException {
         try {
-            return releaseToSelectedAttachmentId.entrySet().stream()
+            return releaseToSelectedAttachmentIds.entrySet().stream()
                     .map((entry) -> entry.getValue().stream()
                             .filter(Objects::nonNull)
                             .map(attId -> {
                                 try {
-                                    return getLicenseInfoForRelease(entry.getKey(), attId);
+                                    return getLicenseInfosForRelease(entry.getKey(), attId);
                                 } catch (TException e) {
                                     throw new UncheckedTException(e);
                                 }
-                            }).reduce(this::mergeLicenseInfos).orElse(noSourceParsingResult())
-                    ).collect(Collectors.toList());
+                            }).flatMap(Collection::stream).collect(Collectors.toList())
+                    ).flatMap(Collection::stream).collect(Collectors.toList());
         }catch(UncheckedTException e){
             throw e.getTExceptionCause();
         }
@@ -241,7 +244,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         Set<String> filenames = new HashSet<>();
         filenames.addAll(nullToEmptyList(lir1.getLicenseInfo().getFilenames()));
         filenames.addAll(nullToEmptyList(lir2.getLicenseInfo().getFilenames()));
-        mergedLi.setFilenames(filenames.stream().collect(Collectors.toList()));
+        mergedLi.setFilenames(new ArrayList<>(filenames));
         //merging copyrights
         mergedLi.setCopyrights(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getCopyrights()), nullToEmptySet(lir2.getLicenseInfo().getCopyrights())));
         //merging licenses
@@ -259,11 +262,16 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE);
     }
 
-    private LicenseInfoParsingResult assignReleaseToLicenseInfoParsingResult(LicenseInfoParsingResult result, Release release) {
-        result.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
-        result.setName(release.getName());
-        result.setVersion(release.getVersion());
-        return result;
+    private List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResults(List<LicenseInfoParsingResult> parsingResults, Release release) {
+        parsingResults.forEach(r -> {
+            //override by given release only if the fields were not set by parser, because parser knows best
+            if (!r.isSetVendor() && !r.isSetName() && !r.isSetVersion()) {
+                r.setVendor(release.isSetVendor() ? release.getVendor().getShortname() : "");
+                r.setName(release.getName());
+                r.setVersion(release.getVersion());
+            }
+        });
+        return parsingResults;
     }
 
     private static class UncheckedTException extends RuntimeException {
