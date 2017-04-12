@@ -37,10 +37,6 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.EXPORT_TO_EXCEL%>"/>
 </portlet:resourceURL>
 
-
-<portlet:resourceURL var="projectListAjaxURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.PROJECT_LIST%>'/>
-</portlet:resourceURL>
 <portlet:resourceURL var="deleteAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.REMOVE_PROJECT%>'/>
 </portlet:resourceURL>

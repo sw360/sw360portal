@@ -123,9 +123,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
 
-        if (PortalConstants.PROJECT_LIST.equals(action)) {
-            serveListProjects(request, response);
-        } else if (PortalConstants.VIEW_LINKED_PROJECTS.equals(action)) {
+        if (PortalConstants.VIEW_LINKED_PROJECTS.equals(action)) {
             serveLinkedProjects(request, response);
         } else if (PortalConstants.REMOVE_PROJECT.equals(action)) {
             serveRemoveProject(request, response);
@@ -238,36 +236,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
             writeJSON(request, response, jsonResponse);
         }
-    }
-
-    private void serveListProjects(ResourceRequest request, ResourceResponse response) throws IOException {
-        User user = UserCacheHolder.getUserFromRequest(request);
-        Collection<Project> projects = new ArrayList<>(getAccessibleProjects(user));
-
-        JSONObject jsonResponse = createJSONObject();
-        JSONArray data = createJSONArray();
-        ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
-
-        for (Project project : projects) {
-            try {
-                JSONObject row = createJSONObject();
-                row.put("id", project.getId());
-                row.put("name", printName(project));
-                String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
-                row.put("state", ThriftEnumUtils.enumToString(project.getState()));
-                row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
-                row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
-
-                data.put(row);
-            } catch (JSONException e) {
-                log.error("cannot serialize json", e);
-            }
-        }
-
-        jsonResponse.put("data", data);
-
-        writeJSON(request, response, jsonResponse);
     }
 
     @Override
