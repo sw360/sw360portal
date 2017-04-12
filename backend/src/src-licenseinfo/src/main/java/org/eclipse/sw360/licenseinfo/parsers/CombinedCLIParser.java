@@ -146,7 +146,9 @@ public class CombinedCLIParser extends AbstractCLIParser{
         Map<String, Release> releasesByExternalId = idMap.values().stream()
                 .filter(r -> r.getExternalIds() != null && r.getExternalIds().containsKey(correlationKey))
                 .collect(Collectors.toMap(r -> r.getExternalIds().get(correlationKey), r -> r, (r1, r2) -> {
-                    throw new RuntimeException(String.format("Duplicate externalId in releases %s and %s", SW360Utils.printFullname(r1), SW360Utils.printFullname(r2)));}));
+                    log.warn(String.format("Duplicate externalId in releases %s and %s", SW360Utils.printFullname(r1), SW360Utils.printFullname(r2)));
+                    return r1;
+                }));
         return releasesByExternalId;
     }
 
