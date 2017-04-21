@@ -60,6 +60,9 @@ public class ProjectExporter extends ExcelExporter<Project> {
         nameToDisplayName.put(Project._Fields.SYSTEM_TEST_END.getFieldName(), "system test end");
         nameToDisplayName.put(Project._Fields.DELIVERY_START.getFieldName(), "delivery start");
         nameToDisplayName.put(Project._Fields.PHASE_OUT_SINCE.getFieldName(), "phase out since");
+        nameToDisplayName.put(Project._Fields.PROJECT_OWNER.getFieldName(), "project owner");
+        nameToDisplayName.put(Project._Fields.OWNER_ACCOUNTING_UNIT.getFieldName(), "owner accounting unit");
+        nameToDisplayName.put(Project._Fields.OWNER_GROUP.getFieldName(), "owner group");
     }
 
     private static final List<Project._Fields> PROJECT_IGNORED_FIELDS = ImmutableList.<Project._Fields>builder()
