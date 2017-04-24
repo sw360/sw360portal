@@ -75,11 +75,11 @@
         <td><sw360:DisplayUserEmail email="${project.projectOwner}"/></td>
     </tr>
     <tr>
-        <td>Accounting unit:</td>
+        <td>Owner accounting unit:</td>
         <td><sw360:out value="${project.ownerAccountingUnit}"/></td>
     </tr>
     <tr>
-        <td>Billing group:</td>
+        <td>Owner billing group:</td>
         <td><sw360:out value="${project.ownerGroup}"/></td>
     </tr>
     <tr>

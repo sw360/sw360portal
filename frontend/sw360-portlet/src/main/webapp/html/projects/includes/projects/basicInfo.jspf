@@ -124,16 +124,16 @@
     </tr>
     <tr>
         <td width="33%">
-            <label class="textlabel stackedLabel" for="proj_accounting_unit">Accounting unit</label>
+            <label class="textlabel stackedLabel" for="proj_accounting_unit">Owner accounting unit</label>
             <input class="toplabelledInput" id="proj_accounting_unit" name="<portlet:namespace/><%=Project._Fields.OWNER_ACCOUNTING_UNIT%>"
                    type="text"
                    value="<sw360:out value="${project.ownerAccountingUnit}"/>" placeholder="Enter owner's accounting unit"/>
         </td>
         <td width="33%">
-            <label class="textlabel stackedLabel" for="proj_billing_group">Billing group</label>
+            <label class="textlabel stackedLabel" for="proj_billing_group">Owner billing group</label>
             <input class="toplabelledInput" id="proj_billing_group" name="<portlet:namespace/><%=Project._Fields.OWNER_GROUP%>"
                    type="text"
-                   value="<sw360:out value="${project.ownerGroup}"/>" placeholder="Enter owner's group"/>
+                   value="<sw360:out value="${project.ownerGroup}"/>" placeholder="Enter owner's billing group"/>
         </td>
         <td width="33%">
             <sw360:DisplayUserEdit email="${project.leadArchitect}" id="<%=Project._Fields.LEAD_ARCHITECT.toString()%>"
