@@ -33,7 +33,7 @@
     <properties>
         <java.version>1.8</java.version>
         <liferay.version>6.2.1</liferay.version>
-        <ektorp.version>1.4.2</ektorp.version>
+        <ektorp.version>1.4.4</ektorp.version>
         <thrift.version>0.9.3</thrift.version>
         <guava.version>18.0</guava.version>
         <spring.version>4.1.5.RELEASE</spring.version>
