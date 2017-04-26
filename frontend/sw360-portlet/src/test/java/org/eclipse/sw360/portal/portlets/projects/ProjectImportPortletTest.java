@@ -33,21 +33,10 @@ public class ProjectImportPortletTest extends TestCase {
     private final String newURL = "newURL";
 
     @Mock
-    private ResourceRequest request;
-
-    @Mock
-    private ResourceResponse response;
-
-    @Mock
     private PortletSession session;
 
     @Mock
     private JSONObject responseData;
-
-    @Before
-    public void before() {
-        when(request.getPortletSession()).thenReturn(session);
-    }
 
     @Test
     public void testUpdateInputSourceWithoutUrl() throws Exception {
