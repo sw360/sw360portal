@@ -283,4 +283,6 @@ service LicenseService {
     * removes all licenses, license types, todos, obligations, risks, risk categories from db
     **/
     RequestSummary deleteAllLicenseInformation(1: User user);
+
+    RequestSummary importAllSpdxLicenses(1: User user);
 }

@@ -304,4 +304,12 @@ public class LicenseHandler implements LicenseService.Iface {
         return handler.deleteAllLicenseInformation();
     }
 
+    @Override
+    public RequestSummary importAllSpdxLicenses(User user) throws TException {
+        if(! PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user)){
+            return new RequestSummary().setRequestStatus(RequestStatus.FAILURE);
+        }
+        return handler.importAllSpdxLicenses(user);
+    }
+
 }

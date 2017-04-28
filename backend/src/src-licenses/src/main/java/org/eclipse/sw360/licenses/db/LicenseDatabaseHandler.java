@@ -1,6 +1,6 @@
 /*
  * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
- * With modifications by Bosch Software Innovations GmbH, 2016.
+ * With contributions by Bosch Software Innovations GmbH, 2016-2017.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,14 +27,15 @@ import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
+import org.eclipse.sw360.licenses.tools.SpdxConnector;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.apache.log4j.Logger;
 
-
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -791,7 +792,7 @@ public class LicenseDatabaseHandler {
         return RequestStatus.SUCCESS;
     }
 
-public RequestSummary deleteAllLicenseInformation() {
+    public RequestSummary deleteAllLicenseInformation() {
         RequestSummary result = new RequestSummary()
                 .setRequestStatus(RequestStatus.SUCCESS)
                 .setTotalElements(0)
@@ -806,5 +807,55 @@ public RequestSummary deleteAllLicenseInformation() {
         Set<String> allIds = repository.getAllIds();
         List<DocumentOperationResult> operationResults = repository.deleteIds(allIds);
         return getRequestSummary(allIds.size(), operationResults.size());
+    }
+
+    public RequestSummary importAllSpdxLicenses(User user) {
+        RequestSummary requestSummary = new RequestSummary()
+                .setTotalAffectedElements(0)
+                .setMessage("");
+        List<String> spdxIds = SpdxConnector.getAllSpdxLicenseIds();
+        Map<String,License> sw360Licenses = ThriftUtils.getIdMap(getLicenses());
+
+        List<License> newLicenses = new ArrayList<>();
+        List<String> mismatchedLicenses = new ArrayList<>();
+
+        for(String spdxId : spdxIds){
+            License sw360license = sw360Licenses.get(spdxId);
+
+            if(sw360license == null) {
+
+                final Optional<License> spdxLicenseAsSW360License = SpdxConnector.getSpdxLicenseAsSW360License(spdxId);
+                if(spdxLicenseAsSW360License.isPresent()){
+                    newLicenses.add(spdxLicenseAsSW360License.get());
+                }else{
+                    log.error("Failed to find SpdxListedLicense with id=" + spdxId);
+                }
+            }else{
+                boolean matches = SpdxConnector.matchesSpdxLicenseText(sw360license,spdxId);
+                if (matches) {
+                    log.info("The SPDX license with id=" + spdxId + " is already in the DB");
+                }else {
+                    log.warn("There is a license with id=" + spdxId + " which does not match the SPDX license");
+                    mismatchedLicenses.add(spdxId);
+                }
+            }
+        }
+
+        try {
+            addLicenses(newLicenses,user);
+
+            if (mismatchedLicenses.size() > 0){
+                requestSummary.setMessage("The following licenses did not match their SPDX equivalent: " + COMMA_JOINER.join(mismatchedLicenses));
+            }
+            requestSummary.setTotalAffectedElements(newLicenses.size());
+        } catch (SW360Exception e) {
+            String msg = "Failed to import all SPDX licenses";
+            requestSummary.setMessage(msg);
+            log.error(msg, e);
+        }
+
+        return requestSummary
+                .setTotalElements(spdxIds.size())
+                .setRequestStatus(RequestStatus.SUCCESS);
     }
 }
