@@ -249,6 +249,9 @@ struct Component {
     20: optional string createdBy, // person who created the component in sw360
     24: optional set<string> subscribers, // List of subscriber information
     25: optional set<string> moderators, // people who can modify the data
+    26: optional string componentOwner,
+    27: optional string ownerAccountingUnit,
+    28: optional string ownerGroup,
 
     // Linked objects
     32: optional list<Release> releases,
