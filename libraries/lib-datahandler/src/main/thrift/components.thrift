@@ -224,10 +224,12 @@ struct Release {
 }
 
 enum ComponentType {
-    INTERNAL = 0,
+    INTERNAL = 0, //internal software closed source
     OSS = 1,      //open source software
     COTS = 2,     //commercial of the shelf
-    FREESOFTWARE = 3,
+    FREESOFTWARE = 3, //freeware
+    INNER_SOURCE = 4, //internal software with source open for customers within own company
+    SERVICE = 5,
 }
 
 struct Component {
