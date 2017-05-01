@@ -476,6 +476,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         try {
             ProjectService.Iface client = thriftClients.makeProjectClient();
             actual_project = client.getProjectById(moderationRequest.getDocumentId(), user);
+            actual_project = client.fillClearingStateSummary(Collections.singletonList(actual_project), user).get(0);
             is_used = client.projectIsUsed(actual_project.getId());
             request.setAttribute(PortalConstants.ACTUAL_PROJECT, actual_project);
         } catch (TException e) {
