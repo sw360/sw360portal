@@ -1,5 +1,6 @@
 <%--
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  - With contributions by Bosch Software Innovations GmbH, 2016-2017.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +24,11 @@
                    value='<%=PortalConstants.ACTION_DELETE_ALL_LICENSE_INFORMATION%>'/>
 </portlet:resourceURL>
 
+<portlet:resourceURL var="importSpdxLicenseInformationURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>"
+                   value='<%=PortalConstants.ACTION_IMPORT_SPDX_LICENSE_INFORMATION%>'/>
+</portlet:resourceURL>
+
 <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/external/jquery.dataTables.js"></script>
@@ -44,12 +50,16 @@
                  width="25px" height="25px">
         </td>
     </tr>
-    <br/>
+    <tr>
+        <td>Import all SPDX license information</td>
+        <td><a id="importSPDXLink" href="#">Import</a>
+        </td>
+    </tr>
     <tr>
         <td>Delete all license information</td>
         <td><img src="<%=request.getContextPath()%>/images/Trash.png"
-                                                alt=" Delete all license information"
-                                                onclick="deleteAllLicenseInformation()">
+                 alt="Delete all license information"
+                 onclick="deleteAllLicenseInformation()">
         </td>
     </tr>
     </tbody>
@@ -128,6 +138,35 @@
                 "\nN.B.: other documents might use the licenses." +
                 "\nThis function is meant to be followed by a new license import.";
         deleteConfirmed(confirmMessage, deleteAllLicenseInformationInternal);
+    }
+
+    function importSpdxLicenseInformation() {
+
+        function importSpdxLicenseInformationInternal() {
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=importSpdxLicenseInformationURL%>',
+                cache: false,
+                success: function (data) {
+                    if (data.result == 'SUCCESS')
+                        $.alert("I imported " + data.totalAffectedObjects + " of " + data.totalObjects + " SPDX licenses. " + data.message);
+                    else {
+                        $.alert("I could not import all license information!");
+                    }
+                },
+                error: function () {
+                    $.alert("I could not import all license information!");
+                }
+            });
+        }
+
+        var confirmMessage = "Do you really want to import all SPDX licenses";
+        deleteConfirmed(confirmMessage, importSpdxLicenseInformationInternal);
+    }
+
+    window.onload = function() {
+        var a = document.getElementById("importSPDXLink");
+        a.onclick = importSpdxLicenseInformation;
     }
 </script>
 

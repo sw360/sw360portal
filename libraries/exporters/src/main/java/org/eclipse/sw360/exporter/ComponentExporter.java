@@ -43,6 +43,9 @@ public class ComponentExporter extends ExcelExporter<Component> {
         nameToDisplayName.put(Component._Fields.SOFTWARE_PLATFORMS.getFieldName(), "software platforms");
         nameToDisplayName.put(Component._Fields.OPERATING_SYSTEMS.getFieldName(), "operating systems");
         nameToDisplayName.put(Component._Fields.VENDOR_NAMES.getFieldName(), "vendor names");
+        nameToDisplayName.put(Component._Fields.COMPONENT_OWNER.getFieldName(), "component owner");
+        nameToDisplayName.put(Component._Fields.OWNER_ACCOUNTING_UNIT.getFieldName(), "owner accounting unit");
+        nameToDisplayName.put(Component._Fields.OWNER_GROUP.getFieldName(), "owner group");
     }
 
     private static final List<Component._Fields> COMPONENT_IGNORED_FIELDS = ImmutableList.<Component._Fields>builder()
