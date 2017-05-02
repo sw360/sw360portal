@@ -91,10 +91,11 @@ public abstract class DocumentPermissions<T> {
         RequestedAction out = null;
         boolean isAllowed = true;
 
-        for (RequestedAction requestedAction : ImmutableSet.of(READ, WRITE, ATTACHMENTS, DELETE, USERS, CLEARING)) {
-            isAllowed  = getStandardPermissions(requestedAction);
-            if(!isAllowed) return out;
-            out=requestedAction;
+        for (RequestedAction requestedAction : ImmutableSet.of(READ, WRITE, WRITE_ECC, ATTACHMENTS, DELETE, USERS, CLEARING)) {
+            isAllowed = isActionAllowed(requestedAction);
+            if (isAllowed) {
+                out = requestedAction;
+            }
         }
 
         return out;

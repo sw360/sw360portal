@@ -11,6 +11,7 @@ package org.eclipse.sw360.portal.portlets.admin;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.RequestSummary;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -47,9 +48,14 @@ public class DatabaseSanitation extends Sw360Portlet {
         String action = request.getParameter(PortalConstants.ACTION);
         if (PortalConstants.DUPLICATES.equals(action)) {
                  serveDuplicates(request,response);
-        }
-        if(PortalConstants.ACTION_DELETE_ALL_LICENSE_INFORMATION.equals(action)){
+        }else if(PortalConstants.ACTION_DELETE_ALL_LICENSE_INFORMATION.equals(action)){
             deleteAllLicenseInformation(request, response);
+        }else if(PortalConstants.ACTION_IMPORT_SPDX_LICENSE_INFORMATION.equals(action)){
+            try {
+                importLicensesFromSPDX(request, response);
+            } catch (TException e) {
+                throw new PortletException(e);
+            }
         }
     }
 
@@ -92,5 +98,12 @@ public class DatabaseSanitation extends Sw360Portlet {
         } catch (TException te){
             log.error("Got TException when trying to delete all license information." ,te);
         }
+    }
+
+    private void importLicensesFromSPDX(ResourceRequest request, ResourceResponse response) throws TException {
+        User user = UserCacheHolder.getUserFromRequest(request);
+        LicenseService.Iface licenseClient = thriftClients.makeLicenseClient();
+        RequestSummary requestSummary = licenseClient.importAllSpdxLicenses(user);
+        renderRequestSummary(request, response, requestSummary);
     }
 }

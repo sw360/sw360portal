@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -47,11 +47,14 @@ public class ThriftEnumUtils {
             SourceDatabase.BDP, "BDP"
     );
     //! Enumeration "fancy name" mappings
-    private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.of(
-            ComponentType.OSS, "Open Source Software" ,
-            ComponentType.COTS, "Commercial Off The Shelf" ,
-            ComponentType.INTERNAL, "Internal" ,
-            ComponentType.FREESOFTWARE, "Free Software");
+    private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.<ComponentType, String>builder()
+            .put(ComponentType.OSS, "OSS")
+            .put(ComponentType.COTS, "COTS")
+            .put(ComponentType.INTERNAL, "Internal")
+            .put(ComponentType.INNER_SOURCE, "Inner Source")
+            .put(ComponentType.SERVICE, "Service")
+            .put(ComponentType.FREESOFTWARE, "Freeware")
+            .build();
 
 
     private static final ImmutableMap<ProjectType, String> MAP_PROJECT_TYPE_STRING = ImmutableMap.of(
