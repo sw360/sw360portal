@@ -29,7 +29,6 @@ import static org.eclipse.sw360.datahandler.thrift.components.Component._Fields.
 
 public class ComponentExporter extends ExcelExporter<Component> {
     private static final Logger log = Logger.getLogger(ProjectExporter.class);
-    private static boolean extendedByReleases;
     private static ReleaseHelper releaseHelper;
 
     public static final Map<String, String> nameToDisplayName;
@@ -44,6 +43,9 @@ public class ComponentExporter extends ExcelExporter<Component> {
         nameToDisplayName.put(Component._Fields.SOFTWARE_PLATFORMS.getFieldName(), "software platforms");
         nameToDisplayName.put(Component._Fields.OPERATING_SYSTEMS.getFieldName(), "operating systems");
         nameToDisplayName.put(Component._Fields.VENDOR_NAMES.getFieldName(), "vendor names");
+        nameToDisplayName.put(Component._Fields.COMPONENT_OWNER.getFieldName(), "component owner");
+        nameToDisplayName.put(Component._Fields.OWNER_ACCOUNTING_UNIT.getFieldName(), "owner accounting unit");
+        nameToDisplayName.put(Component._Fields.OWNER_GROUP.getFieldName(), "owner group");
     }
 
     private static final List<Component._Fields> COMPONENT_IGNORED_FIELDS = ImmutableList.<Component._Fields>builder()
@@ -62,9 +64,8 @@ public class ComponentExporter extends ExcelExporter<Component> {
     protected static List<String> HEADERS = new ArrayList<>();
 
     public ComponentExporter(ComponentService.Iface componentClient, boolean extendedByReleases) {
-        super(new ComponentHelper(componentClient));
+        super(new ComponentHelper(componentClient, extendedByReleases));
         releaseHelper = new ReleaseHelper(componentClient);
-        this.extendedByReleases = extendedByReleases;
         HEADERS = COMPONENT_RENDERED_FIELDS
                 .stream()
                 .map(Component._Fields::getFieldName)
@@ -79,10 +80,12 @@ public class ComponentExporter extends ExcelExporter<Component> {
 
         private final ComponentService.Iface componentClient;
         private List<Release> releases;
+        private boolean extendedByReleases;
 
-        private ComponentHelper(ComponentService.Iface componentClient){
+        private ComponentHelper(ComponentService.Iface componentClient, boolean extendedByReleases){
             this.componentClient = componentClient;
-        };
+            this.extendedByReleases = extendedByReleases;
+        }
 
         @Override
         public int getColumns() {

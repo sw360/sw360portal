@@ -1,4 +1,3 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.

@@ -1,5 +1,7 @@
-<%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
+<%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %><%--
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -25,11 +27,10 @@
 <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
     <thead>
     <tr>
-        <th colspan="6" class="headlabel">Linked Releases And Projects</th>
+        <th colspan="5" class="headlabel">Linked Releases And Projects</th>
     </tr>
     <tr>
         <th>Name</th>
-        <th>Version</th>
         <th>Relation</th>
         <th>Type</th>
         <th>Clearing State</th>
@@ -46,10 +47,7 @@
         >
             <td>
                 <a href="<sw360:DisplayProjectLink projectId="${projectLink.id}" bare="true" />"><sw360:out
-                        value="${projectLink.name}" maxChar="50"/></a>
-            </td>
-            <td>
-                <sw360:out value="${projectLink.version}"/>
+                        value="${projectLink.name} ${projectLink.version}" maxChar="60"/></a>
             </td>
             <td>
                 <sw360:DisplayEnum value="${projectLink.relation}"/>
@@ -71,11 +69,8 @@
             >
                 <td>
                     <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
-                        <sw360:out value="${releaseLink.vendor} ${releaseLink.name}" maxChar="50"/>
+                        <sw360:out value="${releaseLink.longName}" maxChar="60"/>
                     </a>
-                </td>
-                <td>
-                    <sw360:out value="${releaseLink.version}"/>
                 </td>
                 <td>
                     <core_rt:if test="${!releaseLink.setReleaseRelationship}">
@@ -102,13 +97,19 @@
     </core_rt:forEach>
     <core_rt:if test="${projectList.size() < 1 and $releaseList.size() < 1}">
         <tr>
-            <td colspan="4">No linked releases or projects</td>
+            <td colspan="5">No linked releases or projects</td>
         </tr>
     </core_rt:if>
     </tbody>
 </table>
 <core_rt:if test="${inProjectDetailsContext}">
 <span class="pull-right">
+    <select class="toplabelledInput formatSelect" id="extendedByReleases" name="extendedByReleases">
+        <option value="false">Projects only</option>
+        <option value="true">Projects with linked releases</option>
+    </select>
+    <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
+
     <input type="submit" id="downloadLicenseInfoButton" value="Generate License Info" class="addButton"/>
     <input type="submit" id="downloadSourceCodeBundleButton" value="Generate Source Code Bundle" class="addButton"/>
 </span>
@@ -131,4 +132,12 @@
         $('#downloadLicenseInfoButton').click(downloadLicenseInfo);
         $('#downloadSourceCodeBundleButton').click(downloadSourceCodeBundleButton);
     });
+
+    function exportSpreadsheet() {
+        var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+        portletURL.setParameter('<%=Project._Fields.ID%>','${project.id}');
+        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
+        window.location.href = portletURL.toString();
+    }
 </script>

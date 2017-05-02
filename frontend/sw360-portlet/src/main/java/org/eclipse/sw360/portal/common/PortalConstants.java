@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -22,6 +22,7 @@ import java.util.Set;
  * @author gerrit.grenzebach@tngtech.com
  * @author andreas.reichel@tngtech.com
  * @author stefan.jaeger@evosoft.com
+ * @author alex.borodin@evosoft.com
  */
 public class PortalConstants {
 
@@ -35,6 +36,7 @@ public class PortalConstants {
     //! Role names
     public static final String ROLENAME_ADMIN = "Administrator";
     public static final String ROLENAME_CLEARING_ADMIN = "Clearing Admin";
+    public static final String ROLENAME_ECC_ADMIN = "ECC Admin";
 
     //! Standard keys for Lists and their size
     public static final String KEY_SUMMARY = "documents";
@@ -73,7 +75,9 @@ public class PortalConstants {
     public static final String MODERATION_ID = "moderationId";
     public static final String MODERATION_REQUEST = "moderationRequest";
     public static final String MODERATION_REQUESTS = "moderationRequests";
+    public static final String CLOSED_MODERATION_REQUESTS = "closedModerationRequests";
     public static final String DELETE_MODERATION_REQUEST = "deleteModerationRequest";
+    public static final String MODERATION_ACTIONS_ALLOWED = "moderationAllowed";
 
     //! Specialized keys for components
     public static final String COMPONENT_ID = "componentid";
@@ -127,6 +131,7 @@ public class PortalConstants {
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
     public static final String MISSING_USER_LIST = "missingUserList";
+    public static final String GET_CLEARING_STATE_SUMMARY = "getClearingStateSummary";
 
     //! Specialized keys for database Sanitation
     public static final String DUPLICATE_RELEASES = "duplicateReleases";
@@ -134,6 +139,7 @@ public class PortalConstants {
     public static final String DUPLICATE_COMPONENTS = "duplicateComponents";
     public static final String DUPLICATE_PROJECTS = "duplicateProjects";
     public static final String ACTION_DELETE_ALL_LICENSE_INFORMATION = "deleteAllLicenseInformation";
+    public static final String ACTION_IMPORT_SPDX_LICENSE_INFORMATION = "importSpdxLicenseInformation";
 
 
     //! Specialized keys for vulnerability management
@@ -271,6 +277,7 @@ public class PortalConstants {
 
     // Excel export
     public static final String EXPORT_TO_EXCEL = "export_to_excel";
+    public static final String EXPORT_CLEARING_TO_EXCEL = "export_clearing_to_excel";
     public static final String EXPORT_ID = "export_id";
 
     // Import Projects

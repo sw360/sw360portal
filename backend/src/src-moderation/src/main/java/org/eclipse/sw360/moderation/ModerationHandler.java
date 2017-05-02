@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,7 @@
 
 package org.eclipse.sw360.moderation;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.thrift.ModerationState;
 import org.eclipse.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
@@ -22,7 +23,6 @@ import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.moderation.db.ModerationDatabaseHandler;
-import org.apache.thrift.TException;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -35,6 +35,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ModerationHandler implements ModerationService.Iface {
 
@@ -60,6 +61,14 @@ public class ModerationHandler implements ModerationService.Iface {
         assertNotNull(release);
 
         return handler.createRequest(release, user, false);
+    }
+
+    @Override
+    public RequestStatus createReleaseRequestForEcc(Release release, User user) throws TException {
+        assertUser(user);
+        assertNotNull(release);
+
+        return handler.createRequest(release, user, false, handler.getEccModeratorsProvider());
     }
 
     @Override

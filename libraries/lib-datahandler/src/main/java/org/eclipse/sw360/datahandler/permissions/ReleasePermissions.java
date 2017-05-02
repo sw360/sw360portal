@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,6 +13,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
  * Created by bodet on 16/02/15.
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ReleasePermissions extends DocumentPermissions<Release> {
 
@@ -44,7 +46,11 @@ public class ReleasePermissions extends DocumentPermissions<Release> {
 
     @Override
     public boolean isActionAllowed(RequestedAction action) {
-        return getStandardPermissions(action);
+        if (action == RequestedAction.WRITE_ECC) {
+            return PermissionUtils.isUserAtLeast(UserGroup.ECC_ADMIN, user);
+        } else {
+            return getStandardPermissions(action);
+        }
     }
 
     @Override

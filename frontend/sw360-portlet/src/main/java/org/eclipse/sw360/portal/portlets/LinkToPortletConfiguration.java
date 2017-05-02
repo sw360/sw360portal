@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2015. Part of the SW360 Portal Project,
+ * Copyright Siemens AG, 2015-2017. Part of the SW360 Portal Project,
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -16,6 +16,7 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import org.eclipse.sw360.portal.portlets.components.ComponentPortlet;
 import org.eclipse.sw360.portal.portlets.licenses.LicensesPortlet;
+import org.eclipse.sw360.portal.portlets.moderation.ModerationPortlet;
 import org.eclipse.sw360.portal.portlets.projects.ProjectPortlet;
 import org.eclipse.sw360.portal.portlets.vulnerabilities.VulnerabilitiesPortlet;
 
@@ -34,6 +35,7 @@ public enum LinkToPortletConfiguration {
     COMPONENTS(ComponentPortlet.class),
     PROJECTS(ProjectPortlet.class),
     LICENSES(LicensesPortlet.class),
+    MODERATION(ModerationPortlet.class),
     VULNERABILITIES(VulnerabilitiesPortlet.class);
 
     private final Class<? extends Sw360Portlet> portletClass;

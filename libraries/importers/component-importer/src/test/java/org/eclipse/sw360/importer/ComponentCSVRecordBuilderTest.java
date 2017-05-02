@@ -14,11 +14,13 @@ import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.Test;
 
+import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 /**
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ComponentCSVRecordBuilderTest {
 
@@ -74,8 +76,8 @@ public class ComponentCSVRecordBuilderTest {
         final ClearingInformation clearingInformation = new ClearingInformation();
 
 
-        clearingInformation.setAL("AL").setECCN("ECCN").setExternalSupplierID("C4S").setAssessorContactPerson("JN")
-                .setAssessorDepartment("T").setAdditionalRequestInfo("NG").setEvaluated("eval").setProcStart("proc")
+        clearingInformation.setExternalSupplierID("C4S")
+                .setAdditionalRequestInfo("NG").setEvaluated("eval").setProcStart("proc")
                 .setRequestID("req").setScanned("e").setClearingStandard("CL").setComment("wittyh comment")
                 .setExternalUrl("share me").setBinariesOriginalFromCommunity(true).setBinariesSelfMade(false)
                 .setComponentLicenseInformation(true).setSourceCodeDelivery(true)
@@ -89,6 +91,27 @@ public class ComponentCSVRecordBuilderTest {
 
         final ComponentCSVRecord build = componentCSVRecordBuilder.build();
         assertThat(build.getClearingInformation(), is(clearingInformation));
+    }
+
+    @Test
+    public void testFillEccInfo() throws Exception {
+        final EccInformation eccInformation = newDefaultEccInformation();
+
+
+        eccInformation
+                .setEccStatus(ECCStatus.APPROVED)
+                .setAL("AL")
+                .setECCN("ECCN")
+                .setMaterialIndexNumber("MIN")
+                .setEccComment("Comment")
+                .setAssessorContactPerson("JN")
+                .setAssessorDepartment("T")
+                .setAssessmentDate("date");
+
+        final ComponentCSVRecordBuilder componentCSVRecordBuilder = new ComponentCSVRecordBuilder().fill(eccInformation);
+
+        final ComponentCSVRecord build = componentCSVRecordBuilder.build();
+        assertThat(build.getEccInformation(), is(eccInformation));
     }
 
     @Test

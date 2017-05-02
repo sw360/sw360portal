@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -12,11 +12,12 @@ package org.eclipse.sw360.commonIO;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -547,14 +548,14 @@ public class ConvertRecord {
         return licenseToRisk;
     }
 
-    public static void addLicenses(LicenseService.Iface licenseClient, List<License> licensesToAdd, Logger log) {
+    public static void addLicenses(LicenseService.Iface licenseClient, List<License> licensesToAdd, Logger log, User user) {
         try {
             final List<License> licenses = licenseClient.getLicenses();
             final Set<String> knownLicenseNames = Sets.newHashSet(FluentIterable.from(licenses).transform(TypeMappings.getLicenseIdentifier()));
             final ImmutableList<License> filteredLicenses = TypeMappings.getElementsWithIdentifiersNotInSet(TypeMappings.getLicenseIdentifier(), knownLicenseNames, licensesToAdd);
 
             log.debug("Sending " + filteredLicenses.size() + " Licenses to the database!");
-            final List<License> addedLicenses = licenseClient.addLicenses(filteredLicenses);
+            final List<License> addedLicenses = licenseClient.addLicenses(filteredLicenses, user);
 
             if (addedLicenses == null) {
                 log.debug("There were errors.");

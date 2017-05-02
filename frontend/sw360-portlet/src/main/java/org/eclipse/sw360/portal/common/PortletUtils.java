@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -48,6 +48,7 @@ import static java.lang.Integer.parseInt;
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author birgit.heydenreich@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class PortletUtils {
 
@@ -102,6 +103,9 @@ public class PortletUtils {
     public static UserGroup getUserGroupFromString(String enumNumber) {
         return  UserGroup.findByValue(parseInt(enumNumber));
     }
+    public static ECCStatus getEccStatusFromString(String enumNumber) {
+        return  ECCStatus.findByValue(parseInt(enumNumber));
+    }
 
     public static <U extends TFieldIdEnum, T extends TBase<T, U>> void setFieldValue(PortletRequest request, T instance, U field, FieldMetaData fieldMetaData, String prefix) {
 
@@ -149,6 +153,8 @@ public class PortletUtils {
             return getVisibilityFromString(value);
         else if (field == User._Fields.USER_GROUP)
             return getUserGroupFromString(value);
+        else if (field == EccInformation._Fields.ECC_STATUS)
+            return getEccStatusFromString(value);
         else {
             log.error("Missing case in enumFromString, unknown field was " + field.toString());
             return null;
@@ -248,6 +254,7 @@ public class PortletUtils {
 
         //project specifics
         newProject.unsetAttachments();
+        newProject.setClearingState(ProjectClearingState.OPEN);
 
         return newProject;
     }

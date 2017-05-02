@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -16,7 +16,7 @@
     <parent>
         <artifactId>frontend</artifactId>
         <groupId>org.eclipse.sw360</groupId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sw360-portlet</artifactId>
@@ -44,6 +44,41 @@
                     <liferayVersion>${liferay.version}</liferayVersion>
                     <pluginType>portlet</pluginType>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.internetitem</groupId>
+                <artifactId>write-properties-file-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>one</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>write-properties-file</goal>
+                        </goals>
+                        <configuration>
+                            <filename>buildInfo.properties</filename>
+                            <properties>
+                                <property>
+                                    <name>buildTime</name>
+                                    <value>${maven.build.timestamp}</value>
+                                </property>
+                                <property>
+                                    <name>buildNumber</name>
+                                    <value>${buildNumber}</value>
+                                </property>
+                                <property>
+                                    <name>sw360Version</name>
+                                    <value>${project.version}</value>
+                                </property>
+                                <property>
+                                    <name>gitBranch</name>
+                                    <value>${scmBranch}</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

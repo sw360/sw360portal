@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -43,6 +43,7 @@ import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.*;
 import org.eclipse.sw360.exporter.ProjectExporter;
+import org.eclipse.sw360.exporter.ReleaseExporter;
 import org.eclipse.sw360.portal.common.*;
 import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
 import org.eclipse.sw360.portal.users.LifeRayUserSession;
@@ -50,6 +51,7 @@ import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.eclipse.sw360.portal.users.UserUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
 import java.io.IOException;
@@ -66,6 +68,7 @@ import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
@@ -120,9 +123,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
 
-        if (PortalConstants.PROJECT_LIST.equals(action)) {
-            serveListProjects(request, response);
-        } else if (PortalConstants.VIEW_LINKED_PROJECTS.equals(action)) {
+        if (PortalConstants.VIEW_LINKED_PROJECTS.equals(action)) {
             serveLinkedProjects(request, response);
         } else if (PortalConstants.REMOVE_PROJECT.equals(action)) {
             serveRemoveProject(request, response);
@@ -134,10 +135,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             updateVulnerabilityRating(request, response);
         } else if (PortalConstants.EXPORT_TO_EXCEL.equals(action)) {
             exportExcel(request, response);
+        } else if (PortalConstants.EXPORT_CLEARING_TO_EXCEL.equals(action)) {
+            exportReleasesSpreadsheet(request, response);
         } else if (PortalConstants.DOWNLOAD_LICENSE_INFO.equals(action)) {
             downloadLicenseInfo(request, response);
         } else if (PortalConstants.DOWNLOAD_SOURCE_CODE_BUNDLE.equals(action)) {
             downloadSourceCodeBundle(request, response);
+        } else if (PortalConstants.GET_CLEARING_STATE_SUMMARY.equals(action)) {
+            serveGetClearingStateSummaries(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
@@ -199,34 +204,38 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void serveListProjects(ResourceRequest request, ResourceResponse response) throws IOException {
+    private void serveGetClearingStateSummaries(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        Collection<Project> projects = getWithFilledClearingStateSummary(new ArrayList<>(getAccessibleProjects(user)), user);
-
-        JSONObject jsonResponse = createJSONObject();
-        JSONArray data = createJSONArray();
-        ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
-
-        for (Project project : projects) {
+        List<Project> projects;
+        String ids[] = request.getParameterValues(Project._Fields.ID.toString()+"[]");
+        if (ids == null || ids.length == 0) {
+            JSONArray jsonResponse = createJSONArray();
+            writeJSON(request, response, jsonResponse);
+        } else {
             try {
-                JSONObject row = createJSONObject();
-                row.put("id", project.getId());
-                row.put("name", printName(project));
-                String pDesc = abbreviate(project.getDescription(), 140);
-                row.put("description", pDesc == null || pDesc.isEmpty() ? "N.A.": pDesc);
-                row.put("state", ThriftEnumUtils.enumToString(project.getState()));
-                row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
-                row.put("responsible", JsonHelpers.getProjectResponsible(thriftJsonSerializer, project));
-
-                data.put(row);
-            } catch (JSONException e) {
-                log.error("cannot serialize json", e);
+                ProjectService.Iface client = thriftClients.makeProjectClient();
+                projects = client.getProjectsById(Arrays.asList(ids), user);
+            } catch (TException e) {
+                log.error("Could not fetch project summary from backend!", e);
+                projects = Collections.emptyList();
             }
+
+            projects = getWithFilledClearingStateSummary(projects, user);
+
+            JSONArray jsonResponse = createJSONArray();
+            ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
+            for (Project project : projects) {
+                try {
+                    JSONObject row = createJSONObject();
+                    row.put("id", project.getId());
+                    row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
+                    jsonResponse.put(row);
+                } catch (JSONException e) {
+                    log.error("cannot serialize json", e);
+                }
+            }
+            writeJSON(request, response, jsonResponse);
         }
-
-        jsonResponse.put("data", data);
-
-        writeJSON(request, response, jsonResponse);
     }
 
     @Override
@@ -255,8 +264,29 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     thriftClients.makeProjectClient(),
                     user,
                     extendedByReleases);
-            PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
+            log.error("An error occurred while generating the Excel export", e);
+        }
+    }
+
+    private void exportReleasesSpreadsheet(ResourceRequest request, ResourceResponse response) {
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        try {
+            String id = request.getParameter(PROJECT_ID);
+            Project project = null;
+            if (!isNullOrEmpty(id)) {
+                project = thriftClients.makeProjectClient().getProjectById(id, user);
+            }
+            if (project != null) {
+                Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
+                List<Release> releases = releaseStringMap.keySet().stream().sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
+                ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient());
+                PortletResponseUtil.sendFile(request, response,
+                        String.format("releases-%s-%s-%s.xlsx", project.getName(), project.getVersion(), SW360Utils.getCreatedOn()),
+                        exporter.makeExcelExport(releases), CONTENT_TYPE_OPENXML_SPREADSHEET);
+            }
+        } catch (IOException | TException e) {
             log.error("An error occurred while generating the Excel export", e);
         }
     }
@@ -341,9 +371,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
-                final String fullname = vendor != null ? vendor.getFullname() : "";
+                final String vendorName = vendor != null ? vendor.getShortname() : "";
                 ReleaseLink linkedRelease = new ReleaseLink(release.getId(),
-                        fullname, release.getName(), release.getVersion());
+                        vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release));
                 linkedReleases.add(linkedRelease);
             }
         } catch (TException e) {
@@ -487,6 +517,48 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        Map<String, Set<String>> filterMap = loadFilterMapFromRequest(request);
+        loadAndStoreStickyProjectGroup(request, user, filterMap);
+        String id = request.getParameter(Project._Fields.ID.toString());
+        return findProjectsByFiltersOrId(filterMap, id, user);
+    }
+
+    private void loadAndStoreStickyProjectGroup(PortletRequest request, User user, Map<String, Set<String>> filterMap) {
+        String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
+        if (null == groupFilterValue) {
+            addStickyProjectGroupToFilters(request, user, filterMap);
+        } else {
+            ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
+        }
+    }
+
+    private List<Project> findProjectsByFiltersOrId(Map<String, Set<String>> filterMap, String id, User user) {
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+        List<Project> projectList;
+        try {
+            if (!isNullOrEmpty(id)){ // the presence of the id signals to load linked projects hierarchy instead of using filters
+                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
+                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
+                final Collection<ProjectLink> projectLinks = SW360Utils.getLinkedProjectsAsFlatList(fakeRelations, thriftClients, log);
+                List<String> linkedProjectIds = projectLinks.stream().map(ProjectLink::getId).collect(Collectors.toList());
+                projectList = projectClient.getProjectsById(linkedProjectIds, user);
+            } else {
+                if (filterMap.isEmpty()) {
+                    projectList = projectClient.getAccessibleProjectsSummary(user);
+                } else {
+                    projectList = projectClient.refineSearch(null, filterMap, user);
+                }
+            }
+        } catch (TException e) {
+            log.error("Could not search projects in backend ", e);
+            projectList = Collections.emptyList();
+        }
+        return projectList;
+    }
+
+    @NotNull
+    private Map<String, Set<String>> loadFilterMapFromRequest(PortletRequest request) {
         Map<String, Set<String>> filterMap = new HashMap<>();
         for (Project._Fields filteredField : projectFilteredFields) {
             String parameter = request.getParameter(filteredField.toString());
@@ -499,31 +571,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
             request.setAttribute(filteredField.getFieldName(), nullToEmpty(parameter));
         }
-
-        List<Project> projectList;
-
-        final User user = UserCacheHolder.getUserFromRequest(request);
-        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
-
-        String groupFilterValue = request.getParameter(Project._Fields.BUSINESS_UNIT.toString());
-        if (null == groupFilterValue) {
-            addStickyProjectGroupToFilters(request, user, filterMap);
-        } else {
-            ProjectPortletUtils.saveStickyProjectGroup(request, user, groupFilterValue);
-        }
-        try {
-            if (filterMap.isEmpty()) {
-                projectList = projectClient.getAccessibleProjectsSummary(user);
-            } else {
-                projectList = projectClient.refineSearch(null, filterMap, user);
-            }
-            projectList = getWithFilledClearingStateSummary(projectList, user);
-
-        } catch (TException e) {
-            log.error("Could not search projects in backend ", e);
-            projectList = Collections.emptyList();
-        }
-        return projectList;
+        return filterMap;
     }
 
     private void addStickyProjectGroupToFilters(PortletRequest request, User user, Map<String, Set<String>> filterMap){
@@ -794,8 +842,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project newProject = PortletUtils.cloneProject(emailFromRequest, department, client.getProjectById(id, user));
                 setAttachmentsInRequest(request, newProject.getAttachments());
                 request.setAttribute(PROJECT, newProject);
-                putLinkedProjectsInRequest(request, newProject.getLinkedProjects());
-                putLinkedReleasesInRequest(request, newProject.getReleaseIdToUsage());
+                putDirectlyLinkedProjectsInRequest(request, newProject.getLinkedProjects());
+                putDirectlyLinkedReleasesInRequest(request, newProject.getReleaseIdToUsage());
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             } else {
                 Project project = new Project();
@@ -803,8 +851,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 setAttachmentsInRequest(request, project.getAttachments());
 
                 request.setAttribute(PROJECT, project);
-                putLinkedProjectsInRequest(request, Collections.emptyMap());
-                putLinkedReleasesInRequest(request, Collections.emptyMap());
+                putDirectlyLinkedProjectsInRequest(request, Collections.emptyMap());
+                putDirectlyLinkedReleasesInRequest(request, Collections.emptyMap());
 
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             }

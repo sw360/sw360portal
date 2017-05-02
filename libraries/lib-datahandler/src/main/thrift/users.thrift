@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -17,6 +17,7 @@ enum UserGroup {
     USER = 0,
     ADMIN = 1,
     CLEARING_ADMIN = 2,
+    ECC_ADMIN = 3,
 }
 
 enum LocalGroup {
@@ -33,6 +34,7 @@ enum RequestedAction {
     USERS = 4,
     CLEARING = 5,
     ATTACHMENTS = 6,
+    WRITE_ECC = 7,
  }
 
 struct User {

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -85,6 +85,13 @@ enum ClearingState {
     APPROVED = 4,
 }
 
+enum ECCStatus {
+    OPEN = 0,
+    IN_PROGRESS = 1,
+    APPROVED = 2,
+    REJECTED = 3,
+}
+
 enum MainlineState {
     OPEN = 0,
     MAINLINE = 1,
@@ -106,15 +113,27 @@ struct COTSDetails{
     5: optional string ossInformationURL,
     6: optional bool usageRightAvailable,
 }
-struct ClearingInformation {
-    // supplier / ec info
-    1: optional string AL, // German Ausfuhrliste
-    2: optional string ECCN, // European control classification number
-    3: optional string externalSupplierID, // foreign key fur SCM software TODO mcj move to component
+struct EccInformation{
+    1: optional ECCStatus eccStatus, // Status of ECC assessment
+    2: optional string AL, // German Ausfuhrliste
+    3: optional string ECCN, // European control classification number
     4: optional string assessorContactPerson, // email of ECC person
     5: optional string assessorDepartment, // department of ECC person
     6: optional string eccComment, // comments for ecc information
     7: optional string materialIndexNumber, // six digit material index number, string for convenience
+    8: optional string assessmentDate, // Date - YYYY-MM-dd, date of the last editing of ECC information
+}
+struct ClearingInformation {
+    // supplier / ec info
+//    1: optional string AL, // moved to EccInformation
+//    2: optional string ECCN, // moved to EccInformation
+    3: optional string externalSupplierID, // foreign key fur SCM software TODO mcj move to component
+//    4: optional string assessorContactPerson, // moved to EccInformation
+//    5: optional string assessorDepartment, // moved to EccInformation
+//    6: optional string eccComment, // moved to EccInformation
+//    7: optional string materialIndexNumber, // moved to EccInformation
+//    8: optional string assessmentDate, // moved to EccInformation
+//    9: optional ECCStatus eccStatus, // moved to EccInformation
 
     // clearing related metadata part 1: strings,
     12: optional string additionalRequestInfo, //
@@ -189,6 +208,7 @@ struct Release {
     51: optional set<string> languages,
     53: optional set<string> operatingSystems,
     54: optional COTSDetails cotsDetails,
+    55: optional EccInformation eccInformation,
 
     65: optional set<string> mainLicenseIds,
 
@@ -204,10 +224,12 @@ struct Release {
 }
 
 enum ComponentType {
-    INTERNAL = 0,
+    INTERNAL = 0, //internal software closed source
     OSS = 1,      //open source software
     COTS = 2,     //commercial of the shelf
-    FREESOFTWARE = 3,
+    FREESOFTWARE = 3, //freeware
+    INNER_SOURCE = 4, //internal software with source open for customers within own company
+    SERVICE = 5,
 }
 
 struct Component {
@@ -229,6 +251,9 @@ struct Component {
     20: optional string createdBy, // person who created the component in sw360
     24: optional set<string> subscribers, // List of subscriber information
     25: optional set<string> moderators, // people who can modify the data
+    26: optional string componentOwner,
+    27: optional string ownerAccountingUnit,
+    28: optional string ownerGroup,
 
     // Linked objects
     32: optional list<Release> releases,
@@ -270,6 +295,7 @@ struct ReleaseLink{
     2: required string vendor,
     5: required string name,
     10: required string version,
+    11: required string longName,
     15: optional string comment,
     16: optional ReleaseRelationship releaseRelationship,
 //    20: optional string parentId,

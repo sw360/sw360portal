@@ -42,17 +42,6 @@ public class ComponentSummary extends DocumentSummary<Component> {
     }
 
     @Override
-    public List<Component> makeSummary(SummaryType type, Collection<Component> fullDocuments) {
-        if (fullDocuments == null) return Collections.emptyList();
-        List<Component> documents = new ArrayList<>(fullDocuments.size());
-        for (Component fullDocument : fullDocuments) {
-            Component document = summary(type, fullDocument);
-            if (document != null) documents.add(document);
-        }
-        return documents;
-    }
-
-    @Override
     protected Component summary(SummaryType type, Component document) {
 
         Component copy = new Component();

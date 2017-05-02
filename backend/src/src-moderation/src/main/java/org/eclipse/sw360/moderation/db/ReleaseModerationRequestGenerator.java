@@ -60,6 +60,8 @@ public class ReleaseModerationRequestGenerator extends ModerationRequestGenerato
                         break;
                     case CLEARING_INFORMATION:
                         break;
+                    case ECC_INFORMATION:
+                        break;
                     case COTS_DETAILS:
                         break;
                     case REPOSITORY:
@@ -73,12 +75,18 @@ public class ReleaseModerationRequestGenerator extends ModerationRequestGenerato
         request.setReleaseAdditions(documentAdditions);
         request.setReleaseDeletions(documentDeletions);
         request = dealWithClearingInformation(request, updateRelease.getClearingInformation(), actualRelease.getClearingInformation());
+        request = dealWithEccInformation(request, updateRelease.getEccInformation(), actualRelease.getEccInformation());
         request = dealWithCOTSDetails(request, updateRelease.getCotsDetails(), actualRelease.getCotsDetails());
         return request;
     }
 
     private ModerationRequest dealWithClearingInformation(ModerationRequest request, ClearingInformation update, ClearingInformation actual) {
         ClearingInformationModerationRequestGenerator generator = new ClearingInformationModerationRequestGenerator();
+        return generator.setAdditionsAndDeletions(request, update, actual);
+    }
+
+    private ModerationRequest dealWithEccInformation(ModerationRequest request, EccInformation update, EccInformation actual) {
+        EccInformationModerationRequestGenerator generator = new EccInformationModerationRequestGenerator();
         return generator.setAdditionsAndDeletions(request, update, actual);
     }
 

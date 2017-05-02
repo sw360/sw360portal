@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +23,7 @@ import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.*;
@@ -36,6 +37,7 @@ import java.util.concurrent.*;
 
 import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.*;
@@ -105,6 +107,7 @@ public class ComponentDatabaseHandlerTest {
         Release release1a = new Release().setId("R1A").setComponentId("C1").setName("component1").setVersion("releaseA").setCreatedBy(email1).setVendorId("V1");
         releases.add(release1a);
         Release release1b = new Release().setId("R1B").setComponentId("C1").setName("component1").setVersion("releaseB").setCreatedBy(email2).setVendorId("V2");
+        release1b.setEccInformation(new EccInformation().setAL("AL"));
         release1b.addToSubscribers(email1);
         releases.add(release1b);
         Release release2a = new Release().setId("R2A").setComponentId("C2").setName("component2").setVersion("releaseA").setCreatedBy(email1).setVendorId("V3");
@@ -345,54 +348,59 @@ public class ComponentDatabaseHandlerTest {
         // we wrap the potentially infinite loop in an executor
         final ExecutorService service = Executors.newSingleThreadExecutor();
 
-        final Future<List<ReleaseLink>> completionFuture = service.submit(new Callable<List<ReleaseLink>>() {
-            @Override
-            public List<ReleaseLink> call() throws Exception {
-                return handler.getLinkedReleases(relations);
-            }
-        });
+        final Future<List<ReleaseLink>> completionFuture = service.submit(() -> handler.getLinkedReleases(relations));
 
         service.shutdown();
         service.awaitTermination(10, TimeUnit.SECONDS);
 
         final List<ReleaseLink> linkedReleases = completionFuture.get();
 
-        ReleaseLink releaseLinkR1B_R2B = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
+        ReleaseLink releaseLinkR1B_R2B = createReleaseLinkTo(r1B)
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
                 .setNodeId("R1B_2")
                 .setParentNodeId("R2B_2")
                 .setSubreleases(Collections.emptyList());
-        ReleaseLink releaseLinkR2B_exp = new ReleaseLink("R2B", vendors.get(r2B.getVendorId()).getFullname(), componentMap.get(r2B.getComponentId()).getName(), r2B.getVersion())
+        ReleaseLink releaseLinkR2B_exp = createReleaseLinkTo(r2B)
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
                 .setNodeId("R2B_2")
                 .setParentNodeId("R2A_2")
                 .setSubreleases(Arrays.asList(releaseLinkR1B_R2B));
-        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", vendors.get(r2B.getVendorId()).getFullname(), componentMap.get(r2B.getComponentId()).getName(), r2B.getVersion())
+        ReleaseLink releaseLinkR2B = createReleaseLinkTo(r2B)
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
                 .setNodeId("R2B_1")
                 .setParentNodeId("R2A_1")
                 .setSubreleases(Collections.emptyList());
-        ReleaseLink releaseLinkR2A_R1B = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
+        ReleaseLink releaseLinkR2A_R1B = createReleaseLinkTo(r2A)
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
                 .setNodeId("R2A_1")
                 .setParentNodeId("R1B_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2B));
-        ReleaseLink releaseLinkR2A_R1A = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
+        ReleaseLink releaseLinkR2A_R1A = createReleaseLinkTo(r2A)
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
                 .setNodeId("R2A_2")
                 .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2B_exp));
-        ReleaseLink releaseLinkR1B_R1A = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
+        ReleaseLink releaseLinkR1B_R1A = createReleaseLinkTo(r1B)
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
                 .setNodeId("R1B_1")
                 .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
+        ReleaseLink releaseLinkR1A = createReleaseLinkTo(r1A)
                 .setComment("Important linked release")
                 .setNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR2A_R1A, releaseLinkR1B_R1A));
+                .setSubreleases(Arrays.asList(releaseLinkR1B_R1A, releaseLinkR2A_R1A));
 
         assertThat(linkedReleases, contains(releaseLinkR1A));
+    }
+
+    @NotNull
+    private ReleaseLink createReleaseLinkTo(Release release) {
+        release.setVendor(vendors.get(release.getVendorId()));
+        return new ReleaseLink(release.getId(),
+                vendors.get(release.getVendorId()).getShortname(),
+                componentMap.get(release.getComponentId()).getName(),
+                release.getVersion(),
+                printFullname(release));
     }
 
     @Test
@@ -425,23 +433,23 @@ public class ComponentDatabaseHandlerTest {
 
         final List<ReleaseLink> linkedReleases = completionFuture.get();
 
-        ReleaseLink releaseLinkR2A_R1A = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
+        ReleaseLink releaseLinkR2A_R1A = createReleaseLinkTo(r2A)
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
                 .setNodeId("R2A_2")
                 .setParentNodeId("R1A_1");
-        ReleaseLink releaseLinkR2A_R1B = new ReleaseLink("R2A", vendors.get(r2A.getVendorId()).getFullname(), componentMap.get(r2A.getComponentId()).getName(), r2A.getVersion())
+        ReleaseLink releaseLinkR2A_R1B = createReleaseLinkTo(r2A)
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
                 .setNodeId("R2A_1")
                 .setParentNodeId("R1B_1");
-        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B",vendors.get(r1B.getVendorId()).getFullname(), componentMap.get(r1B.getComponentId()).getName(),r1B.getVersion())
+        ReleaseLink releaseLinkR1B = createReleaseLinkTo(r1B)
                 .setReleaseRelationship(ReleaseRelationship.CONTAINED)
                 .setNodeId("R1B_1")
                 .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A",vendors.get(r1A.getVendorId()).getFullname(), componentMap.get(r1A.getComponentId()).getName(), r1A.getVersion())
+        ReleaseLink releaseLinkR1A = createReleaseLinkTo(r1A)
                 .setComment("Important linked release")
                 .setNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR2A_R1A, releaseLinkR1B));
+                .setSubreleases(Arrays.asList(releaseLinkR1B, releaseLinkR2A_R1A));
 
         assertThat(linkedReleases, contains(releaseLinkR1A));
     }
@@ -861,6 +869,20 @@ public class ComponentDatabaseHandlerTest {
     }
 
     @Test
+    public void testEccUpdateSentToEccModeration() throws Exception {
+        Release release = releases.get(1);
+        String expected = release.getEccInformation().getAL();
+        release.getEccInformation().setAL("UPDATED");
+
+        when(releaseModerator.updateReleaseEccInfo(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
+        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.immutableOfRelease());
+        Release actual = handler.getRelease("R1B", user1);
+
+        assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
+        assertEquals(expected, actual.getEccInformation().getAL());
+        verify(releaseModerator).updateReleaseEccInfo(release, user1);
+    }
+    @Test
     public void testDeleteComponent() throws Exception {
         RequestStatus status = handler.deleteComponent("C3", user1);
         assertEquals(RequestStatus.SUCCESS, status);
@@ -985,5 +1007,35 @@ public class ComponentDatabaseHandlerTest {
         final Map<String, List<String>> duplicateReleases = handler.getDuplicateReleases();
 
         assertThat(duplicateReleases.size(), is(0));
+    }
+
+    @Test
+    public void testHasChangesInEccFields() throws Exception {
+        Release original = handler.getRelease("R1A", user1);
+        original.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson("asessor@example.com");
+        assertThat(handler.hasChangesInEccFields(original, original), is(false));
+        ComponentDatabaseHandler.ECC_FIELDS.forEach(
+                f -> {
+                    Release changed;
+                    try {
+                        changed = ensureEccInformationIsSet(handler.getRelease("R1A", user1));
+                    } catch (SW360Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    switch(f) {
+                        case ECC_STATUS:
+                            changed.getEccInformation().setFieldValue(f, ECCStatus.IN_PROGRESS);
+                            break;
+                        default:
+                            changed.getEccInformation().setFieldValue(f, "string value");
+                    }
+                    assertThat("Field " + f + " did not trigger ecc change flag", handler.hasChangesInEccFields(changed, original), is(true));
+                }
+        );
+
+        Release changed = handler.getRelease("R1A", user1);
+        changed.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson("");
+        assertThat(handler.hasChangesInEccFields(changed, original), is(false));
+
     }
 }

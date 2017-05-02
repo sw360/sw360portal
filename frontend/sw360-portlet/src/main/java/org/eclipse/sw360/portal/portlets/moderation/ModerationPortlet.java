@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,8 +13,10 @@ import com.liferay.portal.model.Organization;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.ModerationState;
 import org.eclipse.sw360.datahandler.thrift.RemoveModeratorRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
@@ -27,6 +29,7 @@ import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.eclipse.sw360.portal.common.PortalConstants;
@@ -50,6 +53,7 @@ import static org.eclipse.sw360.portal.common.PortalConstants.*;
  *
  * @author daniele.fognini@tngtech.com
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ModerationPortlet extends FossologyAwarePortlet {
 
@@ -58,11 +62,18 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     @Override
     public void serveResource(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String action = request.getParameter(PortalConstants.ACTION);
-        if (PortalConstants.ACTION_REMOVEME.equals(action)){
+        if (PortalConstants.ACTION_REMOVEME.equals(action)) {
             removeMeFromModerators(request, response);
+        } else if (PortalConstants.DELETE_MODERATION_REQUEST.equals(action)) {
+            serveDeleteModerationRequest(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
+    }
+
+    private void serveDeleteModerationRequest(ResourceRequest request, ResourceResponse response) throws IOException {
+        RequestStatus requestStatus = ModerationPortletUtils.deleteModerationRequest(request, log);
+        serveRequestStatus(request, response, requestStatus, "Problem removing moderation request", log);
     }
 
     private void removeMeFromModerators(ResourceRequest request, ResourceResponse response){
@@ -257,16 +268,26 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     }
 
     public void renderStandardView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        List<ModerationRequest> moderationRequests = null;
+        User user = UserCacheHolder.getUserFromRequest(request);
+
+        List<ModerationRequest> openModerationRequests = null;
+        List<ModerationRequest> closedModerationRequests = null;
+
         try {
             ModerationService.Iface client = thriftClients.makeModerationClient();
-            User user = UserCacheHolder.getUserFromRequest(request);
-            moderationRequests = client.getRequestsByModerator(user);
+            List<ModerationRequest> moderationRequests = client.getRequestsByModerator(user);
+            Map<Boolean, List<ModerationRequest>> partitionedModerationRequests = moderationRequests
+                    .stream()
+                    .collect(Collectors.groupingBy(ModerationPortletUtils::isOpenModerationRequest));
+            openModerationRequests = partitionedModerationRequests.get(true);
+            closedModerationRequests = partitionedModerationRequests.get(false);
         } catch (TException e) {
-            log.error("Could not fetch license summary from backend!", e);
+            log.error("Could not fetch moderation requests from backend!", e);
         }
 
-        request.setAttribute(MODERATION_REQUESTS, CommonUtils.nullToEmptyList(moderationRequests));
+        request.setAttribute(MODERATION_REQUESTS, CommonUtils.nullToEmptyList(openModerationRequests));
+        request.setAttribute(CLOSED_MODERATION_REQUESTS, CommonUtils.nullToEmptyList(closedModerationRequests));
+        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "Nope");
         super.doView(request, response);
     }
 
@@ -287,7 +308,9 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
                 ModerationService.Iface client = thriftClients.makeModerationClient();
                 moderationRequest = client.getModerationRequestById(id);
-                if(moderationRequest.getModerationState().equals(ModerationState.PENDING) || moderationRequest.getModerationState().equals(ModerationState.INPROGRESS)) {
+                boolean actionsAllowed = moderationRequest.getModerators().contains(user.getEmail()) && ModerationPortletUtils.isOpenModerationRequest(moderationRequest);
+                request.setAttribute(PortalConstants.MODERATION_ACTIONS_ALLOWED, actionsAllowed);
+                if(actionsAllowed) {
                     SessionMessages.add(request, "request_processed", "You have assigned yourself to this moderation request.");
                     client.setInProgress(id, user);
                 }
@@ -453,6 +476,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         try {
             ProjectService.Iface client = thriftClients.makeProjectClient();
             actual_project = client.getProjectById(moderationRequest.getDocumentId(), user);
+            actual_project = client.fillClearingStateSummary(Collections.singletonList(actual_project), user).get(0);
             is_used = client.projectIsUsed(actual_project.getId());
             request.setAttribute(PortalConstants.ACTUAL_PROJECT, actual_project);
         } catch (TException e) {

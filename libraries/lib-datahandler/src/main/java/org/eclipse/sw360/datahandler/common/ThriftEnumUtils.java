@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -47,11 +47,14 @@ public class ThriftEnumUtils {
             SourceDatabase.BDP, "BDP"
     );
     //! Enumeration "fancy name" mappings
-    private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.of(
-            ComponentType.OSS, "Open Source Software" ,
-            ComponentType.COTS, "Commercial Off The Shelf" ,
-            ComponentType.INTERNAL, "Internal" ,
-            ComponentType.FREESOFTWARE, "Free Software");
+    private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.<ComponentType, String>builder()
+            .put(ComponentType.OSS, "OSS")
+            .put(ComponentType.COTS, "COTS")
+            .put(ComponentType.INTERNAL, "Internal")
+            .put(ComponentType.INNER_SOURCE, "Inner Source")
+            .put(ComponentType.SERVICE, "Service")
+            .put(ComponentType.FREESOFTWARE, "Freeware")
+            .build();
 
 
     private static final ImmutableMap<ProjectType, String> MAP_PROJECT_TYPE_STRING = ImmutableMap.of(
@@ -176,7 +179,8 @@ public class ThriftEnumUtils {
     private static final ImmutableMap<UserGroup, String> MAP_USER_GROUP_STRING = ImmutableMap.of(
             UserGroup.USER, "User" ,
             UserGroup.CLEARING_ADMIN, "Clearing Admin" ,
-            UserGroup.ADMIN, "Admin"
+            UserGroup.ADMIN, "Admin",
+            UserGroup.ECC_ADMIN, "ECC Admin"
           );
 
     private static final ImmutableMap<VulnerabilityRatingForProject, String> MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING = ImmutableMap.of(
@@ -190,6 +194,13 @@ public class ThriftEnumUtils {
             VerificationState.NOT_CHECKED, "Not Checked" ,
             VerificationState.CHECKED, "Checked" ,
             VerificationState.INCORRECT, "Incorrect"
+    );
+
+    private static final ImmutableMap<ECCStatus, String> MAP_ECC_STATUS_STRING = ImmutableMap.of(
+            ECCStatus.OPEN, "Open" ,
+            ECCStatus.IN_PROGRESS, "In Progress" ,
+            ECCStatus.APPROVED, "Approved",
+            ECCStatus.REJECTED, "Rejected"
     );
 
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
@@ -212,6 +223,7 @@ public class ThriftEnumUtils {
             .put(CheckStatus.class,MAP_CHECK_STATUS_STRING)
             .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
             .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)
+            .put(ECCStatus.class, MAP_ECC_STATUS_STRING)
             .build();
 
     public static String enumToString(TEnum value) {

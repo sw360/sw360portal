@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
@@ -232,7 +233,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             List<Component> components = getFilteredComponentList(request);
             ComponentExporter exporter = new ComponentExporter(thriftClients.makeComponentClient(), extendedByReleases);
             PortletResponseUtil.sendFile(request, response, "Components.xlsx", exporter.makeExcelExport(components),
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
         }
@@ -285,8 +286,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
 
-                final String fullname = vendor != null ? vendor.getFullname() : "";
-                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), fullname, release.getName(), release.getVersion());
+                final String vendorName = vendor != null ? vendor.getShortname() : "";
+                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release));
                 linkedRelease.setReleaseRelationship(ReleaseRelationship.CONTAINED);
                 linkedReleases.add(linkedRelease);
             }

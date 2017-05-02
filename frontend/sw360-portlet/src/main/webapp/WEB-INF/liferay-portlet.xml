@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
@@ -283,6 +283,15 @@
 
     <portlet>
         <portlet-name>vulnerabilities</portlet-name>
+        <icon>/icon.png</icon>
+        <instanceable>false</instanceable>
+        <header-portlet-css>/css/main.css</header-portlet-css>
+        <header-portlet-javascript>/js/main.js</header-portlet-javascript>
+        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+    </portlet>
+
+    <portlet>
+        <portlet-name>ecc</portlet-name>
         <icon>/icon.png</icon>
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>

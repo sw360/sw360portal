@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,6 +26,7 @@ import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.moderation.DocumentType;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
@@ -35,9 +36,11 @@ import org.eclipse.sw360.mail.MailUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.ektorp.http.HttpClient;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.notEmptyOrNull;
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class ModerationDatabaseHandler {
 
@@ -117,9 +121,9 @@ public class ModerationDatabaseHandler {
     public RequestStatus deleteModerationRequest(String id, User user){
         ModerationRequest moderationRequest = repository.get(id);
         if(moderationRequest!=null) {
-            if (moderationRequest.getRequestingUser().equals(user.getEmail())) {
-                repository.remove(id);
-                return RequestStatus.SUCCESS;
+            if (hasPermissionToDeleteModerationRequest(user, moderationRequest)) {
+                boolean succeeded = repository.remove(id);
+                return succeeded ? RequestStatus.SUCCESS : RequestStatus.FAILURE;
             } else {
                 log.error("Problems deleting moderation request: User " + user.getEmail() + " tried to delete " +
                         "moderation request of user " + moderationRequest.getRequestingUser());
@@ -128,6 +132,11 @@ public class ModerationDatabaseHandler {
         }
         log.error("Moderation request to delete was null.");
         return RequestStatus.FAILURE;
+    }
+
+    private boolean hasPermissionToDeleteModerationRequest(User user, ModerationRequest moderationRequest) {
+        boolean isCreator = moderationRequest.getRequestingUser().equals(user.getEmail());
+        return isCreator || PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user);
     }
 
     public void refuseRequest(String requestId) {
@@ -170,6 +179,10 @@ public class ModerationDatabaseHandler {
     }
 
     public RequestStatus createRequest(Release release, User user, Boolean isDeleteRequest) {
+        return createRequest(release, user, isDeleteRequest, this::getStandardReleaseModerators);
+    }
+
+    public RequestStatus createRequest(Release release, User user, Boolean isDeleteRequest, Function<Release, Set<String>> moderatorsProvider) {
         Release dbrelease;
         try {
             dbrelease = componentDatabaseHandler.getRelease(release.getId(), user);
@@ -177,17 +190,7 @@ public class ModerationDatabaseHandler {
             log.error("Could not get original release from database. Could not generate moderation request.", e);
             return RequestStatus.FAILURE;
         }
-        // Define moderators
-        Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, dbrelease.getCreatedBy());
-        CommonUtils.addAll(moderators, dbrelease.getModerators());
-        try{
-            String department =  getDepartmentByUserEmail(release.getCreatedBy());
-            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
-        } catch (TException e){
-            log.error("Could not get user from database. Clearing admins not added as moderators, since department is missing.");
-        }
-        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        Set<String> moderators = moderatorsProvider.apply(dbrelease);
 
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, release.getId(), moderators);
 
@@ -204,6 +207,40 @@ public class ModerationDatabaseHandler {
         return RequestStatus.SENT_TO_MODERATOR;
     }
 
+    @NotNull
+    private Set<String> getStandardReleaseModerators(Release release) {
+        // Define moderators
+        Set<String> moderators = new HashSet<>();
+        CommonUtils.add(moderators, release.getCreatedBy());
+        CommonUtils.addAll(moderators, release.getModerators());
+        try{
+            String department =  getDepartmentByUserEmail(release.getCreatedBy());
+            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, department));
+        } catch (TException e){
+            log.error("Could not get users from database. Clearing admins not added as moderators, since department is missing.");
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        return moderators;
+    }
+
+    @NotNull
+    private Set<String> getEccReleaseModerators(Release release) {
+        // Define moderators
+        Set<String> moderators = new HashSet<>();
+        try{
+            String department =  getDepartmentByUserEmail(release.getCreatedBy());
+            CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ECC_ADMIN, department));
+        } catch (TException e){
+            log.error("Could not get users from database. ECC admins not added as moderators, since department is missing.");
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        return moderators;
+    }
+
+    public Function<Release, Set<String>> getEccModeratorsProvider() {
+        return this::getEccReleaseModerators;
+    }
+
     public RequestStatus createRequest(Project project, User user, Boolean isDeleteRequest) {
         Project dbproject;
         try {
@@ -215,9 +252,11 @@ public class ModerationDatabaseHandler {
 
         // Define moderators
         Set<String> moderators = new HashSet<>();
-        CommonUtils.add(moderators, dbproject.getCreatedBy());
-        CommonUtils.add(moderators, dbproject.getProjectResponsible());
-        CommonUtils.addAll(moderators, dbproject.getModerators());
+        if (dbproject.getClearingState() != ProjectClearingState.CLOSED){
+            CommonUtils.add(moderators, dbproject.getCreatedBy());
+            CommonUtils.add(moderators, dbproject.getProjectResponsible());
+            CommonUtils.addAll(moderators, dbproject.getModerators());
+        }
         CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, dbproject.getBusinessUnit()));
         CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
@@ -385,6 +424,4 @@ public class ModerationDatabaseHandler {
             mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST, MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST, true);
         }
     }
-
-
 }

@@ -12,6 +12,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ECCStatus;
+import org.eclipse.sw360.datahandler.thrift.components.EccInformation;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
@@ -25,6 +27,7 @@ import java.util.List;
 import static com.google.common.base.Predicates.notNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.*;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
 
 /**
  * Utility class to validate the data before inserting it in the database.
@@ -193,9 +196,20 @@ public class ThriftValidate {
             release.vendorId = release.vendor.id;
         }
 
+        ensureEccInformationIsSet(release);
+
         // Unset optionals
         release.unsetPermissions();
         release.unsetVendor();
+    }
+
+    public static Release ensureEccInformationIsSet(Release release) {
+        EccInformation eccInformation = release.isSetEccInformation() ? release.getEccInformation() : newDefaultEccInformation();
+        if (!eccInformation.isSetEccStatus()){
+            eccInformation.setEccStatus(ECCStatus.OPEN);
+        }
+        release.setEccInformation(eccInformation);
+        return release;
     }
 
     public static List<Release> prepareReleases(Collection<Release> components) throws SW360Exception {

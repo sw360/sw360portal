@@ -139,39 +139,6 @@
     </tr>
 </table>
 
-<table class="table info_table" id="ECCInfo" title="ECC Information">
-    <thead>
-    <tr>
-        <th colspan="2">ECC Information</th>
-    </tr>
-    </thead>
-    <tr>
-        <td>AL:</td>
-        <td><sw360:out value="${clearingInfo.AL}"/></td>
-    </tr>
-    <tr>
-        <td>ECCN:</td>
-        <td><sw360:out value="${clearingInfo.ECCN}"/></td>
-    </tr>
-    <tr>
-        <td>Material Index Number:</td>
-        <td><sw360:out value="${clearingInfo.materialIndexNumber}"/></td>
-    </tr>
-    <tr>
-        <td>Assessor Contact Person:</td>
-        <td><sw360:out value="${clearingInfo.assessorContactPerson}"/></td>
-    </tr>
-    <tr>
-        <td>Assessor Department:</td>
-        <td><sw360:out value="${clearingInfo.assessorDepartment}"/></td>
-    </tr>
-    <tr>
-        <td>ECC Comment:</td>
-        <td><sw360:out value="${clearingInfo.eccComment}"/></td>
-    </tr>
-
-</table>
-
 <table class="table info_table" id="ReleaseSupplementalInfo" title="Release Supplemental Information">
     <thead>
     <tr>

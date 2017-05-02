@@ -119,8 +119,8 @@
             <tr>
                 <td>
                     <label for="component_type">Component Type</label>
-                    <select class="toplabelledInput filterInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
-                            style="min-width: 162px; min-height: 28px;">
+                    <select class="searchbar toplabelledInput filterInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
+                            style="min-height: 28px;">
                         <option value="<%=PortalConstants.NO_FILTER%>" class="textlabel stackedLabel">Any</option>
                         <sw360:DisplayEnumOptions type="<%=ComponentType.class%>" selectedName="${componentType}" useStringValues="true"/>
                     </select>
@@ -186,7 +186,7 @@
             <option value="false">Components only</option>
             <option value="true">Components with releases</option>
         </select>
-        <input type="button" class="addButton" id="exportExcelButton" value="Export Excel" class="addButton" onclick="exportExcel()"/>
+        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
 </span>
 
 <script>
@@ -197,7 +197,7 @@
         PortletURL = Liferay.PortletURL;
         load();
         $('.filterInput').on('input', function() {
-            $('#exportExcelButton').prop('disabled', true);
+            $('#exportSpreadsheetButton').prop('disabled', true);
         });
     });
 
@@ -207,7 +207,6 @@
         prepareAutocompleteForMultipleHits('operating_systems', ${operatingSystemsAutoC});
         prepareAutocompleteForMultipleHits('vendor_names', ${vendorList});
         createComponentsTable();
-        $('#exportbutton').click(exportExcel);
     }
 
     function createUrl_comp(paramId, paramVal) {
@@ -225,7 +224,7 @@
         componentsTable.columns(1).search('^'+val, true).draw();
     }
 
-    function exportExcel(){
+    function exportSpreadsheet(){
         $('#keywordsearchinput').val("");
         useSearch('keywordsearchinput');
 

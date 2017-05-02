@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -60,6 +60,9 @@ public class ProjectExporter extends ExcelExporter<Project> {
         nameToDisplayName.put(Project._Fields.SYSTEM_TEST_END.getFieldName(), "system test end");
         nameToDisplayName.put(Project._Fields.DELIVERY_START.getFieldName(), "delivery start");
         nameToDisplayName.put(Project._Fields.PHASE_OUT_SINCE.getFieldName(), "phase out since");
+        nameToDisplayName.put(Project._Fields.PROJECT_OWNER.getFieldName(), "project owner");
+        nameToDisplayName.put(Project._Fields.OWNER_ACCOUNTING_UNIT.getFieldName(), "owner accounting unit");
+        nameToDisplayName.put(Project._Fields.OWNER_GROUP.getFieldName(), "owner group");
     }
 
     private static final List<Project._Fields> PROJECT_IGNORED_FIELDS = ImmutableList.<Project._Fields>builder()
@@ -197,7 +200,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
         private List<Project> getProjects(Set<String> ids, User user) throws SW360Exception {
             List<Project> projects;
             try {
-                projects = projectClient.getProjectsById(ids, user);
+                projects = projectClient.getProjectsById(new ArrayList<>(ids), user);
             } catch (TException e) {
                 throw new SW360Exception("Error fetching linked projects");
             }

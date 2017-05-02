@@ -1,5 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
+ * With modifications by Siemens AG, 2017.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -10,15 +11,12 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.eclipse.sw360.datahandler.thrift.SW360Exception;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -40,37 +38,18 @@ public class LicenseInfoGenerator extends OutputGenerator<String> {
         try {
             VelocityContext vc = getConfiguredVelocityContext();
 
-            Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
-                    .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
+            SortedMap<String, LicenseInfoParsingResult> sortedLicenseInfos = getSortedLicenseInfos(projectLicenseInfoResults);
+            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, sortedLicenseInfos);
 
-            vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, licenseInfos);
-
-            Set<String> licenses = projectLicenseInfoResults.stream()
-                    .map(LicenseInfoParsingResult::getLicenseInfo)
-                    .filter(Objects::nonNull)
-                    .map(LicenseInfo::getLicenseNamesWithTexts)
-                    .filter(Objects::nonNull)
-                    .reduce(Sets::union)
-                    .orElse(Collections.emptySet())
-                    .stream()
+            List<String> licenses = getSortedLicenseNameWithTexts(projectLicenseInfoResults).stream()
                     .map(LicenseNameWithText::getLicenseText)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
 
             vc.put(LICENSES_CONTEXT_PROPERTY, licenses);
 
-            Map<String, Set<String>> acknowledgements = Maps.filterValues(Maps.transformValues(licenseInfos, pr -> Optional
-                    .ofNullable(pr.getLicenseInfo())
-                    .map(LicenseInfo::getLicenseNamesWithTexts)
-                    .filter(Objects::nonNull)
-                    .map(s -> s
-                            .stream()
-                            .map(LicenseNameWithText::getAcknowledgements)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toSet()))
-                    .orElse(Collections.emptySet())), set -> !set.isEmpty());
-
-            vc.put(ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, acknowledgements);
+            SortedMap<String, Set<String>> sortedAcknowledgements = getSortedAcknowledgements(sortedLicenseInfos);
+            vc.put(ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, sortedAcknowledgements);
 
             StringWriter sw = new StringWriter();
             Velocity.mergeTemplate(LICENSE_INFO_TEMPLATE_FILE, "utf-8", vc, sw);

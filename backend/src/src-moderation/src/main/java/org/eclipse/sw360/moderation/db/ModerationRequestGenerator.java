@@ -59,7 +59,7 @@ public abstract class ModerationRequestGenerator<U extends TFieldIdEnum, T exten
                 Sets.difference((Set<String>) updateDocument.getFieldValue(field), (Set<String>) actualDocument.getFieldValue(field)));
     }
 
-    private void dealWithStringsEnumsStructs(U field) {
+    protected void dealWithStringsEnumsStructs(U field) {
         documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
         documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
     }
