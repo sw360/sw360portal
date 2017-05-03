@@ -88,7 +88,7 @@
     </tr>
     </thead>
     <tr>
-        <td>Name:</td>
+        <td>Component owner:</td>
         <td><sw360:DisplayUserEmail email="${component.componentOwner}"/></td>
     </tr>
     <tr>
