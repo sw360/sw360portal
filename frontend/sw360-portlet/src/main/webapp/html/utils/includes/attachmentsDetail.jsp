@@ -21,7 +21,9 @@
     <tr>
         <th colspan="6" class="headlabel">
             Attachments
-            <sw360:DisplayDownloadAttachmentBundle ids="${attachments}" name="${AttachmentBundle.zip}"/>
+            <core_rt:if test="${not empty attachments}">
+                <sw360:DisplayDownloadAttachmentBundle ids="${attachments}" name="${AttachmentBundle.zip}"/>
+            </core_rt:if>
         </th>
     </tr>
     </thead>
