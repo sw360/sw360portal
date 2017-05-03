@@ -113,7 +113,7 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
             switch (action) {
                 case WRITE:
                 case ATTACHMENTS:
-                    return PermissionUtils.isClearingAdmin(user) && isUserInEquivalentToOwnerGroup() || PermissionUtils.isUserAtLeast(ADMIN, user);
+                    return isClearingAdminOfOwnGroup() || PermissionUtils.isUserAtLeast(ADMIN, user);
                 case DELETE:
                 case USERS:
                 case CLEARING:

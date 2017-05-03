@@ -360,8 +360,8 @@ public class ModerationDatabaseHandler {
                     .collect(Collectors.toList());
         }
 
-        List<User> resultingUsers = relevantUsersOfDepartment.isEmpty() ?
-                (defaultToAllUsersInGroup ? allRelevantUsers : Collections.emptyList()) : relevantUsersOfDepartment;
+        List<User> defaultUsersList = defaultToAllUsersInGroup ? allRelevantUsers : Collections.emptyList();
+        List<User> resultingUsers = relevantUsersOfDepartment.isEmpty() ? defaultUsersList : relevantUsersOfDepartment;
 
         Set<String> resultingUserEmails = resultingUsers.stream()
                     .map(User::getEmail)

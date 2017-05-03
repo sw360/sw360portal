@@ -80,7 +80,7 @@ public abstract class DocumentPermissions<T> {
                 return true;
             case WRITE:
             case ATTACHMENTS:
-                return (PermissionUtils.isClearingAdmin(user) && isUserInEquivalentToOwnerGroup() || PermissionUtils.isUserAtLeast(ADMIN, user)) || isContributor() ;
+                return isClearingAdminOfOwnGroup() || PermissionUtils.isUserAtLeast(ADMIN, user) || isContributor() ;
             case DELETE:
             case USERS:
             case CLEARING:
@@ -90,6 +90,10 @@ public abstract class DocumentPermissions<T> {
             default:
                 throw new IllegalArgumentException("Unknown action: " + action);
         }
+    }
+
+    protected boolean isClearingAdminOfOwnGroup() {
+        return PermissionUtils.isClearingAdmin(user) && isUserInEquivalentToOwnerGroup();
     }
 
     // useful for tests, maybe this needs to go somewhere else
