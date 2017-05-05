@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created on 06/02/15.
@@ -116,5 +117,14 @@ public class ExcelExporter<T> {
         font.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
         headerCellStyle.setFont(font);
         return headerCellStyle;
+    }
+
+    protected List<String> addSubheadersWithPrefixesAsNeeded(List<String> headers, List<String> subheaders, String prefix) {
+        List<String> prefixedSubheaders = subheaders
+                .stream()
+                .map(h -> headers.contains(h) ? prefix + h : h)
+                .collect(Collectors.toList());
+        headers.addAll(prefixedSubheaders);
+        return headers;
     }
 }
