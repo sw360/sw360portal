@@ -47,8 +47,8 @@
 
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>"
                  scope="request"/>
-
 </c:catch>
+<%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
     <core_rt:set var="softwarePlatformsAutoC" value='<%=PortalConstants.SOFTWARE_PLATFORMS%>'/>
     <core_rt:set var="componentCategoriesAutocomplete" value='<%=PortalConstants.COMPONENT_CATEGORIES%>'/>
@@ -117,6 +117,7 @@
     <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
     <jsp:include page="/html/utils/includes/searchUsers.jsp" />
 </core_rt:if>
+
 <script>
     releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>';
     compIdInURL = '<%=PortalConstants.COMPONENT_ID%>';

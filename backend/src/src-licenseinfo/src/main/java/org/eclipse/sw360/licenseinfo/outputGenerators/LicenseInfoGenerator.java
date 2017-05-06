@@ -57,7 +57,7 @@ public class LicenseInfoGenerator extends OutputGenerator<String> {
             return sw.toString();
         } catch (Exception e) {
             log.error("Could not generate licenseinfo file", e);
-            return "License information could not be generated.\nAn exception occured: " + e.toString();
+            return "License information could not be generated.\nAn exception occurred: " + e.toString();
         }
     }
 }

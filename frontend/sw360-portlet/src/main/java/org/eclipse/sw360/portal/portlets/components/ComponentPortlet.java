@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -236,6 +237,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -949,7 +952,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             PrintWriter writer = response.getWriter();
             writer.write(responseData.toString());
         } catch (TException e) {
-            log.error("Error occured with full update of CVEs in backend.", e);
+            log.error("Error occurred with full update of CVEs in backend.", e);
         }
     }
 
@@ -960,7 +963,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
 
-       try {
+        try {
            Vulnerability dbVulnerability = vulClient.getVulnerabilityByExternalId(vulnerabilityExternalId, user);
            ReleaseVulnerabilityRelation dbRelation = vulClient.getRelationByIds(releaseId, dbVulnerability.getId(), user);
            ReleaseVulnerabilityRelation resultRelation = ComponentPortletUtils.updateReleaseVulnerabilityRelationFromRequest(dbRelation, request);

@@ -48,6 +48,7 @@
     </core_rt:if>
     <jsp:useBean id="numberOfCheckedOrUncheckedVulnerabilities" type="java.lang.Long" scope="request"/>
 </c:catch>
+<%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
