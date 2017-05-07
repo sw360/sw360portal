@@ -16,7 +16,6 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -27,6 +26,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.isUserAtLeast;
+import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.ADMIN;
 import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.CLEARING_ADMIN;
 
 /**
@@ -113,7 +113,7 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
             switch (action) {
                 case WRITE:
                 case ATTACHMENTS:
-                    return PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user);
+                    return isClearingAdminOfOwnGroup() || PermissionUtils.isUserAtLeast(ADMIN, user);
                 case DELETE:
                 case USERS:
                 case CLEARING:
@@ -125,6 +125,11 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
         } else {
             return getStandardPermissions(action);
         }
+    }
+
+    @Override
+    protected boolean isUserInEquivalentToOwnerGroup(){
+        return isUserInBU(document, user.getDepartment());
     }
 
     @Override
