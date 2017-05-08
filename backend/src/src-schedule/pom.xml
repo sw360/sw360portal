@@ -45,7 +45,6 @@
     </developers>
 
     <artifactId>src-schedule</artifactId>
-    <groupId>org.eclipse</groupId>
     <packaging>jar</packaging>
     <name>src-schedule</name>
 </project>
