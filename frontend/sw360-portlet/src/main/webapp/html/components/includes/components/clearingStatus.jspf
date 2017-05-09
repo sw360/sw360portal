@@ -54,12 +54,15 @@
             "2": "<span id='clearingState${release.id}'><sw360:DisplayEnum value="${release.clearingState}"/></span>",
             "3": "<sw360:DisplayDownloadReport attachments="${release.attachments}" attachmentEntryVar="entry"><sw360:DisplayDownloadAttachment id="${entry.key}" name="${entry.value}"/></sw360:DisplayDownloadReport>",
             "4": "<span id='mainlineState${release.id}'><sw360:DisplayEnum value="${release.mainlineState}"/></span>",
-            "5": "<span id='fossologySending${release.id}'></span><span id='releaseAction${release.id}'><img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' onclick='openSelectClearingDialog(\"fossologySending${release.id}\",\"${release.id}\")' alt='SelectClearing' title='send to Fossology'></span>"
             <core_rt:if test="${inComponentDetailsContext}">
+            "5": "<span id='fossologySending${release.id}'></span><span id='releaseAction${release.id}'><img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' onclick='openSelectClearingDialog(\"fossologySending${release.id}\",\"${release.id}\")' alt='SelectClearing' title='send to Fossology'></span>"
                 + "<sw360:DisplayReleaseLink release="${release}" showName="false" page="<%=PortletReleasePage.EDIT%>"><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'></sw360:DisplayReleaseLink>"
                 + "<sw360:DisplayReleaseLink release="${release}" showName="false" page="<%=PortletReleasePage.DUPLICATE%>"><img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'></sw360:DisplayReleaseLink>"
+                + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteRelease('${release.id}', '<b><sw360:ReleaseName release="${release}" /></b>',${release.releaseIdToRelationshipSize},${release.attachmentsSize})\"  alt='Delete' title='Delete'>"
             </core_rt:if>
-            + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteRelease('${release.id}', '<b><sw360:ReleaseName release="${release}" /></b>',${release.releaseIdToRelationshipSize},${release.attachmentsSize})\"  alt='Delete' title='Delete'>"
+            <core_rt:if test="${!inComponentDetailsContext}">
+            "5": "NONE"
+            </core_rt:if>
         });
         </core_rt:forEach>
 

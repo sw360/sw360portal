@@ -87,7 +87,9 @@ public class AttachmentPortletUtils {
     }
 
     protected InputStream getStreamToServeAFile(List<AttachmentContent> attachments) throws TException, IOException {
-        if(attachments.size() == 1){
+        if(attachments == null || attachments.size() == 0){
+            throw new SW360Exception("Tried to download empty set of Attachments");
+        }else if(attachments.size() == 1){
             return getConnector().getAttachmentStream(attachments.get(0));
         } else {
             return getConnector().getAttachmentBundleStream(attachments.stream().collect(Collectors.toSet()));

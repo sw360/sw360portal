@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,29 +19,28 @@ import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 import com.tngtech.jgiven.annotation.ProvidedScenarioState;
 import com.tngtech.jgiven.annotation.Quoted;
-import org.junit.internal.AssumptionViolatedException;
 
 import java.util.List;
 
 /**
  * @author johannes.najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class WhenComputePermissions  extends Stage<WhenComputePermissions> {
     @ExpectedScenarioState
     Project project;
 
     @ProvidedScenarioState
-    RequestedAction highestAllowedAction;
+    List<RequestedAction> allowedActions;
 
     private static String DUMMY_ID = "DAU";
-    private static String DUMMY_DEP = "definitleyTheWrongDepartment YO HO HO";
 
-    public WhenComputePermissions the_highest_allowed_action_is_computed_for_user_$_with_user_group_$(@Quoted String userEmail, @TEnumToString UserGroup userGroup) {
-        final User user = new User(DUMMY_ID, userEmail, DUMMY_DEP).setUserGroup(userGroup);
+    public WhenComputePermissions the_highest_allowed_action_is_computed_for_user_$_with_user_group_$_and_department_$(@Quoted String userEmail, @TEnumToString UserGroup userGroup, @Quoted String userDept) {
+        final User user = new User(DUMMY_ID, userEmail, userDept).setUserGroup(userGroup);
 
         final DocumentPermissions<Project> projectDocumentPermissions = PermissionUtils.makePermission(project, user);
 
-        highestAllowedAction = projectDocumentPermissions.getHighestAllowedPermission();
+        allowedActions = projectDocumentPermissions.getAllAllowedActions();
         return self();
     }
 }

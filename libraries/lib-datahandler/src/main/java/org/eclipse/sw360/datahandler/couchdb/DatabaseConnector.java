@@ -9,15 +9,16 @@
 package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.ImmutableSet;
-import org.eclipse.sw360.datahandler.couchdb.CouchDbConnectorWithSecurity.CouchDbConnectorWithSecurity;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.apache.log4j.Logger;
 import org.ektorp.*;
 import org.ektorp.http.HttpClient;
+import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.util.Documents;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -25,12 +26,14 @@ import java.util.function.Supplier;
  *
  * @author cedric.bodet@tngtech.com
  */
-public class DatabaseConnector extends CouchDbConnectorWithSecurity {
+public class DatabaseConnector extends StdCouchDbConnector {
 
     private static final Logger log = Logger.getLogger(DatabaseConnector.class);
 
     private final String dbName;
     private final DatabaseInstance instance;
+
+    private String adminRole = "_admin";
 
     /**
      * Create a connection to the database
@@ -70,6 +73,39 @@ public class DatabaseConnector extends CouchDbConnectorWithSecurity {
         // Create the database if it does not exists yet
         instance.createDatabase(dbName);
         restrictAccessToAdmins();
+    }
+
+    public Optional<Status> restrictAccessToAdmins() {
+        boolean hasChanged = false;
+
+        Function<SecurityGroup,SecurityGroup> addAdminRole = securityGroup -> {
+            List<String> newGroupRoles = securityGroup.getRoles();
+            newGroupRoles.add(adminRole);
+            return new SecurityGroup(securityGroup.getNames(), newGroupRoles);
+        };
+
+        Security security = Optional.ofNullable(getSecurity())
+                .orElse(new Security());
+
+        SecurityGroup adminGroup = Optional.ofNullable(security.getAdmins())
+                .orElse(new SecurityGroup());
+        SecurityGroup memberGroup = Optional.ofNullable(security.getMembers())
+                .orElse(new SecurityGroup());
+
+        if(!adminGroup.getRoles().contains(adminRole)){
+            adminGroup = addAdminRole.apply(adminGroup);
+            hasChanged = true;
+        }
+
+        if(!memberGroup.getRoles().contains(adminRole)){
+            memberGroup = addAdminRole.apply(memberGroup);
+            hasChanged = true;
+        }
+
+        if(hasChanged){
+            return Optional.of(updateSecurity(new Security(adminGroup,memberGroup)));
+        }
+        return Optional.empty();
     }
 
     /**

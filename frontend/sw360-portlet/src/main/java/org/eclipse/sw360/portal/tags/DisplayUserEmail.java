@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,9 +24,11 @@ import java.io.IOException;
  * This displays a user
  *
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class DisplayUserEmail extends SimpleTagSupport {
     private String email;
+    private Boolean bare = false;
     Logger log = Logger.getLogger(DisplayUserEmail.class);
 
     private static final UserService.Iface client = new ThriftClients().makeUserClient();
@@ -35,11 +37,15 @@ public class DisplayUserEmail extends SimpleTagSupport {
         this.email = email;
     }
 
+    public void setBare(Boolean bare) {
+        this.bare = bare;
+    }
+
     public void doTag() throws JspException, IOException {
         User user = null;
 
         if (!Strings.isNullOrEmpty(email)) {
-            if(client != null) {
+            if(client != null && !bare) {
                 try {
                     user = client.getByEmail(email);
                 } catch(TException e) {

@@ -9,19 +9,15 @@
 --%>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <div class="up_Summary" id="up_Summary"><p><sw360:out value="${component.description}" maxChar="500"/></p></div>
-<table class="table info_table" id="componentOverview" title="Component detail overview">
+<table class="table info_table" id="componentOverview" title="General component details">
     <thead>
     <tr>
-        <th colspan="2"><sw360:out value="Component Details: ${component.name}"/></th>
+        <th colspan="2">General</th>
     </tr>
     </thead>
     <tr>
         <td>Name:</td>
         <td><sw360:out value="${component.name}"/></td>
-    </tr>
-    <tr>
-        <td>Vendors:</td>
-        <td><sw360:DisplayCollection value="${component.vendorNames}"/></td>
     </tr>
     <tr>
         <td>Created on:</td>
@@ -32,14 +28,6 @@
         <td><sw360:DisplayUserEmail email="${component.createdBy}"/></td>
     </tr>
     <tr>
-        <td>Moderators:</td>
-        <td><sw360:DisplayUserEmailCollection value="${component.moderators}"/></td>
-    </tr>
-    <tr>
-        <td>Subscribers:</td>
-        <td><sw360:DisplayUserEmailCollection value="${component.subscribers}"/></td>
-    </tr>
-    <tr>
         <td>Categories:</td>
         <td><sw360:DisplayCollection value="${component.categories}"/></td>
     </tr>
@@ -47,19 +35,6 @@
         <td>Component Type:</td>
         <td><sw360:DisplayEnum value="${component.componentType}"/></td>
     </tr>
-    <tr>
-        <td>Languages:</td>
-        <td><sw360:DisplayCollection value="${component.languages}"/></td>
-    </tr>
-    <tr>
-        <td>Platforms:</td>
-        <td><sw360:DisplayCollection value="${component.softwarePlatforms}"/></td>
-    </tr>
-    <tr>
-        <td>Operating systems:</td>
-        <td><sw360:DisplayCollection value="${component.operatingSystems}"/></td>
-    </tr>
-
     <tr>
         <td>Homepage:</td>
         <td><sw360:DisplayLink target="${component.homepage}"/></td>
@@ -76,10 +51,61 @@
         <td>Mailing list:</td>
         <td><sw360:DisplayLink target="mailto:${component.mailinglist}" text="${component.mailinglist}"/></td>
     </tr>
+</table>
+<table class="table info_table" id="releaseAggregateTable" title="Release Aggregate Data">
+    <thead>
     <tr>
-        <td>Main licenses of contained releases: </td>
+        <th colspan="2">Release Aggregate Data</th>
+    </tr>
+    </thead>
+    <tr>
+        <td>Vendors:</td>
+        <td><sw360:DisplayCollection value="${component.vendorNames}"/></td>
+    </tr>
+    <tr>
+        <td>Languages:</td>
+        <td><sw360:DisplayCollection value="${component.languages}"/></td>
+    </tr>
+    <tr>
+        <td>Platforms:</td>
+        <td><sw360:DisplayCollection value="${component.softwarePlatforms}"/></td>
+    </tr>
+    <tr>
+        <td>Operating systems:</td>
+        <td><sw360:DisplayCollection value="${component.operatingSystems}"/></td>
+    </tr>
+    <tr>
+        <td>Main licenses: </td>
         <td>
             <tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
         </td>
+    </tr>
+</table>
+<table class="table info_table" id="componentRolesTable" title="Component roles details">
+    <thead>
+    <tr>
+        <th colspan="2">Roles</th>
+    </tr>
+    </thead>
+    <tr>
+        <td>Component owner:</td>
+        <td><sw360:DisplayUserEmail email="${component.componentOwner}"/></td>
+    </tr>
+    <tr>
+        <td>Owner accounting unit:</td>
+        <td><sw360:out value="${component.ownerAccountingUnit}"/></td>
+    </tr>
+    <tr>
+        <td>Owner billing group:</td>
+        <td><sw360:out value="${component.ownerGroup}"/></td>
+    </tr>
+
+    <tr>
+        <td>Moderators:</td>
+        <td><sw360:DisplayUserEmailCollection value="${component.moderators}"/></td>
+    </tr>
+    <tr>
+        <td>Subscribers:</td>
+        <td><sw360:DisplayUserEmailCollection value="${component.subscribers}"/></td>
     </tr>
 </table>

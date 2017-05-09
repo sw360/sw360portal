@@ -12,13 +12,15 @@ import com.google.common.collect.ImmutableSet;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.thrift.users.RequestedAction.*;
+import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.ADMIN;
 
 /**
  * Created by bodet on 16/02/15.
@@ -43,6 +45,10 @@ public abstract class DocumentPermissions<T> {
     protected abstract Set<String> getContributors();
 
     protected abstract Set<String> getModerators();
+
+    protected boolean isUserInEquivalentToOwnerGroup(){
+        return true;
+    }
 
     protected boolean isContributor() {
         return user != null && CommonUtils.contains(user.email, getContributors());
@@ -74,7 +80,7 @@ public abstract class DocumentPermissions<T> {
                 return true;
             case WRITE:
             case ATTACHMENTS:
-                return PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) || isContributor() ;
+                return isClearingAdminOfOwnGroup() || PermissionUtils.isUserAtLeast(ADMIN, user) || isContributor() ;
             case DELETE:
             case USERS:
             case CLEARING:
@@ -86,18 +92,17 @@ public abstract class DocumentPermissions<T> {
         }
     }
 
+    protected boolean isClearingAdminOfOwnGroup() {
+        return PermissionUtils.isClearingAdmin(user) && isUserInEquivalentToOwnerGroup();
+    }
+
     // useful for tests, maybe this needs to go somewhere else
-    public RequestedAction getHighestAllowedPermission (){
-        RequestedAction out = null;
-        boolean isAllowed = true;
-
-        for (RequestedAction requestedAction : ImmutableSet.of(READ, WRITE, ATTACHMENTS, DELETE, USERS, CLEARING)) {
-            isAllowed  = getStandardPermissions(requestedAction);
-            if(!isAllowed) return out;
-            out=requestedAction;
-        }
-
-        return out;
+    public List<RequestedAction> getAllAllowedActions(){
+        return ImmutableSet
+                .of(READ, WRITE, WRITE_ECC, ATTACHMENTS, DELETE, USERS, CLEARING)
+                .stream()
+                .filter(this::isActionAllowed)
+                .collect(Collectors.toList());
     }
 
 }

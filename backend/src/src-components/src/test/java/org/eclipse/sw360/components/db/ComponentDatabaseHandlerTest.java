@@ -1012,7 +1012,7 @@ public class ComponentDatabaseHandlerTest {
     @Test
     public void testHasChangesInEccFields() throws Exception {
         Release original = handler.getRelease("R1A", user1);
-        original.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson(null);
+        original.getEccInformation().setEccStatus(ECCStatus.APPROVED).setAssessorDepartment("XYZ").setAssessorContactPerson("asessor@example.com");
         assertThat(handler.hasChangesInEccFields(original, original), is(false));
         ComponentDatabaseHandler.ECC_FIELDS.forEach(
                 f -> {

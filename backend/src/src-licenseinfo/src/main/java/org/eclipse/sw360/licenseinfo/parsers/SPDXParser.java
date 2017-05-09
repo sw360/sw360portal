@@ -94,7 +94,7 @@ public class SPDXParser extends LicenseInfoParser {
         return new URI("file", filePath, null).toString();
     }
 
-    protected Stream<String> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
+    protected Stream<LicenseNameWithText> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
         if (spdxLicenseInfo instanceof LicenseSet) {
 
             LicenseSet LicenseSet = (LicenseSet) spdxLicenseInfo;
@@ -104,14 +104,16 @@ public class SPDXParser extends LicenseInfoParser {
         } else if (spdxLicenseInfo instanceof ExtractedLicenseInfo) {
 
             ExtractedLicenseInfo extractedLicenseInfo = (ExtractedLicenseInfo) spdxLicenseInfo;
-            return Collections.singleton(extractedLicenseInfo.getExtractedText())
-                    .stream();
+            return Stream.of(new LicenseNameWithText()
+                    .setLicenseName(extractLicenseName(extractedLicenseInfo))
+                    .setLicenseText(extractedLicenseInfo.getExtractedText()));
 
         } else if (spdxLicenseInfo instanceof License) {
 
             License license = (License) spdxLicenseInfo;
-            return Collections.singleton(license.getLicenseText())
-                    .stream();
+            return Stream.of(new LicenseNameWithText()
+                    .setLicenseName(extractLicenseName(license))
+                    .setLicenseText(license.getLicenseText()));
 
         } else if (spdxLicenseInfo instanceof OrLaterOperator) {
 
@@ -124,20 +126,22 @@ public class SPDXParser extends LicenseInfoParser {
             String licenseExceptionText = withExceptionOperator.getException()
                     .getLicenseExceptionText();
             return getAllLicenseTextsFromInfo(withExceptionOperator.getLicense())
-                    .map(licenseText -> licenseText + "\n\n" + licenseExceptionText);
+                    .map(licenseNWT -> licenseNWT
+                            .setLicenseText(licenseNWT.getLicenseText() + "\n\n" + licenseExceptionText)
+                            .setLicenseName(licenseNWT.getLicenseName() + " with " + withExceptionOperator.getException().getName()));
 
         }
 
         return Stream.empty();
     }
 
-    protected Set<String> getAllLicenseTexts(SpdxDocument spdxDocument) throws InvalidSPDXAnalysisException {
-        Stream<String> licenseTexts = Arrays.stream(spdxDocument.getDocumentDescribes())
+    protected Set<LicenseNameWithText> getAllLicenseTexts(SpdxDocument spdxDocument) throws InvalidSPDXAnalysisException {
+        Stream<LicenseNameWithText> licenseTexts = Arrays.stream(spdxDocument.getDocumentDescribes())
                 .flatMap(spdxItem -> Stream.concat(
                         getAllLicenseTextsFromInfo(spdxItem.getLicenseConcluded()),
                         Arrays.stream(spdxItem.getLicenseInfoFromFiles())
                                 .flatMap(this::getAllLicenseTextsFromInfo)));
-        Stream<String> extractedLicenseTexts = Arrays.stream(spdxDocument.getExtractedLicenseInfos())
+        Stream<LicenseNameWithText> extractedLicenseTexts = Arrays.stream(spdxDocument.getExtractedLicenseInfos())
                         .flatMap(this::getAllLicenseTextsFromInfo);
         return Stream.concat(licenseTexts, extractedLicenseTexts)
                 .collect(Collectors.toSet());
@@ -148,14 +152,7 @@ public class SPDXParser extends LicenseInfoParser {
             result.setLicenseNamesWithTexts(new HashSet<>());
         }
         try {
-            Arrays.stream(doc.getExtractedLicenseInfos()).forEach(
-                    extractedLicenseInfo ->
-                            result.getLicenseNamesWithTexts()
-                                    .add(new LicenseNameWithText()
-                                            .setLicenseText(extractedLicenseInfo.getExtractedText())
-                                            .setLicenseName(extractLicenseName(extractedLicenseInfo))
-                                    )
-            );
+            result.setLicenseNamesWithTexts(getAllLicenseTexts(doc));
             Arrays.stream(doc.getDocumentDescribes()).forEach(
                     spdxItem -> result.addToCopyrights(spdxItem.getCopyrightText())
             );
@@ -164,6 +161,10 @@ public class SPDXParser extends LicenseInfoParser {
         }
 
         return Optional.of(result);
+    }
+
+    private String extractLicenseName(AnyLicenseInfo licenseConcluded) {
+        return licenseConcluded.getResource().getLocalName();
     }
 
     private String extractLicenseName(ExtractedLicenseInfo extractedLicenseInfo){
