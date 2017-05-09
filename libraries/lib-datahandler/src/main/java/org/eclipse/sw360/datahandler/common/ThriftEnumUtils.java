@@ -12,10 +12,8 @@ package org.eclipse.sw360.datahandler.common;
 
 
 import com.google.common.collect.ImmutableMap;
-import org.eclipse.sw360.datahandler.thrift.Ternary;
-import org.eclipse.sw360.datahandler.thrift.VerificationState;
-import org.eclipse.sw360.datahandler.thrift.ModerationState;
-import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.apache.thrift.TEnum;
+import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.eclipse.sw360.datahandler.thrift.components.*;
@@ -25,7 +23,6 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
-import org.apache.thrift.TEnum;
 
 import java.util.Map;
 
@@ -53,7 +50,7 @@ public class ThriftEnumUtils {
             .put(ComponentType.FREESOFTWARE, "Freeware")
             .build();
 
-    private static final ImmutableMap<Ternary,String> Map_TERNARY_STRING = ImmutableMap.of(
+    private static final ImmutableMap<Ternary,String> MAP_TERNARY_STRING = ImmutableMap.of(
             Ternary.UNDEFINED, "undefined",
             Ternary.NO, "no",
             Ternary.YES, "yes");
@@ -151,7 +148,8 @@ public class ThriftEnumUtils {
             MainlineState.OPEN, "Open",
             MainlineState.MAINLINE, "Mainline",
             MainlineState.SPECIFIC, "Specific",
-            MainlineState.PHASEOUT, "Phaseout"
+            MainlineState.PHASEOUT, "Phaseout",
+            MainlineState.DENIED, "Denied"
     );
 
     private static final ImmutableMap<CheckStatus, String> MAP_CHECK_STATUS_STRING = ImmutableMap.of(
@@ -209,7 +207,7 @@ public class ThriftEnumUtils {
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
             .put(ComponentType.class, MAP_COMPONENT_TYPE_STRING)
-            .put(Ternary.class, Map_TERNARY_STRING)
+            .put(Ternary.class, MAP_TERNARY_STRING)
             .put(ProjectType.class, MAP_PROJECT_TYPE_STRING)
             .put(AttachmentType.class, MAP_ATTACHMENT_TYPE_STRING)
             .put(ClearingState.class, MAP_CLEARING_STATUS_STRING)

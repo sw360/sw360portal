@@ -20,6 +20,9 @@ typedef sw360.RequestStatus RequestStatus
 typedef sw360.RequestSummary RequestSummary
 typedef sw360.AddDocumentRequestSummary AddDocumentRequestSummary
 typedef sw360.DocumentState DocumentState
+typedef sw360.ReleaseRelationship ReleaseRelationship
+typedef sw360.MainlineState MainlineState
+typedef sw360.ProjectReleaseRelationship ProjectReleaseRelationship
 typedef attachments.Attachment Attachment
 typedef attachments.FilledAttachment FilledAttachment
 typedef users.User User
@@ -92,19 +95,6 @@ enum ECCStatus {
     REJECTED = 3,
 }
 
-enum MainlineState {
-    OPEN = 0,
-    MAINLINE = 1,
-    SPECIFIC = 2,
-    PHASEOUT = 3,
-}
-
-
-enum ReleaseRelationship {
-    CONTAINED = 0,
-    REFERRED = 1,
-    UNKNOWN = 2,
-}
 struct COTSDetails{
     1: optional string usedLicense,
     2: optional string licenseClearingReportURL,
@@ -298,8 +288,9 @@ struct ReleaseLink{
     5: required string name,
     10: required string version,
     11: required string longName,
-    15: optional string comment,
+//    15: optional string comment,
     16: optional ReleaseRelationship releaseRelationship,
+    17: optional MainlineState mainlineState,
 //    20: optional string parentId,
     21: optional list<ReleaseLink> subreleases,
     25: optional string nodeId,
@@ -553,7 +544,7 @@ service ComponentService {
     /**
      *  make releaseLinks from linked releases of a project in order to display project moderation request
      **/
-    list<ReleaseLink> getLinkedReleases(1: map<string, string> relations);
+    list<ReleaseLink> getLinkedReleases(1: map<string, ProjectReleaseRelationship> relations);
 
     /**
      *  make releaseLinks from linked releases of a release in order to display in release detail view

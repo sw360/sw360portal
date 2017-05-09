@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.add;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 
 /**
@@ -33,6 +35,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
  * Writes the difference (= additions and deletions) to the moderation request
  *
  * @author birgit.heydenreicht@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public abstract class ModerationRequestGenerator<U extends TFieldIdEnum, T extends TBase<T, U>> {
     protected T documentAdditions;
@@ -113,30 +116,28 @@ public abstract class ModerationRequestGenerator<U extends TFieldIdEnum, T exten
         }
     }
 
-    protected void dealWithStringMap(U field) {
-        Map<String,String> addedMap = (Map<String, String>) updateDocument.getFieldValue(field);
-        if(addedMap == null) {
-            addedMap = new HashMap<>();
-        }
-        Map<String,String> actualMap = (Map<String, String>) actualDocument.getFieldValue(field);
-        for(Map.Entry<String, String> entry : actualMap.entrySet()){
-            addedMap.remove(entry);
+    protected void dealWithStringKeyedMap(U field) {
+        Map<String, Object> addedMap = new HashMap<>();
+        addedMap.putAll(nullToEmptyMap((Map<String, Object>) updateDocument.getFieldValue(field)));
+
+        Map<String, Object> actualMap = (Map<String, Object>) actualDocument.getFieldValue(field);
+        for(String key: actualMap.keySet()){
+            addedMap.remove(key);
         }
 
-        Map<String,String> deletedMap = (Map<String, String>) actualDocument.getFieldValue(field);
-        if (deletedMap == null) {
-            deletedMap = new HashMap<>();
-        }
-        Map<String,String> updateMap = (Map<String, String>) updateDocument.getFieldValue(field);
-        for(Map.Entry<String, String> entry : updateMap.entrySet()){
-            deletedMap.remove(entry);
+        Map<String, Object> deletedMap = new HashMap<>();
+        deletedMap.putAll(nullToEmptyMap((Map<String, Object>) actualDocument.getFieldValue(field)));
+
+        Map<String, Object> updateMap = (Map<String, Object>) updateDocument.getFieldValue(field);
+        for(String key : updateMap.keySet()){
+            deletedMap.remove(key);
         }
 
         //determine changes in common linkedProjects
         Set<String> commonKeys = Sets.intersection(updateMap.keySet(), actualMap.keySet());
         for(String id : commonKeys) {
-            String actual = actualMap.get(id);
-            String update = updateMap.get(id);
+            Object actual = actualMap.get(id);
+            Object update = updateMap.get(id);
             if(! actual.equals(update)) {
                 addedMap.put(id, update);
                 deletedMap.put(id, actual);

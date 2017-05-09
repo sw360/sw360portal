@@ -19,6 +19,9 @@ namespace php sw360.thrift.projects
 typedef sw360.RequestStatus RequestStatus
 typedef sw360.DocumentState DocumentState
 typedef sw360.Visibility Visibility
+typedef sw360.ReleaseRelationship ReleaseRelationship
+typedef sw360.MainlineState MainlineState
+typedef sw360.ProjectReleaseRelationship ProjectReleaseRelationship
 typedef components.Release Release
 typedef components.ReleaseClearingStateSummary ReleaseClearingStateSummary
 typedef users.User User
@@ -92,8 +95,8 @@ struct Project {
     132: optional string ownerGroup,
 
     // Linked objects
-    30: optional map<string, ProjectRelationship> linkedProjects,  //id, relationship
-    31: optional map<string, string> releaseIdToUsage,    //id, comment
+    30: optional map<string, ProjectRelationship> linkedProjects,
+    31: optional map<string, ProjectReleaseRelationship> releaseIdToUsage,
 
     // Admin data
     40: optional string clearingTeam = CLEARING_TEAM_UNKNOWN,
@@ -130,6 +133,16 @@ struct ProjectLink {
     10: optional list<ReleaseLink> linkedReleases,
     11: optional list<ProjectLink> subprojects,
     12: optional i32 treeLevel, //zero-based level in the ProjectLink tree, i.e. root has level 0
+}
+
+struct ProjectNamesWithMainlineStatesTuple {
+    1: required string projectNames, // comma separated list of project names for display; possibly abbreviated
+    2: required string mainlineStates, // comma separated list of mainline states for display; possibly abbreviated
+}
+
+struct ProjectWithReleaseRelationTuple {
+    1: required Project project,
+    2: required ProjectReleaseRelationship relation,
 }
 
 service ProjectService {

@@ -12,6 +12,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.businessrules.ReleaseClearingStateSummaryComputer;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
@@ -32,7 +33,6 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
-import org.apache.log4j.Logger;
 import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
@@ -273,6 +273,7 @@ public class ProjectDatabaseHandler {
                 projectLink = new ProjectLink(id, project.name);
                 if (project.isSetReleaseIdToUsage()){
                     List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage(), releaseMap, visitedIds);
+                    fillMainlineStates(linkedReleases, project.getReleaseIdToUsage());
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
 
@@ -294,6 +295,12 @@ public class ProjectDatabaseHandler {
             visitedIds.pop();
         }
         return Optional.ofNullable(projectLink);
+    }
+
+    private void fillMainlineStates(List<ReleaseLink> linkedReleases, Map<String, ProjectReleaseRelationship> releaseIdToUsage) {
+        for (ReleaseLink releaseLink : linkedReleases) {
+            releaseLink.setMainlineState(releaseIdToUsage.get(releaseLink.getId()).getMainlineState());
+        }
     }
 
     private String generateNodeId(String id, CountingStack<String> visitedIds) {

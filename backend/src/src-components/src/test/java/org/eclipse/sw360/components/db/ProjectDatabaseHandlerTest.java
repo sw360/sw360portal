@@ -16,14 +16,14 @@ import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
 import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
 import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
-import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
+import org.eclipse.sw360.datahandler.thrift.projects.*;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.crypto.Data;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectDatabaseHandlerTest {
@@ -88,9 +90,9 @@ public class ProjectDatabaseHandlerTest {
         projects = new ArrayList<>();
         Project project1 = new Project().setId("P1").setName("project1").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.CONTAINED));
         projects.add(project1);
-        Project project2 = new Project().setId("P2").setName("project2").setLinkedProjects(ImmutableMap.of("P3", ProjectRelationship.REFERRED, "P4", ProjectRelationship.CONTAINED)).setReleaseIdToUsage(ImmutableMap.of("R1A", "used", "R1B", "abused"));
+        Project project2 = new Project().setId("P2").setName("project2").setLinkedProjects(ImmutableMap.of("P3", ProjectRelationship.REFERRED, "P4", ProjectRelationship.CONTAINED)).setReleaseIdToUsage(ImmutableMap.of("R1A", newDefaultProjectReleaseRelationship(), "R1B", newDefaultProjectReleaseRelationship()));
         projects.add(project2);
-        Project project3 = new Project().setId("P3").setName("project3").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.UNKNOWN)).setReleaseIdToUsage(ImmutableMap.of("R2A", "used", "R2B", "considered for use"));
+        Project project3 = new Project().setId("P3").setName("project3").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.UNKNOWN)).setReleaseIdToUsage(ImmutableMap.of("R2A", newDefaultProjectReleaseRelationship(), "R2B", newDefaultProjectReleaseRelationship()));
         projects.add(project3);
         Project project4 = new Project().setId("P4").setName("project4").setLinkedProjects(ImmutableMap.of("P1", ProjectRelationship.UNKNOWN));
         projects.add(project4);
@@ -124,6 +126,10 @@ public class ProjectDatabaseHandlerTest {
         handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName, moderator, componentHandler);
     }
 
+    private ProjectReleaseRelationship newDefaultProjectReleaseRelationship() {
+        return new ProjectReleaseRelationship(ReleaseRelationship.REFERRED, MainlineState.MAINLINE);
+    }
+
     @After
     public void tearDown() throws Exception {
         TestUtils.deleteDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
@@ -142,10 +148,10 @@ public class ProjectDatabaseHandlerTest {
 
         final List<ProjectLink> linkedProjects = completionFuture.get();
 
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA", "vendor component1 releaseA").setComment("used").setNodeId("R1A_1").setComponentType(ComponentType.OSS);
-        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB", "vendor component1 releaseB").setComment("abused").setNodeId("R1B_1").setComponentType(ComponentType.OSS);
-        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA", "vendor component2 releaseA").setComment("used").setNodeId("R2A_1");
-        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB", "vendor component2 releaseB").setComment("considered for use").setNodeId("R2B_1");
+        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA", "vendor component1 releaseA").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R1A_1").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB", "vendor component1 releaseB").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R1B_1").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA", "vendor component2 releaseA").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R2A_1");
+        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB", "vendor component2 releaseB").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R2B_1");
 
         ProjectLink link3 = new ProjectLink("P3", "project3")
                 .setRelation(ProjectRelationship.REFERRED)

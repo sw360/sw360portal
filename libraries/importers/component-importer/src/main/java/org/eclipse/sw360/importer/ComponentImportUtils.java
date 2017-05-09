@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,9 @@ package org.eclipse.sw360.importer;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestSummary;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
@@ -21,13 +24,10 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,8 +38,8 @@ import java.util.*;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static java.lang.String.format;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 
 /**
  * component importer utility class

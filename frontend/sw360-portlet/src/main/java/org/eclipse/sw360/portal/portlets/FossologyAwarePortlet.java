@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,15 +8,15 @@
  */
 package org.eclipse.sw360.portal.portlets;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
@@ -25,16 +25,12 @@ import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.FossologyStatus;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.fossology.FossologyService;
-import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.projects.*;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.datatables.DataTablesParser;
 import org.eclipse.sw360.portal.common.datatables.data.DataTablesParameters;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
@@ -44,6 +40,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.joinStrings;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.datahandler.thrift.projects.projectsConstants.CLEARING_TEAM_UNKNOWN;
@@ -54,6 +51,7 @@ import static org.eclipse.sw360.portal.common.PortalConstants.*;
  *
  * @author Daniele.Fognini@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
 
@@ -200,8 +198,7 @@ public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
 
         User user = UserCacheHolder.getUserFromRequest(request);
         try {
-            Map<Release, String> releaseStringMap = getReleaseStringMap(projectId, user);
-            request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
+            putReleasesAndProjectIntoRequest(request, projectId, user);
             include("/html/projects/ajax/sendableTable.jsp", request, response, PortletRequest.RESOURCE_PHASE);
 
         } catch (TException e) {
@@ -210,29 +207,37 @@ public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
         }
     }
 
-    protected Map<Release, String> getReleaseStringMap(String projectId, User user) throws TException {
+    protected void putReleasesAndProjectIntoRequest(PortletRequest request, String projectId, User user) throws TException {
+        Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(projectId, user);
+        request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
+    }
+
+    protected Map<Release, ProjectNamesWithMainlineStatesTuple> getProjectsNamesWithMainlineStatesByRelease(String projectId, User user) throws TException {
         ProjectService.Iface client = thriftClients.makeProjectClient();
         Project project = client.getProjectById(projectId, user);
-        SetMultimap<String, Project> releaseIdsToProject = releaseIdToProjects(project, user);
+        SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdsToProject = releaseIdToProjects(project, user);
         List<Release> releasesById = thriftClients.makeComponentClient().getFullReleasesById(releaseIdsToProject.keySet(), user);
 
-        Map<Release, String> releaseStringMap = new HashMap<>();
+        Map<Release, ProjectNamesWithMainlineStatesTuple> projectNamesWithMainlineStatesByRelease = new HashMap<>();
         for (Release release : releasesById) {
-            Set<String> projectNames = new HashSet<>();
+            List<String> projectNames = new ArrayList<>();
+            List<String> mainlineStates = new ArrayList<>();
 
-            for (Project project1 : releaseIdsToProject.get(release.getId())) {
-                projectNames.add(printName(project1));
+            for (ProjectWithReleaseRelationTuple projectWithReleaseRelation : releaseIdsToProject.get(release.getId())) {
+                projectNames.add(printName(projectWithReleaseRelation.getProject()));
+                mainlineStates.add(ThriftEnumUtils.enumToString(projectWithReleaseRelation.getRelation().getMainlineState()));
                 if (projectNames.size() > 3) {
                     projectNames.add("...");
+                    mainlineStates.add("...");
                     break;
                 }
+
             }
 
-            String commaSeparated = Joiner.on(", ").join(projectNames);
-            releaseStringMap.put(release, commaSeparated);
+            projectNamesWithMainlineStatesByRelease.put(release, new ProjectNamesWithMainlineStatesTuple(joinStrings(projectNames), joinStrings(mainlineStates)));
         }
 
-        return releaseStringMap;
+        return projectNamesWithMainlineStatesByRelease;
     }
 
     protected void serveProjectSendToFossology(ResourceRequest request, ResourceResponse response) {
@@ -275,27 +280,21 @@ public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
         }
     }
 
-    protected SetMultimap<String, Project> releaseIdToProjects(Project project, User user) {
+    SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects(Project project, User user) {
         Set<String> visitedProjectIds = new HashSet<>();
-        SetMultimap<String, Project> releaseIdToProjects = HashMultimap.create();
+        SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects = HashMultimap.create();
 
         releaseIdToProjects(project, user, visitedProjectIds, releaseIdToProjects);
         return releaseIdToProjects;
     }
 
-    protected void releaseIdToProjects(Project project, User user, Set<String> visitedProjectIds, Multimap<String, Project> releaseIdToProjects) {
+    private void releaseIdToProjects(Project project, User user, Set<String> visitedProjectIds, Multimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects) {
 
         if (nothingTodo(project, visitedProjectIds)) return;
 
-        final Set<String> releaseIds = nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
-        try {
-            List<Release> releasesById = thriftClients.makeComponentClient().getReleasesById(releaseIds, user);
-            for (Release release : releasesById) {
-                releaseIdToProjects.put(release.getId(), project);
-            }
-        } catch (TException e) {
-            log.error("Error with component client", e);
-        }
+        nullToEmptyMap(project.getReleaseIdToUsage()).forEach((releaseId, relation) -> {
+            releaseIdToProjects.put(releaseId, new ProjectWithReleaseRelationTuple(project, relation));
+        });
 
         Map<String, ProjectRelationship> linkedProjects = project.getLinkedProjects();
         if (linkedProjects != null) {

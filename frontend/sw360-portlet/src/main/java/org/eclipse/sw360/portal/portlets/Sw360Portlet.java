@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -22,11 +22,12 @@ import com.liferay.util.bridges.mvc.MVCPortlet;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
-import org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
@@ -314,12 +315,12 @@ abstract public class Sw360Portlet extends MVCPortlet {
         request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
     }
 
-    protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, String> releaseIdToRelationship) throws TException {
+    protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, ProjectReleaseRelationship> releaseIdToRelationship) throws TException {
         Collection<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleasesAsFlatList(releaseIdToRelationship, thriftClients, log);
         request.setAttribute(RELEASE_LIST, linkedReleases);
     }
 
-    protected void putDirectlyLinkedReleasesInRequest(PortletRequest request, Map<String, String> releaseIdToRelationship) throws TException {
+    protected void putDirectlyLinkedReleasesInRequest(PortletRequest request, Map<String, ProjectReleaseRelationship> releaseIdToRelationship) throws TException {
         List<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log);
         request.setAttribute(RELEASE_LIST, linkedReleases);
     }

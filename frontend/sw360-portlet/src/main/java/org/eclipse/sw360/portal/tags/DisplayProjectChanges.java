@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -15,14 +15,17 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
 import org.apache.thrift.TException;
 import org.apache.thrift.meta_data.FieldMetaData;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
@@ -32,6 +35,7 @@ import static org.eclipse.sw360.portal.tags.TagUtils.*;
  * Display the fields that have changed in the project
  *
  * @author birgit.heydenreich@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class DisplayProjectChanges extends NameSpaceAwareTag {
     private Project actual;
@@ -114,7 +118,9 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
             renderLinkedProjects(linkedProjectsDisplay);
 
             StringBuilder releaseUsageDisplay = new StringBuilder();
-            renderReleaseIdToUsage(releaseUsageDisplay);
+            Optional<String> userEmailOpt = UserCacheHolder.getUserEmailFromRequest(pageContext.getRequest());
+            String userEmail = userEmailOpt.orElseThrow(() -> new JspException("Cannot render project changes without logged in user in request"));
+            renderReleaseIdToUsage(releaseUsageDisplay, userEmail);
 
             jspWriter.print(renderString + linkedProjectsDisplay.toString() + releaseUsageDisplay.toString());
         } catch (Exception e) {
@@ -243,7 +249,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
         }
     }
 
-    private void renderReleaseIdToUsage(StringBuilder display) {
+    private void renderReleaseIdToUsage(StringBuilder display, String userEmail) {
 
        if (ensureSomethingTodoAndNoNullReleaseIdUsage()) {
 
@@ -263,7 +269,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
                    additions.getReleaseIdToUsage().keySet(),
                    changedReleaseIds);
 
-           LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, actual.getCreatedBy());
+           LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, userEmail);
            renderer.renderReleaseLinkList(display, deletions.getReleaseIdToUsage(), removedReleaseIds, "Removed Release Links");
            renderer.renderReleaseLinkList(display, additions.getReleaseIdToUsage(), addedReleaseIds, "Added Release Links");
            renderer.renderReleaseLinkListCompare(display,

@@ -17,13 +17,13 @@ import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
 import org.eclipse.sw360.datahandler.entitlement.ComponentModerator;
 import org.eclipse.sw360.datahandler.entitlement.ReleaseModerator;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.*;
@@ -320,9 +320,9 @@ public class ComponentDatabaseHandlerTest {
     @Test
     public void testGetLinkedReleases() throws Exception {
 
-        final Map<String, String> relations = new HashMap<>();
-        relations.put("R1A", "Important linked release");
-        relations.put("---", "Dummy not existing release");
+        final Map<String, ReleaseRelationship> relations = new HashMap<>();
+        relations.put("R1A", ReleaseRelationship.REFERRED);
+        relations.put("---", ReleaseRelationship.UNKNOWN);
 
         final Release r1A = handler.getRelease("R1A", user1);
         r1A.setReleaseIdToRelationship(ImmutableMap.of("R1B", ReleaseRelationship.CONTAINED,
@@ -386,7 +386,7 @@ public class ComponentDatabaseHandlerTest {
                 .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
         ReleaseLink releaseLinkR1A = createReleaseLinkTo(r1A)
-                .setComment("Important linked release")
+                .setReleaseRelationship(ReleaseRelationship.REFERRED)
                 .setNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR1B_R1A, releaseLinkR2A_R1A));
 
@@ -406,8 +406,8 @@ public class ComponentDatabaseHandlerTest {
     @Test
     public void testGetLinkedReleases2() throws Exception {
 
-        final Map<String, String> relations = new HashMap<>();
-        relations.put("R1A", "Important linked release");
+        final Map<String, ReleaseRelationship> relations = new HashMap<>();
+        relations.put("R1A", ReleaseRelationship.REFERRED);
 
         final Release r1A = handler.getRelease("R1A", user1);
         r1A.setReleaseIdToRelationship(ImmutableMap.of("R1B", ReleaseRelationship.CONTAINED,
@@ -447,7 +447,7 @@ public class ComponentDatabaseHandlerTest {
                 .setParentNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
         ReleaseLink releaseLinkR1A = createReleaseLinkTo(r1A)
-                .setComment("Important linked release")
+                .setReleaseRelationship(ReleaseRelationship.REFERRED)
                 .setNodeId("R1A_1")
                 .setSubreleases(Arrays.asList(releaseLinkR1B, releaseLinkR2A_R1A));
 

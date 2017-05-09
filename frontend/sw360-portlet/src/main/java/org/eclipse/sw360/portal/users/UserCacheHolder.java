@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,16 +8,21 @@
  */
 package org.eclipse.sw360.portal.users;
 
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.theme.ThemeDisplay;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
+import javax.servlet.ServletRequest;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
  * User cache singleton
  *
  * @author cedric.bodet@tngtech.com
+ * @author alex.borodin@evosoft.com
  */
 public class UserCacheHolder {
 
@@ -45,6 +50,12 @@ public class UserCacheHolder {
 
         return loadUserFromEmail(email);
     }
+    private Optional<String> getCurrentUserEmail(ServletRequest request) {
+        ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(WebKeys.THEME_DISPLAY);
+
+        com.liferay.portal.model.User liferayUser = themeDisplay.getUser();
+        return Optional.ofNullable(liferayUser).map(com.liferay.portal.model.User::getEmailAddress);
+    }
 
     private User loadUserFromEmail(String email, boolean refresh) {
         if (log.isTraceEnabled()) log.trace("Fetching user with email: " + email);
@@ -69,6 +80,10 @@ public class UserCacheHolder {
 
     public static User getUserFromRequest(PortletRequest request) {
         return getInstance().getCurrentUser(request);
+    }
+
+    public static Optional<String> getUserEmailFromRequest(ServletRequest request) {
+        return getInstance().getCurrentUserEmail(request);
     }
 
     public static User getUserFromEmail(String email) {

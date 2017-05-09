@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,7 +9,10 @@
 package org.eclipse.sw360.portal.portlets;
 
 import com.google.common.collect.SetMultimap;
-import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import junit.framework.TestCase;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
@@ -17,8 +20,8 @@ import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectWithReleaseRelationTuple;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,17 +91,17 @@ public class FossologyAwarePortletTest extends TestCase {
         releaseMap.put(r4.getId(),r4);
 
 
-        Map<String, String> releaseUsageMap1 = new HashMap<>();
-        releaseUsageMap1.put(r1.getId(), "Important r1");
-        releaseUsageMap1.put(r2.getId(), "More important r2");
+        Map<String, ProjectReleaseRelationship> releaseUsageMap1 = new HashMap<>();
+        releaseUsageMap1.put(r1.getId(), newDefaultProjectReleaseRelationship());
+        releaseUsageMap1.put(r2.getId(), newDefaultProjectReleaseRelationship());
 
-        Map<String, String> releaseUsageMap2 = new HashMap<>();
-        releaseUsageMap2.put(r1.getId(), "Important r1");
-        releaseUsageMap2.put( r3.getId(), "More r3");
+        Map<String, ProjectReleaseRelationship> releaseUsageMap2 = new HashMap<>();
+        releaseUsageMap2.put(r1.getId(), newDefaultProjectReleaseRelationship());
+        releaseUsageMap2.put( r3.getId(), newDefaultProjectReleaseRelationship());
 
-        Map<String, String> releaseUsageMap3 = new HashMap<>();
-        releaseUsageMap3.put(r2.getId(), "r2 is cool");
-        releaseUsageMap3.put(r4.getId(), "r4 is cooler" );
+        Map<String, ProjectReleaseRelationship> releaseUsageMap3 = new HashMap<>();
+        releaseUsageMap3.put(r2.getId(), newDefaultProjectReleaseRelationship());
+        releaseUsageMap3.put(r4.getId(), newDefaultProjectReleaseRelationship());
 
 
 
@@ -196,6 +199,10 @@ public class FossologyAwarePortletTest extends TestCase {
         };
     }
 
+    private ProjectReleaseRelationship newDefaultProjectReleaseRelationship() {
+        return new ProjectReleaseRelationship(ReleaseRelationship.UNKNOWN, MainlineState.MAINLINE);
+    }
+
     @After
     public void tearDown() throws Exception {
 
@@ -204,22 +211,26 @@ public class FossologyAwarePortletTest extends TestCase {
     @Test
     public void testReleaseIdToProjects() throws Exception {
 
-        SetMultimap<String, Project> releaseIdToProjects = fossologyAwarePortlet.releaseIdToProjects(p1, user);
+        SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects = fossologyAwarePortlet.releaseIdToProjects(p1, user);
 
         Set<String> releaseIds = releaseIdToProjects.keySet();
 
         assertThat(releaseIds, containsInAnyOrder("r1", "r2","r3","r4"));
-        assertThat(releaseIdToProjects.get("r1"), containsInAnyOrder(p1,p2));
-        assertThat(releaseIdToProjects.get("r2"), containsInAnyOrder(p1,p3));
-        assertThat(releaseIdToProjects.get("r3"), containsInAnyOrder(p2));
-        assertThat(releaseIdToProjects.get("r4"), containsInAnyOrder(p3));
+        assertThat(releaseIdToProjects.get("r1"), containsInAnyOrder(createTuple(p1),createTuple(p2)));
+        assertThat(releaseIdToProjects.get("r2"), containsInAnyOrder(createTuple(p1),createTuple(p3)));
+        assertThat(releaseIdToProjects.get("r3"), containsInAnyOrder(createTuple(p2)));
+        assertThat(releaseIdToProjects.get("r4"), containsInAnyOrder(createTuple(p3)));
 
+    }
+
+    private ProjectWithReleaseRelationTuple createTuple(Project p) {
+        return new ProjectWithReleaseRelationTuple(p, newDefaultProjectReleaseRelationship());
     }
 
 
     @Test
     public void testReleaseIdToEmptyProjects() throws Exception {
-        SetMultimap<String, Project> releaseIdToProjects = fossologyAwarePortlet.releaseIdToProjects(new Project().setId("p4"), user);
+        SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects = fossologyAwarePortlet.releaseIdToProjects(new Project().setId("p4"), user);
         Set<String> releaseIds = releaseIdToProjects.keySet();
         assertTrue("Release IDs size", releaseIds.size() == 0);
     }
