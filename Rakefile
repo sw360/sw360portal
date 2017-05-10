@@ -48,10 +48,10 @@ task :maybe_build_docker_image do
 end
 
 def runInDocker(dockercmd, moreVolumes="")
-    volumes="-v #{ROOT}:/sw360portal -v _cache/.m2:/root/.m2 #{moreVolumes}"
+    volumes="-v #{ROOT}:/sw360portal #{moreVolumes}"
     workdir="-w /sw360portal"
-    gosu="gosu $(id -u):$(id -g)"
-    sh "docker run -i #{volumes} #{workdir} --net=host sw360/#{DEV_CONTAINER_NAME} #{gosu} #{dockercmd}"
+    chroot="su-exec $(id -u):$(id -g)"
+    sh "docker run -i #{volumes} #{workdir} --net=host sw360/#{DEV_CONTAINER_NAME} #{chroot} #{dockercmd}"
 end
 def maybeRunInDocker(cmd, dockercmd=cmd, moreVolumes="")
   if DOCKERIZE
@@ -63,7 +63,7 @@ end
 
 desc "use maven to compile SW360 (use DOCKERIZE=true to run this within docker)"
 task :compile => [:maybe_build_docker_image] do
-   maybeRunInDocker("mvn install #{MAVEN_PARAMETERS}")
+  maybeRunInDocker("mvn install #{MAVEN_PARAMETERS}")
 end
 
 desc "use maven to deploy SW360 (use DOCKERIZE=true to run this within docker)"
@@ -74,58 +74,38 @@ task :deploy => [:maybe_build_docker_image] do
 end
 
 namespace :package do
-  if DOCKERIZE
-    desc "generate a debian package, which deploys the war files to #{TARGET_PREFIX} with docker"
-    task :deb => [:build_docker_image] do
-      runInDocker("rake package:deb DOCKERIZE=false")
-    end
-    desc "generate a RPM package, which deploys the war files to #{TARGET_PREFIX} with docker"
-    task :rpm => [:build_docker_image] do
-      runInDocker("rake package:rpm DOCKERIZE=false")
-    end
-    desc "generate a .tar.gz archive of all war files with docker"
-    task :tar => [:build_docker_image] do
-      runInDocker("rake package:tar DOCKERIZE=false")
-    end
-    desc "generate a .tar.gz archive of all war files with docker"
-    task :all => [:build_docker_image] do
-      runInDocker("rake package:all DOCKERIZE=false")
-    end
-  else
+  # the following bash command evaluates to the version of the maven projekt
+  $getVersion = "printf 'VERSION=${project.version}\n0\n' | mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate | grep '^VERSION' | awk -F\"=\" '{print $2}'"
 
-    # the following bash command evaluates to the version of the maven projekt
-    $getVersion = "printf 'VERSION=${project.version}\n0\n' | mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate | grep '^VERSION' | awk -F\"=\" '{print $2}'"
-
-    def package(format)
-      args =                " -v $(#{$getVersion})"
-      args = args <<        " -n #{TARGET_NAME}"
-      args = args <<        " -t #{format}"
-      args = args <<        " -d #{DEPENDENCIES_PACKAGE}"
-      args = args <<  " --prefix #{TARGET_PREFIX}"
-      args = args << " -s dir -C #{TMP_DIR}"
-      maybeRunInDocker("fpm -f #{args} .")
-    end
-
-    task :getWars do
-      mkdir_p TMP_DIR
-      maybeRunInDocker("mvn install -P deploy #{MAVEN_PARAMETERS} -Ddeploy.dir=#{TMP_DIR}")
-    end
-
-    desc "generate a debian package, which deploys the war files to #{TARGET_PREFIX}"
-    task :deb => ["getWars"] do
-      package("deb")
-    end
-    desc "generate a RPM package, which deploys the war files to #{TARGET_PREFIX}"
-    task :rpm => ["getWars"] do
-      package("rpm")
-    end
-    desc "generate a .tar.gz archive of all war files"
-    task :tar => ["getWars"] do
-      sh "tar cvzf #{TARGET_NAME}-$(#{$getVersion}).tar.gz #{TMP_DIR} --transform='s/#{TMP_DIR.gsub('/','\/')}//g'"
-    end
-
-    task :all => [:deb, :rpm, :tar]
+  def package(format)
+    args =                " -v $(#{$getVersion})"
+    args = args <<        " -n #{TARGET_NAME}"
+    args = args <<        " -t #{format}"
+    args = args <<        " -d #{DEPENDENCIES_PACKAGE}"
+    args = args <<  " --prefix #{TARGET_PREFIX}"
+    args = args << " -s dir -C #{TMP_DIR}"
+    sh "fpm -f #{args} ."
   end
+
+  task :getWars do
+    mkdir_p TMP_DIR
+    maybeRunInDocker("mvn install -P deploy #{MAVEN_PARAMETERS} -Ddeploy.dir=#{TMP_DIR}")
+  end
+
+  desc "generate a debian package, which deploys the war files to #{TARGET_PREFIX}"
+  task :deb => ["getWars"] do
+    package("deb")
+  end
+  desc "generate a RPM package, which deploys the war files to #{TARGET_PREFIX}"
+  task :rpm => ["getWars"] do
+    package("rpm")
+  end
+  desc "generate a .tar.gz archive of all war files"
+  task :tar => ["getWars"] do
+    sh "tar cvzf #{TARGET_NAME}-$(#{$getVersion}).tar.gz #{TMP_DIR} --transform='s/#{TMP_DIR.gsub('/','\/')}//g'"
+  end
+
+  task :all => [:deb, :rpm, :tar]
 end
 desc "generate all packages (currently .deb, .rpm and .tar.gz)"
 task :package => "package:all"
