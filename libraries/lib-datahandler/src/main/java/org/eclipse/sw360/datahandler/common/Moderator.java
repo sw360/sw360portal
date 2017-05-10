@@ -23,8 +23,7 @@ import org.apache.thrift.protocol.TType;
 
 import java.util.*;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.addAll;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.removeAll;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 
 /**
  * Base class for Moderators
@@ -76,9 +75,18 @@ public abstract class Moderator<U extends TFieldIdEnum, T extends TBase<T, U>> {
             case TType.ENUM:
                 document.setFieldValue(field, documentAdditions.getFieldValue(field));
                 break;
-
+            case TType.MAP:
+                if(isMapFieldMapOfStringSets(field, document, documentAdditions, documentDeletions, log)){
+                            document.setFieldValue(field, updateCustomMap(
+                                    (Map<String, Set<String>>) document.getFieldValue(field),
+                                    (Map<String, Set<String>>) documentAdditions.getFieldValue(field),
+                                    (Map<String, Set<String>>) documentDeletions.getFieldValue(field)));
+                } else {
+                    log.error("Unknown field in Moderator: " + field.getFieldName());
+                }
+                break;
             default:
-                log.error("Unknown project field in ProjectModerator: " + field.getFieldName());
+                log.error("Unknown field in Moderator: " + field.getFieldName());
         }
         return document;
     }
@@ -173,5 +181,19 @@ public abstract class Moderator<U extends TFieldIdEnum, T extends TBase<T, U>> {
             }
         }
         return document;
+    }
+
+    protected Map<String, Set<String>> updateCustomMap(Map<String, Set<String>> map, Map<String, Set<String>> addMap, Map<String, Set<String>> deleteMap) {
+        Map<String, Set<String>> resultMap = new HashMap<>();
+
+        Set<String> keys = CommonUtils.unifiedKeyset(map, addMap, deleteMap);
+
+        for(String key: keys){
+            resultMap.put(key, new HashSet<>());
+            resultMap.get(key).addAll(getNullToEmptyValue(map, key));
+            resultMap.get(key).addAll(getNullToEmptyValue(addMap, key));
+            resultMap.get(key).removeAll(getNullToEmptyValue(deleteMap, key));
+        }
+        return resultMap;
     }
 }

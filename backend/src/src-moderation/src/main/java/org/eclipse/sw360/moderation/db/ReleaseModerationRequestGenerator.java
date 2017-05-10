@@ -67,6 +67,9 @@ public class ReleaseModerationRequestGenerator extends ModerationRequestGenerato
                     case REPOSITORY:
                         dealWithRepository();
                         break;
+                    case ROLES:
+                        dealWithCustomMap(Release._Fields.ROLES);
+                        break;
                     default:
                         dealWithBaseTypes(field, Release.metaDataMap.get(field));
                 }

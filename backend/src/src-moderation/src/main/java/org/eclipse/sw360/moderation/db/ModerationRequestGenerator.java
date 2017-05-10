@@ -11,6 +11,7 @@ package org.eclipse.sw360.moderation.db;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.apache.log4j.Logger;
@@ -20,9 +21,12 @@ import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 
 /**
  * Class for comparing a document with its counterpart in the database
@@ -54,9 +58,17 @@ public abstract class ModerationRequestGenerator<U extends TFieldIdEnum, T exten
 
     private void dealWithStringSets(U field) {
         documentDeletions.setFieldValue(field,
-                Sets.difference((Set<String>) actualDocument.getFieldValue(field), (Set<String>) updateDocument.getFieldValue(field)));
+                getDeletedStrings((Set<String>) actualDocument.getFieldValue(field), (Set<String>) updateDocument.getFieldValue(field)));
         documentAdditions.setFieldValue(field,
-                Sets.difference((Set<String>) updateDocument.getFieldValue(field), (Set<String>) actualDocument.getFieldValue(field)));
+                getAddedStrings((Set<String>) actualDocument.getFieldValue(field), (Set<String>) updateDocument.getFieldValue(field)));
+    }
+
+    private Set<String> getDeletedStrings(Set<String> actualStrings, Set<String> updateStrings){
+        return Sets.difference(nullToEmptySet(actualStrings), nullToEmptySet(updateStrings));
+    }
+
+    private Set<String> getAddedStrings(Set<String> actualStrings, Set<String> updateStrings){
+        return Sets.difference(nullToEmptySet(updateStrings), nullToEmptySet(actualStrings));
     }
 
     protected void dealWithStringsEnumsStructs(U field) {
@@ -136,6 +148,34 @@ public abstract class ModerationRequestGenerator<U extends TFieldIdEnum, T exten
         if(!deletedMap.isEmpty()) {
             documentDeletions.setFieldValue(field, deletedMap);
         }
+    }
+
+    protected void dealWithCustomMap(U field) {
+        Map<String,Set<String>> updateDocumentMap = CommonUtils.nullToEmptyMap(
+                (Map<String, Set<String>>) updateDocument.getFieldValue(field));
+        Map<String,Set<String>> actualDocumentMap = CommonUtils.nullToEmptyMap(
+                (Map<String, Set<String>>) actualDocument.getFieldValue(field));
+        if(updateDocumentMap.equals(actualDocumentMap)){
+            return;
+        }
+
+        Map<String,Set<String>> addMap = new HashMap<>();
+        Map<String, Set<String>> deleteMap = new HashMap<>();
+        for(String key: Sets.union(actualDocumentMap.keySet(), updateDocumentMap.keySet())){
+            Set<String> actualStrings = actualDocumentMap.get(key);
+            Set<String> updateStrings = updateDocumentMap.get(key);
+            Set<String> addedStrings = getAddedStrings(actualStrings, updateStrings);
+            Set<String> deletedStrings = getDeletedStrings(actualStrings, updateStrings);
+            if(! addedStrings.isEmpty()) {
+                addMap.put(key, addedStrings);
+            }
+            if(! deletedStrings.isEmpty()) {
+                deleteMap.put(key, deletedStrings);
+            }
+        }
+
+        documentAdditions.setFieldValue(field, addMap);
+        documentDeletions.setFieldValue(field, deleteMap);
     }
 
     protected void dealWithAttachments(U attachmentField){

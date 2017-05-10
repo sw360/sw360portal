@@ -413,12 +413,13 @@ input[readonly].clickable {
 
 .mapDisplayRootItem {
     list-style-type: none;
-    padding:0;
-    margin:0;
+    padding-left:0 !important;
+    margin:0 !important;
 }
 
 .mapDisplayChildItemLeft {
     font-weight:bold;
+    margin: 0;
 }
 
 .highlightedRed {

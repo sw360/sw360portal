@@ -18,9 +18,6 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Moderation for the project service
  *
