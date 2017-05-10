@@ -340,9 +340,9 @@ public class PortalConstants {
         PROJECT_TYPE = props.getProperty("project.type","[ \"Customer Project\", \"Internal Project\", \"Product\", \"Service\"]");
         LICENSE_IDENTIFIERS = props.getProperty("license.identifiers", "[]");
         COMPONENT_CATEGORIES = props.getProperty("component.categories", "[ \"framework\", \"SDK\", \"big-data\", \"build-management\", \"cloud\", \"content\", \"database\", \"graphics\", \"http\", \"javaee\", \"library\", \"mail\", \"mobile\", \"security\", \"testing\", \"virtual-machine\", \"web-framework\", \"xml\"]");
-        PROJECT_ROLES = props.getProperty("custommap.project.roles", "[ \"pre-sales consultant\", \"primary contact\"]");
-        COMPONENT_ROLES = props.getProperty("custommap.component.roles", "[ \"committer\", \"contributor\", \"expert\"]");
-        RELEASE_ROLES = props.getProperty("custommap.release.roles", "[ \"expert\"]");
+        PROJECT_ROLES = props.getProperty("custommap.project.roles", "[ \"Stakeholder\", \"Analyst\", \"Contributor\", \"Accountant\", \"End user\", \"Quality manager\", \"Test manager\", \"Technical writer\", \"Key user\" ]");
+        COMPONENT_ROLES = props.getProperty("custommap.component.roles", "[ \"Committer\", \"Contributor\", \"Expert\"]");
+        RELEASE_ROLES = props.getProperty("custommap.release.roles", "[ \"Committer\", \"Contributor\", \"Expert\"]");
     }
 
     private PortalConstants() {
