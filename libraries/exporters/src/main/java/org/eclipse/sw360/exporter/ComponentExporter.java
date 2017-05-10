@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -72,7 +72,7 @@ public class ComponentExporter extends ExcelExporter<Component> {
                 .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
                 .collect(Collectors.toList());
         if(extendedByReleases){
-            HEADERS.addAll(releaseHelper.getHeaders());
+            addSubheadersWithPrefixesAsNeeded(HEADERS, releaseHelper.getHeaders(), "release: ");
         }
     }
 
