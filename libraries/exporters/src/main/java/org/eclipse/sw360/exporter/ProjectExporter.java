@@ -89,7 +89,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
                 .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
                 .collect(Collectors.toList());
         if (extendedByReleases) {
-            ((ArrayList) HEADERS).addAll(releaseHelper.getHeaders());
+            addSubheadersWithPrefixesAsNeeded(HEADERS, releaseHelper.getHeaders(), "release: ");
         }
     }
 

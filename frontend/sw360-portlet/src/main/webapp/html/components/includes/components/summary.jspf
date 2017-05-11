@@ -108,4 +108,8 @@
         <td>Subscribers:</td>
         <td><sw360:DisplayUserEmailCollection value="${component.subscribers}"/></td>
     </tr>
+    <tr>
+        <td>Additional Roles:</td>
+        <td><sw360:DisplayMapOfEmailSets value="${component.roles}"/></td>
+    </tr>
 </table>

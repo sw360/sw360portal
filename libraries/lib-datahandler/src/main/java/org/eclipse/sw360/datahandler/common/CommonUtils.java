@@ -11,8 +11,6 @@
 package org.eclipse.sw360.datahandler.common;
 
 import com.google.common.base.*;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.*;
@@ -27,7 +25,9 @@ import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.apache.thrift.TFieldIdEnum;
 import org.ektorp.DocumentOperationResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Optional;
-import java.util.function.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.log4j.LogManager.getLogger;
@@ -616,4 +616,69 @@ public class CommonUtils {
         Set<Object> visitedKeys = new HashSet<>();
         return t -> visitedKeys.add(keyExtractor.apply(t));
     }
+
+    public static Set<String> getNullToEmptyKeyset(Map<String, ? > map){
+        return nullToEmptyMap(map).keySet();
+    }
+
+    public static Set<String> getNullToEmptyValue(Map<String, Set<String>> map, String key){
+        return nullToEmptySet(nullToEmptyMap(map).get(key));
+    }
+
+    public static Set<String> unifiedKeyset(Map<String, ?> ... maps){
+        Set<String> keys = new HashSet<>();
+        for(Map<String, ?> map : maps) {
+            keys.addAll(getNullToEmptyKeyset(map));
+        }
+        return keys;
+    }
+    
+    public static <U extends TFieldIdEnum, T extends TBase<T, U>> boolean isMapFieldMapOfStringSets(U field,
+                                                                                                    T document,
+                                                                                                    T documentAdditions,
+                                                                                                    T documentDeletions,
+                                                                                                    Logger logger) {
+        List<Map<String, Object>> maps = Arrays.asList(
+                (Map<String, Object>) document.getFieldValue(field),
+                (Map<String, Object>) documentAdditions.getFieldValue(field),
+                (Map<String, Object>) documentDeletions.getFieldValue(field));
+        List<Map<String, ?>> nonEmptyMaps = maps.stream().filter(m -> !m.isEmpty()).collect(Collectors.toList());
+        if (nonEmptyMaps.isEmpty()){
+            logger.info("Field was empty in document, documentAdditions and documentDeletions: " + field.getFieldName());
+            return false;
+        }
+
+        Object value = nonEmptyMaps.stream().findAny().get().entrySet().stream()
+                .map(e-> ((Map.Entry<String, Object>)e).getValue())
+                .findAny()
+                .get();
+        if(! (value instanceof Set)){
+            return false;
+        }
+        List<Map<String, ?>> nonEmptyMapsContainingNonEmptySet = nonEmptyMaps.stream()
+                .filter(m ->  nonEmptyMapOfSetsContainsNonEmptySet((Map<String, Set<Object>>)m))
+                .collect(Collectors.toList());
+
+        if(nonEmptyMapsContainingNonEmptySet.isEmpty()){
+            logger.warn("Field contained only maps of only empty sets: " + field.getFieldName());
+            return false;
+        }
+
+        Map<String, Set<Object>> mapWithNonEmptySet = (Map<String, Set<Object>>) nonEmptyMapsContainingNonEmptySet.stream().findAny().get();
+        Object element = getNonEmptySetFromMapOfSets(mapWithNonEmptySet).get().stream()
+                .findAny().get();
+        return (element instanceof String);
+    }
+
+    private static boolean nonEmptyMapOfSetsContainsNonEmptySet(Map<String, Set<Object>> map){
+        Optional<Set<Object>> nonEmptySet = getNonEmptySetFromMapOfSets(map);
+        return nonEmptySet.isPresent();
+    }
+
+    private static Optional<Set<Object>> getNonEmptySetFromMapOfSets(Map<String, Set<Object>> map){
+        return  map.entrySet().stream()
+                .map(e -> ((Map.Entry<String, Set<Object>>) e).getValue())
+                .filter(s -> !s.isEmpty()).findAny();
+    }
+
 }

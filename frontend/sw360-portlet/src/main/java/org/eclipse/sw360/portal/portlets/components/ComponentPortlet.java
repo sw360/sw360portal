@@ -379,6 +379,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 addEditDocumentMessage(request, permissions, documentState);
                 Set<String> releaseIds = SW360Utils.getReleaseIds(component.getReleases());
                 setUsingDocs(request, user, client, releaseIds);
+                request.setAttribute(CUSTOM_MAP, component.isSetRoles() ? component.roles : Collections.emptyMap());
             } catch (TException e) {
                 log.error("Error fetching component from backend!", e);
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_COMPONENT);
@@ -390,6 +391,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 setUsingDocs(request, user, null, component.getReleaseIds());
                 setAttachmentsInRequest(request, component.getAttachments());
                 SessionMessages.add(request, "request_processed", "New Component");
+                request.setAttribute(CUSTOM_MAP, Collections.emptyMap());
             }
         }
     }
@@ -419,6 +421,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 Map<RequestedAction, Boolean> permissions = release.getPermissions();
                 DocumentState documentState = release.getDocumentState();
                 setUsingDocs(request, releaseId, user, client);
+                request.setAttribute(CUSTOM_MAP, release.isSetRoles() ? release.roles : Collections.emptyMap());
                 addEditDocumentMessage(request, permissions, documentState);
 
                 if (isNullOrEmpty(id)) {
@@ -435,6 +438,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
                     setAttachmentsInRequest(request, release.getAttachments());
                     setUsingDocs(request, null, user, client);
+                    request.setAttribute(CUSTOM_MAP, Collections.emptyMap());
                     SessionMessages.add(request, "request_processed", "New Release");
                 }
             }

@@ -9,14 +9,9 @@
 
 package org.eclipse.sw360.moderation.db;
 
-import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Class for comparing a document with its counterpart in the database
@@ -63,6 +58,9 @@ public class ProjectModerationRequestGenerator extends ModerationRequestGenerato
                         break;
                     case RELEASE_ID_TO_USAGE:
                         dealWithStringMap(Project._Fields.RELEASE_ID_TO_USAGE);
+                        break;
+                    case ROLES:
+                        dealWithCustomMap(Project._Fields.ROLES);
                         break;
                     default:
                         dealWithBaseTypes(field, Project.metaDataMap.get(field));

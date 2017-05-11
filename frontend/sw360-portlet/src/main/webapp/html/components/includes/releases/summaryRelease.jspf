@@ -45,6 +45,10 @@
             <td><sw360:DisplayUserEmailCollection value="${release.subscribers}"/></td>
         </tr>
         <tr>
+            <td>Additional Roles:</td>
+            <td><sw360:DisplayMapOfEmailSets value="${release.roles}"/></td>
+        </tr>
+        <tr>
             <td>Download URL:</td>
             <td><sw360:DisplayLink target="${release.downloadurl}"/></td>
         </tr>

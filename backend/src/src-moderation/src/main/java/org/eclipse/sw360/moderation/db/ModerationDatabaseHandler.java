@@ -251,14 +251,7 @@ public class ModerationDatabaseHandler {
         }
 
         // Define moderators
-        Set<String> moderators = new HashSet<>();
-        if (dbproject.getClearingState() != ProjectClearingState.CLOSED){
-            CommonUtils.add(moderators, dbproject.getCreatedBy());
-            CommonUtils.add(moderators, dbproject.getProjectResponsible());
-            CommonUtils.addAll(moderators, dbproject.getModerators());
-        }
-        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, dbproject.getBusinessUnit()));
-        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        Set<String> moderators = getProjectModerators(dbproject);
         ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
 
         // Set meta-data
@@ -270,6 +263,19 @@ public class ModerationDatabaseHandler {
         request = generator.setAdditionsAndDeletions(request, project, dbproject);
         addOrUpdate(request);
         return RequestStatus.SENT_TO_MODERATOR;
+    }
+
+    @NotNull
+    private Set<String> getProjectModerators(Project project) {
+        Set<String> moderators = new HashSet<>();
+        if (project.getClearingState() != ProjectClearingState.CLOSED){
+            CommonUtils.add(moderators, project.getCreatedBy());
+            CommonUtils.add(moderators, project.getProjectResponsible());
+            CommonUtils.addAll(moderators, project.getModerators());
+        }
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.CLEARING_ADMIN, project.getBusinessUnit(), false));
+        CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
+        return moderators;
     }
 
     public RequestStatus createRequest(License license, String user, String department) {
@@ -337,6 +343,10 @@ public class ModerationDatabaseHandler {
     }
 
     private Set<String> getUsersAtLeast(UserGroup userGroup, String department) {
+        return getUsersAtLeast(userGroup, department, true);
+    }
+
+    private Set<String> getUsersAtLeast(UserGroup userGroup, String department, boolean defaultToAllUsersInGroup) {
         List<User> sw360users = getAllSW360Users();
         List<User> allRelevantUsers = sw360users
                     .stream()
@@ -350,7 +360,8 @@ public class ModerationDatabaseHandler {
                     .collect(Collectors.toList());
         }
 
-        List<User> resultingUsers = relevantUsersOfDepartment.isEmpty() ? allRelevantUsers : relevantUsersOfDepartment;
+        List<User> defaultUsersList = defaultToAllUsersInGroup ? allRelevantUsers : Collections.emptyList();
+        List<User> resultingUsers = relevantUsersOfDepartment.isEmpty() ? defaultUsersList : relevantUsersOfDepartment;
 
         Set<String> resultingUserEmails = resultingUsers.stream()
                     .map(User::getEmail)

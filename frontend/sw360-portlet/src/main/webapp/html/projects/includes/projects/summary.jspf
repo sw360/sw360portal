@@ -98,4 +98,8 @@
         <td>Security Responsibles:</td>
         <td><sw360:DisplayUserEmailCollection value="${project.securityResponsibles}"/></td>
     </tr>
+    <tr>
+        <td>Additional Roles:</td>
+        <td><sw360:DisplayMapOfEmailSets value="${project.roles}"/></td>
+    </tr>
 </table>

@@ -200,6 +200,7 @@ struct Release {
     32: optional set<string> contributors, // contributors to the release
     34: optional set<string> moderators, // people who can modify the data
     36: optional set<string> subscribers, // List of subscribers
+    37: optional map<string,set<string>> roles, //customized roles with set of mail addresses
 
     40: optional Vendor vendor,
     41: optional string vendorId,
@@ -254,6 +255,7 @@ struct Component {
     26: optional string componentOwner,
     27: optional string ownerAccountingUnit,
     28: optional string ownerGroup,
+    29: optional map<string,set<string>> roles, //customized roles with set of mail addresses
 
     // Linked objects
     32: optional list<Release> releases,
