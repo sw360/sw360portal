@@ -4,7 +4,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%--
-  ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
   ~ With modifications from Bosch Software Innovations GmbH, 2016.
   ~
   ~ All rights reserved. This program and the accompanying materials
@@ -70,7 +70,7 @@
                 '<select class="toplabelledInput" '+
                     'id="ratingChangeSelectFor${vulnerability.externalId}" '+
                     'name="<portlet:namespace/><%=VulnerabilityRatingForProject.class%>" '+
-                    'onchange="changeRating(this, `${vulnerability.externalId}`,`${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId).ordinal()}`, `${vulnerability.intReleaseId}`)" '+
+                    'onchange="changeRating(this, \'${vulnerability.externalId}\',\'${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId).ordinal()}\', \'${vulnerability.intReleaseId}\')" '+
                     'title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"'+
                     'style="min-width: 90px; min-height: 28px;">'+
                    <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}" inQuotes="true"/> +
