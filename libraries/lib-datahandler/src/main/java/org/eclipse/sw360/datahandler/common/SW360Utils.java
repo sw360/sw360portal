@@ -12,6 +12,10 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
@@ -29,11 +33,15 @@ import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -56,6 +64,12 @@ public class SW360Utils {
     public static final String FORMAT_DATE = "yyyy-MM-dd";
     public static final String FORMAT_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
     public static final Comparator<ReleaseLink> RELEASE_LINK_COMPARATOR = Comparator.comparing(rl -> getReleaseFullname(rl.getVendor(), rl.getName(), rl.getVersion()).toLowerCase());
+
+    private static final char CSV_DELIMITER = ',';
+    private static final char CSV_QUOTE = '"';
+    private static final char CSV_SINGLEQUOTE = '\'';
+    private static final char CSV_COLON = ':';
+    private static final char[] CSV_SEARCH_CHARS = new char[] {CSV_DELIMITER, CSV_QUOTE, CSV_SINGLEQUOTE, CSV_COLON, CharUtils.CR, CharUtils.LF};
 
     private static Joiner spaceJoiner = Joiner.on(" ");
 
@@ -360,6 +374,11 @@ public class SW360Utils {
             return nullToEmpty((String) fieldValue);
         }
         if (fieldValue instanceof Map) {
+
+            JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+            nullToEmptyMap(((Map<String, Object>) fieldValue)).forEach((k,v)->jsonObject.put(k, (v !=null ? v.toString() : "")));
+            return jsonObject.toString();
+            /*
             List<String> mapEntriesAsStrings = nullToEmptyMap(((Map<String, Object>) fieldValue)).entrySet().stream()
                     .map(e -> {
                         String valueString = e.getValue() != null ? e.getValue().toString():"";
@@ -367,9 +386,15 @@ public class SW360Utils {
                     })
                     .collect(Collectors.toList());
             return joinStrings(mapEntriesAsStrings);
+            */
         }
         if (fieldValue instanceof Iterable){
-            return joinStrings((Iterable<String>) fieldValue);
+            List<String> fieldValueList = new LinkedList<>();
+
+            for (String fValue : ((Iterable<String>) fieldValue)) {
+                fieldValueList.add(escapeCsv(fValue));
+            }
+            return joinStrings(fieldValueList);
         }
         return fieldValue.toString();
     }
@@ -406,4 +431,43 @@ public class SW360Utils {
     public static EccInformation newDefaultEccInformation(){
         return new EccInformation().setEccStatus(ECCStatus.OPEN);
     }
+
+    public static String escapeCsv(String str) {
+
+        Pattern p = Pattern.compile("\\s"); // \s - Is a pattern corresponding whitespace character: [ \t\n\x0B\f\r]
+        Matcher m = p.matcher(str);
+        boolean b = m.matches(); // true if str matches whitespace character: [ \t\n\x0B\f\r]
+
+        if (StringUtils.containsNone(str, CSV_SEARCH_CHARS) && !b && str != "") {
+            return str;
+        }
+        try {
+            StringWriter writer = new StringWriter();
+            escapeCsv(writer, str, b);
+            return writer.toString();
+        } catch (IOException ioe) {
+            // this should never ever happen while writing to a StringWriter
+            ioe.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void escapeCsv(Writer out, String str, boolean matchesWhitespace) throws IOException {
+        if (StringUtils.containsNone(str, CSV_SEARCH_CHARS) && !matchesWhitespace && str != "") {
+            if (str != null) {
+                out.write(str);
+            }
+            return;
+        }
+        out.write(CSV_QUOTE);
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == CSV_QUOTE) {
+                out.write(CSV_QUOTE); // escape double quote
+            }
+            out.write(c);
+        }
+        out.write(CSV_QUOTE);
+    }
+
 }
