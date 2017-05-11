@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,11 +17,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
  * This displays a list
  *
  * @author Cedric.Bodet@tngtech.com Johannes.Najjar@tngtech.com
+ * @author
  */
 public class DisplayCollection extends SimpleTagSupport {
 
@@ -49,6 +53,7 @@ public class DisplayCollection extends SimpleTagSupport {
         if (null != fullValue && !fullValue.isEmpty()) {
             List<String> valueList = new ArrayList<>(fullValue);
             Collections.sort(valueList, String.CASE_INSENSITIVE_ORDER);
+            valueList = valueList.stream().map(s -> escapeHtml(s)).collect(Collectors.toList());
             getJspContext().getOut().print(CommonUtils.COMMA_JOINER.join(valueList));
         }
     }
