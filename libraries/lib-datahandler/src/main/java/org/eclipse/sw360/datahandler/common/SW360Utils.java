@@ -8,6 +8,8 @@
  */
 package org.eclipse.sw360.datahandler.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -360,18 +362,23 @@ public class SW360Utils {
             return nullToEmpty((String) fieldValue);
         }
         if (fieldValue instanceof Map) {
-            List<String> mapEntriesAsStrings = nullToEmptyMap(((Map<String, Object>) fieldValue)).entrySet().stream()
-                    .map(e -> {
-                        String valueString = e.getValue() != null ? e.getValue().toString():"";
-                        return e.getKey() + " : " + valueString;
-                    })
-                    .collect(Collectors.toList());
-            return joinStrings(mapEntriesAsStrings);
+            Map<String, Object> originalMap = nullToEmptyMap(((Map<String, Object>) fieldValue));
+            Map<String, String> map = Maps.transformValues(originalMap, v -> v != null ? v.toString() : "");
+            return serializeToJson(map);
         }
         if (fieldValue instanceof Iterable){
-            return joinStrings((Iterable<String>) fieldValue);
+            return serializeToJson(fieldValue);
         }
         return fieldValue.toString();
+    }
+
+    private static String serializeToJson(Object value) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(String.format("Cannot serialize field value %s to JSON", value), e);
+        }
     }
 
     public static String displayNameFor(String name, Map<String, String> nameToDisplayName){
