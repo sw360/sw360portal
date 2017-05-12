@@ -56,6 +56,9 @@
         <deploy.dir>
             ${env.LIFERAY_PATH}/deploy
         </deploy.dir>
+        <webapps.dir>
+            ${deploy.dir}
+        </webapps.dir>
         <liferay.maven.plugin.version>${liferay.version}</liferay.maven.plugin.version>
 
         <!-- some mem optimization here -->
