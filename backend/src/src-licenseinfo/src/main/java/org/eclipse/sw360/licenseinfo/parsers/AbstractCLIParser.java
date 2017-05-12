@@ -31,10 +31,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -55,6 +52,11 @@ public abstract class AbstractCLIParser extends LicenseInfoParser {
 
     public AbstractCLIParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
         super(attachmentConnector, attachmentContentProvider);
+    }
+
+    @Override
+    public List<String> getApplicableFileExtensions() {
+        return Collections.singletonList(XML_FILE_EXTENSION);
     }
 
     protected static String normalizeEscapedXhtml(Node node) {

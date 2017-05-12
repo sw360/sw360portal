@@ -1,5 +1,5 @@
 /*
- * Copyright Bosch Software Innovations GmbH, 2016.
+ * Copyright Bosch Software Innovations GmbH, 2016-2017.
  * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
@@ -12,12 +12,11 @@ package org.eclipse.sw360.licenseinfo.parsers;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.UncheckedSW360Exception;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
-import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +27,6 @@ import org.spdx.rdfparser.SPDXDocumentFactory;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.eclipse.sw360.licenseinfo.TestHelper.*;
 import static org.eclipse.sw360.licenseinfo.parsers.SPDXParser.FILETYPE_SPDX_INTERNAL;
@@ -66,56 +64,30 @@ public class SPDXParserTest {
         assertThat(result.getFilenames().size(), is(1));
         assertThat(result.getFilenames().get(0), is(spdxExampleFile));
 
-        assertThat(result.getLicenseNamesWithTextsSize(), is(7));
-        assertThat(result.getLicenseNamesWithTexts()
-                .stream()
+        assertThat(result.getLicenseNamesWithTextsSize(), is(6));
+        assertThat(result.getLicenseNamesWithTexts().stream()
                 .map(lt -> lt.getLicenseText())
-                .filter(t -> t.contains("\"THE BEER-WARE LICENSE\""))
-                .findAny()
-                .isPresent(),
+                .anyMatch(t -> t.contains("Free Software Foundation")),
                 is(true));
-        assertThat(result.getCopyrightsSize(), is(1));
-        assertThat(result.getCopyrights(), hasItem("Copyright 2008-2010 John Smith"));
-    }
 
-    @Test
-    public void testIsApplicableTo() throws Exception {
-        try {
-            Arrays.stream(AttachmentType.values())
-                    .filter(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES::contains)
-                    .forEach(attachmentType -> SPDXParser.ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
-                            .forEach(extension -> {
-                                String filename = "filename." + extension;
-                                try {
-                                    attachmentContentStore.put(filename, "");
-                                } catch (SW360Exception e) {
-                                    throw new UncheckedSW360Exception(e);
-                                }
-                                Attachment attachment = makeAttachment(filename, attachmentType);
-                                try {
-                                    assertThat(parser.isApplicableTo(attachment), is(true));
-                                } catch (TException e) {
-                                    e.printStackTrace();
-                                }
-                            }));
-        }catch (UncheckedSW360Exception se){
-            throw se.getSW360ExceptionCause();
-        }
+        assertThat(result.getCopyrightsSize(), is(4));
+        assertThat(result.getCopyrights().stream()
+                        .anyMatch(c -> c.contains("Copyright 2008-2010 John Smith")),
+                is(true));
     }
 
     @Test
     public void testAddSPDXContentToCLI() throws Exception {
-        LicenseInfo emptyResult = new LicenseInfo().setFilenames(Arrays.asList(spdxExampleFile));
+        AttachmentContent attachmentContent = new AttachmentContent()
+                .setFilename(spdxExampleFile);
 
         InputStream input = makeAttachmentContentStream(spdxExampleFile);
         SpdxDocument spdxDocument = SPDXDocumentFactory.createSpdxDocument(input,
                 parser.getUriOfAttachment(attachmentContentStore.get(spdxExampleFile)),
                 FILETYPE_SPDX_INTERNAL);
 
-        Optional<LicenseInfo> resultO = parser.addSpdxContentToCLI(emptyResult, spdxDocument);
-        assertThat(resultO.isPresent(), is(true));
-
-        assertIsResultOfExample(resultO.get());
+        LicenseInfoParsingResult result = SPDXParserTools.getLicenseInfoFromSpdx(attachmentContent, spdxDocument);
+        assertIsResultOfExample(result.getLicenseInfo());
     }
 
     @Test
