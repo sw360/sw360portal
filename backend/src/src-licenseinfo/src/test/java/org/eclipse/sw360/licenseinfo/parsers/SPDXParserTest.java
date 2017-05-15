@@ -10,6 +10,7 @@
 package org.eclipse.sw360.licenseinfo.parsers;
 
 import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.common.UncheckedSW360Exception;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -130,15 +131,5 @@ public class SPDXParserTest {
 
         assertLicenseInfoParsingResult(result);
         assertIsResultOfExample(result.getLicenseInfo());
-    }
-
-    class UncheckedSW360Exception extends RuntimeException{
-        UncheckedSW360Exception(SW360Exception se) {
-            super(se);
-        }
-
-        SW360Exception getSW360ExceptionCause(){
-            return (SW360Exception) getCause();
-        }
     }
 }

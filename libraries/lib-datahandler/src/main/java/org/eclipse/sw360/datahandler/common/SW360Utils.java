@@ -13,7 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TEnum;
+import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
@@ -26,12 +31,8 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TEnum;
-import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -40,10 +41,9 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.transform;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.joinStrings;
+import static org.apache.log4j.Logger.getLogger;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractId;
-import static org.apache.log4j.Logger.getLogger;
 
 /**
  * @author Cedric.Bodet@tngtech.com
@@ -351,7 +351,7 @@ public class SW360Utils {
         return idToLicense;
     }
 
-    public static String fieldValueAsString(Object fieldValue) {
+    public static String fieldValueAsString(Object fieldValue) throws SW360Exception {
         if(fieldValue == null){
             return "";
         }
@@ -363,7 +363,7 @@ public class SW360Utils {
         }
         if (fieldValue instanceof Map) {
             Map<String, Object> originalMap = nullToEmptyMap(((Map<String, Object>) fieldValue));
-            Map<String, String> map = Maps.transformValues(originalMap, v -> v != null ? v.toString() : "");
+            Map<String, String> map = Maps.transformValues(originalMap, CommonUtils::nullToEmptyString);
             return serializeToJson(map);
         }
         if (fieldValue instanceof Iterable){
@@ -372,12 +372,14 @@ public class SW360Utils {
         return fieldValue.toString();
     }
 
-    private static String serializeToJson(Object value) {
+    private static String serializeToJson(Object value) throws SW360Exception{
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.writeValueAsString(value);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(String.format("Cannot serialize field value %s to JSON", value), e);
+            String msg = String.format("Cannot serialize field value %s to JSON", value);
+            log.error(msg, e);
+            throw new SW360Exception(msg);
         }
     }
 
