@@ -16,8 +16,7 @@
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.datasources.SourceDatabase" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.datasources.SourceDatabaseSelector" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -28,56 +27,61 @@
 <jsp:useBean id="loggedIn" type="java.lang.Boolean" scope="request" />
 <jsp:useBean id="loggedInServer" type="java.lang.String" scope="request" />
 
+<core_rt:set var="hosts" value="<%=PortalConstants.PROJECTIMPORT_HOSTS%>"/>
+
 <portlet:resourceURL var="ajaxURL" id="import.jsp"></portlet:resourceURL>
 
 <div id="header"></div>
 <p class="pageHeader">
-    <span class="pageHeaderBigSpan">Projects</span>
+    <span class="pageHeaderBigSpan">Project import</span>
     <span class="pull-right">
     </span>
 </p>
 
 <div id="import-Project-SelectSource" class="content1">
-    <form id="remoteLoginForm">
-        <div class='form-group'>
-            <label class="control-label textlabel stackedLabel" for="datasource-dropdown">Select data source:</label>
-            <div class='controls'>
-                <select class="form-control toplabelledInput" id="datasource-dropdown"
-                    name="<portlet:namespace/><%=SourceDatabaseSelector._Fields.SDB%>"
-                    style="min-width:162px; min-height:28px">
-                <sw360:DisplayEnumOptions type="<%=SourceDatabase.class%>"/>
-                </select>
-            </div>
-        </div>
+    <div id="remoteLoginForm">
         <div class='form-group'>
             <label class="control-label textlabel stackedLabel" for="input-dataserver-url">Server URL:</label>
+<core_rt:if test="${empty hosts}">
             <div class='controls'>
                 <input class="form-control field-required toplabelledInput" id="input-dataserver-url"
-                   name="<portlet:namespace/><%=SourceDatabaseSelector._Fields.SERVER_URL%>"
+                   name="<portlet:namespace/><%=RemoteCredentials._Fields.SERVER_URL%>"
                    style="min-width:162px; min-height:28px" autofocus/>
             </div>
+</core_rt:if>
+<core_rt:if test="${not empty hosts}">
+           <select class="toplabelledInput" id="input-dataserver-url"
+                   name="<portlet:namespace/><%=RemoteCredentials._Fields.SERVER_URL%>" >
+               <core_rt:forEach items="${hosts}" var="host">
+                   <option value="${host}" class="textlabel stackedLabel" <core_rt:if
+                           test='${loggedInServer == host}'>selected="selected"</core_rt:if>> ${host} </option>
+               </core_rt:forEach>
+           </select>
+</core_rt:if>
         </div>
-        <div class='form-group'>
-            <label class="control-label textlabel stackedLabel" for="input-dataserver-user">Server user:</label>
-            <div class='controls'>
-                <input class="form-control toplabelledInput" id="input-dataserver-user"
-                   name="<portlet:namespace/><%=SourceDatabaseSelector._Fields.SERVER_USR%>"
-                   style="min-width:162px; min-height:28px" />
+        <div id="remoteLoginFormHidingPart">
+            <div class='form-group'>
+                <label class="control-label textlabel stackedLabel" for="input-dataserver-user">Server user:</label>
+                <div class='controls'>
+                    <input class="form-control toplabelledInput" id="input-dataserver-user"
+                       name="<portlet:namespace/><%=RemoteCredentials._Fields.USERNAME%>"
+                       style="min-width:162px; min-height:28px" />
+                </div>
             </div>
-        </div>
-        <div class='form-group'>
-            <label class="control-label textlabel stackedLabel" for="input-dataserver-pw">Password:</label>
-            <div class='controls'>
-                <input class="form-control toplabelledInput" type="password" id="input-dataserver-pw"
-                   name="<portlet:namespace/><%=SourceDatabaseSelector._Fields.SERVER_PW%>"
-                   style="min-width:162px; min-height:28px" />
+            <div class='form-group'>
+                <label class="control-label textlabel stackedLabel" for="input-dataserver-pw">Password:</label>
+                <div class='controls'>
+                    <input class="form-control toplabelledInput" type="password" id="input-dataserver-pw"
+                       name="<portlet:namespace/><%=RemoteCredentials._Fields.PASSWORD%>"
+                       style="min-width:162px; min-height:28px" />
+                </div>
             </div>
+            <input type="button" onclick="updateDataSource()" value="Connect" id="buttonConnect"/>
         </div>
-        <input type="button" onclick="updateDataSource()" value="Connect" id="buttonConnect"/>
-    </form>
+    </div>
     <input type="button" onclick="disconnectDataSource()" value="Disconnect" class="hidden" id="buttonDisconnect"/>
-
 </div>
+
 <div id="importProject" class="content2">
     <form>
         <table id="dataSourceTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -354,13 +358,21 @@
     function displayLoginForm(loggedIn) {
         cleanMessages();
         if (loggedIn) {
-            $('#remoteLoginForm').addClass('hidden');
+            $('#remoteLoginFormHidingPart').addClass('hidden');
+            $('#input-dataserver-url').prop('disabled', true);
             $('#buttonDisconnect').removeClass('hidden');
         } else {
-            $('#remoteLoginForm').removeClass('hidden');
+            $('#remoteLoginFormHidingPart').removeClass('hidden');
+            $('#input-dataserver-url').prop('disabled', false);
             $('#buttonDisconnect').addClass('hidden');
         }
     }
+
+<core_rt:if test="${loggedIn}">
+    $( document ).ready(function() {
+        displayLoginForm(true);
+    });
+</core_rt:if>
 </script>
 
 <%@include file="/html/utils/includes/modal.jspf" %>

@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.portlet.*;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;

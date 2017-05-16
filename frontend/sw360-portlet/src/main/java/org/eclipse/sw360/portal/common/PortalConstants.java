@@ -329,6 +329,9 @@ public class PortalConstants {
     //! request status
     public static final String REQUEST_STATUS = "request_status";
 
+    //
+    public static String PROJECTIMPORT_HOSTS;
+
     static {
         Properties props = CommonUtils.loadProperties(PortalConstants.class, PROPERTIES_FILE_PATH);
 
@@ -343,6 +346,7 @@ public class PortalConstants {
         PROJECT_ROLES = props.getProperty("custommap.project.roles", "[ \"Stakeholder\", \"Analyst\", \"Contributor\", \"Accountant\", \"End user\", \"Quality manager\", \"Test manager\", \"Technical writer\", \"Key user\" ]");
         COMPONENT_ROLES = props.getProperty("custommap.component.roles", "[ \"Committer\", \"Contributor\", \"Expert\"]");
         RELEASE_ROLES = props.getProperty("custommap.release.roles", "[ \"Committer\", \"Contributor\", \"Expert\"]");
+        PROJECTIMPORT_HOSTS = props.getProperty("projectimport.hosts", "");
     }
 
     private PortalConstants() {
