@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -30,8 +29,13 @@ import static java.util.Collections.*;
 
 public class SearchLevels {
 
+    private static final String CPE_PREFIX        = "cpe:2.3:";
+    private static final String OLD_CPE_PREFIX    = "cpe:/";
     private static final String CPE_WILDCARD      = ".*";
-    private static final String CPE_NEEDLE_PREFIX = "cpe:2.3:.:";
+    private static final String CPE_NEEDLE_PREFIX = CPE_PREFIX + ".:";
+    public static final int DEFAULT_VENDOR_THRESHOLD  = 1;
+    public static final int DEFAULT_PRODUCT_THRESHOLD = 0;
+    public static final int DEFAULT_CUTOFF            = 6;
 
     private Logger log = Logger.getLogger(SearchLevels.class);
 
@@ -51,13 +55,22 @@ public class SearchLevels {
         List<NeedleWithMeta> apply(Release release) throws IOException;
     }
 
-    public SearchLevels() {
+
+    public SearchLevels(CveSearchApi cveSearchApi) {
+        setup(cveSearchApi, DEFAULT_VENDOR_THRESHOLD, DEFAULT_PRODUCT_THRESHOLD, DEFAULT_CUTOFF);
+    }
+
+    public SearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
+        setup(cveSearchApi, vendorThreshold, productThreshold, cutoff);
+    }
+
+    private void setup(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
         searchLevels = new ArrayList<>();
 
         // Level 1. search by full cpe
-        searchLevels.add(mkSearchLevel("CPE",
-                r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase()),
-                r -> r.getCpeid().toLowerCase()));
+        addCPESearchLevel();
+        // Level 2. and 3.
+        addGuessingSearchLevels(cveSearchApi, vendorThreshold, productThreshold, cutoff);
     }
 
     public Stream<List<NeedleWithMeta>> apply(Release release) throws IOException {
@@ -86,63 +99,38 @@ public class SearchLevels {
     }
 
     //==================================================================================================================
-    public SearchLevels addBasicSearchlevels() {
-        // Level 2.
-        searchLevels.add(mkSearchLevel("by VENDOR_FULL_NAME:NAME:VERSION",
-                r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetFullname(),
-                r -> r.getVendor().getFullname(),
-                Release::getName,
-                Release::getVersion));
-
-        // Level 3.
-        searchLevels.add(mkSearchLevel("by VENDOR_SHORT_NAME:NAME:VERSION",
-                r -> r.isSetVersion() && r.isSetVendor() && r.getVendor().isSetShortname(),
-                r ->r.getVendor().getShortname(),
-                Release::getName,
-                Release::getVersion));
-
-        // Level 4.
-        searchLevels.add(mkSearchLevel("by VENDOR_FULL_NAME:NAME",
-                r -> r.isSetVendor() && r.getVendor().isSetFullname(),
-                r ->r.getVendor().getFullname(),
-                Release::getName));
-
-        // Level 5.
-        searchLevels.add(mkSearchLevel("by VENDOR_SHORT_NAME:NAME",
-                r -> r.isSetVendor() && r.getVendor().isSetShortname(),
-                r -> r.getVendor().getShortname(),
-                Release::getName));
-
-        // Level 6.
-        searchLevels.add(mkSearchLevel("by .*:NAME:VERSION",
-                r -> r.isSetVersion(),
-                Release::getName,
-                Release::getVersion));
-
-        // Level 7.
-        searchLevels.add(mkSearchLevel("by .*:NAME",
-                r -> true,
-                Release::getName));
-
-        return this;
+    protected String cleanupCPE(String cpe) {
+        if(cpe.startsWith(OLD_CPE_PREFIX)){ // convert cpe2.2 to cpe2.3
+            cpe = cpe.replaceAll("^"+OLD_CPE_PREFIX, CPE_PREFIX)
+                    .replace("::", ":-:")
+                    .replace("~-", "~")
+                    .replace("~",  ":-:")
+                    .replace("::", ":")
+                    .replaceAll("[:-]*$", "");
+        }
+        return cpe.toLowerCase();
+    }
+    private void addCPESearchLevel() {
+        Predicate<Release> isPossible = r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase());
+        searchLevels.add(r -> {
+            if(isPossible.test(r)){
+                return singletonList(new NeedleWithMeta(cleanupCPE(r.getCpeid()), "CPE"));
+            }
+            return EMPTY_LIST;
+        });
     }
 
-    //==================================================================================================================
-    public SearchLevels addGuessingSearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
+    private void addGuessingSearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
         CveSearchGuesser cveSearchGuesser = new CveSearchGuesser(cveSearchApi);
         cveSearchGuesser.setVendorThreshold(vendorThreshold);
         cveSearchGuesser.setProductThreshold(productThreshold);
         cveSearchGuesser.setCutoff(cutoff);
 
         // Level 2. search by guessed vendors and products with version
-        //private String description = "Guessing Heuristic (lvl 2)";
         searchLevels.add(release -> guessForRelease(cveSearchGuesser, release, true));
 
         // Level 3. search by guessed vendors and products without version
-        //private String description = "Guessing Heuristic (lvl 3)";
         searchLevels.add(release -> guessForRelease(cveSearchGuesser, release, false));
-
-        return this;
     }
 
 
@@ -163,7 +151,7 @@ public class SearchLevels {
             vendorProductList = cveSearchGuesser.guessVendorAndProducts(productHaystack);
         }
 
-        String cpeNeedlePostfix = ":" + (useVersionInformation ? release.getVersion() : "") + ".*";
+        String cpeNeedlePostfix = ":" + (useVersionInformation ? release.getVersion() : "") + CPE_WILDCARD;
         Function<String,String> cpeBuilder = cpeNeedle -> CPE_NEEDLE_PREFIX + cpeNeedle + cpeNeedlePostfix;
 
         return vendorProductList.stream()
@@ -172,54 +160,9 @@ public class SearchLevels {
                 .collect(Collectors.toList());
     }
 
-    //==================================================================================================================
-    protected Function<Release,String> escapeGeneratorResult(Function<Release,String> generator) {
-        return r -> generator.apply(r)
-                .replace('/','.')
-                .replace('\\','.')
-                .replace('*','.')
-                .replace('+','.')
-                .replace('!','.')
-                .replace('?','.')
-                .replace('^','.')
-                .replace('$','.')
-                .replace('[','.')
-                .replace(']','.')
-                .replace(" ", CPE_WILDCARD)
-                .toLowerCase();
-    }
-
-    protected Function<Release, String> implodeSearchNeedleGenerators(Function<Release,String> generator, Function<Release,String> ... generators){
-        return Arrays.stream(generators)
-                .map(this::escapeGeneratorResult)
-                .reduce(generator,
-                        (g1,g2) -> r -> g1.apply(r) + CPE_WILDCARD + g2.apply(r));
-    }
-
     protected boolean isCpe(String potentialCpe){
         return (! (null == potentialCpe))
-                && potentialCpe.startsWith("cpe:")
+                && ( potentialCpe.startsWith(CPE_PREFIX) || potentialCpe.startsWith(OLD_CPE_PREFIX) )
                 && potentialCpe.length() > 10;
-    }
-
-    protected String cpeWrapper(String needle) {
-        if (isCpe(needle)){
-            return needle;
-        }
-        return CPE_NEEDLE_PREFIX + CPE_WILDCARD + nullToEmptyString(needle) + CPE_WILDCARD;
-    }
-
-    protected SearchLevel mkSearchLevel(String description,
-                                        Predicate<Release> isPossible,
-                                        Function<Release,String> generator,
-                                        Function<Release,String> ... generators){
-        Function<Release,String> implodedGenerators = implodeSearchNeedleGenerators(generator, generators);
-
-        return r -> {
-            if(isPossible.test(r)){
-                return singletonList(new NeedleWithMeta(cpeWrapper(implodedGenerators.apply(r)), description));
-            }
-            return EMPTY_LIST;
-        };
     }
 }
