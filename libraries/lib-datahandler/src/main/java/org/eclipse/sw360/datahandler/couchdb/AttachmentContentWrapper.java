@@ -23,6 +23,7 @@ public class AttachmentContentWrapper extends DocumentWrapper<AttachmentContent>
     public String id; // optional
     public String revision; // optional
     public String type; // optional
+    public boolean wantsToStayRemote; // optional
     public boolean onlyRemote; // required
     public String remoteUrl; // optional
     public String filename; // required
@@ -38,6 +39,7 @@ public class AttachmentContentWrapper extends DocumentWrapper<AttachmentContent>
         remoteUrl = source.getRemoteUrl();
         partsCount = source.getPartsCount();
         remoteUrl = source.getRemoteUrl();
+        wantsToStayRemote = source.isWantsToStayRemote();
         onlyRemote = source.isOnlyRemote();
     }
 }

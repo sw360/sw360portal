@@ -53,6 +53,10 @@ public class RemoteAttachmentDownloader {
         int count = 0;
 
         for (AttachmentContent attachmentContent : remoteAttachments) {
+            if (attachmentContent.isWantsToStayRemote()){
+                log.info(format("skipping attachment (%s), does not want to be downloaded to the DB", attachmentContent.getId()));
+                continue;
+            }
             if (!attachmentContent.isOnlyRemote()) {
                 log.info(format("skipping attachment (%s), which should already be available", attachmentContent.getId()));
                 continue;

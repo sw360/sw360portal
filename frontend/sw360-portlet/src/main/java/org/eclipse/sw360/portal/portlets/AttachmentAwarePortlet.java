@@ -53,7 +53,6 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         uploadHistoryPerUserEmailAndDocumentId = new HashMap<>();
     }
 
-
     public static void setAttachmentsInRequest(PortletRequest request, Set<Attachment> attachments) {
         request.setAttribute(ATTACHMENTS, CommonUtils.nullToEmptySet(attachments));
     }
@@ -89,11 +88,24 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
         } else if (PortalConstants.ATTACHMENT_CANCEL.equals(action)) {
             RequestStatus status = attachmentPortletUtils.cancelUpload(request);
             renderRequestStatus(request, response, status);
+        } else if (PortalConstants.REMOTE_ATTACHMENT_ADD_TO.equals(action)) {
+            doAddRemoteAttachment(request,response);
+        }
+    }
+
+    private void doAddRemoteAttachment(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
+        final AttachmentContent attachmentContent = attachmentPortletUtils.addRemoteAttachment(request);
+        if (attachmentContent != null) {
+            doGetAttachmentForDisplay(attachmentContent.getId(), request, response);
         }
     }
 
     private void doGetAttachmentForDisplay(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String attachmentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
+        doGetAttachmentForDisplay(attachmentId, request, response);
+    }
+
+    private void doGetAttachmentForDisplay(String attachmentId, ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         Attachment attachment = attachmentPortletUtils.getAttachmentForDisplay(user, attachmentId);

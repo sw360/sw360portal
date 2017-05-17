@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2015.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,8 +11,6 @@
 
 package org.eclipse.sw360.attachments.db;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseRepository;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
@@ -24,6 +24,7 @@ import org.ektorp.support.View;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * CRUD access for the Attachment class
@@ -52,22 +53,24 @@ public class AttachmentRepository extends DatabaseRepository<AttachmentContent> 
 
     public RequestSummary vacuumAttachmentDB(User user, final Set<String> usedIds) {
         final RequestSummary requestSummary = new RequestSummary();
-        if (!PermissionUtils.isAdmin(user))
+        if (!PermissionUtils.isAdmin(user) || usedIds == null)
             return requestSummary.setRequestStatus(RequestStatus.FAILURE);
 
         final List<AttachmentContent> allAttachmentContents = getAll();
-        final Set<AttachmentContent> unusedAttachmentContents = FluentIterable.from(allAttachmentContents).filter(new Predicate<AttachmentContent>() {
-            @Override
-            public boolean apply(AttachmentContent input) {
-                return !usedIds.contains(input.getId());
-            }
-        }).toSet();
+        final Set<AttachmentContent> unusedAttachmentContents = allAttachmentContents.stream()
+                .filter(input -> !usedIds.contains(input.getId()))
+                .collect(Collectors.toSet());
 
         requestSummary.setTotalElements(allAttachmentContents.size());
         requestSummary.setTotalAffectedElements(unusedAttachmentContents.size());
 
         final List<DocumentOperationResult> documentOperationResults = deleteBulk(unusedAttachmentContents);
+        String msg = documentOperationResults.stream()
+                .map(dor -> dor.toString())
+                .reduce("", (s1,s2)-> s1 + "\n" + s2);
+        log.info("vacuumAttachmentDB gave the following output:\n" + msg);
         requestSummary.setRequestStatus(RequestStatus.SUCCESS);
+        requestSummary.setMessage(msg);
         return requestSummary;
     }
 }

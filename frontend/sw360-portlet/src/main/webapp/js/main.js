@@ -245,4 +245,3 @@ function deleteConfirmed(confirmMessage, confirmCallback) {
         }
     });
 }
-

@@ -69,7 +69,8 @@ struct AttachmentContent {
     2: optional string revision,
     3: optional string type = "attachment",
 
-    10: optional bool onlyRemote;
+     9: optional bool wantsToStayRemote = false,
+    10: optional bool onlyRemote = false,
     11: optional string remoteUrl,
 
     20: required string filename,

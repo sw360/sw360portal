@@ -14,7 +14,6 @@ import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.RequestSummary;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
-import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -23,6 +22,7 @@ import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -89,7 +89,7 @@ public class AttachmentDatabaseHandler {
         assertUser(user);
         return repository.vacuumAttachmentDB(user, usedIds);
     }
-    public String getSha1FromAttachmentContentId(String attachmentContentId){
+    public Optional<String> getSha1FromAttachmentContentId(String attachmentContentId){
         return attachmentConnector.getSha1FromAttachmentContentId(attachmentContentId);
     }
 }

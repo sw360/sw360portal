@@ -8,8 +8,8 @@
  */
 package org.eclipse.sw360.attachments;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.attachments.db.AttachmentRepository;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
@@ -19,16 +19,14 @@ import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.RequestSummary;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
-import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
 
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
@@ -71,12 +69,7 @@ public class AttachmentHandler implements AttachmentService.Iface {
         if (!documentOperationResults.isEmpty())
             log.error("Failed Attachment store results " + documentOperationResults);
 
-        return FluentIterable.from(attachmentContents).filter(new Predicate<AttachmentContent>() {
-            @Override
-            public boolean apply(AttachmentContent input) {
-                return input.isSetId();
-            }
-        }).toList();
+        return attachmentContents.stream().filter(input -> input.isSetId()).collect(Collectors.toList());
     }
 
     @Override
@@ -118,6 +111,7 @@ public class AttachmentHandler implements AttachmentService.Iface {
 
     @Override
     public String getSha1FromAttachmentContentId(String attachmentContentId){
-        return attachmentConnector.getSha1FromAttachmentContentId(attachmentContentId);
+        return attachmentConnector.getSha1FromAttachmentContentId(attachmentContentId)
+                .orElse("");
     }
 }
