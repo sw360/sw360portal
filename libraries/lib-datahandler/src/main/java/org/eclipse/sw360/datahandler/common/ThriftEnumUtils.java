@@ -13,7 +13,6 @@ package org.eclipse.sw360.datahandler.common;
 
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.sw360.datahandler.thrift.VerificationState;
-import org.eclipse.sw360.datahandler.thrift.datasources.SourceDatabase;
 import org.eclipse.sw360.datahandler.thrift.ModerationState;
 import org.eclipse.sw360.datahandler.thrift.Visibility;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
@@ -43,9 +42,6 @@ public class ThriftEnumUtils {
         // Utility class with only static functions
     }
 
-    private static final ImmutableMap<SourceDatabase, String> MAP_SOURCE_DATABASE_STRING = ImmutableMap.of(
-            SourceDatabase.BDP, "BDP"
-    );
     //! Enumeration "fancy name" mappings
     private static final ImmutableMap<ComponentType, String> MAP_COMPONENT_TYPE_STRING = ImmutableMap.<ComponentType, String>builder()
             .put(ComponentType.OSS, "OSS")
@@ -205,7 +201,6 @@ public class ThriftEnumUtils {
 
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
-            .put(SourceDatabase.class, MAP_SOURCE_DATABASE_STRING)
             .put(ComponentType.class, MAP_COMPONENT_TYPE_STRING)
             .put(ProjectType.class, MAP_PROJECT_TYPE_STRING)
             .put(AttachmentType.class, MAP_ATTACHMENT_TYPE_STRING)
