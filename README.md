@@ -96,15 +96,19 @@ For deployment run the command
 ```
 mvn install -Pdeploy
 ```
-which copies the war files to the liferay auto deploy folder, which is often
-found at `/opt/sw360/deploy`.
-The Target path
-- is either calculated from the environmental variable `LIFERAY_PATH` as
-  `${env.LIFERAY_PATH}/deploy` or
-- can be set directly via
-  - `mvn install -Pdeploy -Ddeploy.dir=/DIR/TO/PLACE/WAR/FILES/IN"` or
-  - `rake deploy DEPLOY_DIR=/DIR/TO/PLACE/WAR/FILES/IN`, which wraps the
-  compilation within docker, if `DOCKERIZE=false` is not set 
+which copies the war files to the liferay auto deploy folder (if `LIFERAY_PATH` is set).
+Otherwise one has to specify the absolute path to the deploy folder in the following way:
+```
+mvn install -Pdeploy \
+    -Pdeploy.dir=/ABSOLUTE/PATH/TO/DEPLOY/FOLDER
+```
+It is even better to also pass the path to the webapps folder, thus allowing maven to deploy the backend services directly via the native tomcat hot deploy mechanism.
+This is done in the following way:
+```
+mvn install -Pdeploy \
+    -Pdeploy.dir=/ABSOLUTE/PATH/TO/DEPLOY/FOLDER \
+    -Pwebapps.dir=/ABSOLUTE/PATH/TO/WEBAPPS/FOLDER
+```
   
 #### Packaging
 The packaging mechanisms are able to produce **.deb**, **.rpm** and **.tar.gz**

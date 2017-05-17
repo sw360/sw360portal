@@ -76,7 +76,7 @@
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-war-plugin</artifactId>
               <configuration>
-                <outputDirectory>${deploy.dir}</outputDirectory>
+                <outputDirectory>${webapps.dir}</outputDirectory>
               </configuration>
             </plugin>
           </plugins>
