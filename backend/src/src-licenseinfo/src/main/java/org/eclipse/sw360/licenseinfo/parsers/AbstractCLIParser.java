@@ -11,10 +11,12 @@ package org.eclipse.sw360.licenseinfo.parsers;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -79,12 +81,12 @@ public abstract class AbstractCLIParser extends LicenseInfoParser {
         return StreamSupport.stream(iterable.spliterator(), false);
     }
 
-    protected boolean hasThisXMLRootElement(AttachmentContent content, String rootElementNamespace, String rootElementName) {
+    protected <T> boolean hasThisXMLRootElement(AttachmentContent content, String rootElementNamespace, String rootElementName, User user, T context) throws TException {
         XMLInputFactory xmlif = XMLInputFactory.newFactory();
         XMLStreamReader xmlStreamReader = null;
         InputStream attachmentStream = null;
         try {
-            attachmentStream = attachmentConnector.getAttachmentStream(content);
+            attachmentStream = attachmentConnector.getAttachmentStream(content, user, context);
             xmlStreamReader = xmlif.createXMLStreamReader(attachmentStream);
 
             //skip to first element

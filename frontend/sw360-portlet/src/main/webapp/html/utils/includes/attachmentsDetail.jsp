@@ -6,23 +6,30 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="/html/init.jsp" %>
 
 
-<%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
-<jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
-<jsp:useBean id="documentType" type="java.lang.String" scope="request"/>
+<c:catch var="attributeNotFoundException">
+    <jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
+    <jsp:useBean id="documentType" type="java.lang.String" scope="request"/>
+    <jsp:useBean id="documentID" class="java.lang.String" scope="request"/>
+</c:catch>
+<core_rt:if test="${empty attributeNotFoundException}">
 <table class="table info_table " id="attachmentDetail" title="Attachment Information">
     <thead>
     <tr>
         <th colspan="8" class="headlabel">
             Attachments
             <core_rt:if test="${not empty attachments}">
-                <sw360:DisplayDownloadAttachmentBundle ids="${attachments}" name="${AttachmentBundle.zip}"/>
+                <sw360:DisplayDownloadAttachmentBundle ids="${attachments}"
+                                                       name="${AttachmentBundle.zip}"
+                                                       contextType="${documentType}"
+                                                       contextId="${documentID}"/>
             </core_rt:if>
         </th>
     </tr>
@@ -32,7 +39,10 @@
         <core_rt:forEach items="${attachments}" var="attachment" varStatus="loop">
             <tr id="attachmentRow1${loop.count}">
                 <td colspan="8" class="attachmentTitle">
-                    <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}" name="${attachment.filename}"/>
+                    <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}"
+                                                     name="${attachment.filename}"
+                                                     contextType="${documentType}"
+                                                     contextId="${documentID}"/>
                     "<sw360:out value="${attachment.filename}"/>"
                 </td>
             </tr>
@@ -88,3 +98,4 @@
     </core_rt:if>
     </tbody>
 </table>
+</core_rt:if>

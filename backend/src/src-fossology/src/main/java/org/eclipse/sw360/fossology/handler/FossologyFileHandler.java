@@ -76,7 +76,7 @@ public class FossologyFileHandler {
         if (!release.isSetFossologyId()) {
             /* send the attachment as a new upload */
             AttachmentContent attachmentContent = filledAttachment.getAttachmentContent();
-            return sendToFossologyNewUpload(releaseId, user, clearingTeam, attachmentContent, componentClient);
+            return sendToFossologyNewUpload(release, user, clearingTeam, attachmentContent, componentClient);
         } else {
             if (!checkSourceAttachment(release, filledAttachment)) {
                 return RequestStatus.FAILURE; // TODO summary
@@ -96,13 +96,12 @@ public class FossologyFileHandler {
         return check;
     }
 
-    private RequestStatus sendToFossologyNewUpload(String releaseId, User user, String clearingTeam, AttachmentContent attachmentContent, ComponentService.Iface componentService) throws TException {
-        InputStream stream = attachmentConnector.getAttachmentStream(attachmentContent);
+    private RequestStatus sendToFossologyNewUpload(Release release, User user, String clearingTeam, AttachmentContent attachmentContent, ComponentService.Iface componentService) throws TException {
+        InputStream stream = attachmentConnector.getAttachmentStream(attachmentContent, user, release);
         try {
             int fossologyUploadId = fossologyUploader.uploadToFossology(stream, attachmentContent, clearingTeam);
             if (fossologyUploadId > 0) {
                 //to avoid race conditions, get the object again
-                Release release = assertNotNull(componentService.getReleaseById(releaseId, user));
                 setFossologyStatus(release, clearingTeam, FossologyStatus.SENT, Integer.toString(fossologyUploadId), attachmentContent.getId());
                 updateReleaseClearingState(release, FossologyStatus.SENT);
                 updateRelease(release, user, componentService);

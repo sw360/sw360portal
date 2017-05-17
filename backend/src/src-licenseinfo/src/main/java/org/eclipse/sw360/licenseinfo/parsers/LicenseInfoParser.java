@@ -12,9 +12,9 @@ import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.util.List;
-
 
 /**
  * @author: alex.borodin@evosoft.com
@@ -30,7 +30,7 @@ public abstract class LicenseInfoParser {
 
     public abstract List<String> getApplicableFileExtensions();
 
-    public boolean isApplicableTo(Attachment attachmentContent) throws TException {
+    public <T> boolean isApplicableTo(Attachment attachmentContent, User user, T context) throws TException {
         List<String> applicableFileExtensions = getApplicableFileExtensions();
         if(applicableFileExtensions.size() == 0){
             return true;
@@ -40,5 +40,5 @@ public abstract class LicenseInfoParser {
                 .anyMatch(extension -> lowerFileName.endsWith(extension.toLowerCase()));
     }
 
-    public abstract List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException;
+    public abstract <T> List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment, User user, T context) throws TException;
 }

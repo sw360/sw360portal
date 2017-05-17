@@ -64,7 +64,7 @@ public class RemoteAttachmentDownloader {
 
             InputStream content = null;
             try {
-                content = attachmentConnector.getAttachmentStream(attachmentContent);
+                content = attachmentConnector.unsafeGetAttachmentStream(attachmentContent);
                 if (content == null) {
                     log.error("null content retrieving attachment " + attachmentContentId);
                     continue;

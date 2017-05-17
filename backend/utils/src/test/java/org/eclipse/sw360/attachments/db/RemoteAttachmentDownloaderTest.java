@@ -14,7 +14,11 @@ import org.eclipse.sw360.datahandler.common.Duration;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -26,6 +30,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -55,6 +60,8 @@ public class RemoteAttachmentDownloaderTest {
     private List<String> garbage;
     private Duration downloadTimeout = Duration.durationOf(5, TimeUnit.SECONDS);
 
+    private User dummyUser = new User().setEmail("dummy@some.domain");
+
     @BeforeClass
     public static void setUpClass() throws Exception {
         assertTestString(dbName);
@@ -83,7 +90,12 @@ public class RemoteAttachmentDownloaderTest {
 
         assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(1));
 
-        assertThat(attachmentConnector.getAttachmentStream(attachmentContent), hasLength(greaterThan(0l)));
+        assertThat(attachmentConnector.getAttachmentStream(attachmentContent, dummyUser,
+                        new Project()
+                                .setVisbility(Visibility.ME_AND_MODERATORS)
+                                .setCreatedBy(dummyUser.getEmail())
+                                .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(attachmentContent.getId())))),
+                hasLength(greaterThan(0l)));
 
         assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(0));
     }
@@ -129,14 +141,24 @@ public class RemoteAttachmentDownloaderTest {
         assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(1));
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(1));
 
-        assertThat(attachmentConnector.getAttachmentStream(attachmentGood), hasLength(greaterThan(0l)));
+        assertThat(attachmentConnector.getAttachmentStream(attachmentGood, dummyUser,
+                new Project()
+                        .setVisbility(Visibility.ME_AND_MODERATORS)
+                        .setCreatedBy(dummyUser.getEmail())
+                        .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(attachmentGood.getId())))),
+                hasLength(greaterThan(0l)));
 
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(1));
         assertThat(retrieveRemoteAttachments(DatabaseSettings.getConfiguredHttpClient(), dbName, downloadTimeout), is(0));
         assertThat(repository.getOnlyRemoteAttachments(), hasSize(1));
 
         try {
-            assertThat(attachmentConnector.getAttachmentStream(attachmentContent), hasLength(greaterThan(0l)));
+            assertThat(attachmentConnector.getAttachmentStream(attachmentContent, dummyUser,
+                new Project()
+                        .setVisbility(Visibility.ME_AND_MODERATORS)
+                        .setCreatedBy(dummyUser.getEmail())
+                        .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(attachmentContent.getId())))),
+                hasLength(greaterThan(0l)));
             fail("expected exception not thrown");
         } catch (SW360Exception e) {
             assertThat(e.getWhy(), containsString(attachmentContent.getId()));

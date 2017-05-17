@@ -20,6 +20,8 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,29 +91,29 @@ public class CombinedCLIParserTest {
 
     @Test
     public void testIsApplicableTo() throws Exception {
-        when(connector.getAttachmentStream(content)).thenReturn(makeAttachmentContentStream(TEST_XML_FILENAME));
-        assertTrue(parser.isApplicableTo(attachment));
+        when(connector.getAttachmentStream(content, new User(), new Project())).thenReturn(makeAttachmentContentStream(TEST_XML_FILENAME));
+        assertTrue(parser.isApplicableTo(attachment, new User(), new Project()));
     }
 
     @Test
     public void testIsApplicableToFailsOnIncorrectRootElement() throws Exception {
         AttachmentContent content = new AttachmentContent().setId("A1").setFilename("a.xml").setContentType("application/xml");
-        when(connector.getAttachmentStream(content)).thenReturn(new ReaderInputStream(new StringReader("<wrong-root/>")));
-        assertFalse(parser.isApplicableTo(attachment));
+        when(connector.getAttachmentStream(content, new User(), new Project())).thenReturn(new ReaderInputStream(new StringReader("<wrong-root/>")));
+        assertFalse(parser.isApplicableTo(attachment, new User(), new Project()));
     }
 
     @Test
     public void testIsApplicableToFailsOnMalformedXML() throws Exception {
         AttachmentContent content = new AttachmentContent().setId("A1").setFilename("a.xml").setContentType("application/xml");
-        when(connector.getAttachmentStream(content)).thenReturn(new ReaderInputStream(new StringReader("this is not an xml file")));
-        assertFalse(parser.isApplicableTo(attachment));
+        when(connector.getAttachmentStream(content, new User(), new Project())).thenReturn(new ReaderInputStream(new StringReader("this is not an xml file")));
+        assertFalse(parser.isApplicableTo(attachment, new User(), new Project()));
     }
 
     @Test
     public void testGetCLI() throws Exception {
         Attachment cliAttachment = new Attachment("A1", "a.xml");
-        when(connector.getAttachmentStream(anyObject())).thenReturn(new ReaderInputStream(new StringReader(cliTestfile)));
-        List<LicenseInfoParsingResult> results = parser.getLicenseInfos(cliAttachment);
+        when(connector.getAttachmentStream(anyObject(), anyObject(), anyObject())).thenReturn(new ReaderInputStream(new StringReader(cliTestfile)));
+        List<LicenseInfoParsingResult> results = parser.getLicenseInfos(cliAttachment, new User(), new Project());
         assertThat(results.size(), is(1));
         LicenseInfoParsingResult res = results.get(0);
         assertLicenseInfoParsingResult(res);

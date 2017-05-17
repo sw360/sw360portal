@@ -88,7 +88,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         };
     }
 
-    private List<LicenseInfoParsingResult> getLicenseInfosForRelease(Release release, String selectedAttachmentContentId) throws TException{
+    private List<LicenseInfoParsingResult> getLicenseInfosForRelease(Release release, String selectedAttachmentContentId, User user) throws TException{
         if(release == null){
             return Collections.singletonList(noSourceParsingResult());
         }
@@ -107,7 +107,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         try {
             List<LicenseInfoParser> applicableParsers = Arrays.stream(parsers).filter(p -> {
                 try {
-                    return p.isApplicableTo(attachment);
+                    return p.isApplicableTo(attachment, user, release);
                 } catch (TException e) {
                     throw new UncheckedTException(e);
                 }
@@ -123,7 +123,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                 }
                 List<LicenseInfoParsingResult> results = applicableParsers.stream().map(parser -> {
                     try {
-                        return parser.getLicenseInfos(attachment);
+                        return parser.getLicenseInfos(attachment, user, release);
                     } catch (TException e) {
                         throw new UncheckedTException(e);
                     }
@@ -217,7 +217,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
                             .filter(Objects::nonNull)
                             .map(attId -> {
                                 try {
-                                    return getLicenseInfosForRelease(entry.getKey(), attId);
+                                    return getLicenseInfosForRelease(entry.getKey(), attId, user);
                                 } catch (TException e) {
                                     throw new UncheckedTException(e);
                                 }

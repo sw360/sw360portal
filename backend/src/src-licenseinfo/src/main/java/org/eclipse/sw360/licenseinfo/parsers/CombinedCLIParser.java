@@ -24,6 +24,7 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -74,24 +75,24 @@ public class CombinedCLIParser extends AbstractCLIParser{
     }
 
     @Override
-    public boolean isApplicableTo(Attachment attachment) throws TException {
+    public <T> boolean isApplicableTo(Attachment attachment, User user, T context) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
-        return attachmentContent.getFilename().endsWith(XML_FILE_EXTENSION) && hasCombinedCLIRootElement(attachmentContent);
+        return attachmentContent.getFilename().endsWith(XML_FILE_EXTENSION) && hasCombinedCLIRootElement(attachmentContent, user, context);
     }
 
-    private boolean hasCombinedCLIRootElement(AttachmentContent content) {
-        return hasThisXMLRootElement(content, COMBINED_CLI_ROOT_ELEMENT_NAMESPACE, COMBINED_CLI_ROOT_ELEMENT_NAME);
+    private <T> boolean hasCombinedCLIRootElement(AttachmentContent content, User user, T context) throws TException {
+        return hasThisXMLRootElement(content, COMBINED_CLI_ROOT_ELEMENT_NAMESPACE, COMBINED_CLI_ROOT_ELEMENT_NAME, user, context);
     }
 
     @Override
-    public List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException {
+    public <T> List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment, User user, T context) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
         InputStream attachmentStream = null;
         List<LicenseInfoParsingResult> parsingResults = new ArrayList<>();
         Map<String, Release> releasesByExternalId = prepareReleasesByExternalId(getCorrelationKey());
 
         try {
-            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
+            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent, user, context);
             Document doc = getDocument(attachmentStream);
 
             Map<String, Set<String>> copyrightSetsByExternalId = getCopyrightSetsByExternalIdsMap(doc);

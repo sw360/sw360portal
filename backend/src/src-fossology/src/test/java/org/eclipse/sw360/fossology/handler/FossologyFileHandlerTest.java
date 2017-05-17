@@ -27,6 +27,7 @@ import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.fossology.ssh.FossologyUploader;
 import org.apache.thrift.TException;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -174,7 +175,7 @@ public class FossologyFileHandlerTest {
         final InputStream inputStream = mock(InputStream.class);
         when(release.isSetFossologyId()).thenReturn(false);
         when(release.getClearingState()).thenReturn(ClearingState.NEW_CLEARING);
-        when(attachmentConnector.getAttachmentStream(attachmentContent)).thenReturn(inputStream);
+        when(attachmentConnector.getAttachmentStream(attachmentContent, user, release)).thenReturn(inputStream);
         when(fossologyUploader.uploadToFossology(inputStream, attachmentContent, clearingTeam)).thenReturn(1);
 
         doNothing().when(fossologyFileHandler)
@@ -191,8 +192,8 @@ public class FossologyFileHandlerTest {
                 .setFossologyStatus(eq(release), anyString(), eq(FossologyStatus.SENT), eq("" + 1), eq(id));
 
         // unimportant verifies
-        verify(componentService, times(2)).getReleaseById(releaseId, user);
-        verify(attachmentConnector).getAttachmentStream(attachmentContent);
+        verify(componentService, times(1)).getReleaseById(releaseId, user);
+        verify(attachmentConnector).getAttachmentStream(attachmentContent, user, release);
         verify(fossologyUploader).uploadToFossology(inputStream, attachmentContent, clearingTeam);
     }
 
@@ -215,7 +216,7 @@ public class FossologyFileHandlerTest {
 
         final InputStream inputStream = mock(InputStream.class);
         when(release.isSetFossologyId()).thenReturn(false);
-        when(attachmentConnector.getAttachmentStream(attachmentContent)).thenReturn(inputStream);
+        when(attachmentConnector.getAttachmentStream(attachmentContent, user, release)).thenReturn(inputStream);
         when(fossologyUploader.uploadToFossology(inputStream, attachmentContent, clearingTeam)).thenReturn(-1);
 
         assertThat(fossologyFileHandler.sendToFossology(releaseId, user, clearingTeam), is(RequestStatus.FAILURE));
@@ -224,7 +225,7 @@ public class FossologyFileHandlerTest {
 
         // unimportant verifies
         verify(componentService, atLeastOnce()).getReleaseById(releaseId, user);
-        verify(attachmentConnector).getAttachmentStream(attachmentContent);
+        verify(attachmentConnector).getAttachmentStream(attachmentContent, user, release);
         verify(fossologyUploader).uploadToFossology(inputStream, attachmentContent, clearingTeam);
     }
 

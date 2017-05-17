@@ -8,18 +8,25 @@
  */
 package org.eclipse.sw360.datahandler.couchdb;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.DocumentNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
@@ -35,6 +42,8 @@ public class AttachmentStreamConnectorTest {
     public DatabaseConnector connector;
     @Mock
     private AttachmentContentDownloader attachmentContentDownloader;
+
+    private User dummyUser = new User().setEmail("dummy@some.domain");
 
     AttachmentStreamConnector attachmentStreamConnector;
 
@@ -63,14 +72,19 @@ public class AttachmentStreamConnectorTest {
         doReturn(returnedStream).when(attachmentStreamConnector).readAttachmentStream(rereadAttachment);
         doNothing().when(attachmentStreamConnector).uploadAttachmentPart(attachment, 1, downloadUrlStream);
 
-        when(attachmentContentDownloader.download(eq(attachment), any(Duration.class))).thenReturn(downloadUrlStream);
+        when(attachmentContentDownloader.download(eq(attachment), Matchers.any(Duration.class))).thenReturn(downloadUrlStream);
 
         when(connector.get(AttachmentContent.class, id)).thenReturn(rereadAttachment);
         doReturn(rereadAttachment).when(rereadAttachment).setOnlyRemote(anyBoolean());
 
-        assertThat(attachmentStreamConnector.getAttachmentStream(attachment), sameInstance(returnedStream));
+        assertThat(attachmentStreamConnector.getAttachmentStream(attachment, dummyUser,
+                     new Project()
+                             .setVisbility(Visibility.ME_AND_MODERATORS)
+                             .setCreatedBy(dummyUser.getEmail())
+                             .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(id)))),
+                sameInstance(returnedStream));
 
-        verify(attachmentContentDownloader).download(eq(attachment), any(Duration.class));
+        verify(attachmentContentDownloader).download(eq(attachment), Matchers.any(Duration.class));
         verify(attachmentStreamConnector).uploadAttachment(attachment, downloadUrlStream);
         verify(attachmentStreamConnector).readAttachmentStream(rereadAttachment);
 
@@ -93,7 +107,11 @@ public class AttachmentStreamConnectorTest {
         when(connector.getAttachment(attachmentId, "fil")).thenReturn(full);
 
         when(full.read()).thenReturn(1, 2, -1);
-        InputStream attachmentStream = attachmentStreamConnector.getAttachmentStream(attachment);
+        InputStream attachmentStream = attachmentStreamConnector.getAttachmentStream(attachment, dummyUser,
+                new Project()
+                        .setVisbility(Visibility.ME_AND_MODERATORS)
+                        .setCreatedBy(dummyUser.getEmail())
+                        .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(attachmentId))));
 
         assertThat(attachmentStream.read(), is(1));
         assertThat(attachmentStream.read(), is(2));
@@ -121,7 +139,11 @@ public class AttachmentStreamConnectorTest {
 
         when(part1.read()).thenReturn(1, -1);
         when(part2.read()).thenReturn(2, -1);
-        InputStream attachmentStream = attachmentStreamConnector.getAttachmentStream(attachment);
+        InputStream attachmentStream = attachmentStreamConnector.getAttachmentStream(attachment, dummyUser,
+                new Project()
+                        .setVisbility(Visibility.ME_AND_MODERATORS)
+                        .setCreatedBy(dummyUser.getEmail())
+                        .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(attachmentId))));
 
         verifyZeroInteractions(part2);
         assertThat(attachmentStream.read(), is(1));
@@ -150,7 +172,11 @@ public class AttachmentStreamConnectorTest {
         when(connector.getAttachment(attachmentId, "fil_part2")).thenThrow(new DocumentNotFoundException(""));
 
         when(part1.read()).thenReturn(1, -1);
-        InputStream attachmentStream = attachmentStreamConnector.getAttachmentStream(attachment);
+        InputStream attachmentStream = attachmentStreamConnector.getAttachmentStream(attachment, dummyUser,
+                new Project()
+                        .setVisbility(Visibility.ME_AND_MODERATORS)
+                        .setCreatedBy(dummyUser.getEmail())
+                        .setAttachments(Collections.singleton(new Attachment().setAttachmentContentId(attachmentId))));
 
         assertThat(attachmentStream.read(), is(1));
 

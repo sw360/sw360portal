@@ -599,13 +599,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         User user = UserCacheHolder.getUserFromRequest(request);
         String id = request.getParameter(PROJECT_ID);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
+        request.setAttribute(DOCUMENT_ID, id);
         if (id != null) {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 Project project = client.getProjectById(id, user);
                 project = getWithFilledClearingStateSummary(project, user);
                 request.setAttribute(PROJECT, project);
-                request.setAttribute(DOCUMENT_ID, id);
                 setAttachmentsInRequest(request, project.getAttachments());
                 Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
                 fakeRelations.put(id, ProjectRelationship.UNKNOWN);

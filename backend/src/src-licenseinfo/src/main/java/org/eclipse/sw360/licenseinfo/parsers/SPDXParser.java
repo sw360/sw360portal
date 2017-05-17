@@ -20,6 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SPDXDocumentFactory;
 import org.spdx.rdfparser.model.*;
@@ -53,14 +54,14 @@ public class SPDXParser extends LicenseInfoParser {
     }
 
     @Override
-    public List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException {
-        return Collections.singletonList(getLicenseInfo(attachment));
+    public <T> List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment, User user, T context) throws TException {
+        return Collections.singletonList(getLicenseInfo(attachment, user, context));
     }
 
-    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
+    public <T> LicenseInfoParsingResult getLicenseInfo(Attachment attachment, User user, T context) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
 
-        final Optional<SpdxDocument> spdxDocument = openAsSpdx(attachmentContent);
+        final Optional<SpdxDocument> spdxDocument = openAsSpdx(attachmentContent, user, context);
         if(! spdxDocument.isPresent()){
             return new LicenseInfoParsingResult()
                     .setStatus(LicenseInfoRequestStatus.FAILURE);
@@ -75,8 +76,8 @@ public class SPDXParser extends LicenseInfoParser {
         return new URI("file", filePath, null).toString();
     }
 
-    protected Optional<SpdxDocument> openAsSpdx(AttachmentContent attachmentContent) throws SW360Exception {
-        try (InputStream attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent)) {
+    protected <T> Optional<SpdxDocument> openAsSpdx(AttachmentContent attachmentContent, User user, T context) throws SW360Exception {
+        try (InputStream attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent, user, context)) {
             return Optional.ofNullable(SPDXDocumentFactory.createSpdxDocument(attachmentStream,
                     getUriOfAttachment(attachmentContent),
                     FILETYPE_SPDX_INTERNAL));
@@ -89,7 +90,7 @@ public class SPDXParser extends LicenseInfoParser {
             String msg = "Invalid URI syntax for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId();
             log.error(msg, e);
             throw new SW360Exception(msg);
-        } catch (IOException e) {
+        } catch (IOException | TException e) {
             String msg = "failed to read attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId();
             log.error(msg, e);
             throw new SW360Exception(msg);

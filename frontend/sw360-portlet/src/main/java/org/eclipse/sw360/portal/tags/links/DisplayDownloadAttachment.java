@@ -30,6 +30,8 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
  */
 public class DisplayDownloadAttachment extends ContextAwareTag {
     protected Collection<String> ids = Collections.emptySet();
+    private String contextType;
+    private String contextId;
     private String name = "";
     private Logger log = Logger.getLogger(DisplayDownloadAttachment.class);
 
@@ -37,7 +39,7 @@ public class DisplayDownloadAttachment extends ContextAwareTag {
     public int doStartTag() throws JspException {
         try {
             JspWriter jspWriter = pageContext.getOut();
-            addDownloadLink(pageContext, jspWriter, name, ids);
+            addDownloadLink(pageContext, jspWriter, name, ids, contextType, contextId);
         } catch (Exception e) {
             throw new JspException(e);
         }
@@ -70,6 +72,15 @@ public class DisplayDownloadAttachment extends ContextAwareTag {
             }
         }
     }
+
+    public void setContextType(String contextType) {
+        this.contextType = contextType;
+    }
+
+    public void setContextId(String contextId) {
+        this.contextId = contextId;
+    }
+
 
     public void setName(String name) {
         this.name = escapeHtml(" " + name);

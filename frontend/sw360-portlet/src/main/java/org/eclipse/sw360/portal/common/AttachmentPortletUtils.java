@@ -21,10 +21,12 @@ import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
-import org.eclipse.sw360.datahandler.thrift.attachments.DatabaseAddress;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.ektorp.DocumentNotFoundException;
 
 import javax.portlet.PortletRequest;
@@ -41,6 +43,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static java.net.URLConnection.guessContentTypeFromName;
 import static java.net.URLConnection.guessContentTypeFromStream;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 
 /**
  * Portlet helpers
@@ -55,7 +58,9 @@ public class AttachmentPortletUtils {
     private static final Logger log = Logger.getLogger(AttachmentPortletUtils.class);
     private static final String DEFAULT_ATTACHMENT_BUNDLE_NAME = "AttachmentBundle.zip";
     private final ThriftClients thriftClients;
-    private AttachmentService.Iface client;
+    private final AttachmentService.Iface client;
+    private final ProjectService.Iface projectClient;
+    private final ComponentService.Iface componentClient;
 
     private AttachmentStreamConnector connector;
     // TODO add Config class and DI
@@ -68,6 +73,8 @@ public class AttachmentPortletUtils {
     public AttachmentPortletUtils(ThriftClients thriftClients) {
         this.thriftClients = thriftClients;
         client = thriftClients.makeAttachmentClient();
+        projectClient = thriftClients.makeProjectClient();
+        componentClient = thriftClients.makeComponentClient();
     }
 
     private synchronized void makeConnector() throws TException {
@@ -86,13 +93,13 @@ public class AttachmentPortletUtils {
         return connector;
     }
 
-    protected InputStream getStreamToServeAFile(List<AttachmentContent> attachments) throws TException, IOException {
+    protected InputStream getStreamToServeAFile(List<AttachmentContent> attachments, User user, Object context) throws TException, IOException {
         if(attachments == null || attachments.size() == 0){
             throw new SW360Exception("Tried to download empty set of Attachments");
         }else if(attachments.size() == 1){
-            return getConnector().getAttachmentStream(attachments.get(0));
+            return getConnector().getAttachmentStream(attachments.get(0), user, context);
         } else {
-            return getConnector().getAttachmentBundleStream(attachments.stream().collect(Collectors.toSet()));
+            return getConnector().getAttachmentBundleStream(new HashSet<>(attachments), user, context);
         }
     }
 
@@ -107,12 +114,31 @@ public class AttachmentPortletUtils {
             serveAttachmentBundle(new HashSet<>(Arrays.asList(ids)), request, response, downloadFileName);
         }else{
             log.warn("no attachmentId was found in the request passed to serveFile");
-            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
         }
     }
 
     public void serveAttachmentBundle(Collection<String> ids, ResourceRequest request, ResourceResponse response){
         serveAttachmentBundle(ids, request, response, Optional.empty());
+    }
+
+    private Optional<Object> getContextFromRequest(ResourceRequest request, User user) {
+        String contextType = request.getParameter(PortalConstants.CONTEXT_TYPE);
+        String contextId = request.getParameter(PortalConstants.CONTEXT_ID);
+
+        try {
+            switch (contextType){
+                case "project":
+                    return Optional.ofNullable(projectClient.getProjectById(contextId, user));
+                case "release":
+                    return Optional.ofNullable(componentClient.getReleaseById(contextId, user));
+                case "component":
+                    return Optional.ofNullable(componentClient.getComponentById(contextId, user));
+            }
+        } catch (TException e) {
+            // was not allowed to see the attachment due to missing read privileges
+        }
+        return Optional.empty();
     }
 
     public void serveAttachmentBundle(Collection<String> ids, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
@@ -125,7 +151,7 @@ public class AttachmentPortletUtils {
             serveAttachmentBundle(attachments, request, response, downloadFileName);
         } catch (TException e) {
             log.error("Problem getting the AttachmentContents from the backend", e);
-            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
         }
     }
 
@@ -146,13 +172,30 @@ public class AttachmentPortletUtils {
             contentType = "application/zip";
         }
 
-        try (InputStream attachmentStream = getStreamToServeAFile(attachments)) {
-            PortletResponseUtil.sendFile(request, response, filename, attachmentStream, contentType);
+        User user = UserCacheHolder.getUserFromRequest(request);
+        try {
+            Optional<Object> context = getContextFromRequest(request, user);
+
+            if(context.isPresent()){
+                try (InputStream attachmentStream = getStreamToServeAFile(attachments, user, context.get())) {
+                    PortletResponseUtil.sendFile(request, response, filename, attachmentStream, contentType);
+                } catch (IOException e) {
+                    log.error("cannot finish writing response", e);
+                    response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+                }
+            }else{
+                log.warn("The user=["+user.getEmail()+"] tried to download attachment=["+
+                        CommonUtils.joinStrings(attachments.stream()
+                                .map(AttachmentContent::getId)
+                                .collect(Collectors.toList()))+
+                        "] in context=["+request.getParameter(PortalConstants.CONTEXT_ID)+"] without read permissions");
+                response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "404");
+            }
+        } catch (SW360Exception e) {
+            log.error("Context was not set properly.", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "400");
         } catch (TException e) {
             log.error("Problem getting the attachment content from the backend", e);
-            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
-        } catch (IOException e) {
-            log.error("cannot finish writing response", e);
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         }
     }

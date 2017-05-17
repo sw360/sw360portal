@@ -10,15 +10,18 @@ package org.eclipse.sw360.datahandler.permissions;
 
 import com.google.common.collect.ImmutableSet;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.thrift.users.RequestedAction.*;
 import static org.eclipse.sw360.datahandler.thrift.users.UserGroup.ADMIN;
 
@@ -48,6 +51,10 @@ public abstract class DocumentPermissions<T> {
 
     protected boolean isUserInEquivalentToOwnerGroup(){
         return true;
+    }
+
+    protected Set<String> getAttachmentContentIds() {
+        return Collections.emptySet();
     }
 
     protected boolean isContributor() {
@@ -105,4 +112,12 @@ public abstract class DocumentPermissions<T> {
                 .collect(Collectors.toList());
     }
 
+    public boolean isAllowedToDownload(AttachmentContent attachment){
+        return isAllowedToDownload(attachment.getId());
+    }
+
+    public boolean isAllowedToDownload(String attachmentContentId){
+        return nullToEmptySet(getAttachmentContentIds()).contains(attachmentContentId) &&
+                isActionAllowed(RequestedAction.READ);
+    }
 }

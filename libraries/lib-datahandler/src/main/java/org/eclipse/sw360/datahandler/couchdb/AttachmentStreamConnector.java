@@ -1,5 +1,6 @@
 /*
  * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * With contributions by Bosch Software Innovations GmbH, 2017.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,13 +9,16 @@
  */
 package org.eclipse.sw360.datahandler.couchdb;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.ConcatClosingInputStream;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.common.Duration;
+import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.apache.log4j.Logger;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.DocumentNotFoundException;
 
@@ -66,9 +70,23 @@ public class AttachmentStreamConnector {
      * Get an input stream to download the attachment
      * It is highly recommended to close this stream after using to avoid connection leak
      */
-    public InputStream getAttachmentStream(AttachmentContent attachment) throws SW360Exception {
+    public <T> InputStream getAttachmentStream(AttachmentContent attachment, User user, T context) throws TException {
         assertNotNull(attachment);
+        assertNotNull(context);
 
+        if(!PermissionUtils.makePermission(context, user)
+                .isAllowedToDownload(attachment)){
+            String msg =
+                    "The user=["+user.getEmail()+"] tried to download attachment=["+ attachment.getId()+
+                    "] without attachment permissions";
+            log.warn(msg);
+            throw new SW360Exception(msg);
+        }
+
+        return unsafeGetAttachmentStream(attachment);
+    }
+
+    public InputStream unsafeGetAttachmentStream(AttachmentContent attachment) throws SW360Exception {
         if (attachment.isOnlyRemote()) {
             attachment = downloadRemoteAttachmentAndUpdate(attachment);
         }
@@ -79,7 +97,9 @@ public class AttachmentStreamConnector {
     /**
      * It is highly recommended to close this stream after using to avoid connection leak
      */
-    public InputStream getAttachmentBundleStream(Set<AttachmentContent> attachments) throws IOException {
+    public <T> InputStream getAttachmentBundleStream(Set<AttachmentContent> attachments, User user, T context) throws IOException, SW360Exception {
+        assertNotNull(context);
+
         PipedInputStream in = new PipedInputStream();
         PipedOutputStream out = new PipedOutputStream(in);
 
@@ -93,15 +113,17 @@ public class AttachmentStreamConnector {
                     ZipEntry zipEntry = new ZipEntry(attachment.getFilename());
                     zip.putNextEntry(zipEntry);
 
-                    try(InputStream attachmentStream = getAttachmentStream(attachment)) {
+                    try(InputStream attachmentStream = getAttachmentStream(attachment, user, context)) {
                         while ((length = attachmentStream.read(buffer)) >= 0) {
                             zip.write(buffer, 0, length);
                         }
+                    } catch (TException e) {
+                        log.error("failed to get AttachmentStream, maybe due to permission problems", e);
                     }
 
                     zip.closeEntry();
                 }
-            } catch (IOException | SW360Exception e) {
+            } catch (IOException e) {
                 log.error("failed to write zip stream", e);
             }
         }).start();
