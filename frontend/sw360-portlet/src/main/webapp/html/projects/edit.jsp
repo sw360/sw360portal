@@ -40,6 +40,7 @@
 
     <core_rt:set  var="addMode"  value="${empty project.id}" />
 </c:catch>
+<%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

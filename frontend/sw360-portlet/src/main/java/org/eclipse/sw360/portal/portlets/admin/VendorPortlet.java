@@ -9,11 +9,7 @@
 package org.eclipse.sw360.portal.portlets.admin;
 
 import com.google.common.collect.Sets;
-import com.liferay.portal.kernel.events.Action;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
-import com.liferay.portal.kernel.servlet.SessionMessages;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
@@ -29,11 +25,10 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
@@ -78,7 +73,9 @@ public class VendorPortlet extends Sw360Portlet {
 
             PortletResponseUtil.sendFile(request, response, "Vendors.xlsx", exporter.makeExcelExport(vendors), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | TException e) {
-            log.error("An error occured while generating the Excel export", e);
+            log.error("An error occurred while generating the Excel export", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 

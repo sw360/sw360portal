@@ -51,6 +51,7 @@
     <core_rt:set var="addMode" value="${empty release.id}"/>
     <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 </c:catch>
+<%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

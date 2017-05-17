@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -87,6 +88,8 @@ public class LicensesPortlet extends Sw360Portlet {
             PortletResponseUtil.sendFile(request, response, "Licenses.xlsx", exporter.makeExcelExport(licenses), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | TException e) {
             log.error("An error occurred while generating the Excel export", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 

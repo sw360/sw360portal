@@ -14,7 +14,6 @@
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
-<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <portlet:resourceURL var="subscribeComponentURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.SUBSCRIBE%>"/>
@@ -39,6 +38,7 @@
     </core_rt:if>
     <jsp:useBean id="numberOfCheckedOrUncheckedVulnerabilities" type="java.lang.Long" scope="request"/>
  </c:catch>
+<%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

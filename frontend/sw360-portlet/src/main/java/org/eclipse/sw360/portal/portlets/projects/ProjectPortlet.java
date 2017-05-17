@@ -54,8 +54,10 @@ import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Function;
@@ -167,7 +169,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName, selectedReleaseAndAttachmentIds);
                 byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
                 licenseInfoByteBuffer.get(licenseInfoByteArray);
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, outputFormatInfo.getMimeType());
+                String mimetype = outputFormatInfo.getMimeType();
+                if(isNullOrEmpty(mimetype)){
+                    mimetype = URLConnection.guessContentTypeFromName(filename);
+                }
+                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, mimetype);
             } else {
                 PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient
                         .getLicenseInfoFileForProject(projectId, user, generatorClassName, selectedReleaseAndAttachmentIds)
@@ -175,6 +181,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
         } catch (TException e) {
             log.error("Error getting LicenseInfo file", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -267,6 +275,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
             log.error("An error occurred while generating the Excel export", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -288,6 +298,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
         } catch (IOException | TException e) {
             log.error("An error occurred while generating the Excel export", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
