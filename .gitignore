@@ -24,6 +24,16 @@ target/
 *.idea
 *.iml
 
+#ignore Eclipse files
+.classpath
+.project
+.settings
+
+#ignore backup files
+*.bak
+*.orig
+
+
 #ignore any log files
 *.log
 
