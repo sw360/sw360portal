@@ -1,5 +1,5 @@
 /*
- * Copyright Bosch Software Innovations GmbH, 2016.
+ * Copyright Bosch Software Innovations GmbH, 2016-2017.
  * Copyright Siemens AG, 2016-2017.
  * Part of the SW360 Portal Project.
  *
@@ -20,22 +20,18 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SPDXDocumentFactory;
-import org.spdx.rdfparser.license.*;
-import org.spdx.rdfparser.model.SpdxDocument;
+import org.spdx.rdfparser.model.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
+import static org.eclipse.sw360.licenseinfo.parsers.SPDXParserTools.getLicenseInfoFromSpdx;
 
 /**
  * @author: alex.borodin@evosoft.com
@@ -43,49 +39,34 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhit
  */
 public class SPDXParser extends LicenseInfoParser {
     protected static final String FILETYPE_SPDX_INTERNAL = "RDF/XML";
-    protected static final List<String> ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS = ImmutableList.of(
-            "rdf",
-            "spdx" // usually used for tag:value format
-    );
+    protected static final String FILETYPE_SPDX_EXTENSION = ".rdf";
 
-    private static final Logger log = Logger.getLogger(CLIParser.class);
+    private static final Logger log = Logger.getLogger(SPDXParser.class);
 
     public SPDXParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
         super(attachmentConnector, attachmentContentProvider);
     }
 
     @Override
-    public boolean isApplicableTo(Attachment attachment) throws TException {
-        boolean isAcceptable = true;
-        AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
-        String lowerFileName = attachmentContent.getFilename().toLowerCase();
-
-        isAcceptable &= ACCEPTABLE_ATTACHMENT_FILE_EXTENSIONS.stream()
-                .map(extension -> lowerFileName.endsWith(extension))
-                .reduce(false, (b1, b2) -> b1 || b2);
-
-        // TODO: test for namespace `spdx` in rdf file (maybe to much overhead? Better try parsing and die?)
-
-        return isAcceptable;
+    public List<String> getApplicableFileExtensions() {
+        return Collections.singletonList(FILETYPE_SPDX_EXTENSION);
     }
 
     @Override
     public List<LicenseInfoParsingResult> getLicenseInfos(Attachment attachment) throws TException {
+        return Collections.singletonList(getLicenseInfo(attachment));
+    }
+
+    public LicenseInfoParsingResult getLicenseInfo(Attachment attachment) throws TException {
         AttachmentContent attachmentContent = attachmentContentProvider.getAttachmentContent(attachment);
-        LicenseInfo emptyResult = new LicenseInfo()
-                .setFilenames(Arrays.asList(attachmentContent.getFilename()));
 
-        Optional<LicenseInfo> licenseInfo = parseAsSpdx(attachmentContent)
-                .flatMap(d -> addSpdxContentToCLI(emptyResult, d));
-
-        if(licenseInfo.isPresent()){
-            return Collections.singletonList(new LicenseInfoParsingResult()
-                    .setLicenseInfo(licenseInfo.get())
-                    .setStatus(LicenseInfoRequestStatus.SUCCESS));
-        }else{
-            return Collections.singletonList(new LicenseInfoParsingResult()
-                    .setStatus(LicenseInfoRequestStatus.FAILURE));
+        final Optional<SpdxDocument> spdxDocument = openAsSpdx(attachmentContent);
+        if(! spdxDocument.isPresent()){
+            return new LicenseInfoParsingResult()
+                    .setStatus(LicenseInfoRequestStatus.FAILURE);
         }
+
+        return getLicenseInfoFromSpdx(attachmentContent, spdxDocument.get());
     }
 
     protected String getUriOfAttachment(AttachmentContent attachmentContent) throws URISyntaxException {
@@ -94,100 +75,24 @@ public class SPDXParser extends LicenseInfoParser {
         return new URI("file", filePath, null).toString();
     }
 
-    protected Stream<LicenseNameWithText> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
-        if (spdxLicenseInfo instanceof LicenseSet) {
-
-            LicenseSet LicenseSet = (LicenseSet) spdxLicenseInfo;
-            return Arrays.stream(LicenseSet.getMembers())
-                    .flatMap(this::getAllLicenseTextsFromInfo);
-
-        } else if (spdxLicenseInfo instanceof ExtractedLicenseInfo) {
-
-            ExtractedLicenseInfo extractedLicenseInfo = (ExtractedLicenseInfo) spdxLicenseInfo;
-            return Stream.of(new LicenseNameWithText()
-                    .setLicenseName(extractLicenseName(extractedLicenseInfo))
-                    .setLicenseText(extractedLicenseInfo.getExtractedText()));
-
-        } else if (spdxLicenseInfo instanceof License) {
-
-            License license = (License) spdxLicenseInfo;
-            return Stream.of(new LicenseNameWithText()
-                    .setLicenseName(extractLicenseName(license))
-                    .setLicenseText(license.getLicenseText()));
-
-        } else if (spdxLicenseInfo instanceof OrLaterOperator) {
-
-            OrLaterOperator orLaterOperator = (OrLaterOperator) spdxLicenseInfo;
-            return getAllLicenseTextsFromInfo(orLaterOperator.getLicense());
-
-        } else if (spdxLicenseInfo instanceof WithExceptionOperator) {
-
-            WithExceptionOperator withExceptionOperator = (WithExceptionOperator) spdxLicenseInfo;
-            String licenseExceptionText = withExceptionOperator.getException()
-                    .getLicenseExceptionText();
-            return getAllLicenseTextsFromInfo(withExceptionOperator.getLicense())
-                    .map(licenseNWT -> licenseNWT
-                            .setLicenseText(licenseNWT.getLicenseText() + "\n\n" + licenseExceptionText)
-                            .setLicenseName(licenseNWT.getLicenseName() + " with " + withExceptionOperator.getException().getName()));
-
-        }
-
-        return Stream.empty();
-    }
-
-    protected Set<LicenseNameWithText> getAllLicenseTexts(SpdxDocument spdxDocument) throws InvalidSPDXAnalysisException {
-        Stream<LicenseNameWithText> licenseTexts = Arrays.stream(spdxDocument.getDocumentDescribes())
-                .flatMap(spdxItem -> Stream.concat(
-                        getAllLicenseTextsFromInfo(spdxItem.getLicenseConcluded()),
-                        Arrays.stream(spdxItem.getLicenseInfoFromFiles())
-                                .flatMap(this::getAllLicenseTextsFromInfo)));
-        Stream<LicenseNameWithText> extractedLicenseTexts = Arrays.stream(spdxDocument.getExtractedLicenseInfos())
-                        .flatMap(this::getAllLicenseTextsFromInfo);
-        return Stream.concat(licenseTexts, extractedLicenseTexts)
-                .collect(Collectors.toSet());
-    }
-
-    protected Optional<LicenseInfo> addSpdxContentToCLI(LicenseInfo result, SpdxDocument doc) {
-        if(! result.isSetLicenseNamesWithTexts()){
-            result.setLicenseNamesWithTexts(new HashSet<>());
-        }
-        try {
-            result.setLicenseNamesWithTexts(getAllLicenseTexts(doc));
-            Arrays.stream(doc.getDocumentDescribes()).forEach(
-                    spdxItem -> result.addToCopyrights(spdxItem.getCopyrightText())
-            );
-        } catch (InvalidSPDXAnalysisException e) {
-            e.printStackTrace();
-        }
-
-        return Optional.of(result);
-    }
-
-    private String extractLicenseName(AnyLicenseInfo licenseConcluded) {
-        return licenseConcluded.getResource().getLocalName();
-    }
-
-    private String extractLicenseName(ExtractedLicenseInfo extractedLicenseInfo){
-        return ! isNullEmptyOrWhitespace(extractedLicenseInfo.getName()) ? extractedLicenseInfo.getName() : extractedLicenseInfo.getLicenseId();
-    }
-
-    protected Optional<SpdxDocument> parseAsSpdx(AttachmentContent attachmentContent){
-        InputStream attachmentStream = null;
-        try {
-            attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent);
-            SpdxDocument doc = SPDXDocumentFactory.createSpdxDocument(attachmentStream,
+    protected Optional<SpdxDocument> openAsSpdx(AttachmentContent attachmentContent) throws SW360Exception {
+        try (InputStream attachmentStream = attachmentConnector.getAttachmentStream(attachmentContent)) {
+            return Optional.ofNullable(SPDXDocumentFactory.createSpdxDocument(attachmentStream,
                     getUriOfAttachment(attachmentContent),
-                    FILETYPE_SPDX_INTERNAL);
-            return Optional.of(doc);
-        } catch (SW360Exception e) {
-            log.error("Unable to get attachment stream for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId(), e);
+                    FILETYPE_SPDX_INTERNAL));
         } catch (InvalidSPDXAnalysisException e) {
-            log.error("Unable to parse SPDX for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId(), e);
+            String msg = "Unable to parse SPDX for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId()+
+                    "\nThe message was: " + e.getMessage();
+            log.info(msg);
+            return Optional.empty();
         } catch (URISyntaxException e) {
-            log.error("Invalid URI syntax for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId(), e);
-        } finally {
-            closeQuietly(attachmentStream, log);
+            String msg = "Invalid URI syntax for attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId();
+            log.error(msg, e);
+            throw new SW360Exception(msg);
+        } catch (IOException e) {
+            String msg = "failed to read attachment=" + attachmentContent.getFilename() + " with id=" + attachmentContent.getId();
+            log.error(msg, e);
+            throw new SW360Exception(msg);
         }
-        return Optional.empty();
     }
 }
