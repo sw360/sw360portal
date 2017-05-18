@@ -440,8 +440,10 @@ public class LicenseDatabaseHandler {
         license.unsetShortname();
         license.setLicenseTypeDatabaseId(inputLicense.getLicenseTypeDatabaseId());
         license.unsetLicenseType();
-        license.setGPLv2Compat(inputLicense.GPLv2Compat);
-        license.setGPLv3Compat(inputLicense.GPLv3Compat);
+        license.setGPLv2Compat(Optional.ofNullable(inputLicense.getGPLv2Compat())
+                .orElse(Ternary.UNDEFINED));
+        license.setGPLv3Compat(Optional.ofNullable(inputLicense.getGPLv3Compat())
+                .orElse(Ternary.UNDEFINED));
         license.setExternalLicenseLink(inputLicense.getExternalLicenseLink());
 
         return license;

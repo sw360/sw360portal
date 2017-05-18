@@ -12,12 +12,16 @@ package org.eclipse.sw360.commonIO;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.thrift.Ternary;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -361,13 +365,13 @@ public class ConvertRecord {
 
             String gplv2CompatString = record.get(3);
             if (!Strings.isNullOrEmpty(gplv2CompatString) && !"NULL".equals(gplv2CompatString)) {
-                boolean gplv2Compat = parseBoolean(gplv2CompatString);
+                Ternary gplv2Compat = ThriftEnumUtils.stringToEnum(gplv2CompatString, Ternary.class);
                 license.setGPLv2Compat(gplv2Compat);
             }
 
             String gplv3CompatString = record.get(4);
             if (!Strings.isNullOrEmpty(gplv3CompatString) && !"NULL".equals(gplv3CompatString)) {
-                boolean gplv3Compat = parseBoolean(gplv3CompatString);
+                Ternary gplv3Compat = ThriftEnumUtils.stringToEnum(gplv3CompatString, Ternary.class);
                 license.setGPLv3Compat(gplv3Compat);
             }
 
@@ -420,8 +424,8 @@ public class ConvertRecord {
                     out.add(CommonUtils.nullToEmptyString(license.getFullname()));
                     out.add(license.isSetLicenseType() ? ((Integer) license.getLicenseType().getLicenseTypeId()).toString() :
                             CommonUtils.nullToEmptyString(license.getLicenseTypeDatabaseId()));
-                    out.add(license.isSetGPLv2Compat() ? ((Boolean) license.isGPLv2Compat()).toString() : "");
-                    out.add(license.isSetGPLv3Compat() ? ((Boolean) license.isGPLv3Compat()).toString() : "");
+                    out.add(license.isSetGPLv2Compat() ? (license.getGPLv2Compat()).toString() : "");
+                    out.add(license.isSetGPLv3Compat() ? (license.getGPLv3Compat()).toString() : "");
                     out.add(CommonUtils.nullToEmptyString(license.getReviewdate()));
                     out.add(CommonUtils.nullToEmptyString(license.getText()));
                     out.add(CommonUtils.nullToEmptyString(license.getExternalLicenseLink()));

@@ -13,10 +13,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import org.apache.commons.lang.enums.EnumUtils;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.Ternary;
 import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
@@ -273,10 +276,8 @@ public class LicensesPortlet extends Sw360Portlet {
         String text = request.getParameter(License._Fields.TEXT.name());
         String fullname = request.getParameter(License._Fields.FULLNAME.name());
         String shortname = request.getParameter(License._Fields.SHORTNAME.name());
-        boolean gpl2compatibility =
-                (request.getParameter(License._Fields.GPLV2_COMPAT.toString()) == null) ? false : true;
-        boolean gpl3compatibility =
-                (request.getParameter(License._Fields.GPLV3_COMPAT.toString()) == null) ? false : true;
+        Ternary gpl2compatibility = Ternary.findByValue(Integer.parseInt(request.getParameter(License._Fields.GPLV2_COMPAT.toString())));
+        Ternary gpl3compatibility = Ternary.findByValue(Integer.parseInt(request.getParameter(License._Fields.GPLV3_COMPAT.toString())));
         String licenseTypeString =
                 request.getParameter(License._Fields.LICENSE_TYPE.toString() + LicenseType._Fields.LICENSE_TYPE.toString());
         license.setText(CommonUtils.nullToEmptyString(text));

@@ -11,6 +11,12 @@
 namespace java org.eclipse.sw360.datahandler.thrift
 namespace php sw360.thrift
 
+enum Ternary {
+    UNDEFINED = 0,
+    NO = 1,
+    YES = 2,
+}
+
 enum RequestStatus {
     SUCCESS = 0,
     SENT_TO_MODERATOR = 1,

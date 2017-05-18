@@ -19,7 +19,9 @@ To migrate it is recommended to do this in the following order:
 ### 1.4.0 -> 1.5.0
 ### 1.5.0 -> 1.6.0
 - `004_move_release_ecc_fields_to_release_information.py`
-### 1.6.0 -> ?
+### 1.6.0 -> 1.7.0
+### 1.7.0 -> ?
+- `005_convert_compatibility_fields_to_ternary.py`
 
 ## Run the scripts for a database not running on localhost
 tbd.
