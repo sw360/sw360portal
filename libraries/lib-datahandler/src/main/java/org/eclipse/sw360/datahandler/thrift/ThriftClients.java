@@ -71,7 +71,7 @@ public class ThriftClients {
     static {
         Properties props = CommonUtils.loadProperties(ThriftClients.class, PROPERTIES_FILE_PATH);
 
-        BACKEND_URL = props.getProperty("backend.url", "http://localhost:8080");
+        BACKEND_URL = props.getProperty("backend.url", "http://127.0.0.1:8080");
     }
 
     public ThriftClients() {
