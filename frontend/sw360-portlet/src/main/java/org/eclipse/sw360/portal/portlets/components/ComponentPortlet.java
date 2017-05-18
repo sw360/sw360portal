@@ -28,6 +28,7 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
@@ -510,7 +511,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
                 // get vulnerabilities
                 putVulnerabilitiesInRequestComponent(request, id, user);
-                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
+                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isUserAtLeast(UserGroup.SECURITY_ADMIN, user));
 
                 addComponentBreadcrumb(request, response, component);
             } catch (TException e) {
@@ -569,7 +570,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 }
 
                 putVulnerabilitiesInRequestRelease(request, releaseId, user);
-                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isAdmin(user));
+                request.setAttribute(VULNERABILITY_VERIFICATION_EDITABLE, PermissionUtils.isUserAtLeast(UserGroup.SECURITY_ADMIN, user));
             }
 
             component = client.getComponentById(id, user);
@@ -598,7 +599,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void putVulnerabilitiesInRequestRelease(RenderRequest request, String releaseId, User user) throws TException {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
         List<VulnerabilityDTO> vuls;
-        if (PermissionUtils.isAdmin(user)) {
+        if (PermissionUtils.isUserAtLeast(UserGroup.SECURITY_ADMIN, user)) {
             vuls = vulClient.getVulnerabilitiesByReleaseId(releaseId, user);
         } else {
             vuls = vulClient.getVulnerabilitiesByReleaseIdWithoutIncorrect(releaseId, user);
@@ -611,7 +612,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void putVulnerabilitiesInRequestComponent(RenderRequest request, String componentId, User user) throws TException{
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
         List<VulnerabilityDTO> vuls;
-        if (PermissionUtils.isAdmin(user)) {
+        if (PermissionUtils.isUserAtLeast(UserGroup.SECURITY_ADMIN, user)) {
             vuls = vulClient.getVulnerabilitiesByComponentId(componentId, user);
         } else {
             vuls = vulClient.getVulnerabilitiesByComponentIdWithoutIncorrect(componentId, user);

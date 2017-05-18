@@ -31,7 +31,7 @@ public class PermissionUtils {
     }
 
     public static boolean isAdmin(User user) {
-        return isInGroup(user, UserGroup.ADMIN);
+        return isInGroup(user,UserGroup.SW360_ADMIN) || isInGroup(user, UserGroup.ADMIN);
     }
 
     public static boolean isClearingAdmin(User user) {
@@ -42,6 +42,10 @@ public class PermissionUtils {
         return isInGroup(user, UserGroup.ECC_ADMIN);
     }
 
+    public static boolean isSecurityAdmin(User user) {
+        return isInGroup(user, UserGroup.SECURITY_ADMIN);
+    }
+
     private static boolean isInGroup(User user, UserGroup userGroup) {
         return user != null && user.isSetUserGroup() && user.getUserGroup() == userGroup;
     }
@@ -49,11 +53,13 @@ public class PermissionUtils {
     public static boolean isUserAtLeast(UserGroup group, User user) {
         switch (group) {
             case USER:
-                return isNormalUser(user) || isClearingAdmin(user) || isAdmin(user);
+                return isNormalUser(user) || isClearingAdmin(user) || isEccAdmin(user) || isAdmin(user) || isSecurityAdmin(user);
             case CLEARING_ADMIN:
                 return isClearingAdmin(user) || isAdmin(user);
             case ECC_ADMIN:
                 return isEccAdmin(user) || isAdmin(user);
+            case SECURITY_ADMIN:
+                return  isSecurityAdmin(user) || isAdmin(user);
             case ADMIN:
                 return isAdmin(user);
             default:

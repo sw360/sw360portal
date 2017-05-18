@@ -18,6 +18,8 @@ enum UserGroup {
     ADMIN = 1,
     CLEARING_ADMIN = 2,
     ECC_ADMIN = 3,
+    SECURITY_ADMIN = 4,
+    SW360_ADMIN = 5
 }
 
 enum LocalGroup {
