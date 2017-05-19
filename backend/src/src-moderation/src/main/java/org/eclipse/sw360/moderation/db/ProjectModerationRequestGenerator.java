@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -57,7 +57,7 @@ public class ProjectModerationRequestGenerator extends ModerationRequestGenerato
                         dealWithEnumMap(Project._Fields.LINKED_PROJECTS, ProjectRelationship.class);
                         break;
                     case RELEASE_ID_TO_USAGE:
-                        dealWithStringMap(Project._Fields.RELEASE_ID_TO_USAGE);
+                        dealWithStringKeyedMap(Project._Fields.RELEASE_ID_TO_USAGE);
                         break;
                     case ROLES:
                         dealWithCustomMap(Project._Fields.ROLES);

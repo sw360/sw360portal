@@ -18,9 +18,7 @@ import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.thrift.SW360Exception;
-import org.eclipse.sw360.datahandler.thrift.ThriftClients;
-import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
+import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
@@ -277,16 +275,15 @@ public class SW360Utils {
         return flattenReleaseLinkTree(getLinkedReleaseRelations(in, thriftClients, log));
     }
 
-    public static Collection<ReleaseLink> getLinkedReleasesAsFlatList(Map<String, String> in, ThriftClients thriftClients, Logger log) {
+    public static Collection<ReleaseLink> getLinkedReleasesAsFlatList(Map<String, ProjectReleaseRelationship> in, ThriftClients thriftClients, Logger log) {
         return flattenReleaseLinkTree(getLinkedReleases(in, thriftClients, log));
     }
 
-    public static List<ReleaseLink> getLinkedReleases(Map<String, String> releaseUsage, ThriftClients thriftClients, Logger log) {
+    public static List<ReleaseLink> getLinkedReleases(Map<String, ProjectReleaseRelationship> releaseUsage, ThriftClients thriftClients, Logger log) {
         if (releaseUsage != null) {
             try {
                 ComponentService.Iface componentClient = thriftClients.makeComponentClient();
-                final List<ReleaseLink> linkedReleases = componentClient.getLinkedReleases(releaseUsage);
-                return linkedReleases;
+                return componentClient.getLinkedReleases(releaseUsage);
             } catch (TException e) {
                 log.error("Could not get linked releases", e);
             }
@@ -294,13 +291,11 @@ public class SW360Utils {
         return Collections.emptyList();
     }
 
-
     public static List<ReleaseLink> getLinkedReleaseRelations(Map<String, ReleaseRelationship> releaseUsage, ThriftClients thriftClients, Logger log) {
         if (releaseUsage != null) {
             try {
                 ComponentService.Iface componentClient = thriftClients.makeComponentClient();
-                final List<ReleaseLink> linkedReleases = componentClient.getLinkedReleaseRelations(releaseUsage);
-                return linkedReleases;
+                return componentClient.getLinkedReleaseRelations(releaseUsage);
             } catch (TException e) {
                 log.error("Could not get linked releases", e);
             }

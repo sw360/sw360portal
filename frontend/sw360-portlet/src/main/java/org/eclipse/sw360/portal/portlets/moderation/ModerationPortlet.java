@@ -507,10 +507,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             putLinkedReleasesInRequest(request, actual_project.getReleaseIdToUsage());
             Set<Project> usingProjects = client.searchLinkingProjects(actual_project.getId(), user);
             request.setAttribute(USING_PROJECTS, usingProjects);
-
-            Map<Release, String> releaseStringMap = getReleaseStringMap(actual_project.getId(), user);
-
-            request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
+            putReleasesAndProjectIntoRequest(request, actual_project.getId(), user);
             request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
             setAttachmentsInRequest(request, actual_project.getAttachments());
         } catch (TException e) {

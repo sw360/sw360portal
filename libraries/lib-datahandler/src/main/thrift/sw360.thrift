@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -58,6 +58,25 @@ enum VerificationState {
     NOT_CHECKED = 0,
     CHECKED = 1,
     INCORRECT = 2,
+}
+
+enum ReleaseRelationship {
+    CONTAINED = 0,
+    REFERRED = 1,
+    UNKNOWN = 2,
+}
+
+enum MainlineState {
+    OPEN = 0,
+    MAINLINE = 1,
+    SPECIFIC = 2,
+    PHASEOUT = 3,
+    DENIED = 4,
+}
+
+struct ProjectReleaseRelationship {
+    1: required ReleaseRelationship releaseRelation,
+    2: required MainlineState mainlineState,
 }
 
 struct VerificationStateInfo {

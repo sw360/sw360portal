@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2015-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -144,11 +144,11 @@ public class CommonUtilsTest {
     }
     @Test
     public void testIsMapFieldMapOfStringSets_NoSet() throws Exception {
-        Map<String, String> releaseIdToUsage = new HashMap<>();
-        releaseIdToUsage.put("r1", "u1");
-        releaseIdToUsage.put("r2", "u2");
-        Project project = new Project().setName("pname").setReleaseIdToUsage(releaseIdToUsage);
-        boolean b = isMapFieldMapOfStringSets(Project._Fields.RELEASE_ID_TO_USAGE, project, project, project, Logger.getLogger(CommonUtilsTest.class));
+        Map<String, String> externalIds = new HashMap<>();
+        externalIds.put("ext1", "id1");
+        externalIds.put("ext2", "id2");
+        Project project = new Project().setName("pname").setExternalIds(externalIds);
+        boolean b = isMapFieldMapOfStringSets(Project._Fields.EXTERNAL_IDS, project, project, project, Logger.getLogger(CommonUtilsTest.class));
         assertThat(b, is(false));
     }
     @Test

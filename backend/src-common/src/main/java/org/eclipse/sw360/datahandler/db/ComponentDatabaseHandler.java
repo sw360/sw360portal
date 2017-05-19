@@ -12,6 +12,8 @@ package org.eclipse.sw360.datahandler.db;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -31,8 +33,6 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
@@ -53,9 +53,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyFields;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
-import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
-import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
-import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.*;
 
 /**
  * Class for accessing Component information from the database
@@ -724,12 +722,14 @@ public class ComponentDatabaseHandler {
 
 
     private void fillValueFieldInReleaseLink(ReleaseLink releaseLink, Object relation) {
-        if (relation instanceof String) {
-            releaseLink.setComment((String) relation);
+        if (relation instanceof ProjectReleaseRelationship) {
+            ProjectReleaseRelationship rel = (ProjectReleaseRelationship) relation;
+            releaseLink.setReleaseRelationship(rel.getReleaseRelation());
+            releaseLink.setMainlineState(rel.getMainlineState());
         } else if (relation instanceof ReleaseRelationship) {
             releaseLink.setReleaseRelationship((ReleaseRelationship) relation);
         } else {
-            throw new IllegalArgumentException("Only String or ReleaseRelationship is allowed as ReleaseLink's relation value");
+            throw new IllegalArgumentException("Only ProjectReleaseRelationship or ReleaseRelationship is allowed as ReleaseLink's relation value");
         }
     }
 

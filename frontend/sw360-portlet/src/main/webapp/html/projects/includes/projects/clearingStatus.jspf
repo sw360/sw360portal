@@ -1,4 +1,3 @@
-<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%--
   ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
@@ -7,13 +6,14 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <portlet:resourceURL var="deleteReleaseAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DELETE_RELEASE%>'/>
 </portlet:resourceURL>
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
-<jsp:useBean id="releasesAndProjects" type="java.util.Map<org.eclipse.sw360.datahandler.thrift.components.Release,java.lang.String>" scope="request"/>
+<jsp:useBean id="releasesAndProjects" type="java.util.Map<org.eclipse.sw360.datahandler.thrift.components.Release,org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple>" scope="request"/>
 <core_rt:if test="${releasesAndProjects.size() == 0 }">
     <h3>Please add linked releases or projects with linked releases to view their clearing status here.</h3>
 </core_rt:if>
@@ -24,6 +24,7 @@
             <tr>
                 <th width="30%"></th>
                 <th width="30%"></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -59,9 +60,10 @@
         result.push({
             "DT_RowId": "${releasesAndProject.key.id}",
             "0": "<sw360:DisplayReleaseLink release="${releasesAndProject.key}" showFullname="true"/>",
-            "1": "<sw360:out value="${releasesAndProject.value}"/>",
+            "1": "<sw360:out value="${releasesAndProject.value.projectNames}"/>",
             "2": "<span id='releaseClearingState${releasesAndProject.key.id}'><sw360:DisplayEnum value="${releasesAndProject.key.clearingState}"/></span>",
-            "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>"
+            "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>",
+            "4": "<sw360:out value="${releasesAndProject.value.mainlineStates}"/>"
         });
         </core_rt:forEach>
 
@@ -71,8 +73,9 @@
             columns: [
                 {title: "Name"},
                 {title: "Project Origin"},
-                {title: "Release Clearing State"},
-                {title: "Release Mainline State"},
+                {title: "Clearing State"},
+                {title: "Mainline State"},
+                {title: "Project Mainline State"},
                 {title: "Action", data: "DT_RowId", render: renderActions}
             ],
             paginationType: "full_numbers"

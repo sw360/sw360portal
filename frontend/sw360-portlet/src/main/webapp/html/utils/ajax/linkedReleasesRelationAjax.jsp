@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -13,7 +13,7 @@
 
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ReleaseLink" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ReleaseRelationship" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.ReleaseRelationship" %>
 
 <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
 

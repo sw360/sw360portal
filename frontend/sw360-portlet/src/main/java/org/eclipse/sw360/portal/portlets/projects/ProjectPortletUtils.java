@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,11 +8,6 @@
  */
 package org.eclipse.sw360.portal.portlets.projects;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
-import org.eclipse.sw360.datahandler.common.SW360Utils;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -29,19 +24,22 @@ import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.PortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
@@ -69,13 +67,13 @@ public class ProjectPortletUtils {
             switch (field) {
                 case LINKED_PROJECTS:
                     if (!project.isSetLinkedProjects()) {
-                        project.setLinkedProjects(new HashMap<String, ProjectRelationship>());
+                        project.setLinkedProjects(new HashMap<>());
                     }
                     updateLinkedProjectsFromRequest(request, project.linkedProjects);
                     break;
                 case RELEASE_ID_TO_USAGE:
                     if (!project.isSetReleaseIdToUsage()) {
-                        project.setReleaseIdToUsage(new HashMap<String,String>());
+                        project.setReleaseIdToUsage(new HashMap<>());
                     }
                     updateLinkedReleasesFromRequest(request, project.releaseIdToUsage);
                     break;
@@ -92,14 +90,18 @@ public class ProjectPortletUtils {
         }
     }
 
-    private static void updateLinkedReleasesFromRequest(PortletRequest request, Map<String, String> releaseUsage) {
+    private static void updateLinkedReleasesFromRequest(PortletRequest request, Map<String, ProjectReleaseRelationship> releaseUsage) {
         releaseUsage.clear();
         String[] ids = request.getParameterValues(Project._Fields.RELEASE_ID_TO_USAGE.toString() + ReleaseLink._Fields.ID.toString());
-        String[] relations = request.getParameterValues(Project._Fields.RELEASE_ID_TO_USAGE.toString() + ReleaseLink._Fields.COMMENT.toString());
-        if (ids != null && relations != null && ids.length == relations.length)
+        String[] relations = request.getParameterValues(Project._Fields.RELEASE_ID_TO_USAGE.toString() + ProjectReleaseRelationship._Fields.RELEASE_RELATION.toString());
+        String[] mainlStates = request.getParameterValues(Project._Fields.RELEASE_ID_TO_USAGE.toString() + ProjectReleaseRelationship._Fields.MAINLINE_STATE.toString());
+        if (ids != null && relations != null && mainlStates != null && ids.length == relations.length && ids.length == mainlStates.length) {
             for (int k = 0; k < ids.length; ++k) {
-                releaseUsage.put(ids[k], relations[k]);
+                ReleaseRelationship relation = ReleaseRelationship.findByValue(Integer.parseInt(relations[k]));
+                MainlineState mainlState = MainlineState.findByValue(Integer.parseInt(mainlStates[k]));
+                releaseUsage.put(ids[k], new ProjectReleaseRelationship(relation, mainlState));
             }
+        }
     }
 
     private static void updateLinkedProjectsFromRequest(PortletRequest request, Map<String, ProjectRelationship> linkedProjects) {

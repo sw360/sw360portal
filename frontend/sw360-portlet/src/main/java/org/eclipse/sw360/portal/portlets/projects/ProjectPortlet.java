@@ -21,7 +21,6 @@ import com.liferay.portal.model.Organization;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
-import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -33,10 +32,7 @@ import org.eclipse.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
-import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.projects.*;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
@@ -289,7 +285,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 project = thriftClients.makeProjectClient().getProjectById(id, user);
             }
             if (project != null) {
-                Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
+                Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(id, user);
                 List<Release> releases = releaseStringMap.keySet().stream().sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
                 ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient());
                 PortletResponseUtil.sendFile(request, response,
@@ -473,7 +469,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project linkedProject = projectClient.getProjectById(linkedProjectId, user);
 
                 if (linkedProject != null) {
-                    Map<String, String> releaseIdToUsage = CommonUtils.nullToEmptyMap(linkedProject.getReleaseIdToUsage());
+                    Map<String, ProjectReleaseRelationship> releaseIdToUsage = CommonUtils.nullToEmptyMap(linkedProject.getReleaseIdToUsage());
                     releaseIdsFromLinkedProjects.addAll(releaseIdToUsage.keySet());
                 }
             }
@@ -613,8 +609,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
-                Map<Release, String> releaseStringMap = getReleaseStringMap(id, user);
-                request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
+                putReleasesAndProjectIntoRequest(request, id, user);
                 putVulnerabilitiesInRequest(request, id, user);
                 request.setAttribute(
                         VULNERABILITY_RATINGS_EDITABLE,
