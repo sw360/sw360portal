@@ -438,7 +438,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     searchResult = Collections.emptyList();
                 }
             } else {
-                searchResult = componentClient.searchReleaseByName(searchText);
+                searchResult = componentClient.searchReleaseByNamePrefix(searchText);
             }
         } catch (TException e) {
             log.error("Error searching projects", e);

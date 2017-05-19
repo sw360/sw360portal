@@ -91,8 +91,8 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
-    public List<Release> searchReleaseByName(String name) throws TException {
-        return handler.searchReleaseByName(name);
+    public List<Release> searchReleaseByNamePrefix(String name) throws TException {
+        return handler.searchReleaseByNamePrefix(name);
     }
 
     @Override

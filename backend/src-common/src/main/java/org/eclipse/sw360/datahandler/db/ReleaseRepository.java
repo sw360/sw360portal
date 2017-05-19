@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -97,12 +97,12 @@ public class ReleaseRepository extends SummaryAwareRepository<Release> {
     }
 
     @View(name = "byname", map = BY_NAME_VIEW)
-    public List<Release> searchByName(String name) {
+    public List<Release> searchByNamePrefix(String name) {
         return makeSummary(SummaryType.SHORT, queryForIdsByPrefix("byname", name));
     }
 
     public List<Release> searchByNameAndVersion(String name, String version){
-        List<Release> releasesMatchingName = searchByName(name);
+        List<Release> releasesMatchingName = queryView("byname", name);
         List<Release> releasesMatchingNameAndVersion = releasesMatchingName.stream()
                 .filter(r -> isNullOrEmpty(version) ? isNullOrEmpty(r.getVersion()) : version.equals(r.getVersion()))
                 .collect(Collectors.toList());

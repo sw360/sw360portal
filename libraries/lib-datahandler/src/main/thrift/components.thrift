@@ -321,9 +321,9 @@ service ComponentService {
     list<Component> refineSearch(1: string text, 2: map<string ,  set<string > > subQueryRestrictions);
 
     /**
-     * get short summary of release by release name
+     * get short summary of release by release name prefix
      **/
-    list<Release> searchReleaseByName(1: string name);
+    list<Release> searchReleaseByNamePrefix(1: string name);
 
     /**
      * information for home portlet
