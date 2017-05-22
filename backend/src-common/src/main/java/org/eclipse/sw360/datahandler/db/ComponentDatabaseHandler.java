@@ -758,8 +758,8 @@ public class ComponentDatabaseHandler {
         return id == null ? null : id + "_" + visitedIds.getCount(id);
     }
 
-    public List<Release> searchReleaseByName(String name) {
-        return releaseRepository.searchByName(name);
+    public List<Release> searchReleaseByNamePrefix(String name) {
+        return releaseRepository.searchByNamePrefix(name);
     }
 
     public List<Release> getReleases(Set<String> ids, User user) {

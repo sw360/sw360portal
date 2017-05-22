@@ -270,11 +270,15 @@ public class ComponentDatabaseHandlerTest {
     }
 
     @Test
-    public void testSearchReleaseByName() throws Exception {
-        List<Release> releases = handler.searchReleaseByName("component1");
-
+    public void testSearchReleaseByNamePrefix() throws Exception {
+        List<Release> releases = handler.searchReleaseByNamePrefix("component1");
         assertThat(getReleaseIds(releases), containsInAnyOrder("R1A", "R1B"));
+    }
 
+    @Test
+    public void testSearchReleaseByNamePrefix2() throws Exception {
+        List<Release> releases = handler.searchReleaseByNamePrefix("compo");
+        assertThat(getReleaseIds(releases), containsInAnyOrder("R1A", "R1B", "R2A", "R2B", "R2C"));
     }
 
     @Test
@@ -1006,7 +1010,21 @@ public class ComponentDatabaseHandlerTest {
 
         final Map<String, List<String>> duplicateReleases = handler.getDuplicateReleases();
 
+        assertThat(newReleaseId, isEmptyOrNullString());
         assertThat(duplicateReleases.size(), is(0));
+    }
+
+    @Test
+    public void testDuplicateCheckDoesntMatchByPrefix() throws Exception {
+
+        String originalReleaseId = "R1A";
+        final Release tmp = handler.getRelease(originalReleaseId, user1);
+        tmp.unsetId();
+        tmp.unsetRevision();
+        tmp.setName(tmp.getName().substring(0, 4));
+        String newReleaseId = handler.addRelease(tmp, email1).getId();
+
+        assertThat(newReleaseId, not(isEmptyOrNullString()));
     }
 
     @Test
