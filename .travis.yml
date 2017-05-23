@@ -1,5 +1,7 @@
 # -----------------------------------------------------------------------------
-# Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+# Copyright Siemens AG, 2016.
+# Copyright Bosch Software Innovations GmbH, 2017.
+# Part of the SW360 Portal Project.
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -13,8 +15,27 @@ sudo: required
 dist: trusty
 language: java
 jdk: openjdk8
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.m2
+    - /tmp/
+
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y couchdb
-  - sudo ./scripts/install-thrift.sh
-script: mvn install
+  - sudo ./scripts/install-thrift.sh --no-cleanup
+install: mvn dependency:resolve || true
+
+env: MVN_ARGS="package"
+script: mvn --fail-at-end $MVN_ARGS
+
+matrix:
+  include:
+    - env: MVN_ARGS="validate"
+      before_install:
+    - env: MVN_ARGS="dependency:analyze -DfailOnWarning"
+      install: mvn package -DskipTests
+  allow_failures:
+    - env: MVN_ARGS="dependency:analyze -DfailOnWarning"
