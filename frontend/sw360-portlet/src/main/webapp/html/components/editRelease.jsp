@@ -107,6 +107,8 @@
                             <core_rt:set var="mapTitle" value="Additional Roles"/>
                             <core_rt:set var="inputType" value="email"/>
                             <core_rt:set var="inputSubtitle" value="Enter mail address"/>
+
+                            <core_rt:set var="customMap" value="${release.roles}"/>
                             <%@include file="/html/utils/includes/mapEdit.jspf" %>
                             <%@include file="/html/components/includes/releases/editReleaseRepository.jspf" %>
                         </div>

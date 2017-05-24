@@ -327,7 +327,6 @@ public class PortalConstants {
     public static final String UPDATE_VULNERABILITIES__UPDATED_IDS = "updateVulnerabilities_updatedIds";
 
     //custom map keywords
-    public static final String CUSTOM_MAP = "customMap";
     public static final String CUSTOM_MAP_KEY = "customMapKey";
     public static final String CUSTOM_MAP_VALUE = "customMapValue";
 
