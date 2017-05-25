@@ -642,7 +642,7 @@ public class CommonUtils {
                 (Map<String, Object>) document.getFieldValue(field),
                 (Map<String, Object>) documentAdditions.getFieldValue(field),
                 (Map<String, Object>) documentDeletions.getFieldValue(field));
-        List<Map<String, ?>> nonEmptyMaps = maps.stream().filter(m -> !m.isEmpty()).collect(Collectors.toList());
+        List<Map<String, ?>> nonEmptyMaps = maps.stream().filter(m -> m != null && !m.isEmpty()).collect(Collectors.toList());
         if (nonEmptyMaps.isEmpty()){
             logger.info("Field was empty in document, documentAdditions and documentDeletions: " + field.getFieldName());
             return false;
