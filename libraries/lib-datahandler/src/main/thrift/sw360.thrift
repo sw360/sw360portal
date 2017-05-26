@@ -64,6 +64,13 @@ enum ReleaseRelationship {
     CONTAINED = 0,
     REFERRED = 1,
     UNKNOWN = 2,
+    DYNAMICALLY_LINKED = 3,
+    STATICALLY_LINKED = 4,
+    SIDE_BY_SIDE = 5,
+    STANDALONE = 6,
+    INTERNAL_USE = 7,
+    OPTIONAL = 8,
+    TO_BE_REPLACED = 9,
 }
 
 enum MainlineState {

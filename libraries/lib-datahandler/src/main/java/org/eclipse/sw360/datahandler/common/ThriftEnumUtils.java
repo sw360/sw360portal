@@ -115,10 +115,18 @@ public class ThriftEnumUtils {
             ProjectRelationship.CONTAINED, "Is a subproject" ,
             ProjectRelationship.REFERRED, "Related");
 
-    private static final ImmutableMap<ReleaseRelationship, String> MAP_RELEASE_RELATION_STRING = ImmutableMap.of(
-            ReleaseRelationship.UNKNOWN, "Unknown" ,
-            ReleaseRelationship.CONTAINED, "Is a subrelease" ,
-            ReleaseRelationship.REFERRED, "Related");
+    private static final ImmutableMap<ReleaseRelationship, String> MAP_RELEASE_RELATION_STRING = ImmutableMap.<ReleaseRelationship, String>builder()
+            .put(ReleaseRelationship.UNKNOWN, "Unknown")
+            .put(ReleaseRelationship.CONTAINED, "Contained")
+            .put(ReleaseRelationship.REFERRED, "Related")
+            .put(ReleaseRelationship.DYNAMICALLY_LINKED, "Dynamically linked")
+            .put(ReleaseRelationship.STATICALLY_LINKED, "Statically linked")
+            .put(ReleaseRelationship.SIDE_BY_SIDE, "Side by side")
+            .put(ReleaseRelationship.STANDALONE, "Standalone")
+            .put(ReleaseRelationship.INTERNAL_USE, "Internal use")
+            .put(ReleaseRelationship.OPTIONAL, "Optional")
+            .put(ReleaseRelationship.TO_BE_REPLACED, "To be replaced")
+            .build();
 
     private static final ImmutableMap<RepositoryType, String> MAP_REPOSITORY_TYPE_STRING = ImmutableMap.<RepositoryType, String>builder()
             .put(RepositoryType.UNKNOWN, "Unknown")
