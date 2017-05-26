@@ -12,31 +12,46 @@
 #
 #
 # initial author: birgit.heydenreich@tngtech.com
-#
-# $Id$
 # -----------------------------------------------------------------------------
 
-set -e
-echo "-[shell provisioning] Installing dependencies of thrift"
-apt-get update
-apt-get install -y libboost-dev libboost-test-dev libboost-program-options-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev curl
+set -ex
 
+BASEDIR="/tmp"
+BUILDDIR="${BASEDIR}/thrift-0.9.3"
 
-echo "-[shell provisioning] Extracting thrift"
-if [ -e /vagrant_shared/packages/thrift-0.9.3.tar.gz ]; then
-    tar -xzf /vagrant_shared/packages/thrift-0.9.3.tar.gz -C /tmp/
-else
-    curl -o /tmp/thrift-0.9.3.tar.gz http://ftp.fau.de/apache/thrift/0.9.3/thrift-0.9.3.tar.gz
-    tar -xzf /tmp/thrift-0.9.3.tar.gz -C /tmp/
+if [[ ! -d "$BUILDDIR" ]]; then
+    echo "-[shell provisioning] Extracting thrift"
+    if [ -e /vagrant_shared/packages/thrift-0.9.3.tar.gz ]; then
+        tar -xzf /vagrant_shared/packages/thrift-0.9.3.tar.gz -C $BASEDIR
+    else
+        apt-get update
+        apt-get install -y curl
+
+        TGZ="${BASEDIR}/thrift-0.9.3.tar.gz"
+
+        curl -z $TGZ -o $TGZ http://ftp.fau.de/apache/thrift/0.9.3/thrift-0.9.3.tar.gz
+        tar -xzf $TGZ -C $BASEDIR
+
+        [[ "$1" != "--no-cleanup" ]] && rm "${BASEDIR}/thrift-0.9.3.tar.gz"
+    fi
 fi
 
-pushd /tmp/thrift-0.9.3/ &>/dev/null
+cd "$BUILDDIR"
+if [[ ! -f "./compiler/cpp/thrift" ]]; then
+    echo "-[shell provisioning] Installing dependencies of thrift"
+    apt-get update
+    apt-get install -y libboost-dev libboost-test-dev libboost-program-options-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev
 
+    echo "-[shell provisioning] Building thrift"
+    if [[ ! -f "./Makefile" ]]; then
+        ./configure --without-test --without-erlang --without-python --without-cpp --without-php --without-haskell --without-go
+    fi
+    make
+fi
 
-echo "-[shell provisioning] Building and installing thrift"
-./configure --without-test --without-erlang --without-python --without-cpp --without-java --without-php
-make
+echo "-[shell provisioning] Installing thrift"
 make install
-rm -rf /tmp/thrift-0.9.3/
 
-popd &>/dev/null
+[[ "$1" != "--no-cleanup" ]] && rm -rf "$BUILDDIR"
+
+exit 0
