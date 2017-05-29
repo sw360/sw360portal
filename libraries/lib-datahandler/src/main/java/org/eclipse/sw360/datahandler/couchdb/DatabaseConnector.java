@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -142,7 +142,7 @@ public class DatabaseConnector extends StdCouchDbConnector {
     /**
      * Get a list of documents from their IDs. All documents should be of the same type.
      */
-    public <T> List<T> get(Class<T> type, Collection<String> ids) {
+    public <T> List<T> get(Class<T> type, Collection<String> ids, boolean ignoreNotFound) {
         if (ids == null) return Collections.emptyList();
 
         // Copy to set in order to avoid duplicates
@@ -152,8 +152,13 @@ public class DatabaseConnector extends StdCouchDbConnector {
                 .allDocs()
                 .includeDocs(true)
                 .keys(idSet);
+        q.setIgnoreNotFound(ignoreNotFound);
 
         return queryView(q, type);
+    }
+
+    public <T> List<T> get(Class<T> type, Collection<String> ids) {
+        return get(type, ids, false);
     }
 
     @Override
