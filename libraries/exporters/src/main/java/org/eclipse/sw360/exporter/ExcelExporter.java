@@ -9,59 +9,62 @@
 package org.eclipse.sw360.exporter;
 
 
-import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created on 06/02/15.
  *
  * @author cedric.bodet@tngtech.com
  */
-public class ExcelExporter<T> {
+public class ExcelExporter<T, U extends ExporterHelper<T>> {
 
-    private final ExporterHelper<T> helper;
+    protected final U helper;
 
-    public ExcelExporter(ExporterHelper<T> helper) {
+    public ExcelExporter(U helper) {
         this.helper = helper;
     }
 
     public InputStream makeExcelExport(List<T> documents) throws IOException, SW360Exception {
-        final Workbook workbook = new XSSFWorkbook();
+        final SXSSFWorkbook workbook = new SXSSFWorkbook();
+        final ByteArrayInputStream stream;
+        try {
+            Sheet sheet = workbook.createSheet("Data");
 
-        Sheet sheet = workbook.createSheet("Data");
+            /** Adding styles to cells */
+            CellStyle cellStyle = createCellStyle(workbook);
+            CellStyle headerStyle = createHeaderStyle(workbook);
 
-        /** Adding styles to cells */
-        CellStyle cellStyle = createCellStyle(workbook);
-        CellStyle headerStyle = createHeaderStyle(workbook);
+            /** Create header row */
+            Row headerRow = sheet.createRow(0);
+            List<String> headerNames = helper.getHeaders();
+            fillRow(headerRow, headerNames, headerStyle);
 
-        /** Create header row */
-        Row headerRow = sheet.createRow(0);
-        List<String> headerNames = helper.getHeaders();
-        fillRow(headerRow, headerNames, headerStyle);
+            /** Create data rows */
+            fillValues(sheet, documents, cellStyle);
 
-        /** Create data rows */
-        fillValues(sheet, documents, cellStyle);
+            /** Resize the columns */
+            for (int iColumns = 0; iColumns < helper.getColumns(); iColumns++) {
+                sheet.autoSizeColumn(iColumns);
+            }
 
-        /** Resize the columns */
-        for (int iColumns = 0; iColumns < helper.getColumns(); iColumns++) {
-            sheet.autoSizeColumn(iColumns);
+            /** Copy the streams */
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            stream = new ByteArrayInputStream(out.toByteArray());
+        }finally{
+            workbook.dispose();
         }
-
-        /** Copy the streams */
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-
-        return new ByteArrayInputStream(out.toByteArray());
+        return stream;
     }
 
     /**
@@ -119,12 +122,4 @@ public class ExcelExporter<T> {
         return headerCellStyle;
     }
 
-    protected List<String> addSubheadersWithPrefixesAsNeeded(List<String> headers, List<String> subheaders, String prefix) {
-        List<String> prefixedSubheaders = subheaders
-                .stream()
-                .map(h -> headers.contains(h) ? prefix + h : h)
-                .collect(Collectors.toList());
-        headers.addAll(prefixedSubheaders);
-        return headers;
-    }
 }

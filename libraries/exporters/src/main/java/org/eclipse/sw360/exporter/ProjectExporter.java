@@ -12,29 +12,26 @@ package org.eclipse.sw360.exporter;
 import com.google.common.collect.ImmutableList;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.exporter.ReleaseExporter.ReleaseHelper;
 import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
 import static org.eclipse.sw360.datahandler.thrift.projects.Project._Fields.*;
 
-public class ProjectExporter extends ExcelExporter<Project> {
+public class ProjectExporter extends ExcelExporter<Project, ProjectHelper> {
 
-    private static final Logger log = Logger.getLogger(ProjectExporter.class);
-    private static boolean extendedByReleases;
-    private static ReleaseHelper releaseHelper;
+    private static final Logger log = Logger.getLogger(ProjectHelper.class);
 
-    public static final Map<String, String> nameToDisplayName;
+    private static final Map<String, String> nameToDisplayName;
+
     static {
         nameToDisplayName = new HashMap<>();
         nameToDisplayName.put(Project._Fields.ID.getFieldName(), "project ID");
@@ -46,9 +43,7 @@ public class ProjectExporter extends ExcelExporter<Project> {
         nameToDisplayName.put(Project._Fields.LEAD_ARCHITECT.getFieldName(), "project lead architect");
         nameToDisplayName.put(Project._Fields.TAG.getFieldName(), "project tag");
         nameToDisplayName.put(Project._Fields.BUSINESS_UNIT.getFieldName(), "group");
-        nameToDisplayName.put(Project._Fields.RELEASE_IDS.getFieldName(), "releases");
-        nameToDisplayName.put(Project._Fields.RELEASE_CLEARING_STATE_SUMMARY.getFieldName(),
-                "release clearing state summary");
+        nameToDisplayName.put(Project._Fields.RELEASE_CLEARING_STATE_SUMMARY.getFieldName(), "release clearing state summary");
         nameToDisplayName.put(Project._Fields.EXTERNAL_IDS.getFieldName(), "external IDs");
         nameToDisplayName.put(Project._Fields.VISBILITY.getFieldName(), "visibility");
         nameToDisplayName.put(Project._Fields.PROJECT_TYPE.getFieldName(), "project type");
@@ -69,7 +64,6 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .add(REVISION)
             .add(DOCUMENT_STATE)
             .add(PERMISSIONS)
-            .add(RELEASE_IDS)
             .build();
 
     public static final List<Project._Fields> PROJECT_RENDERED_FIELDS = Project.metaDataMap.keySet()
@@ -77,135 +71,55 @@ public class ProjectExporter extends ExcelExporter<Project> {
             .filter(k -> ! PROJECT_IGNORED_FIELDS.contains(k))
             .collect(Collectors.toList());
 
-    protected static List<String> HEADERS = new ArrayList<>();
+    static List<String> HEADERS = PROJECT_RENDERED_FIELDS
+            .stream()
+            .map(Project._Fields::getFieldName)
+            .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
+            .collect(Collectors.toList());
 
-    public ProjectExporter(ComponentService.Iface componentClient, ProjectService.Iface projectClient, User user, boolean extendedByReleases) {
-        super(new ProjectHelper(componentClient, projectClient, user));
-        releaseHelper = new ReleaseHelper(componentClient);
-        this.extendedByReleases = extendedByReleases;
-        HEADERS = PROJECT_RENDERED_FIELDS
-                .stream()
-                .map(Project._Fields::getFieldName)
-                .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
-                .collect(Collectors.toList());
-        if (extendedByReleases) {
-            addSubheadersWithPrefixesAsNeeded(HEADERS, releaseHelper.getHeaders(), "release: ");
-        }
+    static List<String> HEADERS_EXTENDED_BY_RELEASES = ExporterHelper.addSubheadersWithPrefixesAsNeeded(HEADERS, ReleaseExporter.HEADERS, "release: ");
+
+    public ProjectExporter(ComponentService.Iface componentClient, ProjectService.Iface projectClient, User user, List<Project> projects, boolean extendedByReleases) throws SW360Exception {
+        super(new ProjectHelper(projectClient, user, extendedByReleases, new ReleaseHelper(componentClient)));
+        preloadRelatedDataFor(projects, extendedByReleases, user);
     }
 
-    protected static class ProjectHelper implements ExporterHelper<Project> {
+    private void preloadRelatedDataFor(List<Project> projects, boolean withLinkedOfLinked, User user) throws SW360Exception {
+        Function<Function<Project, Map<String, ?>>, Set<String>> extractIds = mapExtractor -> projects
+                .stream()
+                .map(mapExtractor)
+                .filter(Objects::nonNull)
+                .map(Map::keySet)
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
 
-        private final ComponentService.Iface componentClient;
-        private final ProjectService.Iface projectClient;
-        private final User user;
-        private List<Release> releases;
+        Set<String> linkedProjectIds = extractIds.apply(Project::getLinkedProjects);
+        Map<String, Project> projectsById = ThriftUtils.getIdMap(helper.getProjects(linkedProjectIds, user));
+        helper.setPreloadedLinkedProjects(projectsById);
 
-        private ProjectHelper(ComponentService.Iface componentClient, ProjectService.Iface projectClient, User user) {
-            this.componentClient = componentClient;
-            this.projectClient = projectClient;
-            this.user = user;
+        Set<String> linkedReleaseIds = extractIds.apply(Project::getReleaseIdToUsage);
+        preloadLinkedReleases(linkedReleaseIds, withLinkedOfLinked);
+    }
+
+    private void preloadLinkedReleases(Set<String> linkedReleaseIds, boolean withLinkedOfLinked) throws SW360Exception {
+        Map<String, Release> releasesById = ThriftUtils.getIdMap(helper.getReleases(linkedReleaseIds));
+        if (withLinkedOfLinked) {
+            Set<String> linkedOfLinkedReleaseIds = releasesById
+                    .values()
+                    .stream()
+                    .map(Release::getReleaseIdToRelationship)
+                    .filter(Objects::nonNull)
+                    .map(Map::keySet)
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toSet());
+
+            Map<String, Release> joinedMap = new HashMap<>();
+            Map<String, Release> linkedOfLinkedReleasesById = ThriftUtils.getIdMap(helper.getReleases(linkedOfLinkedReleaseIds));
+            joinedMap.putAll(releasesById);
+            joinedMap.putAll(linkedOfLinkedReleasesById);
+            releasesById = joinedMap;
         }
-
-        @Override
-        public int getColumns() {
-            return HEADERS.size();
-        }
-
-        @Override
-        public List<String> getHeaders() {
-            return HEADERS;
-        }
-
-        @Override
-        public SubTable makeRows(Project project) throws SW360Exception {
-            return extendedByReleases
-                    ? makeRowsWithReleases(project)
-                    : makeRowForProjectOnly(project);
-        }
-
-        protected SubTable makeRowsWithReleases(Project project) throws SW360Exception {
-            releases = getReleases(project);
-            SubTable table = new SubTable();
-
-            if(releases.size() > 0) {
-                for (Release release : releases) {
-                    List<String> currentRow = makeRowForProject(project);
-                    currentRow.addAll(releaseHelper.makeRows(release).elements.get(0));
-                    table.addRow(currentRow);
-                }
-            } else {
-                List<String> projectRowWithEmptyReleaseFields = makeRowForProject(project);
-                for(int i = 0; i < releaseHelper.getColumns(); i++){
-                    projectRowWithEmptyReleaseFields.add("");
-                }
-                table.addRow(projectRowWithEmptyReleaseFields);
-            }
-            return table;
-        }
-
-        private List<String> makeRowForProject(Project project) throws SW360Exception {
-            if(! project.isSetAttachments()){
-                project.setAttachments(Collections.EMPTY_SET);
-            }
-            List<String> row = new ArrayList<>(getColumns());
-            for(Project._Fields renderedField : PROJECT_RENDERED_FIELDS) {
-                addFieldValueToRow(row, renderedField, project);
-            }
-
-            return row;
-        }
-
-        private void addFieldValueToRow(List<String> row, Project._Fields field, Project project) throws SW360Exception {
-            if(project.isSet(field)) {
-                Object fieldValue = project.getFieldValue(field);
-                switch(field) {
-                    case RELEASE_IDS:
-                        row.add(fieldValueAsString(getReleaseNames(releases)));
-                        break;
-                    case RELEASE_ID_TO_USAGE:
-                        row.add(fieldValueAsString(putReleaseNamesInMap(project.releaseIdToUsage, releases)));
-                        break;
-                    case LINKED_PROJECTS:
-                        row.add(fieldValueAsString(putProjectNamesInMap(
-                                project.getLinkedProjects(),
-                                getProjects(project.getLinkedProjects().keySet(), user)
-                        )));
-                        break;
-                    case ATTACHMENTS:
-                        row.add(project.attachments.size() + "");
-                        break;
-                    default:
-                        row.add(fieldValueAsString(fieldValue));
-                }
-            } else {
-                row.add("");
-            }
-        }
-
-        private SubTable makeRowForProjectOnly(Project project) throws SW360Exception {
-            releases = getReleases(project);
-            return  new SubTable(makeRowForProject(project));
-        }
-
-        private List<Release> getReleases(Project project) throws SW360Exception {
-            List<Release> releasesByIdsForExport;
-            try {
-                releasesByIdsForExport = componentClient.getReleasesByIdsForExport(nullToEmptySet(project.releaseIds));
-            } catch (TException e) {
-                throw new SW360Exception("Error fetching release information");
-            }
-            return releasesByIdsForExport;
-        }
-
-        private List<Project> getProjects(Set<String> ids, User user) throws SW360Exception {
-            List<Project> projects;
-            try {
-                projects = projectClient.getProjectsById(new ArrayList<>(ids), user);
-            } catch (TException e) {
-                throw new SW360Exception("Error fetching linked projects");
-            }
-            return projects;
-        }
+        helper.setPreloadedLinkedReleases(releasesById);
     }
 
 }

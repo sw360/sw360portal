@@ -114,7 +114,7 @@ struct Project {
     70: optional DocumentState documentState,
 
     // Optional fields for summaries!
-    100: optional set<string> releaseIds,
+//    100: optional set<string> releaseIds, //deleted
     101: optional ReleaseClearingStateSummary releaseClearingStateSummary,
 
     200: optional map<RequestedAction, bool> permissions,

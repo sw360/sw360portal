@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,7 +24,7 @@ import static org.eclipse.sw360.datahandler.thrift.vendors.Vendor._Fields.*;
  *
  * @author Johannes.Najjar@tngtech.com
  */
-public class VendorExporter  extends  ExcelExporter<Vendor>{
+public class VendorExporter  extends  ExcelExporter<Vendor, VendorExporter.VendorHelper>{
 
     public static final List<Vendor._Fields> RENDERED_FIELDS = ImmutableList.<Vendor._Fields>builder()
             .add(FULLNAME)
@@ -42,7 +42,7 @@ public class VendorExporter  extends  ExcelExporter<Vendor>{
         super(new VendorHelper());
     }
 
-    private static class VendorHelper implements ExporterHelper<Vendor> {
+    static class VendorHelper implements ExporterHelper<Vendor> {
 
         @Override
         public int getColumns() {

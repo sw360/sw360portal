@@ -34,9 +34,6 @@ public class ProjectSummaryTest {
                 case STATE:
                     project.state = ProjectState.ACTIVE;
                     break;
-                case RELEASE_IDS:
-                    project.releaseIds = ImmutableSet.of("2","3");
-                    break;
                 case PERMISSIONS:
                     project.permissions = Collections.emptyMap();
                     break;

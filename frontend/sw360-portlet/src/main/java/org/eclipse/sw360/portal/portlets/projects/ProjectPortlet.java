@@ -267,6 +267,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     thriftClients.makeComponentClient(),
                     thriftClients.makeProjectClient(),
                     user,
+                    projects,
                     extendedByReleases);
             PortletResponseUtil.sendFile(request, response, "Projects.xlsx", exporter.makeExcelExport(projects), CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
@@ -287,7 +288,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             if (project != null) {
                 Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(id, user);
                 List<Release> releases = releaseStringMap.keySet().stream().sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
-                ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient());
+                ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient(), releases);
                 PortletResponseUtil.sendFile(request, response,
                         String.format("releases-%s-%s-%s.xlsx", project.getName(), project.getVersion(), SW360Utils.getCreatedOn()),
                         exporter.makeExcelExport(releases), CONTENT_TYPE_OPENXML_SPREADSHEET);

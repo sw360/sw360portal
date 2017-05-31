@@ -47,7 +47,6 @@ public class ProjectModerationRequestGenerator extends ModerationRequestGenerato
                     //ignored fields and concluded fields
                     case PERMISSIONS:
                     case DOCUMENT_STATE:
-                    case RELEASE_IDS:
                     case RELEASE_CLEARING_STATE_SUMMARY:
                         break;
                     case ATTACHMENTS:

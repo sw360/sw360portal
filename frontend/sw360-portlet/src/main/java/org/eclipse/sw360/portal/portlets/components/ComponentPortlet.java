@@ -233,7 +233,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         try {
             boolean extendedByReleases = Boolean.valueOf(request.getParameter(PortalConstants.EXTENDED_EXCEL_EXPORT));
             List<Component> components = getFilteredComponentList(request);
-            ComponentExporter exporter = new ComponentExporter(thriftClients.makeComponentClient(), extendedByReleases);
+            ComponentExporter exporter = new ComponentExporter(thriftClients.makeComponentClient(), components, extendedByReleases);
             PortletResponseUtil.sendFile(request, response, "Components.xlsx", exporter.makeExcelExport(components),
                     CONTENT_TYPE_OPENXML_SPREADSHEET);
         } catch (IOException | SW360Exception e) {
