@@ -135,8 +135,8 @@
             dataType: 'json',
             data: {"<%=PortalConstants.COMPONENT_ID%>":"${componentId}" },
             success: function(response){
-                displayResponse(response)
-            },
+                displayResponse(response);
+            }
         });
     }
 
@@ -179,7 +179,7 @@
                         break;
                     default:
                 }
-            },
+            }
         });
     }
 

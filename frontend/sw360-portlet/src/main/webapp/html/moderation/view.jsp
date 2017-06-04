@@ -130,8 +130,8 @@
             result.push({
                 "DT_RowId": "${moderation.id}",
                 "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-                "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}"/>',
-                "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}"/>',
+                "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
+                "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
                 "3": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
                 "4": 'TODO'
             });
@@ -145,8 +145,8 @@
             result.push({
                 "DT_RowId": "${moderation.id}",
                 "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-                "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}"/>',
-                "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}"/>',
+                "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
+                "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
                 "3": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
                 <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
                 "4": "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"

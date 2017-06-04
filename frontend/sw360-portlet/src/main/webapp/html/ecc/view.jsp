@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -90,8 +90,8 @@
                     <sw360:DisplayEnum value="${release.eccInformation.eccStatus}"/></td>
                 <td width="20%"><sw360:DisplayReleaseLink showName="true" release="${release}"/></td>
                 <td width="10%"><sw360:out value="${release.version}"/></td>
-                <td width="10%"><sw360:DisplayUserGroup email="${release.createdBy}"/></td>
-                <td width="20%"><sw360:DisplayUserEmail email="${release.eccInformation.assessorContactPerson}"/></td>
+                <td width="10%"><sw360:out value="${release.creatorDepartment}"/></td>
+                <td width="20%"><sw360:DisplayUserEmail email="${release.eccInformation.assessorContactPerson}" bare="true"/></td>
                 <td width="20%"><sw360:out value="${release.eccInformation.assessorDepartment}"/></td>
                 <td width="10%"><sw360:out value="${release.eccInformation.assessmentDate}"/></td>
             </tr>

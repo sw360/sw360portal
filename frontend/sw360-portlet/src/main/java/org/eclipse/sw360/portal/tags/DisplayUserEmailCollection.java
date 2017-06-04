@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,9 +32,16 @@ import java.util.List;
 public class DisplayUserEmailCollection extends SimpleTagSupport {
 
     private Collection<String> value;
+    private Boolean bare = false;
+
+    private static final UserService.Iface client = new ThriftClients().makeUserClient();
 
     public void setValue(Collection<String> value) {
         this.value = value;
+    }
+
+    public void setBare(Boolean bare) {
+        this.bare = bare;
     }
 
     public void doTag() throws JspException, IOException {
@@ -44,21 +51,19 @@ public class DisplayUserEmailCollection extends SimpleTagSupport {
 
             List<String> resultList = new ArrayList<>();
 
-            UserService.Iface client = new ThriftClients().makeUserClient();
-
-            if (client != null) {
-
-                for (String email : valueList) {
-                    User user = null;
+            for (String email : valueList) {
+                User user = null;
+                if (!bare) {
                     try {
-                        if (!Strings.isNullOrEmpty(email)) {
+                        if (!Strings.isNullOrEmpty(email) && client != null) {
                             user = client.getByEmail(email);
                         }
                     } catch (TException e) {
                         user = null;
                     }
-                    if (user != null || !Strings.isNullOrEmpty(email))
-                        resultList.add(UserUtils.displayUser(email, user));
+                }
+                if (user != null || !Strings.isNullOrEmpty(email)) {
+                    resultList.add(UserUtils.displayUser(email, user));
                 }
             }
             getJspContext().getOut().print(CommonUtils.COMMA_JOINER.join(resultList));

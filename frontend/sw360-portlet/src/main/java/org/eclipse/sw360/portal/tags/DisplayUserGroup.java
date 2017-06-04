@@ -11,7 +11,6 @@ package org.eclipse.sw360.portal.tags;
 import com.google.common.base.Strings;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.eclipse.sw360.portal.users.UserUtils;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
@@ -20,7 +19,7 @@ import java.io.IOException;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
- * This displays a user's group
+ * This displays a user's group. It makes a DB roundtrip for each invocation. Use with caution!
  *
  * @author alex.borodin@evosoft.com
  */

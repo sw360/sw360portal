@@ -73,6 +73,7 @@ public class ComponentDatabaseHandler {
     private final ReleaseRepository releaseRepository;
     private final VendorRepository vendorRepository;
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
 
     private final AttachmentConnector attachmentConnector;
     /**
@@ -91,6 +92,7 @@ public class ComponentDatabaseHandler {
         releaseRepository = new ReleaseRepository(db, vendorRepository);
         componentRepository = new ComponentRepository(db, releaseRepository, vendorRepository);
         projectRepository = new ProjectRepository(db);
+        userRepository = new UserRepository(db);
 
         // Create the moderator
         this.moderator = moderator;
@@ -139,9 +141,19 @@ public class ComponentDatabaseHandler {
         return componentRepository.getDetailedSummaryForExport();
     }
 
-    public List<Release> getReleaseSummary() {
+    public List<Release> getReleaseSummary() throws TException {
         List<Release> releases = releaseRepository.getReleaseSummary();
         releases.forEach(ThriftValidate::ensureEccInformationIsSet);
+
+
+        // todo: move filling out of department to ReleaseRepository/ReleaseSummary???
+        Set<String> userIds = releases.stream().map(Release::getCreatedBy).collect(Collectors.toSet());
+        Map<String, User> usersByEmail = ThriftUtils.getIdMap(userRepository.get(userIds));
+        releases.forEach(release -> release.setCreatorDepartment(Optional
+                .ofNullable(release.getCreatedBy())
+                .map(usersByEmail::get)
+                .map(User::getDepartment)
+                .orElse(null)));
         return releases;
     }
 
