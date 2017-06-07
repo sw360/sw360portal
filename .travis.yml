@@ -33,6 +33,7 @@ script: mvn --fail-at-end $MVN_ARGS
 
 matrix:
   include:
+    - env: MVN_ARGS="package"
     - env: MVN_ARGS="validate"
       before_install:
     - env: MVN_ARGS="dependency:analyze -DfailOnWarning"
