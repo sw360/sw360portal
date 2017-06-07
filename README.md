@@ -100,14 +100,14 @@ which copies the war files to the liferay auto deploy folder (if `LIFERAY_PATH` 
 Otherwise one has to specify the absolute path to the deploy folder in the following way:
 ```
 mvn install -Pdeploy \
-    -Pdeploy.dir=/ABSOLUTE/PATH/TO/DEPLOY/FOLDER
+    -Ddeploy.dir=/ABSOLUTE/PATH/TO/DEPLOY/FOLDER
 ```
 It is even better to also pass the path to the webapps folder, thus allowing maven to deploy the backend services directly via the native tomcat hot deploy mechanism.
 This is done in the following way:
 ```
 mvn install -Pdeploy \
-    -Pdeploy.dir=/ABSOLUTE/PATH/TO/DEPLOY/FOLDER \
-    -Pwebapps.dir=/ABSOLUTE/PATH/TO/WEBAPPS/FOLDER
+    -Ddeploy.dir=/ABSOLUTE/PATH/TO/DEPLOY/FOLDER \
+    -Dwebapps.dir=/ABSOLUTE/PATH/TO/WEBAPPS/FOLDER
 ```
   
 #### Packaging
