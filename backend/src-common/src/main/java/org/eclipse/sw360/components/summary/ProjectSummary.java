@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -44,17 +44,8 @@ public class ProjectSummary extends DocumentSummary<Project> {
     }
 
     protected static void setSummaryFields(Project document, Project copy) {
-
         for (_Fields field : Project.metaDataMap.keySet()) {
-            switch (field) {
-                case RELEASE_IDS:
-                    if (document.isSetReleaseIdToUsage()) {
-                        copy.setReleaseIds(document.releaseIdToUsage.keySet());
-                    }
-                    break;
-                default:
-                    copyField(document, copy, field);
-            }
+            copyField(document, copy, field);
         }
     }
 

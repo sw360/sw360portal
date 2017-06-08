@@ -9,29 +9,24 @@
 package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.exporter.ReleaseExporter.ReleaseHelper;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Strings.nullToEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.getReleaseNames;
 import static org.eclipse.sw360.datahandler.thrift.components.Component._Fields.*;
 
-public class ComponentExporter extends ExcelExporter<Component> {
-    private static final Logger log = Logger.getLogger(ProjectExporter.class);
-    private static ReleaseHelper releaseHelper;
+public class ComponentExporter extends ExcelExporter<Component, ComponentHelper> {
+    private static final Logger log = Logger.getLogger(ComponentExporter.class);
 
-    public static final Map<String, String> nameToDisplayName;
+    private static final Map<String, String> nameToDisplayName;
+
     static {
         nameToDisplayName = new HashMap<>();
         nameToDisplayName.put(Component._Fields.NAME.getFieldName(), "component name");
@@ -56,127 +51,33 @@ public class ComponentExporter extends ExcelExporter<Component> {
             .add(RELEASES)
             .build();
 
-    public static final List<Component._Fields> COMPONENT_RENDERED_FIELDS = Component.metaDataMap.keySet()
+    static final List<Component._Fields> COMPONENT_RENDERED_FIELDS = Component.metaDataMap.keySet()
             .stream()
             .filter(k -> ! COMPONENT_IGNORED_FIELDS.contains(k))
             .collect(Collectors.toList());
 
-    protected static List<String> HEADERS = new ArrayList<>();
+    static List<String> HEADERS = COMPONENT_RENDERED_FIELDS
+            .stream()
+            .map(Component._Fields::getFieldName)
+            .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
+            .collect(Collectors.toList());
 
-    public ComponentExporter(ComponentService.Iface componentClient, boolean extendedByReleases) {
-        super(new ComponentHelper(componentClient, extendedByReleases));
-        releaseHelper = new ReleaseHelper(componentClient);
-        HEADERS = COMPONENT_RENDERED_FIELDS
+    static List<String> HEADERS_EXTENDED_BY_RELEASES = ExporterHelper.addSubheadersWithPrefixesAsNeeded(HEADERS, ReleaseExporter.HEADERS, "release: ");
+
+    public ComponentExporter(ComponentService.Iface componentClient, List<Component> components, boolean extendedByReleases) throws SW360Exception {
+        super(new ComponentHelper(extendedByReleases, new ReleaseHelper(componentClient)));
+        preloadLinkedReleasesFor(components);
+    }
+
+    private void preloadLinkedReleasesFor(List<Component> components) throws SW360Exception {
+        Set<String> linkedReleaseIds = components
                 .stream()
-                .map(Component._Fields::getFieldName)
-                .map(n -> SW360Utils.displayNameFor(n, nameToDisplayName))
-                .collect(Collectors.toList());
-        if(extendedByReleases){
-            addSubheadersWithPrefixesAsNeeded(HEADERS, releaseHelper.getHeaders(), "release: ");
-        }
+                .map(Component::getReleaseIds)
+                .filter(Objects::nonNull)
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        Map<String, Release> releasesById = ThriftUtils.getIdMap(helper.getReleases(linkedReleaseIds));
+        helper.setPreloadedLinkedReleases(releasesById);
     }
-
-    protected static class ComponentHelper implements ExporterHelper<Component> {
-
-        private final ComponentService.Iface componentClient;
-        private List<Release> releases;
-        private boolean extendedByReleases;
-
-        private ComponentHelper(ComponentService.Iface componentClient, boolean extendedByReleases){
-            this.componentClient = componentClient;
-            this.extendedByReleases = extendedByReleases;
-        }
-
-        @Override
-        public int getColumns() {
-            return HEADERS.size();
-        }
-
-        @Override
-        public List<String> getHeaders() {
-            return HEADERS;
-        }
-
-        @Override
-        public SubTable makeRows(Component component) throws SW360Exception {
-            return extendedByReleases
-                    ? makeRowsWithReleases(component)
-                    : makeRowForComponentOnly(component);
-        }
-
-        protected SubTable makeRowsWithReleases(Component component) throws SW360Exception {
-            releases = getReleases(component);
-            SubTable table = new SubTable();
-
-            if(releases.size() > 0) {
-                for (Release release : releases) {
-                    List<String> currentRow = makeRowForComponent(component);
-                    currentRow.addAll(releaseHelper.makeRows(release).elements.get(0));
-                    table.addRow(currentRow);
-                }
-            } else {
-                List<String> componentRowWithEmptyReleaseFields = makeRowForComponent(component);
-                for(int i = 0; i < releaseHelper.getColumns(); i++){
-                    componentRowWithEmptyReleaseFields.add("");
-                }
-                table.addRow(componentRowWithEmptyReleaseFields);
-            }
-            return table;
-        }
-
-        private List<String> makeRowForComponent(Component component) throws SW360Exception {
-            if(! component.isSetAttachments()){
-                component.setAttachments(Collections.EMPTY_SET);
-            }
-            List<String> row = new ArrayList<>(getColumns());
-            for(Component._Fields renderedField : COMPONENT_RENDERED_FIELDS) {
-                addFieldValueToRow(row, renderedField, component);
-            }
-            return row;
-        }
-
-        private void addFieldValueToRow(List<String> row, Component._Fields field, Component component) throws SW360Exception {
-            if(component.isSet(field)) {
-                Object fieldValue = component.getFieldValue(field);
-                switch(field) {
-                    case RELEASE_IDS:
-                        row.add(fieldValueAsString(getReleaseNames(getReleases(component))));
-                        break;
-                    case ATTACHMENTS:
-                        row.add(component.attachments.size() + "");
-                        break;
-                    default:
-                        row.add(fieldValueAsString(fieldValue));
-                }
-            } else {
-                row.add("");
-            }
-        }
-
-        private SubTable makeRowForComponentOnly(Component component) throws SW360Exception{
-            releases = getReleases(component);
-            return new SubTable(makeRowForComponent(component));
-        }
-
-        private static List<String> getVersions(Collection<Release> releases) {
-            if (releases == null) return Collections.emptyList();
-
-            List<String> versions = new ArrayList<>(releases.size());
-            for (Release release : releases) {
-                versions.add(nullToEmpty(release.name));
-            }
-            return versions;
-        }
-
-        private List<Release> getReleases(Component component) throws SW360Exception{
-            List<Release> releasesByIdsForExport;
-            try {
-                releasesByIdsForExport = componentClient.getReleasesByIdsForExport(nullToEmptySet(component.releaseIds));
-            } catch (TException e) {
-                throw new SW360Exception("Error fetching release information");
-            }
-            return releasesByIdsForExport;
-        }
-    }
-
 }

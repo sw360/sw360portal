@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * All rights reserved. This program and the accompanying materials
@@ -26,14 +26,14 @@ import static org.eclipse.sw360.commonIO.ConvertRecord.licenseSerializer;
  *
  * @author cedric.bodet@tngtech.com
  */
-public class LicenseExporter extends ExcelExporter<License> {
+public class LicenseExporter extends ExcelExporter<License, LicenseExporter.LicenseHelper> {
     private static final Logger log = Logger.getLogger(LicenseExporter.class);
 
     public LicenseExporter(Function<Logger, List<LicenseType>> getLicenseTypes) {
         super(new LicenseHelper(() -> getLicenseTypes.apply(log)));
     }
 
-    private static class LicenseHelper implements ExporterHelper<License> {
+    static class LicenseHelper implements ExporterHelper<License> {
         private final ConvertRecord.Serializer<License> converter;
         private Supplier<List<LicenseType>> getLicenseTypes;
         private HashMap<String, String> formattedStringToTypeId = new HashMap<>();

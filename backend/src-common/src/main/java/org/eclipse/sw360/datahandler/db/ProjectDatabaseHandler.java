@@ -391,13 +391,7 @@ public class ProjectDatabaseHandler {
     }
 
     public List<Project> fillClearingStateSummary(List<Project> projects, User user) {
-        Function<Project, Set<String>> extractReleaseIds = project -> {
-            if (project.isSetReleaseIds()) {
-                return project.getReleaseIds();
-            } else {
-                return CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
-            }
-        };
+        Function<Project, Set<String>> extractReleaseIds = project -> CommonUtils.nullToEmptyMap(project.getReleaseIdToUsage()).keySet();
 
         Set<String> allReleaseIds = projects.stream().map(extractReleaseIds).reduce(Sets.newHashSet(), Sets::union);
         if (!allReleaseIds.isEmpty()) {

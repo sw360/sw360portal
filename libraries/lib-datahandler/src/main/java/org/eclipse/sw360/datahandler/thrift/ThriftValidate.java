@@ -246,7 +246,6 @@ public class ThriftValidate {
 
         // Unset temporary fields
         project.unsetPermissions();
-        project.unsetReleaseIds();
         project.unsetReleaseClearingStateSummary();
     }
 

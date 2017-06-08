@@ -8,8 +8,12 @@
  */
 package org.eclipse.sw360.datahandler.common;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -31,6 +35,7 @@ import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -57,10 +62,20 @@ public class SW360Utils {
     public static final String FORMAT_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
     public static final Comparator<ReleaseLink> RELEASE_LINK_COMPARATOR = Comparator.comparing(rl -> getReleaseFullname(rl.getVendor(), rl.getName(), rl.getVersion()).toLowerCase());
 
+    private static final ObjectMapper objectMapper;
+
     private static Joiner spaceJoiner = Joiner.on(" ");
 
     private SW360Utils() {
         // Utility class with only static functions
+    }
+
+    static{
+        objectMapper = new ObjectMapper();
+        SimpleModule customModule = new SimpleModule("SW360 serializers");
+        customModule.addSerializer(TEnum.class, new TEnumSerializer());
+        customModule.addSerializer(ProjectReleaseRelationship.class, new ProjectReleaseRelationshipSerializer());
+        objectMapper.registerModule(customModule);
     }
 
     /**
@@ -358,7 +373,9 @@ public class SW360Utils {
         }
         if (fieldValue instanceof Map) {
             Map<String, Object> originalMap = nullToEmptyMap(((Map<String, Object>) fieldValue));
-            Map<String, String> map = Maps.transformValues(originalMap, CommonUtils::nullToEmptyString);
+            // cannot use CommonUtils.nullToEmptyString here, because it calls toString() on non-null objects,
+            // which destroys the chance for ObjectMapper to serialize values according to its configuration
+            Map<String, Object> map = Maps.transformValues(originalMap, v -> v == null ? "" : v);
             return serializeToJson(map);
         }
         if (fieldValue instanceof Iterable){
@@ -368,13 +385,35 @@ public class SW360Utils {
     }
 
     private static String serializeToJson(Object value) throws SW360Exception{
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = getObjectMapper();
         try {
             return mapper.writeValueAsString(value);
         } catch (JsonProcessingException e) {
             String msg = String.format("Cannot serialize field value %s to JSON", value);
             log.error(msg, e);
             throw new SW360Exception(msg);
+        }
+    }
+
+    @NotNull
+    private static ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
+
+    private static class TEnumSerializer extends JsonSerializer<TEnum>{
+        @Override
+        public void serialize(TEnum value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            jgen.writeString(nullToEmpty(ThriftEnumUtils.enumToString(value)));
+        }
+    }
+
+    private static class ProjectReleaseRelationshipSerializer extends JsonSerializer<ProjectReleaseRelationship>{
+        @Override
+        public void serialize(ProjectReleaseRelationship value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            jgen.writeStartObject();
+            jgen.writeObjectField("releaseRelation", value.getReleaseRelation());
+            jgen.writeObjectField("mainlineState", value.getMainlineState());
+            jgen.writeEndObject();
         }
     }
 

@@ -52,9 +52,7 @@ public class ProjectHandler implements ProjectService.Iface {
 
     @Override
     public List<Project> refineSearch(String text, Map<String, Set<String>> subQueryRestrictions,User user) throws TException {
-        List<Project> foundProjects = searchHandler.search(text, subQueryRestrictions, user);
-        foundProjects.forEach(p -> p.releaseIds = p.isSetReleaseIdToUsage() ? p.releaseIdToUsage.keySet() : Collections.EMPTY_SET);
-        return foundProjects;
+        return searchHandler.search(text, subQueryRestrictions, user);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,9 +9,11 @@
 
 package org.eclipse.sw360.exporter;
 
+import com.google.common.collect.Lists;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by bodet on 06/02/15.
@@ -20,10 +22,20 @@ import java.util.List;
  */
 public interface ExporterHelper<T> {
 
-    public int getColumns();
+    static List<String> addSubheadersWithPrefixesAsNeeded(List<String> headers, List<String> subheaders, String prefix) {
+        List<String> prefixedSubheaders = subheaders
+                .stream()
+                .map(h -> headers.contains(h) ? prefix + h : h)
+                .collect(Collectors.toList());
+        List<String> copy = Lists.newArrayList(headers);
+        copy.addAll(prefixedSubheaders);
+        return copy;
+    }
 
-    public List<String> getHeaders();
+    int getColumns();
 
-    public SubTable makeRows(T document) throws SW360Exception;
+    List<String> getHeaders();
+
+    SubTable makeRows(T document) throws SW360Exception;
 
 }
