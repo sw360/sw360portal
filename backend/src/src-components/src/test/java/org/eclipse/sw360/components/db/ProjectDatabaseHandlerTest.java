@@ -19,11 +19,14 @@ import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.Visibility;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.projects.*;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +49,7 @@ import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectDatabaseHandlerTest {
@@ -64,6 +68,9 @@ public class ProjectDatabaseHandlerTest {
 
     @Mock
     private ProjectModerator moderator;
+
+    @Mock
+    private User user;
 
     @Before
     public void setUp() throws Exception {
@@ -86,21 +93,23 @@ public class ProjectDatabaseHandlerTest {
         components = new ArrayList<>();
         Component component1 = new Component().setId("C1").setName("component1").setDescription("d1").setComponentType(ComponentType.OSS);
         components.add(component1);
+        Component component2 = new Component().setId("C2").setName("component2").setDescription("d2").setComponentType(ComponentType.COTS);
+        components.add(component2);
 
         projects = new ArrayList<>();
-        Project project1 = new Project().setId("P1").setName("project1").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.CONTAINED));
+        Project project1 = new Project().setId("P1").setName("project1").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.CONTAINED)).setVisbility(Visibility.EVERYONE);
         projects.add(project1);
-        Project project2 = new Project().setId("P2").setName("project2").setLinkedProjects(ImmutableMap.of("P3", ProjectRelationship.REFERRED, "P4", ProjectRelationship.CONTAINED)).setReleaseIdToUsage(ImmutableMap.of("R1A", newDefaultProjectReleaseRelationship(), "R1B", newDefaultProjectReleaseRelationship()));
+        Project project2 = new Project().setId("P2").setName("project2").setLinkedProjects(ImmutableMap.of("P3", ProjectRelationship.REFERRED, "P4", ProjectRelationship.CONTAINED)).setReleaseIdToUsage(ImmutableMap.of("R1A", newDefaultProjectReleaseRelationship(), "R1B", newDefaultProjectReleaseRelationship())).setVisbility(Visibility.EVERYONE);
         projects.add(project2);
-        Project project3 = new Project().setId("P3").setName("project3").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.UNKNOWN)).setReleaseIdToUsage(ImmutableMap.of("R2A", newDefaultProjectReleaseRelationship(), "R2B", newDefaultProjectReleaseRelationship()));
+        Project project3 = new Project().setId("P3").setName("project3").setLinkedProjects(ImmutableMap.of("P2", ProjectRelationship.UNKNOWN)).setReleaseIdToUsage(ImmutableMap.of("R2A", newDefaultProjectReleaseRelationship(), "R2B", newDefaultProjectReleaseRelationship())).setVisbility(Visibility.EVERYONE);
         projects.add(project3);
-        Project project4 = new Project().setId("P4").setName("project4").setLinkedProjects(ImmutableMap.of("P1", ProjectRelationship.UNKNOWN));
+        Project project4 = new Project().setId("P4").setName("project4").setLinkedProjects(ImmutableMap.of("P1", ProjectRelationship.UNKNOWN)).setVisbility(Visibility.EVERYONE);
         projects.add(project4);
-        Project project5 = new Project().setId("P5").setName("project5").setLinkedProjects(ImmutableMap.of("P6", ProjectRelationship.CONTAINED, "P7", ProjectRelationship.CONTAINED));
+        Project project5 = new Project().setId("P5").setName("project5").setLinkedProjects(ImmutableMap.of("P6", ProjectRelationship.CONTAINED, "P7", ProjectRelationship.CONTAINED)).setVisbility(Visibility.EVERYONE);
         projects.add(project5);
-        Project project6 = new Project().setId("P6").setName("project6").setLinkedProjects(ImmutableMap.of("P7", ProjectRelationship.CONTAINED));
+        Project project6 = new Project().setId("P6").setName("project6").setLinkedProjects(ImmutableMap.of("P7", ProjectRelationship.CONTAINED)).setVisbility(Visibility.EVERYONE);
         projects.add(project6);
-        Project project7 = new Project().setId("P7").setName("project7");
+        Project project7 = new Project().setId("P7").setName("project7").setVisbility(Visibility.EVERYONE);
         projects.add(project7);
 
         // Create the database
@@ -141,58 +150,62 @@ public class ProjectDatabaseHandlerTest {
         // we wrap the potentially infinite loop in an executor
         final ExecutorService service = Executors.newSingleThreadExecutor();
 
-        final Future<List<ProjectLink>> completionFuture = service.submit(() -> handler.getLinkedProjects(ImmutableMap.of("P1", ProjectRelationship.UNKNOWN)));
+        Project project = handler.getProjectById("P1", user);
+        final Future<List<ProjectLink>> completionFuture = service.submit(() -> handler.getLinkedProjects(project, true, user));
 
         service.shutdown();
         service.awaitTermination(10, TimeUnit.SECONDS);
 
         final List<ProjectLink> linkedProjects = completionFuture.get();
 
-        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA", "vendor component1 releaseA").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R1A_1").setComponentType(ComponentType.OSS);
-        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB", "vendor component1 releaseB").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R1B_1").setComponentType(ComponentType.OSS);
-        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA", "vendor component2 releaseA").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R2A_1");
-        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB", "vendor component2 releaseB").setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R2B_1");
+        ReleaseLink releaseLinkR1A = new ReleaseLink("R1A", "vendor", "component1", "releaseA", "vendor component1 releaseA", false).setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R1A").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR1B = new ReleaseLink("R1B", "vendor", "component1", "releaseB", "vendor component1 releaseB", false).setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R1B").setComponentType(ComponentType.OSS);
+        ReleaseLink releaseLinkR2A = new ReleaseLink("R2A", "vendor", "component2", "releaseA", "vendor component2 releaseA", false).setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R2A").setComponentType(ComponentType.COTS);
+        ReleaseLink releaseLinkR2B = new ReleaseLink("R2B", "vendor", "component2", "releaseB", "vendor component2 releaseB", false).setReleaseRelationship(ReleaseRelationship.REFERRED).setMainlineState(MainlineState.MAINLINE).setNodeId("R2B").setComponentType(ComponentType.COTS);
 
         ProjectLink link3 = new ProjectLink("P3", "project3")
                 .setRelation(ProjectRelationship.REFERRED)
-                .setNodeId("P3_1")
-                .setParentNodeId("P2_1")
+                .setNodeId("P3")
+                .setParentNodeId("P2")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(2)
                 .setLinkedReleases(Arrays.asList(releaseLinkR2A, releaseLinkR2B))
                 .setSubprojects(Collections.emptyList());
         ProjectLink link4 = new ProjectLink("P4", "project4")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setNodeId("P4_1")
-                .setParentNodeId("P2_1")
+                .setNodeId("P4")
+                .setParentNodeId("P2")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(2)
                 .setSubprojects(Collections.emptyList());
         ProjectLink link2 = new ProjectLink("P2", "project2")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setNodeId("P2_1")
-                .setParentNodeId("P1_1")
+                .setNodeId("P2")
+                .setParentNodeId("P1")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(1)
                 .setLinkedReleases(Arrays.asList(releaseLinkR1A, releaseLinkR1B))
                 .setSubprojects(Arrays.asList(link3, link4));
         ProjectLink link1 = new ProjectLink("P1", "project1")
                 .setRelation(ProjectRelationship.UNKNOWN)
-                .setNodeId("P1_1")
+                .setNodeId("P1")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(0)
                 .setSubprojects(Arrays.asList(link2));
 
+        stripRandomPartsOfNodeIds(linkedProjects);
         assertThat(linkedProjects, contains(link1));
     }
 
     @Test
-    public void testGetLinkedProjects2() throws Exception {
+    public void testGetLinkedProjects2Deep() throws Exception {
 
         // we wrap the potentially infinite loop in an executor
         final ExecutorService service = Executors.newSingleThreadExecutor();
+        
+        Project project = handler.getProjectById("P5", user); 
 
-        final Future<List<ProjectLink>> completionFuture = service.submit(() -> handler.getLinkedProjects(ImmutableMap.of("P5", ProjectRelationship.CONTAINED)));
+        final Future<List<ProjectLink>> completionFuture = service.submit(() -> handler.getLinkedProjects(project, true, user));
 
         service.shutdown();
         service.awaitTermination(10, TimeUnit.SECONDS);
@@ -201,32 +214,97 @@ public class ProjectDatabaseHandlerTest {
 
         ProjectLink link7_5 = new ProjectLink("P7", "project7")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setNodeId("P7_2")
+                .setNodeId("P7")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(1)
-                .setParentNodeId("P5_1");
+                .setParentNodeId("P5");
         ProjectLink link7_6 = new ProjectLink("P7", "project7")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setNodeId("P7_1")
+                .setNodeId("P7")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(2)
-                .setParentNodeId("P6_1");
+                .setParentNodeId("P6");
 
         ProjectLink link6 = new ProjectLink("P6", "project6")
                 .setRelation(ProjectRelationship.CONTAINED)
-                .setNodeId("P6_1")
-                .setParentNodeId("P5_1")
+                .setNodeId("P6")
+                .setParentNodeId("P5")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(1)
                 .setSubprojects(Arrays.asList(link7_6));
         ProjectLink link5 = new ProjectLink("P5", "project5")
-                .setRelation(ProjectRelationship.CONTAINED)
-                .setNodeId("P5_1")
+                .setRelation(ProjectRelationship.UNKNOWN)
+                .setNodeId("P5")
                 .setProjectType(ProjectType.CUSTOMER)
                 .setTreeLevel(0)
                 .setSubprojects(Arrays.asList(link6, link7_5));
 
+        stripRandomPartsOfNodeIds(linkedProjects);
         assertThat(linkedProjects, contains(link5));
+    }
+
+    @Test
+    public void testGetLinkedProjects2Shallow() throws Exception {
+
+        // we wrap the potentially infinite loop in an executor
+        final ExecutorService service = Executors.newSingleThreadExecutor();
+
+        Project project = handler.getProjectById("P5", user);
+
+        final Future<List<ProjectLink>> completionFuture = service.submit(() -> handler.getLinkedProjects(project, false, user));
+
+        service.shutdown();
+        service.awaitTermination(10, TimeUnit.SECONDS);
+
+        final List<ProjectLink> linkedProjects = completionFuture.get();
+
+        ProjectLink link7_5 = new ProjectLink("P7", "project7")
+                .setRelation(ProjectRelationship.CONTAINED)
+                .setNodeId("P7")
+                .setProjectType(ProjectType.CUSTOMER)
+                .setTreeLevel(1)
+                .setParentNodeId("P5");
+
+        ProjectLink link6 = new ProjectLink("P6", "project6")
+                .setRelation(ProjectRelationship.CONTAINED)
+                .setNodeId("P6")
+                .setParentNodeId("P5")
+                .setProjectType(ProjectType.CUSTOMER)
+                .setTreeLevel(1)
+                .setSubprojects(Collections.emptyList());
+        ProjectLink link5 = new ProjectLink("P5", "project5")
+                .setRelation(ProjectRelationship.UNKNOWN)
+                .setNodeId("P5")
+                .setProjectType(ProjectType.CUSTOMER)
+                .setTreeLevel(0)
+                .setSubprojects(Arrays.asList(link6, link7_5));
+
+        stripRandomPartsOfNodeIds(linkedProjects);
+        assertThat(linkedProjects, contains(link5));
+    }
+
+    private void stripRandomPartsOfNodeIds(List<ProjectLink> linkedProjects) {
+        linkedProjects.forEach(pl -> {
+            if (pl.isSetNodeId()){
+                pl.setNodeId(pl.getNodeId().split("_")[0]);
+            }
+            if (pl.isSetParentNodeId()){
+                pl.setParentNodeId(pl.getParentNodeId().split("_")[0]);
+            }
+            if (pl.isSetSubprojects()) {
+                stripRandomPartsOfNodeIds(pl.getSubprojects());
+            }
+            if (pl.isSetLinkedReleases()){
+                pl.getLinkedReleases().forEach(rl -> {
+                    if (rl.isSetNodeId()){
+                        rl.setNodeId(rl.getNodeId().split("_")[0]);
+                    }
+                    if (rl.isSetParentNodeId()){
+                        rl.setParentNodeId(rl.getParentNodeId().split("_")[0]);
+                    }
+                });
+            }
+        });
     }
 
 

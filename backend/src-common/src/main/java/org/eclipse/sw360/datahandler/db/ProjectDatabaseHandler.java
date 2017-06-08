@@ -42,8 +42,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
@@ -237,60 +236,93 @@ public class ProjectDatabaseHandler {
     // HELPER FUNCTIONS //
     //////////////////////
 
-    public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations) {
+    public List<ProjectLink> getLinkedProjects(Project project, boolean deep, User user) {
+
+        final Map<String, Project> projectMap;
+        if (deep){
+            projectMap = ThriftUtils.getIdMap(repository.getAll());
+        } else {
+            projectMap = preloadLinkedProjects(project, user);
+        }
+        final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap, user);
+
+        Deque<String> visitedIds = new ArrayDeque<>();
+
+        Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
+        fakeRelations.put(project.getId(), ProjectRelationship.UNKNOWN);
+        List<ProjectLink> out = iterateProjectRelationShips(fakeRelations, null, visitedIds, projectMap, releaseMap, deep ? -1 : 2);
+        return out;
+    }
+
+    private Map<String, Project> preloadLinkedProjects(Project project, User user) {
+        List<String> projectIdsToLoad = new ArrayList<>(nullToEmptyMap(project.getLinkedProjects()).keySet());
+        projectIdsToLoad.add(project.getId());
+        return ThriftUtils.getIdMap(getProjectsById(projectIdsToLoad, user));
+    }
+
+    private Map<String, Release> preloadLinkedReleases(Map<String, Project> projectMap, User user) {
+        Set<String> releaseIdsToLoad = projectMap
+                .values()
+                .stream()
+                .map(Project::getReleaseIdToUsage)
+                .filter(Objects::nonNull)
+                .map(Map::keySet)
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        return ThriftUtils.getIdMap(componentDatabaseHandler.getReleases(releaseIdsToLoad, user));
+    }
+
+    public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations, User user) {
         List<ProjectLink> out;
-        final List<Project> projects = repository.getAll();
-        final Map<String, Project> projectMap = ThriftUtils.getIdMap(projects);
-        final Map<String, Release> releaseMap = componentDatabaseHandler.getAllReleasesIdMap();
+        final Map<String, Project> projectMap = ThriftUtils.getIdMap(repository.getAll());
+        final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap, user);
 
-
-        CountingStack<String> visitedIds = new CountingStack<>();
-
-        out = iterateProjectRelationShips(relations, null, visitedIds, projectMap, releaseMap);
+        Deque<String> visitedIds = new ArrayDeque<>();
+        out = iterateProjectRelationShips(relations, null, visitedIds, projectMap, releaseMap, -1);
 
         return out;
     }
 
 
-    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, String parentId, CountingStack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
+    private List<ProjectLink> iterateProjectRelationShips(Map<String, ProjectRelationship> relations, String parentNodeId, Deque<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap, int maxDepth) {
         List<ProjectLink> out = new ArrayList<>();
         for (Map.Entry<String, ProjectRelationship> entry : relations.entrySet()) {
-            Optional<ProjectLink> projectLinkOptional = createProjectLink(entry.getKey(), entry.getValue(), parentId, visitedIds, projectMap, releaseMap);
-            if (projectLinkOptional.isPresent()) {
-                out.add(projectLinkOptional.get());
-            }
+            Optional<ProjectLink> projectLinkOptional = createProjectLink(entry.getKey(), entry.getValue(), parentNodeId, visitedIds, projectMap, releaseMap, maxDepth);
+            projectLinkOptional.ifPresent(out::add);
         }
         out.sort(Comparator.comparing(ProjectLink::getName).thenComparing(ProjectLink::getVersion));
         return out;
     }
 
-    private Optional<ProjectLink> createProjectLink(String id, ProjectRelationship relationship, String parentId, CountingStack<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap) {
+    private Optional<ProjectLink> createProjectLink(String id, ProjectRelationship relationship, String parentNodeId, Deque<String> visitedIds, Map<String, Project> projectMap, Map<String, Release> releaseMap, int maxDepth) {
         ProjectLink projectLink = null;
-        if (!visitedIds.contains(id)) {
+        if (!visitedIds.contains(id) && (maxDepth < 0 || visitedIds.size() < maxDepth)) {
             visitedIds.push(id);
             Project project = projectMap.get(id);
             if (project != null) {
                 projectLink = new ProjectLink(id, project.name);
-                if (project.isSetReleaseIdToUsage()){
-                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project.getReleaseIdToUsage(), releaseMap, visitedIds);
+                if (project.isSetReleaseIdToUsage() && (maxDepth < 0 || visitedIds.size() < maxDepth)){ // ProjectLink on the last level does not get children added
+                    List<ReleaseLink> linkedReleases = componentDatabaseHandler.getLinkedReleases(project, releaseMap, visitedIds);
                     fillMainlineStates(linkedReleases, project.getReleaseIdToUsage());
                     projectLink.setLinkedReleases(nullToEmptyList(linkedReleases));
                 }
 
                 projectLink
-                        .setNodeId(generateNodeId(id, visitedIds))
-                        .setParentNodeId(generateNodeId(parentId, visitedIds))
+                        .setNodeId(generateNodeId(id))
+                        .setParentNodeId(parentNodeId)
                         .setRelation(relationship)
                         .setVersion(project.getVersion())
                         .setProjectType(project.getProjectType())
                         .setClearingState(project.getClearingState())
                         .setTreeLevel(visitedIds.size() - 1);
                 if (project.isSetLinkedProjects()) {
-                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(), id, visitedIds, projectMap, releaseMap);
+                    List<ProjectLink> subprojectLinks = iterateProjectRelationShips(project.getLinkedProjects(),
+                            projectLink.getNodeId(), visitedIds, projectMap, releaseMap, maxDepth);
                     projectLink.setSubprojects(subprojectLinks);
                 }
             } else {
-                log.error("Broken ProjectLink in project with id: " + parentId + ". Linked project with id " + id + " was not in DB");
+                log.error("Broken ProjectLink in project with id: " + parentNodeId + ". Linked project with id " + id + " was not in the project cache");
             }
             visitedIds.pop();
         }
@@ -303,8 +335,8 @@ public class ProjectDatabaseHandler {
         }
     }
 
-    private String generateNodeId(String id, CountingStack<String> visitedIds) {
-        return id == null ? null : id + "_" + visitedIds.getCount(id);
+    private String generateNodeId(String id) {
+        return id == null ? null : id + "_" + UUID.randomUUID();
     }
 
     public Set<Project> searchByReleaseId(String id, User user) {

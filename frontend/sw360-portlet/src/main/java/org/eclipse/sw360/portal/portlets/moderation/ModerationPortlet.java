@@ -10,6 +10,8 @@ package org.eclipse.sw360.portal.portlets.moderation;
 
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -36,8 +38,6 @@ import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.eclipse.sw360.portal.users.UserUtils;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
@@ -456,7 +456,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             ProjectService.Iface projectClient = thriftClients.makeProjectClient();
             Set<Project> usingProjects = projectClient.searchByReleaseId(actualReleaseId, user);
             request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
-            putLinkedReleaseRelationsInRequest(request, actualRelease.getReleaseIdToRelationship());
+            putDirectlyLinkedReleaseRelationsInRequest(request, actualRelease);
         } catch (TException e) {
             log.error("Could not retrieve using projects", e);
         }
@@ -503,8 +503,8 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     private void prepareProject(RenderRequest request, User user, Project actual_project) {
         try {
             ProjectService.Iface client = thriftClients.makeProjectClient();
-            putLinkedProjectsInRequest(request, actual_project.getLinkedProjects());
-            putLinkedReleasesInRequest(request, actual_project.getReleaseIdToUsage());
+            putLinkedProjectsInRequest(request, actual_project, user);
+            putDirectlyLinkedReleasesInRequest(request, actual_project);
             Set<Project> usingProjects = client.searchLinkingProjects(actual_project.getId(), user);
             request.setAttribute(USING_PROJECTS, usingProjects);
             putReleasesAndProjectIntoRequest(request, actual_project.getId(), user);

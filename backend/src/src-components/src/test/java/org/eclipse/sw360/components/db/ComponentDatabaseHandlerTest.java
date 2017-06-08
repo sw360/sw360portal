@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
 import static org.hamcrest.Matchers.*;
@@ -326,7 +327,6 @@ public class ComponentDatabaseHandlerTest {
 
         final Map<String, ReleaseRelationship> relations = new HashMap<>();
         relations.put("R1A", ReleaseRelationship.REFERRED);
-        relations.put("---", ReleaseRelationship.UNKNOWN);
 
         final Release r1A = handler.getRelease("R1A", user1);
         r1A.setReleaseIdToRelationship(ImmutableMap.of("R1B", ReleaseRelationship.CONTAINED,
@@ -359,42 +359,17 @@ public class ComponentDatabaseHandlerTest {
 
         final List<ReleaseLink> linkedReleases = completionFuture.get();
 
-        ReleaseLink releaseLinkR1B_R2B = createReleaseLinkTo(r1B)
-                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setNodeId("R1B_2")
-                .setParentNodeId("R2B_2")
-                .setSubreleases(Collections.emptyList());
-        ReleaseLink releaseLinkR2B_exp = createReleaseLinkTo(r2B)
-                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setNodeId("R2B_2")
-                .setParentNodeId("R2A_2")
-                .setSubreleases(Arrays.asList(releaseLinkR1B_R2B));
-        ReleaseLink releaseLinkR2B = createReleaseLinkTo(r2B)
-                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setNodeId("R2B_1")
-                .setParentNodeId("R2A_1")
-                .setSubreleases(Collections.emptyList());
-        ReleaseLink releaseLinkR2A_R1B = createReleaseLinkTo(r2A)
-                .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setNodeId("R2A_1")
-                .setParentNodeId("R1B_1")
-                .setSubreleases(Arrays.asList(releaseLinkR2B));
-        ReleaseLink releaseLinkR2A_R1A = createReleaseLinkTo(r2A)
-                .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setNodeId("R2A_2")
-                .setParentNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR2B_exp));
-        ReleaseLink releaseLinkR1B_R1A = createReleaseLinkTo(r1B)
-                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setNodeId("R1B_1")
-                .setParentNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
         ReleaseLink releaseLinkR1A = createReleaseLinkTo(r1A)
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR1B_R1A, releaseLinkR2A_R1A));
+                .setNodeId("R1A");
+
+        stripRandomPartsOfNodeIds(linkedReleases);
 
         assertThat(linkedReleases, contains(releaseLinkR1A));
+    }
+
+    private void stripRandomPartsOfNodeIds(List<ReleaseLink> linkedReleases) {
+        linkedReleases.forEach(rl -> rl.setNodeId(rl.getNodeId().split("_")[0]));
     }
 
     @NotNull
@@ -404,7 +379,7 @@ public class ComponentDatabaseHandlerTest {
                 vendors.get(release.getVendorId()).getShortname(),
                 componentMap.get(release.getComponentId()).getName(),
                 release.getVersion(),
-                printFullname(release));
+                printFullname(release), !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
     }
 
     @Test
@@ -437,24 +412,11 @@ public class ComponentDatabaseHandlerTest {
 
         final List<ReleaseLink> linkedReleases = completionFuture.get();
 
-        ReleaseLink releaseLinkR2A_R1A = createReleaseLinkTo(r2A)
-                .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setNodeId("R2A_2")
-                .setParentNodeId("R1A_1");
-        ReleaseLink releaseLinkR2A_R1B = createReleaseLinkTo(r2A)
-                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setNodeId("R2A_1")
-                .setParentNodeId("R1B_1");
-        ReleaseLink releaseLinkR1B = createReleaseLinkTo(r1B)
-                .setReleaseRelationship(ReleaseRelationship.CONTAINED)
-                .setNodeId("R1B_1")
-                .setParentNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR2A_R1B));
         ReleaseLink releaseLinkR1A = createReleaseLinkTo(r1A)
                 .setReleaseRelationship(ReleaseRelationship.REFERRED)
-                .setNodeId("R1A_1")
-                .setSubreleases(Arrays.asList(releaseLinkR1B, releaseLinkR2A_R1A));
+                .setNodeId("R1A");
 
+        stripRandomPartsOfNodeIds(linkedReleases);
         assertThat(linkedReleases, contains(releaseLinkR1A));
     }
 

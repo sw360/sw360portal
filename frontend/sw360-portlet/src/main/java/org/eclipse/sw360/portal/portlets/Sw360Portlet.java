@@ -19,22 +19,25 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
-import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.eclipse.sw360.portal.common.ErrorMessages;
 import org.eclipse.sw360.portal.common.PortalConstants;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
+import org.eclipse.sw360.portal.portlets.projects.ProjectPortlet;
+import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
 import java.io.IOException;
@@ -43,6 +46,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.portal.common.PortalConstants.PARENT_BRANCH_ID;
 import static org.eclipse.sw360.portal.common.PortalConstants.PROJECT_LIST;
 import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_LIST;
 
@@ -304,52 +309,4 @@ abstract public class Sw360Portlet extends MVCPortlet {
 
         SessionMessages.add(request, "request_processed", Joiner.on(" ").join(msgs));
     }
-
-    protected void putLinkedReleaseRelationsInRequest(RenderRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
-        Collection<ReleaseLink> linkedReleaseRelations = SW360Utils.getLinkedReleaseRelationsAsFlatList(releaseIdToRelationship, thriftClients, log);
-        request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
-    }
-
-    protected void putDirectlyLinkedReleaseRelationsInRequest(PortletRequest request, Map<String, ReleaseRelationship> releaseIdToRelationship) {
-        List<ReleaseLink> linkedReleaseRelations = SW360Utils.getLinkedReleaseRelations(releaseIdToRelationship, thriftClients, log);
-        request.setAttribute(RELEASE_LIST, linkedReleaseRelations);
-    }
-
-    protected void putLinkedReleasesInRequest(RenderRequest request, Map<String, ProjectReleaseRelationship> releaseIdToRelationship) throws TException {
-        Collection<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleasesAsFlatList(releaseIdToRelationship, thriftClients, log);
-        request.setAttribute(RELEASE_LIST, linkedReleases);
-    }
-
-    protected void putDirectlyLinkedReleasesInRequest(PortletRequest request, Map<String, ProjectReleaseRelationship> releaseIdToRelationship) throws TException {
-        List<ReleaseLink> linkedReleases = SW360Utils.getLinkedReleases(releaseIdToRelationship, thriftClients, log);
-        request.setAttribute(RELEASE_LIST, linkedReleases);
-    }
-
-    protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
-        putLinkedProjectsInRequest(request, projectIdToRelationship, Function.identity());
-    }
-
-    protected void putLinkedProjectsInRequest(RenderRequest request, Map<String, ProjectRelationship> projectIdToRelationship, Function<ProjectLink, ProjectLink> projectLinkMapper) {
-        final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjectsAsFlatList(projectIdToRelationship, thriftClients, log);
-        List<ProjectLink> mappedProjecLinks = linkedProjects.stream().map(projectLinkMapper).collect(Collectors.toList());
-        request.setAttribute(PROJECT_LIST, mappedProjecLinks);
-    }
-
-    protected void putDirectlyLinkedProjectsInRequest(PortletRequest request, Map<String, ProjectRelationship> projectIdToRelationship) {
-        final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjects(projectIdToRelationship, thriftClients, log);
-        request.setAttribute(PROJECT_LIST, linkedProjects);
-    }
-
-    public Function<ProjectLink, ProjectLink> createProjectLinkMapper(Function<ReleaseLink, ReleaseLink> releaseLinkMapper){
-        return (projectLink) -> {
-            List<ReleaseLink> mappedReleaseLinks = projectLink
-                    .getLinkedReleases()
-                    .stream()
-                    .map(releaseLinkMapper)
-                    .collect(Collectors.toList());
-            projectLink.setLinkedReleases(mappedReleaseLinks);
-            return projectLink;
-        };
-    }
-
 }

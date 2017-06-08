@@ -677,15 +677,17 @@ public class ComponentDatabaseHandler {
     // HELPER SERVICES //
     /////////////////////
 
-    List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap, CountingStack<String> visitedIds) {
+    List<ReleaseLink> getLinkedReleases(Project project, Map<String, Release> releaseMap, Deque<String> visitedIds) {
+        return getLinkedReleases(project.getReleaseIdToUsage(), releaseMap, visitedIds);
+    }
+
+    private List<ReleaseLink> getLinkedReleases(Map<String, ?> relations, Map<String, Release> releaseMap, Deque<String> visitedIds) {
         return iterateReleaseRelationShips(relations, null, visitedIds, releaseMap);
     }
 
     public List<ReleaseLink> getLinkedReleases(Map<String, ?> relations) {
-
-        final Map<String, Release> releaseMap = getAllReleasesIdMap();
-
-        return getLinkedReleases(relations, releaseMap, new CountingStack<>());
+        final Map<String, Release> releaseMap = ThriftUtils.getIdMap(getDetailedReleasesForExport(relations.keySet()));
+        return getLinkedReleases(relations, releaseMap, new ArrayDeque<>());
     }
 
     public Map<String, Release> getAllReleasesIdMap() {
@@ -694,38 +696,33 @@ public class ComponentDatabaseHandler {
     }
 
     @NotNull
-    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, String parentId, CountingStack<String> visitedIds, Map<String, Release> releaseMap) {
+    private List<ReleaseLink> iterateReleaseRelationShips(Map<String, ?> relations, String parentNodeId, Deque<String> visitedIds, Map<String, Release> releaseMap) {
         List<ReleaseLink> out = new ArrayList<>();
 
         for (Map.Entry<String, ?> entry : relations.entrySet()) {
             String id = entry.getKey();
-            Optional<ReleaseLink> releaseLinkOptional = createReleaseLink(id, entry.getValue(), parentId, visitedIds, releaseMap);
+            Optional<ReleaseLink> releaseLinkOptional = getFilledReleaseLink(id, entry.getValue(), parentNodeId, visitedIds, releaseMap);
             releaseLinkOptional.ifPresent(out::add);
         }
         out.sort(SW360Utils.RELEASE_LINK_COMPARATOR);
         return out;
     }
 
-    private Optional<ReleaseLink> createReleaseLink(String id, Object relation, String parentId, CountingStack<String> visitedIds, Map<String, Release> releaseMap) {
+    private Optional<ReleaseLink> getFilledReleaseLink(String id, Object relation, String parentNodeId, Deque<String> visitedIds, Map<String, Release> releaseMap) {
         ReleaseLink releaseLink = null;
         if (!visitedIds.contains(id)) {
             visitedIds.push(id);
             Release release = releaseMap.get(id);
             if (release != null) {
-                releaseLink = getReleaseLink(release);
+                releaseLink = createReleaseLink(release);
                 fillValueFieldInReleaseLink(releaseLink, relation);
-                releaseLink.setNodeId(generateNodeId(id, visitedIds));
-                releaseLink.setParentNodeId(generateNodeId(parentId, visitedIds));
+                releaseLink.setNodeId(generateNodeId(id));
+                releaseLink.setParentNodeId(parentNodeId);
                 if (release.isSetMainLicenseIds()) {
                     releaseLink.setLicenseIds(release.getMainLicenseIds());
                 }
-
-                if (release.isSetReleaseIdToRelationship()) {
-                    List<ReleaseLink> subreleaseLinks = iterateReleaseRelationShips(release.getReleaseIdToRelationship(), id, visitedIds, releaseMap);
-                    releaseLink.setSubreleases(subreleaseLinks);
-                }
             } else {
-                log.error("Broken ReleaseLink in release with id: " + parentId + ". Linked release with id " + id + " was not in DB");
+                log.error("Broken ReleaseLink in release with id: " + parentNodeId + ". Linked release with id " + id + " was not in the release cache");
             }
             visitedIds.pop();
         }
@@ -746,14 +743,17 @@ public class ComponentDatabaseHandler {
     }
 
     @NotNull
-    private ReleaseLink getReleaseLink(Release release) {
+    private ReleaseLink createReleaseLink(Release release) {
         String vendorName = "";
-        if (!isNullOrEmpty(release.getVendorId())) {
+        if (release.isSetVendor()){
+            vendorName = release.getVendor().getShortname();
+        } else if (!isNullOrEmpty(release.getVendorId())) {
             final Vendor vendor = vendorRepository.get(release.getVendorId());
             vendorName = vendor != null ? vendor.getShortname() : "";
             release.setVendor(vendor);
         }
-        ReleaseLink releaseLink = new ReleaseLink(release.id, vendorName, release.name, release.version, SW360Utils.printFullname(release));
+        ReleaseLink releaseLink = new ReleaseLink(release.id, vendorName, release.name, release.version, SW360Utils.printFullname(release),
+                !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
         releaseLink
                 .setClearingState(release.getClearingState())
                 .setComponentType(
@@ -766,8 +766,8 @@ public class ComponentDatabaseHandler {
         return releaseLink;
     }
 
-    private String generateNodeId(String id, CountingStack<String> visitedIds) {
-        return id == null ? null : id + "_" + visitedIds.getCount(id);
+    private String generateNodeId(String id) {
+        return id == null ? null : id + "_" + UUID.randomUUID();
     }
 
     public List<Release> searchReleaseByNamePrefix(String name) {

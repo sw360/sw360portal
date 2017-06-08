@@ -14,6 +14,10 @@
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
+<portlet:resourceURL var="loadLinkedReleasesRowsURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.LOAD_LINKED_RELEASES_ROWS%>'/>
+</portlet:resourceURL>
+
 
 <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"
              scope="request"/>
@@ -34,30 +38,7 @@
     </tr>
     </thead>
     <tbody>
-    <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
-        <tr id="releaseLinkRow${loop.count}" data-tt-id="${releaseLink.nodeId}"
-            <core_rt:if
-                    test="${not empty releaseLink.parentNodeId}">data-tt-parent-id="${releaseLink.parentNodeId}"</core_rt:if>
-        >
-            <td>
-                <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />">
-                    <sw360:out value="${releaseLink.longName}"/>
-                </a>
-            </td>
-            <td>
-                <sw360:DisplayEnum value="${releaseLink.releaseRelationship}"/>
-            </td>
-            <td>
-                <core_rt:if test="${releaseLink.setLicenseIds}">
-                    <tags:DisplayLicenseCollection licenseIds="${releaseLink.licenseIds}"
-                                                   scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
-                </core_rt:if>
-            </td>
-            <td>
-                <sw360:DisplayEnum value="${releaseLink.clearingState}"/>
-            </td>
-        </tr>
-    </core_rt:forEach>
+    <jsp:include page="/html/utils/ajax/linkedReleasesRows.jsp" />
 
     <core_rt:if test="${releaseList.size() < 1}">
         <tr>
@@ -68,8 +49,9 @@
     </tbody>
 </table>
 
+<%@include file="/html/utils/includes/expandableTreetableSetup.jspf"%>
 <script>
     $(window).load(function () {
-        $("#LinkedReleasesInfo").treetable({expandable: true});
+        setUpExpandableTreetable("LinkedReleasesInfo", '<%=loadLinkedReleasesRowsURL%>');
     });
 </script>

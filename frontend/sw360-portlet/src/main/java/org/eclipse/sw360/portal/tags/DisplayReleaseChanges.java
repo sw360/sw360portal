@@ -10,10 +10,14 @@ package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import org.eclipse.sw360.datahandler.thrift.components.*;
-import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
+import org.eclipse.sw360.datahandler.thrift.components.COTSDetails;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingInformation;
+import org.eclipse.sw360.datahandler.thrift.components.EccInformation;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -29,7 +33,7 @@ import static org.eclipse.sw360.portal.tags.TagUtils.*;
  *
  * @author birgit.heydenreich@tngtech.com
  */
-public class DisplayReleaseChanges extends NameSpaceAwareTag {
+public class DisplayReleaseChanges extends UserAwareTag {
     private Release actual;
     private Release additions;
     private Release deletions;
@@ -107,7 +111,8 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             }
 
             StringBuilder releaseRelationshipDisplay = new StringBuilder();
-            renderReleaseIdToRelationship(releaseRelationshipDisplay);
+            User user = getUserFromContext("Cannot render release changes without logged in user in request");
+            renderReleaseIdToRelationship(releaseRelationshipDisplay, user);
 
             String clearingInformationDisplay = renderClearingInformation();
             String eccInformationDisplay = renderEccInformation();
@@ -120,7 +125,7 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
         return SKIP_BODY;
     }
 
-    private void renderReleaseIdToRelationship(StringBuilder display) {
+    private void renderReleaseIdToRelationship(StringBuilder display, User user) {
 
         if (ensureSomethingTodoAndNoNull(Release._Fields.RELEASE_ID_TO_RELATIONSHIP)) {
 
@@ -137,7 +142,7 @@ public class DisplayReleaseChanges extends NameSpaceAwareTag {
             Set<String> addedReleaseIds = Sets.difference(additions.getReleaseIdToRelationship().keySet(), changedReleaseIds);
 
             display.append("<h3> Changes in linked releases </h3>");
-            LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, actual.getCreatedBy());
+            LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, user);
             renderer.renderReleaseLinkList(display, deletions.getReleaseIdToRelationship(), removedReleaseIds, "Removed Release Links");
             renderer.renderReleaseLinkList(display, additions.getReleaseIdToRelationship(), addedReleaseIds, "Added Release Links");
             renderer.renderReleaseLinkListCompare(

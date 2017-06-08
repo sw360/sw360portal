@@ -248,13 +248,26 @@ service ProjectService {
 
     /**
      * get a list of project links of the project that matches the id `id`
+     * is equivalent to `getLinkedProjectsOfProject(getProjectById(id, user))`
      */
-    list<ProjectLink> getLinkedProjectsById(1: string id, 2: User user);
+    list<ProjectLink> getLinkedProjectsById(1: string id, 2: bool deep, 3: User user);
+
+    /**
+     * get a list of project links of the project
+     * The returned list contains one element and its pointing to the original linking project.
+     * This allows returning linked releases of the original project at the same time.
+     * If parameter `deep` is false, then the links are loaded only one level deep.
+     * That is, the project links referenced by the top project link
+     * do not have any release links or their subprojects loaded.
+     */
+    list<ProjectLink> getLinkedProjectsOfProject(1: Project project, 2: bool deep, 3: User user);
 
     /**
      * get a list of project links from keys of map `relations`
+     * IMPORTANT:
+     * this method is very inefficient as it loads whole DB repositories into memory; its use is dicouraged
      */
-    list<ProjectLink> getLinkedProjects(1:  map<string, ProjectRelationship> relations);
+    list<ProjectLink> getLinkedProjects(1:  map<string, ProjectRelationship> relations, 2: User user);
 
     /**
      * get a list of duplicated projects matched by `.printName()`
