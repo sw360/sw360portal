@@ -73,7 +73,7 @@
                     </a>
                 </td>
                 <td>
-                    <sw360:out value="${releaseLink.releaseRelationship}"/>
+                    <sw360:DisplayEnum value="${releaseLink.releaseRelationship}"/>
                 </td>
                 <td>
                     <sw360:DisplayEnum value="${releaseLink.componentType}"/>
