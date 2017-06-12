@@ -14,7 +14,6 @@ import com.google.common.base.*;
 import com.google.common.collect.*;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.*;
-import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
@@ -513,6 +512,9 @@ public class CommonUtils {
     }
 
     public static Optional<byte[]> loadResource(Class<?> clazz, String resourceFilePath, boolean useSystemResourses) {
+        if (isNullOrEmpty(resourceFilePath)){
+            return Optional.empty();
+        }
         if(useSystemResourses) {
             File systemResourceFile = new File(SYSTEM_CONFIGURATION_PATH, resourceFilePath);
             if(systemResourceFile.exists()){
