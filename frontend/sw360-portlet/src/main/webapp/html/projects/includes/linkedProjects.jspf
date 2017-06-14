@@ -20,9 +20,9 @@
 <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"
              scope="request"/>
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/css/jquery.treetable.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
-<script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
+<script src="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/jquery.treetable.js"></script>
 
 <table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
     <thead>

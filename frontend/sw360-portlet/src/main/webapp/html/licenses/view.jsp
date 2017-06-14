@@ -77,8 +77,8 @@
     </table>
 </div>
 
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/external/jquery.dataTables-1.9.4.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
 
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">

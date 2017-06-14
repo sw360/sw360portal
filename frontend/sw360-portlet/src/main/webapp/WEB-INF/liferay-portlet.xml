@@ -157,10 +157,10 @@
 
         <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
         <header-portlet-css>/css/sw360.css</header-portlet-css>
-        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+        <header-portlet-css>/webjars/jquery-ui/1.12.1/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery-ui/1.12.1/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js</header-portlet-javascript>
 
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
     </portlet>
@@ -175,10 +175,10 @@
 
         <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
         <header-portlet-css>/css/sw360.css</header-portlet-css>
-        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+        <header-portlet-css>/webjars/jquery-ui/1.12.1/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery-ui/1.12.1/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js</header-portlet-javascript>
 
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
     </portlet>
@@ -193,10 +193,10 @@
 
         <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
         <header-portlet-css>/css/sw360.css</header-portlet-css>
-        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+        <header-portlet-css>/webjars/jquery-ui/1.12.1/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery-ui/1.12.1/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js</header-portlet-javascript>
 
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
     </portlet>
@@ -211,10 +211,10 @@
 
         <header-portlet-css>/css/dataTable_SiemensHomepage.css</header-portlet-css>
         <header-portlet-css>/css/sw360.css</header-portlet-css>
-        <header-portlet-css>/css/external/jquery-ui.css</header-portlet-css>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-ui.min.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery.dataTables.js</header-portlet-javascript>
+        <header-portlet-css>/webjars/jquery-ui/1.12.1/jquery-ui.css</header-portlet-css>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery-ui/1.12.1/jquery-ui.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js</header-portlet-javascript>
 
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
     </portlet>
@@ -233,7 +233,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-         <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+         <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
     
     <portlet>
@@ -242,7 +242,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <portlet>
@@ -251,7 +251,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <portlet>
@@ -260,7 +260,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <portlet>
@@ -269,7 +269,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <portlet>
@@ -278,7 +278,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <portlet>
@@ -287,7 +287,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <portlet>
@@ -296,7 +296,7 @@
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
-        <header-portlet-javascript>/js/external/jquery-1.11.1.min.js</header-portlet-javascript>
+        <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
 
     <role-mapper>

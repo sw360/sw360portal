@@ -240,9 +240,14 @@ function deleteConfirmed(confirmMessage, confirmCallback) {
         content: confirmMessage,
         confirmButtonClass: 'btn-info',
         cancelButtonClass: 'btn-danger',
-        confirm: function() {
-            confirmCallback();
-        }
+        buttons: {
+            confirm: function() {
+                confirmCallback();
+            },
+            cancel: function () {
+                //close
+            },
+       }
     });
 }
 

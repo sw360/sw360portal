@@ -30,14 +30,14 @@
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-ui.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery.treetable.css"/>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/css/jquery.treetable.css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
-    <script src="<%=request.getContextPath()%>/js/external/jquery-1.11.1.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/js/external/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/js/external/additional-methods.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/js/external/jquery-ui.min.js"></script>
-    <script src="<%=request.getContextPath()%>/js/external/jquery.treetable.js"></script>
+    <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
+    <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/jquery.treetable.js"></script>
 
     <div id="header"></div>
     <p class="pageHeader"><span class="pageHeaderBigSpan">Generate Source Code Bundle For Project <sw360:ProjectName project="${project}"/></span>

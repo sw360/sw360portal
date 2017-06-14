@@ -20,8 +20,8 @@
     <portlet:param name="<%=PortalConstants.DOCUMENT_TYPE%>" value="${documentType}"/>
 </portlet:resourceURL>
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/external/jquery-confirm.min.css">
-<script src="<%=request.getContextPath()%>/js/external/jquery-confirm.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+<script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
     function deleteAttachment(rowId, attachmentId) {
 
