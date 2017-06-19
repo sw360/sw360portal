@@ -111,22 +111,20 @@
         </core_rt:forEach>
 
         vulnerabilityTable = $('#vulnerabilitiesTable').dataTable({
-            "sPaginationType": "full_numbers",
-            "aaData": result,
-            "aoColumns": [
-                {"sTitle": "External Id"},
-                {"sTitle": "Title", "width": "30%"},
-                {"sTitle": "Weighting"},
-                {"sTitle": "Publish date"},
-                {"sTitle": "Last update"}
+            pagingType: "simple_numbers",
+            dom: "lrtip",
+            "data": result,
+            "columns": [
+                {"title": "External Id"},
+                {"title": "Title", "width": "30%"},
+                {"title": "Weighting"},
+                {"title": "Publish date"},
+                {"title": "Last update"}
             ],
             "order": [[2, 'asc'], [3, 'desc']]
         });
         vulnerabilityTable.$('td').tooltip({"delay": 0, "track": true, "fade": 250});
 
-        $('#vulnerabilitiesTable_filter').hide();
-        $('#vulnerabilitiesTable_first').hide();
-        $('#vulnerabilitiesTable_last').hide();
     }
 
     function createDetailURLFromVulnerabilityId(paramVal) {

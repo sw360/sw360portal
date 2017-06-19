@@ -288,10 +288,11 @@
         </core_rt:forEach>
 
         projectsTable = $('#projectsTable').DataTable({
-            "sPaginationType": "full_numbers",
-            "aaData": result,
+            "pagingType": "simple_numbers",
+            "data": result,
+            dom: "lrtip",
             search: {smart: false},
-            "aoColumns": [
+            "columns": [
                 {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
                 {title: "Description", data: "description"},
                 {title: "Project Responsible", data: "responsible"},
@@ -300,10 +301,6 @@
                 {title: "Actions", data: "id", render: {display: renderProjectActions}}
             ]
         });
-
-        $('#projectsTable_filter').hide();
-        $('#projectsTable_first').hide();
-        $('#projectsTable_last').hide();
     }
 
     const clearingColumnIndex = 4;

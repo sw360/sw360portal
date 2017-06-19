@@ -263,21 +263,18 @@
         </core_rt:forEach>
 
         componentsTable = $('#componentsTable').DataTable({
-            "sPaginationType": "full_numbers",
-            "iDisplayLength": 25,
-            "aaData": result,
-            "aoColumns": [
-                {"sTitle": "Vendor"},
-                {"sTitle": "Component Name"},
-                {"sTitle": "Main Licenses"},
-                {"sTitle": "Component Type"},
+            "pagingType": "simple_numbers",
+            dom: "lrtip",
+            "pageLength": 25,
+            "data": result,
+            "columns": [
+                {"title": "Vendor"},
+                {"title": "Component Name"},
+                {"title": "Main Licenses"},
+                {"title": "Component Type"},
                 {"title": "Actions"}
             ]
         });
-
-        $('#componentsTable_filter').hide();
-        $('#componentsTable_first').hide();
-        $('#componentsTable_last').hide();
     }
 
     function deleteComponent(id, name, numberOfReleases, attachmentsSize) {

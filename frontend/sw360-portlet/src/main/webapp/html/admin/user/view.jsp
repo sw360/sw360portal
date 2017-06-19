@@ -181,12 +181,9 @@
         var tbl;
         if ($(tableId)){
             tbl = $(tableId).dataTable({
-                "sPaginationType": "full_numbers"
+                "pagingType": "simple_numbers",
+                dom: "lrtip"
             });
-
-            $(tableId+'_filter').hide();
-            $(tableId+'_first').hide();
-            $(tableId+'_last').hide();
         }
         return tbl;
     }

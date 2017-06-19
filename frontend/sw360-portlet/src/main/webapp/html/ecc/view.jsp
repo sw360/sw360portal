@@ -119,15 +119,13 @@
     function configureEccInfoTable(){
         var tbl;
         tbl = $('#eccInfoTable').dataTable({
-            "sPaginationType": "full_numbers",
-            "bAutoWidth": false,
+            pagingType: "simple_numbers",
+            dom: "lrtip",
+            "autoWidth": false,
             "order": [],
             "pageLength": 25
         });
 
-        $('#eccInfoTable_filter').hide();
-        $('#eccInfoTable_first').hide();
-        $('#eccInfoTable_last').hide();
         return tbl;
     }
 

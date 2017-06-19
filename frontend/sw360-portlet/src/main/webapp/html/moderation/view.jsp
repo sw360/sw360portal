@@ -165,7 +165,8 @@
 
     function createModerationsTable(tableId, tableData) {
         var tbl = $(tableId).DataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "lrtip",
             data: tableData,
             columns: [
                 {"title": "Document Name"},
@@ -175,10 +176,6 @@
                 {"title": "Actions"}
             ]
         });
-
-        $(tableId+'_filter').hide();
-        $(tableId+'_first').hide();
-        $(tableId+'_last').hide();
 
         return tbl;
     }

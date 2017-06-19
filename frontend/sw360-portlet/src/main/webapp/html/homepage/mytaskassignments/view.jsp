@@ -50,19 +50,15 @@
         </core_rt:forEach>
 
         $('#taskassignmentTable').dataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "rtip",
             data: result,
-            "iDisplayLength":10,
+            pageLength:10,
             columns: [
                 {"title": "Document Name"},
                 {"title": "Status"},
             ]
         });
-
-        $('#taskassignmentTable_filter').hide();
-        $('#taskassignmentTable_first').hide();
-        $('#taskassignmentTable_last').hide();
-        $('#taskassignmentTable_length').hide();
     });
 
 </script>

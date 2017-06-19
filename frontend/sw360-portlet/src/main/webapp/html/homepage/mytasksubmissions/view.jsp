@@ -56,20 +56,16 @@
         </core_rt:forEach>
 
         moderationRequestsTable = $('#tasksubmissionTable').DataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "rtip",
             data: result,
-            "iDisplayLength": 10,
+            pageLength: 10,
             columns: [
                 {"title": "Document Name"},
                 {"title": "Status"},
                 {"title": "Actions"}
             ]
         });
-
-        $('#tasksubmissionTable_filter').hide();
-        $('#tasksubmissionTable_first').hide();
-        $('#tasksubmissionTable_last').hide();
-        $('#tasksubmissionTable_length').hide();
     }
     function deleteModerationRequest(id, docName) {
 

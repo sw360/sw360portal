@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -124,7 +124,8 @@
         </core_rt:forEach>
 
         vendorsTable = $('#vendorsTable').dataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "lrtip",
             data: result,
             columns: [
                 { "title": "Full Name" },
@@ -133,9 +134,6 @@
                 { "title": "Actions"}
             ]
         });
-        $('#vendorsTable_filter').hide();
-        $('#vendorsTable_first').hide();
-        $('#vendorsTable_last').hide();
     }
 
     function deleteVendor( id, name ) {

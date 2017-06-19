@@ -1,6 +1,6 @@
 /**
 *
-* Modifications applied by Siemens AG 2014.
+* Modifications applied by Siemens AG 2014-2017.
 * Modifications for supporting own application.
 *
 */
@@ -316,22 +316,22 @@ div.dataTables_info {
 	width: 40%;
 }
 
-.paging_full_numbers {
+.paging_full_numbers, .paging_simple_numbers {
 	width: 400px;
 	height: 22px;
 	line-height: 22px;
 }
 
-.paging_full_numbers a:active {
+.paging_full_numbers a:active, .paging_simple_numbers a:active {
 	outline: none
 }
 
-.paging_full_numbers a:hover {
+.paging_full_numbers a:hover, .paging_simple_numbers a:hover {
 	text-decoration: none;
 }
 
-.paging_full_numbers a.paginate_button,
- 	.paging_full_numbers a.paginate_active {
+.paging_full_numbers a.paginate_button, .paging_full_numbers a.paginate_active,
+	.paging_simple_numbers a.paginate_button, .paging_simple_numbers a.paginate_active {
 	/*border: 1px solid #aaa;*/
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -342,16 +342,16 @@ div.dataTables_info {
 	color: #333 !important;
 }
 
-.paging_full_numbers a.paginate_button {
+.paging_full_numbers a.paginate_button, .paging_simple_numbers a.paginate_button {
 	/*background-color: #ddd;*/
 }
 
-.paging_full_numbers a.paginate_button:hover {
+.paging_full_numbers a.paginate_button:hover, .paging_simple_numbers a.paginate_button:hover {
 	/*background-color: #ccc;*/
 	text-decoration: none !important;
 }
 
-.paging_full_numbers a.paginate_active {
+.paging_full_numbers a.paginate_active, .paging_simple_numbers a.paginate_active {
 	background-color: #b2e0e0;
 }
 
