@@ -19,7 +19,6 @@ import org.ektorp.support.View;
 import java.util.Collection;
 import java.util.List;
 
-
 /**
  * CRUD access for the User class
  *

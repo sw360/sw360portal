@@ -11,8 +11,6 @@
 
 package org.eclipse.sw360.attachments.db;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseRepository;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
@@ -23,9 +21,11 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
+import org.ektorp.support.Views;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * CRUD access for the Attachment class
@@ -34,7 +34,10 @@ import java.util.Set;
  * @author Johannes.Najjar@tngtech.com
  * @author daniele.fognini@tngtech.com
  */
-@View(name = "all", map = "function(doc) { if (doc.type == 'attachment') emit(null, doc._id) }")
+@Views({
+        @View(name = "all", map = "function(doc) { if (doc.type == 'attachment') emit(null, doc._id) }"),
+        @View(name = "onlyRemotes", map = "function(doc) { if(doc.type == 'attachment' && doc.onlyRemote) { emit(null, doc) } }")
+})
 public class AttachmentRepository extends DatabaseRepository<AttachmentContent> {
 
     public AttachmentRepository(DatabaseConnector db) {
@@ -43,9 +46,6 @@ public class AttachmentRepository extends DatabaseRepository<AttachmentContent> 
         initStandardDesignDocument();
     }
 
-    private static final String ONLY_REMOTE_VIEW = "function(doc) { if(doc.type == 'attachment' && doc.onlyRemote) { emit(null, doc) } }";
-
-    @View(name = "onlyRemotes", map = ONLY_REMOTE_VIEW)
     public List<AttachmentContent> getOnlyRemoteAttachments() {
         ViewQuery query = createQuery("onlyRemotes");
         query.includeDocs(false);
@@ -58,18 +58,19 @@ public class AttachmentRepository extends DatabaseRepository<AttachmentContent> 
             return requestSummary.setRequestStatus(RequestStatus.FAILURE);
 
         final List<AttachmentContent> allAttachmentContents = getAll();
-        final Set<AttachmentContent> unusedAttachmentContents = FluentIterable.from(allAttachmentContents).filter(new Predicate<AttachmentContent>() {
-            @Override
-            public boolean apply(AttachmentContent input) {
-                return !usedIds.contains(input.getId());
-            }
-        }).toSet();
+        final Set<AttachmentContent> unusedAttachmentContents = allAttachmentContents.stream()
+                .filter(input -> !usedIds.contains(input.getId()))
+                .collect(Collectors.toSet());
 
         requestSummary.setTotalElements(allAttachmentContents.size());
         requestSummary.setTotalAffectedElements(unusedAttachmentContents.size());
 
         final List<DocumentOperationResult> documentOperationResults = deleteBulk(unusedAttachmentContents);
-        requestSummary.setRequestStatus(RequestStatus.SUCCESS);
+        if (documentOperationResults.isEmpty()) {
+            requestSummary.setRequestStatus(RequestStatus.SUCCESS);
+        }else{
+            requestSummary.setRequestStatus(RequestStatus.FAILURE);
+        }
         return requestSummary;
     }
 }

@@ -19,7 +19,9 @@ import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
+import org.ektorp.support.Views;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,74 +32,63 @@ import java.util.Set;
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  */
-@View(name = "all", map = "function(doc) { if (doc.type == 'component') emit(null, doc._id) }")
-public class ComponentRepository extends SummaryAwareRepository<Component> {
-
-    private static final String RECENT_VIEW = "function(doc) { if(doc.type == 'component') { emit(doc.createdOn, doc._id) } }";
-
-    private static final String SUBSCRIBERS_VIEW =
-            "function(doc) {" +
+@Views({
+        @View(name = "all",
+                map = "function(doc) { if (doc.type == 'component') emit(null, doc) }"),
+        @View(name = "byCreatedOn",
+                map = "function(doc) { if(doc.type == 'component') { emit(doc.createdOn, doc) } }"),
+        @View(name = "usedAttachmentContents",
+                map = "function(doc) { " +
+                    "    if(doc.type == 'release' || doc.type == 'component' || doc.type == 'project') {" +
+                    "        for(var i in doc.attachments){" +
+                    "            emit(null, doc.attachments[i].attachmentContentId);" +
+                    "        }" +
+                    "    }" +
+                    "}"),
+        @View(name = "mycomponents",
+                map = "function(doc) {" +
+                    "  if (doc.type == 'component') {" +
+                    "    emit(doc.createdBy, doc);" +
+                    "  } " +
+                    "}"),
+        @View(name = "subscribers",
+                map = "function(doc) {" +
                     "  if (doc.type == 'component') {" +
                     "    for(var i in doc.subscribers) {" +
                     "      emit(doc.subscribers[i], doc._id);" +
                     "    }" +
                     "  }" +
-                    "}";
-
-    private static final String MY_COMPONENTS_VIEW =
-            "function(doc) {" +
-                    "  if (doc.type == 'component') {" +
-                    "    emit(doc.createdBy, doc._id);" +
-                    "  } " +
-                    "}";
-
-    private static final String BY_NAME_VIEW =
-            "function(doc) {" +
+                    "}"),
+        @View(name = "byname",
+                map = "function(doc) {" +
                     "  if (doc.type == 'component') {" +
                     "    emit(doc.name, doc._id);" +
                     "  } " +
-                    "}";
-
-    private static final String FULL_BY_NAME_VIEW =
-            "function(doc) {" +
+                    "}"),
+        @View(name = "fullbyname",
+                map = "function(doc) {" +
                     "  if (doc.type == 'component') {" +
                     "    emit(doc.name, doc);" +
                     "  } " +
-                    "}";
-
-    private static final String BY_FOSSOLOGY_ID =
-            "function(doc) {  " +
-                    "if (doc.type == 'release') { " +
-                    "   if(doc.fossologyId) {    " +
-                    "       emit(doc.fossologyId, doc.componentId);  " +
-                    "   } " +
-                    "} " +
-                    "}";
-
-    private static final String ALL_COMPONENTS =
-            "function(doc) {" +
-                    "  if (doc.type == 'component') {" +
-                    "    emit(doc.id, doc);" +
-                    "  } " +
-                    "}";
-
-    private static final String BY_LINKING_RELEASE_ID_VIEW =
-            "function(doc) {" +
+                    "}"),
+        @View(name = "byLinkingRelease",
+                map = "function(doc) {" +
                     "  if (doc.type == 'release') {" +
                     "    for(var i in doc.releaseIdToRelationship) {" +
                     "      emit(i, doc.componentId);" +
                     "    }" +
                     "  }" +
-                    "}";
-
-    private static final String USED_ATTACHMENT_CONTENT_IDS =
-            "function(doc) { " +
-                    "        if(doc.type == 'release' || doc.type == 'component' || doc.type == 'project') {" +
-                    "            for(var i in doc.attachments){" +
-                    "                emit(null, doc.attachments[i].attachmentContentId);" +
-                    "            }" +
-                    "        }" +
-                    "    }";
+                    "}"),
+        @View(name = "byFossologyId",
+                map = "function(doc) {  " +
+                    "  if (doc.type == 'release') { " +
+                    "     if(doc.fossologyId) {    " +
+                    "         emit(doc.fossologyId, doc.componentId);  " +
+                    "     } " +
+                    "  } " +
+                    "}")
+})
+public class ComponentRepository extends SummaryAwareRepository<Component> {
 
     public ComponentRepository(DatabaseConnector db, ReleaseRepository releaseRepository, VendorRepository vendorRepository) {
         super(Component.class, db, new ComponentSummary(releaseRepository, vendorRepository));
@@ -105,41 +96,8 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
         initStandardDesignDocument();
     }
 
-    @View(name = "usedAttachmentContents", map = USED_ATTACHMENT_CONTENT_IDS)
-    public Set<String> getUsedAttachmentContents() {
-        return queryForIdsAsValue(createQuery("usedAttachmentContents"));
-    }
-
-    @View(name = "mycomponents", map = MY_COMPONENTS_VIEW)
-    public Set<String> getMyComponentIds(String user) {
-        return queryForIdsAsValue("mycomponents", user);
-    }
-
-    @View(name = "subscribers", map = SUBSCRIBERS_VIEW)
-    public List<Component> getSubscribedComponents(String user) {
-        Set<String> ids = queryForIds("subscribers", user);
-        return makeSummary(SummaryType.SHORT, ids);
-    }
-
-    @View(name = "allDocs", map = ALL_COMPONENTS)
-    public List<Component> getSummaryForExport() {
-        final List<Component> componentList = queryView("allDocs");
-        return makeSummaryFromFullDocs(SummaryType.EXPORT_SUMMARY, componentList);
-    }
-
-    public List<Component> getDetailedSummaryForExport() {
-        final List<Component> componentList = queryView("allDocs");
-        return makeSummaryFromFullDocs(SummaryType.DETAILED_EXPORT_SUMMARY, componentList);
-    }
-
-    public List<Component> getComponentSummary(User user) {
-        final List<Component> componentList = queryView("allDocs");
-        return makeSummaryWithPermissionsFromFullDocs(SummaryType.SUMMARY, componentList, user);
-    }
-
-    @View(name = "recent", map = RECENT_VIEW)
     public List<Component> getRecentComponentsSummary(int limit, User user) {
-        ViewQuery query = createQuery("recent").includeDocs(true).descending(true);
+        ViewQuery query = createQuery("byCreatedOn").includeDocs(true).descending(true);
         if (limit >= 0){
             query.limit(limit);
         }
@@ -148,24 +106,48 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
         return makeSummaryWithPermissionsFromFullDocs(SummaryType.SUMMARY, components, user);
     }
 
-    @View(name = "byname", map = BY_NAME_VIEW)
-    public Set<String> getMyComponentIdsByName(String name) {
+    public Set<String> getUsedAttachmentContents() {
+        return queryForIdsAsValue(createQuery("usedAttachmentContents"));
+    }
+
+    public Collection<Component> getMyComponents(String user) {
+        return queryByPrefix("mycomponents", user);
+    }
+
+    public List<Component> getSubscribedComponents(String user) {
+        Set<String> ids = queryForIds("subscribers", user);
+        return makeSummary(SummaryType.SHORT, ids);
+    }
+
+    public List<Component> getSummaryForExport() {
+        final List<Component> componentList = getAll();
+        return makeSummaryFromFullDocs(SummaryType.EXPORT_SUMMARY, componentList);
+    }
+
+    public List<Component> getDetailedSummaryForExport() {
+        final List<Component> componentList = getAll();
+        return makeSummaryFromFullDocs(SummaryType.DETAILED_EXPORT_SUMMARY, componentList);
+    }
+
+    public List<Component> getComponentSummary(User user) {
+        final List<Component> componentList = getAll();
+        return makeSummaryWithPermissionsFromFullDocs(SummaryType.SUMMARY, componentList, user);
+    }
+
+    public Set<String> getComponentIdsByName(String name) {
         return queryForIdsAsValue("byname", name);
     }
 
-    @View(name = "fullbyname", map = FULL_BY_NAME_VIEW)
     public List<Component> searchByNameForExport(String name) {
         final List<Component> componentList = queryByPrefix("fullbyname", name);
         return makeSummaryFromFullDocs(SummaryType.EXPORT_SUMMARY, componentList);
     }
 
-    @View(name = "byLinkingRelease", map = BY_LINKING_RELEASE_ID_VIEW)
     public Set<Component> getUsingComponents(String releaseId) {
         final Set<String> componentIdsByLinkingRelease = queryForIdsAsValue("byLinkingRelease", releaseId);
         return new HashSet<>(get(componentIdsByLinkingRelease));
     }
 
-    @View(name = "byFossologyId", map = BY_FOSSOLOGY_ID)
     public Component getComponentFromFossologyUploadId(String fossologyUploadId) {
         final Set<String> componentIdList = queryForIdsAsValue("byFossologyId", fossologyUploadId);
         if (componentIdList != null && componentIdList.size() > 0)
