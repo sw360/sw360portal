@@ -48,20 +48,20 @@ public class ComponentSummary extends DocumentSummary<Component> {
 
         Component copy = new Component();
         if (type == SummaryType.EXPORT_SUMMARY) {
-            ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
-            return makeExportSummary(document, fullReleases);
+            List<Release> releases = releaseRepository.getReleasesFromComponentId(document.getId());
+            return makeExportSummary(document, releases);
         } else if (type == SummaryType.DETAILED_EXPORT_SUMMARY) {
-            ImmutableListMultimap<String, Release> fullReleases = releaseRepository.getFullReleases();
+            List<Release> releases = releaseRepository.getReleasesFromComponentId(document.getId());
 
             final Map<String, Vendor> vendorsById = ThriftUtils.getIdMap(vendorRepository.getAll());
 
-            for (Release release : fullReleases.values()) {
+            for (Release release : releases) {
                 if (!release.isSetVendor() && release.isSetVendorId()) {
                     release.setVendor(vendorsById.get(release.getVendorId()));
                 }
             }
 
-            return makeDetailedExportSummary(document, fullReleases);
+            return makeDetailedExportSummary(document, releases);
         } else if (type == SummaryType.HOME) {
             copyField(document, copy, Component._Fields.ID);
             copyField(document, copy, Component._Fields.DESCRIPTION);
@@ -81,15 +81,14 @@ public class ComponentSummary extends DocumentSummary<Component> {
         return copy;
     }
 
-    private Component makeDetailedExportSummary(Component document, ImmutableListMultimap<String, Release> fullReleases) {
+    private Component makeDetailedExportSummary(Component document, List<Release> releases) {
 
-        final ImmutableList<Release> releases = fullReleases.get(document.getId());
         document.setReleases(releases);
 
         return document;
     }
 
-    private Component makeExportSummary(Component document, ImmutableListMultimap<String, Release> fullReleases) {
+    private Component makeExportSummary(Component document, List<Release> releases) {
 
         if (releaseRepository == null) {
             throw new IllegalStateException("Cannot make export summary without database connection!");
@@ -106,8 +105,6 @@ public class ComponentSummary extends DocumentSummary<Component> {
         copyField(document, copy, Component._Fields.CREATED_ON);
         copyField(document, copy, Component._Fields.VENDOR_NAMES);
 
-
-        final ImmutableList<Release> releases = fullReleases.get(document.getId());
 
         for (Release release : releases) {
             Release exportRelease = new Release();
