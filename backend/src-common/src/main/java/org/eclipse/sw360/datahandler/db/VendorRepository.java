@@ -21,6 +21,7 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.ektorp.support.View;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 
@@ -39,37 +40,10 @@ public class VendorRepository extends DatabaseRepository<Vendor> {
         initStandardDesignDocument();
     }
 
-
-
-    public RequestStatus deleteVendor(String id, User user) throws SW360Exception {
-        Vendor vendor = get(id);
-        assertNotNull(vendor);
-
-        if (makePermission(vendor, user).isActionAllowed(RequestedAction.DELETE)) {
-            remove(id);
-            return RequestStatus.SUCCESS;
-        } else {
-            log.error("User is not allowed to delete!");
-            return RequestStatus.FAILURE;
-        }
-
-
-    }
-
-    public RequestStatus updateVendor(Vendor vendor, User user) {
-        if (makePermission(vendor, user).isActionAllowed(RequestedAction.WRITE)) {
-            update(vendor);
-            return RequestStatus.SUCCESS;
-        } else {
-            log.error("User is not allowed to delete!");
-            return RequestStatus.FAILURE;
-        }
-    }
-
     public void fillVendor(Release release) {
         if (release.isSetVendorId()) {
             final String vendorId = release.getVendorId();
-            if (!Strings.isNullOrEmpty(vendorId)) {
+            if (!isNullOrEmpty(vendorId)) {
                 final Vendor vendor = get(vendorId);
                 if (vendor != null)
                     release.setVendor(vendor);

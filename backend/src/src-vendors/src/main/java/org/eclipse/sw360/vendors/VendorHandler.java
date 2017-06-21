@@ -16,7 +16,6 @@ import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
-import org.eclipse.sw360.datahandler.db.VendorRepository;
 import org.eclipse.sw360.datahandler.db.VendorSearch;
 import org.apache.thrift.TException;
 
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
-import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareVendor;
 
 /**
  * Implementation of the Thrift service
@@ -36,12 +34,12 @@ import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareVendor;
  */
 public class VendorHandler implements VendorService.Iface {
 
-    private final VendorRepository vendorRepository;
+    private final VendorDatabaseHandler vendorDatabaseHandler;
     private final VendorSearch vendorSearch;
 
     public VendorHandler() throws IOException {
         DatabaseConnector databaseConnector = new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
-        vendorRepository = new VendorRepository(databaseConnector);
+        vendorDatabaseHandler = new VendorDatabaseHandler(databaseConnector);
         vendorSearch = new VendorSearch(databaseConnector);     // Remove release id from component
     }
 
@@ -49,7 +47,7 @@ public class VendorHandler implements VendorService.Iface {
     public Vendor getByID(String id) throws TException {
         assertNotEmpty(id);
 
-        Vendor vendor = vendorRepository.get(id);
+        Vendor vendor = vendorDatabaseHandler.getByID(id);
         assertNotNull(vendor);
 
         return vendor;
@@ -57,7 +55,7 @@ public class VendorHandler implements VendorService.Iface {
 
     @Override
     public List<Vendor> getAllVendors() throws TException {
-        return vendorRepository.getAll();
+        return vendorDatabaseHandler.getAllVendors();
     }
 
     @Override
@@ -88,8 +86,7 @@ public class VendorHandler implements VendorService.Iface {
         assertNotNull(vendor);
         assertIdUnset(vendor.getId());
 
-        prepareVendor(vendor);
-        vendorRepository.add(vendor);
+        vendorDatabaseHandler.addVendor(vendor);
 
         return vendor.getId();
     }
@@ -99,7 +96,7 @@ public class VendorHandler implements VendorService.Iface {
         assertUser(user);
         assertId(id);
 
-        return vendorRepository.deleteVendor(id, user);
+        return vendorDatabaseHandler.deleteVendor(id, user);
     }
 
     @Override
@@ -107,6 +104,6 @@ public class VendorHandler implements VendorService.Iface {
         assertUser(user);
         assertNotNull(vendor);
 
-        return vendorRepository.updateVendor(vendor, user);
+        return vendorDatabaseHandler.updateVendor(vendor, user);
     }
 }

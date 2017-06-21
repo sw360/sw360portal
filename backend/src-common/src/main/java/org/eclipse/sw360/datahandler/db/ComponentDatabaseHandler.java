@@ -852,8 +852,12 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         return getLinkedReleases(relations, releaseMap, new ArrayDeque<>());
     }
 
+    public List<Release> getAllReleases() {
+        return releaseRepository.getAll();
+    }
+
     public Map<String, Release> getAllReleasesIdMap() {
-        final List<Release> releases = releaseRepository.getAll();
+        final List<Release> releases = getAllReleases();
         return ThriftUtils.getIdMap(releases);
     }
 
@@ -906,16 +910,10 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     @NotNull
     private ReleaseLink createReleaseLink(Release release) {
-        String vendorName = "";
-        if (release.isSetVendor()){
-            vendorName = release.getVendor().getShortname();
-        } else if (!isNullOrEmpty(release.getVendorId())) {
-            final Vendor vendor = vendorRepository.get(release.getVendorId());
-            vendorName = vendor != null ? vendor.getShortname() : "";
-            release.setVendor(vendor);
-        }
+        vendorRepository.fillVendor(release);
+        String vendorName = release.isSetVendor() ? release.getVendor().getShortname() : "";
         ReleaseLink releaseLink = new ReleaseLink(release.id, vendorName, release.name, release.version, SW360Utils.printFullname(release),
-                !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
+                 !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
         releaseLink
                 .setClearingState(release.getClearingState())
                 .setComponentType(
