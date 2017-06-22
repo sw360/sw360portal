@@ -20,4 +20,3 @@ RUN set -x \
 
 RUN mkdir -p /migrations
 WORKDIR /migrations
-ADD ./ /migrations

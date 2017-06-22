@@ -20,8 +20,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # build docker image for migration
 docker build -t sw360/migration-runner \
        --rm=true --force-rm=true \
-       -f ./dockerized-migration-runner.Dockerfile \
-       .
+       - < ./dockerized-migration-runner.Dockerfile
 
 for scriptpath in "$@"; do
     scriptname="$(basename $scriptpath)"
@@ -31,6 +30,8 @@ for scriptpath in "$@"; do
     fi
 
     # run docker image
-    docker run -it --net=host sw360/migration-runner \
+    docker run -it --net=host \
+           -v "$(pwd)":/migrations \
+           sw360/migration-runner \
            "./$scriptname"
 done
