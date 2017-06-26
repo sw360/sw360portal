@@ -26,6 +26,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y couchdb
   - sudo ./scripts/install-thrift.sh --no-cleanup
+  - sudo service couchdb restart
 install: mvn dependency:resolve || true
 
 env: MVN_ARGS="package"
