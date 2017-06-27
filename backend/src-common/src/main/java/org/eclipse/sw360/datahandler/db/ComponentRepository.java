@@ -18,6 +18,7 @@ import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
 import org.ektorp.support.View;
 
 import java.util.HashSet;
@@ -99,19 +100,10 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
                     "        }" +
                     "    }";
 
-
     public ComponentRepository(DatabaseConnector db, ReleaseRepository releaseRepository, VendorRepository vendorRepository) {
         super(Component.class, db, new ComponentSummary(releaseRepository, vendorRepository));
 
         initStandardDesignDocument();
-    }
-
-    @View(name = "recent", map = RECENT_VIEW)
-    public List<Component> getRecentComponents() {
-        ViewQuery query = createQuery("recent");
-        // Get the 5 last documents
-        query.limit(5).descending(true).includeDocs(false);
-        return makeSummary(SummaryType.SHORT, queryForIds(query));
     }
 
     @View(name = "usedAttachmentContents", map = USED_ATTACHMENT_CONTENT_IDS)
@@ -146,6 +138,17 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
         return makeSummaryWithPermissionsFromFullDocs(SummaryType.SUMMARY, componentList, user);
     }
 
+    @View(name = "recent", map = RECENT_VIEW)
+    public List<Component> getRecentComponentsSummary(int limit, User user) {
+        ViewQuery query = createQuery("recent").includeDocs(true).descending(true);
+        if (limit >= 0){
+            query.limit(limit);
+        }
+        List<Component> components = db.queryView(query, Component.class);
+
+        return makeSummaryWithPermissionsFromFullDocs(SummaryType.SUMMARY, components, user);
+    }
+
     @View(name = "byname", map = BY_NAME_VIEW)
     public Set<String> getMyComponentIdsByName(String name) {
         return queryForIdsAsValue("byname", name);
@@ -174,5 +177,11 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
     public Set<Component> getUsingComponents(Set<String> releaseIds) {
         final Set<String> componentIdsByLinkingRelease = queryForIdsAsValue("byLinkingRelease", releaseIds);
         return new HashSet<>(get(componentIdsByLinkingRelease));
+    }
+
+    public int getTotalComponentsCount(){
+        ViewQuery query = createQuery("all").includeDocs(false).limit(0);
+        ViewResult result = db.queryView(query);
+        return result.getTotalRows();
     }
 }

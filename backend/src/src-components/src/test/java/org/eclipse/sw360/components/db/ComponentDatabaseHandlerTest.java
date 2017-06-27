@@ -92,16 +92,16 @@ public class ComponentDatabaseHandlerTest {
 
 
         components = new ArrayList<>();
-        Component component1 = new Component().setId("C1").setName("component1").setDescription("d1").setCreatedBy(email1).setMainLicenseIds(new HashSet<>(Arrays.asList("lic1")));
+        Component component1 = new Component().setId("C1").setName("component1").setDescription("d1").setCreatedBy(email1).setMainLicenseIds(new HashSet<>(Arrays.asList("lic1"))).setCreatedOn("2017-07-20");
         component1.addToReleaseIds("R1A");
         component1.addToReleaseIds("R1B");
         components.add(component1);
-        Component component2 = new Component().setId("C2").setName("component2").setDescription("d2").setCreatedBy(email2).setMainLicenseIds(new HashSet<>(Arrays.asList("lic2")));
+        Component component2 = new Component().setId("C2").setName("component2").setDescription("d2").setCreatedBy(email2).setMainLicenseIds(new HashSet<>(Arrays.asList("lic2"))).setCreatedOn("2017-07-21");
         component2.addToReleaseIds("R2A");
         component2.addToReleaseIds("R2B");
         component2.addToReleaseIds("R2C");
         components.add(component2);
-        Component component3 = new Component().setId("C3").setName("component3").setDescription("d3").setCreatedBy(email1).setMainLicenseIds(new HashSet<>(Arrays.asList("lic3")));
+        Component component3 = new Component().setId("C3").setName("component3").setDescription("d3").setCreatedBy(email1).setMainLicenseIds(new HashSet<>(Arrays.asList("lic3"))).setCreatedOn("2017-07-22");
         component3.addToSubscribers(email1);
         component3.addToLanguages("E");
         components.add(component3);
@@ -246,9 +246,17 @@ public class ComponentDatabaseHandlerTest {
 
     @Test
     public void testGetRecentComponents() throws Exception {
-        List<Component> recentComponents = handler.getRecentComponents();
+        List<Component> recentComponents = handler.getRecentComponentsSummary(5, user1);
         Iterable<String> componentIds = getComponentIds(recentComponents);
-        assertThat(componentIds, containsInAnyOrder("C1", "C2", "C3"));
+        assertThat(componentIds, contains("C3", "C2", "C1"));
+    }
+
+    @Test
+    public void testGetRecentComponents2() throws Exception {
+        List<Component> recentComponents = handler.getRecentComponentsSummary(2, user1);
+        Iterable<String> componentIds = getComponentIds(recentComponents);
+        assertEquals(2, recentComponents.size());
+        assertThat(componentIds, contains("C3", "C2"));
     }
 
     @Test

@@ -48,7 +48,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Display Filter
+                Quick Filter
             </th>
         </tr>
         </thead>
@@ -57,9 +57,6 @@
             <td>
                 <input type="text" class="searchbar"
                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                <br/>
-                <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
-                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
             </td>
         </tr>
         </tbody>
@@ -118,7 +115,7 @@
 
     function configureEccInfoTable(){
         var tbl;
-        tbl = $('#eccInfoTable').dataTable({
+        tbl = $('#eccInfoTable').DataTable({
             pagingType: "simple_numbers",
             dom: "lrtip",
             "autoWidth": false,
@@ -130,7 +127,7 @@
     }
 
     function useSearch( buttonId) {
-        eccInfoTable.fnFilter( $('#'+buttonId).val());
+        eccInfoTable.search($('#'+buttonId).val()).draw();
     }
 </script>
 

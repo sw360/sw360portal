@@ -50,7 +50,7 @@
             <thead>
             <tr>
                 <th class="infoheading">
-                    Display Filter
+                    Quick Filter
                 </th>
             </tr>
             </thead>
@@ -59,9 +59,6 @@
                 <td>
                     <input type="text" class="searchbar"
                            id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                    <br/>
-                    <input class="searchbutton"
-                           type="button" name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
                 </td>
             </tr>
             </tbody>
@@ -107,12 +104,12 @@
         });
     </core_rt:forEach>
 
-        licenseTable = $('#licensesTable').dataTable({
+        licenseTable = $('#licensesTable').DataTable({
             pagingType: "simple_numbers",
             dom: "lrtip",
             pageLength: 10,
-            "oLanguage": {
-                "sLengthMenu": 'Display <select>\
+            "language": {
+                "lengthMenu": 'Display <select>\
                 <option value="5">5</option>\
                 <option value="10">10</option>\
                 <option value="20">20</option>\
@@ -130,7 +127,7 @@
     }
 
     function useSearch(searchFieldId) {
-        licenseTable.fnFilter( $('#'+searchFieldId).val());
+        licenseTable.search($('#'+searchFieldId).val()).draw();
     }
 
 </script>

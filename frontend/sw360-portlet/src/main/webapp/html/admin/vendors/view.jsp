@@ -50,7 +50,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Display Filter
+                Quick Filter
             </th>
         </tr>
         </thead>
@@ -59,9 +59,6 @@
             <td>
                 <input type="text" class="searchbar"
                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                <br/>
-                <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
-                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
             </td>
         </tr>
         </tbody>
@@ -107,7 +104,7 @@
     }
 
     function useSearch( buttonId) {
-        vendorsTable.fnFilter( $('#'+buttonId).val());
+        vendorsTable.search($('#'+buttonId).val()).draw();
     }
 
     function createVendorsTable() {
@@ -123,7 +120,7 @@
         });
         </core_rt:forEach>
 
-        vendorsTable = $('#vendorsTable').dataTable({
+        vendorsTable = $('#vendorsTable').DataTable({
             pagingType: "simple_numbers",
             dom: "lrtip",
             data: result,

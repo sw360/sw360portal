@@ -36,6 +36,8 @@
 <jsp:useBean id="vendorNames" class="java.lang.String" scope="request"/>
 <jsp:useBean id="mainLicenseIds" class="java.lang.String" scope="request"/>
 <jsp:useBean id="name" class="java.lang.String" scope="request"/>
+<jsp:useBean id="viewSize" type="java.lang.Integer" scope="request"/>
+<jsp:useBean id="totalRows" type="java.lang.Integer" scope="request"/>
 
 <core_rt:set var="programmingLanguages" value='<%=PortalConstants.PROGRAMMING_LANGUAGES%>'/>
 <core_rt:set var="operatingSystemsAutoC" value='<%=PortalConstants.OPERATING_SYSTEMS%>'/>
@@ -64,7 +66,8 @@
 
 <div id="header"></div>
 <p class="pageHeader">
-    <span class="pageHeaderBigSpan">Components</span> <span class="pageHeaderSmallSpan">(${componentList.size()})</span>
+    <span class="pageHeaderBigSpan">Components</span>
+    <span class="pageHeaderMediumSpan">(<core_rt:if test="${componentList.size() == totalRows}">${totalRows}</core_rt:if><core_rt:if test="${componentList.size() != totalRows}">${componentList.size()} latest of ${totalRows}</core_rt:if>)</span>
     <span class="pull-right">
           <input type="button" class="addButton" onclick="window.location.href='<%=addComponentURL%>'"
                 value="Add Component">
@@ -77,7 +80,28 @@
             <thead>
             <tr>
                 <th class="infoheading">
-                    Display Filter by Name
+                    Loading
+                </th>
+            </tr>
+            </thead>
+            <tbody style="background-color: #f8f7f7; border: none;">
+            <tr>
+                <td>
+                    <select class="searchbar" id="view_size" name="<portlet:namespace/><%=PortalConstants.VIEW_SIZE%>" onchange="reloadViewSize()">
+                        <option value="200" <core_rt:if test="${viewSize == 200}">selected</core_rt:if>>200 latest</option>
+                        <option value="500" <core_rt:if test="${viewSize == 500}">selected</core_rt:if>>500 latest</option>
+                        <option value="1000" <core_rt:if test="${viewSize == 1000}">selected</core_rt:if>>1000 latest</option>
+                        <option value="-1" <core_rt:if test="${viewSize == -1}">selected</core_rt:if>>All</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+            <tr>
+                <th class="infoheading">
+                    Quick Filter
                 </th>
             </tr>
             </thead>
@@ -87,9 +111,6 @@
                     <input type="text" class="searchbar"
                            id="keywordsearchinput" value=""
                            onkeyup="useSearch('keywordsearchinput')" />
-                    <br/>
-                    <input class="searchbutton" type="button"
-                           name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')" />
                 </td>
             </tr>
             </tbody>
@@ -99,7 +120,7 @@
             <thead>
             <tr>
                 <th class="infoheading">
-                    Filters
+                    Advanced Search
                 </th>
             </tr>
             </thead>
@@ -121,8 +142,7 @@
             <tr>
                 <td>
                     <label for="component_type">Component Type</label>
-                    <select class="searchbar toplabelledInput filterInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>"
-                            style="min-height: 28px;">
+                    <select class="searchbar toplabelledInput filterInput" id="component_type" name="<portlet:namespace/><%=Component._Fields.COMPONENT_TYPE%>">
                         <option value="<%=PortalConstants.NO_FILTER%>" class="textlabel stackedLabel">Any</option>
                         <sw360:DisplayEnumOptions type="<%=ComponentType.class%>" selectedName="${componentType}" useStringValues="true"/>
                     </select>
@@ -170,7 +190,7 @@
             </tbody>
         </table>
         <br/>
-        <input type="submit" class="addButton" value="Apply Filters">
+        <input type="submit" class="addButton" value="Search">
     </form>
 </div>
 <div id="componentsTableDiv" class="content2">
@@ -223,7 +243,7 @@
 
     function useSearch(buttonId) {
         var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
-        componentsTable.columns(1).search('^'+val, true).draw();
+        componentsTable.columns(1).search(val, true).draw();
     }
 
     function exportSpreadsheet(){
@@ -242,6 +262,12 @@
         portletURL.setParameter('<%=Component._Fields.MAIN_LICENSE_IDS%>',$('#main_licenses').val());
         portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
+        window.location.href=portletURL.toString();
+    }
+
+    function reloadViewSize(){
+        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>');
+        portletURL.setParameter('<%=PortalConstants.VIEW_SIZE%>', $('#view_size').val());
         window.location.href=portletURL.toString();
     }
 
@@ -274,7 +300,11 @@
                 {"title": "Main Licenses", data: "lics"},
                 {"title": "Component Type", data: "cType"},
                 {"title": "Actions", data: "id", render: {display: renderComponentActions}}
-            ]
+            ],
+            order: [[1, 'asc']],
+            language: {
+                lengthMenu: "_MENU_ entries per page"
+            }
         });
     }
 

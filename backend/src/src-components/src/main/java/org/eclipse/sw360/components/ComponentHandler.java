@@ -73,6 +73,19 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
+    public List<Component> getRecentComponentsSummary(int limit, User user) throws TException {
+        assertUser(user);
+
+        return handler.getRecentComponentsSummary(limit, user);
+    }
+
+    @Override
+    public int getTotalComponentsCount(User user) throws TException {
+        assertUser(user);
+        return handler.getTotalComponentsCount();
+    }
+
+    @Override
     public List<Release> getReleaseSummary(User user) throws TException {
         assertUser(user);
 
@@ -109,11 +122,6 @@ public class ComponentHandler implements ComponentService.Iface {
         assertUser(user);
 
         return handler.getSubscribedReleases(user.getEmail());
-    }
-
-    @Override
-    public List<Component> getRecentComponents() throws TException {
-        return handler.getRecentComponents();
     }
 
     @Override

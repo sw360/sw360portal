@@ -35,7 +35,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Display Filter
+                Quick Filter
             </th>
         </tr>
         </thead>
@@ -44,9 +44,6 @@
             <td>
                 <input type="text" class="searchbar"
                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                <br/>
-                <input class="searchbutton" type="button"
-                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
             </td>
         </tr>
         </tbody>
@@ -83,7 +80,7 @@
     }
 
     function useSearch(searchFieldId) {
-        vulnerabilityTable.fnFilter( $('#'+searchFieldId).val());
+        vulnerabilityTable.api().search($('#'+searchFieldId).val()).draw();
     }
 
     function createVulnerabilityTable() {

@@ -10,6 +10,11 @@
  */
 package org.eclipse.sw360.portal.portlets.components;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.components.*;
@@ -21,15 +26,18 @@ import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerability
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.PortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
+import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_COMPONENTS_VIEW_SIZE;
+import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
 
 /**
  * Component portlet implementation
@@ -39,9 +47,13 @@ import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInfor
  */
 public abstract class ComponentPortletUtils {
 
+    static final int DEFAULT_VIEW_SIZE = 200;
+
     private ComponentPortletUtils() {
         // Utility class with only static functions
     }
+
+    private static final Logger log = Logger.getLogger(ComponentPortletUtils.class);
 
     public static void updateReleaseFromRequest(PortletRequest request, Release release) {
         for (Release._Fields field : Release._Fields.values()) {
@@ -67,7 +79,7 @@ public abstract class ComponentPortletUtils {
                     break;
                 case RELEASE_ID_TO_RELATIONSHIP:
                     if (!release.isSetReleaseIdToRelationship())
-                        release.setReleaseIdToRelationship(new HashMap<String, ReleaseRelationship>());
+                        release.setReleaseIdToRelationship(new HashMap<>());
                     updateLinkedReleaesFromRequest(request, release.releaseIdToRelationship);
                     break;
                 case CLEARING_STATE:
@@ -329,4 +341,30 @@ public abstract class ComponentPortletUtils {
 
         return dbRelation;
     }
+
+    public static void saveStickyViewSize(PortletRequest request, User user, int viewSize) {
+        try {
+            ExpandoBridge exp = getUserExpandoBridge(request, user);
+            exp.setAttribute(CUSTOM_FIELD_COMPONENTS_VIEW_SIZE, viewSize);
+        } catch (PortalException | SystemException e) {
+            log.warn("Could not save sticky components view size to custom field", e);
+        }
+    }
+
+    public static int loadStickyViewSize(PortletRequest request, User user){
+        try {
+            ExpandoBridge exp = getUserExpandoBridge(request, user);
+            int viewSize = (Integer) exp.getAttribute(CUSTOM_FIELD_COMPONENTS_VIEW_SIZE);
+            if (viewSize == 0) {
+                return DEFAULT_VIEW_SIZE;
+            } else {
+                return viewSize;
+            }
+        } catch (PortalException | SystemException e) {
+            log.error("Could not load sticky components view size from custom field", e);
+            return DEFAULT_VIEW_SIZE;
+        }
+    }
+
+
 }
