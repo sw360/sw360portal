@@ -253,12 +253,13 @@
         <core_rt:set var="licenseCollectionTagOutput"><tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/></core_rt:set>
         result.push({
             "DT_RowId": "${component.id}",
-            "0": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
-            "1": "<a href='" + createDetailURLfromComponentId("${component.id}") + "' target='_self'><sw360:out value="${component.name}"/></a>",
-            "2": "<tags:TrimLineBreaks input="${licenseCollectionTagOutput}"/>",
-            "3": '<sw360:DisplayEnum value="${component.componentType}"/>',
-            "4": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'> </a>"
-            + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteComponent('${component.id}', '<b>${component.name}</b>',${component.releaseIdsSize},${component.attachmentsSize})\"  alt='Delete' title='Delete'>"
+            "id": "${component.id}",
+            "vndrs": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
+            "name": "${component.name}",
+            "lics": "<tags:TrimLineBreaks input="${licenseCollectionTagOutput}"/>",
+            "cType": '<sw360:DisplayEnum value="${component.componentType}"/>',
+            "lRelsSize": "${component.releaseIdsSize}",
+            "attsSize": "${component.attachmentsSize}"
         });
         </core_rt:forEach>
 
@@ -268,13 +269,39 @@
             "pageLength": 25,
             "data": result,
             "columns": [
-                {"title": "Vendor"},
-                {"title": "Component Name"},
-                {"title": "Main Licenses"},
-                {"title": "Component Type"},
-                {"title": "Actions"}
+                {"title": "Vendor", data: "vndrs"},
+                {"title": "Component Name", data: "name", render: {display: renderComponentNameLink}},
+                {"title": "Main Licenses", data: "lics"},
+                {"title": "Component Type", data: "cType"},
+                {"title": "Actions", data: "id", render: {display: renderComponentActions}}
             ]
         });
+    }
+
+    function renderComponentActions(id, type, row) {
+        <%--TODO most of this can be simplified to CSS properties --%>
+        return "<span id='componentAction" + id + "'></span>"
+            + renderLinkTo(
+                makeComponentUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
+                "",
+                "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
+            + renderLinkTo(
+                makeComponentUrl(id, '<%=PortalConstants.PAGENAME_DUPLICATE%>'),
+                "",
+                "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
+            + "<img src='<%=request.getContextPath()%>/images/Trash.png'" +
+            " onclick=\"deleteComponent('" + id + "', '<b>" + replaceSingleQuote(row.name) + "</b>'," + replaceSingleQuote(row.lRelsSize) + "," + replaceSingleQuote(row.attsSize) + ")\" alt='Delete' title='Delete'/>";
+    }
+
+    function renderComponentNameLink(name, type, row) {
+        return renderLinkTo(makeComponentUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
+    }
+
+    function makeComponentUrl(componentId, page) {
+        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+            .setParameter('<%=PortalConstants.PAGENAME%>', page)
+            .setParameter('<%=PortalConstants.COMPONENT_ID%>', componentId);
+        return portletURL.toString();
     }
 
     function deleteComponent(id, name, numberOfReleases, attachmentsSize) {
