@@ -8,6 +8,7 @@
  */
 package org.eclipse.sw360.projects;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
@@ -20,10 +21,8 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.apache.thrift.TException;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.*;
 
 import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
@@ -40,7 +39,7 @@ public class ProjectHandler implements ProjectService.Iface {
     private final ProjectDatabaseHandler handler;
     private final ProjectSearchHandler searchHandler;
 
-    ProjectHandler() throws MalformedURLException, IOException {
+    ProjectHandler() throws IOException {
         handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
         searchHandler = new ProjectSearchHandler(DatabaseSettings.getConfiguredHttpClient(),DatabaseSettings.COUCH_DB_DATABASE);
     }
@@ -182,18 +181,24 @@ public class ProjectHandler implements ProjectService.Iface {
     //////////////////////
 
     @Override
-    public List<ProjectLink> getLinkedProjectsById(String id, User user) throws TException {
-        assertId(id);
-
-        Project project = getProjectById(id, user);
-        return handler.getLinkedProjects(project.getLinkedProjects());
+    public List<ProjectLink> getLinkedProjectsOfProject(Project project, boolean deep, User user) throws TException {
+        assertNotNull(project);
+        return handler.getLinkedProjects(project, deep, user);
     }
 
     @Override
-    public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations) throws TException {
+    public List<ProjectLink> getLinkedProjectsById(String id, boolean deep, User user) throws TException {
+        assertId(id);
+
+        Project project = getProjectById(id, user);
+        return getLinkedProjectsOfProject(project, deep, user);
+    }
+
+    @Override
+    public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations, User user) throws TException {
         assertNotNull(relations);
 
-        return handler.getLinkedProjects(relations);
+        return handler.getLinkedProjects(relations, user);
     }
 
     @Override

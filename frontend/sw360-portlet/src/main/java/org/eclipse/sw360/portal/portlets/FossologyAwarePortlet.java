@@ -53,7 +53,7 @@ import static org.eclipse.sw360.portal.common.PortalConstants.*;
  * @author Johannes.Najjar@tngtech.com
  * @author alex.borodin@evosoft.com
  */
-public abstract class FossologyAwarePortlet extends AttachmentAwarePortlet {
+public abstract class FossologyAwarePortlet extends LinkedReleasesAndProjectsAwarePortlet {
 
     private static final Logger log = Logger.getLogger(FossologyAwarePortlet.class);
 

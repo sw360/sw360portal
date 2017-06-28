@@ -9,12 +9,11 @@
 
 package org.eclipse.sw360.portal.tags.urlutils;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.users.UserService;
-import org.apache.thrift.TException;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -30,13 +29,13 @@ public class LinkedReleaseRenderer {
     private StringBuilder display;
     private String tableClasses;
     private String idPrefix;
-    private String userEmail;
+    private User user;
 
-    public LinkedReleaseRenderer(StringBuilder display, String tableClasses, String idPrefix, String userEmail) {
+    public LinkedReleaseRenderer(StringBuilder display, String tableClasses, String idPrefix, User user) {
         this.display = display;
         this.tableClasses = tableClasses;
         this.idPrefix = idPrefix;
-        this.userEmail = userEmail;
+        this.user = user;
     }
 
 
@@ -46,8 +45,6 @@ public class LinkedReleaseRenderer {
 
         StringBuilder candidate = new StringBuilder();
         try {
-            UserService.Iface userClient = new ThriftClients().makeUserClient();
-            User user = userClient.getByEmail(userEmail);
             ComponentService.Iface componentClient = new ThriftClients().makeComponentClient();
 
             for (Release release : componentClient.getReleasesById(releaseIds, user)) {
@@ -73,8 +70,6 @@ public class LinkedReleaseRenderer {
 
         StringBuilder candidate = new StringBuilder();
         try {
-            UserService.Iface userClient = new ThriftClients().makeUserClient();
-            User user = userClient.getByEmail(userEmail);
             ComponentService.Iface componentClient = new ThriftClients().makeComponentClient();
 
             final HashSet<String> changedIds = new HashSet<>();

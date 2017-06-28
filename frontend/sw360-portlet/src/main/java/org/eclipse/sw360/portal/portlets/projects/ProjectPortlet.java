@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -45,8 +47,6 @@ import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
 import org.eclipse.sw360.portal.users.LifeRayUserSession;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.eclipse.sw360.portal.users.UserUtils;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
@@ -65,15 +65,15 @@ import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
-import static org.apache.commons.lang.StringUtils.abbreviate;
 
 /**
- * Component portlet implementation
+ * Project portlet implementation
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
@@ -381,8 +381,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             for (Release release : client.getReleasesById(new HashSet<>(Arrays.asList(linkedIds)), user)) {
                 final Vendor vendor = release.getVendor();
                 final String vendorName = vendor != null ? vendor.getShortname() : "";
-                ReleaseLink linkedRelease = new ReleaseLink(release.getId(),
-                        vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release));
+                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), vendorName, release.getName(), release.getVersion(),
+                        SW360Utils.printFullname(release), !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
                 linkedReleases.add(linkedRelease);
             }
         } catch (TException e) {
@@ -547,9 +547,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         List<Project> projectList;
         try {
             if (!isNullOrEmpty(id)){ // the presence of the id signals to load linked projects hierarchy instead of using filters
-                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
-                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
-                final Collection<ProjectLink> projectLinks = SW360Utils.getLinkedProjectsAsFlatList(fakeRelations, thriftClients, log);
+                final Collection<ProjectLink> projectLinks = SW360Utils.getLinkedProjectsAsFlatList(id, true, thriftClients, log, user);
                 List<String> linkedProjectIds = projectLinks.stream().map(ProjectLink::getId).collect(Collectors.toList());
                 projectList = projectClient.getProjectsById(linkedProjectIds, user);
             } else {
@@ -604,10 +602,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 project = getWithFilledClearingStateSummary(project, user);
                 request.setAttribute(PROJECT, project);
                 setAttachmentsInRequest(request, project.getAttachments());
-                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
-                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
-                putLinkedProjectsInRequest(request, fakeRelations);
-                putLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
+                putLinkedProjectsInRequest(request, project, user);
+                putDirectlyLinkedReleasesInRequest(request, project);
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
                 putReleasesAndProjectIntoRequest(request, id, user);
@@ -636,9 +632,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project project = client.getProjectById(id, user);
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
-                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
-                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
-                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES));
+                putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES), true, user);
                 LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
                 List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
                 request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
@@ -663,9 +657,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project project = client.getProjectById(id, user);
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
-                Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
-                fakeRelations.put(id, ProjectRelationship.UNKNOWN);
-                putLinkedProjectsInRequest(request, fakeRelations, filterAndSortAttachments(SW360Constants.SOURCE_CODE_ATTACHMENT_TYPES));
+                putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.SOURCE_CODE_ATTACHMENT_TYPES), true, user);
 
                 addProjectBreadcrumb(request, response, project);
 
@@ -804,8 +796,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             setAttachmentsInRequest(request, project.getAttachments());
             try {
-                putDirectlyLinkedProjectsInRequest(request, project.getLinkedProjects());
-                putDirectlyLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
+                putDirectlyLinkedProjectsInRequest(request, project, user);
+                putDirectlyLinkedReleasesInRequest(request, project);
             } catch (TException e) {
                 log.error("Could not fetch linked projects or linked releases in projects view.", e);
                 return;
@@ -823,8 +815,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PROJECT, project);
                 setAttachmentsInRequest(request, project.getAttachments());
                 try {
-                    putLinkedProjectsInRequest(request, Collections.emptyMap());
-                    putLinkedReleasesInRequest(request, Collections.emptyMap());
+                    putDirectlyLinkedProjectsInRequest(request, project, user);
+                    putDirectlyLinkedReleasesInRequest(request, project);
                 } catch(TException e) {
                     log.error("Could not put empty linked projects or linked releases in projects view.", e);
                 }
@@ -850,8 +842,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 Project newProject = PortletUtils.cloneProject(emailFromRequest, department, client.getProjectById(id, user));
                 setAttachmentsInRequest(request, newProject.getAttachments());
                 request.setAttribute(PROJECT, newProject);
-                putDirectlyLinkedProjectsInRequest(request, newProject.getLinkedProjects());
-                putDirectlyLinkedReleasesInRequest(request, newProject.getReleaseIdToUsage());
+                putDirectlyLinkedProjectsInRequest(request, newProject, user);
+                putDirectlyLinkedReleasesInRequest(request, newProject);
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             } else {
                 Project project = new Project();
@@ -859,8 +851,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 setAttachmentsInRequest(request, project.getAttachments());
 
                 request.setAttribute(PROJECT, project);
-                putDirectlyLinkedProjectsInRequest(request, Collections.emptyMap());
-                putDirectlyLinkedReleasesInRequest(request, Collections.emptyMap());
+                putDirectlyLinkedProjectsInRequest(request, project, user);
+                putDirectlyLinkedReleasesInRequest(request, project);
 
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
             }
@@ -921,7 +913,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     case DUPLICATE:
                         setSW360SessionError(request, ErrorMessages.PROJECT_DUPLICATE);
                         response.setRenderParameter(PAGENAME, PAGENAME_EDIT);
-                        prepareRequestForEditAfterDuplicateError(request, project);
+                        prepareRequestForEditAfterDuplicateError(request, project, user);
                         break;
                     default:
                         setSW360SessionError(request, ErrorMessages.PROJECT_NOT_ADDED);
@@ -936,12 +928,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void prepareRequestForEditAfterDuplicateError(ActionRequest request, Project project) throws TException {
+    private void prepareRequestForEditAfterDuplicateError(ActionRequest request, Project project, User user) throws TException {
         request.setAttribute(PROJECT, project);
         setAttachmentsInRequest(request, project.getAttachments());
         request.setAttribute(USING_PROJECTS, Collections.emptySet());
-        putDirectlyLinkedProjectsInRequest(request, project.getLinkedProjects());
-        putDirectlyLinkedReleasesInRequest(request, project.getReleaseIdToUsage());
+        putDirectlyLinkedProjectsInRequest(request, project, user);
+        putDirectlyLinkedReleasesInRequest(request, project);
     }
 
     @UsedAsLiferayAction

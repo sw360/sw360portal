@@ -18,6 +18,7 @@ import org.eclipse.sw360.exporter.ReleaseExporter;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyField;
 
@@ -43,7 +44,13 @@ public class ReleaseSummary extends DocumentSummary<Release> {
     public List<Release> makeSummary(SummaryType type, Collection<Release> fullDocuments) {
         if (fullDocuments == null) return Collections.emptyList();
 
-        Map<String, Vendor> vendorById = ThriftUtils.getIdMap(vendorRepository.getAll());
+        Set<String> vendorIds = fullDocuments
+                .stream()
+                .map(Release::getVendorId)
+                .filter(Objects::nonNull)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+        Map<String, Vendor> vendorById = ThriftUtils.getIdMap(vendorRepository.get(vendorIds));
 
         List<Release> documents = new ArrayList<>(fullDocuments.size());
         for (Release fullDocument : fullDocuments) {

@@ -53,6 +53,8 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
@@ -82,10 +84,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             ComponentService.Iface client = thriftClients.makeComponentClient();
             if (typeIsComponent(documentType)) {
                 Component component = client.getComponentById(documentId, user);
-                return CommonUtils.nullToEmptySet(component.getAttachments());
+                return nullToEmptySet(component.getAttachments());
             } else {
                 Release release = client.getReleaseById(documentId, user);
-                return CommonUtils.nullToEmptySet(release.getAttachments());
+                return nullToEmptySet(release.getAttachments());
             }
         } catch (TException e) {
             log.error("Could not get " + documentType + " attachments for " + documentId, e);
@@ -291,7 +293,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 final Vendor vendor = release.getVendor();
 
                 final String vendorName = vendor != null ? vendor.getShortname() : "";
-                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release));
+                ReleaseLink linkedRelease = new ReleaseLink(release.getId(), vendorName, release.getName(), release.getVersion(), SW360Utils.printFullname(release), !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
                 linkedRelease.setReleaseRelationship(ReleaseRelationship.CONTAINED);
                 linkedReleases.add(linkedRelease);
             }
@@ -419,7 +421,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 request.setAttribute(DOCUMENT_ID, releaseId);
                 setAttachmentsInRequest(request, release.getAttachments());
 
-                putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+                putDirectlyLinkedReleaseRelationsInRequest(request, release);
                 Map<RequestedAction, Boolean> permissions = release.getPermissions();
                 DocumentState documentState = release.getDocumentState();
                 setUsingDocs(request, releaseId, user, client);
@@ -436,7 +438,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                     release.setComponentId(id);
                     release.setClearingState(ClearingState.NEW_CLEARING);
                     request.setAttribute(RELEASE, release);
-                    putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+                    putDirectlyLinkedReleaseRelationsInRequest(request, release);
                     setAttachmentsInRequest(request, release.getAttachments());
                     setUsingDocs(request, null, user, client);
                     SessionMessages.add(request, "request_processed", "New Release");
@@ -531,8 +533,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         }
 
-        request.setAttribute(USING_PROJECTS, CommonUtils.nullToEmptySet(usingProjects));
-        request.setAttribute(USING_COMPONENTS, CommonUtils.nullToEmptySet(usingComponentsForComponent));
+        request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
+        request.setAttribute(USING_COMPONENTS, nullToEmptySet(usingComponentsForComponent));
     }
 
     private void prepareReleaseDetailView(RenderRequest request, RenderResponse response) throws PortletException {
@@ -559,7 +561,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 setAttachmentsInRequest(request, release.getAttachments());
 
                 setUsingDocs(request, releaseId, user, client);
-                putLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+                putDirectlyLinkedReleaseRelationsInRequest(request, release);
 
                 if (isNullOrEmpty(id)) {
                     id = release.getComponentId();
@@ -677,10 +679,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         if (releaseId != null) {
             ProjectService.Iface projectClient = thriftClients.makeProjectClient();
             Set<Project> usingProjects = projectClient.searchByReleaseId(releaseId, user);
-            request.setAttribute(USING_PROJECTS, CommonUtils.nullToEmptySet(usingProjects));
+            request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
 
             final Set<Component> usingComponentsForRelease = client.getUsingComponentsForRelease(releaseId);
-            request.setAttribute(USING_COMPONENTS, CommonUtils.nullToEmptySet(usingComponentsForRelease));
+            request.setAttribute(USING_COMPONENTS, nullToEmptySet(usingComponentsForRelease));
         } else {
             request.setAttribute(USING_PROJECTS, Collections.emptySet());
             request.setAttribute(USING_COMPONENTS, Collections.emptySet());
@@ -872,7 +874,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         fillVendor(release);
         request.setAttribute(RELEASE, release);
         setAttachmentsInRequest(request, release.getAttachments());
-        putDirectlyLinkedReleaseRelationsInRequest(request, release.getReleaseIdToRelationship());
+        putDirectlyLinkedReleaseRelationsInRequest(request, release);
         request.setAttribute(USING_PROJECTS, Collections.emptySet());
         request.setAttribute(USING_COMPONENTS, Collections.emptySet());
     }

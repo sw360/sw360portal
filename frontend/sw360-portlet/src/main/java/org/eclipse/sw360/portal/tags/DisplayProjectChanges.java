@@ -10,6 +10,8 @@ package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.apache.thrift.TException;
+import org.apache.thrift.meta_data.FieldMetaData;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
@@ -17,15 +19,11 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
-import org.apache.thrift.TException;
-import org.apache.thrift.meta_data.FieldMetaData;
-import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
@@ -37,7 +35,7 @@ import static org.eclipse.sw360.portal.tags.TagUtils.*;
  * @author birgit.heydenreich@tngtech.com
  * @author alex.borodin@evosoft.com
  */
-public class DisplayProjectChanges extends NameSpaceAwareTag {
+public class DisplayProjectChanges extends UserAwareTag {
     private Project actual;
     private Project additions;
     private Project deletions;
@@ -114,12 +112,11 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
             }
 
             StringBuilder linkedProjectsDisplay = new StringBuilder();
-            renderLinkedProjects(linkedProjectsDisplay);
+            User user = getUserFromContext("Cannot render project changes without logged in user in request");
+            renderLinkedProjects(linkedProjectsDisplay, user);
 
             StringBuilder releaseUsageDisplay = new StringBuilder();
-            Optional<String> userEmailOpt = UserCacheHolder.getUserEmailFromRequest(pageContext.getRequest());
-            String userEmail = userEmailOpt.orElseThrow(() -> new JspException("Cannot render project changes without logged in user in request"));
-            renderReleaseIdToUsage(releaseUsageDisplay, userEmail);
+            renderReleaseIdToUsage(releaseUsageDisplay, user);
 
             jspWriter.print(renderString + linkedProjectsDisplay.toString() + releaseUsageDisplay.toString());
         } catch (Exception e) {
@@ -128,7 +125,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
         return SKIP_BODY;
     }
 
-    private void renderLinkedProjects(StringBuilder display) {
+    private void renderLinkedProjects(StringBuilder display, User user) {
        if (ensureSomethingTodoAndNoNullLinkedProjects()) {
 
             Set<String> changedProjectIds = Sets.intersection(additions.getLinkedProjects().keySet(),
@@ -142,14 +139,14 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
 
             Set<String> addedProjectIds = Sets.difference(additions.getLinkedProjects().keySet(), changedProjectIds);
 
-            renderProjectLinkList(display, deletions.getLinkedProjects(), removedProjectIds, "Removed Project Links");
-            renderProjectLinkList(display, additions.getLinkedProjects(), addedProjectIds, "Added Project Links");
+            renderProjectLinkList(display, deletions.getLinkedProjects(), removedProjectIds, "Removed Project Links", user);
+            renderProjectLinkList(display, additions.getLinkedProjects(), addedProjectIds, "Added Project Links", user);
             renderProjectLinkListCompare(
                     display,
                     actual.getLinkedProjects(),
                     deletions.getLinkedProjects(),
                     additions.getLinkedProjects(),
-                    changedProjectIds);
+                    changedProjectIds, user);
         }
     }
 
@@ -169,7 +166,8 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
     private void renderProjectLinkList(StringBuilder display,
                                        Map<String, ProjectRelationship> projectRelationshipMap,
                                        Set<String> projectIds,
-                                       String msg) {
+                                       String msg,
+                                       User user) {
         if (projectIds.isEmpty()) return;
 
         Map<String, ProjectRelationship> filteredMap = new HashMap<>();
@@ -179,8 +177,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
         StringBuilder candidate = new StringBuilder();
         try {
             ProjectService.Iface client = new ThriftClients().makeProjectClient();
-            //use getLinkedProjects, as it does not check permissions
-            for (ProjectLink projectLink : client.getLinkedProjects(filteredMap)) {
+            for (ProjectLink projectLink : client.getLinkedProjects(filteredMap, user)) {
                 candidate.append(
                         String.format("<tr><td>%s</td><td>%s</td></tr>", projectLink.getName(), projectLink.getRelation()));
             }
@@ -202,7 +199,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
                                               Map<String, ProjectRelationship> oldProjectRelationshipMap,
                                               Map<String, ProjectRelationship> deleteProjectRelationshipMap,
                                               Map<String, ProjectRelationship> updateProjectRelationshipMap,
-                                              Set<String> projectIds) {
+                                              Set<String> projectIds, User user) {
         if (projectIds.isEmpty()) return;
 
         StringBuilder candidate = new StringBuilder();
@@ -220,7 +217,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
                 }
             }
             //! This code doubling is done to reduce the database queries. I.e. one big query instead of multiple small ones
-            for (ProjectLink projectLink : client.getLinkedProjects(changeMap)) {
+            for (ProjectLink projectLink : client.getLinkedProjects(changeMap, user)) {
                 ProjectRelationship updateProjectRelationship = updateProjectRelationshipMap.get(projectLink.getId());
                 ProjectRelationship deleteProjectRelationship = deleteProjectRelationshipMap.get(projectLink.getId());
                 ProjectRelationship oldProjectRelationship = oldProjectRelationshipMap.get(projectLink.getId());
@@ -248,7 +245,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
         }
     }
 
-    private void renderReleaseIdToUsage(StringBuilder display, String userEmail) {
+    private void renderReleaseIdToUsage(StringBuilder display, User user) {
 
        if (ensureSomethingTodoAndNoNullReleaseIdUsage()) {
 
@@ -268,7 +265,7 @@ public class DisplayProjectChanges extends NameSpaceAwareTag {
                    additions.getReleaseIdToUsage().keySet(),
                    changedReleaseIds);
 
-           LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, userEmail);
+           LinkedReleaseRenderer renderer = new LinkedReleaseRenderer(display, tableClasses, idPrefix, user);
            renderer.renderReleaseLinkList(display, deletions.getReleaseIdToUsage(), removedReleaseIds, "Removed Release Links");
            renderer.renderReleaseLinkList(display, additions.getReleaseIdToUsage(), addedReleaseIds, "Added Release Links");
            renderer.renderReleaseLinkListCompare(display,

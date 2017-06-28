@@ -293,7 +293,8 @@ struct ReleaseLink{
     16: optional ReleaseRelationship releaseRelationship,
     17: optional MainlineState mainlineState,
 //    20: optional string parentId,
-    21: optional list<ReleaseLink> subreleases,
+//    21: optional list<ReleaseLink> subreleases,
+    22: required bool hasSubreleases,
     25: optional string nodeId,
     26: optional string parentNodeId,
 
@@ -543,7 +544,7 @@ service ComponentService {
     set<Attachment> getSourceAttachments(1:string releaseId);
 
     /**
-     *  make releaseLinks from linked releases of a project in order to display project moderation request
+     *  make releaseLinks from linked releases of a project in order to display project
      **/
     list<ReleaseLink> getLinkedReleases(1: map<string, ProjectReleaseRelationship> relations);
 
