@@ -10,6 +10,7 @@ package org.eclipse.sw360.exporter;
 
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -38,7 +39,8 @@ public class ExcelExporter<T, U extends ExporterHelper<T>> {
         final SXSSFWorkbook workbook = new SXSSFWorkbook();
         final ByteArrayInputStream stream;
         try {
-            Sheet sheet = workbook.createSheet("Data");
+            SXSSFSheet sheet = workbook.createSheet("Data");
+            sheet.trackAllColumnsForAutoSizing();
 
             /** Adding styles to cells */
             CellStyle cellStyle = createCellStyle(workbook);
