@@ -270,7 +270,7 @@ public class ProjectDatabaseHandler {
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
 
-        return ThriftUtils.getIdMap(componentDatabaseHandler.getReleases(releaseIdsToLoad, user));
+        return ThriftUtils.getIdMap(componentDatabaseHandler.getFullReleases(releaseIdsToLoad, user));
     }
 
     public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations, User user) {
