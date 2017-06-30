@@ -117,19 +117,26 @@
     function deleteAllLicenseInformation() {
 
         function deleteAllLicenseInformationInternal() {
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=deleteAllLicenseInformationURL%>',
-                cache: false,
-                success: function (data) {
-                    if (data.result == 'SUCCESS')
-                        $.alert("I deleted " + data.totalAffectedObjects + " of " + data.totalObjects + " total documents in the DB.");
-                    else {
-                        $.alert("I could not delete the license information!");
-                    }
-                },
-                error: function () {
-                    $.alert("I could not delete the license information!");
+            $.confirm({
+                title: "Delete",
+                content: function () {
+                    var self = this;
+                    return $.ajax({
+                        type: 'POST',
+                        url: '<%=deleteAllLicenseInformationURL%>',
+                        cache: false,
+                        dataType: 'json'
+                    }).done(function (data) {
+                        if (data.result == 'SUCCESS') {
+                            self.setTitle("Success");
+                            self.setContent("I deleted " + data.totalAffectedObjects + " of " + data.totalObjects + " total documents in the DB.");
+                        }else {
+                            self.setTitle("Failure");
+                            self.setContent("I could not delete the license information!");
+                        }
+                    }).fail(function(){
+                        self.setContent('Something went wrong.');
+                    });
                 }
             });
         }
@@ -143,19 +150,26 @@
     function importSpdxLicenseInformation() {
 
         function importSpdxLicenseInformationInternal() {
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=importSpdxLicenseInformationURL%>',
-                cache: false,
-                success: function (data) {
-                    if (data.result == 'SUCCESS')
-                        $.alert("I imported " + data.totalAffectedObjects + " of " + data.totalObjects + " SPDX licenses. " + data.message);
-                    else {
-                        $.alert("I could not import all license information!");
-                    }
-                },
-                error: function () {
-                    $.alert("I could not import all license information!");
+            $.confirm({
+                title: "Import",
+                content: function () {
+                    var self = this;
+                    return $.ajax({
+                        type: 'POST',
+                        url: '<%=importSpdxLicenseInformationURL%>',
+                        cache: false,
+                        dataType: 'json'
+                    }).done(function (data) {
+                        if (data.result == 'SUCCESS') {
+                            self.setTitle("Success");
+                            self.setContent("I imported " + data.totalAffectedObjects + " of " + data.totalObjects + " SPDX licenses. " + data.message);
+                        }else {
+                            self.setTitle("Failure");
+                            self.setContent("I could not import all SPDX license information!");
+                        }
+                    }).fail(function(){
+                        self.setContent('Something went wrong.');
+                    });
                 }
             });
         }

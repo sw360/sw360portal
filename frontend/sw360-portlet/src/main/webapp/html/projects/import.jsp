@@ -94,15 +94,14 @@
 
         <input type="button" value="Import" onclick="showImportProjectsPopup()"/>
     </form>
-
-    <div class="sw360modal" id="importOverview"/>
-
 </div>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 
 <script>
     var dataSourceTable;
@@ -151,8 +150,7 @@
     }
 
     function showImportProjectsPopup() {
-        var headerContent = "The following projects will be imported:",
-            bodyContent = "<ol>",
+        var bodyContent = "<ol>",
             selectedProjects = [];
 
         dataSourceTable.rows('.selected').data().each(function(e) {
@@ -169,66 +167,58 @@
         });
         bodyContent += "</ol>";
 
-        var modal = createModal('#importOverview',
-                {
-                    bodyContent: bodyContent
-                });
-        modal.setHeader(headerContent);
-        modal.addToolbar(
-            [
-                {
-                    label: 'Import',
-                    on: {
-                        click: function () {
-                            importProjectsData(modal);
-                        }
-                    }
+        $.confirm({
+            title: 'The following projects will be imported:',
+            content: bodyContent,
+            confirmButtonClass: 'btn-info',
+            cancelButtonClass: 'btn-danger',
+            buttons: {
+                import: function() {
+                    importProjectsData(selectedProjects);
                 },
-                {
-                    label: 'Cancel',
-                    on: {
-                        click: function() {
-                            modal.hide();
-                        }
-                    }
-                }
-            ]);
-        modal.render();
+                cancel: function () {
+                    //close
+                },
+            }
+        });
     }
 
-    function importProjectsData(modal) {
-        var checked = [];
-
-        dataSourceTable.rows('.selected').data().each(function(e) {
-            var chtml = $("<div/>").html(e[0]).contents();
-            checked.push(chtml.attr('id'));
-        });
-        modal.setHeader("Please wait while importing");
-        modal.addToolbar();
-        $.ajax({
-            url: '<%=ajaxURL%>',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                <portlet:namespace/>checked: checked,
-                <portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>:
-                    '<%=PortalConstants.IMPORT_USER_ACTION__IMPORTBDP%>'
-            },
-            success: function(response) {
-                var header = "Import result";
-                switch(response.<%=PortalConstants.IMPORT_RESPONSE__STATUS%>) {
-                    case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_SUCCESS%>':
-                        showStatusPopup('Projects imported successfully.', modal, header);
-                        break;
-                    case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_FAILURE%>':
-                        var failedIdsList = "<div>" + response.<%=PortalConstants.IMPORT_RESPONSE__FAILED_IDS%> + "</div>";
-                        showStatusPopup('Some projects failed to import:' + failedIdsList, modal, header);
-                        break;
-                    case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_GENERAL_FAILURE%>':
-                        showStatusPopup('Import failed.', modal, header);
-                        break;
-                    default:
-                }
+    function importProjectsData(selectedProjects) {
+        $.confirm({
+            title: "Import",
+            content: function () {
+                var self = this;
+                return $.ajax({
+                    url: '<%=ajaxURL%>',
+                    type: 'POST',
+                    cache: false,
+                    dataType: 'json',
+                    data: {
+                        "<portlet:namespace/>checked":
+                            selectedProjects.map(function (o) { return o["id"]; }),
+                        "<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>":
+                            '<%=PortalConstants.IMPORT_USER_ACTION__IMPORTBDP%>'
+                    }
+                }).done(function (response) {
+                    self.setTitle("Import result");
+                    switch(response.<%=PortalConstants.IMPORT_RESPONSE__STATUS%>) {
+                        case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_SUCCESS%>':
+                            self.setContent('Projects imported successfully.');
+                            break;
+                        case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_FAILURE%>':
+                            var failedIdsList = "<div>" + response.<%=PortalConstants.IMPORT_RESPONSE__FAILED_IDS%> + "</div>";
+                            self.setContent('Some projects failed to import:' + failedIdsList);
+                            break;
+                        case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_GENERAL_FAILURE%>':
+                            flashErrorMessage('Could not import the projects.');
+                            self.setContent('Import failed.');
+                            break;
+                        default:
+                    }
+                }).fail(function(){
+                    flashErrorMessage('Could not import the projects.');
+                    self.close();
+                });
             }
         });
     }
@@ -240,18 +230,29 @@
 
         switch(responseCode) {
             case '<%=PortalConstants.IMPORT_RESPONSE__DB_CHANGED%>':
-                var data = new Object();
-                data["<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>"] = "<%=PortalConstants.IMPORT_USER_ACTION__UPDATEIMPORTABLES%>";
-                $.ajax({
-                    url: '<%=ajaxURL%>',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: data,
-                    success: function(response) {
-                        importUpdateProjectTable(response);
+                showLogin(serverURL);
+                $.confirm({
+                    title: "Fetch projects",
+                    content: function () {
+                        var self = this;
+                        return $.ajax({
+                            url: '<%=ajaxURL%>',
+                            type: 'POST',
+                            cache: false,
+                            dataType: 'json',
+                            data: {
+                                "<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>":
+                                    "<%=PortalConstants.IMPORT_USER_ACTION__UPDATEIMPORTABLES%>"
+                            }
+                        }).done(function (response) {
+                            importUpdateProjectTable(response);
+                            self.close();
+                        }).fail(function(){
+                            flashErrorMessage('Could not get the projects.');
+                            self.close();
+                        });
                     }
                 });
-                showLogin(serverURL);
                 break;
             case '<%=PortalConstants.IMPORT_RESPONSE__DB_CONNECT_ERROR%>':
                 flashErrorMessage('Could not connect to DB.');
@@ -299,19 +300,29 @@
             return;
         }
         var serverUrl = $("#input-dataserver-url").val(),
-                data = new Object();
+            data = new Object();
         data["<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>"] = "<%=PortalConstants.IMPORT_USER_ACTION__NEWIMPORTSOURCE%>";
         data["<portlet:namespace/><%=PortalConstants.SESSION_IMPORT_URL%>"] = serverUrl;
         data["<portlet:namespace/><%=PortalConstants.SESSION_IMPORT_USER%>"] = $("#input-dataserver-user").val();
         data["<portlet:namespace/><%=PortalConstants.SESSION_IMPORT_PASS%>"] = $("#input-dataserver-pw").val();
 
-        $.ajax({
-            url: '<%=ajaxURL%>',
-            type: 'POST',
-            dataType: 'json',
-            data: data,
-            success: function(response) {
-                connectDBRequestSuccess(response, serverUrl);
+        $.confirm({
+            title: "Authenticate",
+            content: function () {
+                var self = this;
+                return $.ajax({
+                    url: '<%=ajaxURL%>',
+                    type: 'POST',
+                    cache: false,
+                    dataType: 'json',
+                    data: data
+                }).done(function (response) {
+                    self.close();
+                    connectDBRequestSuccess(response, serverUrl);
+                }).fail(function(){
+                    flashErrorMessage('Could not connect to server.');
+                    self.close();
+                });
             }
         });
     }
