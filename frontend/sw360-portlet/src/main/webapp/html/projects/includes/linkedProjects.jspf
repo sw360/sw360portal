@@ -41,7 +41,7 @@
     </tr>
     </thead>
     <tbody>
-    <jsp:include page="/html/utils/ajax/linkedProjectsRows.jsp" />
+    <%@include file="/html/utils/ajax/linkedProjectsRows.jspf"%>
     <core_rt:if test="${projectList.size() == 1 and empty projectList.get(0).linkedReleases}">
         <tr>
             <td colspan="5">No linked releases or projects</td>

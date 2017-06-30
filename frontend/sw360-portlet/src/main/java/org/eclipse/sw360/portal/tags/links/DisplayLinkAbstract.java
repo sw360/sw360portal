@@ -28,9 +28,18 @@ public abstract class DisplayLinkAbstract extends TagSupport {
     public Boolean bare = false;
     protected Long scopeGroupId;
 
+    public void setScopeGroupId(Long scopeGroupId) {
+        if(scopeGroupId != null && scopeGroupId != 0) {
+            this.scopeGroupId = scopeGroupId;
+        }
+    }
+
     @Override
     public int doStartTag() throws JspException {
-        scopeGroupId = (Long)pageContext.getAttribute("scopeGroupId");
+        Long scopeGroupIdAttribute = (Long) pageContext.getAttribute("scopeGroupId");
+        if (scopeGroupIdAttribute != null && scopeGroupIdAttribute != 0 && (scopeGroupId == null || scopeGroupId == 0)) {
+            this.scopeGroupId = scopeGroupIdAttribute;
+        }
         try {
             JspWriter jspWriter = pageContext.getOut();
             if (!bare) jspWriter.write("<a href='");

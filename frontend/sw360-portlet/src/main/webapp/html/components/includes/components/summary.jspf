@@ -79,7 +79,7 @@
     <tr>
         <td>Main licenses: </td>
         <td>
-            <tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
+            <sw360:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
         </td>
     </tr>
 </table>

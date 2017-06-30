@@ -629,6 +629,12 @@
             <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>scopeGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>DisplayModerationRequestLink</name>
@@ -720,6 +726,12 @@
             <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>scopeGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>DisplayLicenseLink</name>
@@ -741,6 +753,23 @@
             <name>bare</name>
             <required>false</required>
             <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplayLicenseCollection</name>
+        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayLicenseCollection</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>licenseIds</name>
+            <required>true</required>
+            <type>java.util.Collection</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>scopeGroupId</name>
+            <required>false</required>
+            <type>java.lang.Long</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

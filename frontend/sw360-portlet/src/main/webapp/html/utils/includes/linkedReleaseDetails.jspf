@@ -40,7 +40,7 @@
     </tr>
     </thead>
     <tbody>
-    <jsp:include page="/html/utils/ajax/linkedReleasesRows.jsp" />
+    <%@include file="/html/utils/ajax/linkedReleasesRows.jspf" %>
 
     <core_rt:if test="${releaseList.size() < 1}">
         <tr>

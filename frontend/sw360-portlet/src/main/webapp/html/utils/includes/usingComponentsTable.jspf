@@ -32,7 +32,7 @@
                     <sw360:DisplayComponentLink component="${component}"/>&nbsp;
                 </td>
                 <td>
-                    <tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}"
+                    <sw360:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}"
                                                    scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/>
                 </td>
                 <td>

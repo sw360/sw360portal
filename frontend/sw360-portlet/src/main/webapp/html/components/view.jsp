@@ -276,7 +276,7 @@
         var result = [];
 
         <core_rt:forEach items="${componentList}" var="component">
-        <core_rt:set var="licenseCollectionTagOutput"><tags:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/></core_rt:set>
+        <core_rt:set var="licenseCollectionTagOutput"><sw360:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/></core_rt:set>
         result.push({
             "DT_RowId": "${component.id}",
             "id": "${component.id}",

@@ -21,9 +21,7 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.portal.common.AttachmentPortletUtils;
 import org.eclipse.sw360.portal.common.PortalConstants;
-import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
@@ -31,12 +29,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.portal.common.PortalConstants.PARENT_BRANCH_ID;
 import static org.eclipse.sw360.portal.common.PortalConstants.PROJECT_LIST;
 import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_LIST;
@@ -150,6 +146,7 @@ public abstract class LinkedReleasesAndProjectsAwarePortlet extends AttachmentAw
             putLinkedProjectsInRequest(request, new Project(), user);
         }
 
+        request.setAttribute(PortalConstants.PARENT_SCOPE_GROUP_ID, request.getParameter(PortalConstants.PARENT_SCOPE_GROUP_ID));
         include("/html/utils/ajax/linkedProjectsRows.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
@@ -171,6 +168,7 @@ public abstract class LinkedReleasesAndProjectsAwarePortlet extends AttachmentAw
             putDirectlyLinkedReleaseRelationsInRequest(request, new Release());
         }
 
+        request.setAttribute(PortalConstants.PARENT_SCOPE_GROUP_ID, request.getParameter(PortalConstants.PARENT_SCOPE_GROUP_ID));
         include("/html/utils/ajax/linkedReleasesRows.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 }
