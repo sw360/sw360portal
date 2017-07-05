@@ -34,6 +34,7 @@ public class LicenseSummary extends DocumentSummary<License> {
                 copyField(document, copy, _Fields.LICENSE_TYPE);
             default:
                 copyField(document, copy, _Fields.ID);
+                copy.setShortname(document.getId());
                 copyField(document, copy, _Fields.FULLNAME);
                 copyField(document, copy, _Fields.LICENSE_TYPE_DATABASE_ID);
         }

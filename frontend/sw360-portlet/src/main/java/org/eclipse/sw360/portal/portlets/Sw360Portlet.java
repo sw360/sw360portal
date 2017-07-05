@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -193,15 +195,17 @@ abstract public class Sw360Portlet extends MVCPortlet {
                 LicenseService.Iface client = thriftClients.makeLicenseClient();
                 List<License> licenses = client.getLicenseSummary();
 
-                if (!isNullOrEmpty(searchText)) {
-                    licenses = FluentIterable.from(licenses).filter(new Predicate<License>() {
-                        @Override
-                        public boolean apply(License input) {
-                            String fullname = input.getFullname();
-                            return !isNullOrEmpty(fullname) && fullname.contains(searchText);
-                        }
-                    }).toList();
-                }
+           
+                licenses = FluentIterable.from(licenses).filter(new Predicate<License>() {
+                    @Override
+                    public boolean apply(License input) {
+                        String fullname = input.getFullname();
+                        String shortname = input.getShortname();
+                        return (StringUtils.containsIgnoreCase(fullname, searchText)
+                                || StringUtils.containsIgnoreCase(shortname, searchText));
+                    }
+                }).toList();
+                
 
                 request.setAttribute(PortalConstants.LICENSE_LIST, licenses);
                 include("/html/utils/ajax/licenseListAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
