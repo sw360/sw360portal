@@ -44,7 +44,7 @@
             <tbody style="background-color: #f8f7f7; border: none;">
             <tr>
                 <td>
-                    <input type="text" maxlength="100" style="width: 200px; padding: 5px; color: gray;height:20px;"
+                    <input type="text"  maxlength="100" class="searchbar"
                            id="keywordsearchinput" name="<portlet:namespace/><%=KEY_SEARCH_TEXT%>"
                            value="${searchtext}">
                     <br/>

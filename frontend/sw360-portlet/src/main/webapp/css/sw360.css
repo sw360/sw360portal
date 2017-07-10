@@ -190,7 +190,7 @@ div.content2 {
 
 #searchInput .searchbar {
     display: inline-block;
-    color: #cccccc;
+    color: rgb(85, 85, 85);
     width: 90%;
     padding: 5px;
     height: 20px;
