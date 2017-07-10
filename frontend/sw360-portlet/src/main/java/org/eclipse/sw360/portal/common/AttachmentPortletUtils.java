@@ -12,6 +12,8 @@ package org.eclipse.sw360.portal.common;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.util.PortalUtil;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.Duration;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentStreamConnector;
@@ -24,14 +26,13 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 import org.ektorp.DocumentNotFoundException;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -40,10 +41,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static java.net.URLConnection.guessContentTypeFromName;
 import static java.net.URLConnection.guessContentTypeFromStream;
-import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 
 /**
  * Portlet helpers
@@ -54,9 +53,9 @@ import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
  * @author birgit.heydenreich@tngtech.com
  */
 public class AttachmentPortletUtils {
+    public static final String DEFAULT_ATTACHMENT_BUNDLE_NAME = "AttachmentBundle.zip";
 
     private static final Logger log = Logger.getLogger(AttachmentPortletUtils.class);
-    private static final String DEFAULT_ATTACHMENT_BUNDLE_NAME = "AttachmentBundle.zip";
     private final ThriftClients thriftClients;
     private final AttachmentService.Iface client;
     private final ProjectService.Iface projectClient;

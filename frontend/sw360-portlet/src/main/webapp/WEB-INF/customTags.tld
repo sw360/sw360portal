@@ -2,6 +2,8 @@
   ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
+  ~ SPDX-License-Identifier: EPL-1.0
+  ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
   ~ which accompanies this distribution, and is available at
@@ -823,27 +825,27 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>attachmentEntryVar</name>
+            <name>var</name>
             <required>true</required>
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>bare</name>
+            <name>filterAttachmentType</name>
             <required>false</required>
-            <type>java.lang.Boolean</type>
+            <type>org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 
     <tag>
-        <name>DisplayDownloadAttachment</name>
-        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayDownloadAttachment</tag-class>
+        <name>DisplayDownloadAttachmentFile</name>
+        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayDownloadAttachmentFile</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>id</name>
+            <name>attachment</name>
             <required>true</required>
-            <type>java.lang.String</type>
+            <type>org.eclipse.sw360.datahandler.thrift.attachments.Attachment</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
@@ -858,34 +860,46 @@
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+    </tag>
+
+    <tag>
+        <name>DisplayDownloadApprovedClearingReport</name>
+        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayDownloadApprovedClearingReport</tag-class>
+        <body-content>empty</body-content>
         <attribute>
-            <name>name</name>
-            <required>false</required>
+            <name>attachment</name>
+            <required>true</required>
+            <type>org.eclipse.sw360.datahandler.thrift.attachments.Attachment</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>contextType</name>
+            <required>true</required>
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>bare</name>
-            <required>false</required>
-            <type>java.lang.Boolean</type>
+            <name>contextId</name>
+            <required>true</required>
+            <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 
     <tag>
         <name>DisplayDownloadAttachmentBundle</name>
-        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayDownloadAttachment</tag-class>
+        <tag-class>org.eclipse.sw360.portal.tags.links.DisplayDownloadAttachmentBundle</tag-class>
         <body-content>empty</body-content>
-        <attribute>
-            <name>ids</name>
-            <required>true</required>
-            <type>java.lang.Object</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
         <attribute>
             <name>name</name>
             <required>false</required>
             <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>attachments</name>
+            <required>true</required>
+            <type>java.util.Set</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
@@ -898,12 +912,6 @@
             <name>contextId</name>
             <required>true</required>
             <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>bare</name>
-            <required>false</required>
-            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
