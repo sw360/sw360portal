@@ -23,7 +23,6 @@ import org.eclipse.sw360.datahandler.permissions.ProjectPermissions;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,8 +34,6 @@ import java.util.List;
  * @author cedric.bodet@tngtech.com
  */
 public class DatabaseSearchHandler {
-
-    private static final Logger log = Logger.getLogger(DatabaseSearchHandler.class);
 
     private static final LuceneSearchView luceneSearchView = new LuceneSearchView("lucene", "all",
             "function(doc) {" +
@@ -123,7 +120,7 @@ public class DatabaseSearchHandler {
             return true;
         }
         Project project =  projectRepository.get(result.id);
-        return ProjectPermissions.isVisible(user).apply(project);
+        return ProjectPermissions.isVisible(user).test(project);
     }
 
     /**

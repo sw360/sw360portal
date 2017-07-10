@@ -15,23 +15,24 @@ import com.github.ldriscoll.ektorplucene.util.IndexUploader;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.permissions.ProjectPermissions;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.apache.log4j.Logger;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.ThriftEnumUtils.enumByString;
-import static org.eclipse.sw360.datahandler.common.ThriftEnumUtils.stringToEnum;
+
 
 /**
  * Generic database connector for handling lucene searches
@@ -153,7 +154,6 @@ public class LuceneAwareDatabaseConnector extends LuceneAwareCouchDbConnector {
     /**
      * Search the database for a given string and types
      */
-
     public <T> List<T> searchViewWithRestrictions(Class<T> type,LuceneSearchView luceneSearchView, String text, final Map<String , Set<String > > subQueryRestrictions) {
         List <String> subQueries = new ArrayList<>();
         for (Map.Entry<String, Set<String>> restriction : subQueryRestrictions.entrySet()) {
@@ -174,9 +174,11 @@ public class LuceneAwareDatabaseConnector extends LuceneAwareCouchDbConnector {
         return searchView(type, luceneSearchView, query);
     }
 
-    public List<Project> searchViewWithRestrictions(LuceneSearchView luceneSearchView, String text, final Map<String , Set<String > > subQueryRestrictions, User user) {
-        List<Project> projectList = searchViewWithRestrictions(Project.class, luceneSearchView,text,subQueryRestrictions);
-        return FluentIterable.from(projectList).filter(ProjectPermissions.isVisible(user)).toList();
+    public List<Project> searchProjectViewWithRestrictionsAndFilter(LuceneSearchView luceneSearchView, String text,
+            final Map<String, Set<String>> subQueryRestrictions, User user) {
+        List<Project> projectList = searchViewWithRestrictions(Project.class, luceneSearchView, text,
+                subQueryRestrictions);
+        return projectList.stream().filter(ProjectPermissions.isVisible(user)).collect(Collectors.toList());
     }
 
     private static String formatSubquery(Set<String> filterSet, final String fieldname) {

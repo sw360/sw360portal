@@ -8,11 +8,8 @@
  */
 package org.eclipse.sw360.datahandler.permissions;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.Visibility;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
@@ -22,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -112,7 +110,7 @@ public class ProjectPermissions extends DocumentPermissions<Project> {
     @Override
     public boolean isActionAllowed(RequestedAction action) {
         if (action == RequestedAction.READ) {
-            return isVisible(user).apply(document);
+            return isVisible(user).test(document);
         } else if (document.getClearingState() == ProjectClearingState.CLOSED) {
             switch (action) {
                 case WRITE:

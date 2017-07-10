@@ -8,23 +8,20 @@
  */
 package org.eclipse.sw360.datahandler.db;
 
-        import org.eclipse.sw360.datahandler.common.DatabaseSettings;
-        import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
-        import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneSearchView;
-        import org.eclipse.sw360.datahandler.thrift.projects.Project;
-        import org.eclipse.sw360.datahandler.thrift.users.User;
-        import org.apache.log4j.Logger;
-        import org.ektorp.http.HttpClient;
+import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneSearchView;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.ektorp.http.HttpClient;
 
-        import java.io.IOException;
-        import java.util.List;
-        import java.util.Map;
-        import java.util.Set;
-        import java.util.function.Supplier;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public class ProjectSearchHandler {
-
-    private static final Logger log = Logger.getLogger(ComponentSearchHandler.class);
 
     private static final LuceneSearchView luceneSearchView = new LuceneSearchView("lucene", "projects",
             "function(doc) {" +
@@ -58,6 +55,9 @@ public class ProjectSearchHandler {
                     "    if(doc.name !== undefined && doc.name != null && doc.name.length >0) {  "+
                     "      ret.add(doc.name, {\"field\": \"name\"} );" +
                     "    }" +
+                    "    if(doc.version !== undefined && doc.version != null && doc.version.length >0) {  "+
+                    "      ret.add(doc.version, {\"field\": \"version\"} );" +
+                    "    }" +
                     "    if(doc.state !== undefined && doc.state != null && doc.state.length >0) {  "+
                     "      ret.add(doc.state, {\"field\": \"state\"} );" +
                     "    }" +
@@ -77,7 +77,7 @@ public class ProjectSearchHandler {
     }
 
     public List<Project> search(String text, final Map<String , Set<String > > subQueryRestrictions, User user ){
-        return connector.searchViewWithRestrictions(luceneSearchView, text, subQueryRestrictions, user);
+        return connector.searchProjectViewWithRestrictionsAndFilter(luceneSearchView, text, subQueryRestrictions, user);
     }
 
 }
