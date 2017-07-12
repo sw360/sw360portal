@@ -53,7 +53,7 @@
         <tbody style="background-color: #f8f7f7; border: none;">
         <tr>
             <td>
-                <input type="text" style="width: 90%; padding: 5px; color: gray;height:20px;"
+                <input type="text" class="searchbar"
                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
                 <br/>
                 <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
