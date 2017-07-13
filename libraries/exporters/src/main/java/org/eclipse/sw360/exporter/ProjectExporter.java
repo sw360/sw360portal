@@ -18,17 +18,16 @@ import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.thrift.projects.Project._Fields.*;
+import static org.eclipse.sw360.datahandler.thrift.projects.Project._Fields.DOCUMENT_STATE;
+import static org.eclipse.sw360.datahandler.thrift.projects.Project._Fields.PERMISSIONS;
+import static org.eclipse.sw360.datahandler.thrift.projects.Project._Fields.REVISION;
 
 public class ProjectExporter extends ExcelExporter<Project, ProjectHelper> {
-
-    private static final Logger log = Logger.getLogger(ProjectHelper.class);
 
     private static final Map<String, String> nameToDisplayName;
 

@@ -27,7 +27,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertId;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertIdUnset;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.SW360Assert.assertUser;
 
 /**
  * Implementation of the Thrift service
@@ -62,6 +65,10 @@ public class ComponentHandler implements ComponentService.Iface {
     /////////////////////
     // SUMMARY GETTERS //
     /////////////////////
+    @Override
+    public List<Component> getComponentsShort(Set<String> ids) {
+        return handler.getComponentsShort(ids);
+    }
 
     @Override
     public List<Component> getComponentSummary(User user) throws TException {

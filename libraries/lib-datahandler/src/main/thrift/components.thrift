@@ -308,6 +308,11 @@ struct ReleaseLink{
 service ComponentService {
 
     /**
+     * short summary of all components identified by the given ids
+     **/
+    list<Component> getComponentsShort(1: set<string> ids);
+
+    /**
      * short summary of all components visible to user
      **/
     list<Component> getComponentSummary(1: User user);

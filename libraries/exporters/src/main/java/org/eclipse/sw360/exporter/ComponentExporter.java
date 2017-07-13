@@ -9,7 +9,6 @@
 package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.thrift.components.Component._Fields.*;
 
 public class ComponentExporter extends ExcelExporter<Component, ComponentHelper> {
-    private static final Logger log = Logger.getLogger(ComponentExporter.class);
 
     private static final Map<String, String> nameToDisplayName;
 

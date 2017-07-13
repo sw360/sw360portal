@@ -36,6 +36,7 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -44,7 +45,9 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.joinStrings;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.datahandler.thrift.projects.projectsConstants.CLEARING_TEAM_UNKNOWN;
-import static org.eclipse.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.portal.common.PortalConstants.CLEARING_TEAM;
+import static org.eclipse.sw360.portal.common.PortalConstants.PROJECT_ID;
+import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_ID;
 
 /**
  * Fossology aware portlet implementation
@@ -208,13 +211,15 @@ public abstract class FossologyAwarePortlet extends LinkedReleasesAndProjectsAwa
     }
 
     protected void putReleasesAndProjectIntoRequest(PortletRequest request, String projectId, User user) throws TException {
-        Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(projectId, user);
+        ProjectService.Iface client = thriftClients.makeProjectClient();
+        Project project = client.getProjectById(projectId, user);
+        Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(
+                project, user);
         request.setAttribute(PortalConstants.RELEASES_AND_PROJECTS, releaseStringMap);
     }
 
-    protected Map<Release, ProjectNamesWithMainlineStatesTuple> getProjectsNamesWithMainlineStatesByRelease(String projectId, User user) throws TException {
-        ProjectService.Iface client = thriftClients.makeProjectClient();
-        Project project = client.getProjectById(projectId, user);
+    protected Map<Release, ProjectNamesWithMainlineStatesTuple> getProjectsNamesWithMainlineStatesByRelease(
+            Project project, User user) throws TException {
         SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdsToProject = releaseIdToProjects(project, user);
         List<Release> releasesById = thriftClients.makeComponentClient().getFullReleasesById(releaseIdsToProject.keySet(), user);
 

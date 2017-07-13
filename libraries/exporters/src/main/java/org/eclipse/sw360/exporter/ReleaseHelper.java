@@ -8,11 +8,15 @@
  */
 package org.eclipse.sw360.exporter;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.common.UncheckedSW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.*;
@@ -21,18 +25,53 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.putReleaseNamesInMap;
-import static org.eclipse.sw360.exporter.ReleaseExporter.*;
+import static org.eclipse.sw360.exporter.ReleaseExporter.HEADERS;
+import static org.eclipse.sw360.exporter.ReleaseExporter.HEADERS_EXTENDED_BY_ADDITIONAL_DATA;
+import static org.eclipse.sw360.exporter.ReleaseExporter.RELEASE_RENDERED_FIELDS;
+import static org.eclipse.sw360.exporter.ReleaseExporter.VENDOR_IGNORED_FIELDS;
 
 class ReleaseHelper implements ExporterHelper<Release> {
-    private final ComponentService.Iface client;
+
+    private final ComponentService.Iface cClient;
+
+    /**
+     * if a not empty map is assigned to this field, additional data has to be added
+     * to each row
+     */
+    private final Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap;
 
     private Map<String, Release> preloadedLinkedReleases = null;
+    private Map<String, Component> preloadedComponents = null;
 
-    protected ReleaseHelper(ComponentService.Iface client) {
-        this.client = client;
+    /**
+     * @param cClient
+     *            a {@link ComponentService.Iface} implementation
+     * @throws SW360Exception
+     */
+    protected ReleaseHelper(ComponentService.Iface cClient) throws SW360Exception {
+        this(cClient, null);
     }
 
+    /**
+     * @param cClient
+     *            a {@link ComponentService.Iface} implementation
+     * @param releaseToShortenedStringsMap
+     *            has to be given if additional data like component type and project
+     *            origin should be included - may be <code>null</code> or an empty
+     *            map otherwise
+     * @throws SW360Exception
+     */
+    protected ReleaseHelper(ComponentService.Iface cClient,
+            Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap) throws SW360Exception {
+        this.cClient = cClient;
+        this.releaseToShortenedStringsMap = releaseToShortenedStringsMap;
+        this.preloadedComponents = new HashMap<>();
 
+        if (addAdditionalData()) {
+            batchloadComponents(this.releaseToShortenedStringsMap.keySet().stream().map(Release::getComponentId)
+                    .collect(Collectors.toSet()));
+        }
+    }
 
     @Override
     public int getColumns() {
@@ -41,14 +80,11 @@ class ReleaseHelper implements ExporterHelper<Release> {
 
     @Override
     public List<String> getHeaders() {
-        return HEADERS;
+        return addAdditionalData() ? HEADERS_EXTENDED_BY_ADDITIONAL_DATA : HEADERS;
     }
 
     @Override
     public SubTable makeRows(Release release) throws SW360Exception {
-        if (!release.isSetAttachments()) {
-            release.setAttachments(Collections.emptySet());
-        }
         List<String> row = new ArrayList<>();
         for (Release._Fields renderedField : RELEASE_RENDERED_FIELDS) {
             addFieldValueToRow(row, renderedField, release);
@@ -58,6 +94,29 @@ class ReleaseHelper implements ExporterHelper<Release> {
 
     private void addFieldValueToRow(List<String> row, Release._Fields field, Release release) throws SW360Exception {
         switch (field) {
+            case COMPONENT_ID:
+                // first, add data for given field
+                row.add(release.getComponentId());
+
+                // second, add joined data - but only if wanted
+                // remark that headers have already been added accordingly
+                if (addAdditionalData()) {
+                    // add component type
+                    Component component = this.preloadedComponents.get(release.componentId);
+                    if (component != null) {
+                        row.add(ThriftEnumUtils.enumToString(component.getComponentType()));
+                    } else {
+                        row.add("");
+                    }
+
+                    // add project origin
+                    if (releaseToShortenedStringsMap.containsKey(release)) {
+                        row.add(releaseToShortenedStringsMap.get(release).projectNames);
+                    } else {
+                        row.add("");
+                    }
+                }
+                break;
             case VENDOR:
                 addVendorToRow(release.getVendor(), row);
                 break;
@@ -74,7 +133,8 @@ class ReleaseHelper implements ExporterHelper<Release> {
                 addReleaseIdToRelationShipToRow(release.getReleaseIdToRelationship(), row);
                 break;
             case ATTACHMENTS:
-                row.add(release.attachments.size() + "");
+                String size = Integer.toString(release.isSetAttachments() ? release.getAttachments().size() : 0);
+                row.add(size);
                 break;
             default:
                 Object fieldValue = release.getFieldValue(field);
@@ -168,8 +228,29 @@ class ReleaseHelper implements ExporterHelper<Release> {
         }
     }
 
-    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) {
+    private boolean addAdditionalData() {
+        return MapUtils.isNotEmpty(releaseToShortenedStringsMap);
+    }
+
+    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) throws SW360Exception {
         this.preloadedLinkedReleases = preloadedLinkedReleases;
+
+        this.batchloadComponents(
+                preloadedLinkedReleases.values().stream().map(Release::getComponentId).collect(Collectors.toSet()));
+    }
+
+    private void batchloadComponents(Set<String> cIds) throws SW360Exception {
+        // components are only needed if additional data should be added
+        if (addAdditionalData()) {
+            try {
+                List<Component> componentsShort = cClient.getComponentsShort(cIds);
+
+                this.preloadedComponents.putAll(ThriftUtils.getIdMap(componentsShort));
+            } catch (TException e) {
+                throw new SW360Exception(
+                        "Could not get Components for ids [" + cIds + "] because of:\n" + e.getMessage());
+            }
+        }
     }
 
     List<Release> getReleases(Set<String> ids) throws SW360Exception {
@@ -178,10 +259,14 @@ class ReleaseHelper implements ExporterHelper<Release> {
         }
         List<Release> releasesByIdsForExport;
         try {
-            releasesByIdsForExport = client.getReleasesByIdsForExport(nullToEmptySet(ids));
+            releasesByIdsForExport = cClient.getReleasesByIdsForExport(nullToEmptySet(ids));
         } catch (TException e) {
             throw new SW360Exception("Error fetching release information");
         }
+
+        // update preload cache so that it is available on next call to this method
+        setPreloadedLinkedReleases(ThriftUtils.getIdMap(releasesByIdsForExport));
+
         return releasesByIdsForExport;
     }
 
