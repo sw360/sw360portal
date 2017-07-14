@@ -76,7 +76,7 @@
                 {title: "Name"},
                 {title: "Project Origin"},
                 {title: "Clearing State"},
-                {title: "Mainline State"},
+                {title: "Release Mainline State"},
                 {title: "Project Mainline State"},
                 {title: "Action", data: "DT_RowId", render: renderActions}
             ],

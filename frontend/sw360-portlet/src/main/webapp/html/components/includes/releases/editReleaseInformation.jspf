@@ -105,7 +105,7 @@
                     value="<sw360:DisplayEnum value="${release.clearingState}"/>"/>
         </td>
         <td width="33%">
-            <label class="textlabel stackedLabel" for="mainline_state">Mainline State</label>
+            <label class="textlabel stackedLabel" for="mainline_state">Release Mainline State</label>
             <select class="toplabelledInput" id="mainline_state"
                     name="<portlet:namespace/><%=Release._Fields.MAINLINE_STATE%>"
                     style="min-width: 162px; min-height: 28px;">

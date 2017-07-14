@@ -76,7 +76,7 @@
                 {"sTitle": "Release version"},
                 {"sTitle": "Clearing state"},
                 {"sTitle": "Clearing report"},
-                {"sTitle": "Mainline state"},
+                {"sTitle": "Release Mainline state"},
                 {"sTitle": "Actions"}
             ]
         });
