@@ -115,6 +115,13 @@
             </tr>
             <tr>
                 <td>
+                    <label for="project_version">Project Version</label>
+                    <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.VERSION%>"
+                           value="${version}" id="project_version" class="filterInput">
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <label for="project_type">Project Type</label>
                     <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.PROJECT_TYPE%>"
                            value="${projectType}" id="project_type" class="filterInput">

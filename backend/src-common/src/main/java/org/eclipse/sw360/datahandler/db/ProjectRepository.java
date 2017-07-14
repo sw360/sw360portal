@@ -244,7 +244,7 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
          *  this is to refactor if say an enum value gets renamed...
          * **/
         final List<Project> all = getAll();
-        return all.stream().filter(ProjectPermissions.isVisible(user)::apply).collect(Collectors.toSet());
+        return all.stream().filter(ProjectPermissions.isVisible(user)::test).collect(Collectors.toSet());
     }
 
     public List<Project> searchByName(String name, User user) {

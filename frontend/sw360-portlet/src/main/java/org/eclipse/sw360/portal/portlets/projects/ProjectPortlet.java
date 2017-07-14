@@ -51,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLConnection;
@@ -88,6 +89,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(
             Project._Fields.BUSINESS_UNIT,
+            Project._Fields.VERSION,
             Project._Fields.PROJECT_TYPE,
             Project._Fields.PROJECT_RESPONSIBLE,
             Project._Fields.NAME,
@@ -860,18 +862,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             log.error("Error fetching project from backend!", e);
         }
 
-    }
-
-    private Set<Project> getAccessibleProjects(User user) {
-        Set<Project> projects;
-        try {
-            ProjectService.Iface client = thriftClients.makeProjectClient();
-            projects = client.getAccessibleProjects(user);
-        } catch (TException e) {
-            log.error("Could not fetch project summary from backend!", e);
-            projects = Collections.emptySet();
-        }
-        return projects;
     }
 
     //! Actions
