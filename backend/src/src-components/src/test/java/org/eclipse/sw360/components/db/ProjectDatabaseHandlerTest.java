@@ -170,6 +170,7 @@ public class ProjectDatabaseHandlerTest {
                 .setNodeId("P3")
                 .setParentNodeId("P2")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(2)
                 .setLinkedReleases(Arrays.asList(releaseLinkR2A, releaseLinkR2B))
                 .setSubprojects(Collections.emptyList());
@@ -178,6 +179,7 @@ public class ProjectDatabaseHandlerTest {
                 .setNodeId("P4")
                 .setParentNodeId("P2")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(2)
                 .setSubprojects(Collections.emptyList());
         ProjectLink link2 = new ProjectLink("P2", "project2")
@@ -185,6 +187,7 @@ public class ProjectDatabaseHandlerTest {
                 .setNodeId("P2")
                 .setParentNodeId("P1")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(1)
                 .setLinkedReleases(Arrays.asList(releaseLinkR1A, releaseLinkR1B))
                 .setSubprojects(Arrays.asList(link3, link4));
@@ -192,6 +195,7 @@ public class ProjectDatabaseHandlerTest {
                 .setRelation(ProjectRelationship.UNKNOWN)
                 .setNodeId("P1")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(0)
                 .setSubprojects(Arrays.asList(link2));
 
@@ -218,12 +222,14 @@ public class ProjectDatabaseHandlerTest {
                 .setRelation(ProjectRelationship.CONTAINED)
                 .setNodeId("P7")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(1)
                 .setParentNodeId("P5");
         ProjectLink link7_6 = new ProjectLink("P7", "project7")
                 .setRelation(ProjectRelationship.CONTAINED)
                 .setNodeId("P7")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(2)
                 .setParentNodeId("P6");
 
@@ -232,12 +238,14 @@ public class ProjectDatabaseHandlerTest {
                 .setNodeId("P6")
                 .setParentNodeId("P5")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(1)
                 .setSubprojects(Arrays.asList(link7_6));
         ProjectLink link5 = new ProjectLink("P5", "project5")
                 .setRelation(ProjectRelationship.UNKNOWN)
                 .setNodeId("P5")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(0)
                 .setSubprojects(Arrays.asList(link6, link7_5));
 
@@ -264,6 +272,7 @@ public class ProjectDatabaseHandlerTest {
                 .setRelation(ProjectRelationship.CONTAINED)
                 .setNodeId("P7")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(1)
                 .setParentNodeId("P5");
 
@@ -272,12 +281,14 @@ public class ProjectDatabaseHandlerTest {
                 .setNodeId("P6")
                 .setParentNodeId("P5")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(1)
                 .setSubprojects(Collections.emptyList());
         ProjectLink link5 = new ProjectLink("P5", "project5")
                 .setRelation(ProjectRelationship.UNKNOWN)
                 .setNodeId("P5")
                 .setProjectType(ProjectType.CUSTOMER)
+                .setState(ProjectState.ACTIVE)
                 .setTreeLevel(0)
                 .setSubprojects(Arrays.asList(link6, link7_5));
 

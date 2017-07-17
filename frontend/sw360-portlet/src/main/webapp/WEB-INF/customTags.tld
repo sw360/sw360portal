@@ -110,6 +110,17 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayProjectStateBox</name>
+        <tag-class>org.eclipse.sw360.portal.tags.DisplayProjectStateBox</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>org.apache.thrift.TEnum</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplayEnumOptions</name>
         <tag-class>org.eclipse.sw360.portal.tags.DisplayEnumSelection</tag-class>
         <body-content>empty</body-content>

@@ -131,6 +131,7 @@ struct ProjectLink {
     6: optional string nodeId,
     7: optional string parentNodeId,
     8: optional ProjectType projectType,
+    13:optional ProjectState state,
     9: optional ProjectClearingState clearingState,
     10: optional list<ReleaseLink> linkedReleases,
     11: optional list<ProjectLink> subprojects,

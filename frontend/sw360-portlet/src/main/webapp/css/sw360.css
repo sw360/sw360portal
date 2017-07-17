@@ -365,19 +365,39 @@ input[readonly].clickable {
     float: right;
 }
 
-.backgroundAlert {
+.stateBox {
+    height: 25px;
+    padding: 0 4px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 25px;
+    text-align: center;
+    float: left;
+}
+
+.capsuleLeft {
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.capsuleRight {
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.backgroundAlert, .clearingStateOpen {
     background: #e95850;
 }
 
-.backgroundWarning {
+.backgroundWarning, .clearingStateInProgress {
     background: #e9e17e;
 }
 
-.backgroundOK {
+.backgroundOK, .projectStateActive, .clearingStateClosed {
     background: #9de997;
 }
 
-.backgroundGrey {
+.backgroundGrey, .projectStateInactive, .clearingStateUnknown {
     background: #aaaaaa;
 }
 
