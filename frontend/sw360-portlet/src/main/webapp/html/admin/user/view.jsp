@@ -1,12 +1,14 @@
-<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~
+  ~ SPDX-License-Identifier: EPL-1.0
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
@@ -100,7 +102,7 @@
             <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.USER_LIST%>'/>
                          </portlet:resourceURL>">
-                <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+                <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
             </a>
             </td>
         </tr>

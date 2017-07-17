@@ -1,5 +1,7 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~
+  ~ SPDX-License-Identifier: EPL-1.0
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -26,8 +28,8 @@
         <th colspan="8" class="headlabel">
             Attachments
             <core_rt:if test="${not empty attachments}">
-                <sw360:DisplayDownloadAttachmentBundle ids="${attachments}"
-                                                       name="${AttachmentBundle.zip}"
+                <sw360:DisplayDownloadAttachmentBundle name="AttachmentBundle.zip"
+													   attachments="${attachments}"
                                                        contextType="${documentType}"
                                                        contextId="${documentID}"/>
             </core_rt:if>
@@ -39,10 +41,9 @@
         <core_rt:forEach items="${attachments}" var="attachment" varStatus="loop">
             <tr id="attachmentRow1${loop.count}">
                 <td colspan="8" class="attachmentTitle">
-                    <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}"
-                                                     name="${attachment.filename}"
-                                                     contextType="${documentType}"
-                                                     contextId="${documentID}"/>
+                    <sw360:DisplayDownloadAttachmentFile attachment="${attachment}"
+                                                         contextType="${documentType}"
+                                                         contextId="${documentID}"/>
                     "<sw360:out value="${attachment.filename}"/>"
                 </td>
             </tr>

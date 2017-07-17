@@ -1,5 +1,7 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~
+  ~ SPDX-License-Identifier: EPL-1.0
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -69,10 +71,9 @@
                             />
                         </td>
                         <td class="downloader">
-                            <sw360:DisplayDownloadAttachment id="${attachment.attachmentContentId}"
-                                                             name="${attachment.filename}"
-                                                             contextType="${documentType}"
-                                                             contextId="${documentID}"/>
+                            <sw360:DisplayDownloadAttachmentFile attachment="${attachment}"
+                                                                 contextType="${documentType}"
+                                                                 contextId="${documentID}"/>
                         </td>
                         <td class="deletor">
                             <img src="<%=request.getContextPath()%>/images/Trash.png"

@@ -1,12 +1,14 @@
-<%@ page import="org.eclipse.sw360.portal.common.page.PortletReleasePage" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~
+  ~ SPDX-License-Identifier: EPL-1.0
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
---%>
+  --%>
+<%@ page import="org.eclipse.sw360.portal.common.page.PortletReleasePage,org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType" %>
 
 <portlet:resourceURL var="deleteReleaseAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DELETE_RELEASE%>'/>
@@ -52,7 +54,7 @@
             "0": "${release.name}",
             "1": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.RELEASE_ID%>" value="${release.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_RELEASE_DETAIL%>"/></portlet:renderURL>' target='_self'>" + "${release.version}" + "</a>",
             "2": "<span id='clearingState${release.id}'><sw360:DisplayEnum value="${release.clearingState}"/></span>",
-            "3": "<sw360:DisplayDownloadReport attachments="${release.attachments}" attachmentEntryVar="entry"><sw360:DisplayDownloadAttachment id="${entry.key}" name="${entry.value}"  contextType="${release.type}" contextId="${release.id}" /></sw360:DisplayDownloadReport>",
+            "3": "<sw360:DisplayDownloadReport attachments="${release.attachments}" filterAttachmentType="<%=AttachmentType.CLEARING_REPORT%>" var="attachment"><sw360:DisplayDownloadApprovedClearingReport attachment="${attachment}" contextType="${release.type}" contextId="${release.id}" /></sw360:DisplayDownloadReport>",
             "4": "<span id='mainlineState${release.id}'><sw360:DisplayEnum value="${release.mainlineState}"/></span>",
             <core_rt:if test="${inComponentDetailsContext}">
             "5": "<span id='fossologySending${release.id}'></span><span id='releaseAction${release.id}'><img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' onclick='openSelectClearingDialog(\"fossologySending${release.id}\",\"${release.id}\")' alt='SelectClearing' title='send to Fossology'></span>"

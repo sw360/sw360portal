@@ -1,34 +1,40 @@
+/*
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ *
+ * SPDX-License-Identifier: EPL-1.0
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.sw360.portal.tags;
 
 import com.google.common.collect.Sets;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.portal.common.PortalConstants;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.apache.thrift.protocol.TType;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.tags.urlutils.UrlWriter;
-
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
+
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.getNullToEmptyValue;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.unifiedKeyset;
 import static org.eclipse.sw360.portal.tags.urlutils.UrlWriterImpl.resourceUrl;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
  * Utils for Tags
@@ -43,6 +49,8 @@ public class TagUtils {
     public static final String CURRENT_VAL = "Current Value";
     public static final String DELETED_VAL = "Former Value";
     public static final String SUGGESTED_VAL = "Suggested Value";
+
+    public static final String NO_FILENAME = "(no filename)";
 
     public static <U extends TFieldIdEnum, T extends TBase<T, U>> void displaySimpleFieldOrSet(StringBuilder display,
                                                                                                T oldInstance,
@@ -227,13 +235,19 @@ public class TagUtils {
         return fieldDisplay;
     }
 
+    public static String escapeAttributeValue(String value) {
+        return value != null ? StringEscapeUtils.escapeHtml(value).replaceAll("'", "&#39;") : "";
+    }
+
     public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, String id, String contextType, String contextId)
             throws IOException, JspException {
         addDownloadLink(pageContext, jspWriter, name, Collections.singleton(id), contextType, contextId);
     }
+
     public static void addDownloadLink(PageContext pageContext, JspWriter jspWriter, String name, Collection<String> ids, String contextType, String contextId)
             throws IOException, JspException {
-        name = escapeHtml(" " + name);
+        name = name != null ? escapeAttributeValue(name) : NO_FILENAME;
+
         jspWriter.write("<a href='");
         UrlWriter urlWriter = resourceUrl(pageContext)
                 .withParam(PortalConstants.ACTION, PortalConstants.ATTACHMENT_DOWNLOAD)
@@ -244,7 +258,7 @@ public class TagUtils {
         }
         urlWriter.writeUrlToJspWriter();
         jspWriter.write(format(
-                "'><img src='%s/images/downloadEnable.jpg' alt='Download%s' title='Download%s'/>",
+                "'><img src='%s/images/download_enabled.jpg' alt='Download %s' title='Download %s'/>",
                 ((HttpServletRequest) pageContext.getRequest()).getContextPath(), name, name));
         jspWriter.write("</a>");
     }

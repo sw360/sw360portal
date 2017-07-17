@@ -1,5 +1,7 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~
+  ~ SPDX-License-Identifier: EPL-1.0
   ~
   ~ All rights reserved. This program and the accompanying materials
   ~ are made available under the terms of the Eclipse Public License v1.0
@@ -42,7 +44,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
@@ -51,7 +53,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_SAMPLE%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
@@ -60,7 +62,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_SAMPLE_ATTACHMENT_INFO%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
@@ -69,7 +71,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_ATTACHMENT_INFO%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
@@ -78,7 +80,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_SAMPLE_RELEASE_LINK_INFO%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
@@ -87,7 +89,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_RELEASE_LINK_INFO%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
@@ -96,7 +98,7 @@
         <td><a href="<portlet:resourceURL>
                                <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DOWNLOAD_LICENSE_BACKUP%>'/>
                          </portlet:resourceURL>">
-            <img src="<%=request.getContextPath()%>/images/downloadEnable.jpg" alt="Download">
+            <img src="<%=request.getContextPath()%>/images/download_enabled.jpg" alt="Download">
         </a>
         </td>
     </tr>
