@@ -175,6 +175,8 @@ are excluded from the WAR file while packaging. Using below configuration,
 
 SPDX Short Identifier: http://spdx.org/licenses/EPL-1.0
 
+SPDX-License-Identifier: EPL-1.0
+
 All rights reserved. This program and the accompanying materials
 are made available under the terms of the Eclipse Public License v1.0
 which accompanies this distribution, and is available at
