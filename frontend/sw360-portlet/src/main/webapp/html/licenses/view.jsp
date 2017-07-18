@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -50,7 +50,7 @@
             <thead>
             <tr>
                 <th class="infoheading">
-                    Display Filter
+                    Quick Filter
                 </th>
             </tr>
             </thead>
@@ -59,9 +59,6 @@
                 <td>
                     <input type="text" class="searchbar"
                            id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                    <br/>
-                    <input class="searchbutton"
-                           type="button" name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
                 </td>
             </tr>
             </tbody>
@@ -107,11 +104,12 @@
         });
     </core_rt:forEach>
 
-        licenseTable = $('#licensesTable').dataTable({
-            "sPaginationType": "full_numbers",
-            "iDisplayLength": 10,
-            "oLanguage": {
-                "sLengthMenu": 'Display <select>\
+        licenseTable = $('#licensesTable').DataTable({
+            pagingType: "simple_numbers",
+            dom: "lrtip",
+            pageLength: 10,
+            "language": {
+                "lengthMenu": 'Display <select>\
                 <option value="5">5</option>\
                 <option value="10">10</option>\
                 <option value="20">20</option>\
@@ -119,22 +117,17 @@
                 <option value="100">100</option>\
                 </select> licenses'
             },
-            "aaData": result,
-            "aoColumns": [
-                { "sTitle": "License Shortname" },
-                { "sTitle": "License Fullname" },
-                { "sTitle": "License Type" }
+            "data": result,
+            "columns": [
+                { "title": "License Shortname" },
+                { "title": "License Fullname" },
+                { "title": "License Type" }
             ]
         });
-
-        $('#licensesTable_filter').hide();
-        $('#licensesTable_first').hide();
-        $('#licensesTable_last').hide();
-
     }
 
     function useSearch(searchFieldId) {
-        licenseTable.fnFilter( $('#'+searchFieldId).val());
+        licenseTable.search($('#'+searchFieldId).val()).draw();
     }
 
 </script>

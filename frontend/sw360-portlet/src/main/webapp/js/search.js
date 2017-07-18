@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -34,18 +34,16 @@ function parseList(listString ){
 
 function createSearchTable(data) {
     $('#searchTable').dataTable({
-        "sPaginationType": "full_numbers",
-        "aaData": data,
-        "aoColumns": [
-            { "sTitle": "Type",
+        "pagingType": "simple_numbers",
+        dom: "lrtip",
+        "data": data,
+        "columns": [
+            { "title": "Type",
                 "mRender": function ( data, type, full ) {
                     return typeColumn( data, type, full );
                 }
             },
-            { "sTitle": "Text" }
+            { "title": "Text" }
         ]
     });
-    $('#searchTable_filter').hide();
-    $('#searchTable_first').hide();
-    $('#searchTable_last').hide();
 }

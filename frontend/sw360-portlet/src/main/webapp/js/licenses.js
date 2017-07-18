@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -60,10 +60,11 @@ function getLicenseType(lic) {
 function createLicenseTable(data) {
 
     licensesTable = $('#licensesTable').dataTable({
-        "sPaginationType": "full_numbers",
-        "iDisplayLength": 10,
-        "oLanguage": {
-            "sLengthMenu": 'Display <select>\
+        pagingType: "simple_numbers",
+        dom: "lrtip",
+        pageLength: 10,
+        "language": {
+            "lengthMenu": 'Display <select>\
                 <option value="5">5</option>\
                 <option value="10">10</option>\
                 <option value="20">20</option>\
@@ -71,20 +72,12 @@ function createLicenseTable(data) {
                 <option value="100">100</option>\
                 </select> licenses'
         },
-        "aaData": data,
-        "aoColumns": [
-            { "sTitle": "License Shortname" },
-            { "sTitle": "License Fullname" },
-            { "sTitle": "License Type" }
+        "data": data,
+        "columns": [
+            { "title": "License Shortname" },
+            { "title": "License Fullname" },
+            { "title": "License Type" }
         ]
     });
 
-    $('#licensesTable_filter').hide();
-    $('#licensesTable_first').hide();
-    $('#licensesTable_last').hide();
-
-}
-
-function licenseSearch(searchFieldId) {
-    licensesTable.fnFilter( $('#'+searchFieldId).val());
 }

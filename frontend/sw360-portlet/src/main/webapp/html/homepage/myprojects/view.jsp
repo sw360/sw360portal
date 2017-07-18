@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -42,19 +42,15 @@
         </core_rt:forEach>
 
         $('#myProjectsTable').dataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "rtip",
             data: result,
-            "iDisplayLength": 10,
+            pageLength: 10,
             columns: [
                 {"title": "Project Name"},
                 {"title": "Description"},
             ]
         });
-
-        $('#myProjectsTable_filter').hide();
-        $('#myProjectsTable_first').hide();
-        $('#myProjectsTable_last').hide();
-        $('#myProjectsTable_length').hide();
     });
 
 </script>

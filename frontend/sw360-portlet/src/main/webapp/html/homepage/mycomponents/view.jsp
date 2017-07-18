@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -45,19 +45,15 @@
         </core_rt:forEach>
 
         $('#myComponentsTable').dataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "rtip",
             data: result,
-            "iDisplayLength": 10,
+            pageLength: 10,
             columns: [
                 {"title": "Component Name"},
                 {"title": "Description"}
             ]
         });
-
-        $('#myComponentsTable_filter').hide();
-        $('#myComponentsTable_first').hide();
-        $('#myComponentsTable_last').hide();
-        $('#myComponentsTable_length').hide();
     });
 
 </script>

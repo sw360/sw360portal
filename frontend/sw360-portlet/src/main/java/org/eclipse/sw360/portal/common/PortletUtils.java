@@ -11,9 +11,25 @@
 package org.eclipse.sw360.portal.common;
 
 import com.google.common.collect.Sets;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.Role;
+import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.security.permission.ActionKeys;
+import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.service.RoleLocalServiceUtil;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.expando.model.ExpandoColumn;
+import com.liferay.portlet.expando.model.ExpandoColumnConstants;
+import com.liferay.portlet.expando.model.ExpandoTableConstants;
+import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.*;
@@ -44,6 +60,8 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static java.lang.Integer.parseInt;
+import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_COMPONENTS_VIEW_SIZE;
+import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
 
 /**
  * Portlet helpers
@@ -339,5 +357,41 @@ public class PortletUtils {
             }
         }
         return customMap;
+    }
+
+    private static com.liferay.portal.model.User getLiferayUser(PortletRequest request, User user) throws PortalException, SystemException {
+        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        long companyId = themeDisplay.getCompanyId();
+        return UserLocalServiceUtil.getUserByEmailAddress(companyId, user.email);
+    }
+
+    static void ensureUserCustomFieldExists(com.liferay.portal.model.User liferayUser, PortletRequest request, String customFieldName, int customFieldType) throws PortalException, SystemException {
+        ExpandoBridge exp = liferayUser.getExpandoBridge();
+        if (!exp.hasAttribute(customFieldName)){
+            exp.addAttribute(customFieldName, customFieldType, false);
+            long companyId = liferayUser.getCompanyId();
+
+            ExpandoColumn column = ExpandoColumnLocalServiceUtil.getColumn(companyId, exp.getClassName(), ExpandoTableConstants.DEFAULT_TABLE_NAME, customFieldName);
+
+            String[] roleNames = new String[]{RoleConstants.USER, RoleConstants.POWER_USER};
+            for (String roleName: roleNames) {
+                Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
+                if (role != null && column != null) {
+                    ResourcePermissionLocalServiceUtil.setResourcePermissions(companyId,
+                            ExpandoColumn.class.getName(),
+                            ResourceConstants.SCOPE_INDIVIDUAL,
+                            String.valueOf(column.getColumnId()),
+                            role.getRoleId(),
+                            new String[]{ActionKeys.VIEW, ActionKeys.UPDATE});
+                }
+            }
+        }
+    }
+
+    public static ExpandoBridge getUserExpandoBridge(PortletRequest request, User user) throws PortalException, SystemException {
+        com.liferay.portal.model.User liferayUser = getLiferayUser(request, user);
+        ensureUserCustomFieldExists(liferayUser, request, CUSTOM_FIELD_PROJECT_GROUP_FILTER, ExpandoColumnConstants.STRING);
+        ensureUserCustomFieldExists(liferayUser, request, CUSTOM_FIELD_COMPONENTS_VIEW_SIZE, ExpandoColumnConstants.INTEGER);
+        return liferayUser.getExpandoBridge();
     }
 }

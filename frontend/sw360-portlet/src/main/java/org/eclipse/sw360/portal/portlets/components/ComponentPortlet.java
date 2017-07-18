@@ -16,6 +16,8 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -42,8 +44,6 @@ import org.eclipse.sw360.portal.common.*;
 import org.eclipse.sw360.portal.portlets.FossologyAwarePortlet;
 import org.eclipse.sw360.portal.users.LifeRayUserSession;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletResponse;
@@ -54,9 +54,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
@@ -749,10 +747,12 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
+            int limit = loadAndStoreStickyViewSize(request, user);
             ComponentService.Iface componentClient = thriftClients.makeComponentClient();
+            request.setAttribute(PortalConstants.TOTAL_ROWS, componentClient.getTotalComponentsCount(user));
 
             if (filterMap.isEmpty()) {
-                componentList = componentClient.getComponentSummary(user);
+                componentList = componentClient.getRecentComponentsSummary(limit, user);
             } else {
                 componentList = componentClient.refineSearch(null, filterMap);
             }
@@ -761,6 +761,19 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             componentList = Collections.emptyList();
         }
         return componentList;
+    }
+
+    private int loadAndStoreStickyViewSize(PortletRequest request, User user) {
+        String view_size = request.getParameter(PortalConstants.VIEW_SIZE);
+        final int limit;
+        if (isNullEmptyOrWhitespace(view_size)){
+            limit = ComponentPortletUtils.loadStickyViewSize(request, user);
+        } else {
+            limit = Integer.parseInt(view_size);
+            ComponentPortletUtils.saveStickyViewSize(request, user, limit);
+        }
+        request.setAttribute(PortalConstants.VIEW_SIZE, limit);
+        return limit;
     }
 
     //! Actions

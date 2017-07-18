@@ -48,6 +48,7 @@ import javax.portlet.ResourceRequest;
 import java.util.*;
 
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
+import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
 
 /**
  * Component portlet implementation
@@ -160,36 +161,7 @@ public class ProjectPortletUtils {
         return vulnerabilityCheckStatus;
     }
 
-    private static com.liferay.portal.model.User getLiferayUser(PortletRequest request, User user) throws PortalException, SystemException {
-        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        long companyId = themeDisplay.getCompanyId();
-        return UserLocalServiceUtil.getUserByEmailAddress(companyId, user.email);
-    }
-
-    static void ensureUserCustomFieldExists(com.liferay.portal.model.User liferayUser, PortletRequest request) throws PortalException, SystemException {
-        ExpandoBridge exp = liferayUser.getExpandoBridge();
-        if (!exp.hasAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER)){
-            exp.addAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER, ExpandoColumnConstants.STRING, false);
-            long companyId = liferayUser.getCompanyId();
-
-            ExpandoColumn column = ExpandoColumnLocalServiceUtil.getColumn(companyId, exp.getClassName(), ExpandoTableConstants.DEFAULT_TABLE_NAME, CUSTOM_FIELD_PROJECT_GROUP_FILTER);
-
-            String[] roleNames = new String[]{RoleConstants.USER, RoleConstants.POWER_USER};
-            for (String roleName: roleNames) {
-                Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
-                if (role != null && column != null) {
-                    ResourcePermissionLocalServiceUtil.setResourcePermissions(companyId,
-                            ExpandoColumn.class.getName(),
-                            ResourceConstants.SCOPE_INDIVIDUAL,
-                            String.valueOf(column.getColumnId()),
-                            role.getRoleId(),
-                            new String[]{ActionKeys.VIEW, ActionKeys.UPDATE});
-                }
-            }
-        }
-    }
-
-    static void saveStickyProjectGroup(PortletRequest request, User user, String groupFilterValue) {
+    public static void saveStickyProjectGroup(PortletRequest request, User user, String groupFilterValue) {
         try {
             ExpandoBridge exp = getUserExpandoBridge(request, user);
             exp.setAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER, groupFilterValue);
@@ -198,7 +170,7 @@ public class ProjectPortletUtils {
         }
     }
 
-    static String loadStickyProjectGroup(PortletRequest request, User user){
+    public static String loadStickyProjectGroup(PortletRequest request, User user){
         try {
             ExpandoBridge exp = getUserExpandoBridge(request, user);
             return (String) exp.getAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER);
@@ -206,12 +178,6 @@ public class ProjectPortletUtils {
             log.error("Could not load sticky project group from custom field", e);
             return null;
         }
-    }
-
-    private static ExpandoBridge getUserExpandoBridge(PortletRequest request, User user) throws PortalException, SystemException {
-        com.liferay.portal.model.User liferayUser = getLiferayUser(request, user);
-        ensureUserCustomFieldExists(liferayUser, request);
-        return liferayUser.getExpandoBridge();
     }
 
     public static Map<String, Set<String>> getSelectedReleaseAndAttachmentIdsFromRequest(ResourceRequest request) {

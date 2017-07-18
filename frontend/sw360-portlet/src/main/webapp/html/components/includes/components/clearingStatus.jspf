@@ -69,9 +69,9 @@
         </core_rt:forEach>
 
         releaseTable = $('#releasesTable').DataTable({
-            "sPaginationType": "full_numbers",
-            "aaData": result,
-            "aoColumns": [
+            "pagingType": "simple_numbers",
+            "data": result,
+            "columns": [
                 {"sTitle": "Release name"},
                 {"sTitle": "Release version"},
                 {"sTitle": "Clearing state"},
@@ -80,9 +80,6 @@
                 {"sTitle": "Actions"}
             ]
         });
-
-        $('#releasesTable_first').hide();
-        $('#releasesTable_last').hide();
 
     }
 

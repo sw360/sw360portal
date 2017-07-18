@@ -44,7 +44,7 @@
                         <thead>
                         <tr>
                             <th class="infoheading">
-                                Display Filter
+                                Quick Filter
                             </th>
                         </tr>
                         </thead>
@@ -53,9 +53,6 @@
                             <td>
                                 <input type="text" class="searchbar"
                                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                                <br/>
-                                <input class="searchbutton" type="button"
-                                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
                             </td>
                         </tr>
                         </tbody>
@@ -89,10 +86,10 @@
     </div>
 </div>
 
+<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
 
@@ -165,7 +162,8 @@
 
     function createModerationsTable(tableId, tableData) {
         var tbl = $(tableId).DataTable({
-            pagingType: "full_numbers",
+            pagingType: "simple_numbers",
+            dom: "lrtip",
             data: tableData,
             columns: [
                 {"title": "Document Name"},
@@ -175,10 +173,6 @@
                 {"title": "Actions"}
             ]
         });
-
-        $(tableId+'_filter').hide();
-        $(tableId+'_first').hide();
-        $(tableId+'_last').hide();
 
         return tbl;
     }

@@ -88,23 +88,23 @@
         </core_rt:forEach>
 
         projectVulnerabilityTable = $('#vulnerabilityTable').DataTable({
-            "sPaginationType": "full_numbers",
-            "aaData": result,
-            "aoColumns": [
-                {"sTitle": "Release"},
-                {"sTitle": "External id"},
-                {"sTitle": "Priority"},
-                {"sTitle": "Matched by"},
-                {"sTitle": "Title"},
+            pagingType: "simple_numbers",
+            "data": result,
+            "columns": [
+                {"title": "Release"},
+                {"title": "External id"},
+                {"title": "Priority"},
+                {"title": "Matched by"},
+                {"title": "Title"},
                 <core_rt:choose>
                     <core_rt:when test="${vulnerabilityRatingsEditable}">
-                        {"sTitle": "Relevance for project", "orderDataType": "sort-select" },
+                        {"title": "Relevance for project", "orderDataType": "sort-select" },
                     </core_rt:when>
                     <core_rt:otherwise>
-                        {"sTitle": "Relevance for project"},
+                        {"title": "Relevance for project"},
                      </core_rt:otherwise>
                 </core_rt:choose>
-                {"sTitle": "Action"}
+                {"title": "Action"}
             ],
             "order": [[ 2, 'asc' ], [ 3, 'desc' ]]
         });
@@ -116,9 +116,6 @@
                 return $(this).prop('title');
             }
         });
-
-        $('#vulnerabilityTable_first').hide();
-        $('#vulnerabilityTable_last').hide();
     }
 
     /*This can not be document ready function as liferay definitions need to be loaded first*/

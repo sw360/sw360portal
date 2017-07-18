@@ -80,11 +80,8 @@
                 {title: "Project Mainline State"},
                 {title: "Action", data: "DT_RowId", render: renderActions}
             ],
-            paginationType: "full_numbers"
+            pagingType: "simple_numbers"
         });
-
-        $('#releasesTable_first').hide();
-        $('#releasesTable_last').hide();
 
     }
 

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -50,7 +50,7 @@
         <thead>
         <tr>
             <th class="infoheading">
-                Display Filter
+                Quick Filter
             </th>
         </tr>
         </thead>
@@ -59,9 +59,6 @@
             <td>
                 <input type="text" class="searchbar"
                        id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-                <br/>
-                <input style="padding: 5px 20px 5px 20px; border: none; font-weight:bold;" type="button"
-                       name="searchBtn" value="Search" onclick="useSearch('keywordsearchinput')">
             </td>
         </tr>
         </tbody>
@@ -107,7 +104,7 @@
     }
 
     function useSearch( buttonId) {
-        vendorsTable.fnFilter( $('#'+buttonId).val());
+        vendorsTable.search($('#'+buttonId).val()).draw();
     }
 
     function createVendorsTable() {
@@ -123,8 +120,9 @@
         });
         </core_rt:forEach>
 
-        vendorsTable = $('#vendorsTable').dataTable({
-            pagingType: "full_numbers",
+        vendorsTable = $('#vendorsTable').DataTable({
+            pagingType: "simple_numbers",
+            dom: "lrtip",
             data: result,
             columns: [
                 { "title": "Full Name" },
@@ -133,9 +131,6 @@
                 { "title": "Actions"}
             ]
         });
-        $('#vendorsTable_filter').hide();
-        $('#vendorsTable_first').hide();
-        $('#vendorsTable_last').hide();
     }
 
     function deleteVendor( id, name ) {

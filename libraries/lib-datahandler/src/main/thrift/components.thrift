@@ -315,6 +315,17 @@ service ComponentService {
     list<Component> getComponentSummary(1: User user);
 
     /**
+     * summary of up to `limit` components reverse ordered by `createdOn`. Negative `limit` will result in
+     * all components being returned
+     **/
+    list<Component> getRecentComponentsSummary(1: i32 limit, 2: User user);
+
+    /**
+     * total number of components in the DB, irrespective of whether the user may see them or not
+     **/
+    i32 getTotalComponentsCount(1: User user);
+
+    /**
      * short summary of all releases visible to user
      **/
     list<Release> getReleaseSummary(1: User user);
@@ -343,11 +354,6 @@ service ComponentService {
      * information for home portlet
      **/
     list<Release> getSubscribedReleases(1: User user);
-
-    /**
-     * information for home portlet
-     **/
-    list<Component> getRecentComponents();
 
     /**
      * information for home portlet
