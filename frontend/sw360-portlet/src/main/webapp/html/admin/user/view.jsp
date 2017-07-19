@@ -10,9 +10,11 @@
   --%>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
-<%@include file="/html/init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+
+
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
@@ -22,32 +24,16 @@
 <portlet:actionURL var="updateLifeRayUsers" name="updateUsers">
 </portlet:actionURL>
 
-<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
+
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Liferay Users</span> <span
         class="pageHeaderSmallSpan">(${userList.size()}) </span></p>
 
 <div id="searchInput" class="content1">
-    <table style="width: 90%; margin-left:3%;border:1px solid #cccccc;">
-        <thead>
-        <tr>
-            <th class="infoheading">
-                Quick Filter
-            </th>
-        </tr>
-        </thead>
-        <tbody style="background-color: #f8f7f7; border: none;">
-        <tr>
-            <td>
-                <input type="text" class="searchbar"
-                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <%@ include file="/html/utils/includes/quickfilter.jspf" %>
 </div>
 
 <div id="searchTableDiv" class="content2">
@@ -141,59 +127,55 @@
             <input type="submit" value="Update Users" class="addButton" id="<portlet:namespace/>userCSV-Submit" disabled>
         </div>
     </form>
-
 </div>
 
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
-    var PortletURL;
-    AUI().use('liferay-portlet-url', function (A) {
-        PortletURL = Liferay.PortletURL;
-        load();
-    });
+    AUI().use('liferay-portlet-url', function () {
+        var PortletURL = Liferay.PortletURL;
 
-    var usersTable;
-    var usersMissingTable;
+        require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables'], function($, quickfilter) {
+            var usersTable,
+                usersMissingTable;
 
-    //This can not be document ready function as liferay definitions need to be loaded first
-    function load() {
-        configureUsersTable();
-        configureMissingUsersTable();
-    }
+            // initializing
+            load();
 
-    document.getElementById("<portlet:namespace/>userFileUploadInput").onchange = function () {
-        if (this.value) {
-            document.getElementById("<portlet:namespace/>userCSV-Submit").disabled = false;
-        }
-    }
-
-    function configureUsersTable() {
-        usersTable = setupPagination('#userTable');
-    }
-
-    function configureMissingUsersTable() {
-        usersMissingTable = setupPagination('#userMissingTable');
-    }
-
-    function setupPagination(tableSelector){
-        var tbl;
-        if ($(tableSelector)){
-            tbl = $(tableSelector).DataTable({
-                "pagingType": "simple_numbers",
-                dom: "lrtip"
+            // register event handlers
+            $('#<portlet:namespace/>userFileUploadInput').on('change', function (event) {
+                if ($(event.currentTarget).val()) {
+                    $("#<portlet:namespace/>userCSV-Submit").prop('disabled', false);
+                }
             });
-        }
-        return tbl;
-    }
 
-    function useSearch( buttonId) {
-        var searchText = $('#'+buttonId).val();
-        usersTable.search(searchText).draw();
-        usersMissingTable.search(searchText).draw();
-    }
+            // helper functions
+            function load() {
+                usersTable = configureUsersTable();
+                usersMissingTable = configureMissingUsersTable();
+
+                quickfilter.addTable(usersTable);
+                quickfilter.addTable(usersMissingTable);
+            }
+
+            function configureUsersTable() {
+                return setupPagination('#userTable');
+            }
+
+            function configureMissingUsersTable() {
+                return setupPagination('#userMissingTable');
+            }
+
+            function setupPagination(tableSelector){
+                var tbl;
+                if ($(tableSelector)){
+                    tbl = $(tableSelector).DataTable({
+                        "pagingType": "simple_numbers",
+                        "dom": "lrtip"
+                    });
+                }
+                return tbl;
+            }
+        });
+    });
 </script>
-
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-
-
-

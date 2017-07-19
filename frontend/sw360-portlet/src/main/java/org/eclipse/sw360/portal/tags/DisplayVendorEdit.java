@@ -11,10 +11,10 @@
 package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
-import org.apache.thrift.TException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -30,6 +30,7 @@ public class DisplayVendorEdit extends NameSpaceAwareTag {
     private String vendorId="";
     private Vendor vendor=null;
     private String onclick = "";
+    private String releaseId = "";
     private String namespace;
     private Boolean displayLabel=true;
     public void setId(String id) {
@@ -45,6 +46,10 @@ public class DisplayVendorEdit extends NameSpaceAwareTag {
 
     public void setOnclick(String onclick) {
         this.onclick = onclick;
+    }
+
+    public void setReleaseId(String releaseId) {
+        this.releaseId = releaseId;
     }
 
     public int doStartTag() throws JspException {
@@ -80,7 +85,9 @@ public class DisplayVendorEdit extends NameSpaceAwareTag {
     private void printEmptyVendor(StringBuilder display) {
         printLabel(display);
         display.append(String.format("<input type=\"hidden\" readonly=\"\" value=\"\"  id=\"%s\" name=\"%s%s\"/>", id, namespace, id))
-                .append(String.format("<input type=\"text\" readonly=\"\" class=\"clickable\" placeholder=\"Click to set vendor\" id=\"%sDisplay\" onclick=\"%s\" />", id, onclick));
+                .append(String.format(
+                        "<input type=\"text\" readonly=\"\" class=\"clickable edit-vendor\" placeholder=\"Click to set vendor\" id=\"%sDisplay\" onclick=\"%s\" data-release-id=\"%s\"/>",
+                        id, onclick, releaseId));
     }
 
     private void printLabel(StringBuilder display) {
@@ -92,7 +99,9 @@ public class DisplayVendorEdit extends NameSpaceAwareTag {
     private void printFullVendor(StringBuilder display, Vendor vendor) {
         printLabel(display);
         display.append(String.format("<input type=\"hidden\" readonly=\"\" value=\"%s\"  id=\"%s\" name=\"%s%s\"/>", vendor.getId(), id, namespace, id))
-                .append(String.format("<input type=\"text\" readonly=\"\" class=\"clickable\" value=\"%s\" id=\"%sDisplay\" onclick=\"%s\" />", vendor.getFullname(), id, onclick));
+                .append(String.format(
+                        "<input type=\"text\" readonly=\"\" class=\"clickable edit-vendor\" value=\"%s\" id=\"%sDisplay\" onclick=\"%s\" data-release-id=\"%s\"/>",
+                        vendor.getFullname(), id, onclick, releaseId));
     }
 
     public void setDisplayLabel(Boolean displayLabel) {

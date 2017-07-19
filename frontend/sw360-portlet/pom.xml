@@ -29,6 +29,7 @@
         <jquery.treetable.version>3.2.0</jquery.treetable.version>
         <jquery.validation.version>1.15.1</jquery.validation.version>
         <resumable.js.version>1.0.3</resumable.js.version>
+        <require.js.version>2.3.3</require.js.version>
     </properties>
 
     <artifactId>sw360-portlet</artifactId>
@@ -113,6 +114,12 @@
             <version>${project.version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>requirejs</artifactId>
+            <version>${require.js.version}</version>
+        </dependency>
         <dependency> <!-- to support Servlet2 containers -->
             <groupId>org.webjars</groupId>
             <artifactId>webjars-servlet-2.x</artifactId>
@@ -142,6 +149,18 @@
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery-treetable</artifactId>
             <version>${jquery.treetable.version}</version>
+            <exclusions>
+              <!--
+                Treetable comes with a dependency to jquery-3.2.1 but with groupIs org.webjars.bower instead of org.webjars.
+                This way the jquery webjar does not conflict with the included jquery webjar above and will be included as well.
+                Since the webjars-locator searches the whole classpath, it will included jquery-3.2.1 instead of the defined jquery
+                version in this pom. We exclude the jquery-dependency here to avoid this behaviour.
+              -->
+            <exclusion>
+              <groupId>org.webjars.bower</groupId>
+              <artifactId>jquery</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -153,6 +172,7 @@
             <artifactId>resumable.js</artifactId>
             <version>${resumable.js.version}</version>
         </dependency>
+
 
         <dependency>
             <groupId>com.liferay.portal</groupId>

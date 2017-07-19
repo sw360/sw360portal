@@ -23,7 +23,7 @@
     </thead>
     <tr>
         <td width="33%">
-            <sw360:DisplayVendorEdit id="<%=Release._Fields.VENDOR_ID.toString()%>" vendor="${release.vendor}" onclick="showSetVendorDialog();" />
+            <sw360:DisplayVendorEdit id="<%=Release._Fields.VENDOR_ID.toString()%>" vendor="${release.vendor}" />
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>

@@ -303,6 +303,12 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>releaseId</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>onclick</name>
             <required>false</required>
             <type>java.lang.String</type>
