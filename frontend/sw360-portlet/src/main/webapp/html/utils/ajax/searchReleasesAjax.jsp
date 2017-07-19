@@ -25,11 +25,13 @@
             <td><sw360:out value="${entry.vendor.fullname}"/></td>
             <td><sw360:out value="${entry.name}"/></td>
             <td><sw360:out value="${entry.version}"/></td>
+            <td><sw360:DisplayEnum value="${entry.clearingState}"/></td>
+            <td><sw360:DisplayEnum value="${entry.mainlineState}"/></td>
         </tr>
     </core_rt:forEach>
 </core_rt:if>
 <core_rt:if test="${releaseSearch.size() == 0}">
-    <tr><td colspan="4">
+    <tr><td colspan="6">
         No releases found with your search.
     </td></tr>
 

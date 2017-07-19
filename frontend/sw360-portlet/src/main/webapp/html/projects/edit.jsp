@@ -87,6 +87,7 @@
         <form  id="projectEditForm" name="projectEditForm" action="<%=updateURL%>" method="post" >
             <%@include file="/html/projects/includes/projects/basicInfo.jspf" %>
             <%@include file="/html/projects/includes/linkedProjectsEdit.jspf" %>
+            <%@ include file="/html/utils/includes/requirejs.jspf" %>
             <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
             <core_rt:if test="${not addMode}" >
                 <%@include file="/html/utils/includes/editAttachments.jsp" %>
@@ -96,6 +97,7 @@
             </core_rt:if>
         </form>
         <jsp:include page="/html/projects/includes/searchProjects.jsp" />
+        <core_rt:set var="enableSearchForReleasesFromLinkedProjects" value="${true}" scope="request"/>
         <jsp:include page="/html/utils/includes/searchReleases.jsp" />
         <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
         <jsp:include page="/html/utils/includes/searchUsers.jsp" />

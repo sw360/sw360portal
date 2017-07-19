@@ -21,13 +21,15 @@
         <tr>
             <td><input type="checkbox" name="<portlet:namespace/>projectId" value="${entry.id}"></td>
             <td><sw360:ProjectName project="${entry}"/></td>
+            <td><sw360:out value="${entry.version}"/></td>
+            <td><sw360:DisplayStateBoxes project="${entry}"/></td>
             <td><sw360:DisplayUserEmail email="${entry.projectResponsible}" bare="true"/></td>
             <td><sw360:out value="${entry.description}"/></td>
         </tr>
     </core_rt:forEach>
 </core_rt:if>
 <core_rt:if test="${projectSearch.size() == 0}">
-    <tr><td colspan="3">
+    <tr><td colspan="6">
         No project found with your search.
     </td></tr>
 

@@ -250,17 +250,12 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void serveLinkedReleases(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
         String what = request.getParameter(PortalConstants.WHAT);
 
-        String projectId = request.getParameter(RELEASE_ID);
-
         if (PortalConstants.LIST_NEW_LINKED_RELEASES.equals(what)) {
             String[] where = request.getParameterValues(PortalConstants.WHERE_ARRAY);
             serveNewTableRowLinkedRelease(request, response, where);
         } else if (PortalConstants.RELEASE_SEARCH.equals(what)) {
             String where = request.getParameter(PortalConstants.WHERE);
             serveReleaseSearchResults(request, response, where);
-        } else if (PortalConstants.RELEASE_SEARCH_BY_VENDOR.equals(what)) {
-            String where = request.getParameter(PortalConstants.WHERE);
-            serveReleaseSearchResultsByVendor(request, response, where);
         }
     }
 
@@ -289,31 +284,26 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private void serveReleaseSearchResults(ResourceRequest request, ResourceResponse response, String searchText) throws IOException, PortletException {
-        serveReleaseSearch(request, response, searchText, false);
+        serveReleaseSearch(request, response, searchText);
     }
 
-    private void serveReleaseSearchResultsByVendor(ResourceRequest request, ResourceResponse response, String searchText) throws IOException, PortletException {
-        serveReleaseSearch(request, response, searchText, true);
-    }
-
-    private void serveReleaseSearch(ResourceRequest request, ResourceResponse response, String searchText, boolean searchByVendor) throws IOException, PortletException {
+    private void serveReleaseSearch(ResourceRequest request, ResourceResponse response, String searchText) throws IOException, PortletException {
         List<Release> searchResult;
 
         try {
             ComponentService.Iface componentClient = thriftClients.makeComponentClient();
-            if (searchByVendor) {
+
+            searchResult = componentClient.searchReleaseByNamePrefix(searchText);
+
+            if(searchText != "") {
                 final VendorService.Iface vendorClient = thriftClients.makeVendorClient();
                 final Set<String> vendorIds = vendorClient.searchVendorIds(searchText);
                 if (vendorIds != null && vendorIds.size() > 0) {
-                    searchResult = componentClient.getReleasesFromVendorIds(vendorIds);
-                } else {
-                    searchResult = Collections.emptyList();
+                    searchResult.addAll(componentClient.getReleasesFromVendorIds(vendorIds));
                 }
-            } else {
-                searchResult = componentClient.searchReleaseByNamePrefix(searchText);
             }
         } catch (TException e) {
-            log.error("Error searching projects", e);
+            log.error("Error searching linked releases", e);
             searchResult = Collections.emptyList();
         }
 
@@ -321,6 +311,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         include("/html/utils/ajax/searchReleasesAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
+
 
     //! VIEW and helpers
     @Override
