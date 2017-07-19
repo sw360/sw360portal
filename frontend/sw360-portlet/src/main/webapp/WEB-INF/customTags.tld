@@ -99,6 +99,17 @@
         </attribute>
     </tag>
     <tag>
+        <name>DisplayEllipsisString</name>
+        <tag-class>org.eclipse.sw360.portal.tags.DisplayEllipsisString</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>DisplayEnum</name>
         <tag-class>org.eclipse.sw360.portal.tags.DisplayEnum</tag-class>
         <body-content>empty</body-content>
@@ -158,6 +169,17 @@
             <name>inQuotes</name>
             <required>false</required>
             <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplayEnumShort</name>
+        <tag-class>org.eclipse.sw360.portal.tags.DisplayEnumShort</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>org.apache.thrift.TEnum</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

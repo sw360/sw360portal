@@ -293,31 +293,46 @@ input[readonly].clickable {
     z-index: 10000;
 }
 
-#attachmentDetail td {
-    border-right: 1px solid rgb(204, 204, 204);
-    height: 15px;
-    padding: 5px;
-    color: black !important;
+.foregroundAlert {
+    color: #e95850 !important;
 }
 
-#attachmentDetail img {
-    width: 15px;
-    padding: 0px;
+.foregroundOK {
+    color: #9de997 !important;
 }
 
-#attachmentDetail .attachmentTitle{
-    font-weight: bold;
+#attachmentsDetail span.dataTableChildRowCell {
+	display: inline-block;
+
+	box-sizing: border-box;
+
+	padding-left: 10px;
+	height: 100%;
+
+	vertical-align: top;
 }
 
-#attachmentDetail .lastAttachmentRow{
-    border-bottom: 2.5px solid rgb(204, 204, 204);
-    
+#attachmentsDetail td.details-control {
+    cursor: pointer;
 }
-
-#attachmentDetail .lessPadding{
-    padding: 0.5px !important;
+#attachmentsDetail td.details-control:before {
+    content: '\25BA';
 }
+#attachmentsDetail tr.shown td.details-control:before {
+    content: '\25BC';
+}
+#attachmentsDetail tr.shown, #attachmentsDetail tr.shown td {
+	border-bottom: none;
+}
+#attachmentsDetail tr.shown + tr {
+	border-top: none;
+}
+#attachmentsDetail tr.shown + tr td {
+	border-top: none;
 
+	padding-left: 0px;
+	padding-right: 0px;
+}
 
 .sw360modal button:last-of-type {
     float: right;
@@ -463,4 +478,11 @@ input[readonly].clickable {
 
 .numberOfVulnerabilitiesNeedUpdate {
     font-size:16px;
+}
+
+.ellipsis {
+    display: block;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
 }

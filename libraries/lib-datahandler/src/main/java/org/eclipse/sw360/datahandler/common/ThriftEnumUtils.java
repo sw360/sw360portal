@@ -83,6 +83,29 @@ public class ThriftEnumUtils {
             .put(AttachmentType.OTHER, "Other")
             .build();
 
+    // @formatter:off
+    public static final ImmutableMap<AttachmentType, String>
+            MAP_ATTACHMENT_TYPE_SHORT_STRING = ImmutableMap.<AttachmentType, String>builder()
+            .put(AttachmentType.DOCUMENT, "DOC")
+            .put(AttachmentType.SOURCE, "SRC")
+            .put(AttachmentType.DESIGN, "DSN")
+            .put(AttachmentType.REQUIREMENT, "RDT")
+            .put(AttachmentType.CLEARING_REPORT, "CRT")
+            .put(AttachmentType.COMPONENT_LICENSE_INFO_XML, "CLX")
+            .put(AttachmentType.COMPONENT_LICENSE_INFO_COMBINED, "CLI")
+            .put(AttachmentType.SCAN_RESULT_REPORT, "SRR")
+            .put(AttachmentType.SCAN_RESULT_REPORT_XML, "SRX")
+            .put(AttachmentType.SOURCE_SELF, "SRS")
+            .put(AttachmentType.BINARY, "BIN")
+            .put(AttachmentType.BINARY_SELF, "BIS")
+            .put(AttachmentType.DECISION_REPORT, "DRT")
+            .put(AttachmentType.LEGAL_EVALUATION, "LRT")
+            .put(AttachmentType.LICENSE_AGREEMENT, "LAT")
+            .put(AttachmentType.SCREENSHOT, "SCR")
+            .put(AttachmentType.OTHER, "OTH")
+            .build();
+    // @formatter:on
+
     private static final ImmutableMap<ClearingState, String> MAP_CLEARING_STATUS_STRING = ImmutableMap.of(
             ClearingState.NEW_CLEARING, "New",
             ClearingState.SENT_TO_FOSSOLOGY, "Sent to Fossology",
@@ -259,6 +282,30 @@ public class ThriftEnumUtils {
             if(map.get(t).equals(in)) return t;
         }
 
+        return null;
+    }
+
+    // @formatter:off
+    public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
+            MAP_ENUMTYPE_SHORT_STRING_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
+            .put(AttachmentType.class, MAP_ATTACHMENT_TYPE_SHORT_STRING)
+            .build();
+    // @formatter:on
+
+    public static String enumToShortString(TEnum value) {
+        String out = "";
+        if (value != null) {
+            out = MAP_ENUMTYPE_SHORT_STRING_MAP.get(value.getClass()).get(value);
+        }
+        return out;
+    }
+
+    public static <T extends Enum<T>> T enumByShortString(String in, Class<T> clazz) {
+        Map<? extends TEnum, String> map = MAP_ENUMTYPE_SHORT_STRING_MAP.get(clazz);
+        for (T t : clazz.getEnumConstants()) {
+            if (map.get(t).equals(in))
+                return t;
+        }
         return null;
     }
 
