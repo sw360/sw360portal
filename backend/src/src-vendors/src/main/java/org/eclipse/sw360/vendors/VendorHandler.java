@@ -64,6 +64,7 @@ public class VendorHandler implements VendorService.Iface {
         HashSet<String> vendorNames = new HashSet<>();
         for (Vendor vendor : getAllVendors()) {
             vendorNames.add(vendor.getFullname());
+            vendorNames.add(vendor.getShortname());
         }
         return vendorNames;
 
