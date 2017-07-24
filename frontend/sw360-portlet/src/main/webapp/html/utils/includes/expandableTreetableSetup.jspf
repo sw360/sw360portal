@@ -21,7 +21,10 @@
                         type: 'POST',
                         url: ajaxUrl,
                         cache: false,
-                        data: {<portlet:namespace/><%=PortalConstants.PARENT_BRANCH_ID%>:node.id}
+                        data: {
+                    <portlet:namespace/><%=PortalConstants.PARENT_BRANCH_ID%>:node.id,
+                    <portlet:namespace/>parentScopeGroupId:${pageContext.getAttribute('scopeGroupId')}
+                        }
                 }).
                     done(function (html) {
                         var rows = $(html).filter("tr");

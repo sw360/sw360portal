@@ -30,11 +30,6 @@ public class DisplayLinkToLicense extends DisplayLinkAbstract {
     public void setLicenseId(String licenseId) {
         this.licenseId = licenseId;
     }
-    public void setScopeGroupId(Long scopeGroupId) {
-        if(scopeGroupId != null && scopeGroupId.longValue() != 0) {
-            this.scopeGroupId = scopeGroupId;
-        }
-    }
 
     @Override
     protected String getTextDisplay() {

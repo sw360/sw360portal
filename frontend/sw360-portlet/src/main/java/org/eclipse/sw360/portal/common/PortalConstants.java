@@ -243,6 +243,7 @@ public class PortalConstants {
     public static final String LOAD_LINKED_PROJECTS_ROWS = LINKED_OBJECTS_PREFIX + "projects_rows";
     public static final String LOAD_LINKED_RELEASES_ROWS = LINKED_OBJECTS_PREFIX + "releases_rows";
     public static final String PARENT_BRANCH_ID = "parent_branch_id";
+    public static final String PARENT_SCOPE_GROUP_ID = "parentScopeGroupId";
 
     // project actions
     public static final String VIEW_LINKED_PROJECTS = "view_linked_projects";
