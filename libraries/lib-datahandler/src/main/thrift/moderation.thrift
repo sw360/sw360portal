@@ -148,12 +148,18 @@ service ModerationService {
     **/
     RequestStatus updateModerationRequest(1: ModerationRequest moderationRequest);
 
+   /**
+     * set moderation state of moderation request specified by requestId to ACCEPTED
+     * and send mail notifications
+    **/
+    RequestStatus acceptRequest(1: string requestId, 2: string moderationDecisionComment, 3: string reviewer);
+
     /**
      * set moderation state of moderation request specified by requestId to REJECTED,
-     * save a comment by the moderator
-     * and sendMail to requestingUser about decline
+     * save a comment by the moderator,
+     * and send mail notification to requestingUser about decline
      **/
-    oneway void refuseRequest(1: string requestId, 35: string moderationDecisionComment);
+    oneway void refuseRequest(1: string requestId, 2: string moderationDecisionComment, 3: string reviewer);
 
     /**
      * remove user from moderators of moderation request specified by requestId,

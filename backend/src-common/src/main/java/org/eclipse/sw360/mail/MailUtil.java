@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -10,7 +10,9 @@
  */
  package org.eclipse.sw360.mail;
 
+import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
@@ -19,8 +21,11 @@ import org.apache.thrift.TException;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Properties;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
+
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 
 /**
  * Provides the possiblity to send mail from SW360
@@ -45,7 +50,6 @@ public class MailUtil {
     private String enableDebug;
     private String supportMailAddress;
 
-
     public MailUtil() {
         loadedProperties = CommonUtils.loadProperties(MailUtil.class, MailConstants.MAIL_PROPERTIES_FILE_PATH);
         setBasicProperties();
@@ -53,7 +57,7 @@ public class MailUtil {
     }
 
     private void setBasicProperties() {
-        from = loadedProperties.getProperty("MailUtil_from", "");
+        from = loadedProperties.getProperty("MailUtil_from", "__No_Reply__@sw360.org");
         host = loadedProperties.getProperty("MailUtil_host", "");
         port = loadedProperties.getProperty("MailUtil_port", "25");
         enableStarttls = loadedProperties.getProperty("MailUtil_enableStarttls", "false");
@@ -87,25 +91,29 @@ public class MailUtil {
         }
     }
 
-    public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile, boolean checkWantsNotifications) {
-        if (isMailingEnabledAndValid() && (!checkWantsNotifications || isMailWantedBy(recipient))) {
-            MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
-            sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
-        }
+    public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile, String notificationClass, String roleName, String ... textParameters) {
+        sendMail(recipient, subjectNameInPropertiesFile, textNameInPropertiesFile, notificationClass, roleName, true, textParameters);
+    }
+    public void sendMail(String recipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile, String notificationClass, String roleName, boolean checkWantsNotifications, String ... textParameters) {
+        sendMail(Sets.newHashSet(recipient), null, subjectNameInPropertiesFile, textNameInPropertiesFile, notificationClass, roleName, checkWantsNotifications, textParameters);
     }
 
-    public void sendMail(Set<String> recipients, String subjectNameInPropertiesFile, String textNameInPropertiesFile) {
-        if (isMailingEnabledAndValid()) {
-            MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile);
-            for (String recipient : recipients) {
-                if(isMailWantedBy(recipient)) {
-                    sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
-                }
+    private void sendMail(Set<String> recipients, String excludedRecipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile, String notificationClass, String roleName, boolean checkWantsNotifications, String... textParameters) {
+        MimeMessage messageWithSubjectAndText = makeMessageWithSubjectAndText(subjectNameInPropertiesFile, textNameInPropertiesFile, textParameters);
+        for (String recipient : nullToEmptySet(recipients)) {
+            if(!isNullEmptyOrWhitespace(recipient)
+                    && !recipient.equals(excludedRecipient)
+                    && (!checkWantsNotifications || isMailWantedBy(recipient, SW360Utils.notificationPreferenceKey(notificationClass, roleName)))) {
+                sendMailWithSubjectAndText(recipient, messageWithSubjectAndText);
             }
         }
     }
 
-    private boolean isMailWantedBy(String userEmail){
+    public void sendMail(Set<String> recipients, String excludedRecipient, String subjectNameInPropertiesFile, String textNameInPropertiesFile, String notificationClass, String roleName, String ... textParameters) {
+        sendMail(recipients, excludedRecipient, subjectNameInPropertiesFile, textNameInPropertiesFile, notificationClass, roleName, true, textParameters);
+    }
+
+    private boolean isMailWantedBy(String userEmail, String notificationPreferenceKey){
         User user;
         try {
             user = (new ThriftClients()).makeUserClient().getByEmail(userEmail);
@@ -114,10 +122,8 @@ public class MailUtil {
             return false;
         }
         if(user != null) {
-            if(!user.isSetWantsMailNotification()) {
-                return true;
-            }
-            return user.wantsMailNotification;
+            SW360Utils.initializeMailNotificationsPreferences(user);
+            return user.isWantsMailNotification() && user.getNotificationPreferences().getOrDefault(notificationPreferenceKey, Boolean.FALSE) ;
         }
         return false;
     }
@@ -134,13 +140,21 @@ public class MailUtil {
 
     }
 
-    private MimeMessage makeMessageWithSubjectAndText(String subjectKeyInPropertiesFile, String textKeyInPropertiesFile) {
+    private MimeMessage makeMessageWithSubjectAndText(String subjectKeyInPropertiesFile, String textKeyInPropertiesFile, String ... textParameters) {
         MimeMessage message = new MimeMessage(session);
         String subject = loadedProperties.getProperty(subjectKeyInPropertiesFile, "");
 
-        StringBuffer text = new StringBuffer();
+        StringBuilder text = new StringBuilder();
         text.append(loadedProperties.getProperty("defaultBegin", ""));
-        text.append(loadedProperties.getProperty(textKeyInPropertiesFile, ""));
+        String mainContentFormat = loadedProperties.getProperty(textKeyInPropertiesFile, "");
+
+        try {
+            String formattedContent = String.format(mainContentFormat, (Object[]) textParameters);
+            text.append(formattedContent);
+        } catch (IllegalFormatException e) {
+            log.error(String.format("Could not format notification email content for keys %s and %s", subjectKeyInPropertiesFile, textKeyInPropertiesFile), e);
+            text.append(mainContentFormat);
+        }
         text.append(loadedProperties.getProperty("defaultEnd", ""));
         if (!supportMailAddress.equals("")) {
             text.append(loadedProperties.getProperty("unsubscribeNoticeBefore", ""));
@@ -162,13 +176,32 @@ public class MailUtil {
         try {
             message.setFrom(new InternetAddress(from));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
-
-            Transport.send(message);
-
+            if (isMailingEnabledAndValid()) {
+                Transport.send(message);
+            } else {
+                writeMessageToLog(message);
+            }
             log.info("Sent message successfully to user "+recipient+".");
 
         } catch (MessagingException mex) {
             log.error(mex.getMessage(), mex);
+        }
+    }
+
+    private void writeMessageToLog(MimeMessage message) {
+        try {
+            log.info(String.format("E-Mail message dumped to log, because mailing is not configured [correctly]:\n"+
+            "From: %s\n"+
+            "To: %s\n"+
+            "Subject: %s\n"+
+            "Text: %s\n",
+                    Arrays.toString(message.getFrom()),
+                    Arrays.toString(message.getRecipients(Message.RecipientType.TO)),
+                    message.getSubject(),
+                    message.getContent()
+            ));
+        } catch (MessagingException | IOException e) {
+            log.error("Cannot dump E-mail message to log", e);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -17,8 +17,6 @@ import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftValidate;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.mail.MailConstants;
-import org.eclipse.sw360.mail.MailUtil;
 import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
@@ -76,14 +74,6 @@ public class UserDatabaseHandler {
             return RequestStatus.SUCCESS;
         }
         return RequestStatus.FAILURE;
-    }
-
-    public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) {
-
-        MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST, MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST, true);
-
-        return RequestStatus.SUCCESS;
     }
 
     public List<User> getAll() {return repository.getAll();}

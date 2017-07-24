@@ -25,6 +25,7 @@ import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
 import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
@@ -35,6 +36,8 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
+import org.eclipse.sw360.mail.MailConstants;
+import org.eclipse.sw360.mail.MailUtil;
 import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
@@ -66,6 +69,7 @@ public class ProjectDatabaseHandler {
     private final ProjectModerator moderator;
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
+    private final MailUtil mailUtil = new MailUtil();
 
     public ProjectDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
         this(httpClient, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(httpClient,dbName,attachmentDbName));
@@ -142,7 +146,7 @@ public class ProjectDatabaseHandler {
 
         // Add project to database and return ID
         repository.add(project);
-
+        sendMailNotificationsForNewProject(project, user.getEmail());
         return new AddDocumentRequestSummary().setId(project.getId()).setRequestStatus(AddDocumentRequestStatus.SUCCESS);
     }
 
@@ -168,6 +172,7 @@ public class ProjectDatabaseHandler {
 
             //clean up attachments in database
             attachmentConnector.deleteAttachmentDifference(actual.getAttachments(), project.getAttachments());
+            sendMailNotificationsForProjectUpdate(project, user.getEmail());
             return RequestStatus.SUCCESS;
         } else {
             return moderator.updateProject(project, user);
@@ -441,4 +446,81 @@ public class ProjectDatabaseHandler {
         }
         return projects;
     }
+
+    private void sendMailNotificationsForNewProject(Project project, String user) {
+        mailUtil.sendMail(project.getProjectResponsible(),
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.PROJECT_RESPONSIBLE.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getProjectOwner(),
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.PROJECT_OWNER.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getLeadArchitect(),
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.LEAD_ARCHITECT.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getModerators(), user,
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.MODERATORS.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getContributors(), user,
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.CONTRIBUTORS.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getSecurityResponsibles(), user,
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.SECURITY_RESPONSIBLES.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(SW360Utils.unionValues(project.getRoles()), user,
+                MailConstants.SUBJECT_FOR_NEW_PROJECT,
+                MailConstants.TEXT_FOR_NEW_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.ROLES.toString(),
+                project.getName(), project.getVersion());
+    }
+
+    private void sendMailNotificationsForProjectUpdate(Project project, String user) {
+        mailUtil.sendMail(project.getProjectResponsible(),
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.PROJECT_RESPONSIBLE.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getProjectOwner(),
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.PROJECT_OWNER.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getLeadArchitect(),
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.LEAD_ARCHITECT.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getModerators(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.MODERATORS.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getContributors(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.CONTRIBUTORS.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(project.getSecurityResponsibles(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.SECURITY_RESPONSIBLES.toString(),
+                project.getName(), project.getVersion());
+        mailUtil.sendMail(SW360Utils.unionValues(project.getRoles()), user,
+                MailConstants.SUBJECT_FOR_UPDATE_PROJECT,
+                MailConstants.TEXT_FOR_UPDATE_PROJECT,
+                SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.ROLES.toString(),
+                project.getName(), project.getVersion());
+    }
+
 }
