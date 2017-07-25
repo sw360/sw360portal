@@ -290,9 +290,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 project = thriftClients.makeProjectClient().getProjectById(id, user);
             }
             if (project != null) {
-                Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(id, user);
+                Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(
+                        project, user);
                 List<Release> releases = releaseStringMap.keySet().stream().sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
-                ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient(), releases);
+                ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient(), releases,
+                        releaseStringMap);
+
                 PortletResponseUtil.sendFile(request, response,
                         String.format("releases-%s-%s-%s.xlsx", project.getName(), project.getVersion(), SW360Utils.getCreatedOn()),
                         exporter.makeExcelExport(releases), CONTENT_TYPE_OPENXML_SPREADSHEET);

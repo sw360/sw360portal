@@ -48,14 +48,19 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.getBestClearingReport;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyFields;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
-import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.*;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
+import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
 
 /**
  * Class for accessing Component information from the database
@@ -130,6 +135,9 @@ public class ComponentDatabaseHandler {
     /////////////////////
     // SUMMARY GETTERS //
     /////////////////////
+    public List<Component> getComponentsShort(Set<String> ids) {
+        return componentRepository.makeSummary(SummaryType.SHORT, ids);
+    }
 
     public List<Component> getComponentSummary(User user) {
         return componentRepository.getComponentSummary(user);

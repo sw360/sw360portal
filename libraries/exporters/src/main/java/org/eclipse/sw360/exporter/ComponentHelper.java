@@ -19,7 +19,9 @@ import java.util.*;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.getReleaseNames;
-import static org.eclipse.sw360.exporter.ComponentExporter.*;
+import static org.eclipse.sw360.exporter.ComponentExporter.COMPONENT_RENDERED_FIELDS;
+import static org.eclipse.sw360.exporter.ComponentExporter.HEADERS;
+import static org.eclipse.sw360.exporter.ComponentExporter.HEADERS_EXTENDED_BY_RELEASES;
 
 class ComponentHelper implements ExporterHelper<Component> {
 
@@ -68,7 +70,7 @@ class ComponentHelper implements ExporterHelper<Component> {
 
     private List<String> makeRowForComponent(Component component) throws SW360Exception {
         if (!component.isSetAttachments()) {
-            component.setAttachments(Collections.EMPTY_SET);
+            component.setAttachments(Collections.emptySet());
         }
         List<String> row = new ArrayList<>(getColumns());
         for (Component._Fields renderedField : COMPONENT_RENDERED_FIELDS) {
@@ -107,7 +109,7 @@ class ComponentHelper implements ExporterHelper<Component> {
         return releaseHelper.getReleases(ids);
     }
 
-    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) {
+    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) throws SW360Exception {
         releaseHelper.setPreloadedLinkedReleases(preloadedLinkedReleases);
     }
 }

@@ -13,7 +13,6 @@ package org.eclipse.sw360.exporter;
 
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
-import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
@@ -23,9 +22,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
-import static org.eclipse.sw360.exporter.ProjectExporter.*;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.putProjectNamesInMap;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.putReleaseNamesInMap;
+import static org.eclipse.sw360.exporter.ProjectExporter.HEADERS;
+import static org.eclipse.sw360.exporter.ProjectExporter.HEADERS_EXTENDED_BY_RELEASES;
+import static org.eclipse.sw360.exporter.ProjectExporter.PROJECT_RENDERED_FIELDS;
 
 class ProjectHelper implements ExporterHelper<Project> {
 
@@ -79,7 +81,7 @@ class ProjectHelper implements ExporterHelper<Project> {
 
     private List<String> makeRowForProject(Project project) throws SW360Exception {
         if (!project.isSetAttachments()) {
-            project.setAttachments(Collections.EMPTY_SET);
+            project.setAttachments(Collections.emptySet());
         }
         List<String> row = new ArrayList<>(getColumns());
         for (Project._Fields renderedField : PROJECT_RENDERED_FIELDS) {
@@ -116,7 +118,7 @@ class ProjectHelper implements ExporterHelper<Project> {
         return new SubTable(makeRowForProject(project));
     }
 
-    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) {
+    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) throws SW360Exception {
         releaseHelper.setPreloadedLinkedReleases(preloadedLinkedReleases);
     }
 

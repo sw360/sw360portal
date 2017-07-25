@@ -11,21 +11,21 @@
 package org.eclipse.sw360.exporter;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.displayNameFor;
 import static org.eclipse.sw360.datahandler.thrift.components.Release._Fields.*;
 
 
 public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
-    private static final Logger log = Logger.getLogger(ReleaseExporter.class);
+
     private static final Map<String, String> nameToDisplayName;
 
     static {
@@ -72,8 +72,11 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
 
     static final List<String> HEADERS = makeHeaders();
 
-    public ReleaseExporter(ComponentService.Iface client, List<Release> releases) throws SW360Exception {
-        super(new ReleaseHelper(client));
+    static final List<String> HEADERS_EXTENDED_BY_ADDITIONAL_DATA = makeHeadersForExtendedExport();
+
+    public ReleaseExporter(ComponentService.Iface cClient, List<Release> releases,
+            Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap) throws SW360Exception {
+        super(new ReleaseHelper(cClient, releaseToShortenedStringsMap));
         preloadLinkedReleasesFor(releases);
     }
 
@@ -83,6 +86,20 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
             addToHeaders(headers, field);
         }
         return headers;
+    }
+
+    private static List<String> makeHeadersForExtendedExport() {
+        List<String> completeHeaders = new ArrayList<>();
+        completeHeaders.addAll(makeHeaders());
+
+        List<String> additionalHeaders = new ArrayList<>();
+        additionalHeaders.add(displayNameFor("component type", nameToDisplayName));
+        additionalHeaders.add(displayNameFor("project origin", nameToDisplayName));
+        completeHeaders.addAll(
+                completeHeaders.indexOf(displayNameFor(COMPONENT_ID.getFieldName(), nameToDisplayName)) + 1,
+                additionalHeaders);
+
+        return completeHeaders;
     }
 
     private static void addToHeaders(List<String> headers, Release._Fields field) {
