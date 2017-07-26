@@ -73,9 +73,14 @@
         var releaseIds = [];
 
         $('#releaseSearchResultsTable').find(':checked').each(
-                function() {
+            function() {
+                var currentRelease = "<sw360:out value="${release.id}"/>";
+                if (currentRelease !== this.value) {
                     releaseIds.push(this.value);
+                } else {
+                    $.alert("Releases should not link to themselves.");
                 }
+            }
         );
         addReleaseInfo(releaseIds);
 
