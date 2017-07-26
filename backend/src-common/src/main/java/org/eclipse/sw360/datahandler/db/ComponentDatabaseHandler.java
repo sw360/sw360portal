@@ -363,10 +363,10 @@ public class ComponentDatabaseHandler {
                 component.setVendorNames(new HashSet<String>());
             }
             if (release.vendor != null)
-                component.vendorNames.add(release.vendor.getFullname());
+                component.vendorNames.add(release.vendor.getShortname());
             else if (!isNullOrEmpty(release.vendorId)) {
                 Vendor vendor = getVendor(release.vendorId);
-                component.vendorNames.add(vendor.getFullname());
+                component.vendorNames.add(vendor.getShortname());
             }
 
             if (!component.isSetMainLicenseIds()) component.setMainLicenseIds(new HashSet<String>());

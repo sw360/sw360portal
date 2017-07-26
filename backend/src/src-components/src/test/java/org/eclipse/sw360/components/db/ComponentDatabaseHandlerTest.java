@@ -688,7 +688,7 @@ public class ComponentDatabaseHandlerTest {
             Component component = handler.getComponent(componentId, user1);
             assertThat(component.languages, containsInAnyOrder("C", "C++"));
             assertThat(component.operatingSystems, containsInAnyOrder("Linux Ubuntu", "Linux Mint"));
-            assertThat(component.vendorNames, containsInAnyOrder(vendors.get("V1").getFullname()));
+            assertThat(component.vendorNames, containsInAnyOrder(vendors.get("V1").getShortname()));
         }
         Set<String> os2 = new HashSet<>();
         os2.add("Linux Debian");
@@ -708,7 +708,7 @@ public class ComponentDatabaseHandlerTest {
             Component component = handler.getComponent(componentId, user1);
             assertThat(component.languages, containsInAnyOrder("C", "C++", "C#"));
             assertThat(component.operatingSystems, containsInAnyOrder("Linux Ubuntu", "Linux Mint", "Linux Debian"));
-            assertThat(component.vendorNames, containsInAnyOrder(vendors.get("V1").getFullname(), vendors.get("V2").getFullname()));
+            assertThat(component.vendorNames, containsInAnyOrder(vendors.get("V1").getShortname(), vendors.get("V2").getShortname()));
         }
 
         handler.deleteRelease(id, user1);
@@ -717,7 +717,7 @@ public class ComponentDatabaseHandlerTest {
             Component component = handler.getComponent(componentId, user1);
             assertThat(component.languages, containsInAnyOrder("C++", "C#"));
             assertThat(component.operatingSystems, containsInAnyOrder("Linux Mint", "Linux Debian"));
-            assertThat(component.vendorNames, containsInAnyOrder(vendors.get("V2").getFullname()));
+            assertThat(component.vendorNames, containsInAnyOrder(vendors.get("V2").getShortname()));
         }
 
         handler.deleteRelease(id2, user1);

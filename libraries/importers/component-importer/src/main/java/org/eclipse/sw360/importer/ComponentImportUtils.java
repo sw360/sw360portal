@@ -471,9 +471,21 @@ public class ComponentImportUtils {
     private static Map<String, String> getVendorNameToVendorId(VendorService.Iface vendorClient) throws TException {
         Map<String, String> vendorNameToVendorId = new HashMap<>();
 
-        for (Vendor vendor : vendorClient.getAllVendors()) {
-            vendorNameToVendorId.put(vendor.getFullname(), vendor.getId());
-        }
+            for (Vendor vendor : vendorClient.getAllVendors()) {
+                if (!vendorNameToVendorId.containsKey(vendor.getShortname())) {
+                    vendorNameToVendorId.put(vendor.getShortname(), vendor.getId());
+                }
+                else {
+                    log.error("There is a clash between the shortname " + vendor.getShortname() + " and a name already present in the mapping.");
+                }
+                if (!vendorNameToVendorId.containsKey(vendor.getFullname())) {
+                    vendorNameToVendorId.put(vendor.getFullname(), vendor.getId());
+                }
+                else {
+                    log.error("There is a clash between the vendor fullname " + vendor.getFullname() + " and a name already present in the mapping.");
+                }
+            }
+
         return vendorNameToVendorId;
     }
 
