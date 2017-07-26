@@ -34,6 +34,9 @@
                 /></a>
             </td>
             <td>
+                <sw360:DisplayProjectStateBox value="${projectLink.state}"/>
+            </td>
+            <td>
                 <sw360:DisplayEnum value="${projectLink.relation}"/>
             </td>
             <td>
@@ -56,6 +59,8 @@
                 <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" scopeGroupId="${concludedScopeGroupId}" />">
                     <sw360:out value="${releaseLink.longName}" maxChar="60"/>
                 </a>
+            </td>
+            <td>
             </td>
             <td>
                 <sw360:DisplayEnum value="${releaseLink.releaseRelationship}"/>

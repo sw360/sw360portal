@@ -20,11 +20,13 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
+import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -237,6 +239,13 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     JSONObject row = createJSONObject();
                     row.put("id", project.getId());
                     row.put("clearing", JsonHelpers.toJson(project.getReleaseClearingStateSummary(), thriftJsonSerializer));
+                    ProjectClearingState clearingState = project.getClearingState();
+                    if (clearingState == null) {
+                        row.put("clearingstate", "Unknown");
+                    } else {
+                        row.put("clearingstate", ThriftEnumUtils.enumToString(clearingState));
+                    }
+
                     jsonResponse.put(row);
                 } catch (JSONException e) {
                     log.error("cannot serialize json", e);

@@ -315,6 +315,7 @@ public class ProjectDatabaseHandler {
                         .setParentNodeId(parentNodeId)
                         .setRelation(relationship)
                         .setVersion(project.getVersion())
+                        .setState(project.getState())
                         .setProjectType(project.getProjectType())
                         .setClearingState(project.getClearingState())
                         .setTreeLevel(visitedIds.size() - 1);

@@ -273,7 +273,7 @@
             "id": '${project.id}',
             "name": '<sw360:ProjectName project="${project}"/>',
             "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
-            "state": "<sw360:DisplayEnum value='${project.state}'/>",
+            "state": ["<sw360:DisplayEnum value='${project.state}'/>", "Not loaded yet"],
             "clearing": 'Not loaded yet',
             "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
             "linkedProjectsSize": '${project.linkedProjectsSize}',
@@ -291,21 +291,22 @@
                 {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
                 {title: "Description", data: "description"},
                 {title: "Project Responsible", data: "responsible"},
-                {title: "State", data: "state", render: {display: displayEscaped}},
-                {title: "Clearing Status", data: "clearing"},
+                {title: "State", data: "state", render: {display: displayStateBoxes}},
+                {title: "<span title=\"Release clearing state\">Clearing Status</span>", data: "clearing"},
                 {title: "Actions", data: "id", render: {display: renderProjectActions}}
             ]
         });
     }
 
-    const clearingColumnIndex = 4;
+    const StatesColumnIndex = 3;
+    const clearingSummaryColumnIndex = 4;
 
     function loadClearingStateSummaries() {
         var tableData = projectsTable.data();
         var ids = [];
         for (var i = 0; i < tableData.length; i++) {
             ids.push(tableData[i].id);
-            var cell = projectsTable.cell(i, clearingColumnIndex);
+            var cell = projectsTable.cell(i, clearingSummaryColumnIndex);
             cell.data("Loading...");
         }
         jQuery.ajax({
@@ -317,13 +318,19 @@
             },
             success: function (response) {
                 for (var i = 0; i < response.length; i++) {
-                    var cell = projectsTable.cell("#" + response[i].id, clearingColumnIndex);
-                    cell.data(displayClearingStateSummary(response[i].clearing));
+                    // Set state boxes
+                    var cell_projectstates = projectsTable.cell("#" + response[i].id, StatesColumnIndex);
+                    var states = cell_projectstates.data();
+                    states[1] = response[i].clearingstate;
+                    cell_projectstates.data( states );
+                    // Set clearing summary
+                    var cell_clearingsummary = projectsTable.cell("#" + response[i].id, clearingSummaryColumnIndex);
+                    cell_clearingsummary.data(displayClearingStateSummary(response[i].clearing));
                 }
             },
             error: function () {
                 for (var i = 0; i < tableData.length; i++) {
-                    var cell = projectsTable.cell("#" + tableData[i].id, clearingColumnIndex);
+                    var cell = projectsTable.cell("#" + tableData[i].id, clearingSummaryColumnIndex);
                     cell.data("Failed to load");
                 }
             }

@@ -133,8 +133,36 @@ function renderLinkTo(url, content, htmlContent) {
     return $link[0].outerHTML;
 }
 
-function displayEscaped(text) {
-    return $('<span>').text(text).html();
+function displayStateBoxes(data) {
+    var project_state  = data[0];
+    var clearing_state = data[1];
+
+    // Add project state color to boxes if the project is active
+    //   (default color is grey)
+    var projectStateBackgroundColour = "projectStateInactive";
+    if( project_state == "Active" ) { // -> green
+        projectStateBackgroundColour = "projectStateActive";
+    }
+
+    // Add clearingstate color to boxes in projects list
+    //   (default color is grey)
+    var clearingStateBackgroundColour = "clearingStateUnknown";
+    switch(clearing_state) {
+        case "Closed": // -> green
+            clearingStateBackgroundColour = "clearingStateClosed";
+            break;
+        case "In Progress": // -> yellow
+            clearingStateBackgroundColour = "clearingStateInProgress";
+            break;
+        case "Open": // -> red
+            clearingStateBackgroundColour = "clearingStateOpen";
+            break;
+    }
+
+    var box_PS = '<div class="stateBox ' + projectStateBackgroundColour + ' capsuleLeft " title="Project state: ' + project_state + '"> PS </div>';
+    var box_CS = '<div class="stateBox capsuleRight ' + clearingStateBackgroundColour + '" title="Project clearing state: ' + clearing_state + '"> CS </div>';
+
+    return box_PS+box_CS;
 }
 
 function renderUserEmail(user) {
