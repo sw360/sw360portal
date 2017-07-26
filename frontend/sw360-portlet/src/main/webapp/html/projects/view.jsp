@@ -273,7 +273,7 @@
             "id": '${project.id}',
             "name": '<sw360:ProjectName project="${project}"/>',
             "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
-            "state": ["<sw360:DisplayEnum value='${project.state}'/>", "Not loaded yet"],
+            "state": ["<sw360:DisplayEnum value='${project.state}'/>", "<sw360:DisplayEnum value='${project.clearingState}'/>"],
             "clearing": 'Not loaded yet',
             "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
             "linkedProjectsSize": '${project.linkedProjectsSize}',
@@ -298,7 +298,6 @@
         });
     }
 
-    const StatesColumnIndex = 3;
     const clearingSummaryColumnIndex = 4;
 
     function loadClearingStateSummaries() {
@@ -318,12 +317,6 @@
             },
             success: function (response) {
                 for (var i = 0; i < response.length; i++) {
-                    // Set state boxes
-                    var cell_projectstates = projectsTable.cell("#" + response[i].id, StatesColumnIndex);
-                    var states = cell_projectstates.data();
-                    states[1] = response[i].clearingstate;
-                    cell_projectstates.data( states );
-                    // Set clearing summary
                     var cell_clearingsummary = projectsTable.cell("#" + response[i].id, clearingSummaryColumnIndex);
                     cell_clearingsummary.data(displayClearingStateSummary(response[i].clearing));
                 }
