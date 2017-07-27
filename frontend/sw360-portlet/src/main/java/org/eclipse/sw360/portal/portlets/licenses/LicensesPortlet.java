@@ -165,6 +165,7 @@ public class LicensesPortlet extends Sw360Portlet {
         String id = request.getParameter(LICENSE_ID);
         User user = UserCacheHolder.getUserFromRequest(request);
         request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "Nope");
+        request.setAttribute(CURRENT_USER, user);
         if (id != null) {
             try {
                 LicenseService.Iface client = thriftClients.makeLicenseClient();
@@ -332,6 +333,10 @@ public class LicensesPortlet extends Sw360Portlet {
         if (whiteList == null) whiteList = new String[0]; // As empty arrays are not passed as parameters
 
         final User user = UserCacheHolder.getUserFromRequest(request);
+        String moderationComment = request.getParameter(PortalConstants.MODERATION_REQUEST_COMMENT);
+        if(moderationComment != null) {
+            user.setCommentMadeDuringModerationRequest(moderationComment);
+        }
 
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
@@ -395,6 +400,10 @@ public class LicensesPortlet extends Sw360Portlet {
         todo.setText(todoText);
 
         User user = UserCacheHolder.getUserFromRequest(request);
+        String moderationComment = request.getParameter(PortalConstants.MODERATION_REQUEST_COMMENT);
+        if(moderationComment != null) {
+            user.setCommentMadeDuringModerationRequest(moderationComment);
+        }
 
         todo.addToWhitelist(user.getDepartment());
 

@@ -46,6 +46,7 @@ struct ModerationRequest {
 
     // Moderation request
     10: required i64 timestamp,
+    37: optional i64 timestampOfDecision,
     11: required string documentId,
     12: required DocumentType documentType,
     13: optional string requestingUser,
@@ -54,7 +55,9 @@ struct ModerationRequest {
     16: required ModerationState moderationState,
     17: optional string reviewer,
     18: required bool requestDocumentDelete,
-    19: optional string requestingUserDepartment;
+    19: optional string requestingUserDepartment,
+    34: optional string commentRequestingUser,
+    35: optional string commentDecisionModerator,
 
     // Underlying objects
     20: optional Component componentAdditions,
@@ -145,10 +148,11 @@ service ModerationService {
     RequestStatus updateModerationRequest(1: ModerationRequest moderationRequest);
 
     /**
-     * set moderation state of moderation request specified by requestId to REJECTED
+     * set moderation state of moderation request specified by requestId to REJECTED,
+     * save a comment by the moderator
      * and sendMail to requestingUser about decline
      **/
-    oneway void refuseRequest(1: string requestId);
+    oneway void refuseRequest(1: string requestId, 35: string moderationDecisionComment);
 
     /**
      * remove user from moderators of moderation request specified by requestId,

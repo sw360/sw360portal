@@ -13,6 +13,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
 
 <%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
@@ -38,11 +39,13 @@
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
     <jsp:useBean id="release" class="org.eclipse.sw360.datahandler.thrift.components.Release" scope="request"/>
+    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
 
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>"
                  scope="request"/>
 
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
 
     <core_rt:set var="programmingLanguages" value='<%=PortalConstants.PROGRAMMING_LANGUAGES%>'/>
     <core_rt:set var="operatingSystemsAutoC" value='<%=PortalConstants.OPERATING_SYSTEMS%>'/>
@@ -76,7 +79,6 @@
                                data-release-name="<sw360:ReleaseName release="${release}" />"
                                data-linked-releases="${release.releaseIdToRelationshipSize}"
                                data-attachments="${release.attachmentsSize}"
-                               data-delete-release-url="<%=deleteReleaseURL%>"
                                value="Delete <sw360:ReleaseName release="${release}"/>"
                             <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the release is used." </core_rt:if>
                        />
@@ -135,13 +137,19 @@
                 </div>
                 <core_rt:if test="${not addMode}">
                     <input type="hidden" value="true" name="<portlet:namespace/>clearingInformation">
-                    <input type="submit" value="Update Release" class="addButton" >
+                    <input type="button" id="formSubmit" value="Update Release" class="addButton" >
                 </core_rt:if>
                 <core_rt:if test="${addMode}">
                     <input type="hidden" value="false" name="<portlet:namespace/>clearingInformation">
                     <input type="submit" value="Add Release" class="addButton" >
                 </core_rt:if>
                 <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
+                <div id="moderationRequestCommentDialog" style="display: none">
+                    <hr>
+                    <label class="textlabel stackedLabel">Comment your changes</label>
+                    <textarea form=releaseEditForm name="<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>" id="moderationRequestCommentField" class="moderationCreationComment" placeholder="Leave a comment on your request"></textarea>
+                    <input type="button" class="addButton" onclick="submitModerationRequest()" id="moderationRequestCommentSendButton" value="Send moderation request">
+                </div>
             </form>
         </div>
     </div>
@@ -157,6 +165,10 @@
 <%@include file="/html/components/includes/vendors/searchVendor.jspf" %>
 
 <script>
+    var permissions = {  'write':  ${permissions.makePermission(release, currentUser).isActionAllowed(RequestedAction.DELETE)},
+                         'delete': ${permissions.makePermission(release, currentUser).isActionAllowed(RequestedAction.WRITE)}
+    };
+
     var tabView;
     var Y = YUI().use(
             'aui-tabview',
@@ -195,6 +207,33 @@
         alert($('#releaseEditForm').valid());
     }
 
+    function openDeleteDialog() {
+        var htmlDialog  = '' + '<div>' +
+            'Do you really want to delete the release <b><sw360:ReleaseName release="${release}" /></b> ?'  +
+            '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ><br/><br/>The release <b><sw360:ReleaseName release="${release}" /></b> contains<br/><ul></core_rt:if>' +
+            '<core_rt:if test="${not empty release.releaseIdToRelationship}" ><li><sw360:out value="${release.releaseIdToRelationshipSize}"/> linked releases</li></core_rt:if>'  +
+            '<core_rt:if test="${not empty release.attachments}" ><li><sw360:out value="${release.attachmentsSize}"/> attachments</li></core_rt:if>'  +
+            '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ></ul></core_rt:if>' +
+            '</div>' +
+            '<div ' + styleAsHiddenIfNeccessary(permissions.delete) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+        deleteConfirmed(htmlDialog, deleteRelease);
+    }
+
+    function focusOnCommentField() {
+        $("#moderationRequestCommentField").focus();
+        $("#moderationRequestCommentField").select();
+    }
+
+    function showCommentField() {
+        $("#moderationRequestCommentDialog").show();
+        $("#formSubmit").attr("disabled","disabled");
+        focusOnCommentField();
+    }
+
+    function submitModerationRequest() {
+        $('#releaseEditForm').submit();
+    }
+
     var contextpath;
     $(document).ready(function () {
         prepareAutocompleteForMultipleHits('programminglanguages', ${programmingLanguages});
@@ -204,6 +243,17 @@
             ignore: [],
             invalidHandler: invalidHandlerShowErrorTab
          });
+
+        $('#formSubmit').click(
+            function() {
+                if(permissions.write || ${addMode}) {
+                    $('#releaseEditForm').submit();
+                }
+                else {
+                    showCommentField();
+                }
+            }
+        );
     });
 
     require(['jquery', 'components/includes/vendors/searchVendor', 'modules/confirm'], function($, vendorsearch, confirm) {
@@ -231,9 +281,9 @@
                 message += '</ul>';
             }
 
-            confirm.confirmDeletion(message, function() {
-                window.location.href = data.deleteReleaseUrl;
-            });
+            message += '<div><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+
+            confirm.confirmDeletion(message, deleteRelease);
 
         });
 
@@ -243,6 +293,13 @@
 
             $('#<%=Release._Fields.VENDOR_ID.toString()%>').val(beforeComma.trim());
             $('#<%=Release._Fields.VENDOR_ID.toString()%>Display').val(afterComma.trim());
+        }
+
+        function deleteRelease() {
+            var commentText_encoded = btoa($("#moderationDeleteCommentField").val());
+            var baseUrl = '<%=deleteReleaseURL%>';
+            var deleteURL = Liferay.PortletURL.createURL( baseUrl ).setParameter('<%=PortalConstants.MODERATION_REQUEST_COMMENT%>',commentText_encoded);
+            window.location.href = deleteURL;
         }
     });
 </script>

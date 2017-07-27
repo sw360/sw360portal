@@ -55,18 +55,36 @@
             <div class="tab-content span10">
                 <div id="tab-Open" class="tab-pane">
                     <table id="moderationsTable" cellpadding="0" cellspacing="0" border="0" class="display">
+                        <colgroup>
+                            <col style="width: 5%;" />
+                            <col style="width: 15%;" />
+                            <col style="width: 20%;" />
+                            <col style="width: 10%;" />
+                            <col style="width: 30%;" />
+                            <col style="width: 10%;" />
+                            <col style="width: 5%;" />
+                        </colgroup>
                         <tfoot>
                         <tr>
-                            <th colspan="5"></th>
+                            <th colspan="7"></th>
                         </tr>
                         </tfoot>
                     </table>
                 </div>
                 <div id="tab-Closed">
                     <table id="closedModerationsTable" cellpadding="0" cellspacing="0" border="0" class="display">
+                        <colgroup>
+                            <col style="width: 5%;" />
+                            <col style="width: 15%;" />
+                            <col style="width: 20%;" />
+                            <col style="width: 10%;" />
+                            <col style="width: 30%;" />
+                            <col style="width: 10%;" />
+                            <col style="width: 5%;" />
+                        </colgroup>
                         <tfoot>
                         <tr>
-                            <th colspan="5"></th>
+                            <th colspan="7"></th>
                         </tr>
                         </tfoot>
                     </table>
@@ -104,85 +122,140 @@
             deleteModerationRequest(data.moderationRequest, data.documentName);
         });
 
-        // helper functions
-        function prepareModerationsData() {
-            var result = [];
-            <core_rt:forEach items="${moderationRequests}" var="moderation">
-                result.push({
-                    "DT_RowId": "${moderation.id}",
-                    "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-                    "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
-                    "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
-                    "3": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
-                    "4": 'TODO'
-                });
-            </core_rt:forEach>
-            return result;
-        }
+    $(window).load( function() {
+        $('.TogglerModeratorsList').on('click', toggleModeratorsList );
+    });
 
-        function prepareClosedModerationsData() {
-            var result = [];
-            <core_rt:forEach items="${closedModerationRequests}" var="moderation">
-                result.push({
-                    "DT_RowId": "${moderation.id}",
-                    "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-                    "1": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
-                    "2": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
-                    "3": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
-                    <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
-                    "4": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' data-moderation-request='${moderation.id}' data-document-name='${moderation.documentName}' alt='Delete' title='Delete'>"
-                    </core_rt:if>
-                    <core_rt:if test="${isUserAtLeastClearingAdmin != 'Yes'}">
-                    "4": "READY"
-                    </core_rt:if>
 
-                });
-            </core_rt:forEach>
-            return result;
+    function useSearch(searchFieldId) {
+        var searchText = $('#'+searchFieldId).val();
+        moderationsDataTable.search(searchText).draw();
+        closedModerationsDataTable.search(searchText).draw();
+    }
 
-        }
-
-        function createModerationsTable(tableId, tableData) {
-            var tbl = $(tableId).DataTable({
-                pagingType: "simple_numbers",
-                dom: "lrtip",
-                data: tableData,
-                columns: [
-                    {"title": "Document Name"},
-                    {"title": "Requesting User"},
-                    {"title": "Moderators"},
-                    {"title": "State"},
-                    {"title": "Actions"}
-                ]
+    function prepareModerationsData() {
+        var result = [];
+        <core_rt:forEach items="${moderationRequests}" var="moderation">
+            result.push({
+                "DT_RowId": "${moderation.id}",
+                "0": '<sw360:out value="${moderation.timestamp}"/>',
+                "1": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
+                "2": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
+                "3": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
+                "4": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
+                "5": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                "6": ''
             });
+        </core_rt:forEach>
+        return result;
+    }
 
-            return tbl;
-        }
+    function prepareClosedModerationsData() {
+        var result = [];
+        <core_rt:forEach items="${closedModerationRequests}" var="moderation">
+            result.push({
+                "DT_RowId": "${moderation.id}",
+                "0": '<sw360:out value="${moderation.timestamp}"/>',
+                "1": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
+                "2": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
+                "3": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
+                "4": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
+                "5": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
+                "6": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
+                </core_rt:if>
+                <core_rt:if test="${isUserAtLeastClearingAdmin != 'Yes'}">
+                "6": "READY"
+                </core_rt:if>
 
-        function deleteModerationRequest(id, docName) {
-            function deleteModerationRequestInternal() {
-                jQuery.ajax({
-                    type: 'POST',
-                    url: '<%=deleteModerationRequestAjaxURL%>',
-                    cache: false,
-                    data: {
-                        <portlet:namespace/>moderationId: id
-                    },
-                    success: function (data) {
-                        if (data.result == 'SUCCESS') {
-                            closedModerationsDataTable.row('#' + id).remove().draw(false);
-                        }
-                        else {
-                            $.alert("I could not delete the moderation request!");
-                        }
-                    },
-                    error: function () {
+                });
+        </core_rt:forEach>
+        return result;
+
+    }
+
+    function createModerationsTable(tableId, tableData) {
+        var tbl = $(tableId).DataTable({
+            pagingType: "simple_numbers",
+            dom: "lrtip",
+            data: tableData,
+            autowidth: false,
+            columns: [
+                {title: "Date", render: {display: renderTimeToReadableFormat}},
+                {title: "Document Name"},
+                {title: "Requesting User"},
+                {title: "Department"},
+                {title: "Moderators", render: {display: renderModeratorsListExpandable}},
+                {title: "State"},
+                {title: "Actions"}
+            ]
+        });
+
+        return tbl;
+    }
+
+    function deleteModerationRequest(id, docName) {
+        function deleteModerationRequestInternal() {
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=deleteModerationRequestAjaxURL%>',
+                cache: false,
+                data: {
+                    <portlet:namespace/>moderationId: id
+                },
+                success: function (data) {
+                    if (data.result == 'SUCCESS') {
+                        closedModerationsDataTable.row('#' + id).remove().draw(false);
+                    }
+                    else {
                         $.alert("I could not delete the moderation request!");
                     }
-                });
-            }
+                },
+                error: function () {
+                    $.alert("I could not delete the moderation request!");
+                }
+            });
+        }
 
             confirm.confirmDeletion("Do you really want to delete the moderation request for <b>" + docName + "</b> ?", deleteModerationRequestInternal);
         }
     });
+
+    function extractEmailFromHTMLElement(link) {
+        var dummyHTML = document.createElement('div');
+        dummyHTML.innerHTML = link;
+        return dummyHTML.textContent;
+    }
+
+    function cutModeratorsList(moderators) {
+        var firstEmail = extractEmailFromHTMLElement(moderators.split(",")[0]);
+        return  firstEmail.substring(0,20) + "...";
+    }
+
+    function renderTimeToReadableFormat(timeInSeconds) {
+        var date = new Date(Number(timeInSeconds));
+        return date.toISOString().substring(0,10);
+    }
+
+    function renderModeratorsListExpandable(moderators) {
+        htmlString  = "<div>"
+        htmlString += "<div class=\"TogglerModeratorsList\" style=\"display: block; float: left\"><div class=\"Toggler_off\">&#x25BA</div><div class=\"Toggler_on\" style=\"display: none; float: left\">&#x25BC</div></div>";
+        htmlString += "<div class=\"ModeratorsListHidden\" style=\"display: block; float: left\">" + cutModeratorsList(moderators) + "</div>";
+        htmlString += "<div class=\"ModeratorsListShown\" style=\"display: none; float: left\">" + moderators + "</div>";
+        htmlString += "</div>";
+        return htmlString;
+    }
+
+    function toggleModeratorsList() {
+        var toggler_off = $(this).find('.Toggler_off');
+        var toggler_on = $(this).find('.Toggler_on');
+        var parent = $(this).parent();
+        var ModeratorsListHidden = parent.find('.ModeratorsListHidden');
+        var ModeratorsListShown = parent.find('.ModeratorsListShown');
+
+        toggler_off.toggle();
+        toggler_on.toggle();
+        ModeratorsListHidden.toggle();
+        ModeratorsListShown.toggle();
+    }
 </script>

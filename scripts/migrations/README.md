@@ -23,6 +23,10 @@ To migrate it is recommended to do this in the following order:
 ### 1.7.0 -> 2.0.0
 - `005_convert_compatibility_fields_to_ternary.py`
 - `006_convert_project_release_relationship_to_enums.py`
+### 2.0.0 -> 2.2.0
+### 2.2.0 -> 3.0.0
+- `007_add_submitters_usergroup_to_moderation_request.py
+`
 ## Run the scripts for a database not running on localhost
 tbd.
 

@@ -140,6 +140,7 @@ public class PortalConstants {
     public static final String PAGENAME_LICENSE_INFO = "generateLicenseInfo";
     public static final String PAGENAME_SOURCE_CODE_BUNDLE = "generateSourceCodeBundle";
     public static final String PROJECT_ROLES;
+    public static final String CURRENT_USER = "currentUser";
 
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
@@ -208,6 +209,8 @@ public class PortalConstants {
     public static final String ACTION_DECLINE = "action_decline";
     public static final String ACTION_REMOVEME = "action_removeme";
     public static final String ACTION_RENDER_NEXT_AFTER_UNSUBSCRIBE = "action_render_next";
+    public static final String MODERATION_REQUEST_COMMENT = "moderation_request_comment";
+    public static final String MODERATION_DECISION_COMMENT = "moderation_decision_comment";
     public static final String WHAT = "what";
 
     public static final String WHERE = "where";

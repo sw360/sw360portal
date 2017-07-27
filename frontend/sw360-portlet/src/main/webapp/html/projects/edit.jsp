@@ -20,6 +20,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
 
 <portlet:actionURL var="updateURL" name="update">
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}" />
@@ -34,11 +35,13 @@
 
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
+    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
     <jsp:useBean id="documentID" class="java.lang.String" scope="request" />
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
     <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
     <jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
+    <jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
 
     <core_rt:set  var="addMode"  value="${empty project.id}" />
 </c:catch>
@@ -60,7 +63,8 @@
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
             <core_rt:if test="${not addMode}" >
-                <input id="deleteProjectButton" type="button" class="addButton" value="Delete <sw360:ProjectName project="${project}"/>"
+                <input id="deleteProjectButton" type="button" class="addButton"
+                       value="Delete <sw360:ProjectName project="${project}"/>"
                 <core_rt:if test="${ usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the project is used." </core_rt:if>
                 >
             </core_rt:if>
@@ -72,6 +76,12 @@
             <input type="button" id="formSubmit" value="Add Project" class="addButton">
         </core_rt:if>
         <input id="cancelEditButton" type="button" value="Cancel" class="cancelButton">
+        <div id="moderationRequestCommentDialog" style="display: none">
+            <hr>
+            <label class="textlabel stackedLabel">Comment your changes</label>
+            <textarea form=projectEditForm name="<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>" id="moderationRequestCommentField" class="moderationCreationComment" placeholder="Leave a comment on your request"></textarea>
+            <input type="button" class="addButton" id="moderationRequestCommentSendButton" value="Send moderation request">
+        </div>
     </div>
 
     <div id="editField" class="content2">
@@ -104,7 +114,12 @@
 </core_rt:if>
 
 <script>
-require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
+    require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
+
+    var permissions = {  'write':  ${permissions.makePermission(project, currentUser).isActionAllowed(RequestedAction.DELETE)},
+                         'delete': ${permissions.makePermission(project, currentUser).isActionAllowed(RequestedAction.WRITE)}
+                      };
+
 
     function cancel() {
         deleteAttachmentsOnCancel();
@@ -132,34 +147,60 @@ require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw3
         });
     }
 
+    function openDeleteDialog() {
+        var htmlDialog  = '' + '<div>' +
+                          'Do you really want to delete the project <b><sw360:ProjectName project="${project}"/></b> ?' +
+                          '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ><br/><br/>The project <b><sw360:ProjectName project="${project}"/></b> contains<br/><ul></core_rt:if>' +
+                          '<core_rt:if test="${not empty project.linkedProjects}" ><li><sw360:out value="${project.linkedProjectsSize}"/> linked projects</li></core_rt:if>' +
+                          '<core_rt:if test="${not empty project.releaseIdToUsage}" ><li><sw360:out value="${project.releaseIdToUsageSize}"/> linked releases</li></core_rt:if>'  +
+                          '<core_rt:if test="${not empty project.attachments}" ><li><sw360:out value="${project.attachmentsSize}"/> attachments</li></core_rt:if>'  +
+                          '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ></ul></core_rt:if>' +
+                          '</div>'+
+                          '<div ' + styleAsHiddenIfNeccessary(permissions.delete) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+        deleteConfirmed(htmlDialog, deleteProject);
+    }
+
     function deleteProject() {
-        window.location.href = '<%=deleteURL%>';
+        var commentText_encoded = btoa($("#moderationDeleteCommentField").val());
+        var baseUrl = '<%=deleteURL%>';
+        var deleteURL = Liferay.PortletURL.createURL( baseUrl ).setParameter('<%=PortalConstants.MODERATION_REQUEST_COMMENT%>',commentText_encoded);
+        window.location.href = deleteURL;
+    }
+
+    function focusOnCommentField() {
+        $("#moderationRequestCommentField").focus();
+        $("#moderationRequestCommentField").select();
+    }
+
+    function showCommentField() {
+        $("#moderationRequestCommentDialog").show();
+        $("#formSubmit, #formSubmit2").attr("disabled","disabled");
+        focusOnCommentField();
+    }
+
+    function submitModerationRequest() {
+        $('#projectEditForm').submit();
     }
 
     $(document).ready(function() {
         var contextpath = '<%=request.getContextPath()%>',
             deletionMessage;
 
-        $('#cancelEditButton, #cancelEditButton2').click(function() {
-            cancel();
-        });
-
-        deletionMessage = 'Do you really want to delete the project <b><sw360:ProjectName project="${project}"/></b> ?'  +
-        '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ><br/><br/>The project <b><sw360:ProjectName project="${project}"/></b> contains<br/><ul></core_rt:if>' +
-        '<core_rt:if test="${not empty project.linkedProjects}" ><li><sw360:out value="${project.linkedProjectsSize}"/> linked projects</li></core_rt:if>'  +
-        '<core_rt:if test="${not empty project.releaseIdToUsage}" ><li><sw360:out value="${project.releaseIdToUsageSize}"/> linked releases</li></core_rt:if>'  +
-        '<core_rt:if test="${not empty project.attachments}" ><li><sw360:out value="${project.attachmentsSize}"/> attachments</li></core_rt:if>'  +
-        '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ></ul></core_rt:if>';
-        $('#deleteProjectButton').click(function() {
-            confirm.confirmDeletion(deletionMessage, deleteProject);
-        });
+        $('#moderationRequestCommentSendButton').on('click', submitModerationRequest);
+        $('#cancelEditButton, #cancelEditButton2').on('click', cancel);
+        $('#deleteProjectButton').on('click', openDeleteDialog);
 
         sw360Validate.validateWithInvalidHandlerNoIgnore('#projectEditForm');
 
         $('#formSubmit, #formSubmit2').click(
-            function() {
-                $('#projectEditForm').submit();
-            }
+                function() {
+                    if(permissions.write || ${addMode}) {
+                        $('#projectEditForm').submit();
+                    }
+                    else {
+                        showCommentField();
+                    }
+                }
         );
     });
 });

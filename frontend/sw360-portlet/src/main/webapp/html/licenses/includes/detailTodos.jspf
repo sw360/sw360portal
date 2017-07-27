@@ -11,8 +11,9 @@
 --%>
 
 <core_rt:if test="${editMode}">
-    <form action="${editLicenseTodosURL}" method="post">
+    <form action="${editLicenseTodosURL}" method="post" id="FormTodosWhitelist" name="FormTodosWhitelist">
 </core_rt:if>
+
 <table class="table info_table db_table" id="licenseObligations" title="Todo overview">
     <thead>
     <tr>
@@ -76,7 +77,7 @@
             <core_rt:if test="${editMode}">
                                     <span class="pull-right">
                                         <core_rt:if test="${not empty moderationLicenseDetail.todos || not empty added_todos_from_moderation_request}">
-                                            <input type="submit" id="SubmitWhitelist" value="Submit">
+                                            <input type="button" id="SubmitWhitelist" value="Submit" onclick="submitFormWhiteList()">
                                         </core_rt:if>
                                     </span>
             </core_rt:if>
@@ -174,3 +175,29 @@
 <core_rt:if test="${editMode}">
     </form>
 </core_rt:if>
+
+<div id="moderationRequestCommentDialogWhiteList" style="display: none">
+    <hr>
+    <label class="textlabel stackedLabel">Comment</label>
+    <textarea form=FormTodosWhitelist name="<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>" id="moderationRequestCommentField" class="moderationCreationComment" placeholder="Leave a comment on your request"></textarea>
+    <input type="button" class="addButton" onclick="submitModerationRequestWhiteList()" id="moderationRequestCommentSendButton" value="Send moderation request">
+</div>
+
+<jsp:include page="/html/licenses/includes/updateLicenseUtils.jsp" />
+<script>
+    function submitFormWhiteList() {
+        if(permissions.write) {
+            submitModerationRequestWhiteList();
+        } else {
+            openModerationDialogWhiteList();
+        }
+    }
+
+    function openModerationDialogWhiteList() {
+        $("#moderationRequestCommentDialogWhiteList").show();
+    }
+
+    function submitModerationRequestWhiteList() {
+        $('#FormTodosWhitelist').submit();
+    }
+</script>

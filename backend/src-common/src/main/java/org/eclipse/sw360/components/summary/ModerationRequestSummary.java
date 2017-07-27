@@ -33,6 +33,8 @@ public class ModerationRequestSummary extends DocumentSummary<ModerationRequest>
         copyField(document, copy, ModerationRequest._Fields.REQUESTING_USER);
         copyField(document, copy, ModerationRequest._Fields.MODERATORS);
         copyField(document, copy, ModerationRequest._Fields.TIMESTAMP);
+        copyField(document, copy, ModerationRequest._Fields.TIMESTAMP_OF_DECISION);
+        copyField(document, copy, ModerationRequest._Fields.REQUESTING_USER_DEPARTMENT);
 
         return copy;
     }

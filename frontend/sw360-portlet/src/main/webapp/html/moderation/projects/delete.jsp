@@ -37,6 +37,8 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Project:  <sw360:ProjectName project="${project}"/></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
+<%@include file="/html/moderation/includes/moderationInfo.jspf"%>
+
 <core_rt:set var="inProjectDetailsContext" value="false" scope="request"/>
 <%@include file="/html/projects/includes/detailOverview.jspf"%>
 <script>

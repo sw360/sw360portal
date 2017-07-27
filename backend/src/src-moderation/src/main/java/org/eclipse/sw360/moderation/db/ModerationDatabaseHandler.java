@@ -141,9 +141,11 @@ public class ModerationDatabaseHandler {
         return isCreator || PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user);
     }
 
-    public void refuseRequest(String requestId) {
+    public void refuseRequest(String requestId, String moderationDecisionComment) {
         ModerationRequest request = repository.get(requestId);
         request.moderationState = ModerationState.REJECTED;
+        request.setTimestampOfDecision(System.currentTimeMillis());
+        request.setCommentDecisionModerator(moderationDecisionComment);
         repository.update(request);
         sendMailToUserForDeclinedRequest(request.getRequestingUser(), request.getDocumentType() == DocumentType.USER);
     }
@@ -167,7 +169,7 @@ public class ModerationDatabaseHandler {
         }
         CommonUtils.addAll(moderators, getUsersAtLeast(UserGroup.ADMIN));
 
-        ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, component.getId(), moderators);
+        ModerationRequest request = createStubRequest(user, isDeleteRequest, component.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.COMPONENT);
@@ -194,7 +196,7 @@ public class ModerationDatabaseHandler {
         }
         Set<String> moderators = moderatorsProvider.apply(dbrelease);
 
-        ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, release.getId(), moderators);
+        ModerationRequest request = createStubRequest(user, isDeleteRequest, release.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.RELEASE);
@@ -239,6 +241,25 @@ public class ModerationDatabaseHandler {
         return moderators;
     }
 
+    private void appendCommentRequestingUserToRequest(ModerationRequest request, String comment) {
+        /* For the case that the user is enlarging an existing moderation request, do not overwrite the old comment,
+           but rather append the new comment to the old one. */
+        if(request.isSetCommentRequestingUser()) {
+            String totalComment = request.getCommentRequestingUser() + System.lineSeparator() + comment;
+            request.setCommentRequestingUser(totalComment);
+        } else {
+            request.setCommentRequestingUser(comment);
+        }
+    }
+
+    private void fillRequestWithCommentOfUser(ModerationRequest request, User user) {
+        if(user.isSetCommentMadeDuringModerationRequest()) {
+            appendCommentRequestingUserToRequest(request, user.getCommentMadeDuringModerationRequest());
+        } else {
+            appendCommentRequestingUserToRequest(request, "");
+        }
+    }
+
     public Function<Release, Set<String>> getEccModeratorsProvider() {
         return this::getEccReleaseModerators;
     }
@@ -254,7 +275,7 @@ public class ModerationDatabaseHandler {
 
         // Define moderators
         Set<String> moderators = getProjectModerators(dbproject);
-        ModerationRequest request = createStubRequest(user.getEmail(), isDeleteRequest, project.getId(), moderators);
+        ModerationRequest request = createStubRequest(user, isDeleteRequest, project.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.PROJECT);
@@ -280,22 +301,21 @@ public class ModerationDatabaseHandler {
         return moderators;
     }
 
-    public RequestStatus createRequest(License license, String user, String department) {
+    public RequestStatus createRequest(License license, User user) {
         License dblicense;
         try{
-            dblicense = licenseDatabaseHandler.getLicenseForOrganisation(license.getId(), department);
+            dblicense = licenseDatabaseHandler.getLicenseForOrganisation(license.getId(), user.getDepartment());
         } catch (SW360Exception e) {
             log.error("Could not get original license from database. Could not generate moderation request.", e);
             return RequestStatus.FAILURE;
         }
         // Define moderators
-        Set<String> moderators = getLicenseModerators(department);
+        Set<String> moderators = getLicenseModerators(user.getDepartment());
         ModerationRequest request = createStubRequest(user, false, license.getId(), moderators);
 
         // Set meta-data
         request.setDocumentType(DocumentType.LICENSE);
         request.setDocumentName(SW360Utils.printName(license));
-        request.setRequestingUserDepartment(department);
 
         // Fill the request
         ModerationRequestGenerator generator = new LicenseModerationRequestGenerator();
@@ -307,7 +327,7 @@ public class ModerationDatabaseHandler {
  public void createRequest(User user) {
         // Define moderators
         Set<String> admins = getUsersAtLeast(UserGroup.CLEARING_ADMIN, user.getDepartment());
-        ModerationRequest request = createStubRequest(user.getEmail(), false, user.getId(), admins);
+        ModerationRequest request = createStubRequest(user, false, user.getId(), admins);
 
         // Set meta-data
         request.setDocumentType(DocumentType.USER);
@@ -397,16 +417,16 @@ public class ModerationDatabaseHandler {
         }
     }
 
-    private ModerationRequest createStubRequest(String user, boolean isDeleteRequest, String documentId, Set<String> moderators) {
+    private ModerationRequest createStubRequest(User user, boolean isDeleteRequest, String documentId, Set<String> moderators) {
         final ModerationRequest request;
 
         List<ModerationRequest> requestByDocumentId = getRequestByDocumentId(documentId);
-        Optional<ModerationRequest> firstModerationRequestOfUser = CommonUtils.getFirstModerationRequestOfUser(requestByDocumentId, user);
+        Optional<ModerationRequest> firstModerationRequestOfUser = CommonUtils.getFirstModerationRequestOfUser(requestByDocumentId, user.getEmail());
         if (firstModerationRequestOfUser.isPresent() && CommonUtils.isStillRelevant(firstModerationRequestOfUser.get())) {
             request = firstModerationRequestOfUser.get();
         } else {
             request = new ModerationRequest();
-            request.setRequestingUser(user);
+            request.setRequestingUser(user.getEmail());
             request.setDocumentId(documentId);
         }
 
@@ -414,6 +434,9 @@ public class ModerationDatabaseHandler {
         request.setModerationState(ModerationState.PENDING);
         request.setRequestDocumentDelete(isDeleteRequest);
         request.setModerators(Sets.filter(moderators, notEmptyOrNull()));
+        request.setRequestingUserDepartment(user.getDepartment());
+
+        fillRequestWithCommentOfUser(request, user);;
 
         return request;
 

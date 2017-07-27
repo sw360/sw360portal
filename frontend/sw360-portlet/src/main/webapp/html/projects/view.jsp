@@ -26,6 +26,7 @@
              scope="request"/>
 
 <jsp:useBean id="projectType" class="java.lang.String" scope="request"/>
+<jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request"/>
 <jsp:useBean id="projectResponsible" class="java.lang.String" scope="request"/>
 <jsp:useBean id="releaseClearingStateSummary" class="org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary" scope="request"/>
 <jsp:useBean id="businessUnit" class="java.lang.String" scope="request"/>
@@ -383,8 +384,9 @@
 		                url: '<%=deleteAjaxURL%>',
 		                cache: false,
 		                data: {
-		                    "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
-		                },
+		                    "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId,
+                            "<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>": btoa($("#moderationDeleteCommentField").val())
+                        },
 		                success: function (data) {
 		                    if (data.result == 'SUCCESS') {
 		                        projectsTable.row('#' + projectId).remove().draw(false);
@@ -405,12 +407,13 @@
 
 		        }
 
-		        var confirmMessage = "Do you really want to delete the project " + name + " ?";
-		        confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "<br/><br/>The project " + name + " contains<br/><ul>" : "";
-		        confirmMessage += (linkedProjectsSize > 0) ? "<li>" + linkedProjectsSize + " linked projects</li>" : "";
-		        confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
-		        confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
-		        confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "</ul>" : "";
+                var confirmMessage = "Do you really want to delete the project " + name + " ?";
+                confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "<br/><br/>The project " + name + " contains<br/><ul>" : "";
+                confirmMessage += (linkedProjectsSize > 0) ? "<li>" + linkedProjectsSize + " linked projects</li>" : "";
+                confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
+                confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
+                confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "</ul>" : "";
+                confirmMessage += '<div><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
 
 		        confirm.confirmDeletion(confirmMessage, deleteProjectInternal);
 		    }

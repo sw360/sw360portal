@@ -456,6 +456,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void prepareComponentEdit(RenderRequest request) {
         String id = request.getParameter(COMPONENT_ID);
         final User user = UserCacheHolder.getUserFromRequest(request);
+        request.setAttribute(CURRENT_USER, user);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_COMPONENT);
         if (id != null) {
             try {
@@ -490,8 +491,9 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void prepareReleaseEdit(RenderRequest request, RenderResponse response) throws PortletException {
         String id = request.getParameter(COMPONENT_ID);
         String releaseId = request.getParameter(RELEASE_ID);
-        request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_RELEASE);
         final User user = UserCacheHolder.getUserFromRequest(request);
+        request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_RELEASE);
+        request.setAttribute(CURRENT_USER, user);
 
         if (isNullOrEmpty(id) && isNullOrEmpty(releaseId)) {
             throw new PortletException("Component and Release ID not set!");
@@ -875,6 +877,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             if (id != null) {
                 Component component = client.getComponentByIdForEdit(id, user);
                 ComponentPortletUtils.updateComponentFromRequest(request, component);
+                String ModerationRequestCommentMsg = request.getParameter(MODERATION_REQUEST_COMMENT);
+                user.setCommentMadeDuringModerationRequest(ModerationRequestCommentMsg);
                 RequestStatus requestStatus = client.updateComponent(component, user);
                 setSessionMessage(request, requestStatus, "Component", "update", component.getName());
                 cleanUploadHistory(user.getEmail(),id);
@@ -931,6 +935,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 if (releaseId != null) {
                     release = client.getReleaseByIdForEdit(releaseId, user);
                     ComponentPortletUtils.updateReleaseFromRequest(request, release);
+                    String ModerationRequestCommentMsg = request.getParameter(MODERATION_REQUEST_COMMENT);
+                    user.setCommentMadeDuringModerationRequest(ModerationRequestCommentMsg);
 
                     RequestStatus requestStatus = client.updateRelease(release, user);
                     setSessionMessage(request, requestStatus, "Release", "update", printName(release));

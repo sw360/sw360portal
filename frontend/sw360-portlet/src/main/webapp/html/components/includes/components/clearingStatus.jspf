@@ -96,7 +96,9 @@
                 url: '<%=deleteReleaseAjaxURL%>',
                 cache: false,
                 data: {
-                    <portlet:namespace/>releaseId: id
+                    <portlet:namespace/>releaseId: id,
+                    <portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>: btoa($("#moderationDeleteCommentField").val())
+
                 },
                 success: function (data) {
                     if (data.result == 'SUCCESS') {
@@ -121,6 +123,7 @@
         confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
         confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
         confirmMessage += (linkedReleasesSize > 0 ||  attachmentsSize > 0) ? "</ul>" : "";
+        confirmMessage += '<div><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
 
         deleteConfirmed(confirmMessage, deleteReleaseInternal);
     }

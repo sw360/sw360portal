@@ -249,3 +249,15 @@ function deleteConfirmed(confirmMessage, confirmCallback) {
     });
 }
 
+function stringToBoolean(s) {
+    return s == "true";
+}
+
+function styleAsHiddenIfNeccessary(hasPermissionsToDelete) {
+    if(hasPermissionsToDelete) {
+        return 'style=\'display:none;\'';
+    } else {
+        return '';
+    }
+}
+
