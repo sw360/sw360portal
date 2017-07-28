@@ -61,7 +61,7 @@
         </td>
 
         <td class="deletor">
-            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${loop.count}')" alt="Delete">
+            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${loop.count}','<sw360:out value='${releaseLink.longName}' jsQuoting="'"/>')" alt="Delete">
         </td>
 
     </tr>
