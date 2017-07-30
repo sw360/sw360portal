@@ -10,57 +10,30 @@
 --%>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
-
-<%@include file="/html/init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+
+
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
 <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.Release>"
              scope="request"/>
 
-<%--TODO--%>
-<portlet:resourceURL var="viewVendorURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
-</portlet:resourceURL>
-
-
 <portlet:resourceURL var="updateReleaseURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.RELEASE%>"/>
 </portlet:resourceURL>
 
-
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Release Bulk Edit</span>
 </p>
 <div id="searchInput" class="content1">
-    <table style="width: 90%; margin-left:3%;border:1px solid #cccccc;">
-        <thead>
-        <tr>
-            <th class="infoheading">
-                Quick Filter
-            </th>
-        </tr>
-        </thead>
-        <tbody style="background-color: #f8f7f7; border: none;">
-        <tr>
-            <td>
-                <input type="text" class="searchbar"
-                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <%@ include file="/html/utils/includes/quickfilter.jspf" %>
 </div>
 
 <div id="content" class="content2">
@@ -89,7 +62,7 @@
                 </td>
                 <td width="20%">
                     <sw360:DisplayVendorEdit id='vendorId${release.id}' displayLabel="false"
-                                             vendor="${release.vendor}" onclick="displayVendors('${release.id}')"/>
+                                             vendor="${release.vendor}" releaseId="${release.id}"/>
                     <span style="display:none" id='plainvendor${release.id}'>${release.vendor.fullname}</span>
                 </td>
                 <td width="20%">
@@ -110,109 +83,100 @@
                     <span style="display:none" id='plainversion${release.id}'>${release.version}</span>
                 </td>
                 <td width="7%">
-                    <input type="button" onclick="submitRow('${release.id}')"  value="OK" />
+                    <input type="button" name="submit" data-release-id="${release.id}"  value="OK" />
                 </td>
             </tr>
         </core_rt:forEach>
     </table>
 </div>
 
+<%@include file="/html/components/includes/vendors/searchVendor.jspf" %>
 
-<%@include file="/html/components/includes/vendors/vendorSearchForm.jspf" %>
-
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
-    var PortletURL;
-    AUI().use('liferay-portlet-url', function (A) {
-        PortletURL = Liferay.PortletURL;
-        load();
+    AUI().use('liferay-portlet-url', function () {
+        var PortletURL = Liferay.PortletURL;
+
+        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'components/includes/vendors/searchVendor', /* jquery-plugins: */ 'datatables', 'jquery-confirm'], function($, quickfilter, autocomplete, vendorsearch) {
+            var componentsInfoTable;
+
+            // initializing
+            load();
+
+            // register event handlers
+            $('#ComponentBasicInfo').on('click', 'input.edit-vendor', function(event) {
+                var data = $(event.currentTarget).data();
+                displayVendors(data.releaseId);
+            });
+            $('#ComponentBasicInfo').on('click', 'input[name=submit]', function(event) {
+                var data = $(event.currentTarget).data();
+                submitRow(data.releaseId);
+            });
+
+            // helper functions
+            function load() {
+                componentsInfoTable = configureComponentBasicInfoTable();
+                quickfilter.addTable(componentsInfoTable);
+            }
+
+            function configureComponentBasicInfoTable(){
+                var tbl;
+
+                tbl = $('#ComponentBasicInfo').DataTable({
+                    "pagingType": "simple_numbers",
+                    "dom": "lrtip",
+                    "bAutoWidth": false,
+                    "columnDefs": [
+                        { "width": "13%", "targets": [ 0 ] },
+                        { "width": "20%", "targets": [ 1 ] },
+                        { "width": "20%", "targets": [ 2 ] },
+                        { "width": "20%", "targets": [ 3 ] },
+                        { "width": "20%", "targets": [ 4 ] },
+                        { "width": "7%", "targets": [ 5 ] }
+                    ]
+                });
+
+                return tbl;
+            }
+
+            function submitRow(id) {
+                var resultElement  = $('#Status'+id);
+                resultElement.text("...");
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '<%=updateReleaseURL%>',
+                    data: {
+                        <portlet:namespace/>releaseId: id,
+                        <portlet:namespace/>VENDOR_ID: $('#vendorId'+id).val(),
+                        <portlet:namespace/>CPEID:$('#cpeid'+id).val(),
+                        <portlet:namespace/>NAME:$('#name'+id).val(),
+                        <portlet:namespace/>VERSION:$('#version'+id).val()
+                    },
+                    success: function (data) {
+                        resultElement.text(data.result);
+                    },
+                    error: function () {
+                        resultElement.text("error");
+                    }
+                });
+            }
+
+            function displayVendors(releaseId) {
+                vendorsearch.openSearchDialog('<portlet:namespace/>what', '<portlet:namespace/>where',
+                  '<portlet:namespace/>FULLNAME', '<portlet:namespace/>SHORTNAME', '<portlet:namespace/>URL', function(vendorInfo) {
+                    fillVendorInfo(releaseId, vendorInfo);
+                });
+            }
+
+            function fillVendorInfo(releaseId, vendorInfo) {
+                var beforeComma = vendorInfo.substr(0, vendorInfo.indexOf(","));
+                var afterComma = vendorInfo.substr(vendorInfo.indexOf(",") + 1);
+
+                $('#vendorId'+ releaseId).val(beforeComma.trim());
+                $('#vendorId'+ releaseId+'Display').val(afterComma.trim());
+            }
+        });
     });
-
-    var componentsInfoTable;
-
-    //This can not be document ready function as liferay definitions need to be loaded first
-    function load() {
-        componentsInfoTable = configureComponentBasicInfoTable();
-    }
-
-    function configureComponentBasicInfoTable(){
-        var tbl;
-        tbl = $('#ComponentBasicInfo').DataTable({
-            "pagingType": "simple_numbers",
-            dom: "lrtip",
-            "bAutoWidth": false,
-            "columnDefs": [
-                { "width": "13%", "targets": [ 0 ] },
-                { "width": "20%", "targets": [ 1 ] },
-                { "width": "20%", "targets": [ 2 ] },
-                { "width": "20%", "targets": [ 3 ] },
-                { "width": "20%", "targets": [ 4 ] },
-                { "width": "7%", "targets": [ 5 ] }
-            ]
-        });
-
-        return tbl;
-    }
-
-    var activeReleaseId = '';
-
-    function submitRow(id) {
-
-        var resultElement  = $('#Status'+id);
-        resultElement.text("...");
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=updateReleaseURL%>',
-            data: {
-                <portlet:namespace/>releaseId: id,
-                <portlet:namespace/>VENDOR_ID: $('#vendorId'+id).val(),
-                <portlet:namespace/>CPEID:$('#cpeid'+id).val(),
-                <portlet:namespace/>NAME:$('#name'+id).val(),
-                <portlet:namespace/>VERSION:$('#version'+id).val()
-            },
-            success: function (data) {
-                resultElement.text(data.result);
-            },
-            error: function () {
-                resultElement.text("error");
-            }
-        });
-    }
-
-    function displayVendors(id) {
-        activeReleaseId = id;
-        showSetVendorDialog();
-    }
-
-    //Vendor things
-    function fillVendorInfo(vendorInfo) {
-
-        var beforeComma = vendorInfo.substr(0, vendorInfo.indexOf(","));
-        var afterComma = vendorInfo.substr(vendorInfo.indexOf(",") + 1);
-        fillVendorInfoFields(beforeComma.trim(), afterComma.trim());
-    }
-
-    function fillVendorInfoFields(vendorId, vendorName) {
-        $('#vendorId'+ activeReleaseId).val(vendorId);
-        $('#vendorId'+ activeReleaseId+'Display').val(vendorName);
-    }
-
-    function vendorContentFromAjax(id, what, where) {
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=viewVendorURL%>',
-            data: {
-                <portlet:namespace/>what: what,
-                <portlet:namespace/>where: where
-            },
-            success: function (data) {
-                $('#' + id).html(data);
-            }
-        });
-    }
-
-    function useSearch( buttonId) {
-        componentsInfoTable.search($('#'+buttonId).val()).draw();
-    }
 </script>
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">

@@ -9,14 +9,15 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@include file="/html/init.jsp" %>
-<%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+
+<%@ include file="/html/init.jsp" %>
+<%-- the following is needed by liferay to display error messages--%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+
 
 <portlet:actionURL var="updateReleaseURL" name="updateRelease">
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
@@ -30,10 +31,6 @@
 
 <portlet:actionURL var="deleteAttachmentsOnCancelURL" name='<%=PortalConstants.ATTACHMENT_DELETE_ON_CANCEL%>'>
 </portlet:actionURL>
-
-<portlet:resourceURL var="viewVendorURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
-</portlet:resourceURL>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -53,7 +50,9 @@
     <core_rt:set var="addMode" value="${empty release.id}"/>
     <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 </c:catch>
+
 <%@include file="/html/utils/includes/logError.jspf" %>
+
 <core_rt:if test="${empty attributeNotFoundException}">
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
@@ -147,13 +146,17 @@
             </form>
         </div>
     </div>
-    <%@include file="/html/components/includes/vendors/vendorSearchForm.jspf" %>
 
     <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
     <jsp:include page="/html/utils/includes/searchUsers.jsp" />
     <jsp:include page="/html/utils/includes/searchLicenses.jsp" />
     <jsp:include page="/html/utils/includes/searchReleasesFromRelease.jsp" />
 </core_rt:if>
+
+<%@include file="/html/components/includes/vendors/searchVendor.jspf" %>
+
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
     var tabView;
     var Y = YUI().use(
@@ -208,32 +211,19 @@
          });
     });
 
-
-    //Vendor things
-    function fillVendorInfo( vendorInfo) {
-
-        var beforeComma = vendorInfo.substr(0, vendorInfo.indexOf(","));
-        var afterComma = vendorInfo.substr(vendorInfo.indexOf(",") + 1);
-        fillVendorInfoFields(beforeComma.trim(), afterComma.trim());
-    }
-
-   function fillVendorInfoFields(vendorId, vendorName) {
-       $('#<%=Release._Fields.VENDOR_ID.toString()%>').val(vendorId);
-       $('#<%=Release._Fields.VENDOR_ID.toString()%>Display').val(vendorName);
-    }
-
-    function vendorContentFromAjax(id, what, where) {
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=viewVendorURL%>',
-            data: {
-                <portlet:namespace/>what: what,
-                <portlet:namespace/>where: where
-            },
-            success: function (data) {
-                $('#' + id).html(data);
-            }
+    require(['jquery', 'components/includes/vendors/searchVendor'], function($, vendorsearch) {
+        $('#ComponentBasicInfo input.edit-vendor').on('click', function() {
+            vendorsearch.openSearchDialog('<portlet:namespace/>what', '<portlet:namespace/>where',
+                      '<portlet:namespace/>FULLNAME', '<portlet:namespace/>SHORTNAME', '<portlet:namespace/>URL', fillVendorInfo);
         });
-    }
+
+        function fillVendorInfo(vendorInfo) {
+            var beforeComma = vendorInfo.substr(0, vendorInfo.indexOf(","));
+            var afterComma = vendorInfo.substr(vendorInfo.indexOf(",") + 1);
+
+            $('#<%=Release._Fields.VENDOR_ID.toString()%>').val(beforeComma.trim());
+            $('#<%=Release._Fields.VENDOR_ID.toString()%>Display').val(afterComma.trim());
+        }
+    });
 </script>
 

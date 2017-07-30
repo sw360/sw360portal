@@ -9,10 +9,6 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
-
-<%@include file="/html/init.jsp" %>
-<%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Component" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
@@ -20,6 +16,10 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
+
+<%@ include file="/html/init.jsp" %>
+<%-- the following is needed by liferay to display error messages--%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -54,15 +54,11 @@
 <portlet:actionURL var="applyFiltersURL" name="applyFilters">
 </portlet:actionURL>
 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
-<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
 <div id="header"></div>
 <p class="pageHeader">
@@ -75,47 +71,31 @@
 </p>
 
 <div id="searchInput" class="content1">
+     <table>
+         <thead>
+         <tr>
+             <th class="infoheading">
+                 Loading
+             </th>
+         </tr>
+         </thead>
+         <tbody style="background-color: #f8f7f7; border: none;">
+         <tr>
+             <td>
+                 <select class="searchbar" id="view_size" name="<portlet:namespace/><%=PortalConstants.VIEW_SIZE%>">
+                     <option value="200" <core_rt:if test="${viewSize == 200}">selected</core_rt:if>>200 latest</option>
+                     <option value="500" <core_rt:if test="${viewSize == 500}">selected</core_rt:if>>500 latest</option>
+                     <option value="1000" <core_rt:if test="${viewSize == 1000}">selected</core_rt:if>>1000 latest</option>
+                     <option value="-1" <core_rt:if test="${viewSize == -1}">selected</core_rt:if>>All</option>
+                 </select>
+             </td>
+         </tr>
+         </tbody>
+     </table>
+
+    <%@ include file="/html/utils/includes/quickfilter.jspf" %>
+
     <form action="<%=applyFiltersURL%>" method="post">
-        <table>
-            <thead>
-            <tr>
-                <th class="infoheading">
-                    Loading
-                </th>
-            </tr>
-            </thead>
-            <tbody style="background-color: #f8f7f7; border: none;">
-            <tr>
-                <td>
-                    <select class="searchbar" id="view_size" name="<portlet:namespace/><%=PortalConstants.VIEW_SIZE%>" onchange="reloadViewSize()">
-                        <option value="200" <core_rt:if test="${viewSize == 200}">selected</core_rt:if>>200 latest</option>
-                        <option value="500" <core_rt:if test="${viewSize == 500}">selected</core_rt:if>>500 latest</option>
-                        <option value="1000" <core_rt:if test="${viewSize == 1000}">selected</core_rt:if>>1000 latest</option>
-                        <option value="-1" <core_rt:if test="${viewSize == -1}">selected</core_rt:if>>All</option>
-                    </select>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <table>
-            <thead>
-            <tr>
-                <th class="infoheading">
-                    Quick Filter
-                </th>
-            </tr>
-            </thead>
-            <tbody style="background-color: #f8f7f7; border: none;">
-            <tr>
-                <td>
-                    <input type="text" class="searchbar"
-                           id="keywordsearchinput" value=""
-                           onkeyup="useSearch('keywordsearchinput')" />
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <br/>
         <table>
             <thead>
             <tr>
@@ -193,6 +173,7 @@
         <input type="submit" class="addButton" value="Search">
     </form>
 </div>
+
 <div id="componentsTableDiv" class="content2">
     <table id="componentsTable" cellpadding="0" cellspacing="0" border="0" class="display">
         <tfoot>
@@ -208,170 +189,181 @@
             <option value="false">Components only</option>
             <option value="true">Components with releases</option>
         </select>
-        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
+        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton"/>
 </span>
 
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
-    var componentsTable;
+    AUI().use('liferay-portlet-url', function () {
+        var PortletURL = Liferay.PortletURL;
 
-    var PortletURL;
-    AUI().use('liferay-portlet-url', function (A) {
-        PortletURL = Liferay.PortletURL;
-        load();
-        $('.filterInput').on('input', function() {
-            $('#exportSpreadsheetButton').prop('disabled', true);
-        });
-    });
+        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins: */ 'datatables'], function($, quickfilter, autocomplete, confirm) {
+            var componentsTable;
 
-    function load() {
-        prepareAutocompleteForMultipleHits('languages', ${programmingLanguages});
-        prepareAutocompleteForMultipleHits('software_platforms', ${softwarePlatformsAutoC});
-        prepareAutocompleteForMultipleHits('operating_systems', ${operatingSystemsAutoC});
-        prepareAutocompleteForMultipleHits('vendor_names', ${vendorList});
-        createComponentsTable();
-    }
+            // initializing
+            load();
 
-    function createUrl_comp(paramId, paramVal) {
-        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
-                .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
-        return portletURL.toString();
-    }
+            // register event handlers
+            $('.filterInput').on('input', function() {
+                $('#exportSpreadsheetButton').prop('disabled', true);
+                <%--when filters are actually applied, page is refreshed and exportSpreadsheetButton enabled automatically--%>
+            });
+            $('#componentsTable').on('click', 'img.delete', function(event) {
+                var data = $(event.currentTarget).data();
+                deleteComponent(data.componentId, data.componentName, data.componentReleaseCount, data.componentAttachmentCount);
+            });
+            $('#exportSpreadsheetButton').on('click', function() {
+                exportSpreadsheet();
+            });
+            $('#view_size').on('change', function() {
+                reloadViewSize();
+            });
 
-    function createDetailURLfromComponentId(paramVal) {
-        return createUrl_comp('<%=PortalConstants.COMPONENT_ID%>', paramVal);
-    }
+            // helper functions
+            function load() {
+                autocomplete.prepareForMultipleHits('languages', ${programmingLanguages});
+                autocomplete.prepareForMultipleHits('software_platforms', ${softwarePlatformsAutoC});
+                autocomplete.prepareForMultipleHits('operating_systems', ${operatingSystemsAutoC});
+                autocomplete.prepareForMultipleHits('vendor_names', ${vendorList});
 
-    function useSearch(buttonId) {
-        var val = $.fn.dataTable.util.escapeRegex($('#' + buttonId).val());
-        componentsTable.columns(1).search(val, true).draw();
-    }
+                componentsTable = createComponentsTable();
+                quickfilter.addTable(componentsTable, function(searchTerm) {
+                    var searchRegex = $.fn.dataTable.util.escapeRegex(searchTerm);
+                    this.columns(1).search(searchRegex, true).draw();
+                });
+            }
 
-    function exportSpreadsheet(){
-        $('#keywordsearchinput').val("");
-        useSearch('keywordsearchinput');
+            function createDetailURLfromComponentId(componentId) {
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+                        .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter('<%=PortalConstants.COMPONENT_ID%>', componentId);
+                return portletURL.toString();
+            }
 
-        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-                .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-        portletURL.setParameter('<%=Component._Fields.NAME%>', $('#component_name').val());
-        portletURL.setParameter('<%=Component._Fields.CATEGORIES%>',$('#categories').val());
-        portletURL.setParameter('<%=Component._Fields.LANGUAGES%>',$('#languages').val());
-        portletURL.setParameter('<%=Component._Fields.SOFTWARE_PLATFORMS%>',$('#software_platforms').val());
-        portletURL.setParameter('<%=Component._Fields.OPERATING_SYSTEMS%>',$('#operating_systems').val());
-        portletURL.setParameter('<%=Component._Fields.VENDOR_NAMES%>',$('#vendor_names').val());
-        portletURL.setParameter('<%=Component._Fields.COMPONENT_TYPE%>',$('#component_type').val());
-        portletURL.setParameter('<%=Component._Fields.MAIN_LICENSE_IDS%>',$('#main_licenses').val());
-        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
+            function exportSpreadsheet(){
+                quickfilter.setSearchTerm('');
 
-        window.location.href=portletURL.toString();
-    }
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+                        .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+                portletURL.setParameter('<%=Component._Fields.NAME%>', $('#component_name').val());
+                portletURL.setParameter('<%=Component._Fields.CATEGORIES%>',$('#categories').val());
+                portletURL.setParameter('<%=Component._Fields.LANGUAGES%>',$('#languages').val());
+                portletURL.setParameter('<%=Component._Fields.SOFTWARE_PLATFORMS%>',$('#software_platforms').val());
+                portletURL.setParameter('<%=Component._Fields.OPERATING_SYSTEMS%>',$('#operating_systems').val());
+                portletURL.setParameter('<%=Component._Fields.VENDOR_NAMES%>',$('#vendor_names').val());
+                portletURL.setParameter('<%=Component._Fields.COMPONENT_TYPE%>',$('#component_type').val());
+                portletURL.setParameter('<%=Component._Fields.MAIN_LICENSE_IDS%>',$('#main_licenses').val());
+                portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
 
-    function reloadViewSize(){
-        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>');
-        portletURL.setParameter('<%=PortalConstants.VIEW_SIZE%>', $('#view_size').val());
-        window.location.href=portletURL.toString();
-    }
+                window.location.href=portletURL.toString();
+            }
 
-    function createComponentsTable() {
+            function reloadViewSize(){
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>');
+                portletURL.setParameter('<%=PortalConstants.VIEW_SIZE%>', $('#view_size').val());
+                window.location.href=portletURL.toString();
+            }
 
-        var result = [];
+            function createComponentsTable() {
+                var componentsTable,
+                    result = [];
 
-        <core_rt:forEach items="${componentList}" var="component">
-        <core_rt:set var="licenseCollectionTagOutput"><sw360:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/></core_rt:set>
-        result.push({
-            "DT_RowId": "${component.id}",
-            "id": "${component.id}",
-            "vndrs": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
-            "name": "${component.name}",
-            "lics": "<tags:TrimLineBreaks input="${licenseCollectionTagOutput}"/>",
-            "cType": '<sw360:DisplayEnum value="${component.componentType}"/>',
-            "lRelsSize": "${component.releaseIdsSize}",
-            "attsSize": "${component.attachmentsSize}"
-        });
-        </core_rt:forEach>
+                <core_rt:forEach items="${componentList}" var="component">
+                <core_rt:set var="licenseCollectionTagOutput"><sw360:DisplayLicenseCollection licenseIds="${component.mainLicenseIds}" scopeGroupId="${pageContext.getAttribute('scopeGroupId')}"/></core_rt:set>
+                    result.push({
+                        "DT_RowId": "${component.id}",
+                        "id": "${component.id}",
+                        "vndrs": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
+                        "name": "${component.name}",
+                        "lics": "<tags:TrimLineBreaks input="${licenseCollectionTagOutput}"/>",
+                        "cType": '<sw360:DisplayEnum value="${component.componentType}"/>',
+                        "lRelsSize": "${component.releaseIdsSize}",
+                        "attsSize": "${component.attachmentsSize}"
+                    });
+                </core_rt:forEach>
 
-        componentsTable = $('#componentsTable').DataTable({
-            "pagingType": "simple_numbers",
-            dom: "lrtip",
-            "pageLength": 25,
-            "data": result,
-            "columns": [
-                {"title": "Vendor", data: "vndrs"},
-                {"title": "Component Name", data: "name", render: {display: renderComponentNameLink}},
-                {"title": "Main Licenses", data: "lics"},
-                {"title": "Component Type", data: "cType"},
-                {"title": "Actions", data: "id", render: {display: renderComponentActions}}
-            ],
-            order: [[1, 'asc']],
-            language: {
-                lengthMenu: "_MENU_ entries per page"
+                componentsTable = $('#componentsTable').DataTable({
+                    "pagingType": "simple_numbers",
+                    "dom": "lrtip",
+                    "pageLength": 25,
+                    "data": result,
+                    "columns": [
+                        {"title": "Vendor", data: "vndrs"},
+                        {"title": "Component Name", data: "name", render: {display: renderComponentNameLink}},
+                        {"title": "Main Licenses", data: "lics"},
+                        {"title": "Component Type", data: "cType"},
+                        {"title": "Actions", data: "id", render: {display: renderComponentActions}}
+                    ],
+                    order: [[1, 'asc']],
+                    language: {
+                        lengthMenu: "_MENU_ entries per page"
+                    }
+                });
+
+                return componentsTable;
+            }
+
+            function renderComponentActions(id, type, row) {
+                <%--TODO most of this can be simplified to CSS properties --%>
+                return "<span id='componentAction" + id + "'></span>"
+                    + renderLinkTo(
+                        makeComponentUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
+                        "",
+                        "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
+                    + "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png'" +
+                    " data-component-id='" + id + "' data-component-name='" + replaceSingleQuote(row.name) + "' data-component-release-count='" + replaceSingleQuote(row.lRelsSize) + "' data-component-attachment-count='" + replaceSingleQuote(row.attsSize) + "' alt='Delete' title='Delete'/>";
+            }
+
+            function renderComponentNameLink(name, type, row) {
+                return renderLinkTo(makeComponentUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
+            }
+
+            function makeComponentUrl(componentId, page) {
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+                    .setParameter('<%=PortalConstants.PAGENAME%>', page)
+                    .setParameter('<%=PortalConstants.COMPONENT_ID%>', componentId);
+                return portletURL.toString();
+            }
+
+            function deleteComponent(id, name, numberOfReleases, attachmentsSize) {
+                function deleteComponentInternal() {
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: '<%=deleteAjaxURL%>',
+                        cache: false,
+                        data: {
+                            <portlet:namespace/>componentid: id
+                        },
+
+                        success: function (data) {
+                            if (data.result == 'SUCCESS') {
+                                componentsTable.row('#' + id).remove().draw(false);
+                            }
+                            else if (data.result == 'SENT_TO_MODERATOR') {
+                                $.alert("You may not delete the component, but a request was sent to a moderator!");
+                            }
+                            else if (data.result == 'IN_USE') {
+                                $.alert("I could not delete the component, since it is in use.");
+                            } else {
+                                $.alert("I could not delete the component.");
+                            }
+                        },
+                        error: function () {
+                            $.alert("I could not delete the component!");
+                        }
+                    });
+                }
+
+                if (numberOfReleases > 0) {
+                    $.alert("The component cannot be deleted, since it contains releases. Please delete the releases first.");
+                } else {
+                    var confirmMessage = "Do you really want to delete the component <b>" + name + "</b> ?";
+                    confirmMessage += (attachmentsSize > 0) ? "<br/><br/>The component <b>" + name + "</b> contains<br/><ul><li>" + attachmentsSize + " attachments</li></ul>" : "";
+                    confirm.confirmDeletion(confirmMessage, deleteComponentInternal);
+                }
             }
         });
-    }
-
-    function renderComponentActions(id, type, row) {
-        <%--TODO most of this can be simplified to CSS properties --%>
-        return "<span id='componentAction" + id + "'></span>"
-            + renderLinkTo(
-                makeComponentUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
-                "",
-                "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
-            + renderLinkTo(
-                makeComponentUrl(id, '<%=PortalConstants.PAGENAME_DUPLICATE%>'),
-                "",
-                "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
-            + "<img src='<%=request.getContextPath()%>/images/Trash.png'" +
-            " onclick=\"deleteComponent('" + id + "', '<b>" + replaceSingleQuote(row.name) + "</b>'," + replaceSingleQuote(row.lRelsSize) + "," + replaceSingleQuote(row.attsSize) + ")\" alt='Delete' title='Delete'/>";
-    }
-
-    function renderComponentNameLink(name, type, row) {
-        return renderLinkTo(makeComponentUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
-    }
-
-    function makeComponentUrl(componentId, page) {
-        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
-            .setParameter('<%=PortalConstants.PAGENAME%>', page)
-            .setParameter('<%=PortalConstants.COMPONENT_ID%>', componentId);
-        return portletURL.toString();
-    }
-
-    function deleteComponent(id, name, numberOfReleases, attachmentsSize) {
-        function deleteComponentInternal() {
-            jQuery.ajax({
-                type: 'POST',
-                url: '<%=deleteAjaxURL%>',
-                cache: false,
-                data: {
-                    <portlet:namespace/>componentid: id
-                },
-
-                success: function (data) {
-                    if (data.result == 'SUCCESS') {
-                        componentsTable.row('#' + id).remove().draw(false);
-                    }
-                    else if (data.result == 'SENT_TO_MODERATOR') {
-                        $.alert("You may not delete the component, but a request was sent to a moderator!");
-                    }
-                    else if (data.result == 'IN_USE') {
-                        $.alert("I could not delete the component, since it is in use.");
-                    } else {
-                        $.alert("I could not delete the component.");
-                    }
-                },
-                error: function () {
-                    $.alert("I could not delete the component!");
-                }
-            });
-        }
-
-        if (numberOfReleases > 0) {
-            $.alert("The component cannot be deleted, since it contains releases. Please delete the releases first.");
-        } else {
-            var confirmMessage = "Do you really want to delete the component " + name + " ?";
-            confirmMessage += (attachmentsSize > 0) ? "<br/><br/>The component " + name + " contains<br/><ul><li>" + attachmentsSize + " attachments</li></ul>" : "";
-            deleteConfirmed(confirmMessage, deleteComponentInternal);
-        }
-    }
-
+    });
 </script>
 <%@include file="/html/utils/includes/modal.jspf" %>
 <%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>

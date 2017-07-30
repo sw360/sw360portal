@@ -10,10 +10,11 @@
 --%>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 
-
-<%@include file="/html/init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+
+
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
 
@@ -25,42 +26,18 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.VIEW_VENDOR%>"/>
 </portlet:resourceURL>
 
-
 <portlet:resourceURL var="updateReleaseURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.RELEASE%>"/>
 </portlet:resourceURL>
 
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-<script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
-
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">ECC Overview</span>
 </p>
 <div id="searchInput" class="content1">
-    <table style="width: 90%; margin-left:3%;border:1px solid #cccccc;">
-        <thead>
-        <tr>
-            <th class="infoheading">
-                Quick Filter
-            </th>
-        </tr>
-        </thead>
-        <tbody style="background-color: #f8f7f7; border: none;">
-        <tr>
-            <td>
-                <input type="text" class="searchbar"
-                       id="keywordsearchinput" value="" onkeyup="useSearch('keywordsearchinput')">
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <%@ include file="/html/utils/includes/quickfilter.jspf" %>
 </div>
 
 <div id="content" class="content2">
@@ -98,37 +75,36 @@
     </table>
 </div>
 
-
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
-    var PortletURL;
-    AUI().use('liferay-portlet-url', function (A) {
-        PortletURL = Liferay.PortletURL;
-        load();
-    });
+    AUI().use('liferay-portlet-url', function () {
+        var PortletURL = Liferay.PortletURL;
 
-    var eccInfoTable;
+        require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables'], function($, quickfilter) {
+            var eccInfoTable;
 
-    //This can not be document ready function as liferay definitions need to be loaded first
-    function load() {
-        eccInfoTable = configureEccInfoTable();
-    }
+            // initializing
+            load();
 
-    function configureEccInfoTable(){
-        var tbl;
-        tbl = $('#eccInfoTable').DataTable({
-            pagingType: "simple_numbers",
-            dom: "lrtip",
-            "autoWidth": false,
-            "order": [],
-            "pageLength": 25
+            // helper functions
+            function load() {
+                eccInfoTable = configureEccInfoTable();
+                quickfilter.addTable(eccInfoTable);
+            }
+
+            function configureEccInfoTable(){
+                var tbl;
+                tbl = $('#eccInfoTable').DataTable({
+                    "pagingType": "simple_numbers",
+                    "dom": "lrtip",
+                    "autoWidth": false,
+                    "order": [],
+                    "pageLength": 25
+                });
+
+                return tbl;
+            }
         });
-
-        return tbl;
-    }
-
-    function useSearch( buttonId) {
-        eccInfoTable.search($('#'+buttonId).val()).draw();
-    }
+    });
 </script>
-
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">

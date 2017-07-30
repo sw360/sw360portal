@@ -12,6 +12,8 @@ package org.eclipse.sw360.portal.portlets.admin;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
@@ -23,16 +25,18 @@ import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
 import org.eclipse.sw360.portal.portlets.components.ComponentPortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
 
 import javax.portlet.*;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.sw360.portal.common.PortalConstants.*;
+import static org.eclipse.sw360.portal.common.PortalConstants.ADD_VENDOR;
+import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_ID;
+import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_LIST;
+import static org.eclipse.sw360.portal.common.PortalConstants.VIEW_VENDOR;
 
 /**
  * @author johannes.najjar@tngtech.com
@@ -100,9 +104,7 @@ public class BulkReleaseEdit extends Sw360Portlet {
         String what = request.getParameter(PortalConstants.WHAT);
         String where = request.getParameter(PortalConstants.WHERE);
 
-        if ("vendor".equals(what)) {
-            renderVendor(request, response, where);
-        } else if ("vendorSearch".equals(what)) {
+        if ("vendorSearch".equals(what)) {
             renderVendorSearch(request, response, where);
         }
     }
@@ -122,27 +124,6 @@ public class BulkReleaseEdit extends Sw360Portlet {
 
         request.setAttribute("vendorsSearch", CommonUtils.nullToEmptyList(vendors));
         include("/html/components/ajax/vendorSearch.jsp", request, response, PortletRequest.RESOURCE_PHASE);
-    }
-
-    private void renderVendor(ResourceRequest request, ResourceResponse response, String vendorId) throws IOException, PortletException {
-        Vendor vendor = null;
-
-        if (vendorId != null && !vendorId.isEmpty()) {
-            try {
-                VendorService.Iface client = thriftClients.makeVendorClient();
-                vendor = client.getByID(vendorId);
-            } catch (TException e) {
-                log.error("Error getting vendor from backend", e);
-            }
-        }
-
-        if (vendor == null) {
-            vendor = new Vendor();
-            vendor.setFullname("This is a vendor");
-            vendor.setShortname("It really is");
-        }
-        request.setAttribute("vendor", vendor);
-        include("/html/components/ajax/vendorAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
     private void serveAddVendor(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {

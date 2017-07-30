@@ -47,6 +47,7 @@ import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -54,7 +55,10 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
@@ -156,9 +160,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         String what = request.getParameter(PortalConstants.WHAT);
         String where = request.getParameter(PortalConstants.WHERE);
 
-        if ("vendor".equals(what)) {
-            renderVendor(request, response, where);
-        } else if ("vendorSearch".equals(what)) {
+        if ("vendorSearch".equals(what)) {
             renderVendorSearch(request, response, where);
         }
     }
@@ -178,27 +180,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         request.setAttribute("vendorsSearch", nullToEmptyList(vendors));
         include("/html/components/ajax/vendorSearch.jsp", request, response, PortletRequest.RESOURCE_PHASE);
-    }
-
-    private void renderVendor(ResourceRequest request, ResourceResponse response, String vendorId) throws IOException, PortletException {
-        Vendor vendor = null;
-
-        if (vendorId != null && !vendorId.isEmpty()) {
-            try {
-                VendorService.Iface client = thriftClients.makeVendorClient();
-                vendor = client.getByID(vendorId);
-            } catch (TException e) {
-                log.error("Error getting vendor from backend", e);
-            }
-        }
-
-        if (vendor == null) {
-            vendor = new Vendor();
-            vendor.setFullname("This is a vendor");
-            vendor.setShortname("It really is");
-        }
-        request.setAttribute("vendor", vendor);
-        include("/html/components/ajax/vendorAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
     private void serveAddVendor(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
