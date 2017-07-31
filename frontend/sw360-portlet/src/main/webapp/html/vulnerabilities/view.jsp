@@ -102,7 +102,8 @@
                         {"title": "Publish date"},
                         {"title": "Last update"}
                     ],
-                    "order": [[2, 'asc'], [3, 'desc']]
+                    "order": [[2, 'asc'], [3, 'desc']],
+                    "autoWidth": false
                 });
                 vulnerabilityTable.$('td').tooltip({"delay": 0, "track": true, "fade": 250});
 

@@ -33,7 +33,7 @@
 
 <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
+<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">DB Administration</span></p>
@@ -106,9 +106,10 @@
     }
     function setupPagination(tableId) {
         if ($(tableId)) {
-            $(tableId).dataTable({
-                "pagingType": "simple_numbers",
-                dom: "lrtip"
+            $(tableId).DataTable({
+                pagingType: "simple_numbers",
+                dom: "lrtip",
+                autoWidth: false
             });
         }
     }

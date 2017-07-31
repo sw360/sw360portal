@@ -14,13 +14,6 @@ package org.eclipse.sw360.datahandler.common;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
-import org.eclipse.sw360.datahandler.thrift.*;
-import org.eclipse.sw360.datahandler.thrift.attachments.*;
-import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
-import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
-import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FilenameUtils;
@@ -29,10 +22,24 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.TFieldIdEnum;
+import org.eclipse.sw360.datahandler.thrift.DocumentState;
+import org.eclipse.sw360.datahandler.thrift.ModerationState;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.RequestSummary;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.ektorp.DocumentOperationResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -242,6 +249,21 @@ public class CommonUtils {
             return 1;
 
         return 0;
+    }
+
+    public static boolean allHaveSameLength(Object... arrays) {
+        if (arrays.length < 1) {
+            return true;
+        }
+
+        int length = Array.getLength(arrays[0]);
+        for (Object array : arrays) {
+            if (Array.getLength(array) != length) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static Optional<Attachment> getAttachmentOptional(final String attachmentId, Set<Attachment> attachments) {
@@ -636,7 +658,7 @@ public class CommonUtils {
         }
         return keys;
     }
-    
+
     public static <U extends TFieldIdEnum, T extends TBase<T, U>> boolean isMapFieldMapOfStringSets(U field,
                                                                                                     T document,
                                                                                                     T documentAdditions,

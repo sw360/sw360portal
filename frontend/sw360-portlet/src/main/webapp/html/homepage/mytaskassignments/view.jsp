@@ -57,7 +57,8 @@
             columns: [
                 {"title": "Document Name"},
                 {"title": "Status"},
-            ]
+            ],
+            autoWidth: false
         });
     });
 

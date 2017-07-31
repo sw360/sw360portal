@@ -49,7 +49,8 @@
             columns: [
                 {"title": "Project Name"},
                 {"title": "Description"},
-            ]
+            ],
+            autoWidth: false
         });
     });
 

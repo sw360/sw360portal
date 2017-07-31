@@ -80,7 +80,8 @@
                 {title: "Project Mainline State"},
                 {title: "Action", data: "DT_RowId", render: renderActions}
             ],
-            pagingType: "simple_numbers"
+            pagingType: "simple_numbers",
+            autoWidth: false
         });
 
     }

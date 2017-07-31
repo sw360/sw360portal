@@ -44,6 +44,7 @@ function createSearchTable(data) {
                 }
             },
             { "title": "Text" }
-        ]
+        ],
+        "autoWidth": false
     });
 }

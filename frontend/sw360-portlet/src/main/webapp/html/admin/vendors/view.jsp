@@ -115,7 +115,8 @@
                         { "title": "Short Name" },
                         { "title": "URL" },
                         { "title": "Actions"}
-                    ]
+                    ],
+                    autoWidth: false
                 });
 
                 return vendorsTable;

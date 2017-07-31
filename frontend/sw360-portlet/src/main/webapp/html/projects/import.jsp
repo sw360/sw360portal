@@ -102,7 +102,7 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 
 <script>
@@ -138,12 +138,13 @@
         </core_rt:forEach>
 
         dataSourceTable = $('#dataSourceTable').DataTable({
-            "sPaginationType": "full_numbers",
-            "aaData": result,
-            "aoColumns": [
+            "pagingType": "full_numbers",
+            "data": result,
+            "columns": [
                 {"sTitle": "Project id in selected data source"},
                 {"sTitle": "Project name"}
-            ]
+            ],
+            "autoWidth": false
         });
 
         $('#dataSourceTable tbody').on( 'click', 'tr', function() {
@@ -285,13 +286,14 @@
         });
 
         dataSourceTable = $('#dataSourceTable').DataTable({
-            "bDestroy": true,
-            "sPaginationType": "full_numbers",
-            "aoColumns": [
+            "destroy": true,
+            "pagingType": "full_numbers",
+            "columns": [
                 {"sTitle": "Project id in selected data source"},
                 {"sTitle": "Project name"}
             ],
-            "aaData": projectList
+            "data": projectList,
+            "autoWidth": false
         });
     }
 
@@ -338,13 +340,14 @@
             data: data,
             success: function(response) {
                 dataSourceTable = $('#dataSourceTable').DataTable({
-                    "bDestroy": true,
-                    "sPaginationType": "full_numbers",
-                    "aoColumns": [
+                    "destroy": true,
+                    "pagingType": "full_numbers",
+                    "columns": [
                          {"sTitle": "Project id in selected data source"},
                         {"sTitle": "Project name"}
                     ],
-                    "aaData": []
+                    "data": [],
+                    "autoWidth": false
                 });
                 showLogout();
             }

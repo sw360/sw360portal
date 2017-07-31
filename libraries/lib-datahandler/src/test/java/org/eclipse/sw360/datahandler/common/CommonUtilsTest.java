@@ -174,4 +174,66 @@ public class CommonUtilsTest {
         boolean b = isMapFieldMapOfStringSets(Project._Fields.ROLES, project, project2, project3, Logger.getLogger(CommonUtilsTest.class));
         assertThat(b, is(true));
     }
+
+    @Test
+    public void testAllHaveSameLengthWithNoParameter() {
+        assertThat(allHaveSameLength(), is(true));
+    }
+
+    @Test
+    public void testAllHaveSameLengthWithOneParameter() {
+        int array[] = { 1, 2, 3 };
+        assertThat(allHaveSameLength(array), is(true));
+    }
+
+    @Test
+    public void testAllHaveSameLengthWithArraysOfSameLength() {
+        int iArray[] = { 1, 2, 3 };
+        String sArray[] = { "foo", "bar", "42" };
+        boolean bArray[] = { true, false, false };
+
+        assertThat(allHaveSameLength(iArray, sArray, bArray), is(true));
+    }
+
+    @Test
+    public void testAllHaveSameLengthWithArraysOfDifferentLength1() {
+        int iArray[] = { 1, 2, 3 };
+        String sArray[] = { "foo", "bar" };
+        boolean bArray[] = { true, false, false };
+
+        assertThat(allHaveSameLength(iArray, sArray, bArray), is(false));
+    }
+
+    @Test
+    public void testAllHaveSameLengthWithArraysOfDifferentLength2() {
+        int iArray[] = { 1, 2, 3 };
+        String sArray[] = { "foo", "bar", "42" };
+        boolean bArray[] = { true, false };
+
+        assertThat(allHaveSameLength(iArray, sArray, bArray), is(false));
+    }
+
+    @Test
+    public void testAllHaveSameLengthWithArraysOfDifferentLength3() {
+        int iArray[] = { 1, 2 };
+        String sArray[] = { "foo", "bar", "42" };
+        boolean bArray[] = { true, false, false };
+
+        assertThat(allHaveSameLength(iArray, sArray, bArray), is(false));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAllHaveSameLengthWithOtherObjects1() {
+        int i = 1;
+
+        assertThat(allHaveSameLength(i), is(false));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAllHaveSameLengthWithOtherObjects2() {
+        int i = 1;
+        String s = "s";
+
+        assertThat(allHaveSameLength(i, s), is(false));
+    }
 }

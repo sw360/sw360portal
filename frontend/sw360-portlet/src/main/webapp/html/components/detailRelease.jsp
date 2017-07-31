@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -9,19 +9,19 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+<%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="core_rt" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="sw360" uri="/WEB-INF/customTags.tld" %>
 
-<%@include file="/html/init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 
-<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
-<%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -61,8 +61,6 @@
     <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
     <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
-
-    <jsp:include page="/html/utils/includes/attachmentsDelete.jsp"/>
 
     <div id="header"></div>
     <p class="pageHeader"><label id="releaseHeaderLabel"> <span class="pageHeaderBigSpan"> Component: ${component.name}</span>
