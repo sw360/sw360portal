@@ -60,7 +60,7 @@
             <td><sw360:DisplayEnum value="${release.clearingState}"/></td>
         </tr>
         <tr>
-            <td>Mainline State:</td>
+            <td>Release Mainline State:</td>
             <td><span title="Open: new, Mainline: recommended use, Specific: tolerated use, Phaseout: avoid use">
                 <sw360:DisplayEnum value="${release.mainlineState}"/>
             </span></td>

@@ -51,7 +51,7 @@
             </select>
         </td>
         <td>
-            <label class="textlabel stackedLabel" for="mainlineState">Mainline state</label>
+            <label class="textlabel stackedLabel" for="mainlineState">Project Mainline state</label>
             <select class="toplabelledInput" id="mainlineState"
                     name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ProjectReleaseRelationship._Fields.MAINLINE_STATE%>"
                     style="min-height: 28px;">
