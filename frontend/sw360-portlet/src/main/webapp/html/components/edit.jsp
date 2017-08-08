@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -60,15 +60,14 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+
+    <script src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
     <!--include jQuery -->
     <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
+    <!--  needed for some dialogs mostly regarding attachments -->
     <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <!-- needed in mapEdit.jspf -->
     <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
-    <script src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
-
 
     <core_rt:if test="${not componentDivAddMode}">
         <jsp:include page="/html/utils/includes/attachmentsUpload.jsp"/>
@@ -77,14 +76,10 @@
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${component.name}"/></span>
             <core_rt:if test="${not componentDivAddMode}">
-                <input type="button" class="addButton" onclick="deleteConfirmed('' +
-                        'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?'  +
-                        '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b>contains<br/><ul><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></ul></core_rt:if>'
-                        , deleteComponent)"
-                       value="Delete <sw360:out value="${component.name}"/> "
-                <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the component is used." </core_rt:if>
-                <core_rt:if test="${component.releasesSize>0}"> disabled="disabled" title="Deletion is disabled as the component contains releases." </core_rt:if>
-                >
+                <input id="deleteComponentButton" type="button" class="addButton" value="Delete <sw360:out value="${component.name}"/> "
+                    <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the component is used." </core_rt:if>
+                    <core_rt:if test="${component.releasesSize>0}"> disabled="disabled" title="Deletion is disabled as the component contains releases." </core_rt:if>
+                />
             </core_rt:if>
         </p>
         <core_rt:if test="${not componentDivAddMode}">
@@ -100,9 +95,10 @@
         <core_rt:if test="${componentDivAddMode}">
             <input type="button" id="formSubmit" value="Add Component" class="addButton">
         </core_rt:if>
-        <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
+        <input id="cancelEditButton" type="button" value="Cancel" class="cancelButton">
     </div>
 
+    <%@ include file="/html/utils/includes/requirejs.jspf" %>
     <div id="editField" class="content2">
 
         <form id="componentEditForm" name="componentEditForm" action="<%=updateComponentURL%>" method="post">
@@ -121,31 +117,35 @@
 </core_rt:if>
 
 <script>
-    releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>';
-    compIdInURL = '<%=PortalConstants.COMPONENT_ID%>';
-    componentId = '${component.id}';
-    pageName = '<%=PortalConstants.PAGENAME%>';
-    pageDetail = '<%=PortalConstants.PAGENAME_EDIT_RELEASE%>';
+/* variables used in releaseTools.js ... */
+var releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>',
+    compIdInURL = '<%=PortalConstants.COMPONENT_ID%>',
+    componentId = '${component.id}',
+    pageName = '<%=PortalConstants.PAGENAME%>',
+    pageDetail = '<%=PortalConstants.PAGENAME_EDIT_RELEASE%>',
+    /* baseUrl also used in method in require block */
     baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
+
+require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/confirm' ], function($, sw360Validate, autocomplete, confirm) {
 
     function cancel() {
         deleteAttachmentsOnCancel();
-        var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
+
         var portletURL = Liferay.PortletURL.createURL(baseUrl);
 <core_rt:choose>
     <core_rt:when test="${not empty component.id}">
         portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
-                .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
+                  .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
     </core_rt:when>
     <core_rt:otherwise>
-        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>')
+        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>');
     </core_rt:otherwise>
 </core_rt:choose>
         window.location = portletURL.toString();
     }
 
     function deleteAttachmentsOnCancel() {
-        jQuery.ajax({
+        $.ajax({
             type: 'POST',
             url: '<%=deleteAttachmentsOnCancelURL%>',
             cache: false,
@@ -160,21 +160,32 @@
     }
 
 
-    var contextpath;
     $(document).ready(function () {
-        contextpath = '<%=request.getContextPath()%>';
-        prepareAutocompleteForMultipleHits('comp_platforms', ${softwarePlatformsAutoC});
-        prepareAutocompleteForMultipleHits('comp_categories', ${componentCategoriesAutocomplete});
-        $('#componentEditForm').validate({
-            invalidHandler: invalidHandlerShowErrorTab
+        var contextpath = '<%=request.getContextPath()%>',
+            deletionMessage;
+
+        $('#cancelEditButton').click(function() {
+            cancel();
         });
 
+        deletionMessage = 'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?'  +
+            '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b>contains<br/><ul><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></ul></core_rt:if>';
+        $('#deleteComponentButton').click(function() {
+            confirm.confirmDeletion(deletionMessage, deleteComponent);
+        });
+
+        autocomplete.prepareForMultipleHits('comp_platforms', ${softwarePlatformsAutoC});
+        autocomplete.prepareForMultipleHits('comp_categories', ${componentCategoriesAutocomplete});
+
+        sw360Validate.validateWithInvalidHandler('#componentEditForm');
+
         $('#formSubmit').click(
-                function () {
-                    $('#componentEditForm').submit();
-                }
+            function () {
+                $('#componentEditForm').submit();
+            }
         );
     });
+});
 </script>
 
 

@@ -11,11 +11,19 @@
  */
 package org.eclipse.sw360.portal.portlets.components;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portlet.PortletURLFactoryUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
@@ -77,6 +85,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
     private static final Logger log = Logger.getLogger(ComponentPortlet.class);
 
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
+
     private boolean typeIsComponent(String documentType) {
         return SW360Constants.TYPE_COMPONENT.equals(documentType);
     }
@@ -118,6 +128,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             serveViewVendor(request, response);
         } else if (ADD_VENDOR.equals(action)) {
             serveAddVendor(request, response);
+        } else if (CHECK_COMPONENT_NAME.equals(action)) {
+            serveCheckComponentName(request, response);
         } else if (DELETE_COMPONENT.equals(action)) {
             serveDeleteComponent(request, response);
         } else if (DELETE_RELEASE.equals(action)) {
@@ -199,6 +211,106 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         } catch (TException e) {
             log.error("Error adding vendor", e);
         }
+    }
+
+    private void serveCheckComponentName(ResourceRequest request, ResourceResponse response) throws IOException {
+        List<Component> resultComponents = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        String cName = request.getParameter(PortalConstants.COMPONENT_NAME);
+
+        if (cName != null && !cName.isEmpty()) {
+            List<Component> similarComponents = new ArrayList<>();
+            Map<String, Set<String>> filterMap = new HashMap<>();
+
+            // to find tomcat even on a cName of tomcat-apr, split the cName of special
+            // tokens:
+            // \W = a non word character, so not in [a-zA-Z_0-9]
+            Set<String> splitCName = Sets.newHashSet(cName.split("\\W"));
+            // to find tomcat even on a cName of tomca, add * to the search term
+            Set<String> splitExtendedCName = splitCName.stream().map(v -> v + "*").collect(Collectors.toSet());
+
+            try {
+                // thrift service does not support OR queries at the moment, so we have to query
+                // him twice
+                ComponentService.Iface cClient = thriftClients.makeComponentClient();
+
+                // first search for names
+                filterMap.put(Component._Fields.NAME.getFieldName(), splitExtendedCName);
+                similarComponents.addAll(cClient.refineSearch(null, filterMap));
+
+                // second search for vendors
+                filterMap.remove(Component._Fields.NAME.getFieldName());
+                filterMap.put(Component._Fields.VENDOR_NAMES.getFieldName(), splitExtendedCName);
+                similarComponents.addAll(cClient.refineSearch(null, filterMap));
+
+                // remove duplicates and sort alphabetically
+                resultComponents = similarComponents.stream().distinct().sorted(Comparator.comparing(c -> c.getName()))
+                        .collect(Collectors.toList());
+            } catch (TException e) {
+                log.error("Error getting similar components from backend", e);
+                errors.add(e.getMessage());
+            }
+        }
+
+        respondSimilarComponentsResponseJson(request, response, resultComponents, errors);
+    }
+
+    private void respondSimilarComponentsResponseJson(ResourceRequest request, ResourceResponse response,
+            List<Component> similarComponents, List<String> errors) throws IOException {
+        response.setContentType(ContentTypes.APPLICATION_JSON);
+
+        JsonGenerator jsonGenerator = JSON_FACTORY.createGenerator(response.getWriter());
+        jsonGenerator.writeStartObject();
+
+        // adding common title
+        jsonGenerator.writeStringField("title",
+                "To avoid duplicate components, check these similar ones! Does yours already exist?");
+
+        // adding errors or empty array if none occured
+        jsonGenerator.writeFieldName("errors");
+        jsonGenerator.writeStartArray();
+        errors.stream().forEach(e -> {
+            try {
+                jsonGenerator.writeString(e);
+            } catch (IOException e1) {
+                log.error("Exception while writing errors list to simililar components json", e1);
+            }
+        });
+        jsonGenerator.writeEndArray();
+
+        // adding components or empty array if there are none
+        LiferayPortletURL componentUrl = createDetailLinkTemplate(request);
+        jsonGenerator.writeFieldName("links");
+        jsonGenerator.writeStartArray();
+        similarComponents.stream().forEach(c -> {
+            componentUrl.setParameter(PortalConstants.COMPONENT_ID, c.getId());
+
+            try {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("target", componentUrl.toString());
+                jsonGenerator.writeStringField("text", c.getName());
+                jsonGenerator.writeEndObject();
+            } catch (IOException e1) {
+                log.error("Exception while writing components list to simililar components json", e1);
+            }
+        });
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
+        jsonGenerator.close();
+    }
+
+    private LiferayPortletURL createDetailLinkTemplate(ResourceRequest request) {
+        String portletId = (String) request.getAttribute(WebKeys.PORTLET_ID);
+        ThemeDisplay tD = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        long plid = tD.getPlid();
+
+        LiferayPortletURL componentUrl = PortletURLFactoryUtil.create(request, portletId, plid,
+                PortletRequest.RENDER_PHASE);
+        componentUrl.setParameter(PortalConstants.PAGENAME, PortalConstants.PAGENAME_DETAIL);
+
+        return componentUrl;
     }
 
     private void serveDeleteComponent(ResourceRequest request, ResourceResponse response) throws IOException {
