@@ -25,7 +25,6 @@ import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
 import org.eclipse.sw360.datahandler.thrift.*;
-import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStateSummary;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
@@ -41,16 +40,21 @@ import org.eclipse.sw360.mail.MailUtil;
 import org.ektorp.http.HttpClient;
 
 import java.net.MalformedURLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
-import static org.eclipse.sw360.datahandler.common.SW360Utils.*;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getBUFromOrganisation;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.getCreatedOn;
+import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 
 /**
@@ -70,6 +74,23 @@ public class ProjectDatabaseHandler {
     private final AttachmentConnector attachmentConnector;
     private final ComponentDatabaseHandler componentDatabaseHandler;
     private final MailUtil mailUtil = new MailUtil();
+
+    // this caching structure is only used for filling clearing state summaries and
+    // should be avoided anywhere else so that no other outdated information will be
+    // provided
+    // for the clearing state it is
+    // 1. necessary because they take a long time to get calculated which might be a
+    // good reason for service clients to query not for all projects at once, but to
+    // divide the queries in subsets of project (and we do not want to load the
+    // whole project map for each of this subset queries)
+    // 2. okay because the data normally "only moves forward", meaning that already
+    // approved clearing reports will not be revoked. So worst case of caching is
+    // that outdated data is provided, not wrong one (as it would be okay to see a
+    // cleared project that is displayed as not yet cleared - but it won't be okay
+    // to see a uncleared project that is displayed as cleared but isn't anymore)
+    private static final java.time.Duration ALL_PROJECTS_ID_MAP_CACHE_LIFETIME = java.time.Duration.ofMinutes(2);
+    private Map<String, Project> cachedAllProjectsIdMap;
+    private Instant cachedAllProjectsIdMapLoadingInstant;
 
     public ProjectDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
         this(httpClient, dbName, attachmentDbName, new ProjectModerator(), new ComponentDatabaseHandler(httpClient,dbName,attachmentDbName));
@@ -447,6 +468,93 @@ public class ProjectDatabaseHandler {
         return projects;
     }
 
+    public List<Project> fillClearingStateSummaryIncludingSubprojects(List<Project> projects, User user) {
+        final Map<String, Project> allProjectsIdMap = getRefreshedAllProjectsIdMap();
+
+        projects.stream().forEach(project -> {
+            // build project tree, get all linked release ids and fetch the releases
+            // current decision is to not check any permissions for subproject visibility
+            Set<String> releaseIdsOfProjectTree = getReleaseIdsOfProjectTree(project, Sets.newHashSet(),
+                    allProjectsIdMap, user, null);
+            List<Release> releasesForClearingStateSummary = componentDatabaseHandler
+                    .getReleasesForClearingStateSummary(releaseIdsOfProjectTree);
+            // compute the summaries
+            final ReleaseClearingStateSummary releaseClearingStateSummary = ReleaseClearingStateSummaryComputer
+                    .computeReleaseClearingStateSummary(releasesForClearingStateSummary, project.getClearingTeam());
+
+            project.setReleaseClearingStateSummary(releaseClearingStateSummary);
+        });
+
+        return projects;
+    }
+
+    /**
+     * Synchronization is not really necessary, we could also remove it. Worst case
+     * would then be that the projects map would be loaded twice if one thread just
+     * loaded it but has not yet updated the loadingInstant field while another
+     * thread queries already (if we change the order and set the instant first and
+     * then load the new map, worst case would be that the other thread would get an
+     * older map as the new one is not yet set).
+     */
+    private synchronized Map<String, Project> getRefreshedAllProjectsIdMap() {
+        if (cachedAllProjectsIdMap != null && Instant.now()
+                .isBefore(cachedAllProjectsIdMapLoadingInstant.plus(ALL_PROJECTS_ID_MAP_CACHE_LIFETIME))) {
+            return cachedAllProjectsIdMap;
+        }
+
+        cachedAllProjectsIdMap = ThriftUtils.getIdMap(repository.getAll());
+        cachedAllProjectsIdMapLoadingInstant = Instant.now();
+
+        return cachedAllProjectsIdMap;
+    }
+
+    private Set<String> getReleaseIdsOfProjectTree(Project project, Set<String> visitedProjectIds,
+            Map<String, Project> allProjectsIdMap, User user, List<RequestedAction> permissionsFilter) {
+        // no need to visit a project twice
+        if (visitedProjectIds.contains(project.getId())) {
+            return Collections.emptySet();
+        }
+
+        // we are now checking this project so no need for further examination in
+        // recursion
+        visitedProjectIds.add(project.getId());
+
+        // container to aggregate results
+        Set<String> releaseIds = Sets.newHashSet();
+
+        // traverse linked projects with relation type other than "REFERRED" and
+        // "DUPLICATE" and add the result to this result
+        if (project.isSetLinkedProjects()) {
+            project.getLinkedProjects().entrySet().stream().forEach(e -> {
+                if (!ProjectRelationship.REFERRED.equals(e.getValue())
+                        && !ProjectRelationship.DUPLICATE.equals(e.getValue())) {
+                    Project childProject = allProjectsIdMap.get(e.getKey());
+                    if (childProject != null) {
+                        // since we fetched all project up front we did not yet check any permission -
+                        // so do it now
+                        if (permissionsFilter == null || permissionsFilter.isEmpty()
+                                || makePermission(childProject, user).areActionsAllowed(permissionsFilter)) {
+                            // recursion inside :-)
+                            releaseIds.addAll(getReleaseIdsOfProjectTree(childProject, visitedProjectIds,
+                                    allProjectsIdMap, user, permissionsFilter));
+                        }
+                    }
+                }
+            });
+        }
+
+        // add own releases to result if they are not just "REFERRED"
+        if (project.isSetReleaseIdToUsage()) {
+            project.getReleaseIdToUsage().entrySet().stream().forEach(e -> {
+                if (!ReleaseRelationship.REFERRED.equals(e.getValue().getReleaseRelation())) {
+                    releaseIds.add(e.getKey());
+                }
+            });
+        }
+
+        return releaseIds;
+    }
+
     private void sendMailNotificationsForNewProject(Project project, String user) {
         mailUtil.sendMail(project.getProjectResponsible(),
                 MailConstants.SUBJECT_FOR_NEW_PROJECT,
@@ -522,5 +630,4 @@ public class ProjectDatabaseHandler {
                 SW360Constants.NOTIFICATION_CLASS_PROJECT, Project._Fields.ROLES.toString(),
                 project.getName(), project.getVersion());
     }
-
 }

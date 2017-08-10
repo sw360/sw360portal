@@ -25,7 +25,10 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
 
@@ -211,6 +214,12 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public List<Project> fillClearingStateSummary(List<Project> projects, User user) throws TException {
         return handler.fillClearingStateSummary(projects, user);
+    }
+
+    @Override
+    public List<Project> fillClearingStateSummaryIncludingSubprojects(List<Project> projects, User user)
+            throws TException {
+        return handler.fillClearingStateSummaryIncludingSubprojects(projects, user);
     }
 
     @Override

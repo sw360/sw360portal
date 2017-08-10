@@ -305,6 +305,12 @@ input[readonly].clickable {
     color: #9de997 !important;
 }
 
+#projectsTable span.clearingstate {
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+}
+
 #attachmentsDetail span.dataTableChildRowCell {
     display: inline-block;
 
