@@ -47,6 +47,11 @@
     <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/>
 </portlet:renderURL>
 
+<portlet:renderURL var="friendlyComponentURL">
+    <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PAGENAME%>"/>
+    <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_COMPONENT_ID%>"/>
+</portlet:renderURL>
+
 <portlet:resourceURL var="deleteAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.DELETE_COMPONENT%>'/>
 </portlet:resourceURL>
@@ -315,7 +320,14 @@
             }
 
             function renderComponentNameLink(name, type, row) {
-                return renderLinkTo(makeComponentUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
+                return renderLinkTo(makeComponentFriendlyUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
+            }
+
+            function makeComponentFriendlyUrl(componentId, page) {
+                var portletURL = '<%=friendlyComponentURL%>'
+                    .replace('<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PAGENAME%>', page)
+                    .replace('<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_COMPONENT_ID%>', componentId);
+                return portletURL;
             }
 
             function makeComponentUrl(componentId, page) {

@@ -18,10 +18,9 @@
     <portlet>
         <portlet-name>licenses</portlet-name>
         <icon>/icon.png</icon>
-        <!--<friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>-->
-        <!--<friendly-url-mapping>licenses</friendly-url-mapping>-->
-        <!--<friendly-url-routes>com/siemens/sw360/portal/portlets/licenses-friendly-url-routes.xml</friendly-url-routes>-->
-
+        <friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+        <friendly-url-mapping>license</friendly-url-mapping>
+        <friendly-url-routes>org/eclipse/sw360/portal/mapper/license-friendly-url-routes.xml</friendly-url-routes>
         <instanceable>false</instanceable>
 
         <private-request-attributes>false</private-request-attributes>
@@ -38,9 +37,10 @@
     <portlet>
         <portlet-name>search</portlet-name>
         <icon>/icon.png</icon>
-
+        <friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+        <friendly-url-mapping>search</friendly-url-mapping>
+        <friendly-url-routes>org/eclipse/sw360/portal/mapper/search-friendly-url-routes.xml</friendly-url-routes>
         <instanceable>false</instanceable>
-
         <header-portlet-css>/css/main.css</header-portlet-css>
         <!--<header-portlet-javascript>/js/main.js</header-portlet-javascript>-->
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
@@ -71,7 +71,9 @@
     <portlet>
         <portlet-name>components</portlet-name>
         <icon>/icon.png</icon>
-
+        <friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+        <friendly-url-mapping>component</friendly-url-mapping>
+        <friendly-url-routes>org/eclipse/sw360/portal/mapper/component-friendly-url-routes.xml</friendly-url-routes>
         <instanceable>false</instanceable>
         <private-request-attributes>false</private-request-attributes>
         <header-portlet-css>/css/main.css</header-portlet-css>
@@ -81,7 +83,9 @@
     <portlet>
         <portlet-name>moderation</portlet-name>
         <icon>/icon.png</icon>
-
+        <friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+        <friendly-url-mapping>moderation</friendly-url-mapping>
+        <friendly-url-routes>org/eclipse/sw360/portal/mapper/moderation-friendly-url-routes.xml</friendly-url-routes>
         <instanceable>false</instanceable>
         <private-request-attributes>false</private-request-attributes>
         <header-portlet-css>/css/main.css</header-portlet-css>
@@ -101,7 +105,9 @@
     <portlet>
         <portlet-name>projects</portlet-name>
         <icon>/icon.png</icon>
-
+        <friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+        <friendly-url-mapping>project</friendly-url-mapping>
+        <friendly-url-routes>org/eclipse/sw360/portal/mapper/project-friendly-url-routes.xml</friendly-url-routes>
         <instanceable>false</instanceable>
         <private-request-attributes>false</private-request-attributes>
         <header-portlet-css>/css/main.css</header-portlet-css>
@@ -236,7 +242,7 @@
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>
          <header-portlet-javascript>/webjars/jquery/1.12.4/jquery.min.js</header-portlet-javascript>
     </portlet>
-    
+
     <portlet>
         <portlet-name>databaseSanitation</portlet-name>
         <icon>/icon.png</icon>
@@ -285,6 +291,9 @@
     <portlet>
         <portlet-name>vulnerabilities</portlet-name>
         <icon>/icon.png</icon>
+        <friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+        <friendly-url-mapping>vulnerability</friendly-url-mapping>
+        <friendly-url-routes>org/eclipse/sw360/portal/mapper/vulnerability-friendly-url-routes.xml</friendly-url-routes>
         <instanceable>false</instanceable>
         <header-portlet-css>/css/main.css</header-portlet-css>
         <header-portlet-javascript>/js/main.js</header-portlet-javascript>

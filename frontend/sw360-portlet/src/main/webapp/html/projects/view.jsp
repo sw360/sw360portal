@@ -52,6 +52,11 @@
     <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/>
 </portlet:renderURL>
 
+<portlet:renderURL var="friendlyProjectURL">
+    <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PAGENAME%>"/>
+    <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PROJECT_ID%>"/>
+</portlet:renderURL>
+
 <portlet:resourceURL var="projectReleasesAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_GET_SENDABLE%>'/>
 </portlet:resourceURL>
@@ -235,6 +240,13 @@
 		        return portletURL.toString();
 		    }
 
+            function makeProjectFriendlyUrl(projectId, page) {
+                var portletURL = '<%=friendlyProjectURL%>'
+                    .replace('<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PAGENAME%>', page)
+                    .replace('<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PROJECT_ID%>', projectId);
+                return portletURL;
+            }
+
 		    function renderProjectActions(id, type, row) {
 		        <%--TODO most of this can be simplified to CSS properties --%>
 		        return "<img class='clearing' src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'" +
@@ -253,7 +265,7 @@
 		    }
 
 		    function renderProjectNameLink(name, type, row) {
-		        return renderLinkTo(makeProjectUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
+		        return renderLinkTo(makeProjectFriendlyUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
 		    }
 
 		    function load() {
