@@ -33,7 +33,7 @@
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 
 <div id="header"></div>
-<p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change Project:  <sw360:ProjectName project="${project}"/></span>
+<p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change Project:  <sw360:ProjectName project="${project}"/></span>z
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
 <%@include file="/html/moderation/includes/moderationInfo.jspf"%>

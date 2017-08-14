@@ -178,6 +178,9 @@ public class ModerationDatabaseHandler {
         //Fill the request
         ModerationRequestGenerator generator = new ComponentModerationRequestGenerator();
         request = generator.setAdditionsAndDeletions(request, component, dbcomponent);
+        if(component.isSetComponentType()) {
+            request.setComponentType(component.getComponentType());
+        }
         addOrUpdate(request);
         return RequestStatus.SENT_TO_MODERATOR;
     }
@@ -207,6 +210,12 @@ public class ModerationDatabaseHandler {
         SW360Utils.setVendorId(dbrelease);
         ModerationRequestGenerator generator = new ReleaseModerationRequestGenerator();
         request = generator.setAdditionsAndDeletions(request, release, dbrelease);
+        try {
+            Component parentComponent = componentDatabaseHandler.getComponent(release.getComponentId(), user);
+            request.setComponentType(parentComponent.getComponentType());
+        } catch (SW360Exception e) {
+            log.error("Could not retrieve parent component type of release with ID=" + release.getId());
+        }
         addOrUpdate(request);
         return RequestStatus.SENT_TO_MODERATOR;
     }

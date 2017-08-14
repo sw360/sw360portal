@@ -39,6 +39,7 @@
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Component: ${component.name}</span>
+                      <span class="pageHeaderBigSpan" style="float:right">(<sw360:DisplayEnum value="${moderationRequest.componentType}"/>)</span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
 <%@include file="/html/moderation/includes/moderationInfo.jspf"%>

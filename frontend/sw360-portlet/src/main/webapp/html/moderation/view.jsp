@@ -57,11 +57,11 @@
                     <table id="moderationsTable" cellpadding="0" cellspacing="0" border="0" class="display">
                         <colgroup>
                             <col style="width: 5%;" />
-                            <col style="width: 15%;" />
+                            <col style="width: 10%;" />
                             <col style="width: 20%;" />
-                            <col style="width: 10%;" />
+                            <col style="width: 15%;" />
+                            <col style="width: 15%;" />
                             <col style="width: 30%;" />
-                            <col style="width: 10%;" />
                             <col style="width: 5%;" />
                         </colgroup>
                         <tfoot>
@@ -75,11 +75,11 @@
                     <table id="closedModerationsTable" cellpadding="0" cellspacing="0" border="0" class="display">
                         <colgroup>
                             <col style="width: 5%;" />
-                            <col style="width: 15%;" />
+                            <col style="width: 10%;" />
                             <col style="width: 20%;" />
-                            <col style="width: 10%;" />
+                            <col style="width: 15%;" />
+                            <col style="width: 15%;" />
                             <col style="width: 30%;" />
-                            <col style="width: 10%;" />
                             <col style="width: 5%;" />
                         </colgroup>
                         <tfoot>
@@ -139,12 +139,13 @@
             result.push({
                 "DT_RowId": "${moderation.id}",
                 "0": '<sw360:out value="${moderation.timestamp}"/>',
-                "1": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-                "2": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
-                "3": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
-                "4": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
-                "5": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
-                "6": ''
+                "1": '<sw360:DisplayEnum value="${moderation.componentType}"/>',
+                "2": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
+                "3": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
+                "4": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
+                "5": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
+                "6": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                "7": ''
             });
         </core_rt:forEach>
         return result;
@@ -156,16 +157,17 @@
             result.push({
                 "DT_RowId": "${moderation.id}",
                 "0": '<sw360:out value="${moderation.timestamp}"/>',
-                "1": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-                "2": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
-                "3": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
-                "4": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
-                "5": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                "1": '<sw360:DisplayEnum value="${moderation.componentType}"/>',
+                "2": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
+                "3": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
+                "4": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
+                "5": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
+                "6": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
                 <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
-                "6": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
+                "7": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
                 </core_rt:if>
                 <core_rt:if test="${isUserAtLeastClearingAdmin != 'Yes'}">
-                "6": "READY"
+                "7": "READY"
                 </core_rt:if>
 
                 });
@@ -182,6 +184,7 @@
             autowidth: false,
             columns: [
                 {title: "Date", render: {display: renderTimeToReadableFormat}},
+                {title: "Type"},
                 {title: "Document Name"},
                 {title: "Requesting User"},
                 {title: "Department"},
