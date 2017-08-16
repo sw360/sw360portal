@@ -90,7 +90,7 @@ public abstract class Moderator<U extends TFieldIdEnum, T extends TBase<T, U>> {
                                     (Map<String, Set<String>>) documentAdditions.getFieldValue(field),
                                     (Map<String, Set<String>>) documentDeletions.getFieldValue(field)));
                 } else {
-                    log.error("Unknown field in Moderator: " + field.getFieldName());
+                        document.setFieldValue(field, documentAdditions.getFieldValue(field));
                 }
                 break;
             default:

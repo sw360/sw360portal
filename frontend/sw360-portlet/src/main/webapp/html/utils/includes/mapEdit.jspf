@@ -37,7 +37,7 @@
 
                     <td class="deletor">
                         <img src="<%=request.getContextPath()%>/images/Trash.png"
-                             onclick="deleteMapItem('mapEditTableRow${loop1.count}_${loop2.count}')"
+                             onclick="deleteMapItem('mapEditTableRow${loop1.count}_${loop2.count}');"
                              alt="Delete">
                     </td>
                 </tr>

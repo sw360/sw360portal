@@ -228,8 +228,15 @@ public class TagUtils {
                     fieldDisplay = sb.toString();
                 }
                 break;
+            case TType.MAP:
+                Map<Object, Object> mapValue = (Map<Object, Object>)fieldValue;
+                HashMap <String, String> stringMapValue = new HashMap();
+                for (Map.Entry entry : mapValue.entrySet()) {
+                    stringMapValue.put(entry.getKey().toString(), entry.getValue().toString());
+                }
+                fieldDisplay = DisplayMap.getMapAsString(stringMapValue);
+                break;
             default:
-
                 fieldDisplay = fieldValue == null ? "" : fieldValue.toString();
         }
         return fieldDisplay;

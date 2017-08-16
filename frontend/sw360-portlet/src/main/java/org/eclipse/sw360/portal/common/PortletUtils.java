@@ -370,18 +370,22 @@ public class PortletUtils {
     }
 
     public static Map<String,Set<String>> getCustomMapFromRequest(PortletRequest request) {
+        return getCustomMapFromRequest(request, PortalConstants.CUSTOM_MAP_KEY, PortalConstants.CUSTOM_MAP_VALUE);
+    }
+
+    public static Map<String,Set<String>> getCustomMapFromRequest(PortletRequest request, String mapKey, String mapValue) {
         Map<String, Set<String>> customMap = new HashMap<>();
         Enumeration<String> parameterNames = request.getParameterNames();
         List<String> keyAndValueParameterIds = Collections.list(parameterNames).stream()
-                .filter(p -> p.startsWith(PortalConstants.CUSTOM_MAP_KEY))
-                .map(s -> s.replace(PortalConstants.CUSTOM_MAP_KEY, ""))
+                .filter(p -> p.startsWith(mapKey))
+                .map(s -> s.replace(mapKey, ""))
                 .collect(Collectors.toList());
         for(String parameterId : keyAndValueParameterIds) {
-            String key = request.getParameter(PortalConstants.CUSTOM_MAP_KEY +parameterId);
+            String key = request.getParameter(mapKey +parameterId);
             if(isNullEmptyOrWhitespace(key)){
                 LOGGER.error("Empty map key found");
             } else {
-                String value = request.getParameter(PortalConstants.CUSTOM_MAP_VALUE + parameterId);
+                String value = request.getParameter(mapValue + parameterId);
                 if(!customMap.containsKey(key)){
                     customMap.put(key, new HashSet<>());
                 }
@@ -390,6 +394,16 @@ public class PortletUtils {
         }
         return customMap;
     }
+
+    public static Map<String,String> getExternalIdMapFromRequest(PortletRequest request) {
+        Map<String, Set<String>> customMap = getCustomMapFromRequest(request, PortalConstants.EXTERNAL_ID_KEY, PortalConstants.EXTERNAL_ID_VALUE);
+        return customMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> e.getValue().stream()
+                                .findFirst()
+                                .orElse("")));
+    }
+
 
     private static com.liferay.portal.model.User getLiferayUser(PortletRequest request, User user) throws PortalException, SystemException {
         ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);

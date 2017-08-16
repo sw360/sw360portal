@@ -105,6 +105,7 @@ public class PortalConstants {
     public static final String PAGENAME_EDIT_RELEASE = "editRelease";
     public static final String PAGENAME_DUPLICATE_RELEASE = "duplicateRelease";
     public static final String RELEASE_ROLES;
+    public static final String RELEASE_EXTERNAL_IDS;
 
     //! Specialized keys for vendors
     public static final String VENDOR = "vendor";
@@ -353,6 +354,8 @@ public class PortalConstants {
     //custom map keywords
     public static final String CUSTOM_MAP_KEY = "customMapKey";
     public static final String CUSTOM_MAP_VALUE = "customMapValue";
+    public static final String EXTERNAL_ID_KEY = "externalIdKey";
+    public static final String EXTERNAL_ID_VALUE = "externalIdValue";
 
     //! request status
     public static final String REQUEST_STATUS = "request_status";
@@ -380,6 +383,7 @@ public class PortalConstants {
         PROJECT_ROLES = props.getProperty("custommap.project.roles", "Stakeholder,Analyst,Contributor,Accountant,End user,Quality manager,Test manager,Technical writer,Key user");
         COMPONENT_ROLES = props.getProperty("custommap.component.roles", "Committer,Contributor,Expert");
         RELEASE_ROLES = props.getProperty("custommap.release.roles", "Committer,Contributor,Expert");
+        RELEASE_EXTERNAL_IDS = props.getProperty("custommap.release.externalIds", "[]");
         PROJECTIMPORT_HOSTS = props.getProperty("projectimport.hosts", "");
     }
 

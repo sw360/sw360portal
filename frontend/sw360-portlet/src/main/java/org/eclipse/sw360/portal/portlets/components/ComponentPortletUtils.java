@@ -77,13 +77,15 @@ public abstract class ComponentPortletUtils {
                 case RELEASE_ID_TO_RELATIONSHIP:
                     if (!release.isSetReleaseIdToRelationship())
                         release.setReleaseIdToRelationship(new HashMap<>());
-                    updateLinkedReleaesFromRequest(request, release.releaseIdToRelationship);
+                    updateLinkedReleaseFromRequest(request, release.releaseIdToRelationship);
                     break;
                 case CLEARING_STATE:
                     // skip setting CLEARING_STATE. it is supposed to be set only programmatically, never from user input.
                     break;
                 case ROLES:
                     release.setRoles(PortletUtils.getCustomMapFromRequest(request));
+                case EXTERNAL_IDS:
+                    release.setExternalIds(PortletUtils.getExternalIdMapFromRequest(request));
                 default:
                     setFieldValue(request, release, field);
             }
@@ -151,7 +153,7 @@ public abstract class ComponentPortletUtils {
         setFieldValue(request, vendor, Vendor._Fields.URL);
     }
 
-    private static void updateLinkedReleaesFromRequest(PortletRequest request, Map<String, ReleaseRelationship> linkedReleases) {
+    private static void updateLinkedReleaseFromRequest(PortletRequest request, Map<String, ReleaseRelationship> linkedReleases) {
         linkedReleases.clear();
         String[] ids = request.getParameterValues(Release._Fields.RELEASE_ID_TO_RELATIONSHIP.toString() + ReleaseLink._Fields.ID.toString());
         String[] relations = request.getParameterValues(Release._Fields.RELEASE_ID_TO_RELATIONSHIP.toString() + ReleaseLink._Fields.RELEASE_RELATIONSHIP.toString());

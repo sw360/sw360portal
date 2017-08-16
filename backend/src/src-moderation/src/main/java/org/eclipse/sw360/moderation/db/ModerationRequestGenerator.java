@@ -26,6 +26,7 @@ import org.apache.thrift.protocol.TType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.add;
@@ -179,6 +180,32 @@ public abstract class ModerationRequestGenerator<U extends TFieldIdEnum, T exten
 
         documentAdditions.setFieldValue(field, addMap);
         documentDeletions.setFieldValue(field, deleteMap);
+    }
+
+    protected void dealWithStringtoStringMap(U field) {
+        Map<String, String> updateDocumentMap = CommonUtils.nullToEmptyMap(
+                (Map<String, String>) updateDocument.getFieldValue(field));
+        Map<String, String> actualDocumentMap = CommonUtils.nullToEmptyMap(
+                (Map<String, String>) actualDocument.getFieldValue(field));
+        if (updateDocumentMap.equals(actualDocumentMap)) {
+            return;
+        }
+
+        Map<String,String> addedMap = updateDocumentMap;
+        Map<String, String> deletedMap = actualDocumentMap;
+
+        Set<String> commonKeys = Sets.intersection(updateDocumentMap.keySet(), actualDocumentMap.keySet());
+        for(String id : commonKeys) {
+            String actual = actualDocumentMap.get(id);
+            String update = updateDocumentMap.get(id);
+            if(! Objects.equals(update, actual)) {
+                addedMap.put(id, update);
+                deletedMap.put(id, actual);
+            }
+        }
+
+        documentAdditions.setFieldValue(field, addedMap);
+        documentDeletions.setFieldValue(field, deletedMap);
     }
 
     protected void dealWithAttachments(U attachmentField){
