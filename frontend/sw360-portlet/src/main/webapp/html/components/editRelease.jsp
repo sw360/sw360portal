@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -72,15 +72,14 @@
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${component.name}"/>: <sw360:ReleaseName release="${release}" /> Edit</span>
         <span class="pull-right">
                    <core_rt:if test="${not addMode}">
-                       <input type="button" class="addButton" onclick="deleteConfirmed('' +
-                               'Do you really want to delete the release <b><sw360:ReleaseName release="${release}" /></b> ?'  +
-                               '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ><br/><br/>The release <b><sw360:ReleaseName release="${release}" /></b> contains<br/><ul></core_rt:if>' +
-                               '<core_rt:if test="${not empty release.releaseIdToRelationship}" ><li><sw360:out value="${release.releaseIdToRelationshipSize}"/> linked releases</li></core_rt:if>'  +
-                               '<core_rt:if test="${not empty release.attachments}" ><li><sw360:out value="${release.attachmentsSize}"/> attachments</li></core_rt:if>'  +
-                               '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ></ul></core_rt:if>', deleteRelease)"
-                              value="Delete  <sw360:ReleaseName release="${release}" /> "
-                       <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the release is used." </core_rt:if>
-                       >
+                       <input type="button" class="addButton delete-release"
+                               data-release-name="<sw360:ReleaseName release="${release}" />"
+                               data-linked-releases="${release.releaseIdToRelationshipSize}"
+                               data-attachments="${release.attachmentsSize}"
+                               data-delete-release-url="<%=deleteReleaseURL%>"
+                               value="Delete <sw360:ReleaseName release="${release}"/>"
+                            <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the release is used." </core_rt:if>
+                       />
                    </core_rt:if>
     </span>
     </p>
@@ -196,10 +195,6 @@
         alert($('#releaseEditForm').valid());
     }
 
-    function deleteRelease() {
-        window.location.href = '<%=deleteReleaseURL%>';
-    }
-
     var contextpath;
     $(document).ready(function () {
         prepareAutocompleteForMultipleHits('programminglanguages', ${programmingLanguages});
@@ -211,10 +206,35 @@
          });
     });
 
-    require(['jquery', 'components/includes/vendors/searchVendor'], function($, vendorsearch) {
+    require(['jquery', 'components/includes/vendors/searchVendor', 'modules/confirm'], function($, vendorsearch, confirm) {
         $('#ComponentBasicInfo input.edit-vendor').on('click', function() {
             vendorsearch.openSearchDialog('<portlet:namespace/>what', '<portlet:namespace/>where',
                       '<portlet:namespace/>FULLNAME', '<portlet:namespace/>SHORTNAME', '<portlet:namespace/>URL', fillVendorInfo);
+        });
+
+        $('input[type=button].delete-release').on('click', function(event) {
+            var message = '',
+                data = $(event.target).data(),
+                releaseName = data.releaseName,
+                linkedReleases = data.linkedReleases,
+                attachments = data.attachments;
+
+            message = 'Do you really want to delete the release <b>' + releaseName + '</b> ?';
+            if(linkedReleases > 0 || attachments > 0) {
+                message += '<ul>';
+                if(linkedReleases > 0) {
+                    message += '<li><b>' + linkedReleases + '</b> linked releases</li>';
+                }
+                if(attachments > 0) {
+                    message += '<li><b>' + attachments + '</b> attachments</li>';
+                }
+                message += '</ul>';
+            }
+
+            confirm.confirmDeletion(message, function() {
+                window.location.href = data.deleteReleaseUrl;
+            });
+
         });
 
         function fillVendorInfo(vendorInfo) {
