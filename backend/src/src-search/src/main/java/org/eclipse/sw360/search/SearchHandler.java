@@ -11,16 +11,18 @@
  */
 package org.eclipse.sw360.search;
 
-import org.eclipse.sw360.datahandler.common.DatabaseSettings;
-import org.eclipse.sw360.datahandler.common.SW360Assert;
+import com.google.common.collect.Lists;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
 import org.eclipse.sw360.datahandler.thrift.search.SearchService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.search.db.DatabaseSearchHandler;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TException;
+import org.eclipse.sw360.search.db.AbstractDatabaseSearchHandler;
+import org.eclipse.sw360.search.db.Sw360dbDatabaseSearchHandler;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -34,10 +36,12 @@ public class SearchHandler implements SearchService.Iface {
 
     private static final Logger log = Logger.getLogger(SearchHandler.class);
 
-    private final DatabaseSearchHandler db;
+    private final AbstractDatabaseSearchHandler dbSw360db;
+    private final AbstractDatabaseSearchHandler dbSw360users;
 
     public SearchHandler() throws IOException {
-        db = new DatabaseSearchHandler(DatabaseSettings.COUCH_DB_URL, DatabaseSettings.COUCH_DB_DATABASE);
+        dbSw360db = new Sw360dbDatabaseSearchHandler();
+        dbSw360users = new Sw360usersDatabaseSearchHandler();
     }
 
 
@@ -47,7 +51,11 @@ public class SearchHandler implements SearchService.Iface {
         if("".equals(text)) return Collections.emptyList();
 
         // Query new and old database
-        List<SearchResult> results = db.search(text, typeMask, user);
+        List<SearchResult> results = Lists.newArrayList();
+        if (typeMask.contains(SW360Constants.TYPE_USER)) {
+            results.addAll(dbSw360users.search(text, Arrays.asList(SW360Constants.TYPE_USER), user));
+        }
+        results.addAll(dbSw360db.search(text, typeMask, user));
         Collections.sort(results, new SearchResultComparator());
 
         if (log.isTraceEnabled())

@@ -16,13 +16,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
-import org.eclipse.sw360.datahandler.common.SW360Constants;
-import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
 import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneSearchView;
-import org.eclipse.sw360.datahandler.db.ProjectRepository;
-import org.eclipse.sw360.datahandler.permissions.ProjectPermissions;
-import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.search.SearchResult;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 
@@ -35,7 +30,7 @@ import java.util.List;
  *
  * @author cedric.bodet@tngtech.com
  */
-public class DatabaseSearchHandler {
+public abstract class AbstractDatabaseSearchHandler {
 
     private static final LuceneSearchView luceneSearchView = new LuceneSearchView("lucene", "all",
             "function(doc) {" +
@@ -61,11 +56,9 @@ public class DatabaseSearchHandler {
                     "}");
 
     private final LuceneAwareDatabaseConnector connector;
-    private final ProjectRepository projectRepository;
 
-    public DatabaseSearchHandler(String url, String dbName) throws IOException {
+    public AbstractDatabaseSearchHandler(String dbName) throws IOException {
         // Create the database connector and add the search view to couchDB
-        projectRepository = new ProjectRepository(new DatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName));
         connector = new LuceneAwareDatabaseConnector(DatabaseSettings.getConfiguredHttpClient(), dbName);
         connector.addView(luceneSearchView);
         connector.setResultLimit(DatabaseSettings.LUCENE_SEARCH_LIMIT);
@@ -117,13 +110,7 @@ public class DatabaseSearchHandler {
         return results;
     }
 
-    private boolean isVisibleToUser(SearchResult result, User user){
-        if (! result.type.equals(SW360Constants.TYPE_PROJECT)){
-            return true;
-        }
-        Project project =  projectRepository.get(result.id);
-        return ProjectPermissions.isVisible(user).test(project);
-    }
+    abstract protected boolean isVisibleToUser(SearchResult result, User user);
 
     /**
      * Transforms a LuceneResult row into a Thrift SearchResult object
