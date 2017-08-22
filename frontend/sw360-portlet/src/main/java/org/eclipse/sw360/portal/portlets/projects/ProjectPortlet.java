@@ -11,7 +11,11 @@
  */
 package org.eclipse.sw360.portal.portlets.projects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -22,7 +26,10 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.common.*;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -32,8 +39,7 @@ import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
 import org.eclipse.sw360.datahandler.thrift.projects.*;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -55,7 +61,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -81,11 +86,13 @@ import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogr
  * @author alex.borodin@evosoft.com
  */
 public class ProjectPortlet extends FossologyAwarePortlet {
-
-
-    private final String NOT_CHECKED_YET = "Not checked yet.";
-
     private static final Logger log = Logger.getLogger(ProjectPortlet.class);
+
+    private static final String NOT_CHECKED_YET = "Not checked yet.";
+    private static final String EMPTY = "<empty>";
+    private static final String LICENSE_NAME_WITH_TEXT_KEY = "key";
+    private static final String LICENSE_NAME_WITH_TEXT_NAME = "name";
+    private static final String LICENSE_NAME_WITH_TEXT_TEXT = "text";
 
     private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(
             Project._Fields.BUSINESS_UNIT,
@@ -95,6 +102,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project._Fields.NAME,
             Project._Fields.STATE,
             Project._Fields.TAG);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public static final String LICENSE_STORE_KEY_PREFIX = "license-store-";
 
     @Override
     protected Set<Attachment> getAttachments(String documentId, String documentType, User user) {
@@ -143,44 +153,44 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             downloadSourceCodeBundle(request, response);
         } else if (PortalConstants.GET_CLEARING_STATE_SUMMARY.equals(action)) {
             serveGetClearingStateSummaries(request, response);
+        } else if (PortalConstants.GET_LICENCES_FROM_ATTACHMENT.equals(action)) {
+            serveAttachmentFileLicenses(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
     }
 
     private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
-        User user = UserCacheHolder.getUserFromRequest(request);
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        final String projectId = request.getParameter(PROJECT_ID);
+        final String generatorClassName = request.getParameter(PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT);
+        final Map<String, Set<String>> selectedReleaseAndAttachmentIds = ProjectPortletUtils
+                .getSelectedReleaseAndAttachmentIdsFromRequest(request);
+        final Set<String> attachmentIds = selectedReleaseAndAttachmentIds.values().stream().flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        final Map<String, Set<LicenseNameWithText>> excludedLicensesPerAttachmentId = ProjectPortletUtils
+                .getExcludedLicensesPerAttachmentIdFromRequest(attachmentIds, request);
 
-        String generatorClassName = request.getParameter(PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT);
-        LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
-        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
-
-        String projectId = request.getParameter(PROJECT_ID);
-        Map<String, Set<String>> selectedReleaseAndAttachmentIds = ProjectPortletUtils.getSelectedReleaseAndAttachmentIdsFromRequest(request);
         try {
+            final LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+            final ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+
             Project project = projectClient.getProjectById(projectId, user);
-            String projectName = project != null ? project.getName() : "Unknown-Project";
-            String timestamp = SW360Utils.getCreatedOn();
-            OutputFormatInfo outputFormatInfo = licenseInfoClient.getOutputFormatInfoForGeneratorClass(generatorClassName);
-            String filename = "LicenseInfo-" + projectName + "-" + timestamp + "." + outputFormatInfo.getFileExtension();
-            if (outputFormatInfo.isOutputBinary) {
-                ByteBuffer licenseInfoByteBuffer = licenseInfoClient.getLicenseInfoFileForProjectAsBinary(projectId, user, generatorClassName, selectedReleaseAndAttachmentIds);
-                byte[] licenseInfoByteArray = new byte[licenseInfoByteBuffer.remaining()];
-                licenseInfoByteBuffer.get(licenseInfoByteArray);
-                String mimetype = outputFormatInfo.getMimeType();
-                if(isNullOrEmpty(mimetype)){
-                    mimetype = URLConnection.guessContentTypeFromName(filename);
-                }
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoByteArray, mimetype);
-            } else {
-                PortletResponseUtil.sendFile(request, response, filename, licenseInfoClient
-                        .getLicenseInfoFileForProject(projectId, user, generatorClassName, selectedReleaseAndAttachmentIds)
-                        .getBytes(), outputFormatInfo.getMimeType());
+            LicenseInfoFile licenseInfoFile = licenseInfoClient.getLicenseInfoFile(project, user, generatorClassName,
+                    selectedReleaseAndAttachmentIds, excludedLicensesPerAttachmentId);
+
+            OutputFormatInfo outputFormatInfo = licenseInfoFile.getOutputFormatInfo();
+            String filename = String.format("LicenseInfo-%s-%s.%s", project.getName(), SW360Utils.getCreatedOn(),
+                    outputFormatInfo.getFileExtension());
+            String mimetype = outputFormatInfo.getMimeType();
+            if (isNullOrEmpty(mimetype)) {
+                mimetype = URLConnection.guessContentTypeFromName(filename);
             }
+
+            PortletResponseUtil.sendFile(request, response, filename, licenseInfoFile.getGeneratedOutput(), mimetype);
         } catch (TException e) {
-            log.error("Error getting LicenseInfo file", e);
-            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
-                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+            log.error("Error getting LicenseInfo file for project with id " + projectId + " and generator " + generatorClassName, e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -506,6 +516,55 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         include("/html/utils/ajax/searchReleasesAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
     }
 
+    private void serveAttachmentFileLicenses(ResourceRequest request, ResourceResponse response) throws IOException {
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        final String attachmentContentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
+        final ComponentService.Iface componentClient = thriftClients.makeComponentClient();
+        final LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+
+        try {
+            Release release = componentClient.getReleaseById(request.getParameter(PortalConstants.RELEASE_ID), user);
+            List<LicenseInfoParsingResult> licenseInfos = licenseInfoClient.getLicenseInfoForAttachment(release, attachmentContentId, user);
+
+            // We generate a JSON-serializable list of licenses here.
+            // In addition we remember the license information for exclusion later on
+            Map<String, LicenseNameWithText> licenseStore = Maps.newHashMap();
+            List<Map<String, String>> licenses = Lists.newArrayList();
+            licenseInfos.forEach(licenseInfo -> {
+                List<Map<String, String>> licenesAsObject = licenseInfo.licenseInfo.licenseNamesWithTexts.stream()
+                        .filter(licenseNameWithText -> {
+                            return !Strings.isNullOrEmpty(licenseNameWithText.getLicenseName())
+                                    || !Strings.isNullOrEmpty(licenseNameWithText.getLicenseText());
+                        }).map(licenseNameWithText -> {
+                            // Since the license has no good identifier, we create one and store the license
+                            // in the session. If the final report is generated, we use the identifier to
+                            // identify the licenses to be excluded
+                            // FIXME: this could be changed if we scan the attachments once after uploading
+                            // and store them as own entity
+                            String key = UUID.randomUUID().toString();
+                            licenseStore.put(key, licenseNameWithText);
+
+                            Map<String, String> data = Maps.newHashMap();
+                            data.put(LICENSE_NAME_WITH_TEXT_KEY, key);
+                            data.put(LICENSE_NAME_WITH_TEXT_NAME, Strings.isNullOrEmpty(licenseNameWithText.getLicenseName()) ? EMPTY
+                                    : licenseNameWithText.getLicenseName());
+                            data.put(LICENSE_NAME_WITH_TEXT_TEXT, licenseNameWithText.getLicenseText());
+                            return data;
+                        }).collect(Collectors.toList());
+
+                licenses.addAll(licenesAsObject);
+            });
+            licenses.stream().sorted((l1, l2) -> {
+                return Strings.nullToEmpty(l1.get(LICENSE_NAME_WITH_TEXT_NAME)).compareTo(l2.get(LICENSE_NAME_WITH_TEXT_NAME));
+            }).collect(Collectors.toList());
+
+            request.getPortletSession().setAttribute(LICENSE_STORE_KEY_PREFIX + attachmentContentId, licenseStore);
+            writeJSON(request, response, OBJECT_MAPPER.writeValueAsString(licenses));
+        } catch (TException exception) {
+            log.error("Cannot retrieve license information for attachment id " + attachmentContentId + ".", exception);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+        }
+    }
 
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
@@ -646,22 +705,26 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void prepareLicenseInfo(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(PortalConstants.SW360_USER, user);
         String id = request.getParameter(PROJECT_ID);
+
+        request.setAttribute(PortalConstants.SW360_USER, user);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
+        request.setAttribute(PROJECT_LINK_TABLE_MODE, PROJECT_LINK_TABLE_MODE_LICENSE_INFO);
+
         if (id != null) {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 Project project = client.getProjectById(id, user);
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
-                putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES), true, user);
+
                 LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
                 List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
                 request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
 
+                putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES), true,
+                        user);
                 addProjectBreadcrumb(request, response, project);
-
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
@@ -671,19 +734,21 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void prepareSourceCodeBundle(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(PortalConstants.SW360_USER, user);
         String id = request.getParameter(PROJECT_ID);
+
+        request.setAttribute(PortalConstants.SW360_USER, user);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
+        request.setAttribute(PROJECT_LINK_TABLE_MODE, PROJECT_LINK_TABLE_MODE_SOURCE_BUNDLE);
+
         if (id != null) {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 Project project = client.getProjectById(id, user);
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
+
                 putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.SOURCE_CODE_ATTACHMENT_TYPES), true, user);
-
                 addProjectBreadcrumb(request, response, project);
-
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
