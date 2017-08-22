@@ -14,6 +14,7 @@ import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.eclipse.sw360.projects.Sw360ThriftServlet;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 /**
@@ -24,7 +25,7 @@ import java.net.MalformedURLException;
  */
 public class UserServlet extends Sw360ThriftServlet {
 
-    public UserServlet() throws MalformedURLException {
+    public UserServlet() throws IOException {
         // Create a service processor using the provided handler
         super(new UserService.Processor<>(new UserHandler()), new TCompactProtocol.Factory());
     }

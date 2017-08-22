@@ -25,38 +25,25 @@ import com.liferay.util.bridges.mvc.MVCPortlet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.*;
-import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
-import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
-import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
 import org.eclipse.sw360.portal.common.ErrorMessages;
 import org.eclipse.sw360.portal.common.PortalConstants;
-import org.eclipse.sw360.portal.portlets.projects.ProjectPortlet;
-import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static org.eclipse.sw360.portal.common.PortalConstants.PARENT_BRANCH_ID;
-import static org.eclipse.sw360.portal.common.PortalConstants.PROJECT_LIST;
-import static org.eclipse.sw360.portal.common.PortalConstants.RELEASE_LIST;
 
 
 abstract public class Sw360Portlet extends MVCPortlet {
+
+    private final int MAX_LENGTH_USERS_IN_DISPLAY = 100;
 
     private static final Logger log = Logger.getLogger(Sw360Portlet.class);
 
@@ -161,6 +148,14 @@ abstract public class Sw360Portlet extends MVCPortlet {
         return action.startsWith(PortalConstants.USER_PREFIX);
     }
 
+    public List<User> limitLengthOfUserList(List<User> userList) {
+        if (userList.size() < MAX_LENGTH_USERS_IN_DISPLAY) {
+            return userList;
+        } else {
+            return userList.subList(0, MAX_LENGTH_USERS_IN_DISPLAY);
+        }
+    }
+
     public void dealWithUserAction(ResourceRequest request, ResourceResponse response, String action) throws IOException, PortletException {
         if (PortalConstants.USER_SEARCH.equals(action)) {
             String searchText = request.getParameter(PortalConstants.WHAT);
@@ -179,14 +174,20 @@ abstract public class Sw360Portlet extends MVCPortlet {
                 } else {
                     users = client.searchUsers(searchText);
                 }
-                request.setAttribute(PortalConstants.USER_LIST, users);
+                List<User> truncatedUserList = limitLengthOfUserList(users);
+                request.setAttribute(PortalConstants.USER_LIST, truncatedUserList);
                 request.setAttribute(PortalConstants.HOW, multiUsers);
+                request.setAttribute(PortalConstants.USER_SEARCH_GOT_TRUNCATED, isListTruncated(users, truncatedUserList));
                 include("/html/utils/ajax/userListAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
             } catch (TException e) {
                 log.error("Error getting users", e);
             }
 
         }
+    }
+
+    public Boolean isListTruncated(List<User> fullList, List<User> truncatedList) {
+        return ( fullList.size() > truncatedList.size() );
     }
 
     public void dealWithLicenseAction(ResourceRequest request, ResourceResponse response, String action) throws IOException, PortletException {

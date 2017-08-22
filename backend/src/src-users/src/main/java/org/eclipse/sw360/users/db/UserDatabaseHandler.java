@@ -12,6 +12,7 @@ package org.eclipse.sw360.users.db;
 
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.UserRepository;
+import org.eclipse.sw360.datahandler.db.UserSearch;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftValidate;
@@ -19,6 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.http.HttpClient;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.function.Supplier;
@@ -37,11 +39,13 @@ public class UserDatabaseHandler {
      */
     private DatabaseConnector db;
     private UserRepository repository;
+    private UserSearch userSearch;
 
-    public UserDatabaseHandler(Supplier<HttpClient> httpClient, String dbName) throws MalformedURLException {
+    public UserDatabaseHandler(Supplier<HttpClient> httpClient, String dbName) throws IOException {
         // Create the connector
         db = new DatabaseConnector(httpClient, dbName);
-        repository =  new UserRepository(db);
+        repository = new UserRepository(db);
+        userSearch = new UserSearch(db);
     }
 
     public User getByEmail(String email) {
@@ -76,9 +80,11 @@ public class UserDatabaseHandler {
         return RequestStatus.FAILURE;
     }
 
-    public List<User> getAll() {return repository.getAll();}
+    public List<User> getAll() {
+        return repository.getAll();
+    }
 
-    public List<User> searchUsers(String name) {
-        return repository.searchByName(name);
+    public List<User> searchUsers(String searchText) {
+        return userSearch.searchByNameAndEmail(searchText);
     }
 }

@@ -10,8 +10,6 @@
  */
 package org.eclipse.sw360.datahandler.db;
 
-import com.google.common.base.Strings;
-import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.components.summary.UserSummary;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
@@ -20,6 +18,7 @@ import org.ektorp.support.View;
 
 import java.util.Collection;
 import java.util.List;
+
 
 /**
  * CRUD access for the User class
@@ -33,25 +32,6 @@ public class UserRepository extends SummaryAwareRepository<User> {
     public UserRepository(DatabaseConnector databaseConnector) {
         super(User.class, databaseConnector, new UserSummary());
         initStandardDesignDocument();
-    }
-
-    private static final String BY_NAME_VIEW =
-            "function(doc) {" +
-                    "  if (doc.type == 'user') {" +
-                    "    emit(doc.lastname, doc);" +
-                    "  }" +
-                    "}";
-
-    @View(name = "byname", map = BY_NAME_VIEW)
-    public List<User> searchByName(String name) {
-
-        final List<User> byname;
-        if (Strings.isNullOrEmpty(name)) {
-            byname = queryView("byname");
-        } else {
-            byname = queryByPrefix("byname", name);
-        }
-        return makeSummaryFromFullDocs(SummaryType.SUMMARY, byname);
     }
 
     @Override

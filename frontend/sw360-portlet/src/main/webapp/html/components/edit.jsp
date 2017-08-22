@@ -122,7 +122,7 @@
         </form>
     </div>
 
-    <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
+    <jsp:include page="/html/utils/includes/searchAndSelectUsers.jsp" />
     <jsp:include page="/html/utils/includes/searchUsers.jsp" />
 </core_rt:if>
 

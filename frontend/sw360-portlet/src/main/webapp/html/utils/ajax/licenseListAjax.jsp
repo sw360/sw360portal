@@ -22,7 +22,7 @@
 
         <tr>
             <td>
-                <input type="checkbox" name="id" value="<sw360:out value="${entry.id}, ${entry.fullname}"/>"/>
+                <input type="checkbox" name="id" value="<sw360:out value="${entry.id},${entry.fullname}"/>"/>
             </td>
             <td><sw360:out value="${entry.fullname}"/></td>
         </tr>

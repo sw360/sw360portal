@@ -343,12 +343,6 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>userEmail</name>
-            <required>true</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
             <name>licenseIds</name>
             <required>false</required>
             <type>java.util.Set</type>
