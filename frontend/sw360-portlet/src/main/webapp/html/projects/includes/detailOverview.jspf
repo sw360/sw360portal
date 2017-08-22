@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -24,9 +24,9 @@
                             Vulnerabilities
                             <div id="numberOfVulnerabilitiesDiv"
                                     <core_rt:if
-                                            test="${numberOfUncheckedVulnerabilities.intValue() == 0}"> class="notificationBulletSpan backgroundGrey" </core_rt:if>
+                                            test="${numberOfUncheckedVulnerabilities.intValue() == 0 || !project.enableSvm}"> class="notificationBulletSpan backgroundGrey" </core_rt:if>
                                     <core_rt:if
-                                            test="${numberOfUncheckedVulnerabilities.intValue() > 0}"> class="notificationBulletSpan backgroundAlert" </core_rt:if>>
+                                            test="${numberOfUncheckedVulnerabilities.intValue() > 0 && project.enableSvm}"> class="notificationBulletSpan backgroundAlert" </core_rt:if>>
                                     ${numberOfUncheckedVulnerabilities} / ${numberOfVulnerabilities}
                             </div>
                         </a>

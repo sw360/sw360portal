@@ -380,6 +380,19 @@ input[readonly].clickable {
     float: right;
 }
 
+.notificationBulletInline {
+    min-width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    font-size: 11px;
+    padding: 0 4px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 25px;
+    text-align: center;
+    display: inline-block;
+}
+
 .stateBox {
     height: 25px;
     padding: 0 4px;
