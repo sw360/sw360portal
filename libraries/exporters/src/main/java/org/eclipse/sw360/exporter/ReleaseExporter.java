@@ -15,6 +15,7 @@ import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.*;
@@ -74,9 +75,9 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
 
     static final List<String> HEADERS_EXTENDED_BY_ADDITIONAL_DATA = makeHeadersForExtendedExport();
 
-    public ReleaseExporter(ComponentService.Iface cClient, List<Release> releases,
+    public ReleaseExporter(ComponentService.Iface cClient, List<Release> releases, User user,
             Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap) throws SW360Exception {
-        super(new ReleaseHelper(cClient, releaseToShortenedStringsMap));
+        super(new ReleaseHelper(cClient, user, releaseToShortenedStringsMap));
         preloadLinkedReleasesFor(releases);
     }
 
@@ -89,14 +90,14 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
     }
 
     private static List<String> makeHeadersForExtendedExport() {
+        List<String> additionalHeaders = new ArrayList<>();
+        additionalHeaders.add(displayNameFor("project origin", nameToDisplayName));
+
         List<String> completeHeaders = new ArrayList<>();
         completeHeaders.addAll(makeHeaders());
-
-        List<String> additionalHeaders = new ArrayList<>();
-        additionalHeaders.add(displayNameFor("component type", nameToDisplayName));
-        additionalHeaders.add(displayNameFor("project origin", nameToDisplayName));
         completeHeaders.addAll(
-                completeHeaders.indexOf(displayNameFor(COMPONENT_ID.getFieldName(), nameToDisplayName)) + 1,
+                // add after component type which is directly after component_id
+                completeHeaders.indexOf(displayNameFor(COMPONENT_ID.getFieldName(), nameToDisplayName)) + 2,
                 additionalHeaders);
 
         return completeHeaders;
@@ -104,6 +105,10 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
 
     private static void addToHeaders(List<String> headers, Release._Fields field) {
         switch (field) {
+            case COMPONENT_ID:
+                headers.add(displayNameFor(field.getFieldName(), nameToDisplayName));
+                headers.add(displayNameFor("component type", nameToDisplayName));
+                break;
             case VENDOR:
                 Vendor.metaDataMap.keySet().stream()
                         .filter(f -> ! VENDOR_IGNORED_FIELDS.contains(f))
@@ -136,6 +141,6 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
                 .collect(Collectors.toSet());
 
         Map<String, Release> releasesById = ThriftUtils.getIdMap(helper.getReleases(linkedReleaseIds));
-        helper.setPreloadedLinkedReleases(releasesById);
+        helper.setPreloadedLinkedReleases(releasesById, true);
     }
 }

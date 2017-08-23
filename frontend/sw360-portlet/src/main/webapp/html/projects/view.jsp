@@ -169,7 +169,7 @@
             <option value="false">Projects only</option>
             <option value="true">Projects with linked releases</option>
         </select>
-        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
+        <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" />
 </span>
 
 

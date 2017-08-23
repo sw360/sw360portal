@@ -109,7 +109,8 @@ class ComponentHelper implements ExporterHelper<Component> {
         return releaseHelper.getReleases(ids);
     }
 
-    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) throws SW360Exception {
-        releaseHelper.setPreloadedLinkedReleases(preloadedLinkedReleases);
+    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases, boolean componentsNeeded)
+            throws SW360Exception {
+        releaseHelper.setPreloadedLinkedReleases(preloadedLinkedReleases, componentsNeeded);
     }
 }

@@ -17,6 +17,7 @@ import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -64,12 +65,14 @@ public class ComponentExporter extends ExcelExporter<Component, ComponentHelper>
 
     static List<String> HEADERS_EXTENDED_BY_RELEASES = ExporterHelper.addSubheadersWithPrefixesAsNeeded(HEADERS, ReleaseExporter.HEADERS, "release: ");
 
-    public ComponentExporter(ComponentService.Iface componentClient, List<Component> components, boolean extendedByReleases) throws SW360Exception {
-        super(new ComponentHelper(extendedByReleases, new ReleaseHelper(componentClient)));
-        preloadLinkedReleasesFor(components);
+    public ComponentExporter(ComponentService.Iface componentClient, List<Component> components, User user,
+            boolean extendedByReleases) throws SW360Exception {
+        super(new ComponentHelper(extendedByReleases, new ReleaseHelper(componentClient, user)));
+        preloadLinkedReleasesFor(components, extendedByReleases);
     }
 
-    private void preloadLinkedReleasesFor(List<Component> components) throws SW360Exception {
+    private void preloadLinkedReleasesFor(List<Component> components, boolean extendedByReleases)
+            throws SW360Exception {
         Set<String> linkedReleaseIds = components
                 .stream()
                 .map(Component::getReleaseIds)
@@ -78,6 +81,6 @@ public class ComponentExporter extends ExcelExporter<Component, ComponentHelper>
                 .collect(Collectors.toSet());
 
         Map<String, Release> releasesById = ThriftUtils.getIdMap(helper.getReleases(linkedReleaseIds));
-        helper.setPreloadedLinkedReleases(releasesById);
+        helper.setPreloadedLinkedReleases(releasesById, extendedByReleases);
     }
 }
