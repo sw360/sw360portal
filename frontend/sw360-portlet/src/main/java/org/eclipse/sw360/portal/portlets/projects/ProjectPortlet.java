@@ -354,9 +354,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         } else if (PortalConstants.RELEASE_SEARCH.equals(what)) {
             String where = request.getParameter(PortalConstants.WHERE);
             serveReleaseSearchResults(request, response, where);
-        } else if (PortalConstants.RELEASE_SEARCH_BY_VENDOR.equals(what)) {
-            String where = request.getParameter(PortalConstants.WHERE);
-            serveReleaseSearchResultsByVendor(request, response, where);
         } else if (PortalConstants.RELEASE_LIST_FROM_LINKED_PROJECTS.equals(what)) {
             serveReleasesFromLinkedProjects(request, response, projectId);
         }
@@ -432,30 +429,30 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private void serveReleaseSearchResults(ResourceRequest request, ResourceResponse response, String searchText) throws IOException, PortletException {
-        serveReleaseSearch(request, response, searchText, false);
+        serveReleaseSearch(request, response, searchText);
     }
-
-    private void serveReleaseSearchResultsByVendor(ResourceRequest request, ResourceResponse response, String searchText) throws IOException, PortletException {
-        serveReleaseSearch(request, response, searchText, true);
-    }
-
 
     @SuppressWarnings("Duplicates")
-    private void serveReleaseSearch(ResourceRequest request, ResourceResponse response, String searchText, boolean searchByVendor) throws IOException, PortletException {
+    private void serveReleaseSearch(ResourceRequest request, ResourceResponse response, String searchText) throws IOException, PortletException {
         List<Release> searchResult;
 
         try {
+
             ComponentService.Iface componentClient = thriftClients.makeComponentClient();
-            if (searchByVendor) {
+
+            // First: Search by name:
+            searchResult = componentClient.searchReleaseByNamePrefix(searchText);
+
+            // If one is searching for everything, then it makes no sense to search also by vendors, as 'searchResult' already contains all releases.
+            if(searchText != "") {
+                // Second: Search by vendor and append:
+                //  Note: The search-by-vendor by definition does not give results if the search string is empty.
+                //        Therefore, an empty-string search does not introduce duplicated results, which is nice.
                 final VendorService.Iface vendorClient = thriftClients.makeVendorClient();
                 final Set<String> vendorIds = vendorClient.searchVendorIds(searchText);
                 if (vendorIds != null && vendorIds.size() > 0) {
-                    searchResult = componentClient.getReleasesFromVendorIds(vendorIds);
-                } else {
-                    searchResult = Collections.emptyList();
+                    searchResult.addAll(componentClient.getReleasesFromVendorIds(vendorIds));
                 }
-            } else {
-                searchResult = componentClient.searchReleaseByNamePrefix(searchText);
             }
         } catch (TException e) {
             log.error("Error searching projects", e);

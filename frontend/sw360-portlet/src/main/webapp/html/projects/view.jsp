@@ -275,7 +275,7 @@
 		            "id": '${project.id}',
 		            "name": '<sw360:ProjectName project="${project}"/>',
 		            "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
-		            "state": ["<sw360:DisplayEnum value='${project.state}'/>", "<sw360:DisplayEnum value='${project.clearingState}'/>"],
+		            "state": '<sw360:DisplayStateBoxes project="${project}"/>',
 		            "clearing": 'Not loaded yet',
 		            "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
 		            "linkedProjectsSize": '${project.linkedProjectsSize}',
@@ -293,7 +293,7 @@
 		                {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
 		                {title: "Description", data: "description"},
 		                {title: "Project Responsible", data: "responsible"},
-		                {title: "State", data: "state", render: {display: displayStateBoxes}},
+		                {title: "State", data: "state"},
 		                {title: "<span title=\"Release clearing state\">Clearing Status</span>", data: "clearing"},
 		                {title: "Actions", data: "id", render: {display: renderProjectActions}}
 		            ]

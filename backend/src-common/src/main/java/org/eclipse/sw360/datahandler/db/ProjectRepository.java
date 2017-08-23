@@ -250,7 +250,7 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
     }
 
     public List<Project> searchByName(String name, User user) {
-        return searchByName(name, user, SummaryType.SHORT);
+        return searchByName(name, user, SummaryType.SUMMARY);
     }
 
     @NotNull

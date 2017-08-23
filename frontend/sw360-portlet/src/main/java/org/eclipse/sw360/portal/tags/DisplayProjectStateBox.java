@@ -12,6 +12,7 @@ package org.eclipse.sw360.portal.tags;
 import org.apache.thrift.TEnum;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
+import org.eclipse.sw360.portal.common.PortalConstants;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
@@ -26,9 +27,9 @@ public class DisplayProjectStateBox extends SimpleTagSupport {
     }
 
     public String makeBox(ProjectState state) {
-        String projectStateBackgroundColour = "projectStateInactive";
+        String projectStateBackgroundColour = PortalConstants.PROJECT_STATE_INACTIVE__CSS;
         if( state == ProjectState.ACTIVE ) {
-            projectStateBackgroundColour = "projectStateActive";
+            projectStateBackgroundColour = PortalConstants.PROJECT_STATE_ACTIVE__CSS;
         }
         return "<div class=\"stateBox capsuleLeft capsuleRight " + projectStateBackgroundColour + "\" title=\"Project state: " + state + "\"> PS </div>";
     }

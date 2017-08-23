@@ -101,6 +101,8 @@ public class ReleaseSummary extends DocumentSummary<Release> {
         copyField(document, copy, _Fields.COMPONENT_ID);
         copyField(document, copy, _Fields.CLEARING_TEAM_TO_FOSSOLOGY_STATUS);
         copyField(document, copy, _Fields.FOSSOLOGY_ID);
+        copyField(document, copy, _Fields.CLEARING_STATE);
+        copyField(document, copy, _Fields.MAINLINE_STATE);
     }
 
     private void setAdditionalFieldsForSummariesOtherThanShortAndDetailedExport(Release document, Release copy){

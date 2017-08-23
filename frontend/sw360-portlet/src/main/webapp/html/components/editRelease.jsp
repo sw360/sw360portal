@@ -117,7 +117,7 @@
                         </div>
                         <core_rt:if test="${not addMode}">
                             <div id="tab-ReleaseClearingInformation">
-                                <%@include file="/html/components/includes/releases/editReleaseClearingInformation.jspf" %>
+                               <%@include file="/html/components/includes/releases/editReleaseClearingInformation.jspf" %>
                             </div>
                             <div id="tab-ReleaseECCInformation">
                                 <%@include file="/html/components/includes/releases/editReleaseECCInformation.jspf" %>
@@ -149,13 +149,13 @@
     <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
     <jsp:include page="/html/utils/includes/searchUsers.jsp" />
     <jsp:include page="/html/utils/includes/searchLicenses.jsp" />
-    <jsp:include page="/html/utils/includes/searchReleasesFromRelease.jsp" />
+    <%@ include file="/html/utils/includes/requirejs.jspf" %>
+    <core_rt:set var="enableSearchForReleasesFromLinkedProjects" value="${false}" scope="request"/>
+    <jsp:include page="/html/utils/includes/searchReleases.jsp" />
 </core_rt:if>
 
 <%@include file="/html/components/includes/vendors/searchVendor.jspf" %>
 
-<%--for javascript library loading --%>
-<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
     var tabView;
     var Y = YUI().use(

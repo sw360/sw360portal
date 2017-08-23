@@ -23,40 +23,36 @@
     <form>
         <div style="display: inline-block">
             <input type="text" name="searchrelease" id="searchrelease" placeholder="search" class="searchbar"/>&nbsp;
-            <input type="button" value="Search by name"
-                   onclick="ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_SEARCH%>', $('#searchrelease').val(), true);"
-                   class="searchbutton" id="searchbuttonrelease"/>
-            <input type="button" value="Search by vendor"
-                   onclick="ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_SEARCH_BY_VENDOR%>', $('#searchrelease').val(), true);"
-                   class="searchbutton" id="searchbuttonrelease2"/>
-            <input type="button" value="Releases of linked projects"
-                   onclick="ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_LIST_FROM_LINKED_PROJECTS%>', '', true);"
-                   class="searchbutton" />
+            <input type="button" value="Search" class="searchbutton" id="releaseSearchButton"/>
+            <core_rt:if test="${enableSearchForReleasesFromLinkedProjects}">
+                <input type="button" value="Releases of linked projects" class="searchbutton" id="linkedReleasesButton" />
+            </core_rt:if>
+            <span style="display: none; color: red" id="loadingReleasesTableNotifier" >Loading table...</span>
         </div>
 
         <div id="Releasesearchresults">
-            <table width="100%" style="border-bottom: 2px solid #66c1c2;">
-                <thead>
+            <table width="100%" id="releaseSearchResultsTable">
+                <thead style="border-bottom: 2px solid #66c1c2;" >
                 <tr class="trheader" style="height: 30px;">
                     <th width="4%">&nbsp;</th>
-                    <th width="32%" class="textlabel">Vendor</th>
-                    <th width="32%" class="textlabel">Release name</th>
-                    <th width="32%" class="textlabel">Version</th>
+                    <th width="19.2%" align="left">Vendor</th>
+                    <th width="19.2%" align="left">Release name</th>
+                    <th width="19.2%" align="left">Version</th>
+                    <th width="19.2%" align="left">Clearing state</th>
+                    <th width="19.2%" align="left">Mainline state</th>
                 </tr>
                 </thead>
-            </table>
-            <div style="overflow-y: scroll; height: 150px;">
-                <table id="releaseSearchResultsTable" width="100%">
+                <tbody>
                     <tr class="trbodyClass">
-                        <td colspan="4"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
                     </tr>
-                </table>
-            </div>
+                </tbody>
+            </table>
             <hr noshade size="1" style="background-color: #66c1c2; border-color: #59D1C4;"/>
             <br/>
 
             <div>
-                <input type="button" value="Select" class="addButton" onclick="selectRelease();"/>
+                <input type="button" value="Select" class="addButton" id="selectReleaseButton"/>
             </div>
         </div>
     </form>
@@ -68,51 +64,108 @@
 </portlet:resourceURL>
 
 <script>
-    function showReleaseDialog() {
-        openDialog('search-release-form', 'searchrelease');
-    }
 
-    function selectRelease() {
-        var releaseIds = [];
+    require(['jquery', /* jquery-plugins: */ 'datatables', 'jquery-ui', 'jquery-confirm'], function($) {
 
-        $('#releaseSearchResultsTable').find(':checked').each(
-                function() {
+        $("#addLinkedReleasesToReleaseButton").on('click', showReleaseDialog);
+        $('#releaseSearchButton').on('click', function() { ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_SEARCH%>', $('#searchrelease').val(), true); });
+        <core_rt:if test="${enableSearchForReleasesFromLinkedProjects}">
+            $('#linkedReleasesButton').on('click', function() { ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_LIST_FROM_LINKED_PROJECTS%>', '', true); });
+        </core_rt:if>
+        $('#selectReleaseButton').on('click', selectRelease);
+
+
+        var firstRunForReleasesTable = true;
+
+        function destroyReleaseDataTable() {
+            $('#releaseSearchResultsTable').DataTable().destroy();
+        }
+
+        function toggleReleasesSearchNotification() {
+            $('#releaseSearchButton').prop('disabled', !$('#releaseSearchButton').prop('disabled'));
+            $('#linkedReleasesButton').prop('disabled', !$('#linkedReleasesButton').prop('disabled'));
+            $('#loadingReleasesTableNotifier').toggle();
+        }
+
+        function makeReleaseDataTable() {
+            $('#releaseSearchResultsTable').DataTable(
+                {
+                    "sPaginationType": "full_numbers",
+                    "paging": false,
+                    "scrollY": "220",
+                    "info": false,
+                    "bFilter": false,
+                    "language": {"processing":     "Processing..."},
+                    "processing": true,
+                    "initComplete": toggleReleasesSearchNotification
+                });
+        }
+
+        function showReleaseDialog() {
+            openDialog('search-release-form', 'searchrelease');
+            if (firstRunForReleasesTable) {
+                toggleReleasesSearchNotification();
+                makeReleaseDataTable();
+                firstRunForReleasesTable = false;
+            }
+        }
+
+        function selectRelease() {
+            var releaseIds = [];
+
+            $('#releaseSearchResultsTable').find(':checked').each(
+                function () {
                     releaseIds.push(this.value);
                 }
-        );
-        addReleaseInfo(releaseIds);
+            );
+            addReleaseInfo(releaseIds);
 
-        closeOpenDialogs();
-        return false;
-    }
+            closeOpenDialogs();
+            return false;
+        }
 
 
-    function addReleaseInfo(linkedReleases) {
-        ReleaseContentFromAjax('LinkedReleasesInfo', '<%=PortalConstants.LIST_NEW_LINKED_RELEASES%>', linkedReleases);
-    }
+        function addReleaseInfo(linkedReleases) {
+            ReleaseContentFromAjax('LinkedReleasesInfo', '<%=PortalConstants.LIST_NEW_LINKED_RELEASES%>', linkedReleases);
+        }
 
-    function ReleaseContentFromAjax(id, what, where, replace) {
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=viewReleaseURL%>',
-            data: {
-                '<portlet:namespace/><%=PortalConstants.WHAT%>': what,
-                '<portlet:namespace/><%=PortalConstants.WHERE%>': where
-            },
-            success: function (data) {
-                if (replace) {
-                    $('#' + id + " tbody").html(data);
-                } else {
-                    $('#' + id + " tbody").append(data);
-                }
+        function setDataToReleaseTableAndRefresh(id, data) {
+            if (data.indexOf("No releases found") == -1) {
+                destroyReleaseDataTable();
+                $('#' + id + " tbody").html(data);
+                makeReleaseDataTable();
+            } else {
+                $('#' + id + " tbody").html(data);
+                toggleReleasesSearchNotification();
             }
-        });
-    }
+        }
 
-    $(document).ready(function () {
+        function ReleaseContentFromAjax(id, what, where, replace) {
+            toggleReleasesSearchNotification()
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=viewReleaseURL%>',
+                data: {
+                    '<portlet:namespace/><%=PortalConstants.WHAT%>': what,
+                    '<portlet:namespace/><%=PortalConstants.WHERE%>': where
+                },
+                success: function (data) {
+                    if (replace) {
+                        setDataToReleaseTableAndRefresh(id, data);
+                    } else {
+                        $('#' + id + " tbody").append(data);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
                 bindkeyPressToClick('searchrelease', 'searchbuttonrelease');
             }
-    );
+        );
+    } );
 </script>
 
 <%@include file="/html/utils/includes/linkedReleaseDelete.jspf" %>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

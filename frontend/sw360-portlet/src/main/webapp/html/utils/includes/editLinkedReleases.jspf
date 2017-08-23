@@ -20,6 +20,6 @@
     </tbody>
 </table>
 
-<input type="button" class="addButton" onclick="showReleaseDialog();" value="Click to add Releases"  >
+<input type="button" class="addButton" id="addLinkedReleasesToReleaseButton" value="Click to add Releases"  >
 <br/>
 <br/>

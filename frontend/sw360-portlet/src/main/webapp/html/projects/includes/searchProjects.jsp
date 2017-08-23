@@ -22,34 +22,33 @@
     <form>
         <div style="display: inline-block">
             <input type="text" name="searchproject" id="searchproject" placeholder="search" class="searchbar"/>&nbsp;
-            <input type="button" value="Search"
-                   onclick="ProjectContentFromAjax('projectSearchResultstable', '<%=PortalConstants.PROJECT_SEARCH%>', $('#searchproject').val(), true);"
-                   class="searchbutton" id="searchbuttonproject"/>
+            <input type="button" value="Search" class="searchbutton" id="searchbuttonproject"/>
+            <span style="display: none; color: red" id="loadingProjectsTableNotifier" >Loading table...</span>
         </div>
 
         <div id="Projectsearchresults">
-            <table width="100%" style="border-bottom: 2px solid #66c1c2;">
-                <thead>
+            <table width="100%" id="projectSearchResultstable">
+                <thead style="border-bottom: 2px solid #66c1c2;" >
                 <tr class="trheader" style="height: 30px;">
                     <th width="4%">&nbsp;</th>
-                    <th width="32%" class="textlabel">Project name</th>
-                    <th width="32%" class="textlabel">Project Responsible</th>
-                    <th width="32%" class="textlabel">Description</th>
+                    <th class="textlabel" align="left">Project name</th>
+                    <th class="textlabel" align="left">Version</th>
+                    <th class="textlabel" align="left">State</th>
+                    <th class="textlabel" align="left">Responsible</th>
+                    <th class="textlabel" align="left">Description</th>
                 </tr>
                 </thead>
-            </table>
-            <div style="overflow-y: scroll; height: 150px;">
-                <table id="projectSearchResultstable" width="100%">
+                <tbody>
                     <tr class="trbodyClass">
-                        <td colspan="4"></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
                     </tr>
-                </table>
-            </div>
+                </tbody>
+            </table>
             <hr noshade size="1" style="background-color: #66c1c2; border-color: #59D1C4;"/>
             <br/>
 
             <div>
-                <input type="button" value="Select" class="addButton" onclick="selectProject();"/>
+                <input type="button" value="Select" class="addButton" id="selectProjectButton"/>
             </div>
         </div>
     </form>
@@ -61,55 +60,102 @@
 </portlet:resourceURL>
 
 
-
-
 <script>
-    function showProjectDialog(){
-        openDialog('search-project-form', 'searchproject');
-    }
+    require(['jquery', /* jquery-plugins: */ 'datatables', 'jquery-ui', 'jquery-confirm'], function($) {
 
-    function selectProject() {
+        $('#addLinkedProjectButton').on('click', showProjectDialog);
+        $('#searchbuttonproject').on('click', function() { ProjectContentFromAjax('projectSearchResultstable', '<%=PortalConstants.PROJECT_SEARCH%>', $('#searchproject').val(), true); });
+        $('#selectProjectButton').on('click', selectProject);
 
-        var projectIds  = [];
+        var firstRunForProjectsTable = true;
 
-        $('#projectSearchResultstable').find(':checked').each(
-                function() {
+        function destroyProjectsDataTable() {
+            $('#projectSearchResultstable').DataTable().destroy();
+        }
+
+        function toggleProjectSearchNotification() {
+            $('#searchbuttonproject').prop('disabled', !$('#searchbuttonproject').prop('disabled'));
+            $('#loadingProjectsTableNotifier').toggle();
+        }
+
+        function makeProjectsDataTable() {
+            $('#projectSearchResultstable').DataTable(
+                {
+                    "sPaginationType": "full_numbers",
+                    "paging": false,
+                    "scrollY": "220",
+                    "info": false,
+                    "bFilter": false,
+                    "language": {"processing":     "Processing..."},
+                    "processing": true,
+                    "initComplete": toggleProjectSearchNotification
+                });
+        }
+
+        function showProjectDialog() {
+            openDialog('search-project-form', 'searchproject');
+            if (firstRunForProjectsTable) {
+                toggleProjectSearchNotification();
+                makeProjectsDataTable();
+                firstRunForProjectsTable = false;
+            }
+        }
+
+        function selectProject() {
+
+            var projectIds = [];
+
+            $('#projectSearchResultstable').find(':checked').each(
+                function () {
                     projectIds.push(this.value);
                 }
-        );
-        addProjectInfo(projectIds);
+            );
+            addProjectInfo(projectIds);
 
-        closeOpenDialogs();
-        return false;
-    }
+            closeOpenDialogs();
+            return false;
+        }
 
 
-    function addProjectInfo(linkedProjects) {
-        ProjectContentFromAjax('LinkedProjectsInfo', '<%=PortalConstants.LIST_NEW_LINKED_PROJECTS%>', linkedProjects);
-    }
+        function addProjectInfo(linkedProjects) {
+            ProjectContentFromAjax('LinkedProjectsInfo', '<%=PortalConstants.LIST_NEW_LINKED_PROJECTS%>', linkedProjects);
+        }
 
-    function ProjectContentFromAjax(id, what, where, replace) {
-        jQuery.ajax({
-            type: 'POST',
-            url: '<%=viewProjectURL%>',
-            data: {
-                '<portlet:namespace/><%=PortalConstants.WHAT%>': what,
-                '<portlet:namespace/><%=PortalConstants.WHERE%>': where
-            },
-            success: function (data) {
-                if (replace) {
-                    $('#' + id + " tbody").html(data);
-                } else {
-                    $('#' + id + " tbody").append(data);
-                }
+        function setDataToProjectsTableAndRefresh(id, data) {
+            if (data.indexOf("No project found") == -1) {
+                destroyProjectsDataTable();
+                $('#' + id + " tbody").html(data);
+                makeProjectsDataTable();
+            } else {
+                $('#' + id + " tbody").html(data);
+                toggleProjectSearchNotification();
             }
-        });
-    }
+        }
 
-    $(document).ready(function () {
+        function ProjectContentFromAjax(id, what, where, replace) {
+            toggleProjectSearchNotification();
+            jQuery.ajax({
+                type: 'POST',
+                url: '<%=viewProjectURL%>',
+                data: {
+                    '<portlet:namespace/><%=PortalConstants.WHAT%>': what,
+                    '<portlet:namespace/><%=PortalConstants.WHERE%>': where
+                },
+                success: function (data) {
+                    if (replace) {
+                        setDataToProjectsTableAndRefresh(id, data);
+                    } else {
+                        $('#' + id + " tbody").append(data);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
                 bindkeyPressToClick('searchproject', 'searchbuttonproject');
             }
-    );
+        );
+    } );
 
 </script>
 
