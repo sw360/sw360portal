@@ -66,7 +66,7 @@ public class ProjectModerator extends Moderator<Project._Fields, Project> {
     public Project updateProjectFromModerationRequest(Project project, Project projectAdditions, Project projectDeletions){
 
         for (Project._Fields field : Project._Fields.values()) {
-            if(projectAdditions.getFieldValue(field) == null && projectDeletions.getFieldValue(field) == null){
+            if(!projectAdditions.isSet(field) && !projectDeletions.isSet(field)){
                 continue;
             }
 

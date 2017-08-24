@@ -11,6 +11,8 @@
 
 package org.eclipse.sw360.moderation.db;
 
+import org.apache.thrift.protocol.TType;
+import org.eclipse.sw360.datahandler.thrift.components.ClearingInformation;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -38,7 +40,13 @@ public class ProjectModerationRequestGenerator extends ModerationRequestGenerato
 
         for (Project._Fields field : Project._Fields.values()) {
 
-            if(actualProject.getFieldValue(field) == null){
+            if(Project.metaDataMap.get(field).valueMetaData.type == TType.BOOL ||
+                    Project.metaDataMap.get(field).valueMetaData.type == TType.I32){
+                if(actualDocument.getFieldValue(field) != updateDocument.getFieldValue(field)){
+                    documentAdditions.setFieldValue(field, updateDocument.getFieldValue(field));
+                    documentDeletions.setFieldValue(field, actualDocument.getFieldValue(field));
+                }
+            } else if(actualProject.getFieldValue(field) == null){
                 documentAdditions.setFieldValue(field, updateProject.getFieldValue(field));
 
             } else if (updateProject.getFieldValue(field) == null){

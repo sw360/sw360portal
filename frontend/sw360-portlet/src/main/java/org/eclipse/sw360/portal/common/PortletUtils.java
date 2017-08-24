@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static java.lang.Integer.parseInt;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_COMPONENTS_VIEW_SIZE;
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
 
@@ -131,27 +132,28 @@ public class PortletUtils {
     public static <U extends TFieldIdEnum, T extends TBase<T, U>> void setFieldValue(PortletRequest request, T instance, U field, FieldMetaData fieldMetaData, String prefix) {
 
         String value = request.getParameter(prefix + field.toString());
-        if (value != null) {
-            switch (fieldMetaData.valueMetaData.type) {
+        switch (fieldMetaData.valueMetaData.type) {
 
-                case org.apache.thrift.protocol.TType.SET:
-                    instance.setFieldValue(field, CommonUtils.splitToSet(value));
-                    break;
-                case org.apache.thrift.protocol.TType.ENUM:
-                    if (!"".equals(value))
-                        instance.setFieldValue(field, enumFromString(value, field));
-                    break;
-                case org.apache.thrift.protocol.TType.I32:
-                    if (!"".equals(value))
-                        instance.setFieldValue(field, Integer.parseInt(value));
-                    break;
-                case org.apache.thrift.protocol.TType.BOOL:
-                    if (!"".equals(value))
-                        instance.setFieldValue(field, true);
-                    break;
-                default:
+            case org.apache.thrift.protocol.TType.SET:
+                instance.setFieldValue(field, CommonUtils.splitToSet(nullToEmptyString(value)));
+                break;
+            case org.apache.thrift.protocol.TType.ENUM:
+                if (!"".equals(nullToEmptyString(value))){
+                    instance.setFieldValue(field, enumFromString(value, field));
+                }
+                break;
+            case org.apache.thrift.protocol.TType.I32:
+                if (!"".equals(nullToEmptyString(value))){
+                    instance.setFieldValue(field, Integer.parseInt(value));
+                }
+                break;
+            case org.apache.thrift.protocol.TType.BOOL:
+                instance.setFieldValue(field, !"".equals(nullToEmptyString(value)));
+                break;
+            default:
+                if (value != null) {
                     instance.setFieldValue(field, value);
-            }
+                }
         }
     }
 
