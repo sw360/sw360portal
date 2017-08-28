@@ -27,8 +27,8 @@
 
 <p>Security Vulnerability Monitoring:
         <span
-            <core_rt:if test="${project.enableSvm == 'true'}">class="notificationBulletInline backgroundOK">enabled</core_rt:if>
-            <core_rt:if test="${project.enableSvm != 'true'}">class="notificationBulletInline backgroundGrey">disabled</core_rt:if>
+            <core_rt:if test="${project.enableSvm}">class="notificationBulletInline backgroundOK">enabled</core_rt:if>
+            <core_rt:if test="${not project.enableSvm}">class="notificationBulletInline backgroundGrey">disabled</core_rt:if>
         </span>
 </p>
 <div id="vulnerabilityTableDiv">

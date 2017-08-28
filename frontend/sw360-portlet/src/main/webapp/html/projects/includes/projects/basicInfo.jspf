@@ -103,7 +103,7 @@
                 <input id="enable_svm" type="checkbox"
                        name="<portlet:namespace/><%=Project._Fields.ENABLE_SVM%>"
                        value="<sw360:out value="${project.enableSvm}"/>"
-                        <core_rt:if test="${project.enableSvm == 'true'}"> checked="checked" </core_rt:if>
+                        <core_rt:if test="${project.enableSvm}"> checked="checked" </core_rt:if>
                 />
                 Enable Security Vulnerability Monitoring</label>
         </td>
