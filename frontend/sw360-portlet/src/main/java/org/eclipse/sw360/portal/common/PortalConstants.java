@@ -89,6 +89,7 @@ public class PortalConstants {
     //! Specialized keys for components
     public static final String COMPONENT_ID = "componentid";
     public static final String COMPONENT = "component";
+    public static final String COMPONENT_NAME = "componentname";
     public static final String ACTUAL_COMPONENT = "actual_component";
     public static final String COMPONENT_LIST = "componentList";
     public static final String TYPE_MASK = "typeMask";
@@ -265,6 +266,7 @@ public class PortalConstants {
     //component actions
     public static final String ADD_VENDOR = "add_vendor";
     public static final String VIEW_VENDOR = "view_vendor";
+    public static final String CHECK_COMPONENT_NAME = "check_component_name";
     public static final String DELETE_COMPONENT = "delete_component";
     public static final String DELETE_RELEASE = "delete_release";
     public static final String SUBSCRIBE = "subscribe";

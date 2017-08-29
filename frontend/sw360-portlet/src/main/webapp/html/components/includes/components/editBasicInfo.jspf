@@ -25,6 +25,7 @@
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
                  title="Name of the component"/>
         </td>
+
         <td width="33%">
             <sw360:DisplayUserEdit email="${component.createdBy}" id="<%=Component._Fields.CREATED_BY.toString()%>"
                                    description="Created by" multiUsers="false" readonly="true"/>
@@ -115,3 +116,18 @@
 
 <core_rt:set var="customMap" value="${component.roles}"/>
 <%@include file="/html/utils/includes/mapEdit.jspf" %>
+
+<!-- Adding similar component popup for new component case -->
+<script>
+    require([ 'modules/linkListDialog' ], function(linkListDialog) {
+        <portlet:resourceURL var="checkComponentNameUrl">
+            <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.CHECK_COMPONENT_NAME%>"/>
+        </portlet:resourceURL>
+
+        var checkComponentNameUrl = '${checkComponentNameUrl}',
+            checkComponentNameParamKey = '<portlet:namespace/><%=PortalConstants.COMPONENT_NAME%>',
+            openOnBlurOfElementId = '#comp_name';
+
+        linkListDialog.registerLinkListDialog(openOnBlurOfElementId, checkComponentNameUrl, checkComponentNameParamKey);
+    });
+</script>

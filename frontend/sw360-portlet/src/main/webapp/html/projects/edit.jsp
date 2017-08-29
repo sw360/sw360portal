@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -49,10 +49,8 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
     <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
     <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 
     <core_rt:if test="${not addMode}" >
         <jsp:include page="/html/utils/includes/attachmentsUpload.jsp"/>
@@ -62,14 +60,7 @@
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
             <core_rt:if test="${not addMode}" >
-                <input type="button" class="addButton" onclick="deleteConfirmed('' +
-                        'Do you really want to delete the project <b><sw360:ProjectName project="${project}"/></b> ?'  +
-                        '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ><br/><br/>The project <b><sw360:ProjectName project="${project}"/></b> contains<br/><ul></core_rt:if>' +
-                        '<core_rt:if test="${not empty project.linkedProjects}" ><li><sw360:out value="${project.linkedProjectsSize}"/> linked projects</li></core_rt:if>'  +
-                        '<core_rt:if test="${not empty project.releaseIdToUsage}" ><li><sw360:out value="${project.releaseIdToUsageSize}"/> linked releases</li></core_rt:if>'  +
-                        '<core_rt:if test="${not empty project.attachments}" ><li><sw360:out value="${project.attachmentsSize}"/> attachments</li></core_rt:if>'  +
-                        '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ></ul></core_rt:if>', deleteProject)"
-                       value="Delete <sw360:ProjectName project="${project}"/>"
+                <input id="deleteProjectButton" type="button" class="addButton" value="Delete <sw360:ProjectName project="${project}"/>"
                 <core_rt:if test="${ usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the project is used." </core_rt:if>
                 >
             </core_rt:if>
@@ -80,7 +71,7 @@
         <core_rt:if test="${addMode}" >
             <input type="button" id="formSubmit" value="Add Project" class="addButton">
         </core_rt:if>
-        <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
+        <input id="cancelEditButton" type="button" value="Cancel" class="cancelButton">
     </div>
 
     <div id="editField" class="content2">
@@ -108,28 +99,30 @@
         <core_rt:if test="${addMode}" >
             <input type="button" id="formSubmit2" value="Add Project" class="addButton">
         </core_rt:if>
-        <input type="button" value="Cancel" onclick="cancel()" class="cancelButton">
+        <input id="cancelEditButton2" type="button" value="Cancel" class="cancelButton">
     </div>
 </core_rt:if>
 
 <script>
+require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
+
     function cancel() {
         deleteAttachmentsOnCancel();
-        var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
-        var portletURL = Liferay.PortletURL.createURL( baseUrl )
-<core_rt:if test="${not addMode}" >
-                .setParameter('<%=PortalConstants.PAGENAME%>','<%=PortalConstants.PAGENAME_DETAIL%>')
-</core_rt:if>
-<core_rt:if test="${addMode}" >
-                .setParameter('<%=PortalConstants.PAGENAME%>','<%=PortalConstants.PAGENAME_VIEW%>')
-</core_rt:if>
 
-                .setParameter('<%=PortalConstants.PROJECT_ID%>','${project.id}');
+        var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
+            portletURL = Liferay.PortletURL.createURL(baseUrl)
+        <core_rt:if test="${not addMode}">
+                .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
+        </core_rt:if>
+        <core_rt:if test="${addMode}">
+                .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>')
+        </core_rt:if>
+                .setParameter('<%=PortalConstants.PROJECT_ID%>', '${project.id}');
         window.location = portletURL.toString();
     }
 
     function deleteAttachmentsOnCancel() {
-        jQuery.ajax({
+        $.ajax({
             type: 'POST',
             url: '<%=deleteAttachmentsOnCancelURL%>',
             cache: false,
@@ -143,20 +136,33 @@
         window.location.href = '<%=deleteURL%>';
     }
 
-    var contextpath;
-    $( document ).ready(function() {
-        contextpath = '<%=request.getContextPath()%>';
-        $('#projectEditForm').validate({
-            ignore: [],
-            invalidHandler: invalidHandlerShowErrorTab
+    $(document).ready(function() {
+        var contextpath = '<%=request.getContextPath()%>',
+            deletionMessage;
+
+        $('#cancelEditButton, #cancelEditButton2').click(function() {
+            cancel();
         });
 
+        deletionMessage = 'Do you really want to delete the project <b><sw360:ProjectName project="${project}"/></b> ?'  +
+        '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ><br/><br/>The project <b><sw360:ProjectName project="${project}"/></b> contains<br/><ul></core_rt:if>' +
+        '<core_rt:if test="${not empty project.linkedProjects}" ><li><sw360:out value="${project.linkedProjectsSize}"/> linked projects</li></core_rt:if>'  +
+        '<core_rt:if test="${not empty project.releaseIdToUsage}" ><li><sw360:out value="${project.releaseIdToUsageSize}"/> linked releases</li></core_rt:if>'  +
+        '<core_rt:if test="${not empty project.attachments}" ><li><sw360:out value="${project.attachmentsSize}"/> attachments</li></core_rt:if>'  +
+        '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ></ul></core_rt:if>';
+        $('#deleteProjectButton').click(function() {
+            confirm.confirmDeletion(deletionMessage, deleteProject);
+        });
+
+        sw360Validate.validateWithInvalidHandlerNoIgnore('#projectEditForm');
+
         $('#formSubmit, #formSubmit2').click(
-                function() {
-                    $('#projectEditForm').submit();
-                }
+            function() {
+                $('#projectEditForm').submit();
+            }
         );
     });
+});
 </script>
 
 
