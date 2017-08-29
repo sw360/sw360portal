@@ -97,6 +97,19 @@
                       placeholder="Enter Description"><sw360:out value="${project.description}" stripNewlines="false"/></textarea>
         </td>
     </tr>
+    <tr>
+        <td width="33%">
+            <label class="checkboxlabel" for="enable_svm">
+                <input id="enable_svm" type="checkbox"
+                       name="<portlet:namespace/><%=Project._Fields.ENABLE_SVM%>"
+                       value="<sw360:out value="${project.enableSvm}"/>"
+                        <core_rt:if test="${project.enableSvm}"> checked="checked" </core_rt:if>
+                />
+                Enable Security Vulnerability Monitoring</label>
+        </td>
+        <td width="33%"></td>
+        <td width="33%"></td>
+    </tr>
 </table>
 
 <table class="table info_table" id="ProjectRolesInfo" title="Roles">

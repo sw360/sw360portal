@@ -77,6 +77,12 @@ public abstract class Moderator<U extends TFieldIdEnum, T extends TBase<T, U>> {
             case TType.ENUM:
                 document.setFieldValue(field, documentAdditions.getFieldValue(field));
                 break;
+            case TType.I32:
+            case TType.BOOL:
+                if (documentAdditions.isSet(field)){
+                    document.setFieldValue(field, documentAdditions.getFieldValue(field));
+                }
+                break;
             case TType.MAP:
                 if(isMapFieldMapOfStringSets(field, document, documentAdditions, documentDeletions, log)){
                             document.setFieldValue(field, updateCustomMap(

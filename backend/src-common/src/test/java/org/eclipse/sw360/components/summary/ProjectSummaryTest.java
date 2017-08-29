@@ -75,6 +75,9 @@ public class ProjectSummaryTest {
                 case ROLES:
                     project.roles = Collections.emptyMap();
                     break;
+                case ENABLE_SVM:
+                    project.enableSvm = true;
+                    break;
                 default: //most fields are string
                     project.setFieldValue(renderedField, "asd");
                     break;
