@@ -11,6 +11,7 @@
 package org.eclipse.sw360.exporter;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.common.UncheckedSW360Exception;
@@ -19,6 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.*;
@@ -34,7 +36,12 @@ import static org.eclipse.sw360.exporter.ReleaseExporter.VENDOR_IGNORED_FIELDS;
 
 class ReleaseHelper implements ExporterHelper<Release> {
 
+    private static final Logger log = Logger.getLogger(ReleaseHelper.class);
+
     private final ComponentService.Iface cClient;
+    private final User user;
+    private Map<String, Release> preloadedLinkedReleases = null;
+    private Map<String, Component> preloadedComponents = null;
 
     /**
      * if a not empty map is assigned to this field, additional data has to be added
@@ -42,19 +49,25 @@ class ReleaseHelper implements ExporterHelper<Release> {
      */
     private final Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap;
 
-    private Map<String, Release> preloadedLinkedReleases = null;
-    private Map<String, Component> preloadedComponents = null;
-
     /**
+     * Remember to preload the releases and set them via
+     * {{@link #setPreloadedLinkedReleases(Map)} so that we can also preload the
+     * necessary components. If you miss that step, we will have to load each
+     * component separately on demand which might take some additional time.
+     *
      * @param cClient
      *            a {@link ComponentService.Iface} implementation
      * @throws SW360Exception
      */
-    protected ReleaseHelper(ComponentService.Iface cClient) throws SW360Exception {
-        this(cClient, null);
+    protected ReleaseHelper(ComponentService.Iface cClient, User user) throws SW360Exception {
+        this(cClient, user, null);
     }
 
     /**
+     * If you do not want to get the additional data by setting
+     * releaseToShortenedStringsMap, then you probably want to use the alternative
+     * constructor and read its instructions.
+     *
      * @param cClient
      *            a {@link ComponentService.Iface} implementation
      * @param releaseToShortenedStringsMap
@@ -63,13 +76,14 @@ class ReleaseHelper implements ExporterHelper<Release> {
      *            map otherwise
      * @throws SW360Exception
      */
-    protected ReleaseHelper(ComponentService.Iface cClient,
+    protected ReleaseHelper(ComponentService.Iface cClient, User user,
             Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap) throws SW360Exception {
         this.cClient = cClient;
+        this.user = user;
         this.releaseToShortenedStringsMap = releaseToShortenedStringsMap;
         this.preloadedComponents = new HashMap<>();
 
-        if (addAdditionalData()) {
+        if (this.releaseToShortenedStringsMap != null) {
             batchloadComponents(this.releaseToShortenedStringsMap.keySet().stream().map(Release::getComponentId)
                     .collect(Collectors.toSet()));
         }
@@ -100,18 +114,30 @@ class ReleaseHelper implements ExporterHelper<Release> {
                 // first, add data for given field
                 row.add(release.getComponentId());
 
-                // second, add joined data - but only if wanted
-                // remark that headers have already been added accordingly
-                if (addAdditionalData()) {
-                    // add component type
-                    Component component = this.preloadedComponents.get(release.componentId);
-                    if (component != null) {
-                        row.add(ThriftEnumUtils.enumToString(component.getComponentType()));
-                    } else {
-                        row.add("");
-                    }
+                // second, add joined data, remark that headers have already been added
+                // accordingly
 
-                    // add project origin
+                // add component type in every case
+                Component component = this.preloadedComponents.get(release.componentId);
+                if (component == null) {
+                    // maybe cache was not initialized properly, so try to load manually
+                    try {
+                        component = cClient.getComponentById(release.getComponentId(), user);
+                    } catch (TException e) {
+                        log.warn("No component found for id " + release.getComponentId()
+                                + " which is set in release with id " + release.getId(), e);
+                        component = null;
+                    }
+                }
+                // check again and add value
+                if (component == null) {
+                    row.add("");
+                } else {
+                    row.add(ThriftEnumUtils.enumToString(component.getComponentType()));
+                }
+
+                // and project origin only if wanted
+                if (addAdditionalData()) {
                     if (releaseToShortenedStringsMap.containsKey(release)) {
                         row.add(releaseToShortenedStringsMap.get(release).projectNames);
                     } else {
@@ -234,24 +260,23 @@ class ReleaseHelper implements ExporterHelper<Release> {
         return MapUtils.isNotEmpty(releaseToShortenedStringsMap);
     }
 
-    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases) throws SW360Exception {
+    public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases, boolean componentsNeeded)
+            throws SW360Exception {
         this.preloadedLinkedReleases = preloadedLinkedReleases;
 
-        this.batchloadComponents(
-                preloadedLinkedReleases.values().stream().map(Release::getComponentId).collect(Collectors.toSet()));
+        if (componentsNeeded) {
+            this.batchloadComponents(
+                    preloadedLinkedReleases.values().stream().map(Release::getComponentId).collect(Collectors.toSet()));
+        }
     }
 
     private void batchloadComponents(Set<String> cIds) throws SW360Exception {
-        // components are only needed if additional data should be added
-        if (addAdditionalData()) {
-            try {
-                List<Component> componentsShort = cClient.getComponentsShort(cIds);
+        try {
+            List<Component> componentsShort = cClient.getComponentsShort(cIds);
 
-                this.preloadedComponents.putAll(ThriftUtils.getIdMap(componentsShort));
-            } catch (TException e) {
-                throw new SW360Exception(
-                        "Could not get Components for ids [" + cIds + "] because of:\n" + e.getMessage());
-            }
+            this.preloadedComponents.putAll(ThriftUtils.getIdMap(componentsShort));
+        } catch (TException e) {
+            throw new SW360Exception("Could not get Components for ids [" + cIds + "] because of:\n" + e.getMessage());
         }
     }
 
@@ -267,7 +292,7 @@ class ReleaseHelper implements ExporterHelper<Release> {
         }
 
         // update preload cache so that it is available on next call to this method
-        setPreloadedLinkedReleases(ThriftUtils.getIdMap(releasesByIdsForExport));
+        setPreloadedLinkedReleases(ThriftUtils.getIdMap(releasesByIdsForExport), false);
 
         return releasesByIdsForExport;
     }

@@ -81,7 +81,7 @@ public class ProjectExporter extends ExcelExporter<Project, ProjectHelper> {
     static List<String> HEADERS_EXTENDED_BY_RELEASES = ExporterHelper.addSubheadersWithPrefixesAsNeeded(HEADERS, ReleaseExporter.HEADERS, "release: ");
 
     public ProjectExporter(ComponentService.Iface componentClient, ProjectService.Iface projectClient, User user, List<Project> projects, boolean extendedByReleases) throws SW360Exception {
-        super(new ProjectHelper(projectClient, user, extendedByReleases, new ReleaseHelper(componentClient)));
+        super(new ProjectHelper(projectClient, user, extendedByReleases, new ReleaseHelper(componentClient, user)));
         preloadRelatedDataFor(projects, extendedByReleases, user);
     }
 
@@ -120,7 +120,7 @@ public class ProjectExporter extends ExcelExporter<Project, ProjectHelper> {
             joinedMap.putAll(linkedOfLinkedReleasesById);
             releasesById = joinedMap;
         }
-        helper.setPreloadedLinkedReleases(releasesById);
+        helper.setPreloadedLinkedReleases(releasesById, withLinkedOfLinked);
     }
 
 }
