@@ -15,6 +15,12 @@ define('modules/sw360Validate', ['jquery', /* jquery-plugins: */ 'jquery.validat
 			$(selector).validate({
 				invalidHandler: invalidHandlerShowErrorTab
 			});
-		}
+		},
+		validateWithInvalidHandlerNoIgnore: function(selector) {
+			$(selector).validate({
+			    ignore: [],
+	            invalidHandler: invalidHandlerShowErrorTab
+			});
+		},
 	};
 });
