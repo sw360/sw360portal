@@ -97,9 +97,9 @@
         Y.all('td.addToWhiteListCheckboxesPlaceholder').hide();
         Y.all('tr.dependentOnWhiteList').show();
         Y.one('#EditWhitelist').hide();
+        Y.one('#cancelEditWhitelistButton').show();
         Y.one('#SubmitWhitelist').show();
     }
-
 
     function getBaseURL(){
         var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
