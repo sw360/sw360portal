@@ -80,10 +80,17 @@
             }
     );
 
+    function cancelEditWhitelist() {
+        $(':checkbox').prop('checked', true);
+        Y.all('table.todosFromModerationRequest').hide();
+        Y.all('table.db_table').show();
+    }
+
     function showWhiteListOptions() {
         Y.all('table.todosFromModerationRequest').show();
         Y.all('table.db_table').hide();
     }
+
     function editLicense() {
         window.location = '<portlet:renderURL >'
                              +'<portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}"/>'
