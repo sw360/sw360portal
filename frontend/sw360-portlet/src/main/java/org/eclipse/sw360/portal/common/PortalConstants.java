@@ -55,7 +55,6 @@ public class PortalConstants {
     public static final String PAGENAME = "pagename";
     public static final String PAGENAME_DETAIL = "detail";
     public static final String PAGENAME_VIEW = "view";
-
     public static final String PAGENAME_IMPORT = "import";
     public static final String PAGENAME_EDIT = "edit";
     public static final String PAGENAME_ACTION = "action";
@@ -354,6 +353,12 @@ public class PortalConstants {
 
     //! request status
     public static final String REQUEST_STATUS = "request_status";
+
+    // friendly url placeholder values
+    public static final String FRIENDLY_URL_PREFIX = "friendlyUrl";
+    public static final String FRIENDLY_URL_PLACEHOLDER_PAGENAME = FRIENDLY_URL_PREFIX + "Pagename";
+    public static final String FRIENDLY_URL_PLACEHOLDER_PROJECT_ID = FRIENDLY_URL_PREFIX + "ProjectId";
+    public static final String FRIENDLY_URL_PLACEHOLDER_COMPONENT_ID = FRIENDLY_URL_PREFIX + "ComponentId";
 
     //
     public static String PROJECTIMPORT_HOSTS;
