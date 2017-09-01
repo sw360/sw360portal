@@ -13,7 +13,9 @@ package org.eclipse.sw360.moderation.db;
 
 import com.google.common.collect.Sets;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
 import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
@@ -67,6 +69,8 @@ public class ModerationDatabaseHandler {
     private final ProjectDatabaseHandler projectDatabaseHandler;
     private final ComponentDatabaseHandler componentDatabaseHandler;
     private final DatabaseConnector db;
+
+    private final MailUtil mailUtil = new MailUtil();
 
     public ModerationDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName) throws MalformedURLException {
         db = new DatabaseConnector(httpClient, dbName);
@@ -141,13 +145,24 @@ public class ModerationDatabaseHandler {
         return isCreator || PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user);
     }
 
-    public void refuseRequest(String requestId, String moderationDecisionComment) {
+    public void refuseRequest(String requestId, String moderationDecisionComment, String reviewer) {
         ModerationRequest request = repository.get(requestId);
-        request.moderationState = ModerationState.REJECTED;
+        request.setModerationState(ModerationState.REJECTED);
         request.setTimestampOfDecision(System.currentTimeMillis());
         request.setCommentDecisionModerator(moderationDecisionComment);
+        request.setReviewer(reviewer);
         repository.update(request);
-        sendMailToUserForDeclinedRequest(request.getRequestingUser(), request.getDocumentType() == DocumentType.USER);
+        sendMailToUserForDeclinedRequest(request);
+    }
+
+    public void acceptRequest(String requestId, String moderationComment, String reviewer) {
+        ModerationRequest request = repository.get(requestId);
+        request.setModerationState(ModerationState.APPROVED);
+        request.setTimestampOfDecision(System.currentTimeMillis());
+        request.setReviewer(reviewer);
+        request.setCommentDecisionModerator(moderationComment);
+        repository.update(request);
+        sendMailNotificationsForAcceptedRequest(request);
     }
 
     public RequestStatus createRequest(Component component, User user, Boolean isDeleteRequest) {
@@ -181,7 +196,7 @@ public class ModerationDatabaseHandler {
         if(component.isSetComponentType()) {
             request.setComponentType(component.getComponentType());
         }
-        addOrUpdate(request);
+        addOrUpdate(request, user);
         return RequestStatus.SENT_TO_MODERATOR;
     }
 
@@ -216,7 +231,7 @@ public class ModerationDatabaseHandler {
         } catch (SW360Exception e) {
             log.error("Could not retrieve parent component type of release with ID=" + release.getId());
         }
-        addOrUpdate(request);
+        addOrUpdate(request, user);
         return RequestStatus.SENT_TO_MODERATOR;
     }
 
@@ -293,7 +308,7 @@ public class ModerationDatabaseHandler {
         // Fill the request
         ModerationRequestGenerator generator = new ProjectModerationRequestGenerator();
         request = generator.setAdditionsAndDeletions(request, project, dbproject);
-        addOrUpdate(request);
+        addOrUpdate(request, user);
         return RequestStatus.SENT_TO_MODERATOR;
     }
 
@@ -329,7 +344,7 @@ public class ModerationDatabaseHandler {
         // Fill the request
         ModerationRequestGenerator generator = new LicenseModerationRequestGenerator();
         request = generator.setAdditionsAndDeletions(request, license, dblicense);
-        addOrUpdate(request);
+        addOrUpdate(request, user);
         return RequestStatus.SENT_TO_MODERATOR;
     }
 
@@ -345,7 +360,7 @@ public class ModerationDatabaseHandler {
         // Set the object
         request.setUser(user);
 
-        addOrUpdate(request);
+        addOrUpdate(request, user);
     }
 
     private String getDepartmentByUserEmail(String userEmail) throws TException {
@@ -416,13 +431,16 @@ public class ModerationDatabaseHandler {
         return sw360users;
     }
 
-    public void addOrUpdate(ModerationRequest request) {
+    public void addOrUpdate(ModerationRequest request, User user) {
+        addOrUpdate(request, user.getEmail());
+    }
+    public void addOrUpdate(ModerationRequest request, String userEmail) {
         if (request.isSetId()) {
             repository.update(request);
-            sendMailToModeratorsForUpdateRequest(request.getModerators());
+            sendMailNotificationsForUpdatedRequest(request, userEmail);
         } else {
             repository.add(request);
-            sendMailToModeratorsForNewRequest(request.getModerators());
+            sendMailNotificationsForNewRequest(request, userEmail);
         }
     }
 
@@ -451,22 +469,50 @@ public class ModerationDatabaseHandler {
 
     }
 
-    private void sendMailToModeratorsForNewRequest(Set<String> moderators){
-        MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(moderators, MailConstants.SUBJECT_FOR_NEW_MODERATION_REQUEST,MailConstants.TEXT_FOR_NEW_MODERATION_REQUEST);
+    private void sendMailNotificationsForNewRequest(ModerationRequest request, String userEmail){
+        mailUtil.sendMail(request.getModerators(), userEmail,
+                MailConstants.SUBJECT_FOR_NEW_MODERATION_REQUEST,
+                MailConstants.TEXT_FOR_NEW_MODERATION_REQUEST,
+                SW360Constants.NOTIFICATION_CLASS_MODERATION_REQUEST, ModerationRequest._Fields.MODERATORS.toString());
     }
 
-    private void sendMailToModeratorsForUpdateRequest(Set<String> moderators){
-        MailUtil mailUtil = new MailUtil();
-        mailUtil.sendMail(moderators,MailConstants.SUBJECT_FOR_UPDATE_MODERATION_REQUEST,MailConstants.TEXT_FOR_UPDATE_MODERATION_REQUEST);
+    private void sendMailNotificationsForUpdatedRequest(ModerationRequest request, String userEmail){
+        mailUtil.sendMail(request.getModerators(), userEmail,
+                MailConstants.SUBJECT_FOR_UPDATE_MODERATION_REQUEST,
+                MailConstants.TEXT_FOR_UPDATE_MODERATION_REQUEST,
+                SW360Constants.NOTIFICATION_CLASS_MODERATION_REQUEST, ModerationRequest._Fields.MODERATORS.toString());
     }
 
-    private void sendMailToUserForDeclinedRequest(String userEmail, boolean userRequest){
-        MailUtil mailUtil = new MailUtil();
-        if (userRequest){
-            mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_DECLINED_USER_MODERATION_REQUEST, MailConstants.TEXT_FOR_DECLINED_USER_MODERATION_REQUEST, false);
+    private void sendMailToUserForDeclinedRequest(ModerationRequest request){
+        boolean isUserRequest = request.getDocumentType() == DocumentType.USER;
+        if (isUserRequest){
+            mailUtil.sendMail(request.getRequestingUser(),
+                    MailConstants.SUBJECT_FOR_DECLINED_USER_MODERATION_REQUEST,
+                    MailConstants.TEXT_FOR_DECLINED_USER_MODERATION_REQUEST,
+                    SW360Constants.NOTIFICATION_CLASS_MODERATION_REQUEST,
+                    ModerationRequest._Fields.REQUESTING_USER.toString(),
+                    false);
         } else {
-            mailUtil.sendMail(userEmail, MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST, MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST, true);
+            mailUtil.sendMail(request.getRequestingUser(),
+                    MailConstants.SUBJECT_FOR_DECLINED_MODERATION_REQUEST,
+                    MailConstants.TEXT_FOR_DECLINED_MODERATION_REQUEST,
+                    SW360Constants.NOTIFICATION_CLASS_MODERATION_REQUEST,
+                    ModerationRequest._Fields.REQUESTING_USER.toString(),
+                    true,
+                    ThriftEnumUtils.enumToString(request.getDocumentType()),
+                    request.getDocumentName());
         }
+    }
+
+    private void sendMailNotificationsForAcceptedRequest(ModerationRequest request) {
+        boolean isUserRequest = request.getDocumentType() == DocumentType.USER;
+        mailUtil.sendMail(request.getRequestingUser(),
+                MailConstants.SUBJECT_FOR_ACCEPTED_MODERATION_REQUEST,
+                MailConstants.TEXT_FOR_ACCEPTED_MODERATION_REQUEST,
+                SW360Constants.NOTIFICATION_CLASS_MODERATION_REQUEST,
+                ModerationRequest._Fields.REQUESTING_USER.toString(),
+                !isUserRequest,
+                ThriftEnumUtils.enumToString(request.getDocumentType()),
+                request.getDocumentName());
     }
 }

@@ -294,6 +294,7 @@ public class PortalConstants {
     // user actions
     public static final String USER_PREFIX = "user";
     public static final String USER_SEARCH = USER_PREFIX + "search";
+    public static final String SAVE_PREFERENCES = "savePreferences";
 
     // license actions
     public static final String LICENSE_PREFIX = "license";

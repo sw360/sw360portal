@@ -85,11 +85,6 @@ public class UserHandler implements UserService.Iface {
         return db.deleteUser(user, adminUser);
     }
 
-    public RequestStatus sendMailForAcceptedModerationRequest(String userEmail) throws TException {
-        assertNotNull(userEmail);
-        return db.sendMailForAcceptedModerationRequest(userEmail);
-    }
-
     @Override
     public String getDepartmentByEmail(String email) throws TException {
         User user = getByEmail(email);

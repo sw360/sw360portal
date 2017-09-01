@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -10,14 +10,19 @@
  */
 package org.eclipse.sw360.datahandler.common;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import org.apache.thrift.TFieldIdEnum;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
@@ -70,6 +75,49 @@ public class SW360Constants {
     public static final Collection<AttachmentType> SOURCE_CODE_ATTACHMENT_TYPES = Arrays.asList(AttachmentType.SOURCE, AttachmentType.SOURCE_SELF);
     public static final String CONTENT_TYPE_OPENXML_SPREADSHEET = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    public static final String NOTIFICATION_CLASS_RELEASE = "release";
+    public static final String NOTIFICATION_CLASS_MODERATION_REQUEST = "moderation";
+    public static final String NOTIFICATION_CLASS_COMPONENT = "component";
+    public static final String NOTIFICATION_CLASS_PROJECT = "project";
+    public static final Map<String, List<Map.Entry<String, String>>> NOTIFIABLE_ROLES_BY_OBJECT_TYPE = ImmutableMap.<String, List<Map.Entry<String, String>>>builder()
+            .put(NOTIFICATION_CLASS_PROJECT, ImmutableList.<Map.Entry<String, String>>builder()
+                    .add(pair(Project._Fields.PROJECT_RESPONSIBLE, "Project Responsible"),
+                            pair(Project._Fields.PROJECT_OWNER, "Project Owner"),
+                            pair(Project._Fields.LEAD_ARCHITECT, "Lead Architect"),
+                            pair(Project._Fields.MODERATORS, "Moderator"),
+                            pair(Project._Fields.CONTRIBUTORS, "Contributor"),
+                            pair(Project._Fields.SECURITY_RESPONSIBLES, "Security Responsible"),
+                            pair(Project._Fields.ROLES, "Additional Role"))
+                    .build())
+            .put(NOTIFICATION_CLASS_COMPONENT, ImmutableList.<Map.Entry<String, String>>builder()
+                    .add(pair(Component._Fields.CREATED_BY, "Creator"),
+                            pair(Component._Fields.COMPONENT_OWNER, "Component Owner"),
+                            pair(Component._Fields.MODERATORS, "Moderator"),
+                            pair(Component._Fields.SUBSCRIBERS, "Subscriber"),
+                            pair(Component._Fields.ROLES, "Additional Role"))
+                    .build())
+            .put(NOTIFICATION_CLASS_RELEASE, ImmutableList.<Map.Entry<String, String>>builder()
+                    .add(pair(Release._Fields.CREATED_BY, "Creator"),
+                            pair(Release._Fields.CONTRIBUTORS, "Contributor"),
+                            pair(Release._Fields.MODERATORS, "Moderator"),
+                            pair(Release._Fields.SUBSCRIBERS, "Subscriber"),
+                            pair(Release._Fields.ROLES, "Additional Role"))
+                    .build())
+            .put(NOTIFICATION_CLASS_MODERATION_REQUEST, ImmutableList.<Map.Entry<String, String>>builder()
+                    .add(pair(ModerationRequest._Fields.REQUESTING_USER, "Requesting User"),
+                            pair(ModerationRequest._Fields.MODERATORS, "Moderator"))
+                    .build())
+            .build();
+    public static final List<String> NOTIFICATION_EVENTS_KEYS = NOTIFIABLE_ROLES_BY_OBJECT_TYPE.entrySet()
+            .stream()
+            .map(notificationClassEntry -> notificationClassEntry.getValue()
+                    .stream()
+                    .map(roleEntry -> SW360Utils.notificationPreferenceKey(notificationClassEntry.getKey(), roleEntry.getKey())))
+            .flatMap(Function.identity())
+            .collect(Collectors.toList());
+
+    static final Map<String, Boolean> DEFAULT_NOTIFICATION_PREFERENCES = NOTIFICATION_EVENTS_KEYS.stream().collect(Collectors.toMap(s -> s, s -> Boolean.FALSE));
+
     public static Collection<AttachmentType> allowedAttachmentTypes(String documentType) {
         Set<AttachmentType> types = newHashSet(AttachmentType.values());
 
@@ -82,6 +130,10 @@ public class SW360Constants {
 
     private SW360Constants() {
         // Utility class with only static functions
+    }
+
+    private static Map.Entry<String, String> pair(TFieldIdEnum field, String displayName){
+        return new AbstractMap.SimpleImmutableEntry<>(field.toString(), displayName);
     }
 
 }

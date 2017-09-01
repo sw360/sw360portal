@@ -56,6 +56,10 @@ div.content2 {
     color: red;
 }
 
+label.inlinelabel {
+    display: inline;
+}
+
 .toplabelledInput, .stackedlabel {
     display: block;
 }
@@ -526,4 +530,9 @@ input[readonly].clickable {
 .moderation_decision_info_table {
     width: 49% !important;
     float: right;
+}
+
+div.indented {
+    display: block;
+    margin-left: 2em;
 }

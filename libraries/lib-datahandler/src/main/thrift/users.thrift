@@ -39,7 +39,7 @@ enum RequestedAction {
     CLEARING = 5,
     ATTACHMENTS = 6,
     WRITE_ECC = 7,
- }
+}
 
 struct User {
 
@@ -55,6 +55,7 @@ struct User {
     10: required string department,
     11: optional bool wantsMailNotification,
     12: optional string commentMadeDuringModerationRequest,
+    13: optional map<string, bool> notificationPreferences,
 }
 
 service UserService {
@@ -88,11 +89,6 @@ service UserService {
      * delete user from database, only possible if adminUser has permissions
      **/
     RequestStatus deleteUser(1: User user, 2: User adminUser);
-
-    /**
-     * send email to userEmail address over acceptance of moderation request
-     **/
-    RequestStatus sendMailForAcceptedModerationRequest(1: string userEmail);
 
     /**
      * returns department of the SW360-user with id equal to email

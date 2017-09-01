@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentConnector;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
@@ -35,6 +36,8 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.mail.MailConstants;
+import org.eclipse.sw360.mail.MailUtil;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
@@ -48,10 +51,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.getBestClearingReport;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
@@ -90,6 +90,7 @@ public class ComponentDatabaseHandler {
     private final ReleaseModerator releaseModerator;
     public static final List<EccInformation._Fields> ECC_FIELDS = Arrays.asList(EccInformation._Fields.ECC_STATUS, EccInformation._Fields.AL, EccInformation._Fields.ECCN, EccInformation._Fields.MATERIAL_INDEX_NUMBER, EccInformation._Fields.ECC_COMMENT);
 
+    private final MailUtil mailUtil = new MailUtil();
 
     public ComponentDatabaseHandler(Supplier<HttpClient> httpClient, String dbName, String attachmentDbName, ComponentModerator moderator, ReleaseModerator releaseModerator) throws MalformedURLException {
         DatabaseConnector db = new DatabaseConnector(httpClient, dbName);
@@ -277,6 +278,7 @@ public class ComponentDatabaseHandler {
 
         // Add the component to the database and return ID
         componentRepository.add(component);
+        sendMailNotificationsForNewComponent(component, user);
         return new AddDocumentRequestSummary()
                 .setRequestStatus(AddDocumentRequestStatus.SUCCESS)
                 .setId(component.getId());
@@ -325,6 +327,7 @@ public class ComponentDatabaseHandler {
         updateReleaseDependentFieldsForComponent(component, release);
         componentRepository.update(component);
 
+        sendMailNotificationsForNewRelease(release, user);
         return new AddDocumentRequestSummary()
                 .setRequestStatus(AddDocumentRequestStatus.SUCCESS)
                 .setId(id);
@@ -404,7 +407,7 @@ public class ComponentDatabaseHandler {
             componentRepository.update(component);
             //clean up attachments in database
             attachmentConnector.deleteAttachmentDifference(actual.getAttachments(),component.getAttachments());
-
+            sendMailNotificationsForComponentUpdate(component, user.getEmail());
         } else {
             return moderator.updateComponent(component, user);
         }
@@ -465,7 +468,7 @@ public class ComponentDatabaseHandler {
             updateReleaseDependentFieldsForComponentId(release.getComponentId());
             //clean up attachments in database
             attachmentConnector.deleteAttachmentDifference(nullToEmptySet(actual.getAttachments()),nullToEmptySet(release.getAttachments()));
-
+            sendMailNotificationsForReleaseUpdate(release, user.getEmail());
         } else {
             if (hasChangesInEccFields) {
                 return releaseModerator.updateReleaseEccInfo(release, user);
@@ -1002,5 +1005,107 @@ public class ComponentDatabaseHandler {
 
     public int getTotalComponentsCount() {
         return componentRepository.getTotalComponentsCount();
+    }
+
+    private void sendMailNotificationsForNewComponent(Component component, String user) {
+        mailUtil.sendMail(component.getComponentOwner(),
+                MailConstants.SUBJECT_FOR_NEW_COMPONENT,
+                MailConstants.TEXT_FOR_NEW_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.COMPONENT_OWNER.toString(),
+                component.getName());
+        mailUtil.sendMail(component.getModerators(), user,
+                MailConstants.SUBJECT_FOR_NEW_COMPONENT,
+                MailConstants.TEXT_FOR_NEW_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.MODERATORS.toString(),
+                component.getName());
+        mailUtil.sendMail(component.getSubscribers(), user,
+                MailConstants.SUBJECT_FOR_NEW_COMPONENT,
+                MailConstants.TEXT_FOR_NEW_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.SUBSCRIBERS.toString(),
+                component.getName());
+        mailUtil.sendMail(SW360Utils.unionValues(component.getRoles()), user,
+                MailConstants.SUBJECT_FOR_NEW_COMPONENT,
+                MailConstants.TEXT_FOR_NEW_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.ROLES.toString(),
+                component.getName());
+    }
+
+    private void sendMailNotificationsForComponentUpdate(Component component, String user) {
+        mailUtil.sendMail(component.getCreatedBy(),
+                MailConstants.SUBJECT_FOR_UPDATE_COMPONENT,
+                MailConstants.TEXT_FOR_UPDATE_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.CREATED_BY.toString(),
+                component.getName());
+        mailUtil.sendMail(component.getComponentOwner(),
+                MailConstants.SUBJECT_FOR_UPDATE_COMPONENT,
+                MailConstants.TEXT_FOR_UPDATE_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.COMPONENT_OWNER.toString(),
+                component.getName());
+        mailUtil.sendMail(component.getModerators(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_COMPONENT,
+                MailConstants.TEXT_FOR_UPDATE_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.MODERATORS.toString(),
+                component.getName());
+        mailUtil.sendMail(component.getSubscribers(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_COMPONENT,
+                MailConstants.TEXT_FOR_UPDATE_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.SUBSCRIBERS.toString(),
+                component.getName());
+        mailUtil.sendMail(SW360Utils.unionValues(component.getRoles()), user,
+                MailConstants.SUBJECT_FOR_UPDATE_COMPONENT,
+                MailConstants.TEXT_FOR_UPDATE_COMPONENT,
+                SW360Constants.NOTIFICATION_CLASS_COMPONENT, Component._Fields.ROLES.toString(),
+                component.getName());
+    }
+
+    private void sendMailNotificationsForNewRelease(Release release, String user) {
+        mailUtil.sendMail(release.getContributors(), user,
+                MailConstants.SUBJECT_FOR_NEW_RELEASE,
+                MailConstants.TEXT_FOR_NEW_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.CONTRIBUTORS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(release.getModerators(), user,
+                MailConstants.SUBJECT_FOR_NEW_RELEASE,
+                MailConstants.TEXT_FOR_NEW_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.MODERATORS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(release.getSubscribers(), user,
+                MailConstants.SUBJECT_FOR_NEW_RELEASE,
+                MailConstants.TEXT_FOR_NEW_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.SUBSCRIBERS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(SW360Utils.unionValues(release.getRoles()), user,
+                MailConstants.SUBJECT_FOR_NEW_RELEASE,
+                MailConstants.TEXT_FOR_NEW_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.SUBSCRIBERS.toString(),
+                release.getName(), release.getVersion());
+    }
+
+    private void sendMailNotificationsForReleaseUpdate(Release release, String user) {
+        mailUtil.sendMail(release.getCreatedBy(),
+                MailConstants.SUBJECT_FOR_UPDATE_RELEASE,
+                MailConstants.TEXT_FOR_UPDATE_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.CONTRIBUTORS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(release.getContributors(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_RELEASE,
+                MailConstants.TEXT_FOR_UPDATE_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.CONTRIBUTORS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(release.getModerators(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_RELEASE,
+                MailConstants.TEXT_FOR_UPDATE_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.MODERATORS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(release.getSubscribers(), user,
+                MailConstants.SUBJECT_FOR_UPDATE_RELEASE,
+                MailConstants.TEXT_FOR_UPDATE_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.SUBSCRIBERS.toString(),
+                release.getName(), release.getVersion());
+        mailUtil.sendMail(SW360Utils.unionValues(release.getRoles()), user,
+                MailConstants.SUBJECT_FOR_UPDATE_RELEASE,
+                MailConstants.TEXT_FOR_UPDATE_RELEASE,
+                SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.SUBSCRIBERS.toString(),
+                release.getName(), release.getVersion());
     }
 }

@@ -21,6 +21,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TEnum;
 import org.apache.thrift.TException;
@@ -397,6 +398,19 @@ public class SW360Utils {
         return objectMapper;
     }
 
+    public static void initializeMailNotificationsPreferences(User user) {
+        if(!user.isSetWantsMailNotification()) {
+            user.setWantsMailNotification(true);
+        }
+        if (!user.isSetNotificationPreferences()){
+            user.setNotificationPreferences(Maps.newHashMap(SW360Constants.DEFAULT_NOTIFICATION_PREFERENCES));
+        }
+    }
+
+    public static String notificationPreferenceKey(String notificationClass, String roleName){
+        return notificationClass + roleName;
+    }
+
     private static class TEnumSerializer extends JsonSerializer<TEnum>{
         @Override
         public void serialize(TEnum value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -445,5 +459,10 @@ public class SW360Utils {
 
     public static EccInformation newDefaultEccInformation(){
         return new EccInformation().setEccStatus(ECCStatus.OPEN);
+    }
+
+    @NotNull
+    public static <T> Set<T> unionValues(Map<?, Set<T>>map){
+        return nullToEmptyMap(map).values().stream().filter(Objects::nonNull).reduce(Sets::union).orElse(Sets.newHashSet());
     }
 }
