@@ -54,6 +54,7 @@ struct User {
     9: optional string lastname, // lastname or surname of the person
     10: required string department,
     11: optional bool wantsMailNotification,
+    12: optional string commentMadeDuringModerationRequest,
 }
 
 service UserService {

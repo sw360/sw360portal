@@ -12,23 +12,27 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
 <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
-    function acceptRequest() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_ACCEPT%>');
+    function sendModerationDecision(actionControlString) {
+        var commentText = btoa($("#moderationDecisionCommentField").val());
+        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', actionControlString)
+            .setParameter('<%=PortalConstants.MODERATION_DECISION_COMMENT%>', commentText);
         window.location = portletURL.toString();
+    }
+
+    function acceptRequest() {
+        sendModerationDecision('<%=PortalConstants.ACTION_ACCEPT%>');
     }
 
     function decline() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_DECLINE%>');
-        window.location = portletURL.toString();
+        sendModerationDecision('<%=PortalConstants.ACTION_DECLINE%>');
     }
 
     function postPone() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_POSTPONE%>');
-        window.location = portletURL.toString();
+        sendModerationDecision('<%=PortalConstants.ACTION_POSTPONE%>');
     }
 
     function cancel() {
-        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_CANCEL%>');
+        var portletURL = getBaseURL().setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.ACTION_CANCEL%>')
         window.location = portletURL.toString();
     }
 

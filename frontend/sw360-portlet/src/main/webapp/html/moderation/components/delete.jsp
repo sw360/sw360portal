@@ -41,6 +41,7 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Component: ${component.name}</span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
+<%@include file="/html/moderation/includes/moderationInfo.jspf"%>
 
 <core_rt:set var="inComponentDetailsContext" value="false" scope="request"/>
 <%@include file="/html/components/includes/components/detailOverview.jspf"%>

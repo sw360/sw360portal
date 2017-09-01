@@ -56,6 +56,8 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change License:  <sw360:LicenseName license="${license}"/></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
+<%@include file="/html/moderation/includes/moderationInfo.jspf"%>
+
 <h2>Proposed changes</h2>
 
 <h3>TODOs</h3>

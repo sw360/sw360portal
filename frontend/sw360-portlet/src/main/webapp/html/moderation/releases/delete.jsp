@@ -55,6 +55,7 @@
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Release: <sw360:ReleaseName release="${release}" /></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
+<%@include file="/html/moderation/includes/moderationInfo.jspf"%>
 
 <core_rt:set var="inReleaseDetailsContext" value="false" scope="request"/>
 <%@include file="/html/components/includes/releases/detailOverview.jspf"%>

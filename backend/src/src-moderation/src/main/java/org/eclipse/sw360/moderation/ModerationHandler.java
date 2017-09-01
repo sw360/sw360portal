@@ -86,7 +86,7 @@ public class ModerationHandler implements ModerationService.Iface {
         assertUser(user);
         assertNotNull(license);
 
-        return handler.createRequest(license, user.getEmail(), user.getDepartment());
+        return handler.createRequest(license, user);
     }
 
     @Override
@@ -139,8 +139,8 @@ public class ModerationHandler implements ModerationService.Iface {
     }
 
     @Override
-    public void refuseRequest(String requestId) throws TException {
-        handler.refuseRequest(requestId);
+    public void refuseRequest(String requestId, String moderationDecisionComment) throws TException {
+        handler.refuseRequest(requestId, moderationDecisionComment);
     }
 
     @Override

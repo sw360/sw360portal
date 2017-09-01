@@ -9,7 +9,10 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<form action="<%=addLicenseTodoURL%>" method="post" id="AddTodoModal">
+<%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
+<jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
+
+<form action="<%=addLicenseTodoURL%>" method="post" id="AddTodoModal" name="AddTodoModal">
   <table class="table">
     <tr>
       <td colspan="5" class="stackedlabel mandatory">
@@ -44,5 +47,31 @@
     </core_rt:forEach>
     </tbody>
   </table>
-  <input type="submit" id="SubmitTodo" value="Submit" >
+  <input type="button" id="SubmitTodo" value="Submit" onclick="submitLicenseTODO()">
+
+  <div id="moderationRequestCommentDialogTODO" style="display: none">
+    <hr>
+    <label class="textlabel stackedLabel">Comment</label>
+    <textarea form=AddTodoModal name="<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>" id="moderationRequestCommentField" class="moderationCreationComment" placeholder="Leave a comment on your request"></textarea>
+    <input type="button" class="addButton" onclick="submitModerationRequestTODO()" id="moderationRequestCommentSendButton" value="Send moderation request">
+  </div>
 </form>
+
+<jsp:include page="/html/licenses/includes/updateLicenseUtils.jsp" />
+<script>
+    function submitLicenseTODO() {
+        if(permissions.write) {
+            submitModerationRequestTODO();
+        } else {
+            openModerationDialogTODO();
+        }
+    }
+
+    function openModerationDialogTODO() {
+        $("#moderationRequestCommentDialogTODO").show();
+    }
+
+    function submitModerationRequestTODO() {
+        $('#AddTodoModal').submit();
+    }
+</script>

@@ -58,6 +58,7 @@
         release="${release}"/></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
+<%@include file="/html/moderation/includes/moderationInfo.jspf"%>
 
 <h2>Proposed changes</h2>
 <h3>Basic fields</h3>

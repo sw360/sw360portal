@@ -344,7 +344,8 @@
                         url: '<%=deleteAjaxURL%>',
                         cache: false,
                         data: {
-                            <portlet:namespace/>componentid: id
+                            <portlet:namespace/>componentid: id,
+                            "<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>": btoa($("#moderationDeleteCommentField").val())
                         },
 
                         success: function (data) {
@@ -371,6 +372,7 @@
                 } else {
                     var confirmMessage = "Do you really want to delete the component <b>" + name + "</b> ?";
                     confirmMessage += (attachmentsSize > 0) ? "<br/><br/>The component <b>" + name + "</b> contains<br/><ul><li>" + attachmentsSize + " attachments</li></ul>" : "";
+                    confirmMessage += '<div><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
                     confirm.confirmDeletion(confirmMessage, deleteComponentInternal);
                 }
             }

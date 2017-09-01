@@ -22,10 +22,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.common.SW360Constants;
-import org.eclipse.sw360.datahandler.common.SW360Utils;
-import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
+import org.eclipse.sw360.datahandler.common.*;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -317,7 +314,12 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private RequestStatus removeProject(PortletRequest request) {
         String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        String encodedDeleteComment = request.getParameter(PortalConstants.MODERATION_REQUEST_COMMENT);
         final User user = UserCacheHolder.getUserFromRequest(request);
+        if(encodedDeleteComment != null) {
+            String deleteComment = new String(Base64.getDecoder().decode(encodedDeleteComment));
+            user.setCommentMadeDuringModerationRequest(deleteComment);
+        }
 
         try {
             deleteUnneededAttachments(user.getEmail(), projectId);
@@ -535,6 +537,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(PROJECT_LIST, projectList);
         List<Organization> organizations = UserUtils.getOrganizations(request);
         request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
+
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        request.setAttribute(PortalConstants.CURRENT_USER, user);
     }
 
     private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
@@ -786,6 +791,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void prepareProjectEdit(RenderRequest request) {
         User user = UserCacheHolder.getUserFromRequest(request);
+        request.setAttribute(CURRENT_USER, user);
         String id = request.getParameter(PROJECT_ID);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
         Project project;
@@ -891,6 +897,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             if (id != null) {
                 Project project = client.getProjectByIdForEdit(id, user);
                 ProjectPortletUtils.updateProjectFromRequest(request, project);
+                String ModerationRequestCommentMsg = request.getParameter(MODERATION_REQUEST_COMMENT);
+                user.setCommentMadeDuringModerationRequest(ModerationRequestCommentMsg);
                 requestStatus = client.updateProject(project, user);
                 setSessionMessage(request, requestStatus, "Project", "update", printName(project));
                 cleanUploadHistory(user.getEmail(), id);

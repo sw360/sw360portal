@@ -13,6 +13,8 @@ package org.eclipse.sw360.users.db;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.db.UserRepository;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
+import org.eclipse.sw360.datahandler.thrift.ThriftValidate;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.mail.MailConstants;
@@ -48,19 +50,21 @@ public class UserDatabaseHandler {
         return db.get(User.class, email);
     }
 
-    public RequestStatus addUser(User user) {
-        // Set id to email, in order to have human readable database
-        user.setId(user.getEmail());
+    private void prepareUser(User user) throws SW360Exception {
+        // Prepare component for database
+        ThriftValidate.prepareUser(user);
+    }
 
+    public RequestStatus addUser(User user) throws SW360Exception {
+        prepareUser(user);
         // Add to database
         db.add(user);
 
         return RequestStatus.SUCCESS;
     }
 
-    public RequestStatus updateUser(User user) {
-        // Set id to email, in order to have human readable database
-        user.setId(user.getEmail());
+    public RequestStatus updateUser(User user) throws SW360Exception {
+        prepareUser(user);
         db.update(user);
 
         return RequestStatus.SUCCESS;

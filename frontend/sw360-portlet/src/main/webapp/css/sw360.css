@@ -499,3 +499,31 @@ input[readonly].clickable {
     white-space:nowrap;
     text-overflow: ellipsis;
 }
+
+.moderationComment {
+    resize: none;
+    outline: none;
+    overflow: auto;
+    background-color: white !important;
+    width: 95% !important;
+    height: 4em !important;
+}
+
+.moderationCreationComment {
+    resize: none;
+    outline: none;
+    overflow: auto;
+    background-color: white !important;
+    width: 85% !important;
+    height: 4em !important;
+}
+
+.moderation_request_info_table {
+    width: 49% !important;
+    float: left;
+}
+
+.moderation_decision_info_table {
+    width: 49% !important;
+    float: right;
+}

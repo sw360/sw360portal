@@ -112,6 +112,12 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                 ModerationService.Iface client = thriftClients.makeModerationClient();
                 ModerationRequest moderationRequest = client.getModerationRequestById(id);
                 String action = request.getParameter(ACTION);
+                String encodedModerationComment = request.getParameter(MODERATION_DECISION_COMMENT);
+                String moderationComment = "";
+                if (encodedModerationComment != null) {
+                    moderationComment = new String(Base64.getDecoder().decode(encodedModerationComment));
+                }
+
                 if (ACTION_CANCEL.equals(action)) {
                     client.cancelInProgress(id);
 
@@ -119,20 +125,24 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                 } else if (ACTION_DECLINE.equals(action)) {
                     declineModerationRequest(user, moderationRequest, request);
 
-                    client.refuseRequest(id);
-                    sessionMessage = "You have declined the previous moderation request";
+                    client.refuseRequest(id, moderationComment);
+                    sessionMessage = "You have declined the previous moderation request.";
                 } else if (ACTION_ACCEPT.equals(action)) {
                     String requestingUserEmail = moderationRequest.getRequestingUser();
                     User requestingUser = UserCacheHolder.getUserFromEmail(requestingUserEmail);
                     acceptModerationRequest(user, requestingUser, moderationRequest, request);
 
                     moderationRequest.setModerationState(ModerationState.APPROVED);
+                    moderationRequest.setTimestampOfDecision(System.currentTimeMillis());
                     moderationRequest.setReviewer(user.getEmail());
+                    moderationRequest.setCommentDecisionModerator(moderationComment);
                     client.updateModerationRequest(moderationRequest);
 
                     sessionMessage = "You have accepted the previous moderation request.";
                 } else if (ACTION_POSTPONE.equals(action)) {
-                    // keep me assigned but do it later... so nothing to be done here
+                    // keep me assigned but do it later... so nothing to be done here, just update the comment message
+                    moderationRequest.setCommentDecisionModerator(moderationComment);
+                    client.updateModerationRequest(moderationRequest);
                     sessionMessage = "You have postponed the previous moderation request.";
                 } else if (ACTION_RENDER_NEXT_AFTER_UNSUBSCRIBE.equals(action)) {
                     sessionMessage = "You are removed from the list of moderators for the previous moderation request.";
@@ -441,7 +451,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     private boolean refuseToDeleteUsedDocument(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user, boolean requestDocumentDelete, Boolean is_used) throws TException, IOException, PortletException {
         if (requestDocumentDelete && is_used) {
             ModerationService.Iface client = thriftClients.makeModerationClient();
-            client.refuseRequest(moderationRequest.getId());
+            client.refuseRequest(moderationRequest.getId(), "");
             renderNextModeration(request, response, user, "Ignored delete of used target", client, moderationRequest);
             return true;
         }

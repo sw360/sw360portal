@@ -19,6 +19,7 @@
 <%@ page import="org.eclipse.sw360.portal.portlets.Sw360Portlet" %>
 <%@ page import="org.eclipse.sw360.portal.portlets.projects.ProjectPortlet" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
 
 <portlet:actionURL var="updateComponentURL" name="updateComponent">
     <portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/>
@@ -41,6 +42,7 @@
 
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
+    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
     <jsp:useBean id="documentID" class="java.lang.String" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
 
@@ -49,6 +51,7 @@
 
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>"
                  scope="request"/>
+    <jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
 </c:catch>
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
@@ -76,10 +79,11 @@
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${component.name}"/></span>
             <core_rt:if test="${not componentDivAddMode}">
-                <input id="deleteComponentButton" type="button" class="addButton" value="Delete <sw360:out value="${component.name}"/> "
-                    <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the component is used." </core_rt:if>
-                    <core_rt:if test="${component.releasesSize>0}"> disabled="disabled" title="Deletion is disabled as the component contains releases." </core_rt:if>
-                />
+                <input id="deleteComponentButton" type="button" class="addButton"
+                       value="Delete <sw360:out value="${component.name}"/>"
+                <core_rt:if test="${usingComponents.size()>0 or usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the component is used." </core_rt:if>
+                <core_rt:if test="${component.releasesSize>0}"> disabled="disabled" title="Deletion is disabled as the component contains releases." </core_rt:if>
+                >
             </core_rt:if>
         </p>
         <core_rt:if test="${not componentDivAddMode}">
@@ -91,11 +95,18 @@
             <br>
             <hr>
             <input type="button" id="formSubmit" value="Update Component" class="addButton">
+            <br>
         </core_rt:if>
         <core_rt:if test="${componentDivAddMode}">
             <input type="button" id="formSubmit" value="Add Component" class="addButton">
         </core_rt:if>
-        <input id="cancelEditButton" type="button" value="Cancel" class="cancelButton">
+        <input type="button" value="Cancel" class="cancelButton" id="componentEditCancelButton">
+        <div id="moderationRequestCommentDialog" style="display: none">
+            <hr>
+            <label class="textlabel stackedLabel">Comment your changes</label>
+            <textarea form=componentEditForm name="<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>" id="moderationRequestCommentField" class="moderationCreationComment" placeholder="Leave a comment on your request"></textarea>
+            <input type="button" class="addButton" id="moderationRequestCommentSendButton" value="Send moderation request">
+        </div>
     </div>
 
     <%@ include file="/html/utils/includes/requirejs.jspf" %>
@@ -117,14 +128,18 @@
 </core_rt:if>
 
 <script>
-/* variables used in releaseTools.js ... */
-var releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>',
-    compIdInURL = '<%=PortalConstants.COMPONENT_ID%>',
-    componentId = '${component.id}',
-    pageName = '<%=PortalConstants.PAGENAME%>',
-    pageDetail = '<%=PortalConstants.PAGENAME_EDIT_RELEASE%>',
-    /* baseUrl also used in method in require block */
-    baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
+    var permissions = {  'write':  ${permissions.makePermission(component, currentUser).isActionAllowed(RequestedAction.DELETE)},
+                         'delete': ${permissions.makePermission(component, currentUser).isActionAllowed(RequestedAction.WRITE)}
+    };
+
+    /* variables used in releaseTools.js ... */
+    var releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>',
+        compIdInURL = '<%=PortalConstants.COMPONENT_ID%>',
+        componentId = '${component.id}',
+        pageName = '<%=PortalConstants.PAGENAME%>',
+        pageDetail = '<%=PortalConstants.PAGENAME_EDIT_RELEASE%>',
+        /* baseUrl also used in method in require block */
+        baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
 
 require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/confirm' ], function($, sw360Validate, autocomplete, confirm) {
 
@@ -155,8 +170,35 @@ require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/con
         });
     }
 
+    function openDeleteDialog() {
+        var htmlDialog  = '' + '<div>' +
+            'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?' +
+            '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b>contains<br/><ul><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></ul></core_rt:if>' +
+            '</div>' +
+            '<div ' + styleAsHiddenIfNeccessary(permissions.delete) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+        deleteConfirmed(htmlDialog, deleteComponent);
+    }
+
     function deleteComponent() {
-        window.location.href = '<%=deleteComponentURL%>';
+        var commentText_encoded = btoa($("#moderationDeleteCommentField").val());
+        var baseUrl = '<%=deleteComponentURL%>';
+        var deleteURL = Liferay.PortletURL.createURL( baseUrl ).setParameter('<%=PortalConstants.MODERATION_REQUEST_COMMENT%>',commentText_encoded);
+        window.location.href = deleteURL;
+    }
+
+    function focusOnCommentField() {
+        $("#moderationRequestCommentField").focus();
+        $("#moderationRequestCommentField").select();
+    }
+
+    function showCommentField() {
+        $("#moderationRequestCommentDialog").show();
+        $("#formSubmit").attr("disabled","disabled");
+        focusOnCommentField();
+    }
+
+    function submitModerationRequest() {
+        $('#componentEditForm').submit();
     }
 
 
@@ -164,15 +206,9 @@ require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/con
         var contextpath = '<%=request.getContextPath()%>',
             deletionMessage;
 
-        $('#cancelEditButton').click(function() {
-            cancel();
-        });
-
-        deletionMessage = 'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?'  +
-            '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b>contains<br/><ul><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></ul></core_rt:if>';
-        $('#deleteComponentButton').click(function() {
-            confirm.confirmDeletion(deletionMessage, deleteComponent);
-        });
+        $('#moderationRequestCommentSendButton').on('click', submitModerationRequest);
+        $('#componentEditCancelButton').on('click', cancel);
+        $('#deleteComponentButton').on('click', openDeleteDialog);
 
         autocomplete.prepareForMultipleHits('comp_platforms', ${softwarePlatformsAutoC});
         autocomplete.prepareForMultipleHits('comp_categories', ${componentCategoriesAutocomplete});
@@ -180,9 +216,14 @@ require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/con
         sw360Validate.validateWithInvalidHandler('#componentEditForm');
 
         $('#formSubmit').click(
-            function () {
-                $('#componentEditForm').submit();
-            }
+                function () {
+                    if(permissions.write || ${componentDivAddMode}) {
+                        $('#componentEditForm').submit();
+                    }
+                    else {
+                        showCommentField();
+                    }
+                }
         );
     });
 });

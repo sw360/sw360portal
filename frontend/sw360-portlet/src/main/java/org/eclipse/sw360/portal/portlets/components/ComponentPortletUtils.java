@@ -29,10 +29,7 @@ import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
@@ -196,6 +193,12 @@ public abstract class ComponentPortletUtils {
         String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
         if (releaseId != null) {
             try {
+                String deleteCommentEncoded = request.getParameter(PortalConstants.MODERATION_REQUEST_COMMENT);
+                User user = UserCacheHolder.getUserFromRequest(request);
+                if(deleteCommentEncoded != null) {
+                    String deleteComment = new String(Base64.getDecoder().decode(deleteCommentEncoded));
+                    user.setCommentMadeDuringModerationRequest(deleteComment);
+                }
                 ComponentService.Iface client = new ThriftClients().makeComponentClient();
                 return client.deleteRelease(releaseId, UserCacheHolder.getUserFromRequest(request));
 
@@ -252,8 +255,15 @@ public abstract class ComponentPortletUtils {
         String id = request.getParameter(PortalConstants.COMPONENT_ID);
         if (id != null) {
             try {
+                String deleteCommentEncoded = request.getParameter(PortalConstants.MODERATION_REQUEST_COMMENT);
+                User user = UserCacheHolder.getUserFromRequest(request);
+                if(deleteCommentEncoded != null) {
+                    String deleteComment = new String(Base64.getDecoder().decode(deleteCommentEncoded));
+                    user.setCommentMadeDuringModerationRequest(deleteComment);
+                }
+
                 ComponentService.Iface client = new ThriftClients().makeComponentClient();
-                return client.deleteComponent(id, UserCacheHolder.getUserFromRequest(request));
+                return client.deleteComponent(id, user);
 
             } catch (TException e) {
                 log.error("Could not delete component from DB", e);

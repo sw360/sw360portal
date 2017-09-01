@@ -140,9 +140,12 @@ public class ThriftValidate {
     public static void prepareUser(User user) throws SW360Exception {
         // Check required fields
         assertNotEmpty(user.getEmail());
+        // Set id to email, in order to have human readable database
         user.setId(user.getEmail());
-        // Check type
+        // Set type
         user.setType(TYPE_USER);
+        // guarantee that `CommentMadeDuringModerationRequest` is never stored in the database as this is intended to be a transient field
+        user.unsetCommentMadeDuringModerationRequest();
     }
 
     public static void prepareVendor(Vendor vendor) throws SW360Exception {
