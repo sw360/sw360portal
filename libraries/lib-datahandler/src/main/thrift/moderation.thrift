@@ -28,6 +28,7 @@ typedef projects.Project Project
 typedef users.User User
 typedef licenses.License License
 typedef licenses.Todo Todo
+typedef components.ComponentType ComponentType
 
 enum DocumentType {
     COMPONENT = 1,
@@ -56,9 +57,9 @@ struct ModerationRequest {
     17: optional string reviewer,
     18: required bool requestDocumentDelete,
     19: optional string requestingUserDepartment,
+    40: optional ComponentType componentType, // only relevant if the request is about components or releases
     34: optional string commentRequestingUser,
     35: optional string commentDecisionModerator,
-
     // Underlying objects
     20: optional Component componentAdditions,
     21: optional Release releaseAdditions,
