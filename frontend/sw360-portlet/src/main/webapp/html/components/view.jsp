@@ -68,7 +68,7 @@
 <div id="header"></div>
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Components</span>
-    <span class="pageHeaderMediumSpan">(<core_rt:if test="${componentList.size() == totalRows}">${totalRows}</core_rt:if><core_rt:if test="${componentList.size() != totalRows}">${componentList.size()} latest of ${totalRows}</core_rt:if>)</span>
+    <span class="pageHeaderMediumSpan">(<core_rt:if test="${componentList.size() == totalRows}"><span id="componentCounter">${totalRows}</span></core_rt:if><core_rt:if test="${componentList.size() != totalRows}"><span id="componentCounter1">${componentList.size()}</span> latest of <span id="componentCounter2">${totalRows}</span></core_rt:if>)</span>
     <span class="pull-right">
           <input type="button" class="addButton" onclick="window.location.href='<%=addComponentURL%>'"
                 value="Add Component">
@@ -351,6 +351,9 @@
                         success: function (data) {
                             if (data.result == 'SUCCESS') {
                                 componentsTable.row('#' + id).remove().draw(false);
+                                $.each([$('#componentCounter'), $('#componentCounter1'), $('#componentCounter2')], function (i, counter) {
+                                    counter.text(counter.text() - 1);
+                                });
                             }
                             else if (data.result == 'SENT_TO_MODERATOR') {
                                 $.alert("You may not delete the component, but a request was sent to a moderator!");
