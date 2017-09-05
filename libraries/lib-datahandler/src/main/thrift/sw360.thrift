@@ -24,6 +24,7 @@ enum RequestStatus {
     SENT_TO_MODERATOR = 1,
     FAILURE = 2,
     IN_USE=3,
+    FAILED_SANITY_CHECK = 4,
 }
 
 enum RemoveModeratorRequestStatus {

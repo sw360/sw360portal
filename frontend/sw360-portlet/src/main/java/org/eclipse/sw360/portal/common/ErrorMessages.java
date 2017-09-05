@@ -37,13 +37,14 @@ public class ErrorMessages {
     public static final String EXTERNAL_ID_CANNOT_BE_EMPTY = "External ID cannot be empty.";
     public static final String PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty.";
     public static final String PASSWORDS_DONT_MATCH = "Password do not match.";
-    public static final String COULD_NOT_CREATE_USER_MODERATION_REQUEST = "Could not create user moderation request";
+    public static final String COULD_NOT_CREATE_USER_MODERATION_REQUEST = "Could not create user moderation request.";
     public static final String EMAIL_ALREADY_EXISTS = "Email already exists.";
     public static final String FULL_NAME_ALREADY_EXISTS = "Full name already exists.";
     public static final String EXTERNAL_ID_ALREADY_EXISTS = "External id already exists.";
     public static final String DEFAULT_ERROR_MESSAGE = "Request could not be processed.";
     public static final String DOCUMENT_NOT_AVAILABLE = "The requested document is not available.";
     public static final String LICENSE_SHORTNAME_TAKEN = "License shortname is already taken.";
+    public static final String UPDATE_FAILED_SANITY_CHECK = "Document update has been rejected; cannot delete all linked releases or projects at once.";
 
     //this map is used in errorKeyToMessage.jspf to generate key-value pairs for the liferay-ui error tag
     public static final ImmutableList<String> allErrorMessages = ImmutableList.<String>builder()
@@ -74,6 +75,7 @@ public class ErrorMessages {
             .add(ERROR_GETTING_RELEASE)
             .add(ERROR_GETTING_LICENSE)
             .add(LICENSE_SHORTNAME_TAKEN)
+            .add(UPDATE_FAILED_SANITY_CHECK)
             .build();
 
     private ErrorMessages() {
