@@ -15,6 +15,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -60,6 +61,7 @@
 <%--These variables are used as a trick to allow referencing enum values in EL expressions below--%>
 <c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
 <c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
+<c:set var="hasWritePermissions" value="${release.permissions[WRITE]}"/>
 
 <%@include file="/html/utils/includes/logError.jspf" %>
 
@@ -95,8 +97,8 @@
                         <core_rt:if test="${not addMode}">
                             <li><a href="#tab-ReleaseClearingInformation">Clearing Details</a></li>
                             <li><a href="#tab-ReleaseECCInformation">ECC Details</a></li>
+                            <li><a href="#tab-Attachments">Attachments</a></li>
                         </core_rt:if>
-                        <li><a href="#tab-Attachments">Attachments</a></li>
                         <core_rt:if test="${cotsMode}">
                             <li><a href="#tab-COTSDetails">Commercial Details</a></li>
                         </core_rt:if>
@@ -119,16 +121,16 @@
                             <%@include file="/html/utils/includes/editLinkedReleases.jspf" %>
                         </div>
                         <core_rt:if test="${not addMode}">
-                            <div id="tab-ReleaseClearingInformation">
-                               <%@include file="/html/components/includes/releases/editReleaseClearingInformation.jspf" %>
-                            </div>
-                            <div id="tab-ReleaseECCInformation">
-                                <%@include file="/html/components/includes/releases/editReleaseECCInformation.jspf" %>
-                            </div>
-                        </core_rt:if>
+                        <div id="tab-ReleaseClearingInformation">
+                                <%@include file="/html/components/includes/releases/editReleaseClearingInformation.jspf" %>
+                             </div>
+                             <div id="tab-ReleaseECCInformation">
+                                 <%@include file="/html/components/includes/releases/editReleaseECCInformation.jspf" %>
+                             </div>
                         <div id="tab-Attachments">
                             <%@include file="/html/utils/includes/editAttachments.jspf" %>
                         </div>
+                        </core_rt:if>
                         <core_rt:if test="${cotsMode}">
                             <div id="tab-COTSDetails">
                                 <%@include file="/html/components/includes/releases/editCommercialDetails.jspf" %>

@@ -15,16 +15,18 @@
     Required Imports:       - org.eclipse.sw360.portal.common.PortalConstants
                             - org.eclipse.sw360.datahandler.thrift.attachments.Attachment
                             - org.eclipse.sw360.datahandler.thrift.components.Release
+                            - org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus
 
     Required Beans:         - documentID
                             - documentType
+
+    Required variables:     - hasWritePermissions
 
     Required Stylesheets:   - jquery-ui
                             - jquery-confirm
 
     Included JSPFs:         - utils/includes/attachmentsUpload
 --%>
-
 <portlet:resourceURL var="attachmentListAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.ATTACHMENT_LIST%>'/>
     <portlet:param name="<%=PortalConstants.DOCUMENT_ID%>" value="${documentID}"/>
@@ -120,7 +122,7 @@
               /*  8 */ { data: "checkedTeam", defaultContent: "", render: $.fn.dataTable.render.ellipsis },
               /*  9 */ { data: "checkedBy", defaultContent: "", render: $.fn.dataTable.render.ellipsis },
               /* 10 */ { data: "checkedOn", defaultContent: "" },
-              /* 11 */ { data: "actions", orderable: false, render: $.fn.dataTable.render.actions( [{ key: 'attachmentContentId', 'class': 'delete-attachment', icon: 'Trash', title: 'Delete Attachment' }] ) }
+              /* 11 */ { data: "actions", orderable: false, render: $.fn.dataTable.render.actions( [{ key: 'attachmentContentId', 'class': 'delete-attachment', icon: 'Trash', title: 'Delete Attachment', approvalKey: 'checkStatus'}] ) }
             ],
             columnDefs: [{
                   targets: 1,
@@ -173,9 +175,12 @@
 
         $('#attachmentInfo').on('click', 'img.delete-attachment', function(event) {
             var data = $(event.currentTarget).data();
-            deleteAttachment(data.key);
+            if(data.approvalstate != <%=CheckStatus.ACCEPTED.getValue()%>) {
+                deleteAttachment(data.key);
+            } else {
+                displayDeleteNotAllowedWarning();
+            }
         });
-
 
         // helper methods
         function renderFilename(filename, type, row) {
@@ -197,6 +202,24 @@
             }
 
             confirm.confirmDeletion("Do you really want to delete attachment <b>" + attachmentName + "</b> (" + attachmentId + ")?", deleteAttachmentInternal);
+        }
+
+        function displayDeleteNotAllowedWarning() {
+            var warningMessage = "<p>An attachment cannot be deleted while it is approved. You have to reject the approval first.</p>";
+            <core_rt:if test="${hasWritePermissions == false}">
+                warningMessage += "<p>For this, you have to create a moderation request.</p>";
+            </core_rt:if>
+            $.confirm({
+                title: 'Warning',
+                content: warningMessage,
+                buttons: {
+                    cancel: function() {
+                        // close
+                    }
+                },
+                escapeKey: 'cancel',
+                animation: 'zoom',
+            });
         }
     });
 </script>

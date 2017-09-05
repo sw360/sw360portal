@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -27,10 +28,12 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.closeQuietly;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyCollection;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotEmpty;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 
 import org.apache.log4j.Logger;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.ektorp.http.HttpClient;
 
 /**
@@ -75,7 +78,7 @@ public class AttachmentConnector extends AttachmentStreamConnector {
     }
 
     public void deleteAttachments(Collection<Attachment> attachments) {
-        Set<String> attachmentContentIds = getAttachmentContenIds(attachments);
+        Set<String> attachmentContentIds = getAttachmentContentIds(attachments);
         deleteAttachmentsByIds(attachmentContentIds);
     }
 
@@ -83,18 +86,19 @@ public class AttachmentConnector extends AttachmentStreamConnector {
         connector.deleteIds(attachmentContentIds, AttachmentContent.class);
     }
 
-    private Set<String> getAttachmentContenIds(Collection<Attachment> attachments) {
+    private Set<String> getAttachmentContentIds(Collection<Attachment> attachments) {
         return nullToEmptyCollection(attachments).stream()
                 .map(Attachment::getAttachmentContentId)
                 .collect(Collectors.toSet());
     }
 
-    public void deleteAttachmentDifference(Set<Attachment> before, Set<Attachment> after){
+    public void deleteAttachmentDifference(Set<Attachment> attachmentsBefore, Set<Attachment> attachmentsAfter) {
         // it is important to take the set difference between sets of ids, not of attachments themselves
-        // otherwise, when `after` contains the same attachment (with the same id), but with one field changed (e.g. sha1),
+        // otherwise, when `attachmentsAfter` contains the same attachment (with the same id), but with one field changed (e.g. sha1),
         // then they are considered unequal and the set difference will contain this attachment and therefore
-        // deleteAttachments(Collection<Attachment>) will delete an attachment that is present in `after`
-        deleteAttachmentsByIds(Sets.difference(getAttachmentContenIds(before), getAttachmentContenIds(after)));
+        // deleteAttachments(Collection<Attachment>) will delete an attachment that is present in `attachmentsAfter`
+        Set<Attachment> nonAcceptedAttachmentsBefore = nullToEmptySet(attachmentsBefore).stream().filter(a -> a.getCheckStatus() != CheckStatus.ACCEPTED).collect(Collectors.toSet());
+        deleteAttachmentsByIds(Sets.difference(getAttachmentContentIds(nonAcceptedAttachmentsBefore), getAttachmentContentIds(attachmentsAfter)));
     }
 
     public String getSha1FromAttachmentContentId(String attachmentContentId) {

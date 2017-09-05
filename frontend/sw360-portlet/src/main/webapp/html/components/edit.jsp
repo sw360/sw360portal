@@ -15,6 +15,7 @@
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="org.eclipse.sw360.portal.portlets.projects.ProjectPortlet" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -57,6 +58,7 @@
 <%--These variables are used as a trick to allow referencing enum values in EL expressions below--%>
 <c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
 <c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
+<c:set var="hasWritePermissions" value="${component.permissions[WRITE]}"/>
 
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">

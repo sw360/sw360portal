@@ -12,6 +12,7 @@ package org.eclipse.sw360.datahandler.couchdb;
 
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +67,34 @@ public class AttachmentConnectorTest {
 
         attachmentConnector.deleteAttachmentDifference(before, after);
         verify(connector).deleteIds(deletedIds, AttachmentContent.class);
+    }
+
+    @Test
+    public void testDeleteAttachmentsDifferenceOnlyNonAcceptedIsDeleted() throws Exception {
+        Attachment a1 = mock(Attachment.class);
+        when(a1.getAttachmentContentId()).thenReturn("a1");
+
+        Attachment a2 = mock(Attachment.class);
+        when(a2.getAttachmentContentId()).thenReturn("a2");
+        when(a2.getCheckStatus()).thenReturn(CheckStatus.REJECTED);
+
+        Attachment a3 = mock(Attachment.class);
+        when(a3.getAttachmentContentId()).thenReturn("a3");
+        when(a3.getCheckStatus()).thenReturn(CheckStatus.ACCEPTED);
+
+        Set<Attachment> before = new HashSet<>();
+        before.add(a1);
+        before.add(a2);
+        before.add(a3);
+
+        Set<Attachment> after = new HashSet<>();
+        after.add(a1);
+
+        Set<String> expectedIdsToDelete = new HashSet<>();
+        expectedIdsToDelete.add("a2");
+
+        attachmentConnector.deleteAttachmentDifference(before, after);
+        verify(connector).deleteIds(expectedIdsToDelete, AttachmentContent.class);
     }
 
 
