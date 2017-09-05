@@ -95,9 +95,11 @@
         function showProjectDialog() {
             openDialog('search-project-form', 'searchproject');
             if (firstRunForProjectsTable) {
-                toggleProjectSearchNotification();
                 makeProjectsDataTable();
                 firstRunForProjectsTable = false;
+            }
+            if ($('#searchbuttonproject').attr('disabled') == 'disabled') {
+                toggleProjectSearchNotification();
             }
         }
 

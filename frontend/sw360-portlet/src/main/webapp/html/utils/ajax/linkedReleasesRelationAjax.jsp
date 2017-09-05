@@ -20,7 +20,8 @@
 <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
 
 <core_rt:forEach items="${releaseList}" var="releaseLink" varStatus="loop">
-    <tr id="releaseLinkRow${loop.count}" >
+    <core_rt:set var="uuid" value="${releaseLink.id}"/>
+    <tr id="releaseLinkRow${uuid}" >
         <td width="23%">
             <label class="textlabel stackedLabel" for="releaseVendor">Vendor name</label>
             <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="Enter vendor"
@@ -48,7 +49,7 @@
             </select>
         </td>
         <td class="deletor">
-            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${loop.count}')" alt="Delete">
+            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${uuid}')" alt="Delete">
         </td>
 
     </tr>

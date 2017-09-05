@@ -25,7 +25,8 @@
 
 
 <core_rt:forEach items="${projectList}" var="projectLink" varStatus="loop">
-    <tr id="projectLinkRow${loop.count}" >
+    <core_rt:set var="uuid" value="${projectLink.id}"/>
+    <tr id="projectLinkRow${uuid}" >
         <td width="32%">
             <input type="hidden" value="${projectLink.id}" name="<portlet:namespace/><%=Project._Fields.LINKED_PROJECTS%><%=ProjectLink._Fields.ID%>">
             <label class="textlabel stackedLabel" for="projectName">Project name</label>
@@ -49,7 +50,7 @@
         </td>
 
         <td class="deletor">
-            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteProjectLink('projectLinkRow${loop.count}')" alt="Delete">
+            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteProjectLink('projectLinkRow${uuid}')" alt="Delete">
         </td>
 
     </tr>
