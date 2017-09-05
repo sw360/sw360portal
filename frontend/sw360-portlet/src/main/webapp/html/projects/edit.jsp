@@ -35,7 +35,8 @@
 
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
-    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
+    <jsp:useBean id="permissionWrite" type="java.lang.Boolean" scope="request" />
+    <jsp:useBean id="permissionDelete" type="java.lang.Boolean" scope="request" />
     <jsp:useBean id="documentID" class="java.lang.String" scope="request" />
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
@@ -116,8 +117,8 @@
 <script>
     require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
 
-    var permissions = {  'write':  ${permissions.makePermission(project, currentUser).isActionAllowed(RequestedAction.DELETE)},
-                         'delete': ${permissions.makePermission(project, currentUser).isActionAllowed(RequestedAction.WRITE)}
+    var permissions = {  'write':  ${permissionWrite},
+                         'delete': ${permissionDelete}
                       };
 
 

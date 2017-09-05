@@ -791,7 +791,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void prepareProjectEdit(RenderRequest request) {
         User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(CURRENT_USER, user);
         String id = request.getParameter(PROJECT_ID);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
         Project project;
@@ -812,6 +811,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             request.setAttribute(PROJECT, project);
             request.setAttribute(DOCUMENT_ID, id);
 
+            request.setAttribute(PERMISSION_WRITE, PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE));
+            request.setAttribute(PERMISSION_DELETE, PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.DELETE));
+
             setAttachmentsInRequest(request, project.getAttachments());
             try {
                 putDirectlyLinkedProjectsInRequest(request, project, user);
@@ -831,6 +833,10 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 project = new Project();
                 project.setBusinessUnit(user.getDepartment());
                 request.setAttribute(PROJECT, project);
+
+                request.setAttribute(PERMISSION_WRITE, PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE));
+                request.setAttribute(PERMISSION_DELETE, PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.DELETE));
+
                 setAttachmentsInRequest(request, project.getAttachments());
                 try {
                     putDirectlyLinkedProjectsInRequest(request, project, user);

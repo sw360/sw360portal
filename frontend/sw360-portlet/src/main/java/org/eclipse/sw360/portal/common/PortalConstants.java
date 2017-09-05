@@ -226,6 +226,10 @@ public class PortalConstants {
 
     //! Serve resource keywords
 
+    //! Permissions
+    public static final String PERMISSION_WRITE = "permissionWrite";
+    public static final String PERMISSION_DELETE = "permissionDelete";
+
     //! Actions
     // attachment actions
     public static final String ATTACHMENT_PREFIX = "Attachment";
