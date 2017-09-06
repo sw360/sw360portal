@@ -165,7 +165,6 @@ public class LicensesPortlet extends Sw360Portlet {
         String id = request.getParameter(LICENSE_ID);
         User user = UserCacheHolder.getUserFromRequest(request);
         request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "Nope");
-        request.setAttribute(CURRENT_USER, user);
         if (id != null) {
             try {
                 LicenseService.Iface client = thriftClients.makeLicenseClient();

@@ -10,6 +10,9 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
+<%--This variable is used as a trick to allow referencing enum value in EL expression below--%>
+<c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
+
 <core_rt:if test="${editMode}">
     <form action="${editLicenseTodosURL}" method="post" id="FormTodosWhitelist" name="FormTodosWhitelist">
 </core_rt:if>
@@ -183,14 +186,16 @@
     <input type="button" class="addButton" onclick="submitModerationRequestWhiteList()" id="moderationRequestCommentSendButton" value="Send moderation request">
 </div>
 
-<jsp:include page="/html/licenses/includes/updateLicenseUtils.jsp" />
 <script>
     function submitFormWhiteList() {
-        if(permissions.write) {
-            submitModerationRequestWhiteList();
-        } else {
-            openModerationDialogWhiteList();
-        }
+        <core_rt:choose>
+            <core_rt:when test="${licenseDetail.permissions[WRITE]}">
+                submitModerationRequestWhiteList();
+            </core_rt:when>
+            <core_rt:otherwise>
+                openModerationDialogWhiteList();
+            </core_rt:otherwise>
+        </core_rt:choose>
     }
 
     function openModerationDialogWhiteList() {

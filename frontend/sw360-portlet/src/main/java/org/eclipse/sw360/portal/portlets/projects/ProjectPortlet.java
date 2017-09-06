@@ -537,9 +537,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(PROJECT_LIST, projectList);
         List<Organization> organizations = UserUtils.getOrganizations(request);
         request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
-
-        final User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(PortalConstants.CURRENT_USER, user);
     }
 
     private List<Project> getFilteredProjectList(PortletRequest request) throws IOException {
@@ -791,7 +788,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void prepareProjectEdit(RenderRequest request) {
         User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(CURRENT_USER, user);
         String id = request.getParameter(PROJECT_ID);
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
         Project project;
