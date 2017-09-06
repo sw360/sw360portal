@@ -19,6 +19,7 @@ import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.eclipse.sw360.datahandler.thrift.components.*;
+import org.eclipse.sw360.datahandler.thrift.moderation.DocumentType;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectClearingState;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectState;
@@ -238,6 +239,14 @@ public class ThriftEnumUtils {
             ECCStatus.REJECTED, "Rejected"
     );
 
+    private static final ImmutableMap<DocumentType, String> MAP_DOCUMENT_TYPE_STRING = ImmutableMap.of(
+            DocumentType.COMPONENT, "component" ,
+            DocumentType.RELEASE, "release" ,
+            DocumentType.PROJECT, "project",
+            DocumentType.LICENSE, "license",
+            DocumentType.USER, "user"
+    );
+
     public static final ImmutableMap<Class<? extends TEnum>, Map<? extends TEnum, String>>
             MAP_ENUMTYPE_MAP = ImmutableMap.<Class<? extends TEnum>, Map<? extends TEnum, String>>builder()
             .put(ComponentType.class, MAP_COMPONENT_TYPE_STRING)
@@ -259,6 +268,7 @@ public class ThriftEnumUtils {
             .put(VerificationState.class, MAP_VERIFICATION_STATUS_STRING)
             .put(VulnerabilityRatingForProject.class, MAP_VULNERABILITY_RATING_FOR_PROJECT_STRING)
             .put(ECCStatus.class, MAP_ECC_STATUS_STRING)
+            .put(DocumentType.class, MAP_DOCUMENT_TYPE_STRING)
             .build();
 
     public static String enumToString(TEnum value) {
