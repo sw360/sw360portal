@@ -35,16 +35,19 @@
 
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
-    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
     <jsp:useBean id="documentID" class="java.lang.String" scope="request" />
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
     <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
     <jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
-    <jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
 
     <core_rt:set  var="addMode"  value="${empty project.id}" />
 </c:catch>
+
+<%--These variables are used as a trick to allow referencing enum values in EL expressions below--%>
+<c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
+<c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
+
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
@@ -116,11 +119,6 @@
 <script>
     require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
 
-    var permissions = {  'write':  ${permissions.makePermission(project, currentUser).isActionAllowed(RequestedAction.DELETE)},
-                         'delete': ${permissions.makePermission(project, currentUser).isActionAllowed(RequestedAction.WRITE)}
-                      };
-
-
     function cancel() {
         deleteAttachmentsOnCancel();
 
@@ -156,7 +154,7 @@
                           '<core_rt:if test="${not empty project.attachments}" ><li><sw360:out value="${project.attachmentsSize}"/> attachments</li></core_rt:if>'  +
                           '<core_rt:if test="${not empty project.linkedProjects or not empty project.releaseIdToUsage or not empty project.attachments}" ></ul></core_rt:if>' +
                           '</div>'+
-                          '<div ' + styleAsHiddenIfNeccessary(permissions.delete) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+                          '<div ' + styleAsHiddenIfNeccessary(${project.permissions[DELETE] == true}) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
         deleteConfirmed(htmlDialog, deleteProject);
     }
 
@@ -193,14 +191,16 @@
         sw360Validate.validateWithInvalidHandlerNoIgnore('#projectEditForm');
 
         $('#formSubmit, #formSubmit2').click(
-                function() {
-                    if(permissions.write || ${addMode}) {
+            function () {
+                <core_rt:choose>
+                    <core_rt:when test="${addMode || project.permissions[WRITE]}">
                         $('#projectEditForm').submit();
-                    }
-                    else {
+                    </core_rt:when>
+                    <core_rt:otherwise>
                         showCommentField();
-                    }
-                }
+                    </core_rt:otherwise>
+                </core_rt:choose>
+            }
         );
     });
 });

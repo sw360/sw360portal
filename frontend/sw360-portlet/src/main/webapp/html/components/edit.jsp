@@ -42,7 +42,6 @@
 
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
-    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
     <jsp:useBean id="documentID" class="java.lang.String" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
 
@@ -51,8 +50,12 @@
 
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>"
                  scope="request"/>
-    <jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
 </c:catch>
+
+<%--These variables are used as a trick to allow referencing enum values in EL expressions below--%>
+<c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
+<c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
+
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
     <core_rt:set var="softwarePlatformsAutoC" value='<%=PortalConstants.SOFTWARE_PLATFORMS%>'/>
@@ -128,10 +131,6 @@
 </core_rt:if>
 
 <script>
-    var permissions = {  'write':  ${permissions.makePermission(component, currentUser).isActionAllowed(RequestedAction.DELETE)},
-                         'delete': ${permissions.makePermission(component, currentUser).isActionAllowed(RequestedAction.WRITE)}
-    };
-
     /* variables used in releaseTools.js ... */
     var releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>',
         compIdInURL = '<%=PortalConstants.COMPONENT_ID%>',
@@ -175,7 +174,7 @@ require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/con
             'Do you really want to delete the component <b><sw360:out value="${component.name}"/></b> ?' +
             '<core_rt:if test="${not empty component.attachments}" ><br/><br/>The component <b><sw360:out value="${component.name}"/></b>contains<br/><ul><li><sw360:out value="${component.attachmentsSize}"/> attachments</li></ul></core_rt:if>' +
             '</div>' +
-            '<div ' + styleAsHiddenIfNeccessary(permissions.delete) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+            '<div ' + styleAsHiddenIfNeccessary(${component.permissions[DELETE] == true}) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
         deleteConfirmed(htmlDialog, deleteComponent);
     }
 
@@ -217,12 +216,14 @@ require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/con
 
         $('#formSubmit').click(
                 function () {
-                    if(permissions.write || ${componentDivAddMode}) {
-                        $('#componentEditForm').submit();
-                    }
-                    else {
-                        showCommentField();
-                    }
+                    <core_rt:choose>
+                        <core_rt:when test="${componentDivAddMode || component.permissions[WRITE]}">
+                            $('#componentEditForm').submit();
+                        </core_rt:when>
+                        <core_rt:otherwise>
+                            showCommentField();
+                        </core_rt:otherwise>
+                    </core_rt:choose>
                 }
         );
     });

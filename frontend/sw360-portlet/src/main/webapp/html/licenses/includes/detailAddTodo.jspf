@@ -10,7 +10,10 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
-<jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
+
+<%--This variable is used as a trick to allow referencing enum value in EL expression below--%>
+<c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
+
 
 <form action="<%=addLicenseTodoURL%>" method="post" id="AddTodoModal" name="AddTodoModal">
   <table class="table">
@@ -57,14 +60,16 @@
   </div>
 </form>
 
-<jsp:include page="/html/licenses/includes/updateLicenseUtils.jsp" />
 <script>
     function submitLicenseTODO() {
-        if(permissions.write) {
-            submitModerationRequestTODO();
-        } else {
-            openModerationDialogTODO();
-        }
+        <core_rt:choose>
+            <core_rt:when test="${licenseDetail.permissions[WRITE]}">
+                submitModerationRequestTODO();
+            </core_rt:when>
+            <core_rt:otherwise>
+                openModerationDialogTODO();
+            </core_rt:otherwise>
+        </core_rt:choose>
     }
 
     function openModerationDialogTODO() {

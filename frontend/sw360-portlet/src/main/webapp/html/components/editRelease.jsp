@@ -39,13 +39,11 @@
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
     <jsp:useBean id="release" class="org.eclipse.sw360.datahandler.thrift.components.Release" scope="request"/>
-    <jsp:useBean id="currentUser" class="org.eclipse.sw360.datahandler.thrift.users.User" scope="request" />
 
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>"
                  scope="request"/>
 
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
-    <jsp:useBean id="permissions" class="org.eclipse.sw360.datahandler.permissions.PermissionUtils" scope="request" />
 
     <core_rt:set var="programmingLanguages" value='<%=PortalConstants.PROGRAMMING_LANGUAGES%>'/>
     <core_rt:set var="operatingSystemsAutoC" value='<%=PortalConstants.OPERATING_SYSTEMS%>'/>
@@ -53,6 +51,10 @@
     <core_rt:set var="addMode" value="${empty release.id}"/>
     <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 </c:catch>
+
+<%--These variables are used as a trick to allow referencing enum values in EL expressions below--%>
+<c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
+<c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
 
 <%@include file="/html/utils/includes/logError.jspf" %>
 
@@ -165,10 +167,6 @@
 <%@include file="/html/components/includes/vendors/searchVendor.jspf" %>
 
 <script>
-    var permissions = {  'write':  ${permissions.makePermission(release, currentUser).isActionAllowed(RequestedAction.DELETE)},
-                         'delete': ${permissions.makePermission(release, currentUser).isActionAllowed(RequestedAction.WRITE)}
-    };
-
     var tabView;
     var Y = YUI().use(
             'aui-tabview',
@@ -215,7 +213,7 @@
             '<core_rt:if test="${not empty release.attachments}" ><li><sw360:out value="${release.attachmentsSize}"/> attachments</li></core_rt:if>'  +
             '<core_rt:if test="${not empty release.releaseIdToRelationship or not empty release.attachments}" ></ul></core_rt:if>' +
             '</div>' +
-            '<div ' + styleAsHiddenIfNeccessary(permissions.delete) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
+            '<div ' + styleAsHiddenIfNeccessary(${release.permissions[DELETE] == true}) + '><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
         deleteConfirmed(htmlDialog, deleteRelease);
     }
 
@@ -246,12 +244,14 @@
 
         $('#formSubmit').click(
             function() {
-                if(permissions.write || ${addMode}) {
-                    $('#releaseEditForm').submit();
-                }
-                else {
-                    showCommentField();
-                }
+                <core_rt:choose>
+                    <core_rt:when test="${addMode || release.permissions[WRITE]}">
+                        $('#releaseEditForm').submit();
+                    </core_rt:when>
+                    <core_rt:otherwise>
+                        showCommentField();
+                    </core_rt:otherwise>
+                </core_rt:choose>
             }
         );
     });
