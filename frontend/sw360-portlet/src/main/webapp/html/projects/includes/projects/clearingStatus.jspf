@@ -42,62 +42,78 @@
     </div>
 </core_rt:if>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+
 <%@include file="/html/utils/includes/fossologyClearing.jspf"%>
 
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script type="text/javascript">
+    require(['jquery', 'datatables', 'datatables_buttons', 'buttons.print'], function ($) {
+        var releaseClearingTable;
 
-    var releaseClearingTable;
-
-    function renderActions(releaseId) {
-        return "<img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' " +
-                "  onclick='openSelectClearingDialog(\"releaseClearingState" + releaseId + "\",\"" + releaseId +"\")' " +
+        function renderActions(releaseId) {
+            return "<img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' " +
+                "  onclick='openSelectClearingDialog(\"releaseClearingState" + releaseId + "\",\"" + releaseId + "\")' " +
                 "  alt='SelectClearing' title='send to Fossology'>";
-    }
+        }
 
-    function createClearingTable() {
+        function createClearingTable() {
+            var result = [];
 
-        var result = [];
+            <core_rt:forEach items="${releasesAndProjects.entrySet()}" var="releasesAndProject">
+            result.push({
+                "DT_RowId": "${releasesAndProject.key.id}",
+                "0": "<sw360:DisplayReleaseLink release="${releasesAndProject.key}" showFullname="true"/>",
+                "1": "<sw360:out value="${releasesAndProject.value.projectNames}"/>",
+                "2": "<span id='releaseClearingState${releasesAndProject.key.id}'><sw360:DisplayEnum value="${releasesAndProject.key.clearingState}"/></span>",
+                "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>",
+                "4": "<sw360:out value="${releasesAndProject.value.mainlineStates}"/>"
+            });
+            </core_rt:forEach>
 
-        <core_rt:forEach items="${releasesAndProjects.entrySet()}" var="releasesAndProject">
-        result.push({
-            "DT_RowId": "${releasesAndProject.key.id}",
-            "0": "<sw360:DisplayReleaseLink release="${releasesAndProject.key}" showFullname="true"/>",
-            "1": "<sw360:out value="${releasesAndProject.value.projectNames}"/>",
-            "2": "<span id='releaseClearingState${releasesAndProject.key.id}'><sw360:DisplayEnum value="${releasesAndProject.key.clearingState}"/></span>",
-            "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>",
-            "4": "<sw360:out value="${releasesAndProject.value.mainlineStates}"/>"
+            loadDataTableExtension();
+            releaseClearingTable = $('#releasesTable').DataTable({
+                data: result,
+                dom: "lBfrtip",
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        autoPrint: true,
+                        className: 'custom-print-button',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    }
+                ],
+                columns: [
+                    {title: "Name"},
+                    {title: "Project Origin"},
+                    {title: "Clearing State"},
+                    {title: "Release Mainline State"},
+                    {title: "Project Mainline State"},
+                    {title: "Action", data: "DT_RowId", render: renderActions}
+                ],
+                pagingType: "simple_numbers",
+                autoWidth: false
+            });
+        }
+
+        function exportReleasesSpreadsheet() {
+            var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+                .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_CLEARING_TO_EXCEL%>');
+            portletURL.setParameter('<%=PortalConstants.PROJECT_ID%>', '${project.id}');
+            window.location.href = portletURL.toString();
+        }
+
+        //This can not be document ready function as liferay definitions need to be loaded first
+        $(window).load(function () {
+            createClearingTable();
         });
-        </core_rt:forEach>
-
-        loadDataTableExtension();
-        releaseClearingTable = $('#releasesTable').DataTable({
-            data: result,
-            columns: [
-                {title: "Name"},
-                {title: "Project Origin"},
-                {title: "Clearing State"},
-                {title: "Release Mainline State"},
-                {title: "Project Mainline State"},
-                {title: "Action", data: "DT_RowId", render: renderActions}
-            ],
-            pagingType: "simple_numbers",
-            autoWidth: false
-        });
-
-    }
-
-    function exportReleasesSpreadsheet() {
-        var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_CLEARING_TO_EXCEL%>');
-        portletURL.setParameter('<%=PortalConstants.PROJECT_ID%>','${project.id}');
-        window.location.href = portletURL.toString();
-    }
-
-    //This can not be document ready function as liferay definitions need to be loaded first
-    $(window).load(function () {
-        createClearingTable();
     });
 
 </script>
-
-

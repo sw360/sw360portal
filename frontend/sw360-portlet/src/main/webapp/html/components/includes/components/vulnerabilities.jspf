@@ -88,6 +88,19 @@
         vulnerabilityTable = $('#vulnerabilityTable').dataTable({
             pagingType: "simple_numbers",
             "data": result,
+            "dom": "lBfrtip",
+            "buttons": [
+                {
+                    extend: 'print',
+                    text: 'Print',
+                    autoPrint: true,
+                    className: 'custom-print-button',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+
+                }
+            ],
             "columns": [
                 {"title": "Release"},
                 {"title": "External id"},
