@@ -104,9 +104,11 @@
         function showReleaseDialog() {
             openDialog('search-release-form', 'searchrelease');
             if (firstRunForReleasesTable) {
-                toggleReleasesSearchNotification();
                 makeReleaseDataTable();
                 firstRunForReleasesTable = false;
+            }
+            if ($('#releaseSearchButton').attr('disabled') == 'disabled') {
+                toggleReleasesSearchNotification();
             }
         }
 
