@@ -30,6 +30,10 @@ import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TFieldIdEnum;
+import org.apache.thrift.meta_data.FieldMetaData;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.*;
@@ -47,19 +51,16 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TFieldIdEnum;
-import org.apache.thrift.meta_data.FieldMetaData;
 
 import javax.portlet.PortletRequest;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.lang.Integer.parseInt;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static java.lang.Integer.parseInt;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_COMPONENTS_VIEW_SIZE;
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
@@ -74,7 +75,7 @@ import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJE
  */
 public class PortletUtils {
 
-    private static final Logger log = Logger.getLogger(PortletUtils.class);
+    private static final Logger LOGGER = Logger.getLogger(PortletUtils.class);
 
     private PortletUtils() {
         // Utility class with only static functions
@@ -179,66 +180,95 @@ public class PortletUtils {
         else if (field == EccInformation._Fields.ECC_STATUS)
             return getEccStatusFromString(value);
         else {
-            log.error("Missing case in enumFromString, unknown field was " + field.toString());
+            LOGGER.error("Missing case in enumFromString, unknown field was " + field.toString());
             return null;
         }
     }
 
-
+    /**
+     * Returns a set of updated attachments from the given request.
+     *
+     * This function will also take a set of existing attachments that will be
+     * updated according to the request. A new set with the updated attachments will
+     * be returned.
+     *
+     * If some of the attachments in the given set are not present in the request,
+     * they will not be part of the returned set.
+     *
+     * Note: the given set will not be changed. However, the containing attachments
+     * are changed during update.
+     *
+     * @param request
+     *            request to parse for attachments
+     * @param documentAttachments
+     *            existing attachments
+     *
+     * @return set of updated attachments present in the request
+     */
     public static Set<Attachment> updateAttachmentsFromRequest(PortletRequest request, Set<Attachment> documentAttachments) {
-        if (documentAttachments == null) {
-            documentAttachments = new HashSet<>();
-        }
+        Set<Attachment> attachments = Sets.newHashSet();
 
         User user = UserCacheHolder.getUserFromRequest(request);
-        String[] fileNames = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.FILENAME);
-        String[] ids = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_CONTENT_ID.toString());
+        String[] ids = request
+                .getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_CONTENT_ID.toString());
+        String[] fileNames = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.FILENAME.toString());
+        String[] types = request
+                .getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_TYPE.toString());
         String[] createdComments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CREATED_COMMENT.toString());
+        String[] checkStatuses = request
+                .getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECK_STATUS.toString());
         String[] checkedComments = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECKED_COMMENT.toString());
-        String[] checkStatuses = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.CHECK_STATUS.toString());
-        String[] atypes = request.getParameterValues(Release._Fields.ATTACHMENTS.toString() + Attachment._Fields.ATTACHMENT_TYPE.toString());
 
-        if(ids == null || ids.length == 0) {
-            return new HashSet<>();
-        } else if (CommonUtils.oneIsNull(atypes, createdComments, checkedComments, fileNames)) {
-            log.error("We have a problem with null arrays");
-        } else if (
-                atypes.length != createdComments.length ||
-                atypes.length != ids.length ||
-                atypes.length != checkedComments.length ||
-                atypes.length != fileNames.length) {
-            log.error("We have a problem length != other.length ");
-        } else {
-            Map<String, Attachment> documentAttachmentMap = documentAttachments.stream().collect(Collectors.toMap(Attachment::getAttachmentContentId, Function.identity()));
-            Map<String, Attachment> documentAttachmentsInRequestMap = new HashMap<>();
-            int length = atypes.length;
+        if (ids == null || ids.length == 0) {
+            LOGGER.info("No ids transmitted. All attachments will be deleted.");
+            return attachments;
+        } else if (CommonUtils.oneIsNull(fileNames, types, createdComments, checkStatuses, checkedComments)) {
+            LOGGER.error("Invalid request content. One of the attachment parameters is null. No attachments will be saved or deleted.");
+            return documentAttachments;
+        } else if (!CommonUtils.allHaveSameLength(ids, fileNames, types, createdComments, checkStatuses, checkedComments)) {
+            LOGGER.error("Not all of the attachment parameter arrays have the same length! No attachments will be saved or deleted.");
+            return documentAttachments;
+        }
 
-            for (int i = 0; i < length; ++i) {
+        Map<String, Attachment> documentAttachmentMap = CommonUtils.nullToEmptyMap(
+                documentAttachments.stream().collect(Collectors.toMap(Attachment::getAttachmentContentId, Function.identity())));
+        for (int i = 0; i < ids.length; ++i) {
+            String id = ids[i];
+            Attachment attachment = documentAttachmentMap.get(id);
 
-                String id = ids[i];
-                Attachment attachment;
-                if (documentAttachmentMap.containsKey(id)) {
-                    attachment = documentAttachmentMap.get(id);
-                    documentAttachmentsInRequestMap.put(id,attachment);
-                } else {
-                    //the sha1 checksum is not computed here, but in the backend, when updating the component in the database
-                    attachment = CommonUtils.getNewAttachment(user, id, fileNames[i]);
-                    documentAttachments.add(attachment);
-                }
-                attachment.setCreatedComment(createdComments[i]);
-                attachment.setAttachmentType(getAttachmentTypefromString(atypes[i]));
-                if(!checkedComments[i].equals(attachment.checkedComment) || attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])){
+            if (attachment == null) {
+                // the sha1 checksum is not computed here, but in the backend, when updating the
+                // component in the database
+                attachment = CommonUtils.getNewAttachment(user, id, fileNames[i]);
+                documentAttachmentMap.put(attachment.getAttachmentContentId(), attachment);
+            }
+
+            // Filename is not overwritten. Unknown reason.
+            attachment.setAttachmentType(getAttachmentTypefromString(types[i]));
+            attachment.setCreatedComment(createdComments[i]);
+
+            if (getCheckStatusfromString(checkStatuses[i]) != CheckStatus.NOTCHECKED) {
+                if (attachment.checkStatus != getCheckStatusfromString(checkStatuses[i])
+                        || !checkedComments[i].equals(attachment.checkedComment)) {
                     attachment.setCheckedOn(SW360Utils.getCreatedOn());
                     attachment.setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail());
                     attachment.setCheckedTeam(UserCacheHolder.getUserFromRequest(request).getDepartment());
-                    attachment.setCheckStatus(getCheckStatusfromString(checkStatuses[i]));
                     attachment.setCheckedComment(checkedComments[i]);
                 }
+            } else {
+                attachment.setCheckedOn(null);
+                attachment.setCheckedBy(null);
+                attachment.setCheckedTeam(null);
+                attachment.setCheckedComment("");
             }
-            Set<String> removedAttachmentIds = Sets.difference(documentAttachmentMap.keySet(),documentAttachmentsInRequestMap.keySet());
-            documentAttachments.removeIf(attachment -> removedAttachmentIds.contains(attachment.getAttachmentContentId()));
+            attachment.setCheckStatus(getCheckStatusfromString(checkStatuses[i]));
+
+            // add attachments to list of added/modified attachments. This way deleted
+            // attachments are automatically not in the set
+            attachments.add(attachment);
         }
-        return documentAttachments;
+
+        return attachments;
     }
 
 
@@ -349,7 +379,7 @@ public class PortletUtils {
         for(String parameterId : keyAndValueParameterIds) {
             String key = request.getParameter(PortalConstants.CUSTOM_MAP_KEY +parameterId);
             if(isNullEmptyOrWhitespace(key)){
-                log.error("Empty map key found");
+                LOGGER.error("Empty map key found");
             } else {
                 String value = request.getParameter(PortalConstants.CUSTOM_MAP_VALUE + parameterId);
                 if(!customMap.containsKey(key)){

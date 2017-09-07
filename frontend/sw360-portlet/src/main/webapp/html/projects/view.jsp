@@ -201,18 +201,18 @@
 <%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
 
-	AUI().use('liferay-portlet-url', function () {
-	    var PortletURL = Liferay.PortletURL;
-	    const clearingSummaryColumnIndex = 4;
+    AUI().use('liferay-portlet-url', function () {
+        var PortletURL = Liferay.PortletURL;
+        const clearingSummaryColumnIndex = 4;
 
-	    require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins: */ 'datatables' ], function($, quickfilter, autocomplete, confirm) {
-		    var projectsTable;
+        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins: */ 'datatables' ], function($, quickfilter, autocomplete, confirm) {
+            var projectsTable;
 
-		 	// initializing
-	        load();
+             // initializing
+            load();
 
-	     	// register event handlers
-	        $('.filterInput').on('input', function() {
+             // register event handlers
+            $('.filterInput').on('input', function() {
                 $('#exportSpreadsheetButton').prop('disabled', true);
                 <%--when filters are actually applied, page is refreshed and exportSpreadsheetButton enabled automatically--%>
             });
@@ -233,13 +233,13 @@
             $('#fossologyClearingForm input[name=close]').on('click', closeOpenDialogs);
 
 
-	     	// helper functions
-		    function makeProjectUrl(projectId, page) {
-		        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
-		            .setParameter('<%=PortalConstants.PAGENAME%>', page)
-		            .setParameter('<%=PortalConstants.PROJECT_ID%>', projectId);
-		        return portletURL.toString();
-		    }
+             // helper functions
+            function makeProjectUrl(projectId, page) {
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+                    .setParameter('<%=PortalConstants.PAGENAME%>', page)
+                    .setParameter('<%=PortalConstants.PROJECT_ID%>', projectId);
+                return portletURL.toString();
+            }
 
             function makeProjectFriendlyUrl(projectId, page) {
                 var portletURL = '<%=friendlyProjectURL%>'
@@ -248,147 +248,148 @@
                 return portletURL;
             }
 
-		    function renderProjectActions(id, type, row) {
-		        <%--TODO most of this can be simplified to CSS properties --%>
-		        return "<img class='clearing' src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'" +
-		             " data-project-id='" + id + "' data-project-action='projectAction" + id + "' alt='SelectClearing' title='send to Fossology'>" +
-		                "<span id='projectAction" + id + "'></span>"
-		            + renderLinkTo(
-		                makeProjectUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
-		                "",
-		                "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
-		            + renderLinkTo(
-		                makeProjectUrl(id, '<%=PortalConstants.PAGENAME_DUPLICATE%>'),
-		                "",
-		                "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
-		            +   "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png'" +
-							  " data-project-id='" + id + "' data-project-name='" + replaceSingleQuote(row.name) + "' data-linked-projects-count='" + replaceSingleQuote(row.linkedProjectsSize) + "' data-linked-releases-count='" + replaceSingleQuote(row.linkedReleasesSize) + "' data-project-attachment-count='" + replaceSingleQuote(row.attachmentsSize) + "' alt='Delete' title='Delete'/>";
-		    }
+            function renderProjectActions(id, type, row) {
+                <%--TODO most of this can be simplified to CSS properties --%>
+                return "<img class='clearing' src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'" +
+                     " data-project-id='" + id + "' data-project-action='projectAction" + id + "' alt='SelectClearing' title='send to Fossology'>" +
+                        "<span id='projectAction" + id + "'></span>"
+                    + renderLinkTo(
+                        makeProjectUrl(id, '<%=PortalConstants.PAGENAME_EDIT%>'),
+                        "",
+                        "<img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'>")
+                    + renderLinkTo(
+                        makeProjectUrl(id, '<%=PortalConstants.PAGENAME_DUPLICATE%>'),
+                        "",
+                        "<img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'>")
+                    +   "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png'" +
+                              " data-project-id='" + id + "' data-project-name='" + replaceSingleQuote(row.name) + "' data-linked-projects-count='" + replaceSingleQuote(row.linkedProjectsSize) + "' data-linked-releases-count='" + replaceSingleQuote(row.linkedReleasesSize) + "' data-project-attachment-count='" + replaceSingleQuote(row.attachmentsSize) + "' alt='Delete' title='Delete'/>";
+            }
 
 		    function renderProjectNameLink(name, type, row) {
 		        return renderLinkTo(makeProjectFriendlyUrl(row.id, '<%=PortalConstants.PAGENAME_DETAIL%>'), name);
 		    }
 
-		    function load() {
-		    	autocomplete.prepareForMultipleHits('state', ${stateAutoC});
-		        autocomplete.prepareForMultipleHits('project_type', ${projectTypeAutoC});
+            function load() {
+                autocomplete.prepareForMultipleHits('state', ${stateAutoC});
+                autocomplete.prepareForMultipleHits('project_type', ${projectTypeAutoC});
 
-		        createProjectsTable();
-		        quickfilter.addTable(projectsTable);
+                createProjectsTable();
+                quickfilter.addTable(projectsTable);
 
-		        loadClearingStateSummaries();
+                loadClearingStateSummaries();
 
-		    }
-		    function createProjectsTable() {
-		        var result = [];
+            }
+            function createProjectsTable() {
+                var result = [];
 
-		        <core_rt:forEach items="${projectList}" var="project">
-		        result.push({
-		            "DT_RowId": "${project.id}",
-		            "id": '${project.id}',
-		            "name": '<sw360:ProjectName project="${project}"/>',
-		            "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
-		            "state": '<sw360:DisplayStateBoxes project="${project}"/>',
-		            "clearing": 'Not loaded yet',
-		            "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
-		            "linkedProjectsSize": '${project.linkedProjectsSize}',
-		            "linkedReleasesSize": '${project.releaseIdToUsageSize}',
-		            "attachmentsSize": '${project.attachmentsSize}'
-		        });
-		        </core_rt:forEach>
+                <core_rt:forEach items="${projectList}" var="project">
+                result.push({
+                    "DT_RowId": "${project.id}",
+                    "id": '${project.id}',
+                    "name": '<sw360:ProjectName project="${project}"/>',
+                    "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
+                    "state": '<sw360:DisplayStateBoxes project="${project}"/>',
+                    "clearing": 'Not loaded yet',
+                    "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
+                    "linkedProjectsSize": '${project.linkedProjectsSize}',
+                    "linkedReleasesSize": '${project.releaseIdToUsageSize}',
+                    "attachmentsSize": '${project.attachmentsSize}'
+                });
+                </core_rt:forEach>
 
-		        projectsTable = $('#projectsTable').DataTable({
-		            "pagingType": "simple_numbers",
-		            "data": result,
-		            dom: "lrtip",
-		            search: {smart: false},
-		            "columns": [
-		                {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
-		                {title: "Description", data: "description"},
-		                {title: "Project Responsible", data: "responsible"},
-		                {title: "State", data: "state"},
-		                {title: "<span title=\"Release clearing state\">Clearing Status</span>", data: "clearing"},
-		                {title: "Actions", data: "id", render: {display: renderProjectActions}}
-		            ]
-		        });
-		    }
+                projectsTable = $('#projectsTable').DataTable({
+                    "pagingType": "simple_numbers",
+                    "data": result,
+                    dom: "lrtip",
+                    search: {smart: false},
+                    "columns": [
+                        {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
+                        {title: "Description", data: "description"},
+                        {title: "Project Responsible", data: "responsible"},
+                        {title: "State", data: "state" },
+                        {title: "<span title=\"Release clearing state\">Clearing Status</span>", data: "clearing"},
+                        {title: "Actions", data: "id", render: {display: renderProjectActions}}
+                    ],
+                    autoWidth: false
+                });
+            }
 
-		    function loadClearingStateSummaries() {
-		        var tableData = projectsTable.data();
-		        var ids = [];
-		        for (var i = 0; i < tableData.length; i++) {
-		            ids.push(tableData[i].id);
-		            var cell = projectsTable.cell(i, clearingSummaryColumnIndex);
-		            cell.data("Loading...");
-		        }
-		        jQuery.ajax({
-		            type: 'POST',
-		            url: '<%=loadClearingStateAjaxURL%>',
-		            cache: false,
-		            data: {
-		                "<portlet:namespace/><%=Project._Fields.ID%>": ids
-		            },
-		            success: function (response) {
-		                for (var i = 0; i < response.length; i++) {
-		                    var cell_clearingsummary = projectsTable.cell("#" + response[i].id, clearingSummaryColumnIndex);
-		                    cell_clearingsummary.data(displayClearingStateSummary(response[i].clearing));
-		                }
-		            },
-		            error: function () {
-		                for (var i = 0; i < tableData.length; i++) {
-		                    var cell = projectsTable.cell("#" + tableData[i].id, clearingSummaryColumnIndex);
-		                    cell.data("Failed to load");
-		                }
-		            }
-		        });
-		    }
+            function loadClearingStateSummaries() {
+                var tableData = projectsTable.data();
+                var ids = [];
+                for (var i = 0; i < tableData.length; i++) {
+                    ids.push(tableData[i].id);
+                    var cell = projectsTable.cell(i, clearingSummaryColumnIndex);
+                    cell.data("Loading...");
+                }
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '<%=loadClearingStateAjaxURL%>',
+                    cache: false,
+                    data: {
+                        "<portlet:namespace/><%=Project._Fields.ID%>": ids
+                    },
+                    success: function (response) {
+                        for (var i = 0; i < response.length; i++) {
+                            var cell_clearingsummary = projectsTable.cell("#" + response[i].id, clearingSummaryColumnIndex);
+                            cell_clearingsummary.data(displayClearingStateSummary(response[i].clearing));
+                        }
+                    },
+                    error: function () {
+                        for (var i = 0; i < tableData.length; i++) {
+                            var cell = projectsTable.cell("#" + tableData[i].id, clearingSummaryColumnIndex);
+                            cell.data("Failed to load");
+                        }
+                    }
+                });
+            }
 
-		    function displayClearingStateSummary(clearing){
-		        var releaseCounts;
-		        function d(v){return v == undefined ? "0" : v;}
-		        if (clearing) {
-		            releaseCounts = d(clearing.newRelease) + " " + d(clearing.underClearing) + " " + d(clearing.underClearingByProjectTeam) + " " + d(clearing.reportAvailable) + " " + d(clearing.approved);
-		        } else {
-		            releaseCounts = "Not available";
-		        }
+            function displayClearingStateSummary(clearing){
+                var releaseCounts;
+                function d(v){return v == undefined ? "0" : v;}
+                if (clearing) {
+                    releaseCounts = d(clearing.newRelease) + " " + d(clearing.underClearing) + " " + d(clearing.underClearingByProjectTeam) + " " + d(clearing.reportAvailable) + " " + d(clearing.approved);
+                } else {
+                    releaseCounts = "Not available";
+                }
 
-		        return "<span title=\"new release, under clearing, under clearing by the project clearing team, report available, approved\">" + releaseCounts + "</span>";
-		    }
+                return "<span title=\"new release, under clearing, under clearing by the project clearing team, report available, approved\">" + releaseCounts + "</span>";
+            }
 
-		    function createUrl_comp(paramId, paramVal) {
-		        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
-		            .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
-		        return portletURL.toString();
-		    }
+            function createUrl_comp(paramId, paramVal) {
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>')
+                    .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>').setParameter(paramId, paramVal);
+                return portletURL.toString();
+            }
 
-		    function createDetailURLfromProjectId(paramVal) {
-		        return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
-		    }
+            function createDetailURLfromProjectId(paramVal) {
+                return createUrl_comp('<%=PortalConstants.PROJECT_ID%>', paramVal);
+            }
 
-		    function exportSpreadsheet() {
-		        quickfilter.setSearchTerm('');
+            function exportSpreadsheet() {
+                quickfilter.setSearchTerm('');
 
-		        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-		            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-		        portletURL.setParameter('<%=Project._Fields.NAME%>', $('#project_name').val());
-		        portletURL.setParameter('<%=Project._Fields.TYPE%>', $('#project_type').val());
-		        portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>', $('#project_responsible').val());
-		        portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>', $('#group').val());
-		        portletURL.setParameter('<%=Project._Fields.STATE%>', $('#state').val());
-		        portletURL.setParameter('<%=Project._Fields.TAG%>', $('#tag').val());
-		        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>', $('#extendedByReleases').val());
+                var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+                    .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+                portletURL.setParameter('<%=Project._Fields.NAME%>', $('#project_name').val());
+                portletURL.setParameter('<%=Project._Fields.TYPE%>', $('#project_type').val());
+                portletURL.setParameter('<%=Project._Fields.PROJECT_RESPONSIBLE%>', $('#project_responsible').val());
+                portletURL.setParameter('<%=Project._Fields.BUSINESS_UNIT%>', $('#group').val());
+                portletURL.setParameter('<%=Project._Fields.STATE%>', $('#state').val());
+                portletURL.setParameter('<%=Project._Fields.TAG%>', $('#tag').val());
+                portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>', $('#extendedByReleases').val());
 
-		        window.location.href = portletURL.toString();
-		    }
+                window.location.href = portletURL.toString();
+            }
 
-		    function openSelectClearingDialog(projectId, fieldId) {
-		        $('#projectId').val(projectId);
+            function openSelectClearingDialog(projectId, fieldId) {
+                $('#projectId').val(projectId);
 
-		        setFormSubmit(fieldId);
-		        fillClearingFormAndOpenDialog(projectId);
-		    }
+                setFormSubmit(fieldId);
+                fillClearingFormAndOpenDialog(projectId);
+            }
 
-		    function deleteProject(projectId, name, linkedProjectsSize, linkedReleasesSize, attachmentsSize) {
+            function deleteProject(projectId, name, linkedProjectsSize, linkedReleasesSize, attachmentsSize) {
 
 		        function deleteProjectInternal() {
 		            jQuery.ajax({
@@ -417,7 +418,7 @@
 		                }
 		            });
 
-		        }
+                }
 
                 var confirmMessage = "Do you really want to delete the project " + name + " ?";
                 confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "<br/><br/>The project " + name + " contains<br/><ul>" : "";
@@ -427,61 +428,61 @@
                 confirmMessage += (linkedProjectsSize > 0 || linkedReleasesSize > 0 || attachmentsSize > 0) ? "</ul>" : "";
                 confirmMessage += '<div><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
 
-		        confirm.confirmDeletion(confirmMessage, deleteProjectInternal);
-		    }
+                confirm.confirmDeletion(confirmMessage, deleteProjectInternal);
+            }
 
-		    function fillClearingFormAndOpenDialog(projectId) {
-		        jQuery.ajax({
-		            type: 'POST',
-		            url: '<%=projectReleasesAjaxURL%>',
-		            cache: false,
-		            data: {
-		                "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
-		            },
-		            success: function (data) {
-		                $('#fossologyClearingTable').find('tbody').html(data);
-		                openDialog('fossologyClearing', 'fossologyClearingForm', .4, .5);
-		            },
-		            error: function () {
-		                alert("I could not get any releases!");
-		            }
-		        });
-		    }
+            function fillClearingFormAndOpenDialog(projectId) {
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '<%=projectReleasesAjaxURL%>',
+                    cache: false,
+                    data: {
+                        "<portlet:namespace/><%=PortalConstants.PROJECT_ID%>": projectId
+                    },
+                    success: function (data) {
+                        $('#fossologyClearingTable').find('tbody').html(data);
+                        openDialog('fossologyClearing', 'fossologyClearingForm', .4, .5);
+                    },
+                    error: function () {
+                        alert("I could not get any releases!");
+                    }
+                });
+            }
 
-		    function setFormSubmit(fieldId) {
-		        $('#fossologyClearingForm').submit(function (e) {
-		            e.preventDefault();
-		            closeOpenDialogs();
+            function setFormSubmit(fieldId) {
+                $('#fossologyClearingForm').submit(function (e) {
+                    e.preventDefault();
+                    closeOpenDialogs();
 
-		            jQuery.ajax({
-		                type: 'POST',
-		                url: '<%=projectReleasesSendURL%>',
-		                cache: false,
-		                data: $('form#fossologyClearingForm').serialize(),
-		                success: function (data) {
-		                    if (data.result) {
-		                        if (data.result == "FAILURE") {
-		                            $('#' + fieldId).html("Error");
-		                        }
-		                        else {
-		                            $('#' + fieldId).html("Sent");
-		                        }
-		                    }
-		                },
-		                error: function () {
-		                    alert("I could not upload the files");
-		                }
-		            })
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: '<%=projectReleasesSendURL%>',
+                        cache: false,
+                        data: $('form#fossologyClearingForm').serialize(),
+                        success: function (data) {
+                            if (data.result) {
+                                if (data.result == "FAILURE") {
+                                    $('#' + fieldId).html("Error");
+                                }
+                                else {
+                                    $('#' + fieldId).html("Sent");
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert("I could not upload the files");
+                        }
+                    })
 
-		        });
+                });
 
-		    }
+            }
 
-		    function selectAll(form) {
-		        $(form).find(':checkbox').prop("checked", true);
-		    }
-	    });
-	});
+            function selectAll(form) {
+                $(form).find(':checkbox').prop("checked", true);
+            }
+        });
+    });
 </script>
 
  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">

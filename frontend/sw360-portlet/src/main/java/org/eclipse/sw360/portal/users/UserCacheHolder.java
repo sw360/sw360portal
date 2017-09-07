@@ -12,11 +12,12 @@ package org.eclipse.sw360.portal.users;
 
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
-import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.apache.log4j.Logger;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 
 import javax.portlet.PortletRequest;
 import javax.servlet.ServletRequest;
+
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -27,56 +28,59 @@ import java.util.concurrent.ExecutionException;
  * @author alex.borodin@evosoft.com
  */
 public class UserCacheHolder {
+    private static final Logger LOGGER = Logger.getLogger(UserCacheHolder.class);
 
-    private static final Logger log = Logger.getLogger(UserCacheHolder.class);
     public static final User EMPTY_USER = new User().setId("").setEmail("").setExternalid("").setDepartment("").setLastname("").setGivenname("");
 
-    private static UserCacheHolder instance = null;
+    protected static UserCacheHolder instance = null;
 
-    UserCache cache;
+    protected UserCache cache;
 
-    private UserCacheHolder() {
+    protected UserCacheHolder() {
         cache = new UserCache();
     }
 
-    private static synchronized UserCacheHolder getInstance() {
+    protected static synchronized UserCacheHolder getInstance() {
         if (instance == null) {
             instance = new UserCacheHolder();
         }
         return instance;
     }
 
-
-    private User getCurrentUser(PortletRequest request) {
+    protected User getCurrentUser(PortletRequest request) {
         String email = LifeRayUserSession.getEmailFromRequest(request);
-
         return loadUserFromEmail(email);
     }
-    private Optional<String> getCurrentUserEmail(ServletRequest request) {
+
+    protected Optional<String> getCurrentUserEmail(ServletRequest request) {
         ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(WebKeys.THEME_DISPLAY);
 
         com.liferay.portal.model.User liferayUser = themeDisplay.getUser();
         return Optional.ofNullable(liferayUser).map(com.liferay.portal.model.User::getEmailAddress);
     }
 
-    private User loadUserFromEmail(String email, boolean refresh) {
-        if (log.isTraceEnabled()) log.trace("Fetching user with email: " + email);
+    protected User loadUserFromEmail(String email, boolean refresh) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Fetching user with email: " + email);
+        }
 
         // Get user from cache
         try {
-            if(refresh) return cache.getRefreshed(email);
+            if (refresh) {
+                return cache.getRefreshed(email);
+            }
             return cache.get(email);
         } catch (ExecutionException e) {
-            log.error("Unable to fetch user...", e);
-            return getEmptyUser();
+            LOGGER.error("Unable to fetch user...", e);
+            return EMPTY_USER;
         }
     }
 
-    private User loadUserFromEmail(String email) {
+    protected User loadUserFromEmail(String email) {
         return  loadUserFromEmail(email, false);
     }
 
-    private User loadRefreshedUserFromEmail(String email) {
+    protected User loadRefreshedUserFromEmail(String email) {
         return  loadUserFromEmail(email, true);
     }
 
@@ -94,12 +98,5 @@ public class UserCacheHolder {
 
     public static User getRefreshedUserFromEmail(String email) {
         return getInstance().loadRefreshedUserFromEmail(email);
-    }
-
-    /**
-     * Returns an empty user object
-     */
-    private static User getEmptyUser() {
-        return EMPTY_USER;
     }
 }

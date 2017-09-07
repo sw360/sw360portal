@@ -302,7 +302,8 @@
                     order: [[1, 'asc']],
                     language: {
                         lengthMenu: "_MENU_ entries per page"
-                    }
+                    },
+                    autoWidth: false
                 });
 
                 return componentsTable;

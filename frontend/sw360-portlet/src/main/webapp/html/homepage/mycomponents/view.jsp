@@ -52,7 +52,8 @@
             columns: [
                 {"title": "Component Name"},
                 {"title": "Description"}
-            ]
+            ],
+            autoWidth: false
         });
     });
 

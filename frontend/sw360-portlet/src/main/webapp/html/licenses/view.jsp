@@ -105,7 +105,8 @@
                   { "title": "License Shortname" },
                   { "title": "License Fullname" },
                   { "title": "License Type" }
-              ]
+              ],
+              "autoWidth": false
             });
 
               return $licenseTable;

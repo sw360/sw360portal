@@ -10,17 +10,21 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
-<%@include file="/html/init.jsp"%>
-<%-- the following is needed by liferay to display error messages--%>
-<%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-<portlet:defineObjects />
-<liferay-theme:defineObjects />
-
+<%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="org.eclipse.sw360.datahandler.common.SW360Constants" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.Attachment" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
-<%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
+
+<%@ include file="/html/init.jsp"%>
+<%-- the following is needed by liferay to display error messages--%>
+<%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
+
+
+<portlet:defineObjects />
+<liferay-theme:defineObjects />
 
 <portlet:actionURL var="updateURL" name="update">
     <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}" />
@@ -51,17 +55,14 @@
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+
     <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
     <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
     <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
-
-    <core_rt:if test="${not addMode}" >
-        <jsp:include page="/html/utils/includes/attachmentsUpload.jsp"/>
-        <jsp:include page="/html/utils/includes/attachmentsDelete.jsp" />
-    </core_rt:if>
 
     <div id="where" class="content1">
         <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
@@ -87,6 +88,7 @@
         </div>
     </div>
 
+
     <div id="editField" class="content2">
         <form  id="projectEditForm" name="projectEditForm" action="<%=updateURL%>" method="post" >
             <%@include file="/html/projects/includes/projects/basicInfo.jspf" %>
@@ -94,7 +96,8 @@
             <%@ include file="/html/utils/includes/requirejs.jspf" %>
             <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
             <core_rt:if test="${not addMode}" >
-                <%@include file="/html/utils/includes/editAttachments.jsp" %>
+                <%@include file="/html/utils/includes/requirejs.jspf" %>
+                <%@include file="/html/utils/includes/editAttachments.jspf" %>
             <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
             <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
             <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>

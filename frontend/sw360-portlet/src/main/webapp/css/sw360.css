@@ -306,14 +306,14 @@ input[readonly].clickable {
 }
 
 #attachmentsDetail span.dataTableChildRowCell {
-	display: inline-block;
+    display: inline-block;
 
-	box-sizing: border-box;
+    box-sizing: border-box;
 
-	padding-left: 10px;
-	height: 100%;
+    padding-left: 10px;
+    height: 100%;
 
-	vertical-align: top;
+    vertical-align: top;
 }
 
 #attachmentsDetail td.details-control {
@@ -326,16 +326,16 @@ input[readonly].clickable {
     content: '\25BC';
 }
 #attachmentsDetail tr.shown, #attachmentsDetail tr.shown td {
-	border-bottom: none;
+    border-bottom: none;
 }
 #attachmentsDetail tr.shown + tr {
-	border-top: none;
+    border-top: none;
 }
 #attachmentsDetail tr.shown + tr td {
-	border-top: none;
+    border-top: none;
 
-	padding-left: 0px;
-	padding-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .sw360modal button:last-of-type {
@@ -361,7 +361,7 @@ input[readonly].clickable {
 
 .button-div{
  margin-bottom: 1em;
-} 
+}
 
 #extendedByReleases, .formatSelect {
    width: 20em;
@@ -497,42 +497,34 @@ input[readonly].clickable {
     font-size:16px;
 }
 
-.ellipsis {
+.sw360-ellipsis {
     display: block;
-    overflow:hidden;
-    white-space:nowrap;
+    overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.moderationComment {
-    resize: none;
-    outline: none;
-    overflow: auto;
-    background-color: white !important;
-    width: 95% !important;
-    height: 4em !important;
+#attachmentInfo td {
+	vertical-align: middle;
 }
 
-.moderationCreationComment {
-    resize: none;
-    outline: none;
-    overflow: auto;
-    background-color: white !important;
-    width: 85% !important;
-    height: 4em !important;
+.dataTable input, .dataTable select {
+	max-width: 100%;
 }
 
-.moderation_request_info_table {
-    width: 49% !important;
-    float: left;
+.aui .table.dataTable th {
+	vertical-align: middle;
 }
 
-.moderation_decision_info_table {
-    width: 49% !important;
-    float: right;
+.aui .table.dataTable th[colspan] {
+	border-left: 1px solid rgb(221, 221, 221);
+	border-right: 1px solid rgb(221, 221, 221);
 }
 
-div.indented {
-    display: block;
-    margin-left: 2em;
+.aui .table.dataTable tr.added {
+	background-color: #ccffcc;
+}
+
+.aui .table.dataTable tr.added td.sorting_1 {
+	background-color: #aaffaa;
 }

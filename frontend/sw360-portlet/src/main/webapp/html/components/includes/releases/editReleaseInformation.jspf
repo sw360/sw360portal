@@ -146,7 +146,9 @@
 </table>
 
 <script>
-    $(document).ready(function(){
-        $(".datepicker").datepicker({dateFormat: "yy-mm-dd"});
-    });
+	require(['jquery', /* jquery-plugins */ 'jquery-ui'], function($) {
+	    $(document).ready(function(){
+	        $(".datepicker").datepicker({dateFormat: "yy-mm-dd"});
+	    });
+	});
 </script>

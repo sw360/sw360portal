@@ -126,7 +126,7 @@
                 tbl = $('#ComponentBasicInfo').DataTable({
                     "pagingType": "simple_numbers",
                     "dom": "lrtip",
-                    "bAutoWidth": false,
+                    "autoWidth": false,
                     "columnDefs": [
                         { "width": "13%", "targets": [ 0 ] },
                         { "width": "20%", "targets": [ 1 ] },

@@ -228,7 +228,6 @@ public class PortalConstants {
     //! Actions
     // attachment actions
     public static final String ATTACHMENT_PREFIX = "Attachment";
-    public static final String ATTACHMENT_UNLINK_AND_DELETE = ATTACHMENT_PREFIX + "Delete";
     public static final String ATTACHMENT_CANCEL = ATTACHMENT_PREFIX + "Cancel";
     public static final String ATTACHMENT_UPLOAD = ATTACHMENT_PREFIX + "Upload";
     public static final String ATTACHMENT_RESERVE_ID = ATTACHMENT_PREFIX + "Create";

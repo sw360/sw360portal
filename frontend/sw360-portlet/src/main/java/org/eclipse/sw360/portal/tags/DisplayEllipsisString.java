@@ -30,7 +30,7 @@ public class DisplayEllipsisString extends SimpleTagSupport {
     }
 
     public void doTag() throws JspException, IOException {
-        getJspContext().getOut().print("<span class='ellipsis' title='" + TagUtils.escapeAttributeValue(value) + "'>"
+        getJspContext().getOut().print("<span class='sw360-ellipsis' title='" + TagUtils.escapeAttributeValue(value) + "'>"
                 + TagUtils.escapeAttributeValue(value) + "</span>");
     }
 }

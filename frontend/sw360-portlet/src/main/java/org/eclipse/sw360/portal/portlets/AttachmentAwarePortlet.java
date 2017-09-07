@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -10,11 +10,24 @@
  */
 package org.eclipse.sw360.portal.portlets;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.common.collect.Maps;
+import org.apache.thrift.TException;
+import org.apache.thrift.TSerializer;
+import org.apache.thrift.protocol.TSimpleJSONProtocol;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
+import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.common.AttachmentPortletUtils;
 import org.eclipse.sw360.portal.common.PortalConstants;
@@ -22,11 +35,12 @@ import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
+
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.toSingletonSet;
 import static org.eclipse.sw360.portal.common.PortalConstants.ATTACHMENTS;
 
 /**
@@ -37,6 +51,42 @@ import static org.eclipse.sw360.portal.common.PortalConstants.ATTACHMENTS;
  * @author birgit.heydenreich@tngtech.com
  */
 public abstract class AttachmentAwarePortlet extends Sw360Portlet {
+    private static final Map<String, String> ATTACHMENT_TYPE_MAP = Maps.newHashMap();
+    private static final Map<String, String> CHECK_STATUS_MAP = Maps.newHashMap();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static class AttachmentSerializer extends StdSerializer<Attachment> {
+        private static final TSerializer JSON_SERIALIZER = new TSerializer(new TSimpleJSONProtocol.Factory());
+
+        public AttachmentSerializer(Class<Attachment> clazz) {
+            super(clazz);
+        }
+
+        @Override
+        public void serialize(Attachment attachment, JsonGenerator jsonGenerator, SerializerProvider provider)
+                throws IOException, JsonGenerationException {
+            try {
+                jsonGenerator.writeRawValue(JSON_SERIALIZER.toString(attachment));
+            } catch (TException exception) {
+                throw new JsonGenerationException(exception);
+            }
+        }
+    }
+
+    static {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Attachment.class, new AttachmentSerializer(Attachment.class));
+        OBJECT_MAPPER.registerModule(module);
+
+        for (AttachmentType attachmentType : AttachmentType.values()) {
+            ATTACHMENT_TYPE_MAP.put(String.valueOf(attachmentType.getValue()), ThriftEnumUtils.enumToString(attachmentType));
+        }
+
+        for (CheckStatus checkStatus : CheckStatus.values()) {
+            CHECK_STATUS_MAP.put(String.valueOf(checkStatus.getValue()), ThriftEnumUtils.enumToString(checkStatus));
+        }
+    }
+
 
     protected final AttachmentPortletUtils attachmentPortletUtils;
     protected Map< String, Map< String, Set<String>>> uploadHistoryPerUserEmailAndDocumentId;
@@ -95,27 +145,31 @@ public abstract class AttachmentAwarePortlet extends Sw360Portlet {
     }
 
     private void doGetAttachmentForDisplay(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
-        String attachmentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
+        final String attachmentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         Attachment attachment = attachmentPortletUtils.getAttachmentForDisplay(user, attachmentId);
-
-        if(attachment==null) {
+        if (attachment == null) {
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
         } else {
-            request.setAttribute(PortalConstants.DOCUMENT_TYPE, getDocumentType(request));
-            request.setAttribute(PortalConstants.ATTACHMENTS, toSingletonSet(attachment));
-            include("/html/utils/ajax/attachmentsAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
+            writeJSON(request, response, OBJECT_MAPPER.writeValueAsString(attachment));
         }
     }
 
     private void serveAttachmentSet(ResourceRequest request, ResourceResponse response) throws IOException, PortletException {
-        String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
+        final String documentType = getDocumentType(request);
+        final String documentId = request.getParameter(PortalConstants.DOCUMENT_ID);
         final User user = UserCacheHolder.getUserFromRequest(request);
 
-        request.setAttribute(PortalConstants.DOCUMENT_TYPE, getDocumentType(request));
-        request.setAttribute(PortalConstants.ATTACHMENTS, getAttachments(documentId, getDocumentType(request), user));
-        include("/html/utils/ajax/attachmentsAjax.jsp", request, response, PortletRequest.RESOURCE_PHASE);
+        // this is the raw attachment data
+        List<Attachment> attachments = getAttachments(documentId, documentType, user).stream()
+                .sorted(Comparator.comparing(Attachment::getFilename)).collect(Collectors.toList());
+
+        Map<String, Object> data = Maps.newHashMap();
+        data.put("data", attachments);
+        data.put("attachmentTypes", ATTACHMENT_TYPE_MAP);
+        data.put("checkStatuses", CHECK_STATUS_MAP);
+        writeJSON(request, response, OBJECT_MAPPER.writeValueAsString(data));
     }
 
     private void serveNewAttachmentId(ResourceRequest request, ResourceResponse response) throws IOException {

@@ -104,7 +104,8 @@
                 </core_rt:choose>
                 {"title": "Action"}
             ],
-            "order": [[1, 'asc'], [2, 'desc']]
+            "order": [[1, 'asc'], [2, 'desc']],
+            "autoWidth": false
         });
         vulnerabilityTable.$('td').tooltip({
             "delay": 0,

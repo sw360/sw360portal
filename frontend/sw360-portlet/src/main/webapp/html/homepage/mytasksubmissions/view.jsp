@@ -64,7 +64,8 @@
                 {"title": "Document Name"},
                 {"title": "Status"},
                 {"title": "Actions"}
-            ]
+            ],
+            autoWidth: false
         });
     }
     function deleteModerationRequest(id, docName) {

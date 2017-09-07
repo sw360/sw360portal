@@ -34,7 +34,7 @@
         <!-- jQuery is already available on every page, but needs be added when require is finally here
         <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
          -->
-        <script src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
+        <script src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
 
         <table id="attachmentsDetail" class="table info_table" title="Attachment Information">
             <colgroup>
@@ -51,7 +51,7 @@
             </colgroup>
             <thead>
                 <tr>
-                    <th><sw360:DisplayDownloadAttachmentBundle attachments="${attachments}" 
+                    <th><sw360:DisplayDownloadAttachmentBundle attachments="${attachments}"
                                 name="AttachmentBundle.zip"
                                 contextType="${documentType}"
                                 contextId="${documentID}" />
@@ -154,6 +154,7 @@
                         }
                     ],
                     "order": [[1, 'asc']],
+                    "autoWidth": false,
                     "deferRender": true
                 } );
 

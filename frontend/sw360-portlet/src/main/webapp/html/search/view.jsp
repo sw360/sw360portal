@@ -95,7 +95,7 @@
 </div>
 
 <script type="text/javascript" src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/search.css">
@@ -162,7 +162,7 @@
         });
         </core_rt:forEach>
 
-        $('#searchTable').dataTable({
+        $('#searchTable').DataTable({
             pagingType: "simple_numbers",
             dom: "lrtip",
             data: result,
@@ -173,7 +173,8 @@
                     }
                 },
                 { "title": "Text" }
-            ]
+            ],
+            autoWidth: false
         });
     }
 </script>

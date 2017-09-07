@@ -43,7 +43,8 @@
                     "data": result,
                     dom: "lrtip",
                     "searching": false,
-                    "lengthChange": false
+                    "lengthChange": false,
+                    "autoWidth": false
                 });
           }
 

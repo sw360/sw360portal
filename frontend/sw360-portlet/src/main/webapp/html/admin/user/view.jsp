@@ -171,7 +171,8 @@
                 if ($(tableSelector)){
                     tbl = $(tableSelector).DataTable({
                         "pagingType": "simple_numbers",
-                        "dom": "lrtip"
+                        "dom": "lrtip",
+                        "autoWidth": false
                     });
                 }
                 return tbl;
