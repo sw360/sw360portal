@@ -63,7 +63,8 @@ public class ThriftEnumUtils {
             ProjectType.CUSTOMER, "Customer Project" ,
             ProjectType.INTERNAL, "Internal Project" ,
             ProjectType.PRODUCT, "Product" ,
-            ProjectType.SERVICE, "Service");
+            ProjectType.SERVICE, "Service",
+            ProjectType.INNER_SOURCE, "Inner Source");
 
     private static final ImmutableMap<AttachmentType, String> MAP_ATTACHMENT_TYPE_STRING = ImmutableMap.<AttachmentType, String>builder()
             .put(AttachmentType.DOCUMENT, "Document")

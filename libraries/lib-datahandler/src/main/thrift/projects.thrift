@@ -45,6 +45,7 @@ enum ProjectType {
     INTERNAL = 1,
     PRODUCT = 2,
     SERVICE = 3,
+    INNER_SOURCE = 4
 }
 
 enum ProjectRelationship {
