@@ -63,7 +63,7 @@
 <script>
     function submitLicenseTODO() {
         <core_rt:choose>
-            <core_rt:when test="${licenseDetail.permissions[WRITE]}">
+            <core_rt:when test="${moderationLicenseDetail.permissions[WRITE]}">
                 submitModerationRequestTODO();
             </core_rt:when>
             <core_rt:otherwise>
