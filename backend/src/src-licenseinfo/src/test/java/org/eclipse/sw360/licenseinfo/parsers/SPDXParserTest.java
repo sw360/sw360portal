@@ -139,7 +139,7 @@ public class SPDXParserTest {
 
         Attachment attachment = makeAttachment(exampleFile,
                 Arrays.stream(AttachmentType.values())
-                        .filter(at -> SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES.contains(at))
+                        .filter(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES::contains)
                         .findAny()
                         .get());
 

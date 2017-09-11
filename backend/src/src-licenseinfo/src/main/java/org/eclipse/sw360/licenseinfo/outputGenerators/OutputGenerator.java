@@ -118,7 +118,7 @@ public abstract class OutputGenerator<T> {
     }
 
     @NotNull
-    protected List<LicenseNameWithText> getSortedLicenseNameWithTexts(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
+    protected static List<LicenseNameWithText> getSortedLicenseNameWithTexts(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
         Set<LicenseNameWithText> licenseNamesWithText = projectLicenseInfoResults.stream()
                 .map(LicenseInfoParsingResult::getLicenseInfo)
                 .filter(Objects::nonNull)
@@ -126,11 +126,11 @@ public abstract class OutputGenerator<T> {
                 .filter(Objects::nonNull)
                 .reduce(Sets::union)
                 .orElse(Collections.emptySet());
-        List<LicenseNameWithText> lnwtsList = licenseNamesWithText.stream().filter(licenseNameWithText -> {
-            return !LicenseNameWithTextUtils.isEmpty(licenseNameWithText);
-        }).collect(Collectors.toList());
-        lnwtsList.sort(Comparator.comparing(LicenseNameWithText::getLicenseName, String.CASE_INSENSITIVE_ORDER));
-        return lnwtsList;
+
+        return licenseNamesWithText.stream()
+                .filter(licenseNameWithText -> !LicenseNameWithTextUtils.isEmpty(licenseNameWithText))
+                .sorted(Comparator.comparing(LicenseNameWithText::getLicenseName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
     private static <U> SortedMap<String, U> sortStringKeyedMap(Map<String, U> unsorted){

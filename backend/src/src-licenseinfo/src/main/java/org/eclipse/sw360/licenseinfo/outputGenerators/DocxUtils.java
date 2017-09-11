@@ -12,10 +12,10 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
+import org.apache.poi.xwpf.usermodel.*;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.apache.poi.xwpf.usermodel.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -148,27 +148,21 @@ public class DocxUtils {
     }
 
     public static void addLicenseTexts(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
-        projectLicenseInfoResults.stream()
-                .map(LicenseInfoParsingResult::getLicenseInfo)
-                .filter(Objects::nonNull)
-                .map(LicenseInfo::getLicenseNamesWithTexts)
-                .filter(Objects::nonNull)
-                .forEach(set -> {
-                    set.forEach(lt -> {
+        List<LicenseNameWithText> lts = OutputGenerator.getSortedLicenseNameWithTexts(projectLicenseInfoResults);
 
-                        XWPFParagraph licenseParagraph = document.createParagraph();
-                        licenseParagraph.setStyle("Heading2");
-                        XWPFRun licenseRun = licenseParagraph.createRun();
-                        String licenseName = lt.isSetLicenseName() ? lt.getLicenseName() : "Unknown license name";
-                        licenseRun.setText(licenseName);
-                        addNewLines(licenseRun, 1);
+        lts.forEach(lt -> {
+            XWPFParagraph licenseParagraph = document.createParagraph();
+            licenseParagraph.setStyle("Heading2");
+            XWPFRun licenseRun = licenseParagraph.createRun();
+            String licenseName = lt.isSetLicenseName() ? lt.getLicenseName() : "Unknown license name";
+            licenseRun.setText(licenseName);
+            addNewLines(licenseRun, 1);
 
-                        XWPFParagraph licenseTextParagraph = document.createParagraph();
-                        XWPFRun licenseTextRun = licenseTextParagraph.createRun();
-                        addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), 12);
-                        addNewLines(licenseTextRun, 1);
-                    });
-                });
+            XWPFParagraph licenseTextParagraph = document.createParagraph();
+            XWPFRun licenseTextRun = licenseTextParagraph.createRun();
+            addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), 12);
+            addNewLines(licenseTextRun, 1);
+        });
     }
 
     private static void addNewLines(XWPFRun run, int numberOfNewlines) {
@@ -183,11 +177,23 @@ public class DocxUtils {
         run.addBreak(BreakType.PAGE);
     }
 
+    /**
+     * Adds the given text in a run object, properly formatting \n as line break
+     */
+    private static void setText(XWPFRun run, String text) {
+        String[] split = text.split("\n");
+        run.setText(split[0]);
+        for (int i = 1; i < split.length; i++) {
+            run.addBreak();
+            run.setText(split[i]);
+        }
+    }
+
     private static void addFormattedText(XWPFRun run, String text, String fontFamily, int fontSize, boolean bold) {
         run.setFontSize(fontSize);
         run.setFontFamily(fontFamily);
         run.setBold(bold);
-        run.setText(text);
+        setText(run, text);
     }
 
     private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold) {
@@ -198,13 +204,13 @@ public class DocxUtils {
         addFormattedText(run, text, fontSize, false);
     }
 
-    public static void replaceText(XWPFDocument document, String placeHolder, String replaceText){
+    private static void replaceText(XWPFDocument document, String placeHolder, String replaceText) {
         for (XWPFHeader header : document.getHeaderList())
             replaceAllBodyElements(header.getBodyElements(), placeHolder, replaceText);
         replaceAllBodyElements(document.getBodyElements(), placeHolder, replaceText);
     }
 
-    private static void replaceAllBodyElements(List<IBodyElement> bodyElements, String placeHolder, String replaceText){
+    private static void replaceAllBodyElements(List<IBodyElement> bodyElements, String placeHolder, String replaceText) {
         for (IBodyElement bodyElement : bodyElements) {
             if (bodyElement.getElementType().compareTo(BodyElementType.PARAGRAPH) == 0)
                 replaceParagraph((XWPFParagraph) bodyElement, placeHolder, replaceText);
