@@ -93,6 +93,8 @@
         <td><sw360:DisplayMap value ="${vulnerability.vulnerableConfiguration}"/></td>
     </tr>
 
+    <core_rt:set var="documentName"><sw360:out value="${vulnerability.title}"/></core_rt:set>
+    <%@include file="/html/utils/includes/usingReleasesTable.jspf" %>
 
 </table>
 

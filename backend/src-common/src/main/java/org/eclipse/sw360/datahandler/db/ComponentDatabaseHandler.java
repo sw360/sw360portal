@@ -782,7 +782,7 @@ public class ComponentDatabaseHandler {
         return releaseRepository.searchByNamePrefix(name);
     }
 
-    public List<Release> getReleases(Set<String> ids, User user) {
+    public List<Release> getReleases(Set<String> ids) {
         return releaseRepository.makeSummary(SummaryType.SHORT, ids);
     }
 
@@ -800,7 +800,7 @@ public class ComponentDatabaseHandler {
         return releaseRepository.makeSummary(SummaryType.DETAILED_EXPORT_SUMMARY, ids);
     }
 
-    public List<Release> getFullReleases(Set<String> ids, User user) {
+    public List<Release> getFullReleases(Set<String> ids) {
         return releaseRepository.makeSummary(SummaryType.SUMMARY, ids);
     }
 

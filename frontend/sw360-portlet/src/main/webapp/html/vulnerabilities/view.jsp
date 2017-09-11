@@ -12,6 +12,7 @@
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability" %>
 
 <%@ include file="/html/init.jsp" %>
 
@@ -20,6 +21,9 @@
 
 <jsp:useBean id="vulnerabilityList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability>"
              scope="request"/>
+
+<portlet:actionURL var="applyFiltersURL" name="applyFilters">
+</portlet:actionURL>
 
 <portlet:resourceURL var="vulnerabilityListAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.VULNERABILITY_LIST%>'/>
@@ -37,6 +41,35 @@
 </p>
 <div id="searchInput" class="content1">
     <%@ include file="/html/utils/includes/quickfilter.jspf" %>
+
+    <form action="<%=applyFiltersURL%>" method="post">
+        <table>
+            <thead>
+            <tr>
+                <th class="infoheading">
+                    Filters
+                </th>
+            </tr>
+            </thead>
+            <tbody style="background-color: #f8f7f7; border: none;">
+            <tr>
+                <td>
+                    <label for="external_id">CVE ID</label>
+                    <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Vulnerability._Fields.EXTERNAL_ID%>"
+                           value="${name}" id="external_id">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="vulnerable_config">Vulnerable Configuration</label>
+                    <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Vulnerability._Fields.VULNERABLE_CONFIGURATION%>"
+                           value="${name}" id="vulnerable_config">
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <input type="submit" class="addButton" value="Apply Filters">
+    </form>
 </div>
 <div id="vulnerabilitiesTableDiv" class="content2">
     <table id="vulnerabilitiesTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -119,7 +152,7 @@
                         {"title": "Publish date"},
                         {"title": "Last update"}
                     ],
-                    "order": [[2, 'asc'], [3, 'desc']],
+                    "order": [[4, 'desc'],[2, 'asc']],
                     "autoWidth": false
                 });
                 vulnerabilityTable.$('td').tooltip({"delay": 0, "track": true, "fade": 250});

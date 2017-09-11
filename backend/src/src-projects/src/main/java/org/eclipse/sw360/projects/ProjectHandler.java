@@ -202,8 +202,9 @@ public class ProjectHandler implements ProjectService.Iface {
     @Override
     public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations, User user) throws TException {
         assertNotNull(relations);
+        assertUser(user);
 
-        return handler.getLinkedProjects(relations, user);
+        return handler.getLinkedProjects(relations);
     }
 
     @Override

@@ -433,7 +433,7 @@ public class ComponentDatabaseHandlerTest {
     @Test
     public void testGetReleases() throws Exception {
         Set<String> releaseIds = getReleaseIds(this.releases);
-        List<Release> releases = handler.getReleases(releaseIds, user1);
+        List<Release> releases = handler.getReleases(releaseIds);
 
         assertThat(getReleaseIds(releases), is(releaseIds));
     }
