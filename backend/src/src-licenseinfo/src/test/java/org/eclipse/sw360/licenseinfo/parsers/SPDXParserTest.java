@@ -69,15 +69,15 @@ public class SPDXParserTest {
         // @formatter:off
         return new Object[][] {
                 { spdxExampleFile,
-                        Arrays.asList("Apache-2.0", "LGPL-2.0", "LicenseRef-1", "GPL-2.0", "CyberNeko License", "LicenseRef-2"),
+                        Arrays.asList("Apache-2.0", "LGPL-2.0", "1", "GPL-2.0", "CyberNeko License", "2"),
                         4,
                         "Copyright 2008-2010 John Smith" },
                 { spdx11ExampleFile,
-                        Arrays.asList("LicenseRef-4", "LicenseRef-1", "Apache-2.0", "LicenseRef-2", "Apache-1.0", "MPL-1.1", "CyberNeko License"),
+                        Arrays.asList("4", "1", "Apache-2.0", "2", "Apache-1.0", "MPL-1.1", "CyberNeko License"),
                         2,
                         "Hewlett-Packard Development Company, LP" },
                 { spdx12ExampleFile,
-                        Arrays.asList("LicenseRef-4", "LicenseRef-1", "Apache-2.0", "LicenseRef-2", "Apache-1.0", "MPL-1.1", "CyberNeko License"),
+                        Arrays.asList("4", "1", "Apache-2.0", "2", "Apache-1.0", "MPL-1.1", "CyberNeko License"),
                         3,
                         "Hewlett-Packard Development Company, LP" },
         };

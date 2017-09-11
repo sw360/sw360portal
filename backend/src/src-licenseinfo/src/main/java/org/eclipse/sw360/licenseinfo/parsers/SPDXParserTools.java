@@ -35,16 +35,20 @@ public class SPDXParserTools {
 
     private static final Logger log = Logger.getLogger(SPDXParserTools.class);
 
+    private static final String LICENSE_REF_PREFIX = "LicenseRef-";
+
     private static String extractLicenseName(AnyLicenseInfo licenseConcluded) {
         return licenseConcluded.getResource().getLocalName();
     }
 
-    private static String extractLicenseName(ExtractedLicenseInfo extractedLicenseInfo){
-        return ! isNullEmptyOrWhitespace(extractedLicenseInfo.getName()) ? extractedLicenseInfo.getName() : extractedLicenseInfo.getLicenseId();
+    private static String extractLicenseName(ExtractedLicenseInfo extractedLicenseInfo) {
+        return !isNullEmptyOrWhitespace(extractedLicenseInfo.getName())
+                ? extractedLicenseInfo.getName()
+                : extractedLicenseInfo.getLicenseId().replaceAll(LICENSE_REF_PREFIX, "");
     }
 
 
-    protected static Stream<LicenseNameWithText> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
+    private static Stream<LicenseNameWithText> getAllLicenseTextsFromInfo(AnyLicenseInfo spdxLicenseInfo) {
         log.trace("Seen the spdxLicenseInfo=" + spdxLicenseInfo.toString() + "]");
         if (spdxLicenseInfo instanceof LicenseSet) {
 
@@ -88,10 +92,10 @@ public class SPDXParserTools {
         return Stream.empty();
     }
 
-    protected static Stream<LicenseNameWithText> getAllLicenseTexts(SpdxItem spdxItem, boolean useLicenseInfoFromFiles) {
+    private static Stream<LicenseNameWithText> getAllLicenseTexts(SpdxItem spdxItem, boolean useLicenseInfoFromFiles) {
         Stream<LicenseNameWithText> licenseTexts = getAllLicenseTextsFromInfo(spdxItem.getLicenseConcluded());
 
-        if (useLicenseInfoFromFiles){
+        if (useLicenseInfoFromFiles) {
             licenseTexts = Stream.concat(licenseTexts,
                     Arrays.stream(spdxItem.getLicenseInfoFromFiles())
                             .flatMap(SPDXParserTools::getAllLicenseTextsFromInfo));
@@ -103,7 +107,7 @@ public class SPDXParserTools {
                 licenseTexts = Stream.concat(licenseTexts,
                         getAllLicenseTextsFromInfo(spdxPackage.getLicenseDeclared()));
 
-                for (SpdxFile spdxFile: spdxPackage.getFiles()){
+                for (SpdxFile spdxFile : spdxPackage.getFiles()) {
                     licenseTexts = Stream.concat(licenseTexts,
                             getAllLicenseTexts(spdxFile, useLicenseInfoFromFiles));
                 }
@@ -116,9 +120,9 @@ public class SPDXParserTools {
         return licenseTexts;
     }
 
-    protected static Stream<String> getAllCopyrights(SpdxItem spdxItem) {
+    private static Stream<String> getAllCopyrights(SpdxItem spdxItem) {
         Stream<String> copyrights = Stream.of(spdxItem.getCopyrightText().trim());
-        if (spdxItem instanceof SpdxPackage){
+        if (spdxItem instanceof SpdxPackage) {
             SpdxPackage spdxPackage = (SpdxPackage) spdxItem;
             try {
                 copyrights = Stream.concat(copyrights,

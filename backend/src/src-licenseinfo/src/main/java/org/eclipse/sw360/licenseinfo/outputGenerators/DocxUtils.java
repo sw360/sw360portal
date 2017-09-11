@@ -24,6 +24,8 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString
 
 public class DocxUtils {
 
+    private static final int FONT_SIZE = 12;
+
     private DocxUtils() {
         //only static members
     }
@@ -50,7 +52,7 @@ public class DocxUtils {
             styleTableHeaderParagraph(paragraph);
 
             XWPFRun run = paragraph.createRun();
-            addFormattedText(run, headers[headerCount], 12, true);
+            addFormattedText(run, headers[headerCount], FONT_SIZE, true);
 
             paragraph.setWordWrap(true);
         }
@@ -95,12 +97,12 @@ public class DocxUtils {
         XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         XWPFRun currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, releaseName, 12);
+        addFormattedText(currentRun, releaseName, FONT_SIZE);
 
         currentParagraph = row.getCell(1).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, version, 12);
+        addFormattedText(currentRun, version, FONT_SIZE);
 
         currentParagraph = row.getCell(2).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
@@ -109,7 +111,7 @@ public class DocxUtils {
             String licenseName = licenseNameWithText.isSetLicenseName()
                     ? licenseNameWithText.getLicenseName()
                     : "Unknown license name";
-            addFormattedText(currentRun, licenseName, 12);
+            addFormattedText(currentRun, licenseName, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
 
@@ -117,14 +119,14 @@ public class DocxUtils {
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
         for (String ack : acknowledgements) {
-            addFormattedText(currentRun, ack, 12);
+            addFormattedText(currentRun, ack, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
         currentParagraph = row.getCell(4).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
         for (String copyright : copyrights) {
-            addFormattedText(currentRun, copyright, 12);
+            addFormattedText(currentRun, copyright, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
     }
@@ -160,7 +162,7 @@ public class DocxUtils {
 
             XWPFParagraph licenseTextParagraph = document.createParagraph();
             XWPFRun licenseTextRun = licenseTextParagraph.createRun();
-            addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), 12);
+            addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), FONT_SIZE);
             addNewLines(licenseTextRun, 1);
         });
     }
