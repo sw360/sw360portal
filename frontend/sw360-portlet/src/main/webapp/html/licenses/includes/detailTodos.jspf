@@ -78,11 +78,12 @@
     <tr>
         <th colspan="8">Todos and Obligations Details:
             <core_rt:if test="${editMode}">
-                                    <span class="pull-right">
-                                        <core_rt:if test="${not empty moderationLicenseDetail.todos || not empty added_todos_from_moderation_request}">
-                                            <input type="button" id="SubmitWhitelist" value="Submit" onclick="submitFormWhiteList()">
-                                        </core_rt:if>
-                                    </span>
+                <span class="pull-right">
+                    <core_rt:if test="${not empty moderationLicenseDetail.todos || not empty added_todos_from_moderation_request}">
+                        <input type="button" class="addButton" id="SubmitWhitelist" value="Submit" onclick="submitFormWhiteList()">
+                        <input type="button" class="addButton" id="cancelEditWhitelistButton" value="Cancel" onclick="cancelEditWhitelist()">
+                    </core_rt:if>
+                </span>
             </core_rt:if>
         </th>
     </tr>
