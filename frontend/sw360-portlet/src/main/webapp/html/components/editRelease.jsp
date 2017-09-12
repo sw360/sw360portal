@@ -157,7 +157,9 @@
         </div>
     </div>
 
-    <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
+    <%@ include file="/html/utils/includes/requirejs.jspf" %>
+    <jsp:include page="/html/utils/includes/searchAndSelectUsers.jsp" />
+    <jsp:include page="/html/utils/includes/searchAndSelectLicenses.jsp" />
     <jsp:include page="/html/utils/includes/searchUsers.jsp" />
     <jsp:include page="/html/utils/includes/searchLicenses.jsp" />
     <core_rt:set var="enableSearchForReleasesFromLinkedProjects" value="${false}" scope="request"/>

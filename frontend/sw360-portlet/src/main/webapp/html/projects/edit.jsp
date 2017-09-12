@@ -106,7 +106,7 @@
         <jsp:include page="/html/projects/includes/searchProjects.jsp" />
         <core_rt:set var="enableSearchForReleasesFromLinkedProjects" value="${true}" scope="request"/>
         <jsp:include page="/html/utils/includes/searchReleases.jsp" />
-        <jsp:include page="/html/utils/includes/searchAndSelect.jsp" />
+        <jsp:include page="/html/utils/includes/searchAndSelectUsers.jsp" />
         <jsp:include page="/html/utils/includes/searchUsers.jsp" />
 
         <core_rt:if test="${not addMode}" >

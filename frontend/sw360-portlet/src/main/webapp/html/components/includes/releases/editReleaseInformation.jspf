@@ -84,8 +84,7 @@
 
         <td width="33%">
             <sw360:DisplayMainLicensesEdit id="<%=Release._Fields.MAIN_LICENSE_IDS.toString()%>"
-                                           licenseIds="${release.mainLicenseIds}"
-                                           userEmail="<%=themeDisplay.getUser().getEmailAddress()%>"/>
+                                           licenseIds="${release.mainLicenseIds}"/>
         </td>
 
         <td width="33%">
