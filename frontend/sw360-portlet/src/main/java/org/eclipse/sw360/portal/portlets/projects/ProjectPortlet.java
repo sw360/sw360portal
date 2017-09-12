@@ -226,7 +226,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 projects = Collections.emptyList();
             }
 
-            projects = getWithFilledClearingStateSummary(projects, user);
+            projects = getWithFilledClearingStateSummaryIncludingSubprojects(projects, user);
 
             JSONArray jsonResponse = createJSONArray();
             ThriftJsonSerializer thriftJsonSerializer = new ThriftJsonSerializer();
@@ -534,7 +534,16 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void prepareStandardView(RenderRequest request) throws IOException {
         List<Project> projectList = getFilteredProjectList(request);
 
-        request.setAttribute(PROJECT_LIST, projectList);
+        // The data should be sorted like it will be initially sorted on the client
+        // side. That way additional data can be loaded in order the data is visible to
+        // the user.
+        // As we currently use no defined sorting on the client, jquery dataTables
+        // default sorting is used. This is for the first column and case insensitive.
+        // So we duplicate that sorting here.
+        List<Project> sortedProjectList = projectList.stream()
+                .sorted(Comparator.comparing(p -> SW360Utils.printName(p).toLowerCase())).collect(Collectors.toList());
+        request.setAttribute(PROJECT_LIST, sortedProjectList);
+
         List<Organization> organizations = UserUtils.getOrganizations(request);
         request.setAttribute(PortalConstants.ORGANIZATIONS, organizations);
     }
@@ -772,16 +781,23 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     }
 
     private Project getWithFilledClearingStateSummary(Project project, User user) {
-        return getWithFilledClearingStateSummary(Arrays.asList(project), user).get(0);
-    }
-
-    private List<Project> getWithFilledClearingStateSummary(List<Project> projects, User user) {
         ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
         try {
-            return projectClient.fillClearingStateSummary(projects, user);
+            return projectClient.fillClearingStateSummary(Arrays.asList(project), user).get(0);
         } catch (TException e) {
             log.error("Could not get summary of release clearing states for projects!", e);
+            return project;
+        }
+    }
+
+    private List<Project> getWithFilledClearingStateSummaryIncludingSubprojects(List<Project> projects, User user) {
+        ProjectService.Iface projectClient = thriftClients.makeProjectClient();
+
+        try {
+            return projectClient.fillClearingStateSummaryIncludingSubprojects(projects, user);
+        } catch (TException e) {
+            log.error("Could not get summary of release clearing states for projects and their subprojects!", e);
             return projects;
         }
     }

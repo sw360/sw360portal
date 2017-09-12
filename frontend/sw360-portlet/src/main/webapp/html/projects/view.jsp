@@ -315,14 +315,40 @@
             }
 
             function loadClearingStateSummaries() {
-                var tableData = projectsTable.data();
-                var ids = [];
-                for (var i = 0; i < tableData.length; i++) {
-                    ids.push(tableData[i].id);
-                    var cell = projectsTable.cell(i, clearingSummaryColumnIndex);
-                    cell.data("Loading...");
+                var tableData = projectsTable.data(),
+                    queryPageSize = 10,
+                    numberOfQueryPages = Math.ceil(tableData.length / queryPageSize),
+                    queryPagesPageIds = [],
+                    pageIds,
+                    cell,
+                    i, j, idx;
+
+                for (i = 0; i < numberOfQueryPages; i++) {
+                    pageIds = [];
+                    for (j = 0; j < queryPageSize; j++) {
+                        idx = (i * queryPageSize) + j;
+                        /* make sure last page is handled correctly as it might not be a full page */
+                        if (tableData[idx]) {
+                            pageIds.push(tableData[idx].id);
+
+                            cell = projectsTable.cell(idx, clearingSummaryColumnIndex);
+                            cell.data("Loading...");
+                        } else {
+                            break;
+                        }
+                    }
+                    queryPagesPageIds.push(pageIds);
                 }
-                jQuery.ajax({
+                postClearingStateSummaryRequest(queryPagesPageIds);
+            }
+
+            function postClearingStateSummaryRequest(idSets) {
+                if (idSets.length < 1) {
+                    return;
+                }
+
+                var ids = idSets.shift();
+                $.ajax({
                     type: 'POST',
                     url: '<%=loadClearingStateAjaxURL%>',
                     cache: false,
@@ -336,24 +362,32 @@
                         }
                     },
                     error: function () {
-                        for (var i = 0; i < tableData.length; i++) {
-                            var cell = projectsTable.cell("#" + tableData[i].id, clearingSummaryColumnIndex);
+                        for (var i = 0; i < ids.length; i++) {
+                            var cell = projectsTable.cell("#" + ids[i], clearingSummaryColumnIndex);
                             cell.data("Failed to load");
                         }
+                    },
+                    complete: function(xhr, status) {
+                        /* even though former requests might have failed, we want to start all further ones */
+                        postClearingStateSummaryRequest(idSets);
                     }
                 });
             }
 
             function displayClearingStateSummary(clearing){
-                var releaseCounts;
-                function d(v){return v == undefined ? "0" : v;}
+                function d(v) { return v == undefined ? 0 : v; }
+
+                var resultElementAsString = "<span class=\"clearingstate\" title=\"Necessary data not found on server!\">Not available</span>",
+                    releaseCount,
+                    approvedCount;
+
                 if (clearing) {
-                    releaseCounts = d(clearing.newRelease) + " " + d(clearing.underClearing) + " " + d(clearing.underClearingByProjectTeam) + " " + d(clearing.reportAvailable) + " " + d(clearing.approved);
-                } else {
-                    releaseCounts = "Not available";
+                    releaseCount = d(clearing.newRelease) + d(clearing.underClearing) + d(clearing.underClearingByProjectTeam) + d(clearing.reportAvailable) + d(clearing.approved);
+                    approvedCount = d(clearing.approved);
+                    resultElementAsString = "<span class=\"clearingstate\" title=\"" + approvedCount + (approvedCount === 1 ? " release" : " releases") + " out of " + releaseCount + (approvedCount === 1 ? " has" : " have") + " approved clearing reports (including subprojects).\">" + approvedCount + "/" + releaseCount + "</span>";
                 }
 
-                return "<span title=\"new release, under clearing, under clearing by the project clearing team, report available, approved\">" + releaseCounts + "</span>";
+                return resultElementAsString;
             }
 
             function createUrl_comp(paramId, paramVal) {

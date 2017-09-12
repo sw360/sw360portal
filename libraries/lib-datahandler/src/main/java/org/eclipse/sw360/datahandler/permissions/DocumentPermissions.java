@@ -16,11 +16,7 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
@@ -50,6 +46,21 @@ public abstract class DocumentPermissions<T> {
     protected abstract Set<String> getContributors();
 
     protected abstract Set<String> getModerators();
+
+    public boolean areActionsAllowed(List<RequestedAction> actions) {
+        boolean result = true;
+
+        if (actions != null) {
+            for (RequestedAction action : actions) {
+                if (!isActionAllowed(action)) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
 
     protected boolean isUserInEquivalentToOwnerGroup(){
         return true;

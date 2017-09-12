@@ -281,7 +281,14 @@ service ProjectService {
     map <string, list<string>> getDuplicateProjects();
 
     /**
-    * get the same list of projects back, but with filled release clearing state summaries
+     * get the same list of projects back, but with filled release clearing state summaries
      */
     list<Project> fillClearingStateSummary(1: list<Project> projects, 2: User user);
+
+    /**
+     * get the same list of projects back, but with filled release clearing state summaries where this
+     * clearing state summary contains the clearing states of releases of the complete subproject tree.
+     * Visibility of any of the projects in the tree for the given user is currently not considered.
+     */
+    list<Project> fillClearingStateSummaryIncludingSubprojects(1: list<Project> projects, 2: User user);
 }
