@@ -230,8 +230,8 @@ public class PortletUtils {
             return documentAttachments;
         }
 
-        Map<String, Attachment> documentAttachmentMap = CommonUtils.nullToEmptyMap(
-                documentAttachments.stream().collect(Collectors.toMap(Attachment::getAttachmentContentId, Function.identity())));
+        Map<String, Attachment> documentAttachmentMap = CommonUtils.nullToEmptySet(documentAttachments).stream()
+                .collect(Collectors.toMap(Attachment::getAttachmentContentId, Function.identity()));
         for (int i = 0; i < ids.length; ++i) {
             String id = ids[i];
             Attachment attachment = documentAttachmentMap.get(id);
