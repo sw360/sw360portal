@@ -67,6 +67,7 @@ import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePerm
 public class ProjectDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(ProjectDatabaseHandler.class);
+    private static final int DELETION_SANITY_CHECK_THRESHOLD = 5;
 
     private final ProjectRepository repository;
     private final ProjectVulnerabilityRatingRepository pvrRepository;
@@ -187,7 +188,9 @@ public class ProjectDatabaseHandler {
 
         assertNotNull(project);
 
-        if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
+        if (!changePassesSanityCheck(project, actual)){
+            return RequestStatus.FAILED_SANITY_CHECK;
+        } else if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
             copyImmutableFields(project,actual);
             repository.update(project);
 
@@ -198,6 +201,13 @@ public class ProjectDatabaseHandler {
         } else {
             return moderator.updateProject(project, user);
         }
+    }
+
+    private boolean changePassesSanityCheck(Project updated, Project current) {
+        return !(nullToEmptyMap(current.getReleaseIdToUsage()).size() > DELETION_SANITY_CHECK_THRESHOLD &&
+                nullToEmptyMap(updated.getReleaseIdToUsage()).size() == 0 ||
+                nullToEmptyMap(current.getLinkedProjects()).size() > DELETION_SANITY_CHECK_THRESHOLD &&
+                nullToEmptyMap(updated.getLinkedProjects()).size() == 0);
     }
 
     private void prepareProject(Project project) throws SW360Exception {

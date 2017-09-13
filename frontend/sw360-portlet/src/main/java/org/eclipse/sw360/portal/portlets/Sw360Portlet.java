@@ -264,6 +264,9 @@ abstract public class Sw360Portlet extends MVCPortlet {
                     setSW360SessionError(request, ErrorMessages.DOCUMENT_USED_BY_PROJECT_OR_RELEASE);
                 }
                 break;
+            case FAILED_SANITY_CHECK:
+                setSW360SessionError(request, ErrorMessages.UPDATE_FAILED_SANITY_CHECK);
+                break;
             default:
                 throw new PortletException("Unknown request status");
         }

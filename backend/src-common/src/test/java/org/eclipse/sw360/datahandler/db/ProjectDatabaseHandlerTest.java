@@ -11,10 +11,14 @@
 
 package org.eclipse.sw360.datahandler.db;
 
+import com.google.common.collect.ImmutableMap;
 import org.eclipse.sw360.datahandler.TestUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -27,6 +31,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -62,8 +67,24 @@ public class ProjectDatabaseHandlerTest {
 
         List<Project> projects = new ArrayList<>();
 
-        projects.add(new Project().setId("P1").setName("Project1").setBusinessUnit("AB CD EF").setCreatedBy("user1"));
-        projects.add(new Project().setId("P2").setName("Project2").setBusinessUnit("AB CD FE").setCreatedBy("user2"));
+        Project p1 = new Project().setId("P1").setName("Project1").setBusinessUnit("AB CD EF").setCreatedBy("user1")
+                .setReleaseIdToUsage(ImmutableMap.<String, ProjectReleaseRelationship>builder()
+                        .put("r1", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r2", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r3", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r4", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r5", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r6", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .build());
+        projects.add(p1);
+        Project p2 = new Project().setId("P2").setName("Project2").setBusinessUnit("AB CD FE").setCreatedBy("user2")
+                .setReleaseIdToUsage(ImmutableMap.<String, ProjectReleaseRelationship>builder()
+                        .put("r1", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r2", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r3", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .build());
+
+        projects.add(p2);
         projects.get(1).addToContributors("user1");
         projects.add(new Project().setId("P3").setName("Project3").setBusinessUnit("AB CD EF").setCreatedBy("user3"));
 
@@ -233,4 +254,29 @@ public class ProjectDatabaseHandlerTest {
         assertThat(duplicateProjects.get(printName(tmp)), containsInAnyOrder(newProjectId,originalProjectId));
     }
 
+    @Test
+    public void testSanityCheckFails() throws Exception {
+        Project project = handler.getProjectById("P1", user1);
+        project.setReleaseIdToUsage(Collections.emptyMap());
+        RequestStatus status = handler.updateProject(project, user1);
+        assertThat(status, is(RequestStatus.FAILED_SANITY_CHECK));
+    }
+
+    @Test
+    public void testSanityCheckSucceeds() throws Exception {
+        Project project = handler.getProjectById("P1", user1);
+        project.setReleaseIdToUsage(ImmutableMap.<String, ProjectReleaseRelationship>builder()
+                .put("r1", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                .put("r2", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                .put("r3", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                .build());
+
+        RequestStatus status = handler.updateProject(project, user1);
+        assertThat(status, is(RequestStatus.SUCCESS));
+
+        Project project2 = handler.getProjectById("P2", user1);
+        project2.setReleaseIdToUsage(Collections.emptyMap());
+        RequestStatus status2 = handler.updateProject(project2, user1);
+        assertThat(status2, is(RequestStatus.SUCCESS));
+    }
 }
