@@ -12,6 +12,7 @@ package org.eclipse.sw360.portal.tags;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
@@ -20,6 +21,7 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.tags.urlutils.LinkedReleaseRenderer;
 
 import javax.servlet.jsp.JspException;
@@ -28,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.add;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
 import static org.eclipse.sw360.portal.tags.TagUtils.*;
 
@@ -43,17 +46,18 @@ public class DisplayProjectChanges extends UserAwareTag {
     private Project deletions;
     private String tableClasses = "";
     private String idPrefix = "";
+    private String defaultLicenseInfoHeaderText = PortalConstants.DEFAULT_LICENSE_INFO_HEADER_TEXT_FOR_DISPALY;
 
     public void setActual(Project actual) {
-        this.actual = actual;
+        this.actual = prepareLicenseInfoHeaderTextInProject(actual);
     }
 
     public void setAdditions(Project additions) {
-        this.additions = additions;
+        this.additions = prepareLicenseInfoHeaderTextInProject(additions);
     }
 
     public void setDeletions(Project deletions) {
-        this.deletions = deletions;
+        this.deletions = prepareLicenseInfoHeaderTextInProject(deletions);
     }
 
     public void setTableClasses(String tableClasses) {
@@ -63,6 +67,11 @@ public class DisplayProjectChanges extends UserAwareTag {
     public void setIdPrefix(String idPrefix) {
         this.idPrefix = idPrefix;
     }
+
+    public void setDefaultLicenseInfoHeaderText(String defaultLicenseInfoHeaderText) {
+        this.defaultLicenseInfoHeaderText = defaultLicenseInfoHeaderText;
+    }
+
 
     public int doStartTag() throws JspException {
 
@@ -288,5 +297,20 @@ public class DisplayProjectChanges extends UserAwareTag {
             additions.setReleaseIdToUsage(new HashMap<>());
         }
         return true;
+    }
+
+    private Project prepareLicenseInfoHeaderTextInProject(Project project) {
+        String defaultTextAsHtmlForDisplay = "<span title=\"" + defaultLicenseInfoHeaderText + "\">" + PortalConstants.DEFAULT_LICENSE_INFO_HEADER_TEXT_FOR_DISPALY + "</span>";
+
+        if(!project.isSetLicenseInfoHeaderText()) {
+            // if the project contains the default license info header text, we wrap it into an html span-element such that the default text is given as a hover text.
+            // this is only done for displaying it in a three-way merge in a moderation request.
+            project.setLicenseInfoHeaderText(defaultTextAsHtmlForDisplay);
+        } else {
+            // for a custom text escape html properly
+            project.setLicenseInfoHeaderText(StringEscapeUtils.escapeHtml(project.getLicenseInfoHeaderText()).replace("\n", "<br>") );
+        }
+
+        return project;
     }
 }

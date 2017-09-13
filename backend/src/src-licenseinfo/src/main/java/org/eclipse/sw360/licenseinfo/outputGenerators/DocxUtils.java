@@ -36,7 +36,11 @@ public class DocxUtils {
     }
 
     public static void setProjectNameInDocument(XWPFDocument document, String projectName) {
-        replaceText(document, "$", projectName);
+        replaceText(document, "$projectname", projectName);
+    }
+
+    public static void setHeaderTextInDocument(XWPFDocument document, String headerText) {
+        replaceText(document, "$licenseInfoHeader", headerText);
     }
 
     public static XWPFTable createTableAndAddReleasesTableHeaders(XWPFDocument document, String[] headers) {

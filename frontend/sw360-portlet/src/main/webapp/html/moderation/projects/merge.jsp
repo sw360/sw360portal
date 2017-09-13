@@ -23,6 +23,7 @@
 <jsp:useBean id="moderationRequest" class="org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest" scope="request"/>
 <jsp:useBean id="selectedTab" class="java.lang.String" scope="request" />
 <jsp:useBean id="actual_project" class="org.eclipse.sw360.datahandler.thrift.projects.Project" scope="request" />
+<jsp:useBean id="defaultLicenseInfoHeaderText" class="java.lang.String" scope="request" />
 <core_rt:set var="project" value="${actual_project}" scope="request"/>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
@@ -42,7 +43,7 @@
 
 <h2>Proposed changes</h2>
 <h3>Basic fields</h3>
-<sw360:DisplayProjectChanges actual="${actual_project}" additions="${moderationRequest.projectAdditions}" deletions="${moderationRequest.projectDeletions}" idPrefix="basicFields" tableClasses="table info_table"/>
+<sw360:DisplayProjectChanges actual="${actual_project}" additions="${moderationRequest.projectAdditions}" deletions="${moderationRequest.projectDeletions}" idPrefix="basicFields" tableClasses="table info_table" defaultLicenseInfoHeaderText="${defaultLicenseInfoHeaderText}"/>
 
 <h3>Attachments</h3>
 <sw360:CompareAttachments actual="${actual_project.attachments}"

@@ -125,10 +125,10 @@ public class XhtmlGeneratorTest {
 
         xhtmlGenerator = new XhtmlGenerator();
 
-        xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject");
-        xmlString2 = xhtmlGenerator.generateOutputFile(lipresults2, "myproject");
-        xmlString3 = xhtmlGenerator.generateOutputFile(lipresults3, "myproject");
-        xmlStringEmpty = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject");
+        xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject", "Lorem Ipsum");
+        xmlString2 = xhtmlGenerator.generateOutputFile(lipresults2, "myproject", "Lorem Ipsum");
+        xmlString3 = xhtmlGenerator.generateOutputFile(lipresults3, "myproject", "Lorem Ipsum");
+        xmlStringEmpty = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject", "Lorem Ipsum");
 
         generateDocumentsFromXml();
     }

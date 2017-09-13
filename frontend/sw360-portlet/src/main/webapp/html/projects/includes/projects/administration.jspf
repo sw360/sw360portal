@@ -81,3 +81,24 @@
         <td><sw360:out value="${project.phaseOutSince}"/></td>
     </tr>
 </table>
+
+<table class="table info_table" id="LicenseInfoHeader" title="License Info Header">
+    <thead>
+    <tr>
+        <th class="headlabel">License Info Header</th>
+    </tr>
+    </thead>
+    <tr>
+        <td>
+            <textarea class="projectLicenseInfoHeaderText" id="licenseInfoHeaderText" readonly><sw360:DisplayLicenseInfoHeader project="${project}" defaultText="${defaultLicenseInfoHeaderText}"/></textarea>
+        </td>
+    </tr>
+</table>
+
+<script>
+    require(['jquery'], function($) {
+        $(document).ready(function () {
+            $('#licenseInfoHeaderText').height($('#licenseInfoHeaderText').prop('scrollHeight'));
+        });
+    });
+</script>

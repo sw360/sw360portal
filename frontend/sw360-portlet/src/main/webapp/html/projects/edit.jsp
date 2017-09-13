@@ -1,4 +1,3 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
@@ -9,6 +8,9 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="org.eclipse.sw360.datahandler.common.SW360Constants" %>
@@ -20,6 +22,8 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus" %>
 
 <%@ include file="/html/init.jsp"%>
+<%@ include file="/html/utils/includes/logError.jspf" %>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
 
@@ -45,6 +49,8 @@
     <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
     <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
     <jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
+    <jsp:useBean id="defaultLicenseInfoHeaderText" class="java.lang.String" scope="request" />
+
     <core_rt:set  var="addMode"  value="${empty project.id}" />
 </c:catch>
 
@@ -53,74 +59,126 @@
 <c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
 <c:set var="hasWritePermissions" value="${project.permissions[WRITE]}"/>
 
-<%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+<div id="header"></div>
+<p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
+    <span class="pull-right">
+        <core_rt:if test="${not addMode}">
+                   <input id="deleteProjectButton" type="button" class="addButton"
+                          value="Delete <sw360:ProjectName project="${project}"/>"
+                   <core_rt:if test="${ usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the project is used." </core_rt:if>
+                   >
+        </core_rt:if></span>
+</p>
 
-    <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 
-    <div id="where" class="content1">
-        <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${project.name}"/></span>
+<div id="content" >
+    <div class="container-fluid">
+        <form  id="projectEditForm" name="projectEditForm" action="<%=updateURL%>" method="post" >
+            <div id="myTab" class="row-fluid">
+                <ul class="nav nav-tabs span2">
+                    <li class="active"><a href="#tab-Summary">Summary</a></li>
+                    <li><a href="#tab-Administration">Administration</a></li>
+                    <li><a href="#tab-linkedProjects">Linked Releases And Projects</a></li>
+                    <core_rt:if test="${not addMode}" >
+                    <li><a href="#tab-Attachments">Attachments</a></li>
+                    </core_rt:if>
+                </ul>
+                <div class="tab-content span10">
+                    <div id="tab-Summary" class="tab-pane" >
+                        <%@include file="/html/projects/includes/projects/basicInfo.jspf" %>
+                        <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
+                        <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
+                        <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
+                    </div>
+                    <div id="tab-Administration" >
+                        <%@include file="/html/projects/includes/projects/administrationEdit.jspf" %>
+                    </div>
+                    <div id="tab-linkedProjects" >
+                        <%@include file="/html/projects/includes/linkedProjectsEdit.jspf" %>
+                        <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
+                    </div>
+                    <core_rt:if test="${not addMode}" >
+                    <div id="tab-Attachments" >
+                        <%@include file="/html/utils/includes/editAttachments.jspf" %>
+                    </div>
+                    </core_rt:if>
+                </div>
+            </div>
+
             <core_rt:if test="${not addMode}" >
-                <input id="deleteProjectButton" type="button" class="addButton"
-                       value="Delete <sw360:ProjectName project="${project}"/>"
-                <core_rt:if test="${ usingProjects.size()>0}"> disabled="disabled" title="Deletion is disabled as the project is used." </core_rt:if>
-                >
+                <input type="button" id="formSubmit" value="Update Project" class="addButton">
             </core_rt:if>
-        </p>
-        <core_rt:if test="${not addMode}" >
-            <input type="button" id="formSubmit" value="Update Project" class="addButton">
-        </core_rt:if>
-        <core_rt:if test="${addMode}" >
-            <input type="button" id="formSubmit" value="Add Project" class="addButton">
-        </core_rt:if>
-        <input id="cancelEditButton" type="button" value="Cancel" class="cancelButton">
-        <div id="moderationRequestCommentDialog" style="display: none">
+            <core_rt:if test="${addMode}" >
+                <input type="button" id="formSubmit" value="Add Project" class="addButton">
+            </core_rt:if>
+            <input id="cancelEditButton" type="button" value="Cancel" class="cancelButton">
+            <div id="moderationRequestCommentDialog" style="display: none">
             <hr>
             <label class="textlabel stackedLabel">Comment your changes</label>
             <textarea form=projectEditForm name="<portlet:namespace/><%=PortalConstants.MODERATION_REQUEST_COMMENT%>" id="moderationRequestCommentField" class="moderationCreationComment" placeholder="Leave a comment on your request"></textarea>
             <input type="button" class="addButton" id="moderationRequestCommentSendButton" value="Send moderation request">
-        </div>
-    </div>
+            </div>
 
-
-    <div id="editField" class="content2">
-        <form  id="projectEditForm" name="projectEditForm" action="<%=updateURL%>" method="post" >
-            <%@ include file="/html/utils/includes/requirejs.jspf" %>
-            <%@include file="/html/projects/includes/projects/basicInfo.jspf" %>
-            <%@include file="/html/projects/includes/linkedProjectsEdit.jspf" %>
-            <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
-            <core_rt:if test="${not addMode}" >
-                <%@include file="/html/utils/includes/editAttachments.jspf" %>
-            <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
-            <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
-            <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
-            </core_rt:if>
         </form>
-        <jsp:include page="/html/projects/includes/searchProjects.jsp" />
-        <core_rt:set var="enableSearchForReleasesFromLinkedProjects" value="${true}" scope="request"/>
-        <jsp:include page="/html/utils/includes/searchReleases.jsp" />
-        <jsp:include page="/html/utils/includes/searchAndSelectUsers.jsp" />
-        <jsp:include page="/html/utils/includes/searchUsers.jsp" />
-
-        <core_rt:if test="${not addMode}" >
-            <input type="button" id="formSubmit2" value="Update Project" class="addButton">
-        </core_rt:if>
-        <core_rt:if test="${addMode}" >
-            <input type="button" id="formSubmit2" value="Add Project" class="addButton">
-        </core_rt:if>
-        <input id="cancelEditButton2" type="button" value="Cancel" class="cancelButton">
     </div>
+</div>
+
+
+<jsp:include page="/html/projects/includes/searchProjects.jsp" />
+<core_rt:set var="enableSearchForReleasesFromLinkedProjects" value="${true}" scope="request"/>
+<jsp:include page="/html/utils/includes/searchReleases.jsp" />
+<jsp:include page="/html/utils/includes/searchAndSelectUsers.jsp" />
+<jsp:include page="/html/utils/includes/searchUsers.jsp" />
+
 </core_rt:if>
 
 <script>
-    require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
+var tabView;
+var Y = YUI().use(
+    'aui-tabview',
+    function(Y) {
+        tabView = new Y.TabView(
+            {
+                srcNode: '#myTab',
+                stacked: true,
+                type: 'tab'
+            }
+        ).render();
+    }
+);
+
+
+require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
+
+    $(document).ready(function() {
+        var contextpath = '<%=request.getContextPath()%>',
+            deletionMessage;
+
+        $('#moderationRequestCommentSendButton').on('click', submitForm);
+        $('#cancelEditButton, #cancelEditButton2').on('click', cancel);
+        $('#deleteProjectButton').on('click', openDeleteDialog);
+
+        sw360Validate.validateWithInvalidHandlerNoIgnore('#projectEditForm');
+
+        $('#formSubmit, #formSubmit2').click(
+            function () {
+                <core_rt:choose>
+                    <core_rt:when test="${addMode || project.permissions[WRITE]}">
+                        submitForm();
+                    </core_rt:when>
+                    <core_rt:otherwise>
+                        showCommentField();
+                    </core_rt:otherwise>
+                </core_rt:choose>
+            }
+        );
+    });
 
     function cancel() {
         deleteAttachmentsOnCancel();
@@ -179,33 +237,16 @@
         focusOnCommentField();
     }
 
-    function submitModerationRequest() {
+    function submitForm() {
+        disableLicenseInfoHeaderTextIfNecessary();
         $('#projectEditForm').submit();
     }
 
-    $(document).ready(function() {
-        var contextpath = '<%=request.getContextPath()%>',
-            deletionMessage;
-
-        $('#moderationRequestCommentSendButton').on('click', submitModerationRequest);
-        $('#cancelEditButton, #cancelEditButton2').on('click', cancel);
-        $('#deleteProjectButton').on('click', openDeleteDialog);
-
-        sw360Validate.validateWithInvalidHandlerNoIgnore('#projectEditForm');
-
-        $('#formSubmit, #formSubmit2').click(
-            function () {
-                <core_rt:choose>
-                    <core_rt:when test="${addMode || project.permissions[WRITE]}">
-                        $('#projectEditForm').submit();
-                    </core_rt:when>
-                    <core_rt:otherwise>
-                        showCommentField();
-                    </core_rt:otherwise>
-                </core_rt:choose>
-            }
-        );
-    });
+    function disableLicenseInfoHeaderTextIfNecessary() {
+        if($('#licenseInfoHeaderText').val() == $('#licenseInfoHeaderText').data("defaulttext")) {
+            $('#licenseInfoHeaderText').prop('disabled', true);
+        }
+    }
 });
 </script>
 

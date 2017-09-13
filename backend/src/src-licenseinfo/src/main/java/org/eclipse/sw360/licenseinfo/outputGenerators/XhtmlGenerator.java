@@ -13,6 +13,7 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
@@ -28,13 +29,19 @@ public class XhtmlGenerator extends OutputGenerator<String> {
     }
 
     @Override
-    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
+    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception {
         try {
-            return renderTemplateWithDefaultValues(projectLicenseInfoResults, XHTML_TEMPLATE_FILE);
+            return renderTemplateWithDefaultValues(projectLicenseInfoResults, XHTML_TEMPLATE_FILE, convertHeaderTextToHTML(licenseInfoHeaderText));
         } catch (Exception e) {
             LOGGER.error("Could not generate xhtml license info file", e);
             return "License information could not be generated.\nAn exception occured: " + e.toString();
         }
     }
+
+    private String convertHeaderTextToHTML(String headerText) {
+        String html = StringEscapeUtils.escapeHtml(headerText);
+        html = html.replace("\n", "<br>");
+        return html;
+        }
 }
 

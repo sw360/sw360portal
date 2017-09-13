@@ -68,6 +68,7 @@
 </head>
 <body>
     <h1>Open Source Software</h1>
+    $licenseInfoHeader
 
     <h2 id="releaseHeader">Releases</h2>
 

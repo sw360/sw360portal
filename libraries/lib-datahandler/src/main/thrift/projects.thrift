@@ -110,6 +110,7 @@ struct Project {
     44: optional string deliveryStart,
     45: optional string phaseOutSince,
     46: optional bool enableSvm, // flag for enabling Security Vulnerability Monitoring
+    47: optional string licenseInfoHeaderText;
 
     // Urls for the project
     50: optional string homepage,

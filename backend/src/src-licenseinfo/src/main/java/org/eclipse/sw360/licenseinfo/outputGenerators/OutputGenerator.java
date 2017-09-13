@@ -41,6 +41,7 @@ public abstract class OutputGenerator<T> {
     protected static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
     protected static final String LICENSES_CONTEXT_PROPERTY = "licenses";
     protected static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
+    protected static final String LICENSE_INFO_HEADER_TEXT = "licenseInfoHeader";
 
     private final String outputType;
     private final String outputDescription;
@@ -54,7 +55,7 @@ public abstract class OutputGenerator<T> {
         this.outputMimeType = mimeType;
     }
 
-    public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception;
+    public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception;
 
     public String getOutputType() {
         return outputType;
@@ -167,8 +168,10 @@ public abstract class OutputGenerator<T> {
      *            name of template file
      * @return rendered template
      */
-    protected String renderTemplateWithDefaultValues(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String file) {
+    protected String renderTemplateWithDefaultValues(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String file, String licenseInfoHeaderText) {
         VelocityContext vc = getConfiguredVelocityContext();
+        // set header
+        vc.put(LICENSE_INFO_HEADER_TEXT, licenseInfoHeaderText);
 
         // sorted lists of all license to be displayed at the end of the file at once
         List<LicenseNameWithText> licenseNamesWithTexts = getSortedLicenseNameWithTexts(projectLicenseInfoResults);
