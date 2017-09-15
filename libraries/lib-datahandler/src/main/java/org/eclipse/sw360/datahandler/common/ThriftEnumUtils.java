@@ -83,6 +83,7 @@ public class ThriftEnumUtils {
             .put(AttachmentType.LEGAL_EVALUATION, "Legal evaluation report")
             .put(AttachmentType.LICENSE_AGREEMENT, "License agreement")
             .put(AttachmentType.SCREENSHOT, "Screenshot of website")
+            .put(AttachmentType.README_OSS, "ReadMe OSS")
             .put(AttachmentType.OTHER, "Other")
             .build();
 
@@ -105,6 +106,7 @@ public class ThriftEnumUtils {
             .put(AttachmentType.LEGAL_EVALUATION, "LRT")
             .put(AttachmentType.LICENSE_AGREEMENT, "LAT")
             .put(AttachmentType.SCREENSHOT, "SCR")
+            .put(AttachmentType.README_OSS, "RDM")
             .put(AttachmentType.OTHER, "OTH")
             .build();
     // @formatter:on

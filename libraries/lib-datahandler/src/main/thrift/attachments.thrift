@@ -36,7 +36,8 @@ enum AttachmentType {
     LEGAL_EVALUATION = 13,
     LICENSE_AGREEMENT = 14,
     SCREENSHOT = 15,
-    OTHER = 16
+    OTHER = 16,
+    README_OSS = 17
 }
 
 enum CheckStatus {
