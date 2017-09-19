@@ -14,7 +14,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
-import org.eclipse.sw360.datahandler.common.UncheckedSW360Exception;
+import org.eclipse.sw360.datahandler.common.WrappedException.WrappedSW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.putReleaseNamesInMap;
+import static org.eclipse.sw360.datahandler.common.WrappedException.wrapSW360Exception;
 import static org.eclipse.sw360.exporter.ReleaseExporter.HEADERS;
 import static org.eclipse.sw360.exporter.ReleaseExporter.HEADERS_EXTENDED_BY_ADDITIONAL_DATA;
 import static org.eclipse.sw360.exporter.ReleaseExporter.RELEASE_RENDERED_FIELDS;
@@ -176,74 +177,58 @@ class ReleaseHelper implements ExporterHelper<Release> {
                     .keySet()
                     .stream()
                     .filter(f -> !VENDOR_IGNORED_FIELDS.contains(f))
-                    .forEach(f -> {
+                    .forEach(f -> wrapSW360Exception(() -> {
                         if (vendor != null && vendor.isSet(f)) {
-                            try {
-                                row.add(fieldValueAsString(vendor.getFieldValue(f)));
-                            } catch (SW360Exception e) {
-                                throw new UncheckedSW360Exception(e);
-                            }
+                            row.add(fieldValueAsString(vendor.getFieldValue(f)));
                         } else {
                             row.add("");
                         }
-                    });
-        } catch (UncheckedSW360Exception e) {
-            throw e.getSW360ExceptionCause();
+                    }));
+        } catch (WrappedSW360Exception e) {
+            throw e.getCause();
         }
 
     }
 
     private void addCotsDetailsToRow(COTSDetails cotsDetails, List<String> row) throws SW360Exception {
         try {
-            COTSDetails.metaDataMap.keySet().forEach(f -> {
+            COTSDetails.metaDataMap.keySet().forEach(f -> wrapSW360Exception(() -> {
                 if (cotsDetails != null && cotsDetails.isSet(f)) {
-                    try {
-                        row.add(fieldValueAsString(cotsDetails.getFieldValue(f)));
-                    } catch (SW360Exception e) {
-                        throw new UncheckedSW360Exception(e);
-                    }
+                    row.add(fieldValueAsString(cotsDetails.getFieldValue(f)));
                 } else {
                     row.add("");
                 }
-            });
-        } catch (UncheckedSW360Exception e) {
-            throw e.getSW360ExceptionCause();
+            }));
+        } catch (WrappedSW360Exception e) {
+            throw e.getCause();
         }
     }
 
     private void addClearingInformationToRow(ClearingInformation clearingInformation, List<String> row) throws SW360Exception {
         try {
-            ClearingInformation.metaDataMap.keySet().forEach(f -> {
+            ClearingInformation.metaDataMap.keySet().forEach(f -> wrapSW360Exception(() -> {
                 if (clearingInformation != null && clearingInformation.isSet(f)) {
-                    try {
-                        row.add(fieldValueAsString(clearingInformation.getFieldValue(f)));
-                    } catch (SW360Exception e) {
-                        throw new UncheckedSW360Exception(e);
-                    }
+                    row.add(fieldValueAsString(clearingInformation.getFieldValue(f)));
                 } else {
                     row.add("");
                 }
-            });
-        } catch (UncheckedSW360Exception e) {
-            throw e.getSW360ExceptionCause();
+            }));
+        } catch (WrappedSW360Exception e) {
+            throw e.getCause();
         }
     }
 
     private void addEccInformationToRow(EccInformation eccInformation, List<String> row) throws SW360Exception {
         try {
-            EccInformation.metaDataMap.keySet().forEach(f -> {
+            EccInformation.metaDataMap.keySet().forEach(f -> wrapSW360Exception(() -> {
                 if (eccInformation != null && eccInformation.isSet(f)) {
-                    try {
-                        row.add(fieldValueAsString(eccInformation.getFieldValue(f)));
-                    } catch (SW360Exception e) {
-                        throw new UncheckedSW360Exception(e);
-                    }
+                    row.add(fieldValueAsString(eccInformation.getFieldValue(f)));
                 } else {
                     row.add("");
                 }
-            });
-        } catch (UncheckedSW360Exception e) {
-            throw e.getSW360ExceptionCause();
+            }));
+        } catch (WrappedSW360Exception e) {
+            throw e.getCause();
         }
     }
 

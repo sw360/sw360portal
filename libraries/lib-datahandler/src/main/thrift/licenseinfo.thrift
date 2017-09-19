@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -11,6 +11,7 @@
  */
 include "users.thrift"
 include "components.thrift"
+include "projects.thrift"
 
 namespace java org.eclipse.sw360.datahandler.thrift.licenseinfo
 namespace php sw360.thrift.licenseinfo
@@ -18,6 +19,7 @@ namespace php sw360.thrift.licenseinfo
 typedef components.Release Release
 typedef components.Attachment Attachment
 typedef users.User User
+typedef projects.Project Project
 
 enum LicenseInfoRequestStatus{
     SUCCESS = 0,
@@ -25,7 +27,7 @@ enum LicenseInfoRequestStatus{
     FAILURE = 2,
 }
 
-struct OutputFormatInfo{
+struct OutputFormatInfo {
     1: optional string fileExtension,
     2: optional string description,
     3: optional string generatorClassName,
@@ -33,10 +35,10 @@ struct OutputFormatInfo{
     5: optional string mimeType,
 }
 
-struct LicenseNameWithText{
+struct LicenseNameWithText {
     1: optional string licenseName,
     2: optional string licenseText,
-    3: optional i32 id,
+    /* 3: optional i32 id, removed since only used as counter in XhtmlGenerator */
     4: optional string acknowledgements,
 }
 
@@ -59,25 +61,23 @@ struct LicenseInfoParsingResult {
     32: optional string version,
 }
 
+struct LicenseInfoFile {
+    1: required OutputFormatInfo outputFormatInfo,
+    2: required binary              generatedOutput,
+}
+
 service LicenseInfoService {
 
     /**
-     * Returns the CLI contained in the attachment, if any
-     * */
-//    LicenseInfoParsingResult getLicenseInfoForAttachment(1: Attachment attachment);
-
-    /**
-     * Returns the CLI for the given release.
-     * */
-//    LicenseInfoParsingResult getLicenseInfoForRelease(1: Release release, 2: string selectedAttachmentContentId);
+     * parses the attachment of one release for license information and returns the result.
+     */
+    list<LicenseInfoParsingResult> getLicenseInfoForAttachment(1: Release release, 2: string attachmentContentId, 3: User user);
 
     /**
      * get a copyright and license information file on all linked releases and linked releases of linked projects (recursively)
      * output format as specified by outputType
      */
-    string getLicenseInfoFileForProject(1: string projectId, 2: User user, 3: string outputType, 4: map<string, set<string>>releaseIdsToSelectedAttachmentIds);
-
-    binary getLicenseInfoFileForProjectAsBinary(1: string projectId, 2: User user, 3: string outputType, 4: map<string, set<string>>releaseIdsToSelectedAttachmentIds);
+    LicenseInfoFile getLicenseInfoFile(1: Project project, 2: User user, 3: string outputGeneratorClassName, 4: map<string, set<string>> releaseIdsToSelectedAttachmentIds, 5: map<string, set<LicenseNameWithText>> excludedLicensesPerAttachment);
 
     /**
       * returns all available output types

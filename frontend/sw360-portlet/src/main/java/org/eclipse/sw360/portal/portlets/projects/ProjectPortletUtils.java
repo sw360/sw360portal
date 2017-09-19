@@ -10,31 +10,21 @@
  */
 package org.eclipse.sw360.portal.portlets.projects;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.model.ExpandoColumn;
-import com.liferay.portlet.expando.model.ExpandoColumnConstants;
-import com.liferay.portlet.expando.model.ExpandoTableConstants;
-import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
 import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
-import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
@@ -45,7 +35,9 @@ import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
 import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
@@ -195,5 +187,67 @@ public class ProjectPortletUtils {
             }
         });
         return releaseIdToAttachmentIds;
+    }
+
+    /**
+     * Returns a map of excluded licenses. They key is an attachment content id, the
+     * value is a list of excluded licenses.
+     *
+     * For this method to work it is crucial that there is a so called
+     * "license-store-&lt;attachmentContentId&gt;" map in the session. This map must
+     * contain a mapping from a key to a {@link LicenseNameWithText} object.
+     *
+     * @param attachmentContentIds
+     *            list of attachment content id to check for exclusions in the
+     *            request
+     * @param request
+     *            the request containing the excluded licenses as parameters
+     *
+     * @return a map containing the licenses to exclude
+     *
+     * @see ProjectPortletUtilsTest for a better understanding
+     */
+    public static Map<String, Set<LicenseNameWithText>> getExcludedLicensesPerAttachmentIdFromRequest(Set<String> attachmentContentIds,
+            ResourceRequest request) {
+        Map<String, Set<LicenseNameWithText>> excludedLicenses = Maps.newHashMap();
+
+        for (String attachmentContentId : attachmentContentIds) {
+            String[] checkboxes = request.getParameterValues(attachmentContentId);
+            String[] keys = request.getParameterValues(attachmentContentId + "_key");
+
+            if (checkboxes == null) {
+                // no details present
+                continue;
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, LicenseNameWithText> licenseStore = (Map<String, LicenseNameWithText>) request.getPortletSession()
+                    .getAttribute(ProjectPortlet.LICENSE_STORE_KEY_PREFIX + attachmentContentId);
+            if (licenseStore == null) {
+                throw new IllegalStateException("No license store found for attachment content id " + attachmentContentId);
+            }
+
+            Set<Integer> includedIds = Arrays.stream(checkboxes).map(s -> Integer.valueOf(s)).collect(Collectors.toSet());
+            Set<LicenseNameWithText> licenseNameWithTexts = Sets.newHashSet();
+            for (int index = 0; index < keys.length; index++) {
+                if (includedIds.contains(index)) {
+                    // a request will only contain selected ids because unselected checkboxes are
+                    // not transferred. Due to that we have to exclude everything that was NOT
+                    // transferred
+                    continue;
+                }
+
+                LicenseNameWithText licenseNameWithText = licenseStore.get(keys[index]);
+                if (licenseNameWithText == null) {
+                    throw new IllegalStateException("No license found for key " + keys[index]);
+                }
+
+                licenseNameWithTexts.add(licenseNameWithText);
+            }
+
+            excludedLicenses.put(attachmentContentId, licenseNameWithTexts);
+        }
+
+        return excludedLicenses;
     }
 }

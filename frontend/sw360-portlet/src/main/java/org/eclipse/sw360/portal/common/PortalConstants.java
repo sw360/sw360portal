@@ -139,11 +139,13 @@ public class PortalConstants {
     public static final String PAGENAME_LICENSE_INFO = "generateLicenseInfo";
     public static final String PAGENAME_SOURCE_CODE_BUNDLE = "generateSourceCodeBundle";
     public static final String PROJECT_ROLES;
-
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
     public static final String MISSING_USER_LIST = "missingUserList";
     public static final String GET_CLEARING_STATE_SUMMARY = "getClearingStateSummary";
+    public static final String PROJECT_LINK_TABLE_MODE = "projectLinkTableMode";
+    public static final String PROJECT_LINK_TABLE_MODE_LICENSE_INFO = "licenseInfo";
+    public static final String PROJECT_LINK_TABLE_MODE_SOURCE_BUNDLE = "sourceBundle";
 
     //! Specialized keys for database Sanitation
     public static final String DUPLICATE_RELEASES = "duplicateReleases";
@@ -192,7 +194,7 @@ public class PortalConstants {
     public static final String CVESEARCH_OFFSET = "cvesearchOffset";
     public static final String CVESEARCH_INTERVAL = "cvesearchInterval";
     public static final String CVESEARCH_NEXT_SYNC = "cvesearchNextSync";
-    
+
     //! Specialized keys for licenseInfo
     public static final String LICENSE_INFO_OUTPUT_FORMATS = "licenseInfoOutputFormats";
     public static final String LICENSE_INFO_SELECTED_OUTPUT_FORMAT = "licenseInfoSelectedOutputFormat";
@@ -210,7 +212,6 @@ public class PortalConstants {
     public static final String MODERATION_REQUEST_COMMENT = "moderation_request_comment";
     public static final String MODERATION_DECISION_COMMENT = "moderation_decision_comment";
     public static final String WHAT = "what";
-
     public static final String WHERE = "where";
     public static final String WHERE_ARRAY = "where[]";
     public static final String HOW = "how";
@@ -262,6 +263,7 @@ public class PortalConstants {
     public static final String LIST_NEW_LINKED_RELEASES = "add_to_linked_releases";
     public static final String DOWNLOAD_LICENSE_INFO = "DownloadLicenseInfo";
     public static final String DOWNLOAD_SOURCE_CODE_BUNDLE = "DownloadSourceCodeBundle";
+    public static final String GET_LICENCES_FROM_ATTACHMENT = "GetLicensesFromAttachment";
 
     //component actions
     public static final String ADD_VENDOR = "add_vendor";

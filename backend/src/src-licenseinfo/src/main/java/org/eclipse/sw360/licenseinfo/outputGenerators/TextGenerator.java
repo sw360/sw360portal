@@ -19,21 +19,21 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult
 
 import java.util.Collection;
 
-public class XhtmlGenerator extends OutputGenerator<String> {
-    private static final Logger LOGGER = Logger.getLogger(XhtmlGenerator.class);
-    private static final String XHTML_TEMPLATE_FILE = "xhtmlLicenseInfoFile.vm";
+public class TextGenerator extends OutputGenerator<String> {
+    private static final Logger LOGGER = Logger.getLogger(TextGenerator.class);
+    private static final String LICENSE_INFO_TEMPLATE_FILE = "textLicenseInfoFile.vm";
 
-    public XhtmlGenerator() {
-        super("html", "License information as XHTML", false, "application/xhtml+xml");
+    public TextGenerator() {
+        super("txt", "License information as TEXT", false, "text/plain");
     }
 
     @Override
     public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
         try {
-            return renderTemplateWithDefaultValues(projectLicenseInfoResults, XHTML_TEMPLATE_FILE);
+            return renderTemplateWithDefaultValues(projectLicenseInfoResults, LICENSE_INFO_TEMPLATE_FILE);
         } catch (Exception e) {
-            LOGGER.error("Could not generate xhtml license info file", e);
-            return "License information could not be generated.\nAn exception occured: " + e.toString();
+            LOGGER.error("Could not generate text licenseinfo file", e);
+            return "License information could not be generated.\nAn exception occurred: " + e.toString();
         }
     }
 }

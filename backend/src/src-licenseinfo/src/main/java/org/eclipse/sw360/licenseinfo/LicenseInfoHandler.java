@@ -11,260 +11,236 @@
 package org.eclipse.sw360.licenseinfo;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.attachments.db.AttachmentDatabaseHandler;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
+import org.eclipse.sw360.datahandler.common.WrappedException.WrappedTException;
 import org.eclipse.sw360.datahandler.db.ComponentDatabaseHandler;
-import org.eclipse.sw360.datahandler.db.ProjectDatabaseHandler;
-import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.licenseinfo.outputGenerators.DocxGenerator;
-import org.eclipse.sw360.licenseinfo.outputGenerators.LicenseInfoGenerator;
 import org.eclipse.sw360.licenseinfo.outputGenerators.OutputGenerator;
+import org.eclipse.sw360.licenseinfo.outputGenerators.TextGenerator;
 import org.eclipse.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
 import org.eclipse.sw360.licenseinfo.parsers.*;
+import org.eclipse.sw360.licenseinfo.util.LicenseNameWithTextUtils;
 
 import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
-import static org.eclipse.sw360.datahandler.common.SW360Assert.assertId;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
+import static org.eclipse.sw360.datahandler.common.WrappedException.wrapTException;
 
 /**
  * Implementation of the Thrift service
- *
- * @author alex.borodin@evosoft.com
  */
 public class LicenseInfoHandler implements LicenseInfoService.Iface {
+    private static final Logger LOGGER = Logger.getLogger(LicenseInfoHandler.class);
+    private static final int CACHE_TIMEOUT_MINUTES = 15;
+    private static final int CACHE_MAX_ITEMS = 100;
 
-    public static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
-    public static final String LICENSES_CONTEXT_PROPERTY = "licenses";
-    public static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
-    public static final String ACKNOWLEDGEMENTS_CONTEXT_PROPERTY = "acknowledgements";
-
-    private final LicenseInfoParser[] parsers;
-
-    private final OutputGenerator[] outputGenerators;
-
-    private static final Logger log = Logger.getLogger(LicenseInfoHandler.class);
-
-    private final ProjectDatabaseHandler projectDatabaseHandler;
-
-    private final ComponentDatabaseHandler componentDatabaseHandler;
+    protected List<LicenseInfoParser> parsers;
+    protected List<OutputGenerator<?>> outputGenerators;
+    protected ComponentDatabaseHandler componentDatabaseHandler;
+    protected Cache<String, List<LicenseInfoParsingResult>> licenseInfoCache;
 
     public LicenseInfoHandler() throws MalformedURLException {
         this(new AttachmentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_ATTACHMENTS),
-                new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS),
                 new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS));
     }
 
     @VisibleForTesting
-    public LicenseInfoHandler(AttachmentDatabaseHandler attachmentDatabaseHandler,
-                              ProjectDatabaseHandler projectDatabaseHandler,
+    protected LicenseInfoHandler(AttachmentDatabaseHandler attachmentDatabaseHandler,
                               ComponentDatabaseHandler componentDatabaseHandler) throws MalformedURLException {
-        this.projectDatabaseHandler = projectDatabaseHandler;
         this.componentDatabaseHandler = componentDatabaseHandler;
+        this.licenseInfoCache = CacheBuilder.newBuilder().expireAfterWrite(CACHE_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                .maximumSize(CACHE_MAX_ITEMS).build();
 
         AttachmentContentProvider contentProvider = attachment -> attachmentDatabaseHandler.getAttachmentContent(attachment.getAttachmentContentId());
 
-        parsers = new LicenseInfoParser[]{
-                new SPDXParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
-                new CLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
-                new CombinedCLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider, componentDatabaseHandler),
-        };
+        // @formatter:off
+        parsers = Lists.newArrayList(
+            new SPDXParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
+            new CLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider),
+            new CombinedCLIParser(attachmentDatabaseHandler.getAttachmentConnector(), contentProvider, componentDatabaseHandler)
+        );
 
-        outputGenerators = new OutputGenerator[]{
-                new LicenseInfoGenerator(),
-                new XhtmlGenerator(),
-                new DocxGenerator()
-        };
-    }
-
-    private List<LicenseInfoParsingResult> getLicenseInfosForRelease(Release release, String selectedAttachmentContentId, User user) throws TException{
-        if(release == null){
-            return Collections.singletonList(noSourceParsingResult());
-        }
-        Optional<Attachment> selectedAttachmentOpt = release
-                .getAttachments()
-                .stream()
-                .filter(a -> a.getAttachmentContentId().equals(selectedAttachmentContentId))
-                .findFirst();
-        if (!selectedAttachmentOpt.isPresent()){
-            String message = String.format("Attachment selected for license info generation is not found in release's attachments. Release id: %s. Attachment content id: %s", release
-                    .getId(), selectedAttachmentContentId);
-            throw new IllegalStateException(message);
-        }
-        Attachment attachment = selectedAttachmentOpt.get();
-
-        try {
-            List<LicenseInfoParser> applicableParsers = Arrays.stream(parsers).filter(p -> {
-                try {
-                    return p.isApplicableTo(attachment, user, release);
-                } catch (TException e) {
-                    throw new UncheckedTException(e);
-                }
-            }).collect(Collectors.toList());
-
-            if (applicableParsers.size() == 0){
-                // no applicable parser has been found for this attachment. weird
-                log.warn("No applicable parser has been found for the attachment selected for license information");
-                return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
-            } else {
-                if (applicableParsers.size() > 1){
-                    log.info("More than one parser claims to be able to parse attachment with contend id "+selectedAttachmentContentId);
-                }
-                List<LicenseInfoParsingResult> results = applicableParsers.stream().map(parser -> {
-                    try {
-                        return parser.getLicenseInfos(attachment, user, release);
-                    } catch (TException e) {
-                        throw new UncheckedTException(e);
-                    }
-                }).flatMap(Collection::stream)
-                        .collect(Collectors.toList());
-                return assignReleaseToLicenseInfoParsingResults(results, release);
-            }
-        } catch (UncheckedTException e) {
-            throw e.getTExceptionCause();
-        }
-    }
-
-    private List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResult(LicenseInfoParsingResult licenseInfoParsingResult, Release release) {
-        return assignReleaseToLicenseInfoParsingResults(Collections.singletonList(licenseInfoParsingResult), release);
+        outputGenerators = Lists.newArrayList(
+            new TextGenerator(),
+            new XhtmlGenerator(),
+            new DocxGenerator()
+        );
+        // @formatter:on
     }
 
     @Override
-    public String getLicenseInfoFileForProject(String projectId, User user, String outputGeneratorClassName, Map<String, Set<String>> releaseIdsToSelectedAttachmentIds) throws TException {
-        assertId(projectId);
-        Project project = projectDatabaseHandler.getProjectById(projectId, user);
+    public LicenseInfoFile getLicenseInfoFile(Project project, User user, String outputGeneratorClassName,
+            Map<String, Set<String>> releaseIdsToSelectedAttachmentIds, Map<String, Set<LicenseNameWithText>> excludedLicensesPerAttachment)
+            throws TException {
         assertNotNull(project);
+        assertNotNull(user);
+        assertNotNull(outputGeneratorClassName);
+        assertNotNull(releaseIdsToSelectedAttachmentIds);
+        assertNotNull(excludedLicensesPerAttachment);
 
         Map<Release, Set<String>> releaseToAttachmentId = mapKeysToReleases(releaseIdsToSelectedAttachmentIds, user);
+        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(releaseToAttachmentId, user,
+                excludedLicensesPerAttachment);
 
-        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(releaseToAttachmentId, user);
-        for (OutputGenerator generator : outputGenerators) {
-            if (outputGeneratorClassName.equals(generator.getClass().getName())) {
-                return (String) generator.generateOutputFile(projectLicenseInfoResults, project.getName());
-            }
+        OutputGenerator<?> generator = getOutputGeneratorByClassname(outputGeneratorClassName);
+        LicenseInfoFile licenseInfoFile = new LicenseInfoFile();
+
+        licenseInfoFile.setOutputFormatInfo(generator.getOutputFormatInfo());
+        Object output = generator.generateOutputFile(projectLicenseInfoResults, project.getName());
+        if (output instanceof byte[]) {
+            licenseInfoFile.setGeneratedOutput((byte[]) output);
+        } else if (output instanceof String) {
+            licenseInfoFile.setGeneratedOutput(((String) output).getBytes());
+        } else {
+            throw new TException("Unsupported output generator result: " + output.getClass().getName());
         }
-        throw new TException("Unknown output generator for String output: " + outputGeneratorClassName);
-    }
 
-    private Map<Release, Set<String>> mapKeysToReleases(Map<String, Set<String>> releaseIdsToAttachmentIds, User user) throws TException{
-        Map<Release, Set<String>> result = Maps.newHashMap();
-        try {
-            releaseIdsToAttachmentIds.forEach((relId, attIds) -> {
-                try {
-                    result.put(componentDatabaseHandler.getRelease(relId, user), attIds);
-                } catch (SW360Exception e) {
-                    throw new UncheckedTException(e);
-                }
-            });
-        } catch (UncheckedTException ute){
-            throw ute.getTExceptionCause();
-        }
-        return result;
-    }
-
-    @Override
-    public ByteBuffer getLicenseInfoFileForProjectAsBinary(String projectId, User user, String outputGeneratorClassName, Map<String, Set<String>> releaseIdsToSelectedAttachmentIds) throws TException {
-        assertId(projectId);
-        Project project = projectDatabaseHandler.getProjectById(projectId, user);
-        assertNotNull(project);
-
-        Map<Release, Set<String>> releaseToAttachmentIds = mapKeysToReleases(releaseIdsToSelectedAttachmentIds, user);
-        Collection<LicenseInfoParsingResult> projectLicenseInfoResults = getAllReleaseLicenseInfos(releaseToAttachmentIds, user);
-        for (OutputGenerator generator : outputGenerators) {
-            if (outputGeneratorClassName.equals(generator.getClass().getName())) {
-                return ByteBuffer.wrap((byte[]) generator.generateOutputFile(projectLicenseInfoResults, project.getName()));
-            }
-        }
-        throw new TException("Unknown output generator for binary output: " + outputGeneratorClassName);
+        return licenseInfoFile;
     }
 
     @Override
     public List<OutputFormatInfo> getPossibleOutputFormats() {
-        List<OutputFormatInfo> outputPossibilities = new ArrayList<>();
-        for (OutputGenerator generator : outputGenerators) {
-            outputPossibilities.add(
-                    generator.getOutputFormatInfo()
-            );
-        }
-        return outputPossibilities;
+        return outputGenerators.stream().map(OutputGenerator::getOutputFormatInfo).collect(Collectors.toList());
     }
 
     @Override
-    public OutputFormatInfo getOutputFormatInfoForGeneratorClass(String generatorClassName) throws TException{
-        for (OutputGenerator generator : outputGenerators) {
-            if (generatorClassName.equals(generator.getClass().getName())) {
-                return generator.getOutputFormatInfo();
+    public OutputFormatInfo getOutputFormatInfoForGeneratorClass(String generatorClassName) throws TException {
+        OutputGenerator<?> generator = getOutputGeneratorByClassname(generatorClassName);
+        return generator.getOutputFormatInfo();
+    }
+
+    @Override
+    public List<LicenseInfoParsingResult> getLicenseInfoForAttachment(Release release, String attachmentContentId, User user)
+            throws TException {
+        if (release == null) {
+            return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
+        }
+
+        List<LicenseInfoParsingResult> cachedResults = licenseInfoCache.getIfPresent(attachmentContentId);
+        if (cachedResults != null) {
+            return cachedResults;
+        }
+
+        Attachment attachment = CommonUtils.nullToEmptySet(release.getAttachments()).stream()
+                .filter(a -> a.getAttachmentContentId().equals(attachmentContentId)).findFirst().orElseThrow(() -> {
+                    String message = String.format(
+                            "Attachment selected for license info generation is not found in release's attachments. Release id: %s. Attachment content id: %s",
+                            release.getId(), attachmentContentId);
+                    return new IllegalStateException(message);
+                });
+
+        try {
+
+            List<LicenseInfoParser> applicableParsers = parsers.stream()
+                    .filter(parser -> wrapTException(() -> parser.isApplicableTo(attachment, user, release))).collect(Collectors.toList());
+
+            if (applicableParsers.size() == 0) {
+                LOGGER.warn("No applicable parser has been found for the attachment selected for license information");
+                return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
+            } else if (applicableParsers.size() > 1) {
+                LOGGER.info("More than one parser claims to be able to parse attachment with contend id " + attachmentContentId);
+            }
+
+            List<LicenseInfoParsingResult> results = applicableParsers.stream()
+                    .map(parser -> wrapTException(() -> parser.getLicenseInfos(attachment, user, release))).flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+            filterEmptyLicenses(results);
+
+            results = assignReleaseToLicenseInfoParsingResults(results, release);
+            licenseInfoCache.put(attachmentContentId, results);
+            return results;
+        } catch (WrappedTException exception) {
+            throw exception.getCause();
+        }
+    }
+
+    protected Map<Release, Set<String>> mapKeysToReleases(Map<String, Set<String>> releaseIdsToAttachmentIds, User user) throws TException {
+        Map<Release, Set<String>> result = Maps.newHashMap();
+        try {
+            releaseIdsToAttachmentIds
+                    .forEach((relId, attIds) -> wrapTException(() -> result.put(componentDatabaseHandler.getRelease(relId, user), attIds)));
+        } catch (WrappedTException exception) {
+            throw exception.getCause();
+        }
+        return result;
+    }
+
+    protected void filterEmptyLicenses(List<LicenseInfoParsingResult> results) {
+        for (LicenseInfoParsingResult result : results) {
+            if (result.isSetLicenseInfo() && result.getLicenseInfo().isSetLicenseNamesWithTexts()) {
+                result.getLicenseInfo().setLicenseNamesWithTexts(
+                        result.getLicenseInfo().getLicenseNamesWithTexts().stream().filter(licenseNameWithText -> {
+                            return !LicenseNameWithTextUtils.isEmpty(licenseNameWithText);
+                        }).collect(Collectors.toSet()));
             }
         }
-        throw new TException("Unknown output format: " + generatorClassName);
     }
 
-    private Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(Map<Release, Set<String>> releaseToSelectedAttachmentIds, User user) throws TException {
-        try {
-            return releaseToSelectedAttachmentIds.entrySet().stream()
-                    .map((entry) -> entry.getValue().stream()
-                            .filter(Objects::nonNull)
-                            .map(attId -> {
-                                try {
-                                    return getLicenseInfosForRelease(entry.getKey(), attId, user);
-                                } catch (TException e) {
-                                    throw new UncheckedTException(e);
-                                }
-                            }).flatMap(Collection::stream).collect(Collectors.toList())
-                    ).flatMap(Collection::stream).collect(Collectors.toList());
-        }catch(UncheckedTException e){
-            throw e.getTExceptionCause();
+    protected Collection<LicenseInfoParsingResult> getAllReleaseLicenseInfos(Map<Release, Set<String>> releaseToSelectedAttachmentIds,
+            User user, Map<String, Set<LicenseNameWithText>> excludedLicensesPerAttachment) throws TException {
+        List<LicenseInfoParsingResult> results = Lists.newArrayList();
+
+        for (Entry<Release, Set<String>> entry : releaseToSelectedAttachmentIds.entrySet()) {
+            for (String attachmentContentId : entry.getValue()) {
+                if (attachmentContentId != null) {
+                    Set<LicenseNameWithText> licencesToExclude = excludedLicensesPerAttachment.getOrDefault(attachmentContentId,
+                            Sets.newHashSet());
+                    List<LicenseInfoParsingResult> parsedLicenses = getLicenseInfoForAttachment(entry.getKey(), attachmentContentId, user);
+
+                    results.addAll(
+                            parsedLicenses.stream().map(result -> filterLicenses(result, licencesToExclude)).collect(Collectors.toList()));
+                }
+            }
         }
+
+        return results;
     }
 
-    private LicenseInfoParsingResult mergeLicenseInfos(LicenseInfoParsingResult lir1, LicenseInfoParsingResult lir2){
-        if (lir1.getStatus() != LicenseInfoRequestStatus.SUCCESS){
-            return lir2;
-        }
-        if (lir2.getStatus() != LicenseInfoRequestStatus.SUCCESS){
-            return lir1;
-        }
+    protected LicenseInfoParsingResult filterLicenses(LicenseInfoParsingResult result, Set<LicenseNameWithText> licencesToExclude) {
+        Set<LicenseNameWithText> filteredLicenses = result.getLicenseInfo().getLicenseNamesWithTexts().stream().filter(license -> {
+            for (LicenseNameWithText excludeLicense : licencesToExclude) {
+                if (LicenseNameWithTextUtils.licenseNameWithTextEquals(license, excludeLicense)) {
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toSet());
 
-        if (!Objects.equals(lir1.getName(), lir2.getName()) || !Objects.equals(lir1.getVendor(), lir2.getVendor()) || !Objects.equals(lir1.getVersion(), lir2.getVersion())){
-            throw new IllegalArgumentException("Method is not intended to merge across releases. Release data must be equal");
-        }
-        LicenseInfo mergedLi = new LicenseInfo();
-        //merging filenames
-        Set<String> filenames = new HashSet<>();
-        filenames.addAll(nullToEmptyList(lir1.getLicenseInfo().getFilenames()));
-        filenames.addAll(nullToEmptyList(lir2.getLicenseInfo().getFilenames()));
-        mergedLi.setFilenames(new ArrayList<>(filenames));
-        //merging copyrights
-        mergedLi.setCopyrights(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getCopyrights()), nullToEmptySet(lir2.getLicenseInfo().getCopyrights())));
-        //merging licenses
-        mergedLi.setLicenseNamesWithTexts(Sets.union(nullToEmptySet(lir1.getLicenseInfo().getLicenseNamesWithTexts()), nullToEmptySet(lir2.getLicenseInfo().getLicenseNamesWithTexts())));
-
-        //use copy constructor to copy vendor, name, and version
-        return new LicenseInfoParsingResult(lir1)
-                .setStatus(LicenseInfoRequestStatus.SUCCESS)
-                .setLicenseInfo(mergedLi)
-                .setMessage((nullToEmptyString(lir1.getMessage()) + "\n" + nullToEmptyString(lir2.getMessage())).trim());
+        // make a deep copy to NOT change the original document that is cached
+        LicenseInfoParsingResult newResult = result.deepCopy();
+        newResult.getLicenseInfo().setLicenseNamesWithTexts(filteredLicenses);
+        return newResult;
     }
 
-
-    private LicenseInfoParsingResult noSourceParsingResult() {
+    protected LicenseInfoParsingResult noSourceParsingResult() {
         return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE);
     }
 
-    private List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResults(List<LicenseInfoParsingResult> parsingResults, Release release) {
+    protected List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResult(LicenseInfoParsingResult licenseInfoParsingResult,
+            Release release) {
+        return assignReleaseToLicenseInfoParsingResults(Collections.singletonList(licenseInfoParsingResult), release);
+    }
+
+    protected List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResults(List<LicenseInfoParsingResult> parsingResults,
+            Release release) {
         parsingResults.forEach(r -> {
             //override by given release only if the fields were not set by parser, because parser knows best
             if (!r.isSetVendor() && !r.isSetName() && !r.isSetVersion()) {
@@ -276,13 +252,9 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         return parsingResults;
     }
 
-    private static class UncheckedTException extends RuntimeException {
-        UncheckedTException(TException te) {
-            super(te);
-        }
-
-        TException getTExceptionCause() {
-            return (TException) getCause();
-        }
+    protected OutputGenerator<?> getOutputGeneratorByClassname(String generatorClassname) throws TException {
+        assertNotNull(generatorClassname);
+        return outputGenerators.stream().filter(outputGenerator -> generatorClassname.equals(outputGenerator.getClass().getName()))
+                .findFirst().orElseThrow(() -> new TException("Unknown output generator: " + generatorClassname));
     }
 }

@@ -16,52 +16,60 @@ package org.eclipse.sw360.licenseinfo.outputGenerators;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.IOUtils;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.tools.ToolManager;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.tools.ToolManager;
+import org.eclipse.sw360.licenseinfo.util.LicenseNameWithTextUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class OutputGenerator<T> {
+    protected static final String VELOCITY_TOOLS_FILE = "velocity-tools.xml";
+    protected static final String LICENSE_REFERENCE_ID_MAP_CONTEXT_PROPERTY = "licenseNameWithTextToReferenceId";
+    protected static final String ACKNOWLEDGEMENTS_CONTEXT_PROPERTY = "acknowledgements";
+    protected static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
+    protected static final String LICENSES_CONTEXT_PROPERTY = "licenses";
+    protected static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
 
-    public static final String VELOCITY_TOOLS_FILE = "velocity-tools.xml";
-    private final String OUTPUT_TYPE;
-    private final String OUTPUT_DESCRIPTION;
-    private final boolean IS_OUTPUT_BINARY;
-    private final String OUTPUT_MIME_TYPE;
+    private final String outputType;
+    private final String outputDescription;
+    private final boolean isOutputBinary;
+    private final String outputMimeType;
 
     OutputGenerator(String outputType, String outputDescription, boolean isOutputBinary, String mimeType){
-        OUTPUT_TYPE = outputType;
-        OUTPUT_DESCRIPTION = outputDescription;
-        IS_OUTPUT_BINARY = isOutputBinary;
-        OUTPUT_MIME_TYPE = mimeType;
+        this.outputType = outputType;
+        this.outputDescription = outputDescription;
+        this.isOutputBinary = isOutputBinary;
+        this.outputMimeType = mimeType;
     }
 
     public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception;
 
     public String getOutputType() {
-        return OUTPUT_TYPE;
+        return outputType;
     }
 
     public String getOutputDescription() {
-        return OUTPUT_DESCRIPTION;
+        return outputDescription;
     }
 
     public boolean isOutputBinary() {
-        return IS_OUTPUT_BINARY;
+        return isOutputBinary;
     }
 
     public String getOutputMimeType() {
-        return OUTPUT_MIME_TYPE;
+        return outputMimeType;
     }
 
     public OutputFormatInfo getOutputFormatInfo() {
@@ -77,7 +85,7 @@ public abstract class OutputGenerator<T> {
         return SW360Utils.getReleaseFullname(li.getVendor(), li.getName(), li.getVersion());
     }
 
-    public VelocityContext getConfiguredVelocityContext() throws Exception {
+    public VelocityContext getConfiguredVelocityContext() {
         Properties p = new Properties();
         p.setProperty("resource.loader", "class");
         p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -118,8 +126,9 @@ public abstract class OutputGenerator<T> {
                 .filter(Objects::nonNull)
                 .reduce(Sets::union)
                 .orElse(Collections.emptySet());
-        List<LicenseNameWithText> lnwtsList = new ArrayList<>();
-        lnwtsList.addAll(licenseNamesWithText);
+        List<LicenseNameWithText> lnwtsList = licenseNamesWithText.stream().filter(licenseNameWithText -> {
+            return !LicenseNameWithTextUtils.isEmpty(licenseNameWithText);
+        }).collect(Collectors.toList());
         lnwtsList.sort(Comparator.comparing(LicenseNameWithText::getLicenseName, String.CASE_INSENSITIVE_ORDER));
         return lnwtsList;
     }
@@ -131,6 +140,107 @@ public abstract class OutputGenerator<T> {
             // there were key collisions and some data was lost -> throw away the sorted map and sort by case sensitive order
             sorted = new TreeMap<>();
             sorted.putAll(unsorted);
+        }
+        return sorted;
+    }
+
+    /**
+     * Creates a velocity context and fills it with the default, commonly used
+     * values:
+     * <ul>
+     * <li>allLicenseNamesWithTexts: list of {@link LicenseNameWithText} objects,
+     * sorted by license name</li>
+     * <li>licenseNameWithTextToReferenceId: map from the license name to a unique
+     * id inside the file. May be used to reference a license.</li>
+     * <li>licenseInfoResults: map of {@link LicenseInfoParsingResult} objects,
+     * where the key is the name of the release. The licenses within the objects are
+     * sorted by name.</li>
+     * <li>acknowledgments: map of acknowledgments for a release where the key is
+     * the release and the value is a set of strings (acknowledgments)</li>
+     * </ul>
+     * The given file will be used as velocity template and will be rendered with
+     * the described data.
+     *
+     * @param projectLicenseInfoResults
+     *            parsing results to be rendered
+     * @param file
+     *            name of template file
+     * @return rendered template
+     */
+    protected String renderTemplateWithDefaultValues(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String file) {
+        VelocityContext vc = getConfiguredVelocityContext();
+
+        // sorted lists of all license to be displayed at the end of the file at once
+        List<LicenseNameWithText> licenseNamesWithTexts = getSortedLicenseNameWithTexts(projectLicenseInfoResults);
+        vc.put(OutputGenerator.ALL_LICENSE_NAMES_WITH_TEXTS, licenseNamesWithTexts);
+
+        // assign a reference id to each license in order to only display references for
+        // each release. The references will point to
+        // the list with all details at the and of the file (see above)
+        int referenceId = 1;
+        Map<LicenseNameWithText, Integer> licenseToReferenceId = Maps.newHashMap();
+        for (LicenseNameWithText licenseNamesWithText : licenseNamesWithTexts) {
+            licenseToReferenceId.put(licenseNamesWithText, referenceId++);
+        }
+        vc.put(LICENSE_REFERENCE_ID_MAP_CONTEXT_PROPERTY, licenseToReferenceId);
+
+        // be sure that the licenses inside a release are sorted by id. This looks nicer
+        SortedMap<String, LicenseInfoParsingResult> sortedLicenseInfos = getSortedLicenseInfos(projectLicenseInfoResults);
+        // this will effectively change the objects in the collection and therefore the
+        // objects in the sorted map above
+        sortLicenseNamesWithinEachLicenseInfoById(projectLicenseInfoResults, licenseToReferenceId);
+        vc.put(OutputGenerator.LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, sortedLicenseInfos);
+
+        // also display acknowledgments
+        SortedMap<String, Set<String>> acknowledgements = getSortedAcknowledgements(sortedLicenseInfos);
+        vc.put(OutputGenerator.ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, acknowledgements);
+
+
+        StringWriter sw = new StringWriter();
+        Velocity.mergeTemplate(file, "utf-8", vc, sw);
+        IOUtils.closeQuietly(sw);
+        return sw.toString();
+    }
+
+    /**
+     * Uses the given map to sort the licenses inside a license of by id. The given
+     * map must contain an id for each license name present in the license info
+     * objects.
+     *
+     * @param licenseInfoResults
+     *            parsing results with license infos and licenses to be sorted
+     * @param licenseToReferenceId
+     *            mapping of license name to id to be able to sort the licenses
+     */
+    private void sortLicenseNamesWithinEachLicenseInfoById(Collection<LicenseInfoParsingResult> licenseInfoResults,
+            Map<LicenseNameWithText, Integer> licenseToReferenceId) {
+        licenseInfoResults.stream().map(LicenseInfoParsingResult::getLicenseInfo).filter(Objects::nonNull)
+                .forEach((LicenseInfo li) -> li.setLicenseNamesWithTexts(
+                        sortSet(li.getLicenseNamesWithTexts(), licenseNameWithText -> licenseToReferenceId.get(licenseNameWithText))));
+    }
+
+    /**
+     * Helper function to sort a set by the given key extractor. Falls back to the
+     * unsorted set if sorting the set would squash values.
+     *
+     * @param unsorted
+     *            set to be sorted
+     * @param keyExtractor
+     *            function to extract the key to use for sorting
+     *
+     * @return the sorted set
+     */
+    private static <U, K extends Comparable<K>> SortedSet<U> sortSet(Set<U> unsorted, Function<U, K> keyExtractor) {
+        if (unsorted == null || unsorted.isEmpty()) {
+            return Collections.emptySortedSet();
+        }
+        SortedSet<U> sorted = new TreeSet<>(Comparator.comparing(keyExtractor));
+        sorted.addAll(unsorted);
+        if (sorted.size() != unsorted.size()) {
+            // there were key collisions and some data was lost -> throw away the sorted set
+            // and sort by U's natural order
+            sorted = new TreeSet<>();
+            sorted.addAll(unsorted);
         }
         return sorted;
     }
