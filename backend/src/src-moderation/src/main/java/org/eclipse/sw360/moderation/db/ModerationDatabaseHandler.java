@@ -424,7 +424,7 @@ public class ModerationDatabaseHandler {
         List<User> sw360users = Collections.emptyList();
         try {
             UserService.Iface client = (new ThriftClients()).makeUserClient();
-            sw360users = CommonUtils.nullToEmptyList(client.searchUsers(null));
+            sw360users = CommonUtils.nullToEmptyList(client.getAllUsers());
         } catch (TException e) {
             log.error("Problem with user client", e);
         }
