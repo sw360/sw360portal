@@ -1004,7 +1004,7 @@ public class ComponentDatabaseHandler {
     }
 
     public int getTotalComponentsCount() {
-        return componentRepository.getTotalComponentsCount();
+        return componentRepository.getDocumentCount();
     }
 
     private void sendMailNotificationsForNewComponent(Component component, String user) {

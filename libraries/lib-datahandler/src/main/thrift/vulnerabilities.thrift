@@ -170,6 +170,11 @@ service VulnerabilityService {
     list<Vulnerability> getLatestVulnerabilities(1: User user, 2: i32 limit = 20);
 
     /**
+      * Returns the total number of vulnerabilites in the database
+      **/
+    i32 getTotalVulnerabilityCount(1: User user);
+
+    /**
       * if the user is valid: returns a list with all vulnerability linked to the release with id releaseId as DTOs
       * returns empty list if user is not valid
       **/

@@ -220,4 +220,11 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
         return deleteBulk(deletionCandidates);
     }
 
+    /**
+     * Returns the total count of documents in the repository (given by the all view)
+     */
+    public int getDocumentCount() {
+        ViewQuery query = createQuery("all").includeDocs(false).limit(0);
+        return db.queryView(query).getTotalRows();
+    }
 }

@@ -21,6 +21,8 @@ import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerability
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityWithReleaseRelations;
+import org.eclipse.sw360.portal.common.CustomFieldHelper;
+import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
@@ -49,6 +52,8 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
 
     private static final String EXTERNAL_ID = Vulnerability._Fields.EXTERNAL_ID.toString();
     private static final String VULNERABLE_CONFIGURATION = Vulnerability._Fields.VULNERABLE_CONFIGURATION.toString();
+
+    private static final int DEFAULT_VIEW_SIZE = 200;
 
     //Helper methods
     private void addVulnerabilityBreadcrumb(RenderRequest request, RenderResponse response, Vulnerability vulnerability) {
@@ -78,13 +83,12 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
     }
 
     private void prepareStandardView(RenderRequest request) throws IOException {
-        List<Vulnerability> vulnerabilities = getFilteredVulnerabilityList(request);
-        shortenTimeStampsToDates(vulnerabilities);
-        request.setAttribute(VULNERABILITY_LIST, vulnerabilities);
+        getFilteredVulnerabilityList(request);
     }
 
-    private List<Vulnerability> getFilteredVulnerabilityList(PortletRequest request) throws IOException {
-        List<Vulnerability> vulnerabilities;
+    private void getFilteredVulnerabilityList(PortletRequest request) throws IOException {
+        List<Vulnerability> vulnerabilities = Collections.emptyList();
+        int totalRows = 0;
 
         String externalId = request.getParameter(EXTERNAL_ID);
         String vulnerableConfig = request.getParameter(VULNERABLE_CONFIGURATION);
@@ -95,14 +99,20 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
 
             if (!isNullOrEmpty(externalId) || !isNullOrEmpty(vulnerableConfig)) {
                 vulnerabilities = vulnerabilityClient.getVulnerabilitiesByExternalIdOrConfiguration(externalId, vulnerableConfig, user);
+                totalRows = vulnerabilities.size();
             } else {
-                vulnerabilities = vulnerabilityClient.getLatestVulnerabilities(user, 20);
+                int limit = loadAndStoreStickyViewSize(request, user);
+                vulnerabilities = vulnerabilityClient.getLatestVulnerabilities(user, limit);
+                totalRows = vulnerabilityClient.getTotalVulnerabilityCount(user);
             }
         } catch (TException e) {
             log.error("Could not search components in backend ", e);
-            vulnerabilities = Collections.emptyList();
         }
-        return vulnerabilities;
+
+        shortenTimeStampsToDates(vulnerabilities);
+
+        request.setAttribute(TOTAL_ROWS, totalRows);
+        request.setAttribute(VULNERABILITY_LIST, vulnerabilities);
     }
 
 
@@ -170,4 +180,20 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
         }
         return ImmutableList.of();
     }
+
+    private int loadAndStoreStickyViewSize(PortletRequest request, User user) {
+        String view_size = request.getParameter(PortalConstants.VIEW_SIZE);
+        final int limit;
+        if (isNullEmptyOrWhitespace(view_size)) {
+            limit = CustomFieldHelper
+                    .loadField(Integer.class, request, user, CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE)
+                    .orElse(DEFAULT_VIEW_SIZE);
+        } else {
+            limit = Integer.parseInt(view_size);
+            CustomFieldHelper.saveField(request, user, CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE, limit);
+        }
+        request.setAttribute(PortalConstants.VIEW_SIZE, limit);
+        return limit;
+    }
+
 }

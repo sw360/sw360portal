@@ -13,10 +13,6 @@ package org.eclipse.sw360.portal.portlets.projects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
@@ -30,18 +26,17 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ProjectVulnerabilityRating;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityCheckStatus;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityRatingForProject;
+import org.eclipse.sw360.portal.common.CustomFieldHelper;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.PortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJECT_GROUP_FILTER;
-import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
 
 /**
  * Component portlet implementation
@@ -51,8 +46,6 @@ import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
  * @author alex.borodin@evosoft.com
  */
 public class ProjectPortletUtils {
-
-    private static final Logger log = Logger.getLogger(ProjectPortletUtils.class);
 
     private ProjectPortletUtils() {
         // Utility class with only static functions
@@ -153,23 +146,12 @@ public class ProjectPortletUtils {
                 .setVulnerabilityRating(vulnerabilityRatingForProject);
     }
 
-    public static void saveStickyProjectGroup(PortletRequest request, User user, String groupFilterValue) {
-        try {
-            ExpandoBridge exp = getUserExpandoBridge(request, user);
-            exp.setAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER, groupFilterValue);
-        } catch (PortalException | SystemException e) {
-            log.warn("Could not save sticky project group to custom field", e);
-        }
+    static void saveStickyProjectGroup(PortletRequest request, User user, String groupFilterValue) {
+        CustomFieldHelper.saveField(request, user, CUSTOM_FIELD_PROJECT_GROUP_FILTER, groupFilterValue);
     }
 
-    public static String loadStickyProjectGroup(PortletRequest request, User user) {
-        try {
-            ExpandoBridge exp = getUserExpandoBridge(request, user);
-            return (String) exp.getAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER);
-        } catch (PortalException | SystemException e) {
-            log.error("Could not load sticky project group from custom field", e);
-            return null;
-        }
+    static String loadStickyProjectGroup(PortletRequest request, User user) {
+        return CustomFieldHelper.loadField(String.class, request, user, CUSTOM_FIELD_PROJECT_GROUP_FILTER).orElse(null);
     }
 
     public static Map<String, Set<String>> getSelectedReleaseAndAttachmentIdsFromRequest(ResourceRequest request) {

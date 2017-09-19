@@ -10,9 +10,6 @@
  */
 package org.eclipse.sw360.portal.portlets.components;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portlet.expando.model.ExpandoBridge;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -23,6 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.ReleaseVulnerabilityRelation;
+import org.eclipse.sw360.portal.common.CustomFieldHelper;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.PortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
@@ -34,7 +32,6 @@ import java.util.*;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInformation;
 import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_COMPONENTS_VIEW_SIZE;
-import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
 
 /**
  * Component portlet implementation
@@ -44,13 +41,11 @@ import static org.eclipse.sw360.portal.common.PortletUtils.getUserExpandoBridge;
  */
 public abstract class ComponentPortletUtils {
 
-    static final int DEFAULT_VIEW_SIZE = 200;
+    private static final int DEFAULT_VIEW_SIZE = 200;
 
     private ComponentPortletUtils() {
         // Utility class with only static functions
     }
-
-    private static final Logger log = Logger.getLogger(ComponentPortletUtils.class);
 
     public static void updateReleaseFromRequest(PortletRequest request, Release release) {
         for (Release._Fields field : Release._Fields.values()) {
@@ -334,9 +329,9 @@ public abstract class ComponentPortletUtils {
         return RequestStatus.FAILURE;
     }
 
-    public static ReleaseVulnerabilityRelation updateReleaseVulnerabilityRelationFromRequest(ReleaseVulnerabilityRelation dbRelation, ResourceRequest request){
+    public static ReleaseVulnerabilityRelation updateReleaseVulnerabilityRelationFromRequest(ReleaseVulnerabilityRelation dbRelation, ResourceRequest request) {
 
-        if(!dbRelation.isSetVerificationStateInfo()){
+        if (!dbRelation.isSetVerificationStateInfo()) {
             dbRelation.setVerificationStateInfo(new ArrayList<>());
         }
         List<VerificationStateInfo> verificationStateHistory = dbRelation.getVerificationStateInfo();
@@ -354,29 +349,11 @@ public abstract class ComponentPortletUtils {
         return dbRelation;
     }
 
-    public static void saveStickyViewSize(PortletRequest request, User user, int viewSize) {
-        try {
-            ExpandoBridge exp = getUserExpandoBridge(request, user);
-            exp.setAttribute(CUSTOM_FIELD_COMPONENTS_VIEW_SIZE, viewSize);
-        } catch (PortalException | SystemException e) {
-            log.warn("Could not save sticky components view size to custom field", e);
-        }
+    static void saveStickyViewSize(PortletRequest request, User user, int viewSize) {
+        CustomFieldHelper.saveField(request, user, CUSTOM_FIELD_COMPONENTS_VIEW_SIZE, viewSize);
     }
 
-    public static int loadStickyViewSize(PortletRequest request, User user){
-        try {
-            ExpandoBridge exp = getUserExpandoBridge(request, user);
-            int viewSize = (Integer) exp.getAttribute(CUSTOM_FIELD_COMPONENTS_VIEW_SIZE);
-            if (viewSize == 0) {
-                return DEFAULT_VIEW_SIZE;
-            } else {
-                return viewSize;
-            }
-        } catch (PortalException | SystemException e) {
-            log.error("Could not load sticky components view size from custom field", e);
-            return DEFAULT_VIEW_SIZE;
-        }
+    static int loadStickyViewSize(PortletRequest request, User user) {
+        return CustomFieldHelper.loadField(Integer.class, request, user, CUSTOM_FIELD_COMPONENTS_VIEW_SIZE).orElse(DEFAULT_VIEW_SIZE);
     }
-
-
 }

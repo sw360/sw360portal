@@ -189,6 +189,7 @@ public class PortalConstants {
     //! Specialized keys for users
     public static final String CUSTOM_FIELD_PROJECT_GROUP_FILTER = "ProjectGroupFilter";
     public static final String CUSTOM_FIELD_COMPONENTS_VIEW_SIZE = "ComponentsViewSize";
+    public static final String CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE = "VulnerabilitiesViewSize";
 
     //! Specialized keys for scheduling
     public static final String CVESEARCH_IS_SCHEDULED = "cveSearchIsScheduled";

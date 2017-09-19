@@ -46,7 +46,7 @@ public class ProjectHandler implements ProjectService.Iface {
 
     ProjectHandler() throws IOException {
         handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE, DatabaseSettings.COUCH_DB_ATTACHMENTS);
-        searchHandler = new ProjectSearchHandler(DatabaseSettings.getConfiguredHttpClient(),DatabaseSettings.COUCH_DB_DATABASE);
+        searchHandler = new ProjectSearchHandler(DatabaseSettings.getConfiguredHttpClient(), DatabaseSettings.COUCH_DB_DATABASE);
     }
 
     /////////////////////
@@ -55,7 +55,7 @@ public class ProjectHandler implements ProjectService.Iface {
 
 
     @Override
-    public List<Project> refineSearch(String text, Map<String, Set<String>> subQueryRestrictions,User user) throws TException {
+    public List<Project> refineSearch(String text, Map<String, Set<String>> subQueryRestrictions, User user) throws TException {
         return searchHandler.search(text, subQueryRestrictions, user);
     }
 
@@ -124,7 +124,7 @@ public class ProjectHandler implements ProjectService.Iface {
     public List<Project> getProjectsById(List<String> id, User user) throws TException {
         assertUser(user);
         assertNotNull(id);
-        return handler.getProjectsById(id,user);
+        return handler.getProjectsById(id, user);
     }
 
     @Override
@@ -164,7 +164,7 @@ public class ProjectHandler implements ProjectService.Iface {
         return handler.updateProject(project, user);
     }
 
-    public RequestStatus updateProjectFromModerationRequest(Project projectAdditions, Project projectDeletions, User user){
+    public RequestStatus updateProjectFromModerationRequest(Project projectAdditions, Project projectDeletions, User user) {
         return handler.updateProjectFromAdditionsAndDeletions(projectAdditions, projectDeletions, user);
     }
 

@@ -21,6 +21,10 @@
 
 <jsp:useBean id="vulnerabilityList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability>"
              scope="request"/>
+<jsp:useBean id="totalRows" type="java.lang.Integer" scope="request"/>
+
+<portlet:actionURL var="applyFiltersURL" name="applyFilters">
+</portlet:actionURL>
 
 <portlet:actionURL var="applyFiltersURL" name="applyFilters">
 </portlet:actionURL>
@@ -38,11 +42,34 @@
 <div id="header"></div>
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Vulnerabilities</span>
+    <span class="pageHeaderMediumSpan">(<core_rt:if test="${vulnerabilityList.size() == totalRows}">${totalRows}</core_rt:if><core_rt:if test="${vulnerabilityList.size() != totalRows}">${vulnerabilityList.size()} latest of ${totalRows}</core_rt:if>)</span>
 </p>
 <div id="searchInput" class="content1">
     <%@ include file="/html/utils/includes/quickfilter.jspf" %>
 
     <form action="<%=applyFiltersURL%>" method="post">
+        <table>
+            <thead>
+            <tr>
+                <th class="infoheading">
+                    Loading
+                </th>
+            </tr>
+            </thead>
+            <tbody style="background-color: #f8f7f7; border: none;">
+            <tr>
+                <td>
+                    <select class="searchbar" id="view_size" name="<portlet:namespace/><%=PortalConstants.VIEW_SIZE%>" onchange="reloadViewSize()">
+                        <option value="50" <core_rt:if test="${viewSize == 50}">selected</core_rt:if>>50 latest</option>
+                        <option value="200" <core_rt:if test="${viewSize == 200}">selected</core_rt:if>>200 latest</option>
+                        <option value="500" <core_rt:if test="${viewSize == 500}">selected</core_rt:if>>500 latest</option>
+                        <option value="1000" <core_rt:if test="${viewSize == 1000}">selected</core_rt:if>>1000 latest</option>
+                        <option value="-1" <core_rt:if test="${viewSize == -1}">selected</core_rt:if>>All</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
         <table>
             <thead>
             <tr>
@@ -85,6 +112,14 @@
 <%--for javascript library loading --%>
 <%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
+
+    function reloadViewSize(){
+        var PortletURL = Liferay.PortletURL;
+        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>');
+        portletURL.setParameter('<%=PortalConstants.VIEW_SIZE%>', $('#view_size').val());
+        window.location.href=portletURL.toString();
+    }
+
     AUI().use('liferay-portlet-url', function () {
         var PortletURL = Liferay.PortletURL;
 

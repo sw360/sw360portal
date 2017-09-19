@@ -18,7 +18,6 @@ import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.ViewQuery;
-import org.ektorp.ViewResult;
 import org.ektorp.support.View;
 
 import java.util.HashSet;
@@ -177,11 +176,5 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
     public Set<Component> getUsingComponents(Set<String> releaseIds) {
         final Set<String> componentIdsByLinkingRelease = queryForIdsAsValue("byLinkingRelease", releaseIds);
         return new HashSet<>(get(componentIdsByLinkingRelease));
-    }
-
-    public int getTotalComponentsCount(){
-        ViewQuery query = createQuery("all").includeDocs(false).limit(0);
-        ViewResult result = db.queryView(query);
-        return result.getTotalRows();
     }
 }
