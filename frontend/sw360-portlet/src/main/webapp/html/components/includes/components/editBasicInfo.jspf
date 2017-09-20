@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -11,7 +11,7 @@
 
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Component" %>
-<table class="table info_table" id="ComponentGeneralInfo" title="Component General Information">
+<table class="table info_table" id="ComponentGeneralInfo">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">General</th>
@@ -44,6 +44,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=ComponentType.class%>" selected="${component.componentType}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ComponentType.class%>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="comp_homeurl">Homepage URL</label>
@@ -75,7 +76,7 @@
         </td>
     </tr>
 </table>
-<table class="table info_table" id="RolesData" title="Component Roles">
+<table class="table info_table" id="RolesData">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Roles</th>

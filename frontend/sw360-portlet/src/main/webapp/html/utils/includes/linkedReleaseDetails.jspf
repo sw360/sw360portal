@@ -26,7 +26,7 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/css/jquery.treetable.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
 
-<table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases Hierarchy"
+<table class="table info_table" id="LinkedReleasesInfo""
   data-load-node-url="<%=loadLinkedReleasesRowsURL%>"
   data-portlet-namespace="<portlet:namespace/>"
   data-parent-branch-key="<%=PortalConstants.PARENT_BRANCH_ID%>"

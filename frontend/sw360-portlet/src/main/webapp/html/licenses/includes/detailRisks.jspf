@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -8,7 +8,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<table class="table info_table" id="licenseRisks" title="License risks overview" >
+<table class="table info_table" id="licenseRisks">
   <thead><tr><th colspan="6">Risk Details:</th></tr></thead>
   <tbody>
   <tr class="bold"><td colspan="1">Id</td><td colspan="4">Text</td><td colspan="1">Category</td></tr>

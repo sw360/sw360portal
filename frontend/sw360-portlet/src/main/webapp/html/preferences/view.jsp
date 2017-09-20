@@ -26,7 +26,7 @@
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">User Preferences</span></p>
 <div id="content">
-    <table class="table info_table" id="readOnlyUserData" title="SW360 User Data">
+    <table class="table info_table" id="readOnlyUserData">
         <thead>
             <tr>
                 <th colspan="2">SW360 User</th>

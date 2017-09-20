@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -12,7 +12,7 @@
 <%@include file="/html/utils/includes/fossologyClearing.jspf"%>
 
 <core_rt:set var="clearingInfo" value="${release.clearingInformation}"/>
-<table class="table info_table" id="ReleaseClearingOverview" title="Release clearing overview">
+<table class="table info_table" id="ReleaseClearingOverview">
     <thead>
     <tr>
         <th colspan="2">Clearing Details: <sw360:ReleaseName release="${release}" /></th>
@@ -116,7 +116,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="RequestInfo" title="Request Information">
+<table class="table info_table" id="RequestInfo">
     <thead>
     <tr>
         <th colspan="2">Request Information</th>
@@ -141,7 +141,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="ReleaseSupplementalInfo" title="Release Supplemental Information">
+<table class="table info_table" id="ReleaseSupplementalInfo">
     <thead>
     <tr>
         <th colspan="2">Supplemental Information</th>

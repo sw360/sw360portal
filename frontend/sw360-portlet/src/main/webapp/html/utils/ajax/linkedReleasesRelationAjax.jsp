@@ -47,6 +47,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=ReleaseRelationship.class%>" selected="${releaseLink.releaseRelationship}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ReleaseRelationship.class%>"/>
         </td>
         <td class="deletor">
             <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${uuid}')" alt="Delete">

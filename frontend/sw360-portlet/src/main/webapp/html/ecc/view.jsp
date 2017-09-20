@@ -42,7 +42,7 @@
 </div>
 
 <div id="content" class="content2">
-    <table class="table info_table" id="eccInfoTable" title="Releases">
+    <table class="table info_table" id="eccInfoTable">
         <thead>
         <tr>
             <th width="10%">Status</th>

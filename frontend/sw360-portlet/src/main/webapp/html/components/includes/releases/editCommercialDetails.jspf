@@ -12,7 +12,7 @@
 
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.COTSDetails" %>
-<table class="table info_table" id="COTSDetailsAdmin" title="COTS Administrative Information">
+<table class="table info_table" id="COTSDetailsAdmin">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Commercial Details Administration</th>
@@ -56,7 +56,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="COTSDetailsOSS" title="COTS OSS Information">
+<table class="table info_table" id="COTSDetailsOSS">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">COTS OSS Information</th>

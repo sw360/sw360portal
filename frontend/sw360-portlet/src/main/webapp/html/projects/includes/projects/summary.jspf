@@ -10,7 +10,7 @@
 --%>
 <div class="up_Summary" id="up_Summary"><p><sw360:out value="${project.description}"/></p></div>
 
-<table class="table info_table" id="general" title="General">
+<table class="table info_table" id="general">
     <thead>
     <tr>
         <th colspan="2">General Information: <sw360:ProjectName project="${project}"/></th>
@@ -58,7 +58,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="roles" title="Roles">
+<table class="table info_table" id="roles">
     <thead>
     <tr>
         <th colspan="2">Roles</th>

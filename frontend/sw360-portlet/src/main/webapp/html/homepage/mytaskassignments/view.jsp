@@ -45,7 +45,7 @@
         result.push({
             "DT_RowId": "${moderation.id}",
             "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-            "1": '<sw360:DisplayEnum value="${moderation.moderationState}"/>'
+            "1": "<sw360:DisplayEnum value="${moderation.moderationState}"/>"
         });
         </core_rt:forEach>
 

@@ -50,7 +50,7 @@
         result.push({
             "DT_RowId": "${moderation.id}",
             "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
-            "1": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+            "1": "<sw360:DisplayEnum value="${moderation.moderationState}"/>",
             "2": "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>

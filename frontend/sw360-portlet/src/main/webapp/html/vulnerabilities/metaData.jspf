@@ -9,7 +9,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
 
-<table class="table info_table" id="VulnerabilityOverview" title="Vulnerability overview">
+<table class="table info_table" id="VulnerabilityOverview">
     <thead>
     <tr>
         <th colspan="1">Vulnerability Meta Data: <sw360:out value="${vulnerability.title}"/></th>

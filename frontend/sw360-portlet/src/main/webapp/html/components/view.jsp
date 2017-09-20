@@ -132,6 +132,7 @@
                         <option value="<%=PortalConstants.NO_FILTER%>" class="textlabel stackedLabel">Any</option>
                         <sw360:DisplayEnumOptions type="<%=ComponentType.class%>" selectedName="${componentType}" useStringValues="true"/>
                     </select>
+                    <sw360:DisplayEnumInfo type="<%=ComponentType.class%>"/>
                 </td>
             </tr>
             <tr>
@@ -290,7 +291,7 @@
                         "vndrs": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
                         "name": "${component.name}",
                         "lics": "<tags:TrimLineBreaks input="${licenseCollectionTagOutput}"/>",
-                        "cType": '<sw360:DisplayEnum value="${component.componentType}"/>',
+                        "cType": "<sw360:DisplayEnum value="${component.componentType}"/>",
                         "lRelsSize": "${component.releaseIdsSize}",
                         "attsSize": "${component.attachmentsSize}"
                     });

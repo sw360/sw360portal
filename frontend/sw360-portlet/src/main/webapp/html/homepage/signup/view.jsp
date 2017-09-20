@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -91,6 +91,7 @@
 
                         <sw360:DisplayEnumOptions type="<%=UserGroup.class%>" selected="${newuser.userGroup}"/>
                     </select>
+                    <sw360:DisplayEnumInfo type="<%=UserGroup.class%>"/>
                 </td>
             </tr>
             <tr>

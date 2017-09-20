@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -9,7 +9,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
-<table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases">
+<table class="table info_table" id="LinkedReleasesInfo">
     <thead>
     <tr>
         <th colspan="5" class="headlabel">Linked Releases</th>
