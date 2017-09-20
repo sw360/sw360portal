@@ -23,6 +23,9 @@
              scope="request"/>
 <jsp:useBean id="totalRows" type="java.lang.Integer" scope="request"/>
 
+<jsp:useBean id="externalId" class="java.lang.String" scope="request"/>
+<jsp:useBean id="vulnerableConfiguration" class="java.lang.String" scope="request"/>
+
 <portlet:actionURL var="applyFiltersURL" name="applyFilters">
 </portlet:actionURL>
 
@@ -60,7 +63,6 @@
             <tr>
                 <td>
                     <select class="searchbar" id="view_size" name="<portlet:namespace/><%=PortalConstants.VIEW_SIZE%>" onchange="reloadViewSize()">
-                        <option value="50" <core_rt:if test="${viewSize == 50}">selected</core_rt:if>>50 latest</option>
                         <option value="200" <core_rt:if test="${viewSize == 200}">selected</core_rt:if>>200 latest</option>
                         <option value="500" <core_rt:if test="${viewSize == 500}">selected</core_rt:if>>500 latest</option>
                         <option value="1000" <core_rt:if test="${viewSize == 1000}">selected</core_rt:if>>1000 latest</option>
@@ -83,14 +85,14 @@
                 <td>
                     <label for="external_id">CVE ID</label>
                     <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Vulnerability._Fields.EXTERNAL_ID%>"
-                           value="${name}" id="external_id">
+                           value="${externalId}" id="external_id">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="vulnerable_config">Vulnerable Configuration</label>
                     <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Vulnerability._Fields.VULNERABLE_CONFIGURATION%>"
-                           value="${name}" id="vulnerable_config">
+                           value="${vulnerableConfiguration}" id="vulnerable_config">
                 </td>
             </tr>
         </table>

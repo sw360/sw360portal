@@ -12,6 +12,7 @@
 package org.eclipse.sw360.portal.portlets.vulnerabilities;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
@@ -53,6 +54,11 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
     private static final String EXTERNAL_ID = Vulnerability._Fields.EXTERNAL_ID.toString();
     private static final String VULNERABLE_CONFIGURATION = Vulnerability._Fields.VULNERABLE_CONFIGURATION.toString();
 
+    public static final Set<Vulnerability._Fields> FILTERED_FIELDS = ImmutableSet.of(
+            Vulnerability._Fields.EXTERNAL_ID,
+            Vulnerability._Fields.VULNERABLE_CONFIGURATION
+    );
+
     private static final int DEFAULT_VIEW_SIZE = 200;
 
     //Helper methods
@@ -78,8 +84,9 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
 
     @UsedAsLiferayAction
     public void applyFilters(ActionRequest request, ActionResponse response) throws PortletException, IOException {
-        response.setRenderParameter(EXTERNAL_ID, nullToEmpty(request.getParameter(EXTERNAL_ID)));
-        response.setRenderParameter(VULNERABLE_CONFIGURATION, nullToEmpty(request.getParameter(VULNERABLE_CONFIGURATION)));
+        for (Vulnerability._Fields field : FILTERED_FIELDS) {
+            response.setRenderParameter(field.toString(), nullToEmpty(request.getParameter(field.toString())));
+        }
     }
 
     private void prepareStandardView(RenderRequest request) throws IOException {
@@ -95,13 +102,17 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
-            VulnerabilityService.Iface vulnerabilityClient = thriftClients.makeVulnerabilityClient();
+            int limit = loadAndStoreStickyViewSize(request, user);
 
+            VulnerabilityService.Iface vulnerabilityClient = thriftClients.makeVulnerabilityClient();
             if (!isNullOrEmpty(externalId) || !isNullOrEmpty(vulnerableConfig)) {
                 vulnerabilities = vulnerabilityClient.getVulnerabilitiesByExternalIdOrConfiguration(externalId, vulnerableConfig, user);
                 totalRows = vulnerabilities.size();
+
+                if(limit>0) {
+                    vulnerabilities = vulnerabilities.stream().limit(limit).collect(Collectors.toList());
+                }
             } else {
-                int limit = loadAndStoreStickyViewSize(request, user);
                 vulnerabilities = vulnerabilityClient.getLatestVulnerabilities(user, limit);
                 totalRows = vulnerabilityClient.getTotalVulnerabilityCount(user);
             }
@@ -111,6 +122,9 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
 
         shortenTimeStampsToDates(vulnerabilities);
 
+        for (Vulnerability._Fields field : FILTERED_FIELDS) {
+            request.setAttribute(field.getFieldName(), nullToEmpty(request.getParameter(field.toString())));
+        }
         request.setAttribute(TOTAL_ROWS, totalRows);
         request.setAttribute(VULNERABILITY_LIST, vulnerabilities);
     }
