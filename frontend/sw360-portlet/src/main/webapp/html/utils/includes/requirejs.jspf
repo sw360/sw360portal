@@ -22,6 +22,8 @@
             "jquery.validate.min":   [ "/sw360-portlet/webjars/jquery-validation/1.15.1/jquery.validate.min" ],
             "jquery.validate-addon": [ "/sw360-portlet/webjars/jquery-validation/1.15.1/additional-methods.min" ],
             "datatables":            [ "/sw360-portlet/webjars/datatables/1.10.15/js/jquery.dataTables.min" ],
+            "datatables_buttons":    [ "/sw360-portlet/webjars/datatables.net-buttons/1.1.2/js/dataTables.buttons.min" ],
+            "buttons.print":         [ "/sw360-portlet/webjars/datatables.net-buttons/1.1.2/js/buttons.print.min" ],
             "resumable":             [ "/sw360-portlet/webjars/resumable.js/1.0.3/resumable" ],
         },
         shim: {
@@ -29,6 +31,15 @@
             "jquery-confirm": [ "jquery" ],
             "jquery-treetable": [ "jquery" ],
             "resumable": [ "jquery" ],
+            "datatables_buttons": {
+                deps: ['datatables']
+            }
+        },
+        map: {
+            '*': {
+                'datatables.net': 'datatables',
+                'datatables.net-buttons': 'datatables_buttons'
+            }
         }
     });
 </script>

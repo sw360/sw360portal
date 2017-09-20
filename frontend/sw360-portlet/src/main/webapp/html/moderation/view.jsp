@@ -33,6 +33,7 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
@@ -105,7 +106,7 @@
         }).render();
     });
 
-    require(['jquery', 'utils/includes/quickfilter', 'modules/confirm', /* jquery-plugins: */ 'datatables', 'jquery-confirm'], function($, quickfilter, confirm) {
+    require(['jquery', 'utils/includes/quickfilter', 'modules/confirm', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print', 'jquery-confirm'], function($, quickfilter, confirm) {
         var moderationsDataTable,
             closedModerationsDataTable;
 
@@ -122,10 +123,17 @@
             deleteModerationRequest(data.moderationRequest, data.documentName);
         });
 
-    $(window).load( function() {
+        // catch ctrl+p and print dataTable
+        $(document).on('keydown', function(e){
+            if(e.ctrlKey && e.which === 80){
+                e.preventDefault();
+                moderationsDataTable.buttons('.custom-print-button').trigger();
+            }
+        });
+
+        $(window).load( function() {
         $('.TogglerModeratorsList').on('click', toggleModeratorsList );
     });
-
 
     function useSearch(searchFieldId) {
         var searchText = $('#'+searchFieldId).val();
@@ -179,7 +187,18 @@
     function createModerationsTable(tableId, tableData) {
         var tbl = $(tableId).DataTable({
             pagingType: "simple_numbers",
-            dom: "lrtip",
+            dom: "lBrtip",
+            buttons: [
+                {
+                    extend: 'print',
+                    text: 'Print',
+                    autoPrint: true,
+                    className: 'custom-print-button',
+                    exportOptions: {
+                        columns: [0,1,2,3,4,5,6]
+                    }
+                }
+            ],
             data: tableData,
             autowidth: false,
             columns: [

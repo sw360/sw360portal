@@ -32,7 +32,7 @@
     <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/>
 </portlet:renderURL>
 
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
@@ -67,15 +67,25 @@
 <%--for javascript library loading --%>
 <%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
-    require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables'], function($, quickfilter) {
+    require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter) {
         //This can not be document ready function as liferay definitions need to be loaded first
+        var licenseTable;
+
         $(window).load(function() {
-          var $licenseTable = createLicenseTable();
-          quickfilter.addTable($licenseTable);
+          licenseTable = createLicenseTable();
+          quickfilter.addTable(licenseTable);
+        });
+
+        // catch ctrl+p and print dataTable
+        $(document).on('keydown', function(e){
+            if(e.ctrlKey && e.which === 80){
+                e.preventDefault();
+                licenseTable.buttons('.custom-print-button').trigger();
+            }
         });
 
         function createLicenseTable(datatables) {
-            var $licenseTable,
+            var licenseTable,
                 result = [];
 
             <core_rt:forEach items="${licenseList}" var="license">
@@ -87,11 +97,19 @@
                 });
             </core_rt:forEach>
 
-            $licenseTable = $('#licensesTable').DataTable({
-              "pagingType": "simple_numbers",
-              "dom": "lrtip",
-              "pageLength": 10,
-              "language": {
+            licenseTable = $('#licensesTable').DataTable({
+                "pagingType": "simple_numbers",
+                "dom": "lBrtip",
+                "buttons": [
+                    {
+                        extend: 'print',
+                        text: 'Print',
+                        autoPrint: true,
+                        className: 'custom-print-button'
+                    }
+                ],
+                "pageLength": 10,
+                "language": {
                   "lengthMenu": 'Display <select>\
                   <option value="5">5</option>\
                   <option value="10">10</option>\
@@ -99,17 +117,17 @@
                   <option value="50">50</option>\
                   <option value="100">100</option>\
                   </select> licenses'
-              },
-              "data": result,
-              "columns": [
+                },
+                "data": result,
+                "columns": [
                   { "title": "License Shortname" },
                   { "title": "License Fullname" },
                   { "title": "License Type" }
-              ],
-              "autoWidth": false
+                  ],
+                "autoWidth": false
             });
 
-              return $licenseTable;
+              return licenseTable;
         }
       });
 </script>

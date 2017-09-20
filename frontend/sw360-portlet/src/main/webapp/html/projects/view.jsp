@@ -195,6 +195,7 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
@@ -205,7 +206,7 @@
         var PortletURL = Liferay.PortletURL;
         const clearingSummaryColumnIndex = 4;
 
-        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins: */ 'datatables' ], function($, quickfilter, autocomplete, confirm) {
+        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter, autocomplete, confirm) {
             var projectsTable;
 
              // initializing
@@ -247,6 +248,14 @@
                     .replace('<%=PortalConstants.FRIENDLY_URL_PLACEHOLDER_PROJECT_ID%>', projectId);
                 return portletURL;
             }
+
+            // catch ctrl+p and print dataTable
+            $(document).on('keydown', function(e){
+                if(e.ctrlKey && e.which === 80){
+                    e.preventDefault();
+                    projectsTable.buttons('.custom-print-button').trigger();
+                }
+            });
 
             function renderProjectActions(id, type, row) {
                 <%--TODO most of this can be simplified to CSS properties --%>
@@ -300,17 +309,28 @@
                 projectsTable = $('#projectsTable').DataTable({
                     "pagingType": "simple_numbers",
                     "data": result,
-                    dom: "lrtip",
-                    search: {smart: false},
+                    "dom": "lBrtip",
+                    "buttons": [
+                        {
+                            extend: 'print',
+                            text: 'Print',
+                            autoPrint: true,
+                            className: 'custom-print-button',
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4]
+                            }
+                        }
+                    ],
+                    "search": {smart: false},
                     "columns": [
                         {title: "Project Name", data: "name", render: {display: renderProjectNameLink}},
                         {title: "Description", data: "description"},
                         {title: "Project Responsible", data: "responsible"},
-                        {title: "State", data: "state" },
+                        {title: "State", data: "state"},
                         {title: "<span title=\"Release clearing state\">Clearing Status</span>", data: "clearing"},
                         {title: "Actions", data: "id", render: {display: renderProjectActions}}
                     ],
-                    autoWidth: false
+                    "autoWidth": false
                 });
             }
 
@@ -518,6 +538,3 @@
         });
     });
 </script>
-
- <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
- <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">

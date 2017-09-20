@@ -1,6 +1,6 @@
 <%--
   ~ Copyright (c) Bosch Software Innovations GmbH 2016.
-  ~ Copyright (c) Siemens AG 2016. Part of the SW360 Portal Project.
+  ~ Copyright (c) Siemens AG 2016-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -27,6 +27,7 @@
 
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
@@ -54,7 +55,7 @@
     AUI().use('liferay-portlet-url', function () {
         var PortletURL = Liferay.PortletURL;
 
-        require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables', 'jquery-ui'], function($, quickfilter) {
+        require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print', 'jquery-ui'], function($, quickfilter) {
             var vulnerabilityTable;
 
             // initializing
@@ -65,6 +66,14 @@
                 vulnerabilityTable = createVulnerabilityTable();
                 quickfilter.addTable(vulnerabilityTable);
             }
+
+            // catch ctrl+p and print dataTable
+            $(document).on('keydown', function(e){
+                if(e.ctrlKey && e.which === 80){
+                    e.preventDefault();
+                    vulnerabilityTable.buttons('.custom-print-button').trigger();
+                }
+            });
 
             function createVulnerabilityTable() {
                 var vulnerabilityTable,
@@ -93,7 +102,15 @@
 
                 vulnerabilityTable = $('#vulnerabilitiesTable').dataTable({
                     "pagingType": "simple_numbers",
-                    "dom": "lrtip",
+                    "dom": "lBrtip",
+                    "buttons": [
+                        {
+                            extend: 'print',
+                            text: 'Print',
+                            autoPrint: true,
+                            className: 'custom-print-button'
+                        }
+                    ],
                     "data": result,
                     "columns": [
                         {"title": "External Id"},

@@ -34,7 +34,7 @@
 
 <jsp:useBean id="vendorList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.vendors.Vendor>"  scope="request"/>
 
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
@@ -68,7 +68,7 @@
     AUI().use('liferay-portlet-url', function () {
         var PortletURL = Liferay.PortletURL;
 
-        require(['jquery', 'utils/includes/quickfilter', 'modules/confirm', /* jquery-plugins: */ 'datatables', 'jquery-confirm'], function($, quickfilter, confirm) {
+        require(['jquery', 'utils/includes/quickfilter', 'modules/confirm', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print', 'jquery-confirm'], function($, quickfilter, confirm) {
             var vendorsTable,
                 vendorIdInURL = '<%=PortalConstants.VENDOR_ID%>',
                 pageName = '<%=PortalConstants.PAGENAME%>';
@@ -91,6 +91,14 @@
                 return portletURL.toString();
             }
 
+            // catch ctrl+p and print dataTable
+            $(document).on('keydown', function(e){
+                if(e.ctrlKey && e.which === 80){
+                    e.preventDefault();
+                    vendorsTable.buttons('.custom-print-button').trigger();
+                }
+            });
+
             function createVendorsTable() {
                 var vendorsTable,
                     result = [];
@@ -108,13 +116,24 @@
 
                 vendorsTable = $('#vendorsTable').DataTable({
                     pagingType: "simple_numbers",
-                    dom: "lrtip",
+                    dom: "lBrtip",
+                    buttons: [
+                        {
+                            extend: 'print',
+                            text: 'Print',
+                            autoPrint: true,
+                            className: 'custom-print-button',
+                            exportOptions: {
+                                columns: [0, 1, 2]
+                            }
+                        }
+                    ],
                     data: result,
                     columns: [
-                        { "title": "Full Name" },
-                        { "title": "Short Name" },
-                        { "title": "URL" },
-                        { "title": "Actions"}
+                        {"title": "Full Name"},
+                        {"title": "Short Name"},
+                        {"title": "URL"},
+                        {"title": "Actions"}
                     ],
                     autoWidth: false
                 });

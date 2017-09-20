@@ -30,6 +30,7 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value="<%=PortalConstants.RELEASE%>"/>
 </portlet:resourceURL>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
@@ -81,7 +82,7 @@
     AUI().use('liferay-portlet-url', function () {
         var PortletURL = Liferay.PortletURL;
 
-        require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables'], function($, quickfilter) {
+        require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter) {
             var eccInfoTable;
 
             // initializing
@@ -93,11 +94,27 @@
                 quickfilter.addTable(eccInfoTable);
             }
 
+            // catch ctrl+p and print dataTable
+            $(document).on('keydown', function(e){
+                if(e.ctrlKey && e.which === 80){
+                    e.preventDefault();
+                    eccInfoTable.buttons('.custom-print-button').trigger();
+                }
+            });
+
             function configureEccInfoTable(){
                 var tbl;
                 tbl = $('#eccInfoTable').DataTable({
                     "pagingType": "simple_numbers",
-                    "dom": "lrtip",
+                    "dom": "lBrtip",
+                    "buttons": [
+                        {
+                            extend: 'print',
+                            text: 'Print',
+                            autoPrint: true,
+                            className: 'custom-print-button'
+                        }
+                    ],
                     "autoWidth": false,
                     "order": [],
                     "pageLength": 25

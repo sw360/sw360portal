@@ -46,6 +46,15 @@ label .dataTables_length {
 	text-align: right;
 }
 
+.dt-buttons {
+	float: right;
+}
+
+div.dt-buttons {
+	float: right;
+	margin-left:10px;
+}
+
 /*.dataTables_info {
 	width: 60%;
 	float: left;
