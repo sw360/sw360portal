@@ -244,7 +244,7 @@ function deleteConfirmed(confirmMessage, confirmCallback) {
             },
             cancel: function () {
                 //close
-            },
+            }
        }
     });
 }

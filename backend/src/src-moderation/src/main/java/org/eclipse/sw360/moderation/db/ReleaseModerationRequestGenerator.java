@@ -73,6 +73,9 @@ public class ReleaseModerationRequestGenerator extends ModerationRequestGenerato
                     case ROLES:
                         dealWithCustomMap(Release._Fields.ROLES);
                         break;
+                    case EXTERNAL_IDS:
+                        dealWithStringtoStringMap(Release._Fields.EXTERNAL_IDS);
+                        break;
                     default:
                         dealWithBaseTypes(field, Release.metaDataMap.get(field));
                 }
