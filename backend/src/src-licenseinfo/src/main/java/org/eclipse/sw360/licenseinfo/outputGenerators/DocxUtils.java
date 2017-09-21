@@ -12,10 +12,10 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
+import org.apache.poi.xwpf.usermodel.*;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.apache.poi.xwpf.usermodel.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
 
 public class DocxUtils {
+
+    private static final int FONT_SIZE = 12;
 
     private DocxUtils() {
         //only static members
@@ -50,7 +52,7 @@ public class DocxUtils {
             styleTableHeaderParagraph(paragraph);
 
             XWPFRun run = paragraph.createRun();
-            addFormattedText(run, headers[headerCount], 12, true);
+            addFormattedText(run, headers[headerCount], FONT_SIZE, true);
 
             paragraph.setWordWrap(true);
         }
@@ -95,12 +97,12 @@ public class DocxUtils {
         XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         XWPFRun currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, releaseName, 12);
+        addFormattedText(currentRun, releaseName, FONT_SIZE);
 
         currentParagraph = row.getCell(1).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, version, 12);
+        addFormattedText(currentRun, version, FONT_SIZE);
 
         currentParagraph = row.getCell(2).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
@@ -109,7 +111,7 @@ public class DocxUtils {
             String licenseName = licenseNameWithText.isSetLicenseName()
                     ? licenseNameWithText.getLicenseName()
                     : "Unknown license name";
-            addFormattedText(currentRun, licenseName, 12);
+            addFormattedText(currentRun, licenseName, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
 
@@ -117,14 +119,14 @@ public class DocxUtils {
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
         for (String ack : acknowledgements) {
-            addFormattedText(currentRun, ack, 12);
+            addFormattedText(currentRun, ack, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
         currentParagraph = row.getCell(4).getParagraphs().get(0);
         styleTableHeaderParagraph(currentParagraph);
         currentRun = currentParagraph.createRun();
         for (String copyright : copyrights) {
-            addFormattedText(currentRun, copyright, 12);
+            addFormattedText(currentRun, copyright, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
     }
@@ -148,27 +150,21 @@ public class DocxUtils {
     }
 
     public static void addLicenseTexts(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
-        projectLicenseInfoResults.stream()
-                .map(LicenseInfoParsingResult::getLicenseInfo)
-                .filter(Objects::nonNull)
-                .map(LicenseInfo::getLicenseNamesWithTexts)
-                .filter(Objects::nonNull)
-                .forEach(set -> {
-                    set.forEach(lt -> {
+        List<LicenseNameWithText> lts = OutputGenerator.getSortedLicenseNameWithTexts(projectLicenseInfoResults);
 
-                        XWPFParagraph licenseParagraph = document.createParagraph();
-                        licenseParagraph.setStyle("Heading2");
-                        XWPFRun licenseRun = licenseParagraph.createRun();
-                        String licenseName = lt.isSetLicenseName() ? lt.getLicenseName() : "Unknown license name";
-                        licenseRun.setText(licenseName);
-                        addNewLines(licenseRun, 1);
+        lts.forEach(lt -> {
+            XWPFParagraph licenseParagraph = document.createParagraph();
+            licenseParagraph.setStyle("Heading2");
+            XWPFRun licenseRun = licenseParagraph.createRun();
+            String licenseName = lt.isSetLicenseName() ? lt.getLicenseName() : "Unknown license name";
+            licenseRun.setText(licenseName);
+            addNewLines(licenseRun, 1);
 
-                        XWPFParagraph licenseTextParagraph = document.createParagraph();
-                        XWPFRun licenseTextRun = licenseTextParagraph.createRun();
-                        addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), 12);
-                        addNewLines(licenseTextRun, 1);
-                    });
-                });
+            XWPFParagraph licenseTextParagraph = document.createParagraph();
+            XWPFRun licenseTextRun = licenseTextParagraph.createRun();
+            addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), FONT_SIZE);
+            addNewLines(licenseTextRun, 1);
+        });
     }
 
     private static void addNewLines(XWPFRun run, int numberOfNewlines) {
@@ -183,11 +179,23 @@ public class DocxUtils {
         run.addBreak(BreakType.PAGE);
     }
 
+    /**
+     * Adds the given text in a run object, properly formatting \n as line break
+     */
+    private static void setText(XWPFRun run, String text) {
+        String[] split = text.split("\n");
+        run.setText(split[0]);
+        for (int i = 1; i < split.length; i++) {
+            run.addBreak();
+            run.setText(split[i]);
+        }
+    }
+
     private static void addFormattedText(XWPFRun run, String text, String fontFamily, int fontSize, boolean bold) {
         run.setFontSize(fontSize);
         run.setFontFamily(fontFamily);
         run.setBold(bold);
-        run.setText(text);
+        setText(run, text);
     }
 
     private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold) {
@@ -198,13 +206,13 @@ public class DocxUtils {
         addFormattedText(run, text, fontSize, false);
     }
 
-    public static void replaceText(XWPFDocument document, String placeHolder, String replaceText){
+    private static void replaceText(XWPFDocument document, String placeHolder, String replaceText) {
         for (XWPFHeader header : document.getHeaderList())
             replaceAllBodyElements(header.getBodyElements(), placeHolder, replaceText);
         replaceAllBodyElements(document.getBodyElements(), placeHolder, replaceText);
     }
 
-    private static void replaceAllBodyElements(List<IBodyElement> bodyElements, String placeHolder, String replaceText){
+    private static void replaceAllBodyElements(List<IBodyElement> bodyElements, String placeHolder, String replaceText) {
         for (IBodyElement bodyElement : bodyElements) {
             if (bodyElement.getElementType().compareTo(BodyElementType.PARAGRAPH) == 0)
                 replaceParagraph((XWPFParagraph) bodyElement, placeHolder, replaceText);

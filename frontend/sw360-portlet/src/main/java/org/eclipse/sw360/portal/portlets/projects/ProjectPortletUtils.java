@@ -10,6 +10,7 @@
  */
 package org.eclipse.sw360.portal.portlets.projects;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -113,7 +114,7 @@ public class ProjectPortletUtils {
         PortletUtils.setFieldValue(request, project, field, Project.metaDataMap.get(field), "");
     }
 
-    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request){
+    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request) {
         String projectId = request.getParameter(PortalConstants.PROJECT_ID);
         ProjectVulnerabilityRating projectVulnerabilityRating = projectVulnerabilityRatings.orElse(
                 new ProjectVulnerabilityRating()
@@ -122,15 +123,15 @@ public class ProjectPortletUtils {
 
         String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
         String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
-        if(! projectVulnerabilityRating.isSetVulnerabilityIdToReleaseIdToStatus()){
+        if (!projectVulnerabilityRating.isSetVulnerabilityIdToReleaseIdToStatus()) {
             projectVulnerabilityRating.setVulnerabilityIdToReleaseIdToStatus(new HashMap<>());
         }
 
-        Map<String, Map <String, List<VulnerabilityCheckStatus>>>  vulnerabilityIdToReleaseIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToReleaseIdToStatus();
-        if(! vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId)){
+        Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToReleaseIdToStatus();
+        if (!vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId)) {
             vulnerabilityIdToReleaseIdToStatus.put(vulnerabilityId, new HashMap<>());
         }
-        if(! vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)){
+        if (!vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)) {
             vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).put(releaseId, new ArrayList<>());
         }
 
@@ -141,16 +142,15 @@ public class ProjectPortletUtils {
         return projectVulnerabilityRating;
     }
 
-    private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request){
+    private static VulnerabilityCheckStatus newVulnerabilityCheckStatusFromRequest(ResourceRequest request) {
         VulnerabilityRatingForProject vulnerabilityRatingForProject = VulnerabilityRatingForProject.findByValue(
-                        Integer.parseInt(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
+                Integer.parseInt(request.getParameter(PortalConstants.VULNERABILITY_RATING_VALUE)));
 
-        VulnerabilityCheckStatus vulnerabilityCheckStatus = new VulnerabilityCheckStatus()
+        return new VulnerabilityCheckStatus()
                 .setCheckedBy(UserCacheHolder.getUserFromRequest(request).getEmail())
                 .setCheckedOn(SW360Utils.getCreatedOn())
                 .setComment(request.getParameter(PortalConstants.VULNERABILITY_RATING_COMMENT))
                 .setVulnerabilityRating(vulnerabilityRatingForProject);
-        return vulnerabilityCheckStatus;
     }
 
     public static void saveStickyProjectGroup(PortletRequest request, User user, String groupFilterValue) {
@@ -162,7 +162,7 @@ public class ProjectPortletUtils {
         }
     }
 
-    public static String loadStickyProjectGroup(PortletRequest request, User user){
+    public static String loadStickyProjectGroup(PortletRequest request, User user) {
         try {
             ExpandoBridge exp = getUserExpandoBridge(request, user);
             return (String) exp.getAttribute(CUSTOM_FIELD_PROJECT_GROUP_FILTER);
@@ -175,12 +175,16 @@ public class ProjectPortletUtils {
     public static Map<String, Set<String>> getSelectedReleaseAndAttachmentIdsFromRequest(ResourceRequest request) {
         Map<String, Set<String>> releaseIdToAttachmentIds = new HashMap<>();
         String[] checkboxes = request.getParameterValues(PortalConstants.LICENSE_INFO_RELEASE_TO_ATTACHMENT);
+        if (checkboxes == null) {
+            return ImmutableMap.of();
+        }
+
         Arrays.stream(checkboxes).forEach(s -> {
             String[] split = s.split(":");
-            if (split.length==2){
+            if (split.length == 2) {
                 String releaseId = split[0];
                 String attachmentId = split[1];
-                if (!releaseIdToAttachmentIds.containsKey(releaseId)){
+                if (!releaseIdToAttachmentIds.containsKey(releaseId)) {
                     releaseIdToAttachmentIds.put(releaseId, new HashSet<>());
                 }
                 releaseIdToAttachmentIds.get(releaseId).add(attachmentId);
@@ -192,23 +196,19 @@ public class ProjectPortletUtils {
     /**
      * Returns a map of excluded licenses. They key is an attachment content id, the
      * value is a list of excluded licenses.
-     *
+     * <p>
      * For this method to work it is crucial that there is a so called
      * "license-store-&lt;attachmentContentId&gt;" map in the session. This map must
      * contain a mapping from a key to a {@link LicenseNameWithText} object.
      *
-     * @param attachmentContentIds
-     *            list of attachment content id to check for exclusions in the
-     *            request
-     * @param request
-     *            the request containing the excluded licenses as parameters
-     *
+     * @param attachmentContentIds list of attachment content id to check for exclusions in the
+     *                             request
+     * @param request              the request containing the excluded licenses as parameters
      * @return a map containing the licenses to exclude
-     *
      * @see ProjectPortletUtilsTest for a better understanding
      */
     public static Map<String, Set<LicenseNameWithText>> getExcludedLicensesPerAttachmentIdFromRequest(Set<String> attachmentContentIds,
-            ResourceRequest request) {
+                                                                                                      ResourceRequest request) {
         Map<String, Set<LicenseNameWithText>> excludedLicenses = Maps.newHashMap();
 
         for (String attachmentContentId : attachmentContentIds) {
