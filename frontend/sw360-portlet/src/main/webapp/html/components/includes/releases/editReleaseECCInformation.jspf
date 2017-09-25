@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -70,7 +70,7 @@
     <tr>
         <td width="33%">
             <sw360:DisplayUserEdit email="${release.eccInformation.assessorContactPerson}"
-                                   id="<portlet:namespace/><%=Release._Fields.ECC_INFORMATION%><%=EccInformation._Fields.ASSESSOR_CONTACT_PERSON%>"
+                                   id="<%=Release._Fields.ECC_INFORMATION.toString() + EccInformation._Fields.ASSESSOR_CONTACT_PERSON.toString()%>"
                                    description="Assessor contact person" multiUsers="false" readonly="true"/>
         </td>
         <td width="33%">

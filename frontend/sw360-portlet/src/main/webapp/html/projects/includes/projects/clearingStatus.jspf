@@ -15,7 +15,7 @@
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
-<jsp:useBean id="releasesAndProjects" type="java.util.Map<org.eclipse.sw360.datahandler.thrift.components.Release,org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple>" scope="request"/>
+<jsp:useBean id="releasesAndProjects" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStatusData>" scope="request"/>
 <core_rt:if test="${releasesAndProjects.size() == 0 }">
     <h3>Please add linked releases or projects with linked releases to view their clearing status here.</h3>
 </core_rt:if>
@@ -26,6 +26,7 @@
             <tr>
                 <th width="30%"></th>
                 <th width="30%"></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -74,14 +75,15 @@
         function createClearingTable() {
             var result = [];
 
-            <core_rt:forEach items="${releasesAndProjects.entrySet()}" var="releasesAndProject">
+            <core_rt:forEach items="${releasesAndProjects}" var="releasesClearingStatusData">
             result.push({
-                "DT_RowId": "${releasesAndProject.key.id}",
-                "0": "<sw360:DisplayReleaseLink release="${releasesAndProject.key}" showFullname="true"/>",
-                "1": "<sw360:out value="${releasesAndProject.value.projectNames}"/>",
-                "2": "<span id='releaseClearingState${releasesAndProject.key.id}'><sw360:DisplayEnum value="${releasesAndProject.key.clearingState}"/></span>",
-                "3": "<sw360:DisplayEnum value="${releasesAndProject.key.mainlineState}"/>",
-                "4": "<sw360:out value="${releasesAndProject.value.mainlineStates}"/>"
+                "DT_RowId": "${releasesClearingStatusData.release.id}",
+                "0": "<sw360:DisplayReleaseLink release="${releasesClearingStatusData.release}" showFullname="true"/>",
+                "1": "<sw360:out value="${releasesClearingStatusData.projectNames}"/>",
+                "2": "<span id='releaseClearingState${releasesClearingStatusData.release.id}'><sw360:DisplayEnum value="${releasesClearingStatusData.release.clearingState}"/></span>",
+                "3": "<sw360:DisplayEnum value="${releasesClearingStatusData.release.mainlineState}"/>",
+                "4": "<sw360:out value="${releasesClearingStatusData.mainlineStates}"/>",
+                "5": "<sw360:DisplayEnum value="${releasesClearingStatusData.componentType}"/>"
             });
             </core_rt:forEach>
 
@@ -96,7 +98,7 @@
                         autoPrint: true,
                         className: 'custom-print-button',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4]
+                            columns: [0, 1, 2, 3, 4, 5]
                         }
                     }
                 ],
@@ -106,6 +108,7 @@
                     {title: "Clearing State"},
                     {title: "Release Mainline State"},
                     {title: "Project Mainline State"},
+                    {title: "Type"},
                     {title: "Action", data: "DT_RowId", render: renderActions}
                 ],
                 pagingType: "simple_numbers",

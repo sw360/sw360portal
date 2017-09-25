@@ -30,6 +30,7 @@ typedef users.User User
 typedef users.RequestedAction RequestedAction
 typedef attachments.Attachment Attachment
 typedef components.ReleaseLink ReleaseLink
+typedef components.ReleaseClearingStatusData ReleaseClearingStatusData
 typedef sw360.AddDocumentRequestSummary AddDocumentRequestSummary
 
 const string CLEARING_TEAM_UNKNOWN = "Unknown"
@@ -138,11 +139,6 @@ struct ProjectLink {
     10: optional list<ReleaseLink> linkedReleases,
     11: optional list<ProjectLink> subprojects,
     12: optional i32 treeLevel, //zero-based level in the ProjectLink tree, i.e. root has level 0
-}
-
-struct ProjectNamesWithMainlineStatesTuple {
-    1: required string projectNames, // comma separated list of project names for display; possibly abbreviated
-    2: required string mainlineStates, // comma separated list of mainline states for display; possibly abbreviated
 }
 
 struct ProjectWithReleaseRelationTuple {
@@ -291,4 +287,9 @@ service ProjectService {
      * Visibility of any of the projects in the tree for the given user is currently not considered.
      */
     list<Project> fillClearingStateSummaryIncludingSubprojects(1: list<Project> projects, 2: User user);
+
+    /**
+     * get clearing status data for all releases linked by the given project and its subprojects
+     */
+    list<ReleaseClearingStatusData> getReleaseClearingStatuses(1: string projectId, 2: User user);
 }

@@ -18,6 +18,7 @@ import org.eclipse.sw360.datahandler.db.ProjectSearchHandler;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStatusData;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
@@ -221,6 +222,11 @@ public class ProjectHandler implements ProjectService.Iface {
     public List<Project> fillClearingStateSummaryIncludingSubprojects(List<Project> projects, User user)
             throws TException {
         return handler.fillClearingStateSummaryIncludingSubprojects(projects, user);
+    }
+
+    @Override
+    public List<ReleaseClearingStatusData> getReleaseClearingStatuses(String projectId, User user) throws TException {
+        return handler.getReleaseClearingStatuses(projectId, user);
     }
 
     @Override

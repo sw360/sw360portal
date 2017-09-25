@@ -10,7 +10,6 @@
  */
 package org.eclipse.sw360.exporter;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
@@ -19,21 +18,18 @@ import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.fieldValueAsString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.putReleaseNamesInMap;
 import static org.eclipse.sw360.datahandler.common.WrappedException.wrapSW360Exception;
-import static org.eclipse.sw360.exporter.ReleaseExporter.HEADERS;
-import static org.eclipse.sw360.exporter.ReleaseExporter.HEADERS_EXTENDED_BY_ADDITIONAL_DATA;
-import static org.eclipse.sw360.exporter.ReleaseExporter.RELEASE_RENDERED_FIELDS;
-import static org.eclipse.sw360.exporter.ReleaseExporter.VENDOR_IGNORED_FIELDS;
+import static org.eclipse.sw360.exporter.ReleaseExporter.*;
 
 class ReleaseHelper implements ExporterHelper<Release> {
 
@@ -41,6 +37,7 @@ class ReleaseHelper implements ExporterHelper<Release> {
 
     private final ComponentService.Iface cClient;
     private final User user;
+    private Map<Release, ReleaseClearingStatusData> releaseClearingStatusDataByRelease = null;
     private Map<String, Release> preloadedLinkedReleases = null;
     private Map<String, Component> preloadedComponents = null;
 
@@ -48,11 +45,11 @@ class ReleaseHelper implements ExporterHelper<Release> {
      * if a not empty map is assigned to this field, additional data has to be added
      * to each row
      */
-    private final Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap;
+    private final List<ReleaseClearingStatusData> releaseClearingStatuses;
 
     /**
      * Remember to preload the releases and set them via
-     * {{@link #setPreloadedLinkedReleases(Map)} so that we can also preload the
+     * {{@link #setPreloadedLinkedReleases(List, boolean)} so that we can also preload the
      * necessary components. If you miss that step, we will have to load each
      * component separately on demand which might take some additional time.
      *
@@ -66,27 +63,28 @@ class ReleaseHelper implements ExporterHelper<Release> {
 
     /**
      * If you do not want to get the additional data by setting
-     * releaseToShortenedStringsMap, then you probably want to use the alternative
+     * releaseClearingStatuses, then you probably want to use the alternative
      * constructor and read its instructions.
      *
      * @param cClient
      *            a {@link ComponentService.Iface} implementation
-     * @param releaseToShortenedStringsMap
+     * @param releaseClearingStatuses
      *            has to be given if additional data like component type and project
      *            origin should be included - may be <code>null</code> or an empty
      *            map otherwise
      * @throws SW360Exception
      */
     protected ReleaseHelper(ComponentService.Iface cClient, User user,
-            Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap) throws SW360Exception {
+                            List<ReleaseClearingStatusData> releaseClearingStatuses) throws SW360Exception {
         this.cClient = cClient;
         this.user = user;
-        this.releaseToShortenedStringsMap = releaseToShortenedStringsMap;
+        this.releaseClearingStatuses = releaseClearingStatuses;
         this.preloadedComponents = new HashMap<>();
 
-        if (this.releaseToShortenedStringsMap != null) {
-            batchloadComponents(this.releaseToShortenedStringsMap.keySet().stream().map(Release::getComponentId)
+        if (this.releaseClearingStatuses != null) {
+            batchloadComponents(this.releaseClearingStatuses.stream().map(rcs -> rcs.getRelease().getComponentId())
                     .collect(Collectors.toSet()));
+            this.releaseClearingStatusDataByRelease = releaseClearingStatuses.stream().collect(Collectors.toMap(ReleaseClearingStatusData::getRelease, rcs -> rcs));
         }
     }
 
@@ -139,8 +137,8 @@ class ReleaseHelper implements ExporterHelper<Release> {
 
                 // and project origin only if wanted
                 if (addAdditionalData()) {
-                    if (releaseToShortenedStringsMap.containsKey(release)) {
-                        row.add(releaseToShortenedStringsMap.get(release).projectNames);
+                    if (releaseClearingStatusDataByRelease.containsKey(release)) {
+                        row.add(releaseClearingStatusDataByRelease.get(release).getProjectNames());
                     } else {
                         row.add("");
                     }
@@ -242,7 +240,7 @@ class ReleaseHelper implements ExporterHelper<Release> {
     }
 
     private boolean addAdditionalData() {
-        return MapUtils.isNotEmpty(releaseToShortenedStringsMap);
+        return !nullToEmptyList(releaseClearingStatuses).isEmpty();
     }
 
     public void setPreloadedLinkedReleases(Map<String, Release> preloadedLinkedReleases, boolean componentsNeeded)

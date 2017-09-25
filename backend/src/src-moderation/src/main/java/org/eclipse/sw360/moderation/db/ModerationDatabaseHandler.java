@@ -155,13 +155,19 @@ public class ModerationDatabaseHandler {
         sendMailToUserForDeclinedRequest(request);
     }
 
-    public void acceptRequest(String requestId, String moderationComment, String reviewer) {
-        ModerationRequest request = repository.get(requestId);
-        request.setModerationState(ModerationState.APPROVED);
-        request.setTimestampOfDecision(System.currentTimeMillis());
-        request.setReviewer(reviewer);
-        request.setCommentDecisionModerator(moderationComment);
-        repository.update(request);
+    public void acceptRequest(ModerationRequest request, String moderationComment, String reviewer) {
+        ModerationRequest dbRequest = repository.get(request.getId());
+        // when an MR requests deletion of a document and is accepted, all outstanding MRs for that document are deleted,
+        // which means that at this point we can't be sure that the MR still exists.
+        // Therefore, we update it only if it still exists in the DB, but send mail notifications using the data from
+        // now deleted MR anyways
+        if (dbRequest != null){
+            dbRequest.setModerationState(ModerationState.APPROVED);
+            dbRequest.setTimestampOfDecision(System.currentTimeMillis());
+            dbRequest.setReviewer(reviewer);
+            dbRequest.setCommentDecisionModerator(moderationComment);
+            repository.update(dbRequest);
+        }
         sendMailNotificationsForAcceptedRequest(request);
     }
 

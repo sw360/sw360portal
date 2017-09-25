@@ -18,6 +18,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -77,6 +78,7 @@
 
 <h2>Current Release</h2>
 <core_rt:set var="inReleaseDetailsContext" value="false" scope="request"/>
+<core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
 <%@include file="/html/utils/includes/requirejs.jspf" %>
 <%@include file="/html/components/includes/releases/detailOverview.jspf"%>
 

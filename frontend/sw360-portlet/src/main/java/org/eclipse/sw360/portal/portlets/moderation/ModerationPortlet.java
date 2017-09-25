@@ -132,7 +132,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                     User requestingUser = UserCacheHolder.getUserFromEmail(requestingUserEmail);
                     acceptModerationRequest(user, requestingUser, moderationRequest, request);
 
-                    client.acceptRequest(id, moderationComment, user.getEmail());
+                    client.acceptRequest(moderationRequest, moderationComment, user.getEmail());
                     sessionMessage = "You have accepted the previous moderation request.";
                 } else if (ACTION_POSTPONE.equals(action)) {
                     // keep me assigned but do it later... so nothing to be done here, just update the comment message

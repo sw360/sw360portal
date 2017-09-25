@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -12,6 +12,7 @@
 package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.SetMultimap;
 import org.eclipse.sw360.datahandler.TestUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
@@ -21,6 +22,8 @@ import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectWithReleaseRelationTuple;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.junit.After;
 import org.junit.Before;
@@ -30,21 +33,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-
-import static org.eclipse.sw360.datahandler.TestUtils.assertTestString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectDatabaseHandlerTest {
@@ -278,5 +276,41 @@ public class ProjectDatabaseHandlerTest {
         project2.setReleaseIdToUsage(Collections.emptyMap());
         RequestStatus status2 = handler.updateProject(project2, user1);
         assertThat(status2, is(RequestStatus.SUCCESS));
+    }
+
+    @Test
+    public void testReleaseIdToEmptyProjects() throws Exception {
+        SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects = handler.releaseIdToProjects(new Project().setId("p4"), user1);
+        Set<String> releaseIds = releaseIdToProjects.keySet();
+        assertTrue("Release IDs size", releaseIds.size() == 0);
+    }
+
+    @Test
+    public void testReleaseIdToProjects() throws Exception {
+        Project p1 = handler.getProjectById("P1", user1);
+        p1.setLinkedProjects(ImmutableMap.<String, ProjectRelationship>builder().put("P2", ProjectRelationship.CONTAINED).build());
+        handler.updateProject(p1, user1);
+        Project p2 = handler.getProjectById("P2", user2);
+
+        SetMultimap<String, ProjectWithReleaseRelationTuple> releaseIdToProjects = handler.releaseIdToProjects(p1, user1);
+
+        Set<String> releaseIds = releaseIdToProjects.keySet();
+
+        assertThat(releaseIds, containsInAnyOrder("r1", "r2","r3","r4","r5","r6"));
+        assertThat(releaseIdToProjects.get("r1"), containsInAnyOrder(createTuple(p1),createTuple(p2)));
+        assertThat(releaseIdToProjects.get("r2"), containsInAnyOrder(createTuple(p1),createTuple(p2)));
+        assertThat(releaseIdToProjects.get("r3"), containsInAnyOrder(createTuple(p1),createTuple(p2)));
+        assertThat(releaseIdToProjects.get("r4"), containsInAnyOrder(createTuple(p1)));
+        assertThat(releaseIdToProjects.get("r5"), containsInAnyOrder(createTuple(p1)));
+        assertThat(releaseIdToProjects.get("r6"), containsInAnyOrder(createTuple(p1)));
+
+    }
+
+    private ProjectWithReleaseRelationTuple createTuple(Project p) {
+        return new ProjectWithReleaseRelationTuple(p, newDefaultProjectReleaseRelationship());
+    }
+
+    private ProjectReleaseRelationship newDefaultProjectReleaseRelationship() {
+        return new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE);
     }
 }
