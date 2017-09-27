@@ -12,7 +12,9 @@
 package org.eclipse.sw360.portal.portlets.components;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -23,9 +25,12 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.PortletURLFactoryUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.apache.thrift.TSerializer;
+import org.apache.thrift.protocol.TSimpleJSONProtocol;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
@@ -81,6 +86,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private static final Logger log = Logger.getLogger(ComponentPortlet.class);
 
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
+    private static final TSerializer JSON_THRIFT_SERIALIZER = new TSerializer(new TSimpleJSONProtocol.Factory());
 
     private boolean typeIsComponent(String documentType) {
         return SW360Constants.TYPE_COMPONENT.equals(documentType);
@@ -442,6 +448,9 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         } else if (PAGENAME_DUPLICATE_RELEASE.equals(pageName)) {
             prepareReleaseDuplicate(request, response);
             include("/html/components/editRelease.jsp", request, response);
+        } else if (PAGENAME_MERGE_COMPONENT.equals(pageName)) {
+            prepareComponentMerge(request, response);
+            include("/html/components/mergeComponent.jsp", request, response);
         } else {
             prepareStandardView(request);
             super.doView(request, response);
@@ -573,6 +582,150 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         }
     }
 
+    private void prepareComponentMerge(RenderRequest request, RenderResponse response) throws PortletException {
+        final User user = UserCacheHolder.getUserFromRequest(request);
+        String componentId = request.getParameter(COMPONENT_ID);
+
+        if (isNullOrEmpty(componentId)) {
+            throw new PortletException("Component ID not set!");
+        }
+
+        try {
+            ComponentService.Iface client = thriftClients.makeComponentClient();
+
+            Component component = client.getComponentById(componentId, user);
+            request.setAttribute(COMPONENT, component);
+
+            addComponentBreadcrumb(request, response, component);
+
+            PortletURL mergeUrl = response.createRenderURL();
+            mergeUrl.setParameter(PortalConstants.PAGENAME, PortalConstants.PAGENAME_MERGE_COMPONENT);
+            mergeUrl.setParameter(PortalConstants.COMPONENT_ID, componentId);
+            addBreadcrumbEntry(request, "Merge", mergeUrl);
+        } catch (TException e) {
+            log.error("Error fetching release from backend!", e);
+        }
+    }
+
+    @UsedAsLiferayAction
+    public void componentMergeWizardStep(ActionRequest request, ActionResponse response) throws IOException, PortletException {
+        int stepId = Integer.parseInt(request.getParameter("stepId"));
+        try {
+            HttpServletResponse httpServletResponse = PortalUtil.getHttpServletResponse(response);
+            httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
+            JsonGenerator jsonGenerator = JSON_FACTORY.createGenerator(httpServletResponse.getWriter());
+
+            if (stepId == 0) {
+                generateComponentMergeWizardStep0Response(request, jsonGenerator);
+            } else if (stepId == 1) {
+                generateComponentMergeWizardStep1Response(request, jsonGenerator);
+            } else if (stepId == 2) {
+                generateComponentMergeWizardStep2Response(request, jsonGenerator);
+            } else if (stepId == 3) {
+                generateComponentMergeWizardStep3Response(request, jsonGenerator);
+            } else {
+                throw new SW360Exception("Step with id <" + stepId + "> not supported!");
+            }
+
+            jsonGenerator.close();
+        } catch (Exception e) {
+            log.error("An error occurred while updating the user record", e);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
+                    Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void generateComponentMergeWizardStep0Response(ActionRequest request, JsonGenerator jsonGenerator) throws JsonGenerationException, IOException, TException {
+        User sessionUser = UserCacheHolder.getUserFromRequest(request);
+        ComponentService.Iface cClient = thriftClients.makeComponentClient();
+        List<Component> componentSummary = cClient.getComponentSummary(sessionUser);
+
+        jsonGenerator.writeStartObject();
+
+        jsonGenerator.writeArrayFieldStart("components");
+        componentSummary.stream().forEach(component -> {
+            try {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("id", component.getId());
+                jsonGenerator.writeStringField("name", SW360Utils.printName(component));
+                jsonGenerator.writeStringField("createdBy", component.getCreatedBy());
+                jsonGenerator.writeNumberField("releases", component.getReleaseIdsSize());
+                jsonGenerator.writeEndObject();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        });
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private void generateComponentMergeWizardStep1Response(ActionRequest request, JsonGenerator jsonGenerator) throws JsonGenerationException, IOException, TException {
+        User sessionUser = UserCacheHolder.getUserFromRequest(request);
+        String componentTargetId = request.getParameter("componentTargetId");
+        String componentSourceId = request.getParameter("componentSourceId");
+
+        ComponentService.Iface cClient = thriftClients.makeComponentClient();
+        Component componentTarget = cClient.getComponentById(componentTargetId, sessionUser);
+        Component componentSource = cClient.getComponentById(componentSourceId, sessionUser);
+
+        jsonGenerator.writeStartObject();
+
+        // adding common title
+        jsonGenerator.writeRaw("\"componentTarget\":" + JSON_THRIFT_SERIALIZER.toString(componentTarget) + ",");
+        jsonGenerator.writeRaw("\"componentSource\":" + JSON_THRIFT_SERIALIZER.toString(componentSource));
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private void generateComponentMergeWizardStep2Response(ActionRequest request, JsonGenerator jsonGenerator)
+            throws JsonGenerationException, IOException, TException {
+        ObjectMapper om = new ObjectMapper();
+        Component componentSelection = om.readValue((String) request.getParameter("componentSelection"),
+                Component.class);
+        String componentSourceId = request.getParameter("componentSourceId");
+
+        // FIXME: maybe validate the component
+
+        jsonGenerator.writeStartObject();
+
+        // adding common title
+        jsonGenerator.writeRaw("\"componentSelection\":" + JSON_THRIFT_SERIALIZER.toString(componentSelection) + ",");
+        jsonGenerator.writeStringField("componentSourceId", componentSourceId);
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private void generateComponentMergeWizardStep3Response(ActionRequest request, JsonGenerator jsonGenerator)
+            throws JsonGenerationException, IOException, TException {
+        ObjectMapper om = new ObjectMapper();
+        ComponentService.Iface cClient = thriftClients.makeComponentClient();
+
+        // extract request data
+        User sessionUser = UserCacheHolder.getUserFromRequest(request);
+        Component componentSelection = om.readValue((String) request.getParameter("componentSelection"),
+                Component.class);
+        String componentSourceId = request.getParameter("componentSourceId");
+
+        // perform the real merge, update merge target and delete merge source
+        cClient.mergeComponents(componentSelection.getId(), componentSourceId, componentSelection, sessionUser);
+
+        // generate redirect url
+        String portletId = (String) request.getAttribute(WebKeys.PORTLET_ID);
+        ThemeDisplay tD = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
+        long plid = tD.getPlid();
+        LiferayPortletURL componentUrl = PortletURLFactoryUtil.create(request, portletId, plid,
+                PortletRequest.RENDER_PHASE);
+        componentUrl.setParameter(PortalConstants.PAGENAME, PortalConstants.PAGENAME_DETAIL);
+        componentUrl.setParameter(PortalConstants.COMPONENT_ID, componentSelection.getId());
+
+        // write response JSON
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("redirectUrl", componentUrl.toString());
+        jsonGenerator.writeEndObject();
+    }
+
     private void prepareDetailView(RenderRequest request, RenderResponse response) {
         String id = request.getParameter(COMPONENT_ID);
         final User user = UserCacheHolder.getUserFromRequest(request);
@@ -589,6 +742,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 Set<String> releaseIds = SW360Utils.getReleaseIds(component.getReleases());
 
                 setUsingDocs(request, user, client, releaseIds);
+
+                request.setAttribute(IS_USER_ALLOWED_TO_MERGE, PermissionUtils.isUserAtLeast(UserGroup.ADMIN, user));
 
                 // get vulnerabilities
                 putVulnerabilitiesInRequestComponent(request, id, user);

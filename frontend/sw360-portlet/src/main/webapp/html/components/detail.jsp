@@ -9,6 +9,10 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
+<%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@ include file="/html/init.jsp" %>
@@ -37,6 +41,7 @@
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
+    <jsp:useBean id="isUserAllowedToMerge" type="java.lang.Boolean" scope="request"/>
     <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
     <core_rt:if test="${vulnerabilityVerificationEditable}">
         <jsp:useBean id="numberOfIncorrectVulnerabilities" type="java.lang.Long" scope="request"/>
@@ -52,6 +57,9 @@
     <div id="header"></div>
     <p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span>
         <span class="pull-right">
+        <core_rt:if test="${isUserAllowedToMerge}">
+            <input type="button" data-component-id="${component.id}" id="merge" value="Merge" class="addButton">
+        </core_rt:if>
         <input type="button" id="edit" value="Edit" class="addButton">
         <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${component}"
                                       id="SubscribeButton" />
@@ -98,6 +106,29 @@
                     errorCallback();
                 }
             });
+        }
+    });
+</script>
+
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
+<script>
+    require([ 'jquery' ], function($) {
+        /* see http://requirejs.org/docs/jquery.html#noconflictmap - but setting it globaly would cause other
+           trouble, so just locally when needed (and possible) */
+        $.noConflict(true);
+
+        // register event handlers
+        $('#merge').on('click', function(event) {
+            var data = $(event.currentTarget).data();
+            mergeComponent(data.componentId);
+        });
+
+        function mergeComponent(componentId) {
+            var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
+                portletURL = Liferay.PortletURL.createURL(baseUrl)
+                                               .setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_MERGE_COMPONENT%>')
+                                               .setParameter('<%=PortalConstants.COMPONENT_ID%>', componentId);
+            window.location = portletURL.toString();
         }
     });
 </script>

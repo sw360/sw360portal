@@ -14,6 +14,7 @@ package org.eclipse.sw360.datahandler.db;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.components.summary.SummaryType;
@@ -51,7 +52,10 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.getBestClearingReport;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
@@ -442,6 +446,159 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         }
     }
 
+
+    public Component mergeComponents(String mergeTargetId, String mergeSourceId, Component mergeSelection,
+            User sessionUser) throws SW360Exception {
+        Component mergeTarget = getComponent(mergeSelection.getId(), sessionUser);
+        Component mergeSource = getComponent(mergeSourceId, sessionUser);
+
+        if (!makePermission(mergeTarget, sessionUser).isActionAllowed(RequestedAction.WRITE)
+                || !makePermission(mergeSource, sessionUser).isActionAllowed(RequestedAction.WRITE)
+                || !makePermission(mergeSource, sessionUser).isActionAllowed(RequestedAction.DELETE)) {
+            return null;
+        }
+
+        // merge "standard" fields
+        mergeTarget.setName(mergeSelection.getName());
+        mergeTarget.setCreatedOn(mergeSelection.getCreatedOn());
+        mergeTarget.setCreatedBy(mergeSelection.getCreatedBy());
+        mergeTarget.setCategories(mergeSelection.getCategories());
+        mergeTarget.setComponentType(mergeSelection.getComponentType());
+        mergeTarget.setHomepage(mergeSelection.getHomepage());
+        mergeTarget.setBlog(mergeSelection.getBlog());
+        mergeTarget.setWiki(mergeSelection.getWiki());
+        mergeTarget.setMailinglist(mergeSelection.getMailinglist());
+        mergeTarget.setDescription(mergeSelection.getDescription());
+
+        // FIXME: how to handle release aggregate data? when is this generated? should
+        // this get generated here instead of using user input?
+        mergeTarget.setVendorNames(mergeSelection.getVendorNames());
+        mergeTarget.setLanguages(mergeSelection.getLanguages());
+        mergeTarget.setSoftwarePlatforms(mergeSelection.getSoftwarePlatforms());
+        mergeTarget.setOperatingSystems(mergeSelection.getOperatingSystems());
+        mergeTarget.setMainLicenseIds(mergeSelection.getMainLicenseIds());
+
+        mergeTarget.setComponentOwner(mergeSelection.getComponentOwner());
+        mergeTarget.setOwnerAccountingUnit(mergeSelection.getOwnerAccountingUnit());
+        mergeTarget.setOwnerGroup(mergeSelection.getOwnerGroup());
+        mergeTarget.setModerators(mergeSelection.getModerators());
+        mergeTarget.setSubscribers(mergeSelection.getSubscribers());
+        mergeTarget.setRoles(mergeSelection.getRoles());
+
+        // prepare for no NPE
+        if (mergeSource.getReleaseIds() == null) {
+            mergeSource.setReleaseIds(new HashSet<>());
+        }
+        if (mergeTarget.getReleaseIds() == null) {
+            mergeTarget.setReleaseIds(new HashSet<>());
+        }
+        if (mergeSource.getAttachments() == null) {
+            mergeSource.setAttachments(new HashSet<>());
+        }
+        if (mergeTarget.getAttachments() == null) {
+            mergeTarget.setAttachments(new HashSet<>());
+        }
+
+        // --- handle releases (a bit more complicated)
+
+        Set<String> releaseIdsSelected = mergeSelection.getReleases().stream().map(r -> r.getId())
+                .collect(Collectors.toSet());
+
+        // update componentid reference in releases to migrate
+        // FIXME: also update the release name as it normally matches the component
+        // name?
+        Set<String> releaseIdsSourceSelectedIntersect = mergeSource.getReleaseIds();
+        releaseIdsSourceSelectedIntersect.retainAll(releaseIdsSelected);
+        List<Release> releasesSourceSelectedIntersect = getReleases(releaseIdsSourceSelectedIntersect);
+        releasesSourceSelectedIntersect.stream().forEach(r -> r.setComponentId(mergeSelection.getId()));
+        updateReleases(Sets.newHashSet(releasesSourceSelectedIntersect), sessionUser);
+
+        // remove releaseids from source so that they don't get deleted on deletion of
+        // source component later on (releases are not part of the component in couchdb,
+        // only the ids)
+        mergeSource.getReleaseIds().removeAll(releaseIdsSourceSelectedIntersect);
+
+        // remove releases to be deleted from target
+        // FIXME: what happens if they are referenced somewhere? Maybe only adding
+        // releases should be possible during merge - atm at least the gui only allow
+        // adding
+        Set<String> releaseIdsToDelete = new HashSet<>(mergeTarget.getReleaseIds());
+        releaseIdsToDelete.removeAll(releaseIdsSelected);
+        releaseIdsToDelete.stream().forEach(id -> {
+            try {
+                deleteRelease(id, sessionUser);
+            } catch (TException e) {
+                throw new RuntimeException("Could not delete release with id <" + id + "> while merging components <"
+                        + mergeTarget.getId() + "> and <" + mergeSource.getId() + ">!", e);
+            }
+        });
+
+        // only release ids are persisted, the list of release objects are joined so
+        // there is no need to update that one
+        mergeTarget.setReleaseIds(releaseIdsSelected);
+
+        // --- handle attachments (a bit more complicated)
+
+        Set<String> attachmentIdsSelected = mergeSelection.getAttachments().stream()
+                .map(a -> a.getAttachmentContentId()).collect(Collectors.toSet());
+        // add new attachments from source
+        Set<Attachment> attachmentsToAdd = new HashSet<>();
+        mergeSource.getAttachments().stream().forEach(a -> {
+            if (attachmentIdsSelected.contains(a.getAttachmentContentId())) {
+                attachmentsToAdd.add(a);
+            }
+        });
+        // remove moved attachments in source
+        attachmentsToAdd.stream().forEach(a -> {
+            mergeTarget.addToAttachments(a);
+            mergeSource.getAttachments().remove(a);
+        });
+        // delete unchosen attachments from target
+        Set<Attachment> attachmentsToDelete = new HashSet<>();
+        mergeTarget.getAttachments().stream().forEach(a -> {
+            if (!attachmentIdsSelected.contains(a.getAttachmentContentId())) {
+                attachmentsToDelete.add(a);
+            }
+        });
+        mergeTarget.getAttachments().removeAll(attachmentsToDelete);
+
+        // FIXME: also delete attachment contents of deleted attachments in target?
+
+        // FIXME: where else are componentids referenced?
+
+        // FIXME: what is document state for?
+
+        // first, update source before deletion so that attachments and releases and
+        // stuff that has been migrated will not be deleted by component deletion!
+        updateComponentCompletely(mergeSource, sessionUser);
+        updateComponentCompletely(mergeTarget, sessionUser);
+        deleteComponent(mergeSourceId, sessionUser);
+
+        return getComponent(mergeTargetId, sessionUser);
+    }
+
+    /**
+     * The {{@link #updateComponent(Component, User)} does not change the given
+     * component completely according to the user request. As we want to have
+     * exactly the given component as a result, this method is really submitting the
+     * given data to the persistence.
+     */
+    private boolean updateComponentCompletely(Component component, User user) {
+        // Prepare component for database
+        try {
+            prepareComponent(component);
+        } catch (SW360Exception e) {
+            log.warn("Could not prepare component for complete deletion: " + component.getId(), e);
+            return false;
+        }
+
+        // Update the database with the component
+        componentRepository.update(component);
+
+        sendMailNotificationsForComponentUpdate(component, user.getEmail());
+
+        return true;
+    }
 
     public RequestStatus updateRelease(Release release, User user, Iterable<Release._Fields> immutableFields) throws SW360Exception {
         // Prepare release for database
@@ -1110,4 +1267,5 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
                 SW360Constants.NOTIFICATION_CLASS_RELEASE, Release._Fields.SUBSCRIBERS.toString(),
                 release.getName(), release.getVersion());
     }
+
 }

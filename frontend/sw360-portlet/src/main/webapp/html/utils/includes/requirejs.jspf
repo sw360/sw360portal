@@ -30,10 +30,7 @@
             // only for libraries that do not support RequireJS out of the box
             "jquery-confirm": [ "jquery" ],
             "jquery-treetable": [ "jquery" ],
-            "resumable": [ "jquery" ],
-            "datatables_buttons": {
-                deps: ['datatables']
-            }
+            "resumable": [ "jquery" ]
         },
         map: {
             '*': {

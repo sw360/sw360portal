@@ -258,6 +258,12 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
+    public Component mergeComponents(String componentTargetId, String componentSourceId, Component componentSelection,
+            User user) throws TException {
+        return handler.mergeComponents(componentTargetId, componentSourceId, componentSelection, user);
+    }
+
+    @Override
     public RequestStatus updateRelease(Release release, User user) throws TException {
         assertNotNull(release);
         assertId(release.getId());
@@ -428,6 +434,5 @@ public class ComponentHandler implements ComponentService.Iface {
     public Map<String, List<String>> getDuplicateReleaseSources() throws TException {
         return handler.getDuplicateReleaseSources();
     }
-
 
 }
