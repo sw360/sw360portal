@@ -100,6 +100,16 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
                     "        }" +
                     "    }";
 
+    private static final String WITH_LINKED_RELEASES =
+            "function(doc) {" +
+                    "  if (doc.type == 'component') {"
+                    + "  emit(doc._id, null);" +
+                    "    for(var i in doc.releaseIds) {" +
+                    "      emit(doc._id, { _id : doc.releaseIds[i] } );" +
+                    "    }" +
+                    "  }" +
+                    "}";
+
     public ComponentRepository(DatabaseConnector db, ReleaseRepository releaseRepository, VendorRepository vendorRepository) {
         super(Component.class, db, new ComponentSummary(releaseRepository, vendorRepository));
 
@@ -183,5 +193,21 @@ public class ComponentRepository extends SummaryAwareRepository<Component> {
         ViewQuery query = createQuery("all").includeDocs(false).limit(0);
         ViewResult result = db.queryView(query);
         return result.getTotalRows();
+    }
+
+    @View(name = "withLinkedReleases", map = WITH_LINKED_RELEASES)
+    public List<Component> getWithReleases() {
+        ViewQuery viewQuery = createQuery("withLinkedReleases").includeDocs(true);
+        return getConnector().queryWithLinkedDocuments(viewQuery, getType(), "component");
+    }
+
+    @View(name = "withLinkedReleases", map = WITH_LINKED_RELEASES)
+    public Component getWithReleases(String id) {
+        ViewQuery viewQuery = createQuery("withLinkedReleases").includeDocs(true).key(id);
+        List<Component> components = getConnector().queryWithLinkedDocuments(viewQuery, getType(), "component");
+        if (components.isEmpty()) {
+            return null;
+        }
+        return components.get(0);
     }
 }

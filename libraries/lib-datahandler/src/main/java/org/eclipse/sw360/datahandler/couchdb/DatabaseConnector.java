@@ -11,11 +11,14 @@
 package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.ImmutableSet;
-import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.sw360.datahandler.couchdb.annotation.LinkedDocument;
+import org.eclipse.sw360.datahandler.couchdb.annotation.LinkedDocuments;
+import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.ektorp.*;
 import org.ektorp.http.HttpClient;
 import org.ektorp.impl.StdCouchDbConnector;
+import org.ektorp.util.Assert;
 import org.ektorp.util.Documents;
 
 import java.net.MalformedURLException;
@@ -66,6 +69,10 @@ public class DatabaseConnector extends StdCouchDbConnector {
      */
     public DatabaseConnector(HttpClient httpClient, String dbName, MapperFactory mapperFactory) throws MalformedURLException {
         this(dbName, new DatabaseInstance(httpClient), mapperFactory);
+    }
+
+    public DatabaseConnector(Supplier<HttpClient> httpClient, String dbName, MapperFactory mapperFactory) throws MalformedURLException {
+        this(httpClient.get(), dbName, mapperFactory);
     }
 
     private DatabaseConnector(String dbName, DatabaseInstance instance, MapperFactory mapperFactory) throws MalformedURLException {
@@ -252,5 +259,43 @@ public class DatabaseConnector extends StdCouchDbConnector {
     public <T> List<DocumentOperationResult> deleteIds(Collection<String> ids, Class<T> type) {
         final List<T> deletionCandidates = get(type, ids);
         return deleteBulk(deletionCandidates);
+    }
+
+    /**
+     * Loads a query that is prepared to load linked documents as well. In order to
+     * use this method, fields must be annotated with {@link LinkedDocument} or
+     * {@link LinkedDocuments} and the view must be prepared with a map function
+     * like:
+     *
+     * <pre>
+     *  function(doc) {
+     *      if(doc.type == 'project') {
+     *          emit(doc._id, null);
+     *          for(var i in doc.releaseIds) {
+     *              if(doc.releaseIds[i]._id) {
+     *                  emit(doc._id, { _id: doc.releaseIds[i]._id });
+     *              }
+     *          }
+     *      }
+     *  }
+     * </pre>
+     *
+     * @param viewQuery
+     *            the query to execute
+     *
+     * @param type
+     *            type of the main class that should be loaded
+     * @param typeName
+     *            name of main document type. This document must contain a field
+     *            named "type"
+     *
+     * @return list of loaded documents
+     */
+    public <T> List<T> queryWithLinkedDocuments(ViewQuery viewQuery, Class<T> type, String typeName) {
+        Assert.notNull(viewQuery, "query may not be null");
+        viewQuery.dbPath(dbURI.toString());
+
+        LinkedDocumentViewResponseHandler<T> responseHandler = new LinkedDocumentViewResponseHandler<T>(type, typeName, objectMapper);
+        return executeQuery(viewQuery, responseHandler);
     }
 }
