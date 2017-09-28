@@ -14,7 +14,8 @@
 <%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -47,17 +48,13 @@
 
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-    <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 
     <div id="header"></div>
     <p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span>
         <span class="pull-right">
-        <input type="button" onclick="editComponent()" id="edit" value="Edit" class="addButton">
+        <input type="button" id="edit" value="Edit" class="addButton">
         <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${component}"
-                                      id="SubscribeButton" onclick="subscribeComponent('SubscribeButton')"  altonclick="unsubscribeComponent('SubscribeButton')" />
+                                      id="SubscribeButton" />
     </span>
     </p>
     <core_rt:set var="inComponentDetailsContext" value="true" scope="request"/>
@@ -65,61 +62,42 @@
 </core_rt:if>
 
 <script>
-    var tabView;
-    var Y = YUI().use(
-            'aui-tabview',
-            function (Y) {
-                tabView = new Y.TabView(
-                        {
-                            srcNode: '#myTab',
-                            stacked: true,
-                            type: 'tab'
-                        }
-                ).render();
-            }
-    );
+    require(['jquery', 'modules/tabview'], function($, tabview) {
+        tabview.create('myTab');
 
-    function editComponent() {
-        window.location ='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'
-    }
-
-    function doAjax(url,spanId , successCallback) {
-        var $resultElement = $('#' + spanId);
-        $resultElement.val("...");
-        $.ajax({
-            type: 'POST',
-            url: url,
-            success: function (data) {
-                successCallback(spanId, data);
-            },
-            error: function () {
-                $resultElement.val("error");
-            }
+        $('#edit').on('click', function() {
+            window.location ='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'
         });
-    }
 
-    function subscribed(spanId, data) {
-        var $resultElement = $('#' + spanId);
-        var msg = data.result == "SUCCESS" ? "Unsubscribe" : data.result;
-        $resultElement.val(msg);
-        $resultElement.addClass("subscribed");
-        $resultElement.attr("onclick","unsubscribeComponent('"+spanId+"')");
-    }
+        $('#SubscribeButton').on('click', function(event) {
+            var $button = $(event.currentTarget),
+                subscribed = $button.hasClass('subscribed'),
+                url = subscribed ? '<%=unsubscribeComponentURL%>' : '<%=subscribeComponentURL%>';
 
-    function unsubscribed(spanId, data) {
-        var $resultElement = $('#' + spanId);
-        var msg = data.result == "SUCCESS" ? "Subscribe" : data.result;
-        $resultElement.val(msg);
-        $resultElement.removeClass("subscribed");
-        $resultElement.attr("onclick","subscribeComponent('"+spanId+"')");
-    }
+            $button.val('...');
+            doAjax(url, function(data) {
+                if(data.result === "SUCCESS") {
+                    $button.val(!subscribed ? 'Unsubscribe': 'Subscribe');
+                    $button.toggleClass('subscribed');
+                } else {
+                    $button.val(data.result);
+                }
+            }, function() {
+                $button.val('error');
+            });
+        });
 
-    function subscribeComponent(spanId) {
-        doAjax('<%=subscribeComponentURL%>',spanId , subscribed);
-    }
-
-    function unsubscribeComponent(spanId) {
-        doAjax('<%=unsubscribeComponentURL%>',spanId , unsubscribed);
-    }
-
+        function doAjax(url, successCallback, errorCallback) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                success: function (data) {
+                    successCallback(data);
+                },
+                error: function () {
+                    errorCallback();
+                }
+            });
+        }
+    });
 </script>

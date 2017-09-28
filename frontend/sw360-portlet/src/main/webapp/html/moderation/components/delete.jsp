@@ -35,7 +35,8 @@
 <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/main.js"></script>
+<%@include file="/html/moderation/includes/moderationActions.jspf"%>
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Delete Component: ${component.name}</span>
@@ -45,6 +46,7 @@
 <%@include file="/html/moderation/includes/moderationInfo.jspf"%>
 
 <core_rt:set var="inComponentDetailsContext" value="false" scope="request"/>
+<%@include file="/html/utils/includes/requirejs.jspf" %>
 <%@include file="/html/components/includes/components/detailOverview.jspf"%>
 
 <script>
@@ -77,4 +79,3 @@
     }
 
 </script>
-<%@include file="/html/moderation/includes/moderationActions.jspf"%>

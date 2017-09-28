@@ -65,14 +65,10 @@
 
 <core_rt:if test="${empty attributeNotFoundException}">
 
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-
-    <!--include jQuery -->
-    <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
 
     <div id="header"></div>
     <p class="pageHeader"><span class="pageHeaderBigSpan"><sw360:out value="${component.name}"/>: <sw360:ReleaseName release="${release}" /> Edit</span>
@@ -159,7 +155,6 @@
         </div>
     </div>
 
-    <%@ include file="/html/utils/includes/requirejs.jspf" %>
     <jsp:include page="/html/utils/includes/searchAndSelectUsers.jsp" />
     <jsp:include page="/html/utils/includes/searchAndSelectLicenses.jsp" />
     <jsp:include page="/html/utils/includes/searchUsers.jsp" />
@@ -171,10 +166,12 @@
 <%@include file="/html/components/includes/vendors/searchVendor.jspf" %>
 
 <script>
+    var tabView; // we still need this global variable, until invalidHandlerShowErrorTab is modularized
+
     YUI().use(
             'aui-tabview',
             function (Y) {
-                new Y.TabView(
+                tabView = new Y.TabView(
                         {
                             srcNode: '#myTab',
                             stacked: true,

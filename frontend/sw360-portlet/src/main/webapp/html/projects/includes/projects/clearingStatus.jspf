@@ -36,7 +36,7 @@
         <core_rt:if test="${inProjectDetailsContext}">
             <div class="clear-float"></div>
             <span class="pull-right">
-                <input type="button" class="addButton" id="exportReleasesSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportReleasesSpreadsheet()"/>
+                <input type="button" class="addButton" id="exportReleasesSpreadsheetButton" value="Export Spreadsheet" class="addButton" />
             </span>
         </core_rt:if>
     </div>
@@ -49,15 +49,25 @@
 
 <%@include file="/html/utils/includes/fossologyClearing.jspf"%>
 
-<%--for javascript library loading --%>
-<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script type="text/javascript">
-    require(['jquery', 'datatables', 'datatables_buttons', 'buttons.print'], function ($) {
+    require(['jquery', 'utils/includes/fossologyClearing', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function ($, fossology) {
         var releaseClearingTable;
+
+        //This can not be document ready function as liferay definitions need to be loaded first
+        $(window).load(function () {
+            createClearingTable();
+            fossology.initialize();
+
+            $('#exportReleasesSpreadsheetButton').on('click', exportReleasesSpreadsheet);
+            $('#releasesTable').on('click', '.action.send-to-fossology', function(event) {
+                var data = $(event.currentTarget).data();
+                fossology.openSelectClearingDialog('releaseClearingState', data.releaseId);
+            });
+        });
 
         function renderActions(releaseId) {
             return "<img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' " +
-                "  onclick='openSelectClearingDialog(\"releaseClearingState" + releaseId + "\",\"" + releaseId + "\")' " +
+                " class='action send-to-fossology' data-release-id='" + releaseId + "'" +
                 "  alt='SelectClearing' title='send to Fossology'>";
         }
 
@@ -109,11 +119,6 @@
             portletURL.setParameter('<%=PortalConstants.PROJECT_ID%>', '${project.id}');
             window.location.href = portletURL.toString();
         }
-
-        //This can not be document ready function as liferay definitions need to be loaded first
-        $(window).load(function () {
-            createClearingTable();
-        });
     });
 
 </script>

@@ -9,9 +9,24 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
+
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
-<div id="fossologyClearing" title="Fossology Clearing" style="display: none; background-color: #ffffff;">
+<portlet:resourceURL var="sendToFossologyURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_SEND%>'/>
+</portlet:resourceURL>
+<portlet:resourceURL var="getFossologyStatusURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_GET_STATUS%>'/>
+</portlet:resourceURL>
+
+<div id="fossologyClearing" title="Fossology Clearing" style="display: none; background-color: #ffffff;"
+    data-portlet-namespace="<portlet:namespace/>"
+    data-fossology-send-url="<%=sendToFossologyURL%>"
+    data-fossology-status-url="<%=getFossologyStatusURL%>"
+>
     <input id="releaseId" hidden="" value=""/>
     <input id="fieldId" hidden="" value=""/>
     <table width="100%">
@@ -47,11 +62,11 @@
         <tfoot>
         <tr>
             <td>
-                <input type="button"
-                       onclick="redrawFossTable();"
+                <input id="refreshStatusButton"
+                       type="button"
                        value="Refresh Status" title="Refresh the status for the selected ClearingTeam"/>
-                <input type="button"
-                       onclick="sendToFossology($('#fieldId').val(), $('#releaseId').val(), $('#clearingTeam').val()) "
+                <input id="sendToFossolgyButton"
+                       type="button"
                        value="Send For Clearing" title="Send or make available this release to the selected Clearing Team"/>
             </td>
             <td style="text-align: right">
@@ -62,117 +77,3 @@
     </table>
 
 </div>
-
-<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
-
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-
-
-<portlet:resourceURL var="sendToFossologyURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_SEND%>'/>
-</portlet:resourceURL>
-<portlet:resourceURL var="getFossologyStatusURL">
-    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.FOSSOLOGY_GET_STATUS%>'/>
-</portlet:resourceURL>
-
-
-<script type="text/javascript">
-    var fosstable;
-    var objectNamespacer = objectNamespacerOf('<portlet:namespace/>');
-
-    var refreshClearing = false;
-
-    function redrawFossTable() {
-        fosstable.draw();
-    }
-
-    function updateAttachmentName(attachment) {
-        $('#attachmentFossology').val(attachment);
-    }
-
-    function createFossTable() {
-        var $releaseId = $('#releaseId');
-        var $clearingTeam = $('#clearingTeam');
-
-        fosstable = $('#attachmentFossologyStatus').DataTable({
-            ajax: {
-                url: '<%=getFossologyStatusURL%>',
-                type: 'POST',
-                data: function (data) {
-                    var releaseId = $releaseId.val();
-                    var clearingTeam = $clearingTeam.val();
-
-                    data = data || {};
-                    data.releaseId = releaseId;
-                    data.clearingTeam = clearingTeam;
-                    data.cached = !refreshClearing;
-
-                    refreshClearing = true;
-
-                    return objectNamespacer(data);
-                },
-                dataSrc: function(json) {
-                    updateAttachmentName(json.attachment);
-                    return json.data;
-                }
-            },
-            serverSide: true,
-            filter: false,
-            sortable: false,
-            paginate: false,
-            processing: true,
-            scrollY: '75%',
-            columns: [
-                {title: "Clearing Team"},
-                {title: "Fossology Status"}
-            ],
-            autoWidth: false
-        });
-
-        $releaseId.change(redrawFossTable);
-    }
-
-    //This can not be document ready function as liferay definitions need to be loaded first
-    $(window).load(function () {
-        createFossTable();
-    });
-
-    function openSelectClearingDialog(fieldId, releaseId) {
-        refreshClearing = false;
-        $('#fieldId').val(fieldId);
-        $('#releaseId').val(releaseId).change();
-        openDialog('fossologyClearing', 'clearingTeam', .5, .5);
-    }
-
-    function sendToFossology(fieldId, releaseId, clearingTeam) {
-        closeOpenDialogs();
-        var $responseField = $('#' + fieldId);
-        $responseField.html("Sending...");
-
-        $.ajax({
-            type: 'POST',
-            url: '<%=sendToFossologyURL%>',
-            cache: false,
-            data: objectNamespacer({
-                releaseId: releaseId,
-                clearingTeam: clearingTeam
-            })
-        }).done(function (data) {
-                    if (data.result == 'SUCCESS') {
-                        $responseField.html("Sent");
-                    } else {
-                        $responseField.html("Error");
-                    }
-                }
-        ).fail(function () {
-                    $responseField.html("Error");
-                });
-    }
-</script>
-
-

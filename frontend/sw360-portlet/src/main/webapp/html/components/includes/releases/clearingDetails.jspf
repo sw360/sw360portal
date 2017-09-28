@@ -24,8 +24,8 @@
             <sw360:DisplayEnum value="${release.clearingState}"/>
             &nbsp;
             <span id='releaseAction${release.id}'>
-                <img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'
-                     onclick='openSelectClearingDialog("fossologySending${release.id}","${release.id}")'
+                <img class="action send-to-fossology" src='<%=request.getContextPath()%>/images/fossology-logo-24.gif'
+                     data-release-id="${release.id}"
                      alt='Send to FOSSology'
                      title='Send to FOSSology'>
                 <span id='fossologySending${release.id}'></span>
@@ -105,7 +105,7 @@
     <tr>
         <td>Clearing Standard:</td>
         <td><sw360:out value="${clearingInfo.clearingStandard}"/></td>
-    </tr> 
+    </tr>
     <tr>
         <td>External URL:</td>
         <td><sw360:DisplayLink target="${clearingInfo.externalUrl}"/></td>
@@ -157,4 +157,14 @@
     </tr>
 </table>
 
-
+<script type="text/javascript">
+    require(['jquery', 'utils/includes/fossologyClearing'], function ($, fossology) {
+        $(window).load(function () {
+            fossology.initialize();
+        });
+        $('#ReleaseClearingOverview').on('click', '.action.send-to-fossology', function(event) {
+            var data = $(event.currentTarget).data();
+            fossology.openSelectClearingDialog('fossologySending', data.releaseId);
+        });
+    });
+</script>
