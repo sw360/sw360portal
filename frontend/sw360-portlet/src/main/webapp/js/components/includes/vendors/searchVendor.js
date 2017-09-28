@@ -38,7 +38,7 @@ define('components/includes/vendors/searchVendor', ['jquery', 'components/includ
             url: viewVendorUrl,
             data: data,
             success: function (data) {
-                $('#' + id).html(data);
+                $('#' + id + ' tbody').html(data);
             }
         });
     }

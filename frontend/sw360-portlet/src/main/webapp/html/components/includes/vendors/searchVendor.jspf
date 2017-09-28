@@ -22,23 +22,37 @@
 
         <div id="vendorsearchresults">
             <table width="100%" style="border-bottom: 2px solid #66c1c2;">
+                <colgroup>
+                    <col width="30px">
+                    <col width="150px">
+                    <col width="150px">
+                    <col>
+                </colgroup>
                 <thead>
-                <tr class="trheader" style="height: 30px;">
-                    <th></th>
-                    <th class="textlabel">Vendor Full Name</th>
-                    <th class="textlabel">Vendor Short Name</th>
-                    <th class="textlabel">Vendor URL</th>
-                </tr>
+                    <tr class="trheader" style="text-align: left; height: 30px;">
+                        <th style="padding: 0;"></th>
+                        <th style="padding: 0;" class="textlabel">Vendor Full Name</th>
+                        <th style="padding: 0;" class="textlabel">Vendor Short Name</th>
+                        <th style="padding: 0;" class="textlabel">Vendor URL</th>
+                    </tr>
                 </thead>
             </table>
-            <div style="overflow-y: scroll; height: 150px;">
+            <div style="overflow-y: scroll; height: 250px;">
                 <table id="searchresultstable" width="100%">
-                    <tr class="trbodyClass">
-                        <td colspan="4"></td>
-                    </tr>
+                    <colgroup>
+                        <col width="30px">
+                        <col width="150px">
+                        <col width="150px">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr class="trbodyClass">
+                            <td colspan="4"></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
-            <hr noshade size="1" style="background-color: #66c1c2; border-color: #59D1C4;"/>
+            <hr noshade size="1" style="background-color: #66c1c2; border-color: #59D1C4; margin-top: 0;"/>
             <br/>
 
             <div>
