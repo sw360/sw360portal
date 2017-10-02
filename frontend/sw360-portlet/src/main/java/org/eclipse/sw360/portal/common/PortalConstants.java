@@ -119,6 +119,7 @@ public class PortalConstants {
     public static final String ATTACHMENT_ID = "attachmentId";
     public static final String CONTEXT_TYPE = "context_type";
     public static final String CONTEXT_ID = "context_id";
+    public static final String ATTACHMENT_USAGE_COUNT_MAP = "attachmenUsageCountMap";
 
     //! Specialized keys for projects
     public static final String PROJECT_ID = "projectid";
@@ -270,6 +271,7 @@ public class PortalConstants {
     public static final String DOWNLOAD_LICENSE_INFO = "DownloadLicenseInfo";
     public static final String DOWNLOAD_SOURCE_CODE_BUNDLE = "DownloadSourceCodeBundle";
     public static final String GET_LICENCES_FROM_ATTACHMENT = "GetLicensesFromAttachment";
+    public static final String LOAD_LICENSE_INFO_ATTACHMENT_USAGE = "LoadLicenseInfoAttachmentUsage";
 
     //component actions
     public static final String ADD_VENDOR = "add_vendor";

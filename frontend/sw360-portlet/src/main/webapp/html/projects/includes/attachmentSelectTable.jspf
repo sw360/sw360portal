@@ -14,12 +14,23 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.GET_LICENCES_FROM_ATTACHMENT%>'/>
 </portlet:resourceURL>
 
+<portlet:resourceURL var="downloadLicenseInfoStateURL">
+    <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.LOAD_LICENSE_INFO_ATTACHMENT_USAGE%>'/>
+</portlet:resourceURL>
+
+<core_rt:if test="${projectLinkTableMode == PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO}">
+    <div id="infobar" class="infobar backgroundGrey">
+        <div class="spinner">Loading selected licenses and exclusions...</div>
+    </div>
+</core_rt:if>
+
 <table class="table info_table" id="LinkedProjectsInfo"
     data-table-mode="${projectLinkTableMode}"
     data-table-mode-license-info="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO%>"
     data-table-mode-source-bundle="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_SOURCE_BUNDLE%>"
     data-portlet-namespace="<portlet:namespace/>"
     data-license-info-base-url="<%=downloadLicenseInfoURL%>"
+    data-license-info-state-url="<%=downloadLicenseInfoStateURL%>"
     data-attachment-id-parameter-name="<%=PortalConstants.ATTACHMENT_ID%>"
     data-release-id-parameter-name="<%=PortalConstants.RELEASE_ID%>"
 >
@@ -72,6 +83,7 @@
         <%--linked releases of linked projects--%>
         <core_rt:forEach items="${projectLink.linkedReleases}" var="releaseLink" varStatus="releaseloop">
             <tr id="releaseLinkRow${loop.count}_${releaseloop.count}" data-tt-id="${releaseLink.nodeId}"
+                data-release-id="${releaseLink.id}"
                 <core_rt:if test="${loop.index!=0}">data-tt-parent-id="${projectLink.nodeId}"</core_rt:if>
                 <core_rt:if test="${empty releaseLink.attachments}">class="highlightedRed"</core_rt:if>
                 <core_rt:if test="${fn:length(releaseLink.attachments) == 1}">class="highlightedGreen"</core_rt:if>
@@ -81,7 +93,7 @@
                 <td>
                     <sw360:out value="${projectLink.treeLevel + 1}"/>
                 </td>
-                <td>
+                <td class="release-name">
                     <a href="<sw360:DisplayReleaseLink releaseId="${releaseLink.id}" bare="true" />"><sw360:out
                             value="${releaseLink.vendor} ${releaseLink.name}" maxChar="50"/> <sw360:out
                             value="${releaseLink.version}"/></a>
@@ -121,10 +133,21 @@
                     <td>
                         <sw360:out value="${projectLink.treeLevel + 1}"/>
                     </td>
-                    <td>
+                    <td class="filename">
                         <sw360:out value="${attachment.filename}"/>
                     </td>
                     <td colspan="2">
+                        <core_rt:if test="${projectLinkTableMode == PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO}">
+                            <c:set var="mapKey">${releaseLink.id.concat("_").concat(attachment.attachmentContentId)}</c:set>
+                            <core_rt:choose>
+                                <core_rt:when test="${attachmenUsageCountMap[mapKey] != null}">
+                                  used in <b>${attachmenUsageCountMap[mapKey]}</b> projects
+                                </core_rt:when>
+                                <core_rt:otherwise>
+                                  <i>not used in any project yet</i>
+                                </core_rt:otherwise>
+                            </core_rt:choose>
+                        </core_rt:if>
                     </td>
                     <td>
                         <sw360:DisplayUserEmail email="${attachment.createdBy}" bare="true"/>
@@ -160,6 +183,7 @@
 
                 if(data.tableMode === data.tableModeLicenseInfo) {
                     initializeTableForLicenseInfo($linkedProjectsInfoTable);
+                    loadSavedLicenseInfoState($linkedProjectsInfoTable);
                 } else if(data.tableMode === data.tableModeSourceBundle) {
                     initializeTableForSourceBundle($linkedProjectsInfoTable);
                 } else {
@@ -206,12 +230,14 @@
                     });
                 }
 
-                function expandLicenseFile($linkedProjectsInfoTable, node) {
+                function expandLicenseFile($linkedProjectsInfoTable, node, loadedCallback) {
                     var url,
                         urlData = $linkedProjectsInfoTable.data(),
                         data = node.row.data();
 
+                    loadedCallback = loadedCallback || function() {};
                     if(data.rowType !== 'attachment' || data.loaded) {
+                        loadedCallback();
                         return;
                     }
                     // we set it to loaded here to prevent double requests by collapsing and expanding again
@@ -237,6 +263,7 @@
                                 text: 'No license found.'
                             }));
                             $linkedProjectsInfoTable.find('tr[data-tt-id=' + data.ttId + '_loader] td .spinner').hide();
+                            loadedCallback();
                             return;
                         }
 
@@ -270,9 +297,12 @@
                                 }
                             }
                         });
+
+                        loadedCallback();
                     }).error(function(xhr, type, error) {
                         data.loaded = false;
                         renderErrorMessage($linkedProjectsInfoTable, node, data.ttId, error);
+                        loadedCallback(error);
                     });
                 }
 
@@ -286,6 +316,7 @@
 
                         $row.attr('data-tt-id', parentNodeId + '_' + license.key);
                         $row.attr('data-tt-parent-id', parentNodeId);
+                        $row.attr('data-license-name', license.name); // used for restoring saved selection
 
                         $checkbox = $('<input/>', {
                             type:         'checkbox',
@@ -351,6 +382,143 @@
                         append($errorMessage).
                         append($reloadLink);
                     $linkedProjectsInfoTable.find('tr[data-tt-id=' + ttId + '_loader] td .spinner').hide();
+                }
+
+                function loadSavedLicenseInfoState($linkedProjectsInfoTable) {
+                    var config = $linkedProjectsInfoTable.data();
+
+                    $.ajax({
+                        type: 'GET',
+                        url: config.licenseInfoStateUrl,
+                    }).done(function(result) {
+                        if(!result || result.length == 0) {
+                            $('#infobar').removeClass('backgroundWarning').addClass('backgroundOK').html($('<span>', {
+                                text: "No previous selection found. If you have writing permissions to this project, your selection will be stored automatically when downloading the license info file."
+                            }));
+                        } else {
+                            restoreSelectedLicenses($linkedProjectsInfoTable, result, function(error, warnings) {
+                                if(error) {
+                                    $('#infobar').removeClass('backgroundGrey').addClass('backgroundAlert').html($('<span>', {
+                                        text: "Cannot load selected licenses and exclusions: " + error
+                                    }));
+                                } else if(warnings && warnings.length > 0) {
+                                    $('#infobar').removeClass('backgroundGrey').addClass('backgroundWarning').html($('<div>').append(
+                                            $('<span>', { text: "Some of the stored selection could not be restored. Please check carefully!" })).append(
+                                            createWarningList(warnings)
+                                    ));
+                                } else {
+                                    $('#infobar').removeClass('backgroundGrey').addClass('backgroundOK').html($('<span>', {
+                                        text: "Your selection has been restored. However, please check before downloading. You may also restore the default selection" +
+                                         " by clicking on the checkbox in the header row."
+                                    }));
+                                }
+                            });
+                        }
+                    }).error(function(error) {
+                        $('#infobar').removeClass('backgroundWarning').addClass('backgroundAlert').html($('<span>', {
+                            text: "Cannot load selected licenses and exclusions: " + error.statusText + ' (' + error.status + ')'
+                        }));
+                    });
+                }
+
+                function createWarningList(warnings) {
+                    var byRelease = {},
+                        $list = $('<ul>');
+
+                    warnings.forEach(function(warning) {
+                        if(!byRelease[warning.release]) {
+                            byRelease[warning.release] = {};
+                        }
+                        if(!byRelease[warning.release][warning.attachment]) {
+                            byRelease[warning.release][warning.attachment] = [];
+                        }
+                        byRelease[warning.release][warning.attachment].push(warning.text);
+                    });
+
+                    Object.keys(byRelease).forEach(function(release) {
+                        var $rlist = $('<ul>');
+                        $list.append($('<li>', { text: release }).append($rlist));
+
+                        Object.keys(byRelease[release]).forEach(function(attachment) {
+                            var $alist = $('<ul>');
+                            $rlist.append($('<li>', { text: attachment }).append($alist));
+
+                            byRelease[release][attachment].forEach(function(warning) {
+                                $alist.append($('<li>', { text: warning }));
+                            });
+                        });
+                    });
+
+                    return $list;
+                }
+
+                function restoreSelectedLicenses($linkedProjectsInfoTable, attachmentUsages, readyCallback) {
+                    var warnings = [],
+                        loadCountdown = countdown(attachmentUsages.length, function() { readyCallback(null, warnings); }),
+                        config = $linkedProjectsInfoTable.data();
+
+                    $("#selectAllCheckbox").prop('checked', false).trigger('change');
+                    attachmentUsages.forEach(function(usage) {
+                        $linkedProjectsInfoTable.find('tr input[value="' + usage.owner.releaseId + ':' + usage.attachmentContentId + '"]:first').prop('checked', true).trigger('change');
+
+                        if(usage.usageData.licenseInfo.excludedLicenseIds.length > 0) {
+                            expandLicenseFile($linkedProjectsInfoTable, findNode($linkedProjectsInfoTable, usage), function(error) {
+                                if(error) {
+                                    readyCallback(error);
+                                    return;
+                                }
+                                usage.usageData.licenseInfo.excludedLicenseIds.forEach(function(licenseId) {
+                                    var $parentRow = $linkedProjectsInfoTable.find('tr[data-release-id=' + usage.owner.releaseId + '][data-attachment-id=' + usage.attachmentContentId + ']:first'),
+                                        $row = $linkedProjectsInfoTable.find('tr[data-tt-parent-id="' + $parentRow.data().ttId + '"][data-license-name="' + licenseId + '"]');
+
+                                    if($row.length == 0) {
+                                        warnings.push({
+                                            release: findReleaseName($linkedProjectsInfoTable, usage),
+                                            attachment: findAttachmentName($linkedProjectsInfoTable, usage),
+                                            text: 'License "' + licenseId + '" not found. License is not excluded.'
+                                        });
+                                    } else if($row.length > 1) {
+                                        warnings.push({
+                                            release: findReleaseName($linkedProjectsInfoTable, usage),
+                                            attachment: findAttachmentName($linkedProjectsInfoTable, usage),
+                                            text: 'License "' + licenseId + '" is not unique. License is not excluded.'
+                                        });
+                                    } else {
+                                        $row.find('input[name="' + config.portletNamespace + usage.attachmentContentId + '"]').prop('checked', false).trigger('change');
+                                    }
+                                });
+                                loadCountdown.decrement();
+                            });
+                        } else {
+                            loadCountdown.decrement();
+                        }
+                    });
+                }
+
+                function findNode($linkedProjectsInfoTable, usage) {
+                    var $row = $linkedProjectsInfoTable.find('tr[data-release-id=' + usage.owner.releaseId + '][data-attachment-id=' + usage.attachmentContentId + ']:first');
+                    return $linkedProjectsInfoTable.treetable("node", $row.data().ttId);
+                }
+
+                function findAttachmentName($linkedProjectsInfoTable, usage) {
+                    var $row = $linkedProjectsInfoTable.find('tr[data-release-id=' + usage.owner.releaseId + '][data-attachment-id=' + usage.attachmentContentId + ']:first');
+                    return $row.find('td.filename').text();
+                }
+
+                function findReleaseName($linkedProjectsInfoTable, usage) {
+                    var $row = $linkedProjectsInfoTable.find('tr[data-release-id=' + usage.owner.releaseId + ']:first');
+                    return $row.find('td.release-name a').text();
+                }
+
+                function countdown(value, callback) {
+                    return {
+                        decrement: function() {
+                            value --;
+                            if(value == 0) {
+                                callback();
+                            }
+                        }
+                    };
                 }
             });
         });

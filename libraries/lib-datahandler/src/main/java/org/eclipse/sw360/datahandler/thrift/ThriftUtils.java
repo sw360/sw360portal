@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -11,14 +11,18 @@
  */
 package org.eclipse.sw360.datahandler.thrift;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TFieldIdEnum;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentContentWrapper;
 import org.eclipse.sw360.datahandler.couchdb.DocumentWrapper;
-import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.couchdb.deserializer.UsageDataDeserializer;
+import org.eclipse.sw360.datahandler.thrift.attachments.*;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingInformation;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
@@ -30,9 +34,6 @@ import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.*;
-import org.apache.log4j.Logger;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TFieldIdEnum;
 import org.ektorp.util.Documents;
 
 import java.util.Collection;
@@ -47,9 +48,10 @@ import java.util.Map;
 public class ThriftUtils {
     private static final Logger log = Logger.getLogger(ThriftUtils.class);
 
-    public static final List<Class> THRIFT_CLASSES = ImmutableList.<Class>builder()
+    public static final List<Class<?>> THRIFT_CLASSES = ImmutableList.<Class<?>>builder()
             .add(Attachment.class) // Attachment service
             .add(AttachmentContent.class) // Attachment service
+            .add(AttachmentUsage.class) // Attachment service
             .add(Component.class).add(Release.class) // Component service
             .add(License.class).add(Todo.class).add(Obligation.class) // License service
             .add(LicenseType.class).add(Risk.class).add(RiskCategory.class) // License service
@@ -62,26 +64,32 @@ public class ThriftUtils {
             .add(Vulnerability.class, ReleaseVulnerabilityRelation.class, ProjectVulnerabilityRating.class) // Vulnerability Service
             .build();
 
-    public static final List<Class> THRIFT_NESTED_CLASSES = ImmutableList.<Class>builder()
-            .add(Repository.class).add(ClearingInformation.class) // Component service
+    public static final List<Class<?>> THRIFT_NESTED_CLASSES = ImmutableList.<Class<?>>builder()
+            .add(Source.class)
+            .add(LicenseInfoUsage.class)
+            .add(Repository.class)
+            .add(ClearingInformation.class) // Component service
             .add(CVEReference.class, VendorAdvisory.class, VulnerabilityCheckStatus.class) // Vulnerability Service
             .add(VerificationStateInfo.class)
             .build();
 
-    private static final Map<Class, Class<? extends DocumentWrapper>> THRIFT_WRAPPED =
-            ImmutableMap.<Class, Class<? extends DocumentWrapper>>builder()
-                    .put(AttachmentContent.class, AttachmentContentWrapper.class)
-                    .build();
+    public static final Map<Class<?>, JsonDeserializer<?>> CUSTOM_DESERIALIZER = ImmutableMap.of(
+            UsageData.class, new UsageDataDeserializer()
+    );
+
+    private static final Map<Class<?>, Class<? extends DocumentWrapper<?>>> THRIFT_WRAPPED = ImmutableMap.of(
+            AttachmentContent.class, AttachmentContentWrapper.class
+    );
 
     private ThriftUtils() {
         // Utility class with only static functions
     }
 
-    public static boolean isMapped(Class clazz) {
+    public static boolean isMapped(Class<?> clazz) {
         return THRIFT_WRAPPED.containsKey(clazz);
     }
 
-    public static Class<? extends DocumentWrapper> getWrapperClass(Class clazz) {
+    public static Class<? extends DocumentWrapper<?>> getWrapperClass(Class<?> clazz) {
         return THRIFT_WRAPPED.get(clazz);
     }
 

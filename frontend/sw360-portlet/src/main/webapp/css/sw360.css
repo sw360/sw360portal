@@ -439,6 +439,13 @@ input[readonly].clickable {
     background: #aaaaaa;
 }
 
+.infobar {
+    padding: 10px 15px;
+    border: 1px solid grey;
+    margin: 10px 0;
+    border-radius: 3px;
+}
+
 .vulnerabilityRatingCommentArea {
     width: 95% !important;
     height: 90% !important;

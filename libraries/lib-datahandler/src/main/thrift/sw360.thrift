@@ -125,3 +125,13 @@ struct RequestStatusWithBoolean {
   1: required RequestStatus requestStatus;
   2: optional bool answerPositive;
 }
+
+/**
+ * May be used to identify a source where the source can be of type project, component or release.
+ * Using this type over a string allows the user to see which type of source the id is.
+ */
+union Source {
+  1: string projectId
+  2: string componentId
+  3: string releaseId
+}

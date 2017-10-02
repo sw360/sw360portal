@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -15,6 +15,7 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.slf4j.Logger;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -60,6 +61,14 @@ public class SW360Assert {
         assertNotEmpty(id, "Invalid empty ID!");
     }
 
+    public static <T> void assertIds(Collection<T> collection, Function<? super T, Boolean> idSetExtractor) throws SW360Exception {
+        if (!collection.stream().allMatch(el -> {
+            return idSetExtractor.apply(el);
+        })) {
+            throw fail("ID already set, cannot add to database!");
+        }
+    }
+
     public static User assertUser(User user) throws SW360Exception {
         assertNotNull(user, "Invalid, user is null!");
         assertNotEmpty(user.getEmail(), "User Email was empty in " + user.toString());
@@ -90,6 +99,14 @@ public class SW360Assert {
 
     public static void assertIdUnset(String id) throws SW360Exception {
         assertEmpty(id, "ID already set, cannot add to database!");
+    }
+
+    public static <T> void assertIdsUnset(Collection<T> collection, Function<? super T, Boolean> idSetExtractor) throws SW360Exception {
+        if (!collection.stream().noneMatch(el -> {
+            return idSetExtractor.apply(el);
+        })) {
+            throw fail("ID already set, cannot add to database!");
+        }
     }
 
     public static void assertEmpty(String string) throws SW360Exception {
