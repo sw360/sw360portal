@@ -87,7 +87,8 @@ releaseData = {}
 for release in allReleases:
     document = release.value
     if PARENT_COMPONENT_ID in document.keys():
-        releaseData[release.id] = componentData[document[PARENT_COMPONENT_ID]]
+        if document[PARENT_COMPONENT_ID] in componentData.keys():
+            releaseData[release.id] = componentData[document[PARENT_COMPONENT_ID]]
 
 
 print "add component types to moderation requests in the database"
@@ -98,13 +99,15 @@ for request in allModerationRequests:
 
             if (document[MODERATION_TYPE] == COMPONENT) and (COMPONENT_ID in document.keys()):
                 componentID = document[COMPONENT_ID]
-                componentType = componentData[componentID]
-                updateDocument(db, document, {COMPONENT_TYPE: componentType})
+                if componentID in componentData.keys():
+                    componentType = componentData[componentID]
+                    updateDocument(db, document, {COMPONENT_TYPE: componentType})
 
             elif (document[MODERATION_TYPE] == RELEASE) and (RELEASE_ID in document.keys()):
                 releaseID = document[RELEASE_ID]
-                componentType = releaseData[releaseID]
-                updateDocument(db, document, {COMPONENT_TYPE: componentType})
+                if releaseID in releaseData.keys():
+                    componentType = releaseData[releaseID]
+                    updateDocument(db, document, {COMPONENT_TYPE: componentType})
 
 print "done."
 
