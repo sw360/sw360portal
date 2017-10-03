@@ -22,6 +22,7 @@
 <jsp:useBean id="vulnerabilityList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability>"
              scope="request"/>
 <jsp:useBean id="totalRows" type="java.lang.Integer" scope="request"/>
+<jsp:useBean id="viewSize" type="java.lang.Integer" scope="request"/>
 
 <jsp:useBean id="externalId" class="java.lang.String" scope="request"/>
 <jsp:useBean id="vulnerableConfiguration" class="java.lang.String" scope="request"/>

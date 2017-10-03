@@ -12,11 +12,10 @@
     <table class="table info_table" title="Usage overview">
         <thead>
         <tr>
-            <th colspan="4">${documentName} is present in the following releases</th>
+            <th colspan="3">${documentName} is present in the following releases</th>
         </tr>
         <tr>
-            <th>Release name</th>
-            <th>Version</th>
+            <th>Release</th>
             <th>CPE-ID</th>
             <th>Release date</th>
         </tr>
@@ -24,14 +23,7 @@
         <core_rt:forEach var="release" items="${usingReleases}" varStatus="loop">
             <tr>
                 <td>
-                    <sw360:DisplayComponentLink componentId="${release.componentId}" showName="false">
-                        <sw360:out value="${release.name}"/>
-                    </sw360:DisplayComponentLink>
-                </td>
-                <td>
-                    <a href="<sw360:DisplayReleaseLink releaseId="${release.id}" bare="true" />">
-                        <sw360:out value="${release.version}"/>
-                    </a>
+                    <sw360:DisplayReleaseLink release="${release}" showName="true"/>
                 </td>
                 <td><sw360:out value="${release.cpeid}"/></td>
                 <td><sw360:out value="${release.releaseDate}"/></td>

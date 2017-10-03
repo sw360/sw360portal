@@ -23,7 +23,6 @@ import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityService;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityWithReleaseRelations;
 import org.eclipse.sw360.portal.common.CustomFieldHelper;
-import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.UsedAsLiferayAction;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
@@ -37,7 +36,6 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
@@ -102,7 +100,7 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
-            int limit = loadAndStoreStickyViewSize(request, user);
+            int limit = CustomFieldHelper.loadAndStoreStickyViewSize(request, user, CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE);
 
             VulnerabilityService.Iface vulnerabilityClient = thriftClients.makeVulnerabilityClient();
             if (!isNullOrEmpty(externalId) || !isNullOrEmpty(vulnerableConfig)) {
@@ -194,20 +192,4 @@ public class VulnerabilitiesPortlet extends Sw360Portlet {
         }
         return ImmutableList.of();
     }
-
-    private int loadAndStoreStickyViewSize(PortletRequest request, User user) {
-        String view_size = request.getParameter(PortalConstants.VIEW_SIZE);
-        final int limit;
-        if (isNullEmptyOrWhitespace(view_size)) {
-            limit = CustomFieldHelper
-                    .loadField(Integer.class, request, user, CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE)
-                    .orElse(DEFAULT_VIEW_SIZE);
-        } else {
-            limit = Integer.parseInt(view_size);
-            CustomFieldHelper.saveField(request, user, CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE, limit);
-        }
-        request.setAttribute(PortalConstants.VIEW_SIZE, limit);
-        return limit;
-    }
-
 }

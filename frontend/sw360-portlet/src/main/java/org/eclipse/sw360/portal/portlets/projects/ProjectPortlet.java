@@ -74,7 +74,6 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
-import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 
 /**
  * Project portlet implementation
@@ -860,37 +859,36 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void putVulnerabilitiesInRequest(RenderRequest request, String id, User user) throws TException {
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
         List<VulnerabilityDTO> vuls = vulClient.getVulnerabilitiesByProjectIdWithoutIncorrect(id, user);
-        request.setAttribute(VULNERABILITY_LIST, vuls);
 
         Optional<ProjectVulnerabilityRating> projectVulnerabilityRating = wrapThriftOptionalReplacement(vulClient.getProjectVulnerabilityRatingByProjectId(id, user));
 
-        Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToStatusHistory;
-        if (projectVulnerabilityRating.isPresent()) {
-            vulnerabilityIdToStatusHistory = projectVulnerabilityRating.get().getVulnerabilityIdToReleaseIdToStatus();
-        } else {
-            vulnerabilityIdToStatusHistory = new HashMap<>();
-        }
+        CommonVulnerabilityPortletUtils.putLatestVulnerabilitiesInRequest(request, vuls, user);
+        CommonVulnerabilityPortletUtils.putMatchedByHistogramInRequest(request, vuls);
+        putVulnerabilitiesMetadatasInRequest(request, vuls, projectVulnerabilityRating);
+    }
+
+    private void putVulnerabilitiesMetadatasInRequest(RenderRequest request, List<VulnerabilityDTO> vuls, Optional<ProjectVulnerabilityRating> projectVulnerabilityRating) {
+        Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToStatusHistory = projectVulnerabilityRating
+                .map(ProjectVulnerabilityRating::getVulnerabilityIdToReleaseIdToStatus)
+                .orElseGet(HashMap::new);
 
         int numberOfVulnerabilities = 0;
         int numberOfCheckedVulnerabilities = 0;
         Map<String, Map<String, String>> vulnerabilityTooltips = new HashMap<>();
         Map<String, Map<String, VulnerabilityRatingForProject>> vulnerabilityRatings = new HashMap<>();
-        Map<String, Integer> matchedByHistogram = new HashMap<>();
+
         for (VulnerabilityDTO vul : vuls) {
             numberOfVulnerabilities++;
             boolean wasAddedVulChecked = addToVulnerabilityRatings(vulnerabilityRatings, vulnerabilityTooltips, vulnerabilityIdToStatusHistory, vul);
             if (wasAddedVulChecked) {
                 numberOfCheckedVulnerabilities++;
             }
-            addToMatchedByHistogram(matchedByHistogram, vul);
         }
 
         int numberOfUncheckedVulnerabilities = numberOfVulnerabilities - numberOfCheckedVulnerabilities;
 
-        request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
         request.setAttribute(PortalConstants.VULNERABILITY_RATINGS, vulnerabilityRatings);
         request.setAttribute(PortalConstants.VULNERABILITY_CHECKSTATUS_TOOLTIPS, vulnerabilityTooltips);
-        request.setAttribute(PortalConstants.NUMBER_OF_VULNERABILITIES, numberOfVulnerabilities);
         request.setAttribute(PortalConstants.NUMBER_OF_UNCHECKED_VULNERABILITIES, numberOfUncheckedVulnerabilities);
     }
 
