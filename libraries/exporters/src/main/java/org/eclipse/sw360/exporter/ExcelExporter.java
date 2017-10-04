@@ -42,7 +42,6 @@ public class ExcelExporter<T, U extends ExporterHelper<T>> {
         final ByteArrayInputStream stream;
         try {
             SXSSFSheet sheet = workbook.createSheet("Data");
-            sheet.trackAllColumnsForAutoSizing();
 
             /** Adding styles to cells */
             CellStyle cellStyle = createCellStyle(workbook);
@@ -56,10 +55,7 @@ public class ExcelExporter<T, U extends ExporterHelper<T>> {
             /** Create data rows */
             fillValues(sheet, documents, cellStyle);
 
-            /** Resize the columns */
-            for (int iColumns = 0; iColumns < helper.getColumns(); iColumns++) {
-                sheet.autoSizeColumn(iColumns);
-            }
+            // removed autosizing of spreadsheet columns for performance reasons
 
             /** Copy the streams */
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
