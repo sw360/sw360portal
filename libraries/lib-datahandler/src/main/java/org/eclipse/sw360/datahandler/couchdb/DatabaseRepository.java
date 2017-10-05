@@ -35,6 +35,10 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
         return connector;
     }
 
+    protected Class<T> getType() {
+        return type;
+    }
+
     public static Set<String> getIds(ViewResult rows) {
         HashSet<String> ids = new HashSet<>();
 

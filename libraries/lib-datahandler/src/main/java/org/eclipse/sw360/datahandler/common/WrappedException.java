@@ -11,7 +11,7 @@ import org.eclipse.sw360.datahandler.thrift.SW360Exception;
  *
  * <pre>
  * try {
- *     x.stream.filter(element -> wrap(() -> element.test())).collect(Collectors.toList());
+ *     x.stream.filter(element -> wrapException(() -> element.test())).collect(Collectors.toList());
  * } catch (WrappedException e) {
  *     // e.getCause() contains original exception
  * }

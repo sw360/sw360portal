@@ -27,7 +27,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Constants.KEY_REV;
 // Always put _id and _rev upfront. Not required, but serialized objects then look nicer.
 @JsonIgnoreProperties({"optionals", "_attachments"})
 @SuppressWarnings("unused")
-public class DatabaseMixIn {
+public abstract class DatabaseMixIn {
 
     @JsonProperty("issetBitfield")
     private byte __isset_bitfield = 0;
@@ -37,23 +37,14 @@ public class DatabaseMixIn {
      */
 
     @JsonProperty(KEY_ID)
-    public String getId() {
-        return null;
-    }
+    public abstract String getId();
 
     @JsonProperty(KEY_ID)
-    public void setId(String id) {
-        // No implementation necessary
-    }
+    public abstract void setId(String id);
 
     @JsonProperty(KEY_REV)
-    public String getRevision() {
-        return null;
-    }
+    public abstract String getRevision();
 
     @JsonProperty(KEY_REV)
-    public void setRevision(String revision) {
-        // No implementation necessary
-    }
-
+    public abstract void setRevision(String revision);
 }
