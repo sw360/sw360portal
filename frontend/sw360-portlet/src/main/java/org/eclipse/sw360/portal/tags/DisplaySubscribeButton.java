@@ -16,6 +16,7 @@ import org.eclipse.sw360.datahandler.thrift.components.Release;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
+
 import java.io.IOException;
 import java.util.Set;
 
@@ -29,15 +30,7 @@ public class DisplaySubscribeButton extends SimpleTagSupport {
     private Object object;
     private String email;
     private String id = "SubscribeButtonID";
-    private String onclick = "";
-    private String altonclick = "";
 
-    public void setOnclick(String onclick) {
-        this.onclick = onclick;
-    }
-    public void setAltonclick(String altonclick) {
-        this.altonclick = altonclick;
-    }
     public void setId(String id) {
         this.id = id;
     }
@@ -65,9 +58,9 @@ public class DisplaySubscribeButton extends SimpleTagSupport {
         subscribers= CommonUtils.nullToEmptySet(subscribers);
 
         if (subscribers.contains(email)) {
-            builder.append(String.format("<input type=\"button\" id=\"%s\" onclick=\"%s\" value=\"Unsubscribe\" class=\"addButton subscribed\" />", id, altonclick));
+            builder.append(String.format("<input type=\"button\" id=\"%s\" value=\"Unsubscribe\" class=\"addButton subscribed\" />", id));
         } else {
-            builder.append(String.format("<input type=\"button\" id=\"%s\" onclick=\"%s\" value=\"Subscribe\" class=\"addButton\" />", id, onclick));
+            builder.append(String.format("<input type=\"button\" id=\"%s\" value=\"Subscribe\" class=\"addButton\" />", id));
         }
 
         getJspContext().getOut().print(builder.toString());

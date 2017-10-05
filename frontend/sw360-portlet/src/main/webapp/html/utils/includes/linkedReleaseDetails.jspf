@@ -25,9 +25,13 @@
              scope="request"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/css/jquery.treetable.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
-<script src="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/jquery.treetable.js"></script>
 
-<table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases Hierarchy">
+<table class="table info_table" id="LinkedReleasesInfo" title="Linked Releases Hierarchy"
+  data-load-node-url="<%=loadLinkedReleasesRowsURL%>"
+  data-portlet-namespace="<portlet:namespace/>"
+  data-parent-branch-key="<%=PortalConstants.PARENT_BRANCH_ID%>"
+  data-scope-group-id="${pageContext.getAttribute('scopeGroupId')}"
+ >
     <thead>
     <tr>
         <th colspan="4" class="headlabel">Linked Releases Hierarchy</th>
@@ -51,9 +55,20 @@
     </tbody>
 </table>
 
-<%@include file="/html/utils/includes/expandableTreetableSetup.jspf"%>
 <script>
-    $(window).load(function () {
-        setUpExpandableTreetable("LinkedReleasesInfo", '<%=loadLinkedReleasesRowsURL%>');
+    require(['jquery', 'modules/ajax-treetable'], function($, ajaxTreeTable) {
+        $(window).load(function () {
+            var config = $('#LinkedReleasesInfo').data();
+
+            ajaxTreeTable.setup('LinkedReleasesInfo', config.loadNodeUrl, function(table, node) {
+                var data = {};
+                data[config.portletNamespace + config.parentBranchKey] = node.id;
+                data[config.portletNamespace + 'parentScopeGroupId'] =  config.scopeGroupId;
+                return data;
+            }, function(table, node, result) {
+                var rows = $(result).filter('tr');
+                table.treetable('loadBranch', node, rows);
+            });
+        });
     });
 </script>

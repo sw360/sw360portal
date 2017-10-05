@@ -21,7 +21,8 @@
 <%@ include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
 <%@ include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -53,13 +54,8 @@
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">
 
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-    <!--include jQuery -->
-    <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <script type="text/javascript" src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
 
     <div id="header"></div>
@@ -73,9 +69,8 @@
             </core_rt:forEach>
         </select>
         <span class="pull-right">
-        <input type="button" onclick="editRelease('${releaseId}')" id="edit" value="Edit" class="addButton">
-        <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}"
-                                      id="SubscribeButton" onclick="subscribeRelease('SubscribeButton')" altonclick="unsubscribeRelease('SubscribeButton')"/>
+        <input type="button" id="edit" data-release-id="${releaseId}" value="Edit" class="addButton">
+        <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}" id="SubscribeButton" />
     </span>
     </label>
     </p>
@@ -83,76 +78,51 @@
     <%@include file="/html/components/includes/releases/detailOverview.jspf"%>
 </core_rt:if>
 <script>
-    var tabView;
-    var Y = YUI().use(
-            'aui-tabview',
-            function (Y) {
-                tabView = new Y.TabView(
-                        {
-                            srcNode: '#myTab',
-                            stacked: true,
-                            type: 'tab'
-                        }
-                ).render();
-            }
-    );
+    require(['jquery', 'modules/tabview'], function($, tabview) {
+        tabview.create('myTab');
 
-    // constants for
-    <%--selectedTabInURL = '<%=PortalConstants.SELECTED_TAB%>';--%>
-
-    releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>';
-    compIdInURL = '<%=PortalConstants.COMPONENT_ID%>';
-    componentId = '${component.id}';
-    pageName = '<%=PortalConstants.PAGENAME%>';
-    pageDetail = '<%=PortalConstants.PAGENAME_RELEASE_DETAIL%>';
-    baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
-
-    function editRelease(releaseId) {
-        var portletURL = Liferay.PortletURL.createURL(baseUrl).setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_EDIT_RELEASE%>').setParameter('<%=PortalConstants.RELEASE_ID%>', releaseId)
-                .setParameter('<%=PortalConstants.COMPONENT_ID%>', componentId);
-        window.location = portletURL.toString();
-    }
-
-    function doAjax(url, spanId, successCallback) {
-        var $resultElement = $('#' + spanId);
-        $resultElement.val("...");
-        $.ajax({
-            type: 'POST',
-            url: url,
-            success: function (data) {
-                successCallback(spanId, data);
-            },
-            error: function () {
-                $resultElement.val("error");
-            }
+        $('#edit').on('click', function(event) {
+            editRelease($(event.currentTarget).data().releaseId);
         });
-    }
 
-    function subscribed(spanId, data) {
-        var $resultElement = $('#' + spanId);
-        var msg = data.result == "SUCCESS" ? "Unsubscribe" : data.result;
-        $resultElement.val(msg);
-        $resultElement.addClass("subscribed");
-        $resultElement.attr("onclick","unsubscribeRelease('"+spanId+"')");
-    }
+        $('#SubscribeButton').on('click', function(event) {
+            var $button = $(event.currentTarget),
+                subscribed = $button.hasClass('subscribed'),
+                url = subscribed ? '<%=unsubscribeReleaseURL%>' : '<%=subscribeReleaseURL%>';
 
-    function unsubscribed(spanId, data) {
-        var $resultElement = $('#' + spanId);
-        var msg = data.result == "SUCCESS" ? "Subscribe" : data.result;
-        $resultElement.val(msg);
-        $resultElement.removeClass("subscribed");
-        $resultElement.attr("onclick","subscribeRelease('"+spanId+"')");
-    }
+            $button.val('...');
+            doAjax(url, function(data) {
+                if(data.result === "SUCCESS") {
+                    $button.val(!subscribed ? 'Unsubscribe': 'Subscribe');
+                    $button.toggleClass('subscribed');
+                } else {
+                    $button.val(data.result);
+                }
+            }, function() {
+                $button.val('error');
+            });
+        });
 
-    function subscribeRelease(spanId) {
-        doAjax('<%=subscribeReleaseURL%>', spanId, subscribed);
-    }
+        function doAjax(url, successCallback, errorCallback) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                success: function (data) {
+                    successCallback(data);
+                },
+                error: function () {
+                    errorCallback();
+                }
+            });
+        }
 
-    function unsubscribeRelease(spanId) {
-        doAjax('<%=unsubscribeReleaseURL%>', spanId, unsubscribed);
-    }
-
-
+        function editRelease(releaseId) {
+            var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
+            var portletURL = Liferay.PortletURL.createURL(baseUrl).setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_EDIT_RELEASE%>').setParameter('<%=PortalConstants.RELEASE_ID%>', releaseId)
+                    .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
+            window.location = portletURL.toString();
+        }
+    });
 </script>
 
 

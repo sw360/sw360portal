@@ -22,12 +22,16 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/css/jquery.treetable.css"/>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/jquery.treetable.theme.sw360.css"/>
-<script src="<%=request.getContextPath()%>/webjars/jquery-treetable/3.2.0/jquery.treetable.js"></script>
 
 <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"
              scope="request"/>
 
-<table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto">
+<table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto"
+  data-load-node-url="<%=loadLinkedProjectsRowsURL%>"
+  data-portlet-namespace="<portlet:namespace/>"
+  data-parent-branch-key="<%=PortalConstants.PARENT_BRANCH_ID%>"
+  data-scope-group-id="${pageContext.getAttribute('scopeGroupId')}"
+    >
     <thead>
     <tr>
         <th colspan="6" class="headlabel">Linked Releases And Projects</th>
@@ -56,38 +60,53 @@
         <option value="false">Projects only</option>
         <option value="true">Projects with linked releases</option>
     </select>
-    <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton" onclick="exportSpreadsheet()"/>
+    <input type="button" class="addButton" id="exportSpreadsheetButton" value="Export Spreadsheet" class="addButton"/>
 
     <input type="submit" id="downloadLicenseInfoButton" value="Generate License Info" class="addButton"/>
     <input type="submit" id="downloadSourceCodeBundleButton" value="Generate Source Code Bundle" class="addButton"/>
 </span>
 </core_rt:if>
-<%@include file="/html/utils/includes/expandableTreetableSetup.jspf"%>
+
 <script>
-    function downloadLicenseInfo() {
-        window.location.href = '<portlet:renderURL> \
-          <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/> \
-          <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_LICENSE_INFO%>"/> \
-        </portlet:renderURL>';
-    }
-    function downloadSourceCodeBundleButton() {
-        window.location.href = '<portlet:renderURL> \
-          <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/> \
-          <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_SOURCE_CODE_BUNDLE%>"/> \
-        </portlet:renderURL>';
-    }
+    require(['jquery', 'modules/ajax-treetable'], function($, ajaxTreeTable) {
+        $(window).load(function () {
+            var config = $('#LinkedProjectsInfo').data();
 
-    $(window).load(function (){
-        setUpExpandableTreetable("LinkedProjectsInfo", '<%=loadLinkedProjectsRowsURL%>');
-        $('#downloadLicenseInfoButton').click(downloadLicenseInfo);
-        $('#downloadSourceCodeBundleButton').click(downloadSourceCodeBundleButton);
+            ajaxTreeTable.setup('LinkedProjectsInfo', config.loadNodeUrl, function(table, node) {
+                var data = {};
+                data[config.portletNamespace + config.parentBranchKey] = node.id;
+                data[config.portletNamespace + 'parentScopeGroupId'] =  config.scopeGroupId;
+                return data;
+            }, function(table, node, result) {
+                var rows = $(result).filter("tr");
+                table.treetable("loadBranch", node, rows);
+            });
+
+            $('#downloadLicenseInfoButton').click(downloadLicenseInfo);
+            $('#downloadSourceCodeBundleButton').click(downloadSourceCodeBundleButton);
+            $('#exportSpreadsheetButton').click(exportSpreadsheet);
+        });
+
+        function downloadLicenseInfo() {
+            window.location.href = '<portlet:renderURL> \
+              <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/> \
+              <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_LICENSE_INFO%>"/> \
+            </portlet:renderURL>';
+        }
+
+        function downloadSourceCodeBundleButton() {
+            window.location.href = '<portlet:renderURL> \
+              <portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/> \
+              <portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_SOURCE_CODE_BUNDLE%>"/> \
+            </portlet:renderURL>';
+        }
+
+        function exportSpreadsheet() {
+            var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+                .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
+            portletURL.setParameter('<%=Project._Fields.ID%>','${project.id}');
+            portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
+            window.location.href = portletURL.toString();
+        }
     });
-
-    function exportSpreadsheet() {
-        var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_TO_EXCEL%>');
-        portletURL.setParameter('<%=Project._Fields.ID%>','${project.id}');
-        portletURL.setParameter('<%=PortalConstants.EXTENDED_EXCEL_EXPORT%>',$('#extendedByReleases').val());
-        window.location.href = portletURL.toString();
-    }
 </script>

@@ -39,7 +39,8 @@
         </tr>
         </tfoot>
     </table>
-    <div class="sw360modal" id="vulnerabilityModal"></div>
+    <%@include file="/html/utils/includes/modal.jspf" %>
+    <%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
 </div>
 <div style="clear:both"></div>
 <div class="pull-left">
@@ -55,144 +56,129 @@
 </div>
 
 <script type="text/javascript">
-    var projectVulnerabilityTable;
-    var modal;
-    var ratingChangeSelect;
+    require(['jquery', 'utils/includes/vulnerabilityModal', /* jquery-plugins */ 'jquery-ui', 'datatables', 'modules/datatables-utils'], function($, vulnerarbilityModal) {
+        var projectVulnerabilityTable;
+        var modal;
+        var ratingChangeSelect;
 
-    function createVulnerabilityTable() {
+        /*This can not be document ready function as liferay definitions need to be loaded first*/
+        $(window).load(function () {
+            createVulnerabilityTable();
 
-        var result = [];
-        <core_rt:forEach items="${vulnerabilityList}" var="vulnerability">
-        result.push({
-            "DT_RowId": "${vulnerability.id}",
-            "0": "${vulnerability.intReleaseName}",
-            "1": "<sw360:DisplayVulnerabilityLink vulnerabilityId="${vulnerability.externalId}"/>",
-            "2": '<div class="dataTables_cell_nowrap" title="${vulnerability.priorityToolTip}">${vulnerability.priority}<img class="infopic" src="/sw360-portlet/images/ic_info.png"/></div>',
-            "3": '<span title="Found with needle: <sw360:out value='${vulnerability.usedNeedle}'/>"><sw360:out value='${vulnerability.matchedBy}'/></span>',
-            "4": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<sw360:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
-                    '<sw360:out value='${vulnerability.title}'/></div>',
-            "5":
-            <core_rt:choose>
-                <core_rt:when test="${vulnerabilityRatingsEditable}">
-                '<select class="toplabelledInput" '+
-                    'id="ratingChangeSelectFor${vulnerability.externalId}" '+
-                    'name="<portlet:namespace/><%=VulnerabilityRatingForProject.class%>" '+
-                    'onchange="changeRating(this, \'${vulnerability.externalId}\',\'${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId).ordinal()}\', \'${vulnerability.intReleaseId}\')" '+
-                    'title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"'+
-                    'style="min-width: 90px; min-height: 28px;">'+
-                   <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}" inQuotes="true"/> +
-                '</select>'
-                </core_rt:when>
-                <core_rt:otherwise>
-                '<span title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/></span>'
-                </core_rt:otherwise>
-            </core_rt:choose>
-            ,
-            "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
+            $('#vulnerabilityTable').on('change', '.action.change-vulnerability', function(event) {
+                var data = $(event.currentTarget).data();
+                changeRating(this, data.externalVulnerabilityId, data.vulnerabilityRating, data.internalReleaseId);
+            });
         });
-        </core_rt:forEach>
 
-        projectVulnerabilityTable = $('#vulnerabilityTable').DataTable({
-            pagingType: "simple_numbers",
-            "data": result,
-            "columns": [
-                {"title": "Release"},
-                {"title": "External id"},
-                {"title": "Priority"},
-                {"title": "Matched by"},
-                {"title": "Title"},
+        function createVulnerabilityTable() {
+            var result = [];
+
+            <core_rt:forEach items="${vulnerabilityList}" var="vulnerability">
+            result.push({
+                "DT_RowId": "${vulnerability.id}",
+                "0": "${vulnerability.intReleaseName}",
+                "1": "<sw360:DisplayVulnerabilityLink vulnerabilityId="${vulnerability.externalId}"/>",
+                "2": '<div class="dataTables_cell_nowrap" title="${vulnerability.priorityToolTip}">${vulnerability.priority}<img class="infopic" src="/sw360-portlet/images/ic_info.png"/></div>',
+                "3": '<span title="Found with needle: <sw360:out value='${vulnerability.usedNeedle}'/>"><sw360:out value='${vulnerability.matchedBy}'/></span>',
+                "4": '<div class="dataTables_cell_nowrap" style="max-width:500px;" title="<sw360:out value='${vulnerability.title} - ${vulnerability.description}'/>">' +
+                        '<sw360:out value='${vulnerability.title}'/></div>',
+                "5":
                 <core_rt:choose>
                     <core_rt:when test="${vulnerabilityRatingsEditable}">
-                        {"title": "Relevance for project", "orderDataType": "sort-select" },
+                    '<select class="toplabelledInput action change-vulnerability" '+
+                        'id="ratingChangeSelectFor${vulnerability.externalId}" '+
+                        'name="<portlet:namespace/><%=VulnerabilityRatingForProject.class%>" '+
+                        'title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"'+
+                        'data-external-vulnerability-id="${vulnerability.externalId}"' +
+                        'data-vulnerability-rating="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId).ordinal()}"' +
+                        'data-internal-release-id="${vulnerability.intReleaseId}"' +
+                        'style="min-width: 90px; min-height: 28px;">'+
+                       <sw360:DisplayEnumOptions type="<%=VulnerabilityRatingForProject.class%>" selected="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}" inQuotes="true"/> +
+                    '</select>'
                     </core_rt:when>
                     <core_rt:otherwise>
-                        {"title": "Relevance for project"},
-                     </core_rt:otherwise>
+                    '<span title="<sw360:out value='${vulnerabilityCheckstatusTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>"><sw360:DisplayEnum value="${vulnerabilityRatings.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/></span>'
+                    </core_rt:otherwise>
                 </core_rt:choose>
-                {"title": "Action"}
-            ],
-            "order": [[ 2, 'asc' ], [ 3, 'desc' ]],
-            "autoWidth": false
-        });
-        projectVulnerabilityTable.$('td').tooltip({
-            "delay": 0,
-            "track": true,
-            "fade": 250,
-            "content": function () {
-                return $(this).prop('title');
-            }
-        });
-    }
+                ,
+                "6": '<div class="dataTables_cell_nowrap">${vulnerability.action}</div>'
+            });
+            </core_rt:forEach>
 
-    /*This can not be document ready function as liferay definitions need to be loaded first*/
-    $(window).load(function () {
-        createVulnerabilityTable();
-    });
-
-    function updateVulnerabilities(projectId) {
-        modal = createModal('#vulnerabilityModal');
-
-        modal.setHeader("Please wait while updating vulnerabilities.");
-        modal.addToolbar();
-
-        $.ajax({
-            url: '<%=updateProjectVulnerabilitiesURL%>',
-            type: 'POST',
-            dataType: 'json',
-            data: {"<%=PortalConstants.PROJECT_ID%>":"${projectId}" },
-            success: function(response){
-                displayResponse(response);
-                document.getElementById("numberOfVulnerabilitiesDiv").style.fontSize="16px";
-                document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='&#8634;';
-            },
-        });
-    }
-
-    function changeRating(currentselect, vulnerabilityId, oldValue, releaseId) {
-        ratingChangeSelect = currentselect;
-        var newValue = currentselect.value;
-        ratingModal = createModalWithInput(vulnerabilityId, oldValue, newValue, releaseId);
-
-        var newValueText = $(currentselect).children("option:selected").text();
-        ratingModal.setHeader("If you want to change the verification of " + vulnerabilityId + " to &raquo;" + newValueText +
-                "&laquo; enter a comment and press OK.");
-    }
-
-    function  cancelRatingChange(oldValue){
-        ratingChangeSelect.value = oldValue;
-    }
-    function executeRatingChange(vulnerabilityId, newValue, comment, oldValue, releaseId){
-        var data = new Object();
-        data["<portlet:namespace/><%=PortalConstants.PROJECT_ID%>"] = "${projectId}";
-        data["<portlet:namespace/><%=PortalConstants.RELEASE_ID%>"] = releaseId;
-        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_ID%>"] = vulnerabilityId;
-        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_VALUE%>"] = newValue;
-        data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_COMMENT%>"] = comment;
-
-        $.ajax({
-            url: '<%=updateVulnerabilityRatings%>',
-            type: 'POST',
-            dataType: 'json',
-            data: data,
-            success: function(response){
-                var selectId = "ratingChangeSelectFor"+response.<%=PortalConstants.VULNERABILITY_ID%>;
-                switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
-                    case '<%=RequestStatus.FAILURE%>':
-                        showStatusPopup("",modal,"Update failed.");
-                        document.getElementById(selectId).value = oldValue;
-                        break;
-                    case '<%=RequestStatus.SUCCESS%>':
-                        document.getElementById("numberOfVulnerabilitiesDiv").class ="numberOfVulnerabilitiesNeedUpdate";
-                        document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='&#8634;';
-                        document.getElementById(selectId).title = "You just changed this value.";
-                        break;
-                    default:
+            projectVulnerabilityTable = $('#vulnerabilityTable').DataTable({
+                pagingType: "simple_numbers",
+                "data": result,
+                "columns": [
+                    {"title": "Release"},
+                    {"title": "External id"},
+                    {"title": "Priority"},
+                    {"title": "Matched by"},
+                    {"title": "Title"},
+                    <core_rt:choose>
+                        <core_rt:when test="${vulnerabilityRatingsEditable}">
+                            {"title": "Relevance for project", "orderDataType": "sort-select" },
+                        </core_rt:when>
+                        <core_rt:otherwise>
+                            {"title": "Relevance for project"},
+                         </core_rt:otherwise>
+                    </core_rt:choose>
+                    {"title": "Action"}
+                ],
+                "order": [[ 2, 'asc' ], [ 3, 'desc' ]],
+                "autoWidth": false
+            });
+            projectVulnerabilityTable.$('td').tooltip({
+                "delay": 0,
+                "track": true,
+                "fade": 250,
+                "content": function () {
+                    return $(this).prop('title');
                 }
-            },
-        });
-    }
-</script>
-<%@include file="/html/utils/includes/sortSelect.jspf" %>
-<%@include file="/html/utils/includes/modal.jspf" %>
-<%@include file="/html/utils/includes/vulnerabilityModal.jspf" %>
+            });
+        }
 
+        function changeRating(currentselect, vulnerabilityId, oldValue, releaseId) {
+            ratingChangeSelect = currentselect;
+            var newValue = currentselect.value;
+            ratingModal = vulnerarbilityModal.createModalDialog(vulnerabilityId, oldValue, newValue, releaseId, executeRatingChange, function() {
+                ratingChangeSelect.value = oldValue;
+            });
+
+            var newValueText = $(currentselect).children("option:selected").text();
+            ratingModal.setHeader("If you want to change the verification of " + vulnerabilityId + " to &raquo;" + newValueText +
+                    "&laquo; enter a comment and press OK.");
+        }
+
+        function executeRatingChange(vulnerabilityId, newValue, comment, oldValue, releaseId) {
+            var data = new Object();
+            data["<portlet:namespace/><%=PortalConstants.PROJECT_ID%>"] = "${project.id}";
+            data["<portlet:namespace/><%=PortalConstants.RELEASE_ID%>"] = releaseId;
+            data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_ID%>"] = vulnerabilityId;
+            data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_VALUE%>"] = newValue;
+            data["<portlet:namespace/><%=PortalConstants.VULNERABILITY_RATING_COMMENT%>"] = comment;
+
+            $.ajax({
+                url: '<%=updateVulnerabilityRatings%>',
+                type: 'POST',
+                dataType: 'json',
+                data: data,
+                success: function(response){
+                    var selectId = "ratingChangeSelectFor"+response.<%=PortalConstants.VULNERABILITY_ID%>;
+                    switch(response.<%=PortalConstants.REQUEST_STATUS%>) {
+                        case '<%=RequestStatus.FAILURE%>':
+                            showStatusPopup("",modal,"Update failed.");
+                            document.getElementById(selectId).value = oldValue;
+                            break;
+                        case '<%=RequestStatus.SUCCESS%>':
+                            document.getElementById("numberOfVulnerabilitiesDiv").class ="numberOfVulnerabilitiesNeedUpdate";
+                            document.getElementById("numberOfVulnerabilitiesDiv").innerHTML='&#8634;';
+                            document.getElementById(selectId).title = "You just changed this value.";
+                            break;
+                        default:
+                    }
+                },
+            });
+        }
+    });
+</script>

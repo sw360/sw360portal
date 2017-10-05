@@ -51,7 +51,8 @@
 <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
-
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/main.js"></script>
+<%@include file="/html/moderation/includes/moderationActions.jspf"%>
 
 <div id="header"></div>
 <p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change Release: <sw360:ReleaseName release="${release}"/></span>
@@ -76,6 +77,7 @@
 
 <h2>Current Release</h2>
 <core_rt:set var="inReleaseDetailsContext" value="false" scope="request"/>
+<%@include file="/html/utils/includes/requirejs.jspf" %>
 <%@include file="/html/components/includes/releases/detailOverview.jspf"%>
 
 <script>
@@ -110,5 +112,4 @@
         alert("You can not send to fossology from moderation");
     }
 </script>
-<%@include file="/html/moderation/includes/moderationActions.jspf"%>
 

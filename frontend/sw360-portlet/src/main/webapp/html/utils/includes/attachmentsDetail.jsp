@@ -31,11 +31,6 @@
     </core_rt:if>
 
     <core_rt:if test="${not empty attachments}">
-        <!-- jQuery is already available on every page, but needs be added when require is finally here
-        <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js"></script>
-         -->
-        <script src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
-
         <table id="attachmentsDetail" class="table info_table" title="Attachment Information">
             <colgroup>
                 <col style="width: 4%;" />
@@ -72,106 +67,108 @@
         </table>
 
         <script>
-            var attachmentJSON = [];
+            require(['jquery', /* jquery-plugins */ 'datatables' ], function($) {
+                var attachmentJSON = [];
 
-            /* Print all attachment table data as array into the html page */
-            <core_rt:forEach items="${attachments}" var="attachment">
-                attachmentJSON.push({
-                    "fileName": "${attachment.filename}",
-                    "size": "n/a",
-                    "type": "<sw360:DisplayEnumShort value="${attachment.attachmentType}"/>",
-                    "uploadedTeam": "<sw360:DisplayEllipsisString value="${attachment.createdTeam}"/>",
-                    "uploadedBy": "<sw360:DisplayEllipsisString value="${attachment.createdBy}"/>",
-                    "checkedTeam":  "<sw360:DisplayEllipsisString value="${attachment.checkedTeam}"/>",
-                    "checkedBy":  "<sw360:DisplayEllipsisString value="${attachment.checkedBy}"/>",
-                    "usage":  "n/a",
-                    "actions":     "<sw360:DisplayDownloadAttachmentFile attachment="${attachment}" contextType="${documentType}" contextId="${documentID}"/>",
+                /* Print all attachment table data as array into the html page */
+                <core_rt:forEach items="${attachments}" var="attachment">
+                    attachmentJSON.push({
+                        "fileName": "${attachment.filename}",
+                        "size": "n/a",
+                        "type": "<sw360:DisplayEnumShort value="${attachment.attachmentType}"/>",
+                        "uploadedTeam": "<sw360:DisplayEllipsisString value="${attachment.createdTeam}"/>",
+                        "uploadedBy": "<sw360:DisplayEllipsisString value="${attachment.createdBy}"/>",
+                        "checkedTeam":  "<sw360:DisplayEllipsisString value="${attachment.checkedTeam}"/>",
+                        "checkedBy":  "<sw360:DisplayEllipsisString value="${attachment.checkedBy}"/>",
+                        "usage":  "n/a",
+                        "actions":     "<sw360:DisplayDownloadAttachmentFile attachment="${attachment}" contextType="${documentType}" contextId="${documentID}"/>",
 
-                    "sha1": "${attachment.sha1}",
-                    "uploadedOn": "${attachment.createdOn}",
-                    "uploadedComment": "<core_rt:if test="${not empty attachment.createdComment}">Comment: <sw360:DisplayEllipsisString value="${attachment.createdComment}"/></core_rt:if>",
-                    "checkedOn": "${attachment.checkedOn}",
-                    "checkedComment": "<core_rt:if test="${not empty attachment.checkedComment}">Comment: <sw360:DisplayEllipsisString value="${attachment.checkedComment}"/></core_rt:if>",
+                        "sha1": "${attachment.sha1}",
+                        "uploadedOn": "${attachment.createdOn}",
+                        "uploadedComment": "<core_rt:if test="${not empty attachment.createdComment}">Comment: <sw360:DisplayEllipsisString value="${attachment.createdComment}"/></core_rt:if>",
+                        "checkedOn": "${attachment.checkedOn}",
+                        "checkedComment": "<core_rt:if test="${not empty attachment.checkedComment}">Comment: <sw360:DisplayEllipsisString value="${attachment.checkedComment}"/></core_rt:if>",
 
-                    "checkStatus": "${attachment.checkStatus}"
-                });
-            </core_rt:forEach>
+                        "checkStatus": "${attachment.checkStatus}"
+                    });
+                </core_rt:forEach>
 
-            /* Define function for child row creation, which will contain additional data for a clicked table row */
-            function createChildRow(rowData) {
-                var childHtmlString = '' +
-                        '<div>' +
-                            '<span class="dataTableChildRowCell" style="padding-right: 10px; width:  4%;"/>' +
-                            '<span class="dataTableChildRowCell" style="padding-right: 50px; width: 36%;">' + rowData.sha1 + '</span>' +
-                            '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.uploadedOn + ' ' + rowData.uploadedComment + '</span>';
-                if (rowData.checkStatus === 'ACCEPTED') {
+                /* Define function for child row creation, which will contain additional data for a clicked table row */
+                function createChildRow(rowData) {
+                    var childHtmlString = '' +
+                            '<div>' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 10px; width:  4%;"/>' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 50px; width: 36%;">' + rowData.sha1 + '</span>' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.uploadedOn + ' ' + rowData.uploadedComment + '</span>';
+                    if (rowData.checkStatus === 'ACCEPTED') {
+                        childHtmlString += '' +
+                                '<span class="dataTableChildRowCell foregroundOK" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                    } else if (rowData.checkStatus === 'REJECTED') {
+                        childHtmlString += '' +
+                                '<span class="dataTableChildRowCell foregroundAlert" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                    } else {
+                        childHtmlString += '' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                    }
                     childHtmlString += '' +
-                            '<span class="dataTableChildRowCell foregroundOK" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
-                } else if (rowData.checkStatus === 'REJECTED') {
-                    childHtmlString += '' +
-                            '<span class="dataTableChildRowCell foregroundAlert" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
-                } else {
-                    childHtmlString += '' +
-                            '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 16%;"/>'+
+                            '</div>';
+                    return childHtmlString;
                 }
-                childHtmlString += '' +
-                            '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 16%;"/>'+
-                        '</div>';
-                return childHtmlString;
-            }
 
-            /* Generate the table itself as jQuery DataTable */
-            $(document).ready(function() {
-                var table = $('#attachmentsDetail').DataTable( {
-                    "data": attachmentJSON,
-                    "columns": [
-                        {
-                            "className":      'details-control',
-                            "orderable":      false,
-                            "data":           null,
-                            "defaultContent": ''
-                        },
-                        { "data": "fileName" },
-                        { "data": "size" },
-                        { "data": "type" },
-                        { "data": "uploadedTeam" },
-                        { "data": "uploadedBy" },
-                        { "data": "checkedTeam" },
-                        { "data": "checkedBy" },
-                        { "data": "usage" },
-                        { "data": "actions" }
-                    ],
-                    "columnDefs": [
-                        {
-                            "targets": [ 6, 7 ],
-                            "createdCell": function (td, cellData, rowData, row, col) {
-                                if (rowData.checkStatus === 'REJECTED') {
-                                    $(td).addClass('foregroundAlert');
-                                } else if (rowData.checkStatus === 'ACCEPTED') {
-                                    $(td).addClass('foregroundOK');
+                /* Generate the table itself as jQuery DataTable */
+                $(document).ready(function() {
+                    var table = $('#attachmentsDetail').DataTable( {
+                        "data": attachmentJSON,
+                        "columns": [
+                            {
+                                "className":      'details-control',
+                                "orderable":      false,
+                                "data":           null,
+                                "defaultContent": ''
+                            },
+                            { "data": "fileName" },
+                            { "data": "size" },
+                            { "data": "type" },
+                            { "data": "uploadedTeam" },
+                            { "data": "uploadedBy" },
+                            { "data": "checkedTeam" },
+                            { "data": "checkedBy" },
+                            { "data": "usage" },
+                            { "data": "actions" }
+                        ],
+                        "columnDefs": [
+                            {
+                                "targets": [ 6, 7 ],
+                                "createdCell": function (td, cellData, rowData, row, col) {
+                                    if (rowData.checkStatus === 'REJECTED') {
+                                        $(td).addClass('foregroundAlert');
+                                    } else if (rowData.checkStatus === 'ACCEPTED') {
+                                        $(td).addClass('foregroundOK');
+                                    }
                                 }
                             }
+                        ],
+                        "order": [[1, 'asc']],
+                        "autoWidth": false,
+                        "deferRender": true
+                    } );
+
+                    /* Add event listener for opening and closing details as child row */
+                    $('#attachmentsDetail tbody').on('click', 'td.details-control', function () {
+                        var tr = $(this).closest('tr');
+                        var row = table.row( tr );
+
+                        if ( row.child.isShown() ) {
+                            row.child.hide();
+                            tr.removeClass('shown');
+                        } else {
+                            row.child( createChildRow(row.data()) ).show();
+                            tr.addClass('shown');
                         }
-                    ],
-                    "order": [[1, 'asc']],
-                    "autoWidth": false,
-                    "deferRender": true
+                    } );
                 } );
-
-                /* Add event listener for opening and closing details as child row */
-                $('#attachmentsDetail tbody').on('click', 'td.details-control', function () {
-                    var tr = $(this).closest('tr');
-                    var row = table.row( tr );
-
-                    if ( row.child.isShown() ) {
-                        row.child.hide();
-                        tr.removeClass('shown');
-                    } else {
-                        row.child( createChildRow(row.data()) ).show();
-                        tr.addClass('shown');
-                    }
-                } );
-            } );
+            });
         </script>
     </core_rt:if>
 </core_rt:if>

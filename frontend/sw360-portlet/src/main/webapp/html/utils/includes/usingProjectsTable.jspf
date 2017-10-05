@@ -25,9 +25,14 @@
     </div>
 
     <script>
-          var usingProjectsTable;
+        require(['jquery', /* jquery-plugins */ 'datatables'], function ($) {
+            var usingProjectsTable;
 
-          function createUsingProjectsTable() {
+            $( window ).on( "load", function() {
+                createUsingProjectsTable();
+            });
+
+            function createUsingProjectsTable() {
                 var result = [];
 
                 <core_rt:forEach items="${usingProjects}" var="project">
@@ -46,11 +51,7 @@
                     "lengthChange": false,
                     "autoWidth": false
                 });
-          }
-
-          $( window ).on( "load", function() {
-              createUsingProjectsTable();
-          });
-
+            }
+        });
     </script>
 </core_rt:if>

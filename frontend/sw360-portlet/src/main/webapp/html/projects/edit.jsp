@@ -91,12 +91,11 @@
 
     <div id="editField" class="content2">
         <form  id="projectEditForm" name="projectEditForm" action="<%=updateURL%>" method="post" >
+            <%@ include file="/html/utils/includes/requirejs.jspf" %>
             <%@include file="/html/projects/includes/projects/basicInfo.jspf" %>
             <%@include file="/html/projects/includes/linkedProjectsEdit.jspf" %>
-            <%@ include file="/html/utils/includes/requirejs.jspf" %>
             <%@include file="/html/utils/includes/linkedReleasesEdit.jspf" %>
             <core_rt:if test="${not addMode}" >
-                <%@include file="/html/utils/includes/requirejs.jspf" %>
                 <%@include file="/html/utils/includes/editAttachments.jspf" %>
             <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
             <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>

@@ -32,22 +32,33 @@
 <%@include file="/html/utils/includes/fossologyClearing.jspf"%>
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-buttons-dt/1.1.2/css/buttons.dataTables.min.css"/>
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
-<script src="<%=request.getContextPath()%>/js/loadTags.js"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
-<%--for javascript library loading --%>
-<%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script type="text/javascript">
-    require(['jquery', 'datatables', 'datatables_buttons', 'buttons.print'], function ($) {
-
+    require(['jquery', 'utils/includes/fossologyClearing', 'modules/confirm', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function ($, fossology, confirm) {
         var releaseTable;
 
-        function createClearingTable() {
+        // This can not be document ready function as liferay definitions need to be loaded first
+        $(window).load(function () {
+            createClearingTable();
+            fossology.initialize();
 
+            $('#releasesTable').on('click', '.action.send-to-fossology', function(event) {
+                var data = $(event.currentTarget).data();
+                fossology.openSelectClearingDialog('clearingState', data.releaseId);
+            });
+            $('#releasesTable').on('click', '.action.delete-release', function(event) {
+               var data = $(event.currentTarget).data();
+               deleteRelease(data.releaseId, data.releaseName, data.linkedReleases, data.attachments);
+            });
+        });
+
+        function createClearingTable() {
             var result = [];
+
             <%--            TODO do the same as project Clearing Status --%>
             <core_rt:forEach items="${component.releases}" var="release">
             result.push({
@@ -58,10 +69,13 @@
                 "3": "<sw360:DisplayDownloadReport attachments="${release.attachments}" filterAttachmentType="<%=AttachmentType.CLEARING_REPORT%>" var="attachment"><sw360:DisplayDownloadApprovedClearingReport attachment="${attachment}" contextType="${release.type}" contextId="${release.id}" /></sw360:DisplayDownloadReport>",
                 "4": "<span id='mainlineState${release.id}'><sw360:DisplayEnum value="${release.mainlineState}"/></span>",
                 <core_rt:if test="${inComponentDetailsContext}">
-                "5": "<span id='fossologySending${release.id}'></span><span id='releaseAction${release.id}'><img src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' onclick='openSelectClearingDialog(\"fossologySending${release.id}\",\"${release.id}\")' alt='SelectClearing' title='send to Fossology'></span>"
+                "5": "<span id='fossologySending${release.id}'></span>"
+                + "<span id='releaseAction${release.id}'>"
+                + "<img class='action send-to-fossology' src='<%=request.getContextPath()%>/images/fossology-logo-24.gif' data-release-id='${release.id}' alt='SelectClearing' title='send to Fossology'>"
                 + "<sw360:DisplayReleaseLink release="${release}" showName="false" page="<%=PortletReleasePage.EDIT%>"><img src='<%=request.getContextPath()%>/images/edit.png' alt='Edit' title='Edit'></sw360:DisplayReleaseLink>"
                 + "<sw360:DisplayReleaseLink release="${release}" showName="false" page="<%=PortletReleasePage.DUPLICATE%>"><img src='<%=request.getContextPath()%>/images/ic_clone.png' alt='Duplicate' title='Duplicate'></sw360:DisplayReleaseLink>"
-                + "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteRelease('${release.id}', '<b><sw360:ReleaseName release="${release}" /></b>',${release.releaseIdToRelationshipSize},${release.attachmentsSize})\"  alt='Delete' title='Delete'>"
+                + "<img class='action delete-release' src='<%=request.getContextPath()%>/images/Trash.png' data-release-id='${release.id}' data-release-name='<sw360:ReleaseName release="${release}" />' data-linked-releases='${release.releaseIdToRelationshipSize}' data-attachments='${release.attachmentsSize}' alt='Delete' title='Delete'>"
+                + "</span>"
                 </core_rt:if>
                 <core_rt:if test="${!inComponentDetailsContext}">
                 "5": "NONE"
@@ -96,11 +110,6 @@
             });
         }
 
-        <%--This can not be document ready function as liferay definitions need to be loaded first--%>
-        $(window).load(function () {
-            createClearingTable();
-        });
-
         function deleteRelease(id, name, linkedReleasesSize, attachmentsSize) {
 
             function deleteReleaseInternal() {
@@ -132,14 +141,14 @@
             });
             }
 
-            var confirmMessage = "Do you really want to delete the release " + name + " ?";
+            var confirmMessage = "Do you really want to delete the release <b>" + name + "</b> ?";
             confirmMessage += (linkedReleasesSize > 0 || attachmentsSize > 0) ? "<br/><br/>The release " + name + " contains<br/><ul>" : "";
             confirmMessage += (linkedReleasesSize > 0) ? "<li>" + linkedReleasesSize + " linked releases</li>" : "";
             confirmMessage += (attachmentsSize > 0) ? "<li>" + attachmentsSize + " attachments</li>" : "";
             confirmMessage += (linkedReleasesSize > 0 || attachmentsSize > 0) ? "</ul>" : "";
             confirmMessage += '<div><hr><label class=\'textlabel stackedLabel\'>Comment your changes</label><textarea id=\'moderationDeleteCommentField\' class=\'moderationCreationComment\' placeholder=\'Comment on request...\'></textarea></div>';
 
-            deleteConfirmed(confirmMessage, deleteReleaseInternal);
+            confirm.confirmDeletion(confirmMessage, deleteReleaseInternal);
         }
     });
 

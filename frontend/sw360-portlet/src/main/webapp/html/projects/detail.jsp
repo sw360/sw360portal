@@ -14,7 +14,8 @@
 <%@include file="/html/init.jsp"%>
 <%-- the following is needed by liferay to display error messages--%>
 <%@include file="/html/utils/includes/errorKeyToMessage.jspf"%>
-
+<%--for javascript library loading --%>
+<%@ include file="/html/utils/includes/requirejs.jspf" %>
 
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
@@ -28,21 +29,17 @@
     <jsp:useBean id="numberOfVulnerabilities" type="java.lang.Integer" scope="request"/>
 </c:catch>
 <%@include file="/html/utils/includes/logError.jspf" %>
+
 <core_rt:if test="${empty attributeNotFoundException}">
 
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
-    <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-validation/1.15.1/additional-methods.min.js" type="text/javascript"></script>
-    <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
 
     <core_rt:set var="dontDisplayDeleteButton" value="true" scope="request"/>
     <div id="header"></div>
     <p class="pageHeader"><span class="pageHeaderBigSpan">Project: <sw360:ProjectName project="${project}"/></span>
         <span class="pull-right">
-        <input type="button" onclick="editProject()" id="edit" value="Edit" class="addButton">
+        <input type="button" id="edit" value="Edit" class="addButton">
     </span>
     </p>
 
@@ -50,22 +47,12 @@
     <%@include file="/html/projects/includes/detailOverview.jspf"%>
 </core_rt:if>
 <script>
-    var tabView;
-    var Y = YUI().use(
-            'aui-tabview',
-            function(Y) {
-                tabView = new Y.TabView(
-                        {
-                            srcNode: '#myTab',
-                            stacked: true,
-                            type: 'tab'
-                        }
-                ).render();
-            }
-    );
+    require(['jquery', 'modules/tabview'], function($, tabview) {
+        tabview.create('myTab');
+        $('#edit').on('click', editProject);
 
-    function editProject() {
-        window.location ='<portlet:renderURL ><portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'
-    }
-
+        function editProject() {
+            window.location ='<portlet:renderURL ><portlet:param name="<%=PortalConstants.PROJECT_ID%>" value="${project.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'
+        }
+    });
 </script>
