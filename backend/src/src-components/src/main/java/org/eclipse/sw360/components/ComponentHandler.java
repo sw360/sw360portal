@@ -182,14 +182,14 @@ public class ComponentHandler implements ComponentService.Iface {
     public List<Release> getReleasesById(Set<String> ids, User user) throws TException {
         assertUser(user);
         assertNotNull(ids);
-        return handler.getReleases(ids, user);
+        return handler.getReleases(ids);
     }
 
     @Override
     public List<Release> getFullReleasesById(Set<String> ids, User user) throws TException {
         assertUser(user);
         assertNotNull(ids);
-        return handler.getFullReleases(ids, user);
+        return handler.getFullReleases(ids);
     }
 
     @Override
@@ -253,7 +253,7 @@ public class ComponentHandler implements ComponentService.Iface {
         return handler.updateComponents(components, user);
     }
 
-    public RequestStatus updateComponentFromModerationRequest(Component componentAdditions, Component componentDeletions, User user){
+    public RequestStatus updateComponentFromModerationRequest(Component componentAdditions, Component componentDeletions, User user) {
         return handler.updateComponentFromAdditionsAndDeletions(componentAdditions, componentDeletions, user);
     }
 
@@ -281,7 +281,7 @@ public class ComponentHandler implements ComponentService.Iface {
         return handler.updateReleases(releases, user);
     }
 
-    public RequestStatus updateReleaseFromModerationRequest(Release releaseAdditions, Release releaseDeletions, User user){
+    public RequestStatus updateReleaseFromModerationRequest(Release releaseAdditions, Release releaseDeletions, User user) {
         return handler.updateReleaseFromAdditionsAndDeletions(releaseAdditions, releaseDeletions, user);
     }
 
@@ -333,7 +333,7 @@ public class ComponentHandler implements ComponentService.Iface {
     public boolean componentIsUsed(String componentId) throws TException {
         return handler.checkIfInUseComponent(componentId);
     }
-    
+
     //////////////////////////////////
     // SUBSCRIBE INDIVIDUAL OBJECTS //
     //////////////////////////////////

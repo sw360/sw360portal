@@ -282,7 +282,7 @@ public class ProjectDatabaseHandler {
         } else {
             projectMap = preloadLinkedProjects(project, user);
         }
-        final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap, user);
+        final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap);
 
         Deque<String> visitedIds = new ArrayDeque<>();
 
@@ -298,7 +298,7 @@ public class ProjectDatabaseHandler {
         return ThriftUtils.getIdMap(getProjectsById(projectIdsToLoad, user));
     }
 
-    private Map<String, Release> preloadLinkedReleases(Map<String, Project> projectMap, User user) {
+    private Map<String, Release> preloadLinkedReleases(Map<String, Project> projectMap) {
         Set<String> releaseIdsToLoad = projectMap
                 .values()
                 .stream()
@@ -308,13 +308,13 @@ public class ProjectDatabaseHandler {
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
 
-        return ThriftUtils.getIdMap(componentDatabaseHandler.getFullReleases(releaseIdsToLoad, user));
+        return ThriftUtils.getIdMap(componentDatabaseHandler.getFullReleases(releaseIdsToLoad));
     }
 
-    public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations, User user) {
+    public List<ProjectLink> getLinkedProjects(Map<String, ProjectRelationship> relations) {
         List<ProjectLink> out;
         final Map<String, Project> projectMap = ThriftUtils.getIdMap(repository.getAll());
-        final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap, user);
+        final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap);
 
         Deque<String> visitedIds = new ArrayDeque<>();
         out = iterateProjectRelationShips(relations, null, visitedIds, projectMap, releaseMap, -1);

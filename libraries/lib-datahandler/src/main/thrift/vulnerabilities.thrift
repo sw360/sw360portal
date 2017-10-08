@@ -150,6 +150,11 @@ struct ProjectVulnerabilityRating{
     5: required map<string, map<string, list<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus,
 }
 
+struct VulnerabilityWithReleaseRelations{
+    1: required Vulnerability vulnerability,
+    2: required list<ReleaseVulnerabilityRelation> releaseRelation
+}
+
 service VulnerabilityService {
     // General information
      /**
@@ -157,6 +162,17 @@ service VulnerabilityService {
        * returns empty list if user is not valid
        **/
     list<Vulnerability> getVulnerabilities(1: User user);
+
+     /**
+       * returns a list with the latest vulnerabilites in the SW360 database if the user is valid
+       * returns empty list if user is not valid, or if the limit is smaller than zero
+       **/
+    list<Vulnerability> getLatestVulnerabilities(1: User user, 2: i32 limit = 20);
+
+    /**
+      * Returns the total number of vulnerabilites in the database
+      **/
+    i32 getTotalVulnerabilityCount(1: User user);
 
     /**
       * if the user is valid: returns a list with all vulnerability linked to the release with id releaseId as DTOs
@@ -218,4 +234,16 @@ service VulnerabilityService {
       * returns null otherwise
       **/
     Vulnerability getVulnerabilityByExternalId(1: string externalId, 2: User user);
+
+    /**
+      * returns the vulnerability with given externalId if it exists in the database and if user is valid
+      * returns null otherwise
+      **/
+    list<Vulnerability> getVulnerabilitiesByExternalIdOrConfiguration(1: optional string externalId, 2: optional string vulnerableConfiguration, 3: User user);
+
+    /**
+      * returns the vulnerability with given externalId if it exists in the database and if user is valid
+      * returns null otherwise
+      **/
+    VulnerabilityWithReleaseRelations getVulnerabilityWithReleaseRelationsByExternalId(1: string externalId, 2: User user);
 }

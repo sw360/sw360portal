@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Access the database in a CRUD manner, for a generic class
@@ -31,7 +32,7 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
     private final Class<T> type;
     private final DatabaseConnector connector;
 
-    protected DatabaseConnector getConnector(){
+    protected DatabaseConnector getConnector() {
         return connector;
     }
 
@@ -42,6 +43,13 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
             ids.add(row.getId());
         }
         return ids;
+    }
+
+    private static List<String> getIdList(ViewResult rows) {
+        return rows.getRows()
+                .stream()
+                .map(ViewResult.Row::getId)
+                .collect(Collectors.toList());
     }
 
     public static Set<String> getStringValue(ViewResult rows) {
@@ -62,13 +70,16 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
 
     public Set<String> queryForIds(ViewQuery query) {
         ViewResult rows = connector.queryView(query.includeDocs(false));
-
         return getIds(rows);
+    }
+
+    public List<String> queryForIdList(ViewQuery query) {
+        ViewResult rows = connector.queryView(query.includeDocs(false));
+        return getIdList(rows);
     }
 
     public Set<String> queryForIdsAsValue(ViewQuery query) {
         ViewResult rows = connector.queryView(query.includeDocs(false));
-
         return getStringValue(rows);
     }
 
@@ -83,7 +94,7 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
         return queryForIdsAsValue(query);
     }
 
-    public Set<String> queryForIdsAsComplexValue(String queryName, String ... keys) {
+    public Set<String> queryForIdsAsComplexValue(String queryName, String... keys) {
         ViewQuery query = createQuery(queryName).key(ComplexKey.of(keys));
         return queryForIds(query);
     }
@@ -99,14 +110,9 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
         return queryForIds(query);
     }
 
-    public Set<String> queryForIds(String queryName, String startKey, String endKey, Integer skip, Integer limit) {
-        ViewQuery query = createQuery(queryName).startKey(startKey).endKey(endKey).skip(skip).limit(limit);
-        return queryForIds(query);
-    }
-
-    public Set<String> getAllIdsByView(String queryName, boolean descending) {
-        ViewQuery query = createQuery(queryName).descending(descending);
-        return queryForIds(query);
+    public List<String> getIdListByView(String queryName, boolean descending, int limit) {
+        ViewQuery query = createQuery(queryName).descending(descending).limit(limit);
+        return queryForIdList(query);
     }
 
     public Set<String> getAllIds() {
@@ -214,4 +220,11 @@ public class DatabaseRepository<T> extends CouchDbRepositorySupport<T> {
         return deleteBulk(deletionCandidates);
     }
 
+    /**
+     * Returns the total count of documents in the repository (given by the all view)
+     */
+    public int getDocumentCount() {
+        ViewQuery query = createQuery("all").includeDocs(false).limit(0);
+        return db.queryView(query).getTotalRows();
+    }
 }

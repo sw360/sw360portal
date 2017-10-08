@@ -12,6 +12,7 @@
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability" %>
 
 <%@ include file="/html/init.jsp" %>
 
@@ -20,6 +21,16 @@
 
 <jsp:useBean id="vulnerabilityList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability>"
              scope="request"/>
+<jsp:useBean id="totalRows" type="java.lang.Integer" scope="request"/>
+
+<jsp:useBean id="externalId" class="java.lang.String" scope="request"/>
+<jsp:useBean id="vulnerableConfiguration" class="java.lang.String" scope="request"/>
+
+<portlet:actionURL var="applyFiltersURL" name="applyFilters">
+</portlet:actionURL>
+
+<portlet:actionURL var="applyFiltersURL" name="applyFilters">
+</portlet:actionURL>
 
 <portlet:resourceURL var="vulnerabilityListAjaxURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.VULNERABILITY_LIST%>'/>
@@ -34,9 +45,60 @@
 <div id="header"></div>
 <p class="pageHeader">
     <span class="pageHeaderBigSpan">Vulnerabilities</span>
+    <span class="pageHeaderMediumSpan">(<core_rt:if test="${vulnerabilityList.size() == totalRows}">${totalRows}</core_rt:if><core_rt:if test="${vulnerabilityList.size() != totalRows}">${vulnerabilityList.size()} latest of ${totalRows}</core_rt:if>)</span>
 </p>
 <div id="searchInput" class="content1">
     <%@ include file="/html/utils/includes/quickfilter.jspf" %>
+
+    <form action="<%=applyFiltersURL%>" method="post">
+        <table>
+            <thead>
+            <tr>
+                <th class="infoheading">
+                    Loading
+                </th>
+            </tr>
+            </thead>
+            <tbody style="background-color: #f8f7f7; border: none;">
+            <tr>
+                <td>
+                    <select class="searchbar" id="view_size" name="<portlet:namespace/><%=PortalConstants.VIEW_SIZE%>" onchange="reloadViewSize()">
+                        <option value="200" <core_rt:if test="${viewSize == 200}">selected</core_rt:if>>200 latest</option>
+                        <option value="500" <core_rt:if test="${viewSize == 500}">selected</core_rt:if>>500 latest</option>
+                        <option value="1000" <core_rt:if test="${viewSize == 1000}">selected</core_rt:if>>1000 latest</option>
+                        <option value="-1" <core_rt:if test="${viewSize == -1}">selected</core_rt:if>>All</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+            <tr>
+                <th class="infoheading">
+                    Filters
+                </th>
+            </tr>
+            </thead>
+            <tbody style="background-color: #f8f7f7; border: none;">
+            <tr>
+                <td>
+                    <label for="external_id">CVE ID</label>
+                    <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Vulnerability._Fields.EXTERNAL_ID%>"
+                           value="${externalId}" id="external_id">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="vulnerable_config">Vulnerable Configuration</label>
+                    <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Vulnerability._Fields.VULNERABLE_CONFIGURATION%>"
+                           value="${vulnerableConfiguration}" id="vulnerable_config">
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <input type="submit" class="addButton" value="Apply Filters">
+    </form>
 </div>
 <div id="vulnerabilitiesTableDiv" class="content2">
     <table id="vulnerabilitiesTable" cellpadding="0" cellspacing="0" border="0" class="display">
@@ -52,6 +114,14 @@
 <%--for javascript library loading --%>
 <%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
+
+    function reloadViewSize(){
+        var PortletURL = Liferay.PortletURL;
+        var portletURL = PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>');
+        portletURL.setParameter('<%=PortalConstants.VIEW_SIZE%>', $('#view_size').val());
+        window.location.href=portletURL.toString();
+    }
+
     AUI().use('liferay-portlet-url', function () {
         var PortletURL = Liferay.PortletURL;
 
@@ -119,7 +189,7 @@
                         {"title": "Publish date"},
                         {"title": "Last update"}
                     ],
-                    "order": [[2, 'asc'], [3, 'desc']],
+                    "order": [[4, 'desc'],[2, 'asc']],
                     "autoWidth": false
                 });
                 vulnerabilityTable.$('td').tooltip({"delay": 0, "track": true, "fade": 250});

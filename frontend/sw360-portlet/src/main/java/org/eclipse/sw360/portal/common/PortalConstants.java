@@ -127,6 +127,7 @@ public class PortalConstants {
     public static final String ACTUAL_PROJECT = "actual_project";
     public static final String USING_PROJECTS = "usingProjects";
     public static final String USING_COMPONENTS = "usingComponents";
+    public static final String USING_RELEASES = "usingReleases";
     public static final String PROJECT_LIST = "projectList";
     public static final String RELEASE_LIST = "releaseList";
     public static final String PROJECT_SEARCH = "projectSearch";
@@ -188,6 +189,7 @@ public class PortalConstants {
     //! Specialized keys for users
     public static final String CUSTOM_FIELD_PROJECT_GROUP_FILTER = "ProjectGroupFilter";
     public static final String CUSTOM_FIELD_COMPONENTS_VIEW_SIZE = "ComponentsViewSize";
+    public static final String CUSTOM_FIELD_VULNERABILITIES_VIEW_SIZE = "VulnerabilitiesViewSize";
 
     //! Specialized keys for scheduling
     public static final String CVESEARCH_IS_SCHEDULED = "cveSearchIsScheduled";

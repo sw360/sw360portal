@@ -103,14 +103,14 @@ public class ReleaseSummary extends DocumentSummary<Release> {
         copyField(document, copy, _Fields.FOSSOLOGY_ID);
         copyField(document, copy, _Fields.CLEARING_STATE);
         copyField(document, copy, _Fields.MAINLINE_STATE);
+        copyField(document, copy, _Fields.CPEID);
+        copyField(document, copy, _Fields.RELEASE_DATE);
     }
 
     private void setAdditionalFieldsForSummariesOtherThanShortAndDetailedExport(Release document, Release copy){
-        copyField(document, copy, _Fields.CPEID);
         copyField(document, copy, _Fields.CREATED_BY);
         copyField(document, copy, _Fields.MAINLINE_STATE);
         copyField(document, copy, _Fields.CLEARING_STATE);
-        copyField(document, copy, _Fields.RELEASE_DATE);
         copyField(document, copy, _Fields.LANGUAGES);
         copyField(document, copy, _Fields.OPERATING_SYSTEMS);
         copyField(document, copy, _Fields.ATTACHMENTS);

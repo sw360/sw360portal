@@ -142,6 +142,22 @@ public class CommonUtils {
         }
     }
 
+    /**
+     * Gets the intersection of two sets, or the not null set.
+     * Returns:
+     * * the intersection of both sets if they are both not null
+     * * the set that is not null, if only one is not null
+     *
+     * @throws NullPointerException if both sets are null
+     */
+    public static <T> Set<T> intersectionIfNotNull(Set<T> left, Set<T> right) {
+        if (left != null && right != null) {
+            return Sets.intersection(left, right);
+        } else {
+            return MoreObjects.firstNonNull(left, right);
+        }
+    }
+
     public static <T> List<T> nullToEmptyList(List<T> in) {
         return in != null ? in : ImmutableList.<T>of();
     }
@@ -334,7 +350,7 @@ public class CommonUtils {
     }
 
     public static void closeQuietly(Closeable closeable, Logger logger) {
-        if (closeable == null){
+        if (closeable == null) {
             return;
         }
         try {
@@ -421,8 +437,8 @@ public class CommonUtils {
     }
 
 
-    public static RequestStatus reduceRequestStatus(RequestStatus r1, RequestStatus r2){
-        if (RequestStatus.SUCCESS.equals(r1) && RequestStatus.SUCCESS.equals(r2)){
+    public static RequestStatus reduceRequestStatus(RequestStatus r1, RequestStatus r2) {
+        if (RequestStatus.SUCCESS.equals(r1) && RequestStatus.SUCCESS.equals(r2)) {
             return RequestStatus.SUCCESS;
         }
         return RequestStatus.FAILURE;
@@ -460,9 +476,9 @@ public class CommonUtils {
     public static RequestSummary addRequestSummaries(RequestSummary left, RequestSummary right) {
         RequestSummary result = new RequestSummary();
         result.requestStatus = left.isSetRequestStatus() && left.requestStatus.equals(RequestStatus.SUCCESS)
-                            && right.isSetRequestStatus() && right.requestStatus.equals(RequestStatus.SUCCESS)
-                            ? RequestStatus.SUCCESS
-                            : RequestStatus.FAILURE;
+                && right.isSetRequestStatus() && right.requestStatus.equals(RequestStatus.SUCCESS)
+                ? RequestStatus.SUCCESS
+                : RequestStatus.FAILURE;
         result.setTotalElements(left.getTotalElements() + right.getTotalElements());
         result.setTotalAffectedElements(left.getTotalAffectedElements() + right.getTotalAffectedElements());
         return result;
@@ -536,14 +552,14 @@ public class CommonUtils {
     }
 
     public static Optional<byte[]> loadResource(Class<?> clazz, String resourceFilePath, boolean useSystemResourses) {
-        if (isNullOrEmpty(resourceFilePath)){
+        if (isNullOrEmpty(resourceFilePath)) {
             return Optional.empty();
         }
-        if(useSystemResourses) {
+        if (useSystemResourses) {
             File systemResourceFile = new File(SYSTEM_CONFIGURATION_PATH, resourceFilePath);
-            if(systemResourceFile.exists()){
+            if (systemResourceFile.exists()) {
                 try (InputStream resourceAsStream = new FileInputStream(systemResourceFile.getPath())) {
-                    if (resourceAsStream == null){
+                    if (resourceAsStream == null) {
                         throw new IOException("cannot open " + systemResourceFile.getPath());
                     }
                     return Optional.of(IOUtils.toByteArray(resourceAsStream));
@@ -595,11 +611,11 @@ public class CommonUtils {
         }
     }
 
-    public static <T> Optional<T> wrapThriftOptionalReplacement(List<T> thriftOutput){
-        if (thriftOutput == null || thriftOutput.size() == 0){
+    public static <T> Optional<T> wrapThriftOptionalReplacement(List<T> thriftOutput) {
+        if (thriftOutput == null || thriftOutput.size() == 0) {
             return Optional.empty();
         }
-        if (thriftOutput.size() > 1){
+        if (thriftOutput.size() > 1) {
             getLogger(CommonUtils.class).error("List contained more then one item but was treated as \"Optional\".");
         }
         return Optional.of(thriftOutput.get(0));
@@ -634,8 +650,8 @@ public class CommonUtils {
         return destination;
     }
 
-    public static boolean isNullEmptyOrWhitespace(String string){
-        return string==null || string.trim().length() == 0;
+    public static boolean isNullEmptyOrWhitespace(String string) {
+        return string == null || string.trim().length() == 0;
     }
 
     public static <T> java.util.function.Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
@@ -643,17 +659,17 @@ public class CommonUtils {
         return t -> visitedKeys.add(keyExtractor.apply(t));
     }
 
-    public static Set<String> getNullToEmptyKeyset(Map<String, ? > map){
+    public static Set<String> getNullToEmptyKeyset(Map<String, ?> map) {
         return nullToEmptyMap(map).keySet();
     }
 
-    public static Set<String> getNullToEmptyValue(Map<String, Set<String>> map, String key){
+    public static Set<String> getNullToEmptyValue(Map<String, Set<String>> map, String key) {
         return nullToEmptySet(nullToEmptyMap(map).get(key));
     }
 
-    public static Set<String> unifiedKeyset(Map<String, ?> ... maps){
+    public static Set<String> unifiedKeyset(Map<String, ?>... maps) {
         Set<String> keys = new HashSet<>();
-        for(Map<String, ?> map : maps) {
+        for (Map<String, ?> map : maps) {
             keys.addAll(getNullToEmptyKeyset(map));
         }
         return keys;
@@ -669,23 +685,23 @@ public class CommonUtils {
                 (Map<String, Object>) documentAdditions.getFieldValue(field),
                 (Map<String, Object>) documentDeletions.getFieldValue(field));
         List<Map<String, ?>> nonEmptyMaps = maps.stream().filter(m -> m != null && !m.isEmpty()).collect(Collectors.toList());
-        if (nonEmptyMaps.isEmpty()){
+        if (nonEmptyMaps.isEmpty()) {
             logger.info("Field was empty in document, documentAdditions and documentDeletions: " + field.getFieldName());
             return false;
         }
 
         Object value = nonEmptyMaps.stream().findAny().get().entrySet().stream()
-                .map(e-> ((Map.Entry<String, Object>)e).getValue())
+                .map(e -> ((Map.Entry<String, Object>) e).getValue())
                 .findAny()
                 .get();
-        if(! (value instanceof Set)){
+        if (!(value instanceof Set)) {
             return false;
         }
         List<Map<String, ?>> nonEmptyMapsContainingNonEmptySet = nonEmptyMaps.stream()
-                .filter(m ->  nonEmptyMapOfSetsContainsNonEmptySet((Map<String, Set<Object>>)m))
+                .filter(m -> nonEmptyMapOfSetsContainsNonEmptySet((Map<String, Set<Object>>) m))
                 .collect(Collectors.toList());
 
-        if(nonEmptyMapsContainingNonEmptySet.isEmpty()){
+        if (nonEmptyMapsContainingNonEmptySet.isEmpty()) {
             logger.warn("Field contained only maps of only empty sets: " + field.getFieldName());
             return false;
         }
@@ -696,13 +712,13 @@ public class CommonUtils {
         return (element instanceof String);
     }
 
-    private static boolean nonEmptyMapOfSetsContainsNonEmptySet(Map<String, Set<Object>> map){
+    private static boolean nonEmptyMapOfSetsContainsNonEmptySet(Map<String, Set<Object>> map) {
         Optional<Set<Object>> nonEmptySet = getNonEmptySetFromMapOfSets(map);
         return nonEmptySet.isPresent();
     }
 
-    private static Optional<Set<Object>> getNonEmptySetFromMapOfSets(Map<String, Set<Object>> map){
-        return  map.entrySet().stream()
+    private static Optional<Set<Object>> getNonEmptySetFromMapOfSets(Map<String, Set<Object>> map) {
+        return map.entrySet().stream()
                 .map(e -> ((Map.Entry<String, Set<Object>>) e).getValue())
                 .filter(s -> !s.isEmpty()).findAny();
     }
