@@ -14,13 +14,14 @@ package org.eclipse.sw360.commonIO;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
 import org.eclipse.sw360.datahandler.thrift.Ternary;
@@ -37,6 +38,8 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhit
  * @author manuel.wickmann@tngtech.com
  */
 public class ConvertRecord {
+
+    public static Gson gson = new GsonBuilder().create();
 
     private ConvertRecord() {
         // Utility class with only static functions
@@ -224,6 +227,14 @@ public class ConvertRecord {
                 boolean distribution = parseBoolean(distributionString);
                 todo.setDistribution(distribution);
             }
+
+            if(record.size() >= 5) {
+                Optional.ofNullable(record.get(4))
+                        .filter(json -> ! "NULL".equals(json))
+                        .map(json -> (Map<String, String>) gson.fromJson(json, new TypeToken<Map<String, String>>() { }.getType()))
+                        .ifPresent(todo::setExternalIds);
+            }
+
             list.add(todo);
         }
         return list;
@@ -235,19 +246,23 @@ public class ConvertRecord {
             public Function<Todo, List<String>> transformer() {
                 return todo -> {
 
-                        final ArrayList<String> out = new ArrayList<>(4);
+                    final ArrayList<String> out = new ArrayList<>(5);
 
-                        out.add(((Integer) todo.getTodoId()).toString());
-                        out.add(todo.getText());
-                        out.add(((Boolean) todo.isDevelopment()).toString());
-                        out.add(((Boolean) todo.isDistribution()).toString());
-                        return out;
+                    out.add(((Integer) todo.getTodoId()).toString());
+                    out.add(todo.getText());
+                    out.add(((Boolean) todo.isDevelopment()).toString());
+                    out.add(((Boolean) todo.isDistribution()).toString());
+                    out.add(Optional.ofNullable(todo.getExternalIds())
+                            .map(gson::toJson)
+                            .map(Object::toString)
+                            .orElse("{}"));
+                    return out;
                 };
             }
 
             @Override
             public List<String> headers() {
-                return ImmutableList.of("ID", "Text", "Development", "Distribution");
+                return ImmutableList.of("ID", "Text", "Development", "Distribution", "External IDs");
             }
         };
     }
@@ -388,6 +403,13 @@ public class ConvertRecord {
                 license.setExternalLicenseLink(externalLink);
             }
 
+            if(record.size() > 8) {
+                Optional.ofNullable(record.get(8))
+                        .map(json -> gson.fromJson(json, new TypeToken<Map<String, String>>() { }.getType()))
+                        .map(o -> (Map<String, String>) o)
+                        .ifPresent(license::setExternalIds);
+            }
+
             // Add all risks
             Set<Integer> riskIds = licenseRisk.get(identifier);
             if (riskIds != null) {
@@ -431,13 +453,18 @@ public class ConvertRecord {
                     out.add(CommonUtils.nullToEmptyString(license.getReviewdate()));
                     out.add(CommonUtils.nullToEmptyString(license.getText()));
                     out.add(CommonUtils.nullToEmptyString(license.getExternalLicenseLink()));
+                    out.add(Optional.ofNullable(license.getExternalIds())
+                            .filter(json -> ! "NULL".equals(json))
+                            .map(gson::toJson)
+                            .map(Object::toString)
+                            .orElse("{}"));
                     return out;
                 };
             }
 
             @Override
             public List<String> headers() {
-                return ImmutableList.of("Identifier", "Fullname", "Type", "Gplv2compat", "Gplv3compat", "reviewdate", "Text", "External Link");
+                return ImmutableList.of("Identifier", "Fullname", "Type", "Gplv2compat", "Gplv3compat", "reviewdate", "Text", "External Link", "External IDs");
             }
         };
     }
@@ -555,6 +582,7 @@ public class ConvertRecord {
     }
 
     public static void addLicenses(LicenseService.Iface licenseClient, List<License> licensesToAdd, Logger log, User user) {
+
         try {
             final List<License> licenses = licenseClient.getLicenses();
             final Set<String> knownLicenseNames = Sets.newHashSet(FluentIterable.from(licenses).transform(TypeMappings.getLicenseIdentifier()));
