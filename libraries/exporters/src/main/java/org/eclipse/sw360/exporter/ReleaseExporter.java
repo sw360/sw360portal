@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftUtils;
 import org.eclipse.sw360.datahandler.thrift.components.*;
-import org.eclipse.sw360.datahandler.thrift.projects.ProjectNamesWithMainlineStatesTuple;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 
@@ -76,8 +75,8 @@ public class ReleaseExporter extends ExcelExporter<Release, ReleaseHelper> {
     static final List<String> HEADERS_EXTENDED_BY_ADDITIONAL_DATA = makeHeadersForExtendedExport();
 
     public ReleaseExporter(ComponentService.Iface cClient, List<Release> releases, User user,
-            Map<Release, ProjectNamesWithMainlineStatesTuple> releaseToShortenedStringsMap) throws SW360Exception {
-        super(new ReleaseHelper(cClient, user, releaseToShortenedStringsMap));
+            List<ReleaseClearingStatusData> releaseClearingStatuses) throws SW360Exception {
+        super(new ReleaseHelper(cClient, user, releaseClearingStatuses));
         preloadLinkedReleasesFor(releases);
     }
 

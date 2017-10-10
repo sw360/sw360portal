@@ -104,6 +104,9 @@ struct COTSDetails{
     4: optional bool ossContractSigned,
     5: optional string ossInformationURL,
     6: optional bool usageRightAvailable,
+    7: optional string cotsResponsible,
+    8: optional string clearingDeadline,
+    9: optional bool sourceCodeAvailable,
 }
 struct EccInformation{
     1: optional ECCStatus eccStatus, // Status of ECC assessment
@@ -305,6 +308,13 @@ struct ReleaseLink{
     33: optional ComponentType componentType,
     100: optional set<string> licenseIds,
     101: optional set<string> licenseNames
+}
+
+struct ReleaseClearingStatusData {
+    1: required Release release,
+    2: optional ComponentType componentType,
+    3: optional string projectNames, // comma separated list of project names for display; possibly abbreviated
+    4: optional string mainlineStates, // comma separated list of mainline states for display; possibly abbreviated
 }
 
 service ComponentService {

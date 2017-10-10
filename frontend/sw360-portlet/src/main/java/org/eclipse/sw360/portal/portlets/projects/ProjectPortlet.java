@@ -36,6 +36,7 @@ import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStatusData;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.CveSearchService;
 import org.eclipse.sw360.datahandler.thrift.cvesearch.VulnerabilityUpdateStatus;
@@ -57,7 +58,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLConnection;
@@ -70,9 +70,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONArray;
 import static com.liferay.portal.kernel.json.JSONFactoryUtil.createJSONObject;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.wrapThriftOptionalReplacement;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
@@ -300,14 +298,14 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         final User user = UserCacheHolder.getUserFromRequest(request);
         try {
             String id = request.getParameter(PROJECT_ID);
+            ProjectService.Iface client = thriftClients.makeProjectClient();
             Project project = null;
             if (!isNullOrEmpty(id)) {
-                project = thriftClients.makeProjectClient().getProjectById(id, user);
+                project = client.getProjectById(id, user);
             }
             if (project != null) {
-                Map<Release, ProjectNamesWithMainlineStatesTuple> releaseStringMap = getProjectsNamesWithMainlineStatesByRelease(
-                        project, user);
-                List<Release> releases = releaseStringMap.keySet().stream().sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
+                List<ReleaseClearingStatusData> releaseStringMap = client.getReleaseClearingStatuses(id, user);
+                List<Release> releases = releaseStringMap.stream().map(ReleaseClearingStatusData::getRelease).sorted(Comparator.comparing(SW360Utils::printFullname)).collect(Collectors.toList());
                 ReleaseExporter exporter = new ReleaseExporter(thriftClients.makeComponentClient(), releases,
                         user, releaseStringMap);
 

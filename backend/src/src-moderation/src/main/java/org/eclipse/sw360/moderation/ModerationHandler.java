@@ -128,8 +128,8 @@ public class ModerationHandler implements ModerationService.Iface {
     }
 
     @Override
-    public RequestStatus acceptRequest(String requestId, String moderationComment, String reviewer) throws TException {
-        handler.acceptRequest(requestId, moderationComment, reviewer);
+    public RequestStatus acceptRequest(ModerationRequest request, String moderationComment, String reviewer) throws TException {
+        handler.acceptRequest(request, moderationComment, reviewer);
         return RequestStatus.SUCCESS;
     }
 

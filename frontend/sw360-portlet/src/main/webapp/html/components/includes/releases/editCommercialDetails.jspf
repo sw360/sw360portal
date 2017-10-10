@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2015-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -10,16 +10,12 @@
 --%>
 
 
-<%@ page import="org.eclipse.sw360.portal.users.UserCacheHolder" %>
-<%@ page import="org.eclipse.sw360.datahandler.common.SW360Utils" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Repository" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ClearingInformation" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.COTSDetails" %>
-<table class="table info_table" id="COTSDetails" title="COTS Details">
+<table class="table info_table" id="COTSDetailsAdmin" title="COTS Administrative Information">
     <thead>
     <tr>
-        <th colspan="3" class="headlabel">Commercial Details</th>
+        <th colspan="3" class="headlabel">Commercial Details Administration</th>
     </tr>
     </thead>
     <tr>
@@ -27,10 +23,46 @@
             <label class="checkboxlabel" for="usageRightAvailable">
                 <input id="usageRightAvailable" type="checkbox"
                        name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.USAGE_RIGHT_AVAILABLE%>"
-                       value="<sw360:out value="${release.cotsDetails.usageRightAvailable}"/>"
-                        <core_rt:if test="${release.cotsDetails.usageRightAvailable == 'true'}"> checked="checked" </core_rt:if>
+                       value="<sw360:out value="${release.cotsDetails.usageRightAvailable == true}"/>"
+                        <core_rt:if test="${release.cotsDetails.usageRightAvailable}"> checked="checked" </core_rt:if>
                 /> Usage Right Available</label>
         </td>
+        <td width="33%">
+            <sw360:DisplayUserEdit email="${release.cotsDetails.cotsResponsible}"
+                                   id="<%=Release._Fields.COTS_DETAILS.toString() + COTSDetails._Fields.COTS_RESPONSIBLE.toString()%>"
+                                   description="COTS Responsible" multiUsers="false" readonly="false"/>
+        </td>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="cotsClearingDeadline">COTS Clearing Deadline</label>
+            <input id="cotsClearingDeadline"
+                   class="datepicker"
+                   name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.CLEARING_DEADLINE%>"
+                   type="text"
+                   placeholder="Clearing Deadline YYYY-MM-DD"
+                   value="<sw360:out value="${release.cotsDetails.clearingDeadline}"/>"/>
+        </td>
+    </tr>
+    <tr>
+        <td width="33%">
+            <label class="textlabel stackedLabel " for="LC_Url">COTS Clearing Report URL</label>
+            <input id="LC_Url"
+                   name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.LICENSE_CLEARING_REPORT_URL%>"
+                   type="text"
+                   placeholder="Enter URL"
+                   value="<sw360:out value="${release.cotsDetails.licenseClearingReportURL}"/>"/>
+        </td>
+        <td/>
+        <td/>
+    </tr>
+</table>
+
+<table class="table info_table" id="COTSDetailsOSS" title="COTS OSS Information">
+    <thead>
+    <tr>
+        <th colspan="3" class="headlabel">COTS OSS Information</th>
+    </tr>
+    </thead>
+    <tr>
         <td width="33%">
             <label class="textlabel stackedLabel " for="used_license">Used License</label>
             <input id="used_license"
@@ -40,31 +72,23 @@
                    value="<sw360:out value="${release.cotsDetails.usedLicense}"/>"/>
         </td>
         <td width="33%">
-            <label class="textlabel stackedLabel " for="LC_Url">License/Clearing report-URL</label>
-            <input id="LC_Url"
-                   name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.LICENSE_CLEARING_REPORT_URL%>"
-                   type="text"
-                   placeholder="Enter URL"
-                   value="<sw360:out value="${release.cotsDetails.licenseClearingReportURL}"/>"/>
-        </td>
-    </tr>
-    <tr>
-        <td width="33%">
             <label class="checkboxlabel" for="containsOSS">
                 <input id="containsOSS" type="checkbox"
                        name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.CONTAINS_OSS%>"
-                       value="<sw360:out value="${release.cotsDetails.containsOSS}"/>"
-                        <core_rt:if test="${release.cotsDetails.containsOSS == 'true'}"> checked="checked" </core_rt:if>
+                       value="<sw360:out value="${release.cotsDetails.containsOSS == true}"/>"
+                        <core_rt:if test="${release.cotsDetails.containsOSS}"> checked="checked" </core_rt:if>
                 /> Contains OSS</label>
         </td>
         <td width="33%">
             <label class="checkboxlabel" for="OSSContractSigned">
                 <input id="OSSContractSigned" type="checkbox"
                        name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.OSS_CONTRACT_SIGNED%>"
-                       value="<sw360:out value="${release.cotsDetails.ossContractSigned}"/>"
-                        <core_rt:if test="${release.cotsDetails.ossContractSigned == 'true'}"> checked="checked" </core_rt:if>
+                       value="<sw360:out value="${release.cotsDetails.ossContractSigned == true}"/>"
+                        <core_rt:if test="${release.cotsDetails.ossContractSigned}"> checked="checked" </core_rt:if>
                 /> OSS contract signed</label>
         </td>
+    </tr>
+    <tr>
         <td width="33%">
             <label class="textlabel stackedLabel " for="OSSInfoUrl">OSS Information URL</label>
             <input id="OSSInfoUrl"
@@ -73,9 +97,14 @@
                    placeholder="Enter URL"
                    value="<sw360:out value="${release.cotsDetails.ossInformationURL}"/>"/>
         </td>
+        <td width="33%">
+            <label class="checkboxlabel" for="sourceCodeAvailable">
+                <input id="sourceCodeAvailable" type="checkbox"
+                       name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.SOURCE_CODE_AVAILABLE%>"
+                       value="<sw360:out value="${release.cotsDetails.sourceCodeAvailable == true}"/>"
+                        <core_rt:if test="${release.cotsDetails.sourceCodeAvailable}"> checked="checked" </core_rt:if>
+                /> Source Code Available</label>
+        </td>
+        <td/>
     </tr>
-    <tr>
-    </tr>
-
 </table>
-

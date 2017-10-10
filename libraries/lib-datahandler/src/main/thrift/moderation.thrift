@@ -149,10 +149,10 @@ service ModerationService {
     RequestStatus updateModerationRequest(1: ModerationRequest moderationRequest);
 
    /**
-     * set moderation state of moderation request specified by requestId to ACCEPTED
+     * set moderation state of moderation request to ACCEPTED
      * and send mail notifications
     **/
-    RequestStatus acceptRequest(1: string requestId, 2: string moderationDecisionComment, 3: string reviewer);
+    RequestStatus acceptRequest(1: ModerationRequest request, 2: string moderationDecisionComment, 3: string reviewer);
 
     /**
      * set moderation state of moderation request specified by requestId to REJECTED,
