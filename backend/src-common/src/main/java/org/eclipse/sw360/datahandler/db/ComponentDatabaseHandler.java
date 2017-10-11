@@ -69,7 +69,7 @@ import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareRelease
  * @author Johannes.Najjar@tngtech.com
  * @author alex.borodin@evosoft.com
  */
-public class ComponentDatabaseHandler {
+public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(ComponentDatabaseHandler.class);
 
@@ -403,8 +403,10 @@ public class ComponentDatabaseHandler {
             component.unsetReleases();
 
             copyFields(actual, component, immutableOfComponent());
+            component.setAttachments( getAllAttachmentsToKeep(actual.getAttachments(), component.getAttachments()) );
             // Update the database with the component
             componentRepository.update(component);
+
             //clean up attachments in database
             attachmentConnector.deleteAttachmentDifference(actual.getAttachments(),component.getAttachments());
             sendMailNotificationsForComponentUpdate(component, user.getEmail());
@@ -463,7 +465,7 @@ public class ComponentDatabaseHandler {
             if (hasChangesInEccFields) {
                 autosetEccUpdaterInfo(release, user);
             }
-
+            release.setAttachments( getAllAttachmentsToKeep(actual.getAttachments(), release.getAttachments()) );
             releaseRepository.update(release);
             updateReleaseDependentFieldsForComponentId(release.getComponentId());
             //clean up attachments in database
@@ -584,6 +586,7 @@ public class ComponentDatabaseHandler {
     ///////////////////////////////
     // DELETE INDIVIDUAL OBJECTS //
     ///////////////////////////////
+
 
     public RequestStatus deleteComponent(String id, User user) throws SW360Exception {
         Component component = componentRepository.get(id);

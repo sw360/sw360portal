@@ -237,17 +237,18 @@ define('modules/datatables-renderer', ['jquery', /* jquery-plugins */ 'datatable
     /**
      * Renders the given actions. Actions are an array of action objects. Each action object must provide the following properties:
      * <ol>
-     *   <li>key:   Will be set as "data-key" attribute to be able to identify the row</li>
-     *   <li>class: class name or space space separated class names for the action element</li>
-     *   <li>icon:  name of the icon to be shown, e.g. "Trash"
-     *   <li>title: Title to be shown on mouse over or if the icon could not be found</li>
+     *   <li>key:         Will be set as "data-key" attribute to be able to identify the row</li>
+     *   <li>class:       class name or space space separated class names for the action element</li>
+     *   <li>icon:        name of the icon to be shown, e.g. "Trash"
+     *   <li>title:       Title to be shown on mouse over or if the icon could not be found</li>
+     *   <li>approvalKey: Will be set as "data-approval-state" attribute. This allows to decide whether an attachment is deletable.</li>
      * </ol>
      *
      * @param {Array} actions the actions as defined before
      *
      * @return {Function} render function for DataTable
      *
-     * Example usage in column definition: <code>..., renderer: $.fn.dataTable.render.actions( [{ key: 'attachmentContentId', 'class': 'delete-attachment', icon: 'Trash', title: 'Delete Attachment' }] ), ...</code>
+     * Example usage in column definition: <code>..., renderer: $.fn.dataTable.render.actions( [{ key: 'attachmentContentId', 'class': 'delete-attachment', icon: 'Trash', title: 'Delete Attachment', approvalKey: 'checkStatus' }] ), ...</code>
      */
     $.fn.dataTable.render.actions = function(actions) {
         return function(data, type, row) {
@@ -259,7 +260,8 @@ define('modules/datatables-renderer', ['jquery', /* jquery-plugins */ 'datatable
                         src: '/sw360-portlet/images/' + action.icon + '.png',
                         alt: action.title,
                         title: action.title,
-                        'data-key': row[action.key]
+                        'data-key': row[action.key],
+                        'data-approvalstate': row[action.approvalKey]
                     })[0].outerHTML;
                 });
                 return actionsHtml;

@@ -17,6 +17,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.moderation.DocumentType" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.users.RequestedAction" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus" %>
 
 <%@ include file="/html/init.jsp"%>
 <%-- the following is needed by liferay to display error messages--%>
@@ -44,13 +45,13 @@
     <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"  scope="request"/>
     <jsp:useBean id="releaseList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.components.ReleaseLink>"  scope="request"/>
     <jsp:useBean id="attachments" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.attachments.Attachment>" scope="request"/>
-
     <core_rt:set  var="addMode"  value="${empty project.id}" />
 </c:catch>
 
 <%--These variables are used as a trick to allow referencing enum values in EL expressions below--%>
 <c:set var="WRITE" value="<%=RequestedAction.WRITE%>"/>
 <c:set var="DELETE" value="<%=RequestedAction.DELETE%>"/>
+<c:set var="hasWritePermissions" value="${project.permissions[WRITE]}"/>
 
 <%@include file="/html/utils/includes/logError.jspf" %>
 <core_rt:if test="${empty attributeNotFoundException}">

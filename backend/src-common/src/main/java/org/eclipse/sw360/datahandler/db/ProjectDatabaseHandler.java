@@ -54,7 +54,7 @@ import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePerm
  * @author daniele.fognini@tngtech.com
  * @author alex.borodin@evosoft.com
  */
-public class ProjectDatabaseHandler {
+public class ProjectDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(ProjectDatabaseHandler.class);
     private static final int DELETION_SANITY_CHECK_THRESHOLD = 5;
@@ -182,6 +182,7 @@ public class ProjectDatabaseHandler {
             return RequestStatus.FAILED_SANITY_CHECK;
         } else if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
             copyImmutableFields(project,actual);
+            project.setAttachments( getAllAttachmentsToKeep(actual.getAttachments(), project.getAttachments()) );
             repository.update(project);
 
             //clean up attachments in database
