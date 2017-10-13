@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -12,7 +12,7 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <core_rt:if test="${release != null}">
-    <table class="table info_table" id="ReleaseDetailOverview" title="Release detail overview">
+    <table class="table info_table" id="ReleaseDetailOverview">
         <thead>
         <tr>
             <th colspan="2">Release Summary: <sw360:ReleaseName release="${release}" /></th>
@@ -61,9 +61,7 @@
         </tr>
         <tr>
             <td>Release Mainline State:</td>
-            <td><span title="Open: new, Mainline: recommended use, Specific: tolerated use, Phaseout: avoid use">
-                <sw360:DisplayEnum value="${release.mainlineState}"/>
-            </span></td>
+            <td><sw360:DisplayEnum value="${release.mainlineState}"/></td>
         </tr>
 
         <tr>
@@ -85,7 +83,7 @@
             <td><sw360:DisplayMap value="${release.externalIds}"/></td>
         </tr>
     </table>
-    <table class="table info_table" id="ReleaseRepository" title="Release Repository">
+    <table class="table info_table" id="ReleaseRepository">
         <core_rt:if test="${release.setRepository}">
             <thead>
             <tr>

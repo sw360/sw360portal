@@ -9,7 +9,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
   --%>
 
-<table class="table info_table" id="VulnerabilityOverview" title="Vulnerability overview">
+<table class="table info_table" id="VulnerabilityOverview">
     <colgroup>
         <col span="1" class="info_table_left_column">
         <col span="1" class="info_table_right_column">

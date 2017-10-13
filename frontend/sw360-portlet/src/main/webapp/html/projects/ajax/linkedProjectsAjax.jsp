@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -47,6 +47,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=ProjectRelationship.class%>" selected="${projectLink.relation}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ProjectRelationship.class%>"/>
         </td>
 
         <td class="deletor">

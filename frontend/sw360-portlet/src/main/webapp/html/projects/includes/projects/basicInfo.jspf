@@ -18,7 +18,7 @@
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
 
-<table class="table info_table" id="ProjectBasicInfo" title="Project General Information">
+<table class="table info_table" id="ProjectBasicInfo">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">General</th>
@@ -34,14 +34,11 @@
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
                  title="Name of the project"/>
         </td>
-
-
         <td width="33%">
             <label class="textlabel stackedLabel " for="proj_version">Version</label>
             <input id="proj_version" name="<portlet:namespace/><%=Project._Fields.VERSION%>" type="text"
                    placeholder="Enter Version" value="<sw360:out value="${project.version}"/>"/>
         </td>
-
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="proj_projectvisibility">Project visibility</label>
             <select class="toplabelledInput" id="proj_projectvisibility"
@@ -50,8 +47,8 @@
 
                 <sw360:DisplayEnumOptions type="<%=Visibility.class%>" selected="${project.visbility}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=Visibility.class%>"/>
         </td>
-
     </tr>
 
     <tr>
@@ -82,6 +79,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=ProjectType.class%>" selected="${project.projectType}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ProjectType.class%>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_tag">Tag</label>
@@ -112,7 +110,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="ProjectRolesInfo" title="Roles">
+<table class="table info_table" id="ProjectRolesInfo">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Roles</th>
@@ -182,7 +180,7 @@
 <%@include file="/html/utils/includes/mapEdit.jspf" %>
 
 
-<table class="table info_table" id="ProjectClearingInfo" title="Clearing">
+<table class="table info_table" id="ProjectClearingInfo">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Clearing</th>
@@ -197,6 +195,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=ProjectClearingState.class%>" selected="${project.clearingState}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ProjectClearingState.class%>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="clearingTeam">Clearing team</label>
@@ -226,7 +225,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="ProjectLifecycleInfo" title="Lifecycle">
+<table class="table info_table" id="ProjectLifecycleInfo">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Lifecycle</th>
@@ -239,6 +238,7 @@
                     style="min-width: 162px; min-height: 28px;">
                 <sw360:DisplayEnumOptions type="<%=ProjectState.class%>" selected="${project.state}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ProjectState.class%>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_systemTestStart">System test begin</label>

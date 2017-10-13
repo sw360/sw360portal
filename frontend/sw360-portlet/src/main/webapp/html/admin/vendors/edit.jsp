@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -58,7 +58,7 @@
 <div id="editField" class="content2">
 
     <form  id="vendorEditForm" name="vendorEditForm" action="<%=updateURL%>" method="post" >
-        <table class="table info_table" id="VendorEdit" title="Edit Vendor information">
+        <table class="table info_table" id="VendorEdit">
             <thead>
             <tr>
                 <th colspan="3" class="headlabel">Edit Vendor</th>

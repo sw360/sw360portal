@@ -9,7 +9,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
-<table class="table info_table" id="clearing" title="Clearing">
+<table class="table info_table" id="clearing">
     <thead>
     <tr>
         <th colspan="2">Clearing</th>
@@ -54,7 +54,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="lifecycle" title="Lifecycle">
+<table class="table info_table" id="lifecycle">
     <thead>
     <tr>
         <th colspan="2">Lifecycle</th>

@@ -91,7 +91,7 @@
                 </core_rt:when>
                 <core_rt:otherwise>
                         '<div title="<sw360:out value='${vulnerabilityVerificationTooltips.get(vulnerability.externalId).get(vulnerability.intReleaseId)}'/>">'+
-                        '<sw360:DisplayEnum value="${vulnerabilityVerifications.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/>'+
+                        "<sw360:DisplayEnum value="${vulnerabilityVerifications.get(vulnerability.externalId).get(vulnerability.intReleaseId)}"/>"+
                         '</div>',
                 </core_rt:otherwise>
                 </core_rt:choose>

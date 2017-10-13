@@ -15,7 +15,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Component" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.MainlineState" %>
 
-<table class="table info_table" id="ComponentBasicInfo" title="Release Basic Information">
+<table class="table info_table" id="ComponentBasicInfo">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Release Summary</th>
@@ -101,7 +101,7 @@
             <input id="clearing_state"
                     name="<portlet:namespace/><%=Release._Fields.CLEARING_STATE%>"
                     type="text" readonly
-                    value="<sw360:DisplayEnum value="${release.clearingState}"/>"/>
+                    value="<sw360:DisplayEnum value="${release.clearingState}" bare="true"/>"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="mainline_state">Release Mainline State</label>
@@ -111,6 +111,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=MainlineState.class%>" selected="${release.mainlineState}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=MainlineState.class%>"/>
         </td>
 
         <td width="33%">

@@ -227,6 +227,9 @@ public class PortalConstants {
     public static final String CLEARING_STATE_CLOSED__CSS     = "clearingStateClosed";
     public static final String CLEARING_STATE_UNKNOWN__CSS    = "clearingStateUnknown";
 
+    //! Specialized key for the tooltip CSS-class
+    public static final String TOOLTIP_CLASS__CSS = "sw360-tt";
+
     //! Serve resource keywords
 
     //! Actions

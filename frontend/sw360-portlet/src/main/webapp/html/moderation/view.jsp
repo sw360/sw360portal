@@ -147,12 +147,12 @@
             result.push({
                 "DT_RowId": "${moderation.id}",
                 "0": '<sw360:out value="${moderation.timestamp}"/>',
-                "1": '<sw360:DisplayEnum value="${moderation.componentType}"/>',
+                "1": "<sw360:DisplayEnum value="${moderation.componentType}"/>",
                 "2": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
                 "3": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
                 "4": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
                 "5": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
-                "6": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                "6": "<sw360:DisplayEnum value="${moderation.moderationState}"/>",
                 "7": ''
             });
         </core_rt:forEach>
@@ -165,12 +165,12 @@
             result.push({
                 "DT_RowId": "${moderation.id}",
                 "0": '<sw360:out value="${moderation.timestamp}"/>',
-                "1": '<sw360:DisplayEnum value="${moderation.componentType}"/>',
+                "1": "<sw360:DisplayEnum value="${moderation.componentType}"/>",
                 "2": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
                 "3": '<sw360:DisplayUserEmail email="${moderation.requestingUser}" bare="true"/>',
                 "4": '<sw360:out value="${moderation.requestingUserDepartment}"/>',
                 "5": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
-                "6": '<sw360:DisplayEnum value="${moderation.moderationState}"/>',
+                "6": "<sw360:DisplayEnum value="${moderation.moderationState}"/>",
                 <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
                 "7": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
                 </core_rt:if>

@@ -50,6 +50,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=ReleaseRelationship.class%>" selected="${releaseLink.releaseRelationship}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=ReleaseRelationship.class%>"/>
         </td>
         <td>
             <label class="textlabel stackedLabel" for="mainlineState">Project Mainline state</label>
@@ -59,6 +60,7 @@
 
                 <sw360:DisplayEnumOptions type="<%=MainlineState.class%>" selected="${releaseLink.mainlineState}"/>
             </select>
+            <sw360:DisplayEnumInfo type="<%=MainlineState.class%>"/>
         </td>
 
         <td class="deletor">

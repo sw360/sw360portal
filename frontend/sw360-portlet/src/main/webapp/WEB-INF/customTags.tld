@@ -119,6 +119,29 @@
             <type>org.apache.thrift.TEnum</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>bare</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>DisplayEnumInfo</name>
+        <tag-class>org.eclipse.sw360.portal.tags.DisplayEnumInfo</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>type</name>
+            <required>false</required>
+            <type>java.lang.Enum</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>options</name>
+            <required>false</required>
+            <type>java.util.Collection</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <name>DisplayStateBoxes</name>

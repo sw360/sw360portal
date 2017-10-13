@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -9,7 +9,7 @@
   ~ which accompanies this distribution, and is available at
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
-<table class="table info_table" id="licenseDetailOverview" title="License detail overview">
+<table class="table info_table" id="licenseDetailOverview">
   <thead><tr><th colspan="2">License Details: ${licenseDetail.fullname} (${licenseDetail.shortname})</th></tr></thead>
   <tr><td>Fullname:</td><td><sw360:out value="${licenseDetail.fullname}"/></td></tr>
   <tr><td>Shortname:</td><td><sw360:out value="${licenseDetail.shortname}"/></td></tr>

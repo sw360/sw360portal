@@ -9,7 +9,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 <core_rt:set var="cotsDetails" value="${release.cotsDetails}"/>
-<table class="table info_table" id="cotsDetailOverview" title="COTS Administrative Information">
+<table class="table info_table" id="cotsDetailOverview">
     <thead>
     <tr>
         <th colspan="2">Commercial Details Administration: <sw360:ReleaseName release="${release}" /></th>
@@ -33,7 +33,7 @@
         <td><sw360:out value="${cotsDetails.licenseClearingReportURL}"/></td>
     </tr>
 </table>
-<table class="table info_table" id="cotsOssInformation" title="COTS OSS Information">
+<table class="table info_table" id="cotsOssInformation">
     <thead>
     <tr>
         <th colspan="2">COTS OSS Information</th>

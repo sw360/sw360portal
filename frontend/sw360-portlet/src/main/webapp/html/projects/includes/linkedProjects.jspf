@@ -26,7 +26,7 @@
 <jsp:useBean id="projectList" type="java.util.List<org.eclipse.sw360.datahandler.thrift.projects.ProjectLink>"
              scope="request"/>
 
-<table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects" style="table-layout: auto"
+<table class="table info_table" id="LinkedProjectsInfo" style="table-layout: auto"
   data-load-node-url="<%=loadLinkedProjectsRowsURL%>"
   data-portlet-namespace="<portlet:namespace/>"
   data-parent-branch-key="<%=PortalConstants.PARENT_BRANCH_ID%>"

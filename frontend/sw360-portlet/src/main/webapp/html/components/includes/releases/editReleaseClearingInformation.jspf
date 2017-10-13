@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -13,7 +13,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ClearingInformation" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 
-<table class="table info_table" id="ReleaseClearingInformation" title="Release Clearing Information">
+<table class="table info_table" id="ReleaseClearingInformation">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Clearing Details</th>
@@ -188,7 +188,7 @@
         <td></td>
     </tr>
 </table>
-<table class="table info_table" id="RequestInformation" title="Request Information">
+<table class="table info_table" id="RequestInformation">
         <thead>
         <tr>
             <th colspan="3" class="headlabel">Request Information</th>
@@ -237,7 +237,7 @@
     </tr>
 </table>
 
-<table class="table info_table" id="SupplementalInformation" title="Supplemental Information">
+<table class="table info_table" id="SupplementalInformation">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">Supplemental Information</th>

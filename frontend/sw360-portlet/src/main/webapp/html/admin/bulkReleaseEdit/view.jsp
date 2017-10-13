@@ -37,7 +37,7 @@
 </div>
 
 <div id="content" class="content2">
-    <table class="table info_table" id="ComponentBasicInfo" title="Releases">
+    <table class="table info_table" id="ComponentBasicInfo">
         <thead>
         <tr>
             <th width="13%">Status</th>

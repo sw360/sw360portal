@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -17,7 +17,7 @@
     <form action="${editLicenseTodosURL}" method="post" id="FormTodosWhitelist" name="FormTodosWhitelist">
 </core_rt:if>
 
-<table class="table info_table db_table" id="licenseObligations" title="Todo overview">
+<table class="table info_table db_table" id="licenseObligations">
     <thead>
     <tr>
         <th colspan="8">Todos and Obligations Details:
@@ -73,7 +73,7 @@
     </tbody>
 </table>
 
-<table class="table info_table todosFromModerationRequest" id="moderationLicenseObligations" title="Todo overview" hidden>
+<table class="table info_table todosFromModerationRequest" id="moderationLicenseObligations" hidden>
     <thead>
     <tr>
         <th colspan="8">Todos and Obligations Details:

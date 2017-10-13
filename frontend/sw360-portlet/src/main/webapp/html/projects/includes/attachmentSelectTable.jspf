@@ -14,7 +14,7 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.GET_LICENCES_FROM_ATTACHMENT%>'/>
 </portlet:resourceURL>
 
-<table class="table info_table" id="LinkedProjectsInfo" title="Linked Releases And Projects"
+<table class="table info_table" id="LinkedProjectsInfo"
     data-table-mode="${projectLinkTableMode}"
     data-table-mode-license-info="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO%>"
     data-table-mode-source-bundle="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_SOURCE_BUNDLE%>"

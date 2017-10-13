@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -19,7 +19,7 @@
 </select>
 
 <core_rt:if test="${release != null}" >
-    <table class="table info_table" id="ReleaseDetailOverview" title="Release detail overview">
+    <table class="table info_table" id="ReleaseDetailOverview">
         <thead><tr><th colspan="2">Release Details: <sw360:ReleaseName release="${release}"/></th></tr></thead>
         <tr><td>CPE ID:</td><td><sw360:out value="${release.cpeid}"/></td></tr>
         <tr><td>Release date:</td><td><sw360:out value="${release.releaseDate}"/></td></tr>
