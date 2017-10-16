@@ -1,0 +1,14 @@
+= sw360 REST API
+Kai Tödter; Version {project-version}
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+
+sw360 is the upcoming tool for our OSS management and clearing activities.
+Here you find information about the REST API for sw360.
+The REST API is in early stage, link:mailto:kai.toedter@siemens.com[feedback] is very welcome.
+
+* link:https://s3.amazonaws.com/sw360restdoc/api-guide.html[API Guide]
+* link:https://github.com/sw360/sw360rest[Git Repository]
+* link:http://35.157.20.116:8091/browser.html#/api[Interactive API Browser]
+
