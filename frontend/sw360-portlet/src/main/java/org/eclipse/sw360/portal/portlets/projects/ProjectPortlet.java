@@ -26,14 +26,13 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.model.Organization;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.common.SW360Constants;
-import org.eclipse.sw360.datahandler.common.SW360Utils;
-import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
+import org.apache.thrift.TSerializer;
+import org.apache.thrift.protocol.TSimpleJSONProtocol;
+import org.eclipse.sw360.datahandler.common.*;
+import org.eclipse.sw360.datahandler.common.WrappedException.WrappedTException;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
-import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.attachments.*;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStatusData;
@@ -62,6 +61,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -100,7 +100,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project._Fields.NAME,
             Project._Fields.STATE,
             Project._Fields.TAG);
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final TSerializer THRIFT_JSON_SERIALIZER = new TSerializer(new TSimpleJSONProtocol.Factory());
 
     public static final String LICENSE_STORE_KEY_PREFIX = "license-store-";
 
@@ -153,6 +155,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             serveGetClearingStateSummaries(request, response);
         } else if (PortalConstants.GET_LICENCES_FROM_ATTACHMENT.equals(action)) {
             serveAttachmentFileLicenses(request, response);
+        } else if (PortalConstants.LOAD_LICENSE_INFO_ATTACHMENT_USAGE.equals(action)) {
+            serveLicenseInfoAttachmentUsage(request, response);
         } else if (isGenericAction(action)) {
             dealWithGenericAction(request, response, action);
         }
@@ -176,6 +180,15 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project project = projectClient.getProjectById(projectId, user);
             LicenseInfoFile licenseInfoFile = licenseInfoClient.getLicenseInfoFile(project, user, generatorClassName,
                     selectedReleaseAndAttachmentIds, excludedLicensesPerAttachmentId);
+
+            if (PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE)) {
+                List<AttachmentUsage> attachmentUsages = ProjectPortletUtils.makeAttachmentUsages(project, selectedReleaseAndAttachmentIds,
+                        excludedLicensesPerAttachmentId);
+                AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
+                attachmentClient.replaceAttachmentUsages(Source.projectId(project.getId()), attachmentUsages);
+            } else {
+                log.info("LicenseInfo usage is not stored since the user has no write permissions for this project.");
+            }
 
             OutputFormatInfo outputFormatInfo = licenseInfoFile.getOutputFormatInfo();
             String filename = String.format("LicenseInfo-%s-%s.%s", project.getName(), SW360Utils.getCreatedOn(),
@@ -564,6 +577,27 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         }
     }
 
+    private void serveLicenseInfoAttachmentUsage(ResourceRequest request, ResourceResponse response) throws IOException {
+        final String projectId = request.getParameter(PortalConstants.PROJECT_ID);
+        final AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
+
+        try {
+            List<AttachmentUsage> usages = attachmentClient.getUsedAttachments(Source.projectId(projectId),
+                    UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet())));
+            String serializedUsages = usages.stream()
+                    .map(usage -> WrappedException.wrapTException(() -> THRIFT_JSON_SERIALIZER.toString(usage)))
+                    .collect(Collectors.joining(",", "[", "]"));
+
+            writeJSON(request, response, serializedUsages);
+        } catch (WrappedTException exception) {
+            log.error("cannot retrieve information about used license info files and exclusions.", exception.getCause());
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+        } catch (TException exception) {
+            log.error("cannot retrieve information about used license info files and exclusions.", exception);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+        }
+    }
+
     @Override
     public void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         String pageName = request.getParameter(PAGENAME);
@@ -682,7 +716,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 project = getWithFilledClearingStateSummary(project, user);
                 request.setAttribute(PROJECT, project);
                 setAttachmentsInRequest(request, project.getAttachments());
-                putLinkedProjectsInRequest(request, project, user);
+                List<ProjectLink> mappedProjectLinks = createLinkedProjects(project, user);
+                request.setAttribute(PROJECT_LIST, mappedProjectLinks);
                 putDirectlyLinkedReleasesInRequest(request, project);
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
@@ -720,9 +755,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 List<OutputFormatInfo> outputFormats = licenseInfoClient.getPossibleOutputFormats();
                 request.setAttribute(PortalConstants.LICENSE_INFO_OUTPUT_FORMATS, outputFormats);
 
-                putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES), true,
+                List<ProjectLink> mappedProjectLinks = createLinkedProjects(project,
+                        filterAndSortAttachments(SW360Constants.LICENSE_INFO_ATTACHMENT_TYPES), true,
                         user);
+                request.setAttribute(PROJECT_LIST, mappedProjectLinks);
                 addProjectBreadcrumb(request, response, project);
+
+                AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
+                Map<Source, Set<String>> containedAttachments = ProjectPortletUtils
+                        .extractContainedAttachments(mappedProjectLinks);
+                Map<Map<Source, String>, Integer> attachmentUsages = attachmentClient.getAttachmentUsageCount(containedAttachments,
+                        UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet())));
+                Map<String, Integer> countMap = attachmentUsages.entrySet().stream().collect(Collectors.toMap(entry -> {
+                    Entry<Source, String> key = entry.getKey().entrySet().iterator().next();
+                    return key.getKey().getFieldValue() + "_" + key.getValue();
+                }, entry -> entry.getValue()));
+                request.setAttribute(ATTACHMENT_USAGE_COUNT_MAP, countMap);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
@@ -745,7 +793,9 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 request.setAttribute(PROJECT, project);
                 request.setAttribute(DOCUMENT_ID, id);
 
-                putLinkedProjectsInRequest(request, project, filterAndSortAttachments(SW360Constants.SOURCE_CODE_ATTACHMENT_TYPES), true, user);
+                List<ProjectLink> mappedProjectLinks = createLinkedProjects(project,
+                        filterAndSortAttachments(SW360Constants.SOURCE_CODE_ATTACHMENT_TYPES), true, user);
+                request.setAttribute(PROJECT_LIST, mappedProjectLinks);
                 addProjectBreadcrumb(request, response, project);
             } catch (TException e) {
                 log.error("Error fetching project from backend!", e);
@@ -1004,7 +1054,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 }
 
             }
-
         } catch (TException e) {
             log.error("Error updating project in backend!", e);
             setSW360SessionError(request, ErrorMessages.DEFAULT_ERROR_MESSAGE);

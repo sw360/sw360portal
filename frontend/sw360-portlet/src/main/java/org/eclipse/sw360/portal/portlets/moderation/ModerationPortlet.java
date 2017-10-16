@@ -31,6 +31,7 @@ import org.eclipse.sw360.datahandler.thrift.licenses.Obligation;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
@@ -43,6 +44,7 @@ import org.eclipse.sw360.portal.users.UserUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.portlet.*;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -508,7 +510,8 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     private void prepareProject(RenderRequest request, User user, Project actual_project) {
         try {
             ProjectService.Iface client = thriftClients.makeProjectClient();
-            putLinkedProjectsInRequest(request, actual_project, user);
+            List<ProjectLink> mappedProjectLinks = createLinkedProjects(actual_project, user);
+            request.setAttribute(PROJECT_LIST, mappedProjectLinks);
             putDirectlyLinkedReleasesInRequest(request, actual_project);
             Set<Project> usingProjects = client.searchLinkingProjects(actual_project.getId(), user);
             request.setAttribute(USING_PROJECTS, usingProjects);

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -12,6 +12,7 @@
 package org.eclipse.sw360.datahandler.couchdb;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import org.eclipse.sw360.testthrift.TestObject;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
@@ -27,7 +28,10 @@ import java.util.Collections;
 
 import static org.eclipse.sw360.datahandler.couchdb.DatabaseTestProperties.COUCH_DB_DATABASE;
 import static org.eclipse.sw360.datahandler.couchdb.DatabaseTestProperties.COUCH_DB_URL;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DatabaseConnectorTest {
 
@@ -46,7 +50,7 @@ public class DatabaseConnectorTest {
         object.setName("Test");
         object.setText("This is some nice test text.");
         // Initialize the mapper factory
-        factory = new MapperFactory(ImmutableList.<Class>of(TestObject.class), Collections.<Class>emptyList());
+        factory = new MapperFactory(ImmutableList.<Class<?>>of(TestObject.class), Collections.<Class<?>>emptyList(), Maps.newHashMap());
         // Default connector for testing
         HttpClient httpClient = new StdHttpClient.Builder().url(COUCH_DB_URL).build();
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);

@@ -24,7 +24,11 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
 
-import javax.portlet.*;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -91,17 +95,18 @@ public abstract class LinkedReleasesAndProjectsAwarePortlet extends AttachmentAw
         request.setAttribute(RELEASE_LIST, linkedReleases);
     }
 
-    protected void putLinkedProjectsInRequest(PortletRequest request, Project project, User user) {
-        putLinkedProjectsInRequest(request, project, Function.identity(), user);
+    protected List<ProjectLink> createLinkedProjects(Project project, User user) {
+        return createLinkedProjects(project, Function.identity(), user);
     }
 
-    protected void putLinkedProjectsInRequest(PortletRequest request, Project project, Function<ProjectLink, ProjectLink> projectLinkMapper, User user) {
-        putLinkedProjectsInRequest(request, project, projectLinkMapper, false, user);
+    protected List<ProjectLink> createLinkedProjects(Project project, Function<ProjectLink, ProjectLink> projectLinkMapper, User user) {
+        return createLinkedProjects(project, projectLinkMapper, false, user);
     }
-    protected void putLinkedProjectsInRequest(PortletRequest request, Project project, Function<ProjectLink, ProjectLink> projectLinkMapper, boolean deep, User user) {
+
+    protected List<ProjectLink> createLinkedProjects(Project project, Function<ProjectLink, ProjectLink> projectLinkMapper, boolean deep,
+            User user) {
         final Collection<ProjectLink> linkedProjects = SW360Utils.getLinkedProjectsAsFlatList(project, deep, thriftClients, log, user);
-        List<ProjectLink> mappedProjectLinks = linkedProjects.stream().map(projectLinkMapper).collect(Collectors.toList());
-        request.setAttribute(PROJECT_LIST, mappedProjectLinks);
+        return linkedProjects.stream().map(projectLinkMapper).collect(Collectors.toList());
     }
 
     protected void putDirectlyLinkedProjectsInRequest(PortletRequest request, Project project, User user) {
@@ -136,14 +141,16 @@ public abstract class LinkedReleasesAndProjectsAwarePortlet extends AttachmentAw
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 Project project = client.getProjectById(id, user);
-                putLinkedProjectsInRequest(request, project, user);
+                List<ProjectLink> mappedProjectLinks = createLinkedProjects(project, user);
+                request.setAttribute(PROJECT_LIST, mappedProjectLinks);
 
             } catch (TException e) {
                 log.error("Error getting projects!", e);
                 throw new PortletException("cannot get projects", e);
             }
         } else {
-            putLinkedProjectsInRequest(request, new Project(), user);
+            List<ProjectLink> mappedProjectLinks = createLinkedProjects(new Project(), user);
+            request.setAttribute(PROJECT_LIST, mappedProjectLinks);
         }
 
         request.setAttribute(PortalConstants.PARENT_SCOPE_GROUP_ID, request.getParameter(PortalConstants.PARENT_SCOPE_GROUP_ID));

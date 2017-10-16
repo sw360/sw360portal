@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -14,13 +14,17 @@ package org.eclipse.sw360.datahandler.couchdb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import org.eclipse.sw360.testthrift.TestObject;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author cedric.bodet@tngtech.com
@@ -37,7 +41,8 @@ public class MapperFactoryTest {
     @Before
     public void setUp() throws Exception {
         // Prepare mapper
-        MapperFactory factory = new MapperFactory(ImmutableList.<Class>of(TestObject.class), Collections.<Class>emptyList());
+        MapperFactory factory = new MapperFactory(ImmutableList.<Class<?>>of(TestObject.class), Collections.<Class<?>>emptyList(),
+                Maps.newHashMap());
         mapper = factory.createObjectMapper();
         // Prepare object
         object = new TestObject();

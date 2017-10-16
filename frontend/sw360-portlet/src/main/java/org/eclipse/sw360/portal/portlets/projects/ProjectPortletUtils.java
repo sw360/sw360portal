@@ -11,12 +11,18 @@
 package org.eclipse.sw360.portal.portlets.projects;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.Source;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentUsage;
+import org.eclipse.sw360.datahandler.thrift.attachments.LicenseInfoUsage;
+import org.eclipse.sw360.datahandler.thrift.attachments.UsageData;
 import org.eclipse.sw360.datahandler.thrift.components.ReleaseLink;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
@@ -231,5 +237,53 @@ public class ProjectPortletUtils {
         }
 
         return excludedLicenses;
+    }
+
+    public static List<AttachmentUsage> makeAttachmentUsages(Project project, Map<String, Set<String>> selectedReleaseAndAttachmentIds,
+            Map<String, Set<LicenseNameWithText>> excludedLicensesPerAttachmentId) {
+        List<AttachmentUsage> attachmentUsages = Lists.newArrayList();
+
+        for(String releaseId : selectedReleaseAndAttachmentIds.keySet()) {
+            for(String attachmentContentId : selectedReleaseAndAttachmentIds.get(releaseId)) {
+                AttachmentUsage usage = new AttachmentUsage();
+                usage.setUsedBy(Source.projectId(project.getId()));
+                usage.setOwner(Source.releaseId(releaseId));
+                usage.setAttachmentContentId(attachmentContentId);
+
+                Set<String> licenseIds = CommonUtils.nullToEmptySet(excludedLicensesPerAttachmentId.get(attachmentContentId)).stream()
+                        .filter(licenseNameWithText -> licenseNameWithText.isSetLicenseName())
+                        .map(licenseNameWithText -> licenseNameWithText.getLicenseName()).collect(Collectors.toSet());
+                usage.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(licenseIds)));
+
+                attachmentUsages.add(usage);
+            }
+        }
+
+        return attachmentUsages;
+    }
+
+    /**
+     * Walks through a list of project links and extracts all release attachments
+     * with their owner. The returned map is a mapping from a release to its
+     * attachment content ids.
+     *
+     * @param projectLinks
+     *            list of project links to walk through
+     *
+     * @return map of releases and their attachment content ids
+     */
+    public static Map<Source, Set<String>> extractContainedAttachments(Collection<ProjectLink> projectLinks) {
+        Map<Source, Set<String>> attachments = Maps.newHashMap();
+
+        for (ProjectLink projectLink : projectLinks) {
+            for (ReleaseLink releaseLink : projectLink.linkedReleases) {
+                Set<String> attachmentIds = attachments.getOrDefault(Source.releaseId(releaseLink.getId()), Sets.newHashSet());
+                attachmentIds
+                        .addAll(releaseLink.getAttachments().stream().map(a -> a.getAttachmentContentId()).collect(Collectors.toList()));
+                attachments.put(Source.releaseId(releaseLink.getId()), attachmentIds);
+            }
+        }
+
+        return attachments;
     }
 }
