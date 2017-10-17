@@ -652,8 +652,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 jsonGenerator.writeNumberField("releases", component.getReleaseIdsSize());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                log.error("An error occurred while generating wizard response", e);
             }
         });
         jsonGenerator.writeEndArray();
@@ -680,7 +679,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private void generateComponentMergeWizardStep2Response(ActionRequest request, JsonGenerator jsonGenerator)
-            throws JsonGenerationException, IOException, TException {
+            throws IOException, TException {
         ObjectMapper om = new ObjectMapper();
         Component componentSelection = om.readValue((String) request.getParameter("componentSelection"),
                 Component.class);
@@ -698,7 +697,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     }
 
     private void generateComponentMergeWizardStep3Response(ActionRequest request, JsonGenerator jsonGenerator)
-            throws JsonGenerationException, IOException, TException {
+            throws IOException, TException {
         ObjectMapper om = new ObjectMapper();
         ComponentService.Iface cClient = thriftClients.makeComponentClient();
 
