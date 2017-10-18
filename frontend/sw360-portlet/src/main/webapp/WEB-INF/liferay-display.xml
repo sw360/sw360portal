@@ -3,10 +3,10 @@
   ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
-  ~ Copying and distribution of this file, with or without modification,
-  ~ are permitted in any medium without royalty provided the copyright
-  ~ notice and this notice are preserved.  This file is offered as-is,
-  ~ without any warranty.
+  ~ All rights reserved. This configuration file is provided to you under the
+  ~ terms and conditions of the Eclipse Distribution License v1.0 which
+  ~ accompanies this distribution, and is available at
+  ~ http://www.eclipse.org/org/documents/edl-v10.php
   -->
 <!DOCTYPE display PUBLIC "-//Liferay//DTD Display 6.2.0//EN" "http://www.liferay.com/dtd/liferay-display_6_2_0.dtd">
 

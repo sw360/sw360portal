@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright Siemens AG, 2016.
+# Copyright Siemens AG, 2016-2017.
 # Copyright Bosch Software Innovations GmbH, 2017.
 # Part of the SW360 Portal Project.
 #
@@ -39,5 +39,9 @@ matrix:
       before_install:
     - env: MVN_ARGS="dependency:analyze -DfailOnWarning"
       install: mvn package -DskipTests
+    - before_install: true
+      install: true
+      script: .travis/testForLicenseHeaders.sh
+      env: DESC="test for license headers"
   allow_failures:
     - env: MVN_ARGS="dependency:analyze -DfailOnWarning"
