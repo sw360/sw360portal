@@ -32,7 +32,7 @@ while read file ; do
     echo "$(tput bold)ERROR: neither epl-1.0 nor edl-1.0 are specified in $file$(tput sgr0)"
     failure=true
 done <<< "$(git ls-files \
-    | grep -Ev '\.(csv|rdf|ent|dtd|lar|png|gif|psd|ico|jpg|docx|gitignore)' \
+    | grep -Ev '\.(csv|rdf|ent|dtd|lar|png|gif|psd|ico|jpg|docx|gitignore|cert|jks)' \
     | grep -Ev '(LICENSE|NOTICE|README)' \
     | grep -v 'id_rsa')"
 

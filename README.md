@@ -13,12 +13,13 @@ maintain license information.
 
 ### Introduction
 
-This is a maven-based software project. It is comprised of one backend (services) part
-and one frontent (portal) part:
+It is comprised of one frontend (portal) part, backend (services) part and additionally a REST API:
 
-* Backend: Tomcat-based thrift services for being called by different applications.
 * Frontend: Liferay-(Tomcat-)based portal application using the Alloy UI framework.
+* Backend: Tomcat-based thrift services for being called by different applications.
 * Database: we store software components and metadata about them in couchdb.
+* Rest: this REST API provides access to project resources for external clients.
+        Please note the state of the REST API is experimental and its may exposed by breaking changes.
 
 The reference platform is the Ubuntu server 14.04 (which is a LTS version). However, it
 runs well on other OSes (see below).
@@ -32,6 +33,7 @@ This is a multi module maven file. please consider that we have the following mo
 * libraries: for general stuff that is reused among the above, for example, couchdb access.
 * importers: for provisioning tasks.
 * scripts: for deploying either inside the vagrant or on your development machine.
+* rest: for the REST API which contains an authorization and resource server.
 
 ### Required software
 
@@ -75,6 +77,7 @@ Apart from the vagrant way, the software can be deployed using the provided scri
 Most commands are using maven which is a dependency to build SW360. Additionally
 there is rake-support which wraps parts of maven and adds docker support for
 compilation as well as fpm support for building **.deb** and **.rpm** packages.
+
 #### Compiling, testing and deploying
 
 Actually, there is a hierarchy of maven files, in general

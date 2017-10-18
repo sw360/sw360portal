@@ -1,0 +1,146 @@
+//
+// Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+//
+// All rights reserved. This configuration file is provided to you under the
+// terms and conditions of the Eclipse Distribution License v1.0 which
+// accompanies this distribution, and is available at
+// http://www.eclipse.org/org/documents/edl-v10.php
+//
+
+= sw360 REST API Guide
+Kai Tödter; Version {project-version}
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:numbered:
+
+[[overview]]
+== Overview
+
+[[overview-introduction]]
+=== Introduction
+This guide provides you with a detailed description how to use the RESTful sw360 services.
+
+[[overview-http-verbs]]
+=== HTTP verbs
+
+The sw360 REST API tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PUT`
+| Used to update an existing resource (complete update)
+
+| `PATCH`
+| Used to update an existing resource (partial updates)
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview-http-status-codes]]
+=== HTTP status codes
+
+The sw360 REST API tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully. The resource's URI is available from the response's
+`Location` header
+
+| `204 No Content`
+| An update to an existing resource has been applied successfully
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `404 Not Found`
+| The requested resource did not exist
+
+| `409 Conflict`
+| A conflict can occur, when a resource shall be created and a resource with the same unique attribute (e.g. name) already exists.
+
+| `500 Internal Server Error`
+| An internal server error occurred. Information about the cause can be found in the response body.
+|===
+
+[[overview-headers]]
+=== Headers
+
+Every response has the following header(s):
+
+include::{snippets}/should_document_headers/response-headers.adoc[]
+
+[[overview-errors]]
+=== Errors
+
+Whenever an error response (status code >== 400) is returned, the body will contain a JSON object
+that describes the problem. The error object has the following structure:
+
+include::{snippets}/should_document_errors/response-fields.adoc[]
+
+For example, a request that attempts to get a non-existent project will produce a
+`500 Internal Server Error` response:
+
+include::{snippets}/should_document_errors/http-response.adoc[]
+
+[[overview-hypermedia]]
+=== Hypermedia
+
+The sw360 REST API's RESTful web service uses hypermedia and resources include links to other resources in their
+responses. Responses are in http://stateless.co/hal_specification.html[Hypertext Application Language (HAL)]
+format. Links can be found beneath the `_links` key. Users of the API should
+not create URIs themselves, instead they should use the above-described links to navigate
+
+[[resources]]
+== Resources
+
+[[resources-index]]
+=== Index
+
+The index provides the entry point into the service.
+
+[[resources-index-access]]
+==== Accessing the index
+
+A `GET` request is used to access the index
+
+===== Response structure
+
+include::{snippets}/should_document_index/response-fields.adoc[]
+
+===== Example response
+
+include::{snippets}/should_document_index/http-response.adoc[]
+
+[[resources-index-links]]
+===== Links
+
+include::{snippets}/should_document_index/links.adoc[]
+
+include::users.adoc[]
+include::projects.adoc[]
+include::components.adoc[]
+include::releases.adoc[]
+include::attachments.adoc[]
+include::vendors.adoc[]
+include::licenses.adoc[]
+
+
