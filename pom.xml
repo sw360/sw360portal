@@ -78,6 +78,7 @@
         <module>libraries</module>
         <module>backend</module>
         <module>frontend</module>
+        <module>rest</module>
     </modules>
 
     <dependencyManagement>

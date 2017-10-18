@@ -1,0 +1,29 @@
+#
+# Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved. This file is offered as-is,
+# without any warranty.
+#
+
+server:
+  port: 8090
+
+sw360:
+  sw360-portal-server-url: ${SW360_PORTAL_SERVER_URL:http://127.0.0.1:8080}
+  sw360-liferay-company-id: ${SW360_LIFERAY_COMPANY_ID:20155}
+
+# currently not used, hardcoded in Sw360AuthorizationServerConfiguration
+security:
+  oauth2:
+    resource:
+      id: sw360-REST-API
+    client:
+      client-id: trusted-sw360-client
+      client-secret: sw360-secret
+      resource-ids: sw360-REST-API
+      authorized-grant-types: client_credentials password
+      authorities: ROLE_TRUSTED_SW360_CLIENT
+      access-token-validity-seconds: 360
+      scope: sw360.read sw360.write

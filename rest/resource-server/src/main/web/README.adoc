@@ -1,0 +1,7 @@
+This is a modified version of the original HAL browser from Mike Kelly,
+see https://github.com/mikekelly/hal-browser
+
+This HAL browser contains an OAuth2 bearer token (valid until 2018-01-01)
+for the sw360 REST test setup.
+
+It is only deployed in the docker container running in the docker-sandbox.

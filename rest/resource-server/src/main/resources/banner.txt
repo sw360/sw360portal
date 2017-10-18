@@ -1,0 +1,7 @@
+${AnsiColor.BRIGHT_BLUE}                ${AnsiColor.BRIGHT_GREEN}________   _______________
+${AnsiColor.BRIGHT_BLUE}  ________  _  _${AnsiColor.BRIGHT_GREEN}\_____  \ /  _____/\   _  \
+${AnsiColor.BRIGHT_BLUE} /  ___/\ \/ \/ / ${AnsiColor.BRIGHT_GREEN}_(__  </   __  \ /  /_\  \
+${AnsiColor.BRIGHT_BLUE} \___ \  \     / ${AnsiColor.BRIGHT_GREEN}/       \  |__\  \\  \_/   \
+${AnsiColor.BRIGHT_BLUE}/____  >  \/\_/ ${AnsiColor.BRIGHT_GREEN}/______  /\_____  / \_____  /
+${AnsiColor.BRIGHT_BLUE}     \/                ${AnsiColor.BRIGHT_GREEN}\/       \/        \/
+${AnsiColor.BRIGHT_RED}:: sw360 Resource Server :: Running Spring Boot ${spring-boot.version} ::${AnsiStyle.NORMAL}
