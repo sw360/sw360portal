@@ -28,9 +28,9 @@ public class TextGenerator extends OutputGenerator<String> {
     }
 
     @Override
-    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
+    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception {
         try {
-            return renderTemplateWithDefaultValues(projectLicenseInfoResults, LICENSE_INFO_TEMPLATE_FILE);
+            return renderTemplateWithDefaultValues(projectLicenseInfoResults, LICENSE_INFO_TEMPLATE_FILE, licenseInfoHeaderText);
         } catch (Exception e) {
             LOGGER.error("Could not generate text licenseinfo file", e);
             return "License information could not be generated.\nAn exception occurred: " + e.toString();

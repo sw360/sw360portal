@@ -25,6 +25,7 @@ import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
 import org.eclipse.sw360.datahandler.thrift.licenses.Obligation;
@@ -486,6 +487,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             actual_project = client.fillClearingStateSummary(Collections.singletonList(actual_project), user).get(0);
             is_used = client.projectIsUsed(actual_project.getId());
             request.setAttribute(PortalConstants.ACTUAL_PROJECT, actual_project);
+            request.setAttribute(PortalConstants.DEFAULT_LICENSE_INFO_HEADER_TEXT, getDefaultLicenseInfoHeaderText());
         } catch (TException e) {
             log.error("Could not retrieve project", e);
         }
@@ -581,5 +583,16 @@ public class ModerationPortlet extends FossologyAwarePortlet {
     @Override
     protected Set<Attachment> getAttachments(String documentId, String documentType, User user) {
         throw unsupportedActionException();
+    }
+
+    private String getDefaultLicenseInfoHeaderText() {
+        final LicenseInfoService.Iface licenseInfoClient = thriftClients.makeLicenseInfoClient();
+        try {
+            String defaultLicenseInfoHeaderText = licenseInfoClient.getDefaultLicenseInfoHeaderText();
+            return defaultLicenseInfoHeaderText;
+        } catch (TException e) {
+            log.error("Could not load default license info header text from backend.", e);
+            return "";
+        }
     }
 }

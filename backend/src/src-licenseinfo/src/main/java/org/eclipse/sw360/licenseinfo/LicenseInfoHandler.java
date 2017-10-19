@@ -16,6 +16,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.attachments.db.AttachmentDatabaseHandler;
@@ -35,6 +36,7 @@ import org.eclipse.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
 import org.eclipse.sw360.licenseinfo.parsers.*;
 import org.eclipse.sw360.licenseinfo.util.LicenseNameWithTextUtils;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -51,6 +53,8 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     private static final Logger LOGGER = Logger.getLogger(LicenseInfoHandler.class);
     private static final int CACHE_TIMEOUT_MINUTES = 15;
     private static final int CACHE_MAX_ITEMS = 100;
+    private static final String DEFAULT_LICENSE_INFO_HEADER_FILE="/DefaultLicenseInfoHeader.txt";
+    private static final String DEFAULT_LICENSE_INFO_TEXT = loadDefaultLicenseInfoHeaderText();
 
     protected List<LicenseInfoParser> parsers;
     protected List<OutputGenerator<?>> outputGenerators;
@@ -104,7 +108,8 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         LicenseInfoFile licenseInfoFile = new LicenseInfoFile();
 
         licenseInfoFile.setOutputFormatInfo(generator.getOutputFormatInfo());
-        Object output = generator.generateOutputFile(projectLicenseInfoResults, project.getName());
+        String licenseInfoHeaderText = (project.isSetLicenseInfoHeaderText()) ? project.getLicenseInfoHeaderText() : getDefaultLicenseInfoHeaderText();
+        Object output = generator.generateOutputFile(projectLicenseInfoResults, project.getName(), licenseInfoHeaderText);
         if (output instanceof byte[]) {
             licenseInfoFile.setGeneratedOutput((byte[]) output);
         } else if (output instanceof String) {
@@ -170,6 +175,11 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         } catch (WrappedTException exception) {
             throw exception.getCause();
         }
+    }
+
+    @Override
+    public String getDefaultLicenseInfoHeaderText() {
+        return DEFAULT_LICENSE_INFO_TEXT;
     }
 
     protected Map<Release, Set<String>> mapKeysToReleases(Map<String, Set<String>> releaseIdsToAttachmentIds, User user) throws TException {
@@ -256,5 +266,11 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         assertNotNull(generatorClassname);
         return outputGenerators.stream().filter(outputGenerator -> generatorClassname.equals(outputGenerator.getClass().getName()))
                 .findFirst().orElseThrow(() -> new TException("Unknown output generator: " + generatorClassname));
+    }
+
+    private static String loadDefaultLicenseInfoHeaderText(){
+            String defaultLicenseInfoHeader = new String( CommonUtils.loadResource(LicenseInfoHandler.class, DEFAULT_LICENSE_INFO_HEADER_FILE).orElse(new byte[0]) );
+            defaultLicenseInfoHeader = defaultLicenseInfoHeader.replaceAll("(?m)^#.*\\n", "");  // ignore comments in template file
+            return defaultLicenseInfoHeader;
     }
 }

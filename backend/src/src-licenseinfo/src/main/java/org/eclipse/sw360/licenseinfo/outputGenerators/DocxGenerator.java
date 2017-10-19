@@ -30,11 +30,10 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
     }
 
     @Override
-    public byte[] generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws SW360Exception {
+    public byte[] generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception {
         try {
             XWPFDocument document = new XWPFDocument(this.getClass().getResourceAsStream("/templateFrontpageContent.docx"));
-
-            fillDocument(document, projectLicenseInfoResults, projectName);
+            fillDocument(document, projectLicenseInfoResults, projectName, licenseInfoHeaderText);
 
             ByteArrayOutputStream docxOutputStream = new ByteArrayOutputStream();
             document.write(docxOutputStream);
@@ -45,9 +44,10 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
         }
     }
 
-    private void fillDocument(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName) throws IOException {
+    private void fillDocument(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws IOException {
 
         cleanUpTemplate(document);
+        setHeaderTextInDocument(document, licenseInfoHeaderText);
         setProjectNameInDocument(document, projectName);
 
         String[] tableHeaders = {"Name of OSS Component",

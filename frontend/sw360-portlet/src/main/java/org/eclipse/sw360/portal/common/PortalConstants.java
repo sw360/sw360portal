@@ -142,6 +142,9 @@ public class PortalConstants {
     public static final String PAGENAME_LICENSE_INFO = "generateLicenseInfo";
     public static final String PAGENAME_SOURCE_CODE_BUNDLE = "generateSourceCodeBundle";
     public static final String PROJECT_ROLES;
+    public static final String DEFAULT_LICENSE_INFO_HEADER_TEXT = "defaultLicenseInfoHeaderText";
+    public static final String DEFAULT_LICENSE_INFO_HEADER_TEXT_FOR_DISPALY = "--default text--";
+
     public static final String FOSSOLOGY_FINGER_PRINTS = "fingerPrints";
     public static final String USER_LIST = "userList";
     public static final String MISSING_USER_LIST = "missingUserList";

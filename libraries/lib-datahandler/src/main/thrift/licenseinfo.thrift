@@ -89,4 +89,9 @@ service LicenseInfoService {
      */
     OutputFormatInfo getOutputFormatInfoForGeneratorClass(1: string generatorClassName);
 
+    /**
+     * returns the default license info header text
+     */
+    string getDefaultLicenseInfoHeaderText();
+
 }

@@ -4,10 +4,7 @@
 ## http://www.eclipse.org/org/documents/edl-v10.php
 Open Source Software
 ====================
-This product or device contains, among other things, Open Source Software (see below) components developed by third parties and licensed under an Open Source Software license. These Open Source Software components are protected by copyright. Your rights to use these Open Source Software components are governed by the applicable Open Source Software license conditions. You must comply with these license conditions in order to be entitled to use the Open Source Software as foreseen in the relevant license.
-
-You are permitted to modify proprietary components and to engage in reverse engineering for purposes of debugging such modifications, to the extent such components are linked to libraries licensed under the GNU Lesser General Public License. Your rights to modify proprietary components originating from other parties are governed by the respective third party´s license conditions.
-
+$licenseInfoHeader
 
 Open Source Software Contained in this Product/Device:
 ======================================================
@@ -98,7 +95,7 @@ Open Source Software Licenses
 ##
 #set($licenseText = "<no license text available>")
 #if($license.licenseText)
-#set($licenseText = $esc.xml($license.licenseText))
+#set($licenseText = $license.licenseText)
 #end## if($license.licenseText)
 ##
 #set($licenseId = $licenseNameWithTextToReferenceId.get($license))
