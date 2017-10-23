@@ -12,7 +12,6 @@
 package org.eclipse.sw360.datahandler.thrift;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -39,6 +38,7 @@ import org.ektorp.util.Documents;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Utility class to supplement the Thrift generated code
@@ -81,6 +81,23 @@ public class ThriftUtils {
             AttachmentContent.class, AttachmentContentWrapper.class
     );
 
+    public static final ImmutableList<Component._Fields> IMMUTABLE_OF_COMPONENT = ImmutableList.of(
+            Component._Fields.CREATED_BY,
+            Component._Fields.CREATED_ON);
+
+    public static final ImmutableList<Release._Fields> IMMUTABLE_OF_RELEASE = ImmutableList.of(
+            Release._Fields.CREATED_BY,
+            Release._Fields.CREATED_ON,
+            Release._Fields.FOSSOLOGY_ID,
+            Release._Fields.ATTACHMENT_IN_FOSSOLOGY,
+            Release._Fields.CLEARING_TEAM_TO_FOSSOLOGY_STATUS);
+
+
+    public static final ImmutableList<Release._Fields> IMMUTABLE_OF_RELEASE_FOR_FOSSOLOGY = ImmutableList.of(
+            Release._Fields.CREATED_BY,
+            Release._Fields.CREATED_ON);
+
+
     private ThriftUtils() {
         // Utility class with only static functions
     }
@@ -116,17 +133,8 @@ public class ThriftUtils {
         }
     }
 
-    public static Function<Object, String> extractId() {
-        return new Function<Object, String>() {
-            @Override
-            public String apply(Object input) {
-                return Documents.getId(input);
-            }
-        };
-    }
-
     public static <T> Map<String, T> getIdMap(Collection<T> in) {
-        return Maps.uniqueIndex(in, extractId());
+        return Maps.uniqueIndex(in, Documents::getId);
     }
 
     public static <T extends TBase<T, F>, F extends TFieldIdEnum> Function<T, Object> extractField(final F field) {
@@ -134,47 +142,18 @@ public class ThriftUtils {
     }
 
     public static <T extends TBase<T, F>, F extends TFieldIdEnum, R> Function<T, R> extractField(final F field, final Class<R> clazz) {
-        return new Function<T, R>() {
-            @Override
-            public R apply(T input) {
-                if (input.isSet(field)) {
-                    Object fieldValue = input.getFieldValue(field);
-                    if (clazz.isInstance(fieldValue)) {
-                        @SuppressWarnings("unchecked")
-                        R value = (R) fieldValue;
-                        return value;
-                    } else {
-                        log.error("field " + field + " of " + input + " cannot be cast to" + clazz.getSimpleName());
-                        return null;
-                    }
+        return input -> {
+            if (input.isSet(field)) {
+                Object fieldValue = input.getFieldValue(field);
+                if (clazz.isInstance(fieldValue)) {
+                    return clazz.cast(fieldValue);
                 } else {
+                    log.error("field " + field + " of " + input + " cannot be cast to" + clazz.getSimpleName());
                     return null;
                 }
+            } else {
+                return null;
             }
         };
-    }
-
-    public static Iterable<Component._Fields> immutableOfComponent() {
-        return ImmutableList.of(
-                Component._Fields.CREATED_BY,
-                Component._Fields.CREATED_ON
-        );
-    }
-
-    public static Iterable<Release._Fields> immutableOfRelease() {
-        return ImmutableList.of(
-                Release._Fields.CREATED_BY,
-                Release._Fields.CREATED_ON,
-                Release._Fields.FOSSOLOGY_ID,
-                Release._Fields.ATTACHMENT_IN_FOSSOLOGY,
-                Release._Fields.CLEARING_TEAM_TO_FOSSOLOGY_STATUS
-        );
-    }
-
-    public static Iterable<Release._Fields> immutableOfReleaseForFossology() {
-        return ImmutableList.of(
-                Release._Fields.CREATED_BY,
-                Release._Fields.CREATED_ON
-        );
     }
 }

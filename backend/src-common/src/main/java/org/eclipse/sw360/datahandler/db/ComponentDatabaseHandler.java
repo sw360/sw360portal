@@ -57,7 +57,6 @@ import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
 import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.copyFields;
-import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.immutableOfComponent;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.ensureEccInformationIsSet;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareComponents;
 import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareReleases;
@@ -402,7 +401,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
                 component.setReleaseIds(actual.getReleaseIds());
             component.unsetReleases();
 
-            copyFields(actual, component, immutableOfComponent());
+            copyFields(actual, component, ThriftUtils.IMMUTABLE_OF_COMPONENT);
             component.setAttachments( getAllAttachmentsToKeep(actual.getAttachments(), component.getAttachments()) );
             // Update the database with the component
             componentRepository.update(component);
@@ -557,7 +556,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         try {
             Release release = getRelease(releaseAdditions.getId(), user);
             release = releaseModerator.updateReleaseFromModerationRequest(release, releaseAdditions, releaseDeletions);
-            return updateRelease(release, user, ThriftUtils.immutableOfRelease());
+            return updateRelease(release, user, ThriftUtils.IMMUTABLE_OF_RELEASE);
         } catch (SW360Exception e) {
             log.error("Could not get original release when updating from moderation request.");
             return RequestStatus.FAILURE;

@@ -46,7 +46,7 @@ public class CustomFieldHelper {
 
     public static int loadAndStoreStickyViewSize(PortletRequest request, User user, String fieldName) {
         String view_size = request.getParameter(PortalConstants.VIEW_SIZE);
-        final int limit;
+        int limit;
         if (isNullEmptyOrWhitespace(view_size)) {
             limit = CustomFieldHelper
                     .loadField(Integer.class, request, user, fieldName)
@@ -54,6 +54,9 @@ public class CustomFieldHelper {
         } else {
             limit = Integer.parseInt(view_size);
             CustomFieldHelper.saveField(request, user, fieldName, limit);
+        }
+        if (limit == 0) {
+            limit = DEFAULT_VIEW_SIZE;
         }
         request.setAttribute(PortalConstants.VIEW_SIZE, limit);
         return limit;

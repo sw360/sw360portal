@@ -10,14 +10,14 @@
  */
 package org.eclipse.sw360.datahandler.thrift;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -53,7 +53,7 @@ public class ThriftUtilsTest {
         List<Attachment> input = ImmutableList.of(getAttachment(contentId), getAttachment(contentId1));
         List<String> expected = ImmutableList.of(contentId, contentId1);
 
-        assertThat(Lists.transform(input, stringIdExtractor), is(expected));
+        assertThat(input.stream().map(stringIdExtractor).collect(Collectors.toList()), is(expected));
     }
 
     private static Attachment getAttachment(String contentId) {
