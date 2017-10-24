@@ -300,17 +300,19 @@ public class DisplayProjectChanges extends UserAwareTag {
     }
 
     private Project prepareLicenseInfoHeaderTextInProject(Project project) {
+        Project modifiedProject = project.deepCopy();
+
         String defaultTextAsHtmlForDisplay = "<span title=\"" + defaultLicenseInfoHeaderText + "\">" + PortalConstants.DEFAULT_LICENSE_INFO_HEADER_TEXT_FOR_DISPALY + "</span>";
 
-        if(!project.isSetLicenseInfoHeaderText()) {
+        if(!modifiedProject.isSetLicenseInfoHeaderText()) {
             // if the project contains the default license info header text, we wrap it into an html span-element such that the default text is given as a hover text.
             // this is only done for displaying it in a three-way merge in a moderation request.
-            project.setLicenseInfoHeaderText(defaultTextAsHtmlForDisplay);
+            modifiedProject.setLicenseInfoHeaderText(defaultTextAsHtmlForDisplay);
         } else {
             // for a custom text escape html properly
-            project.setLicenseInfoHeaderText(StringEscapeUtils.escapeHtml(project.getLicenseInfoHeaderText()).replace("\n", "<br>") );
+            modifiedProject.setLicenseInfoHeaderText(StringEscapeUtils.escapeHtml(modifiedProject.getLicenseInfoHeaderText()).replace("\n", "<br>") );
         }
 
-        return project;
+        return modifiedProject;
     }
 }
