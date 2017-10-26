@@ -738,6 +738,17 @@
         </attribute>
     </tag>
     <tag>
+        <name>ComponentName</name>
+        <tag-class>org.eclipse.sw360.portal.tags.ComponentName</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>component</name>
+            <required>true</required>
+            <type>org.eclipse.sw360.datahandler.thrift.components.Component</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>LicenseName</name>
         <tag-class>org.eclipse.sw360.portal.tags.LicenseName</tag-class>
         <body-content>empty</body-content>
@@ -1024,13 +1035,15 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>escapeXml</name>
+            <name>jsQuoting</name>
             <required>false</required>
+            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>jsQuoting</name>
+            <name>stripNewlines</name>
             <required>false</required>
+            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
@@ -1040,8 +1053,9 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>stripNewlines</name>
+            <name>bare</name>
             <required>false</required>
+            <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
@@ -1061,32 +1075,6 @@
         </attribute>
     </tag>
 
-    <tag>
-        <name>DisplayDescription</name>
-        <tag-class>org.eclipse.sw360.portal.tags.DisplayDescription</tag-class>
-        <body-content>empty</body-content>
-        <description>
-           abbreviates description
-        </description>
-        <attribute>
-            <name>description</name>
-            <required>true</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>jsQuoting</name>
-            <required>false</required>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>maxChar</name>
-            <required>false</required>
-            <type>int</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-    </tag>
     <tag>
         <name>DisplayCVEReferences</name>
         <tag-class>org.eclipse.sw360.portal.tags.DisplayCVEReferences</tag-class>

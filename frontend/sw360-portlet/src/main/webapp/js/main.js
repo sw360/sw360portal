@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -120,12 +120,18 @@ function replaceSingleQuote(str) {
     return str.replace(/'/g,"\\\'").replace(/"/g, "&quot;");
 }
 
+function decodeEntities(encodedString) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+}
+
 function renderLinkTo(url, content, htmlContent) {
     var $link = $("<a href='" + encodeURI(url) + "'/>");
     if (typeof htmlContent == 'string' && htmlContent) {
         $link.html(htmlContent);
     } else if (typeof content == 'string' && content) {
-        $link.text(content);
+        $link.text(decodeEntities(content));
     } else {
         $link.text(url);
     }

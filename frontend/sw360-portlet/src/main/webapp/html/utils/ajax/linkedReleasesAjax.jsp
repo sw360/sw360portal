@@ -29,18 +29,18 @@
         <td>
             <label class="textlabel stackedLabel" for="releaseVendor">Vendor name</label>
             <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="No vendor"
-                   value="${releaseLink.vendor}" readonly/>
+                   value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
         </td>
         <td>
             <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Project._Fields.RELEASE_ID_TO_USAGE%><%=ReleaseLink._Fields.ID%>">
             <label class="textlabel stackedLabel" for="releaseName">Release name</label>
             <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
-                   value="${releaseLink.name}" readonly/>
+                   value="<sw360:out value="${releaseLink.name}"/>" readonly/>
         </td>
         <td>
             <label class="textlabel stackedLabel" for="releaseVersion">Release version</label>
             <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
-                   value="${releaseLink.version}" readonly/>
+                   value="<sw360:out value="${releaseLink.version}"/>" readonly/>
         </td>
         <td>
             <label class="textlabel stackedLabel" for="releaseRelation">Release relation</label>
@@ -64,7 +64,7 @@
         </td>
 
         <td class="deletor">
-            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${uuid}','<sw360:out value='${releaseLink.longName}' jsQuoting="'"/>')" alt="Delete">
+            <img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteReleaseLink('releaseLinkRow${uuid}','<sw360:out value='${releaseLink.longName}' jsQuoting="true"/>')" alt="Delete">
         </td>
 
     </tr>

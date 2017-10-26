@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -11,13 +11,14 @@
 package org.eclipse.sw360.portal.tags;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.taglibs.standard.tag.common.core.OutSupport;
 
 import javax.servlet.jsp.JspException;
 
 import java.io.IOException;
 
-import static java.util.regex.Matcher.quoteReplacement;
+import static org.eclipse.sw360.portal.tags.TagUtils.escapeAttributeValue;
 
 /**
  * Util to display multiline strings also in javascript
@@ -25,18 +26,15 @@ import static java.util.regex.Matcher.quoteReplacement;
  * @author Daniele.Fognini@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class OutTag extends OutSupport {
-    private String jsQuoting = null;
+    private boolean jsQuoting = false;
     private boolean stripNewlines = true;
-
-    public OutTag() {
-    }
-
+    private boolean bare = false;
     private Integer maxChar = -1;
 
-    public void setValue(Object value) {
-        this.value = value;
+    public OutTag() {
     }
 
     @Override
@@ -45,26 +43,27 @@ public class OutTag extends OutSupport {
             boolean abbreviated = false;
             String candidate = (String) this.value;
             String originalValue = candidate;
+
             if (maxChar > 4) {
                 candidate = StringUtils.abbreviate(candidate, maxChar);
-                if (!originalValue.equals(candidate)){
+                if (!originalValue.equals(candidate)) {
                     abbreviated = true;
                 }
             }
 
-            if (stripNewlines){
+            if (jsQuoting) {
+                candidate = StringEscapeUtils.escapeJavaScript(candidate);
+            }
+
+            if (stripNewlines) {
                 candidate = candidate.replaceAll("[\r\n]+", " ");
             }
-            if ("'".equals(jsQuoting)) {
-                candidate = escapeInSingleQuote(candidate);
-            } else if ("\"".equals(jsQuoting)) {
-                candidate = escapeInDoubleQuote(candidate);
-            }
+
             this.value = candidate;
 
-            if (abbreviated) {
+            if (!bare && abbreviated) {
                 try {
-                    this.pageContext.getOut().write("<span title=\"" + escapeInDoubleQuote(originalValue) + "\">");
+                    this.pageContext.getOut().write("<span title=\"" + prepareTitleAttribute(originalValue) + "\">");
                     int i = super.doStartTag();
                     this.pageContext.getOut().write("</span>");
                     return i;
@@ -73,37 +72,34 @@ public class OutTag extends OutSupport {
                 }
             }
         }
+
         return super.doStartTag();
     }
 
-    //TODO remove unneeded...
-    private String escapeInDoubleQuote(String value) {
-        return value.replaceAll("\"", quoteReplacement("\\\""));
-    }
-
-    //TODO remove unneeded...
-    protected String escapeInSingleQuote(String value) {
-        return value.replaceAll("'", quoteReplacement("\\\'"));
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     public void setDefault(String def) {
         this.def = def;
     }
 
-    public void setEscapeXml(boolean escapeXml) {
-        this.escapeXml = escapeXml;
+    public void setJsQuoting(boolean jsQuoting) {
+        this.jsQuoting = jsQuoting;
     }
 
     public void setMaxChar(Integer maxChar) {
         this.maxChar = maxChar;
     }
 
-    public void setJsQuoting(String jsQuoting) {
-        this.jsQuoting = jsQuoting;
-    }
-
     public void setStripNewlines(boolean stripNewlines) {
         this.stripNewlines = stripNewlines;
+    }
+
+    public void setBare(boolean bare) { this.bare = bare; }
+
+    private String prepareTitleAttribute(String value) {
+        return escapeAttributeValue(value).replaceAll("[\r\n]+", "&#013;&#010;");
     }
 }
 

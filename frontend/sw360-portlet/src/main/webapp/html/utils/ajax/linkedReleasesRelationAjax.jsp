@@ -25,19 +25,19 @@
         <td width="23%">
             <label class="textlabel stackedLabel" for="releaseVendor">Vendor name</label>
             <input id="releaseVendor" type="text" class="toplabelledInput" placeholder="Enter vendor"
-                   value="${releaseLink.vendor}" readonly/>
+                   value="<sw360:out value="${releaseLink.vendor}"/>" readonly/>
         </td>
         <td width="23%">
             <input type="hidden" value="${releaseLink.id}" name="<portlet:namespace/><%=Release._Fields.RELEASE_ID_TO_RELATIONSHIP%><%=ReleaseLink._Fields.ID%>">
             <label class="textlabel stackedLabel" for="releaseName">Release name</label>
             <input id="releaseName" type="text" class="toplabelledInput" placeholder="Enter release"
-                   value="${releaseLink.name}" readonly/>
+                   value="<sw360:out value="${releaseLink.name}"/>" readonly/>
         </td>
 
         <td width="23%">
             <label class="textlabel stackedLabel" for="releaseVersion">Release version</label>
             <input id="releaseVersion" type="text" class="toplabelledInput" placeholder="Enter version"
-                   value="${releaseLink.version}" readonly/>
+                   value="<sw360:out value="${releaseLink.version}"/>" readonly/>
         </td>
         <td width="23%">
             <label class="textlabel stackedLabel mandatory" for="releaseRelation">Release relation</label>
