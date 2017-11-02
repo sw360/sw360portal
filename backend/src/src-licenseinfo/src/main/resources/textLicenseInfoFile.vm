@@ -90,7 +90,7 @@ Open Source Software Licenses
 #foreach($license in $allLicenseNamesWithTexts)
 #set($licenseName = "<no license name available>")
 #if($license.licenseName)
-#set($licenseName = $esc.xml($license.licenseName))
+#set($licenseName = $license.licenseName)
 #end## if($license.licenseName)
 ##
 #set($licenseText = "<no license text available>")
