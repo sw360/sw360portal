@@ -63,7 +63,7 @@
             <core_rt:forEach items="${component.releases}" var="release">
             result.push({
                 "DT_RowId": "${release.id}",
-                "0": "${release.name}",
+                "0": "<sw360:out value="${release.name}"/>",
                 "1": "<a href='<portlet:renderURL ><portlet:param name="<%=PortalConstants.COMPONENT_ID%>" value="${component.id}"/><portlet:param name="<%=PortalConstants.RELEASE_ID%>" value="${release.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_RELEASE_DETAIL%>"/></portlet:renderURL>' target='_self'>" + "${release.version}" + "</a>",
                 "2": "<span id='clearingState${release.id}'><sw360:DisplayEnum value="${release.clearingState}"/></span>",
                 "3": "<sw360:DisplayDownloadReport attachments="${release.attachments}" filterAttachmentType="<%=AttachmentType.CLEARING_REPORT%>" var="attachment"><sw360:DisplayDownloadApprovedClearingReport attachment="${attachment}" contextType="${release.type}" contextId="${release.id}" /></sw360:DisplayDownloadReport>",

@@ -289,7 +289,7 @@
                         "DT_RowId": "${component.id}",
                         "id": "${component.id}",
                         "vndrs": '<sw360:DisplayCollection value="${component.vendorNames}"/>',
-                        "name": "${component.name}",
+                        "name": '<sw360:ComponentName component="${component}"/>',
                         "lics": "<tags:TrimLineBreaks input="${licenseCollectionTagOutput}"/>",
                         "cType": "<sw360:DisplayEnum value="${component.componentType}"/>",
                         "lRelsSize": "${component.releaseIdsSize}",

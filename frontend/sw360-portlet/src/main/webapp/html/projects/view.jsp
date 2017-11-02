@@ -296,7 +296,7 @@
                     "DT_RowId": "${project.id}",
                     "id": '${project.id}',
                     "name": '<sw360:ProjectName project="${project}"/>',
-                    "description": '<sw360:DisplayDescription description="${project.description}" maxChar="140" jsQuoting="'"/>',
+                    "description": '<sw360:out value="${project.description}" maxChar="140" jsQuoting="true" bare="true"/>',
                     "state": '<sw360:DisplayStateBoxes project="${project}"/>',
                     "clearing": 'Not loaded yet',
                     "responsible": '<sw360:DisplayUserEmail email="${project.projectResponsible}" bare="true"/>',
