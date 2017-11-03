@@ -236,4 +236,12 @@ public class CommonUtilsTest {
 
         assertThat(allHaveSameLength(i, s), is(false));
     }
+
+    @Test
+    public void testGetIntOrDefault() throws Exception {
+        assertThat(getIntOrDefault("25", 6), is(25));
+        assertThat(getIntOrDefault("-25", 25), is(-25));
+        assertThat(getIntOrDefault("25z", 6), is(6));
+        assertThat(getIntOrDefault( null, 42), is(42));
+    }
 }

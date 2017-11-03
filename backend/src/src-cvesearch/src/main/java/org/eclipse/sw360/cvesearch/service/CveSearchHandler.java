@@ -36,10 +36,11 @@ import static org.eclipse.sw360.cvesearch.helper.VulnerabilityUtils.*;
 
 public class CveSearchHandler implements CveSearchService.Iface {
 
+    private static final Logger log = Logger.getLogger(CveSearchHandler.class);
+
     public static final String CVESEARCH_HOST_PROPERTY = "cvesearch.host";
-    VulnerabilityConnector vulnerabilityConnector;
-    CveSearchWrapper cveSearchWrapper;
-    Logger log = Logger.getLogger(CveSearchHandler.class);
+    private VulnerabilityConnector vulnerabilityConnector;
+    private CveSearchWrapper cveSearchWrapper;
 
 
     public CveSearchHandler() {
@@ -52,10 +53,12 @@ public class CveSearchHandler implements CveSearchService.Iface {
         Properties props = CommonUtils.loadProperties(CveSearchHandler.class, "/cvesearch.properties");
         String host = props.getProperty(CVESEARCH_HOST_PROPERTY, "https://localhost:5000");
 
+        log.info("Using " + host + " for CVE search...");
+
         cveSearchWrapper = new CveSearchWrapper(new CveSearchApiImpl(host));
     }
 
-    public VulnerabilityUpdateStatus updateForRelease(Release release) {
+    private VulnerabilityUpdateStatus updateForRelease(Release release) {
         Optional<List<CveSearchData>> cveSearchDatas = cveSearchWrapper.searchForRelease(release);
         if(!cveSearchDatas.isPresent()) {
             return new VulnerabilityUpdateStatus().setRequestStatus(RequestStatus.FAILURE);
@@ -63,7 +66,7 @@ public class CveSearchHandler implements CveSearchService.Iface {
 
         CveSearchDataTranslator cveSearchDataTranslator = new CveSearchDataTranslator();
         List<CveSearchDataTranslator.VulnerabilityWithRelation> translated = cveSearchDatas.get().stream()
-                .map(cveSearchData -> cveSearchDataTranslator.apply(cveSearchData))
+                .map(cveSearchDataTranslator)
                 .map(vulnerabilityWithRelation -> {
                     vulnerabilityWithRelation.relation.setReleaseId(release.getId());
                     return vulnerabilityWithRelation;
@@ -127,6 +130,7 @@ public class CveSearchHandler implements CveSearchService.Iface {
 
     @Override
     public RequestStatus update() throws TException {
+        log.info("Starting CveSearch update...");
         VulnerabilityUpdateStatus vulnerabilityUpdateStatus = fullUpdate();
         log.info("CveSearch update finished with status:" + vulnerabilityUpdateStatus.getRequestStatus());
         log.info("The following vulnerability/ies could not be imported:" + vulnerabilityUpdateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED) + "\n"+
