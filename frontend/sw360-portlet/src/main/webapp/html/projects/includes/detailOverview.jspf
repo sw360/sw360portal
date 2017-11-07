@@ -17,6 +17,7 @@
                 <li <core_rt:if test="${selectedTab == 'Linked Projects'}"> class="active" </core_rt:if>><a href="#tab-linkedProjects">Linked Releases And Projects</a></li>
                 <li <core_rt:if test="${selectedTab == 'Linked Releases'}"> class="active" </core_rt:if>><a href="#tab-linkedReleases">Linked Releases Hierarchy</a></li>
                 <li <core_rt:if test="${selectedTab == 'Clearing Status'}"> class="active" </core_rt:if>><a href="#tab-ClearingStatus">Clearing Status</a></li>
+                <li <core_rt:if test="${selectedTab == 'ECC Status'}"> class="active" </core_rt:if>><a href="#tab-ECCStatus">ECC Status</a></li>
                 <li <core_rt:if test="${selectedTab == 'Attachments'}"> class="active" </core_rt:if>><a href="#tab-Attachments">Attachments</a></li>
                 <core_rt:if test="${inProjectDetailsContext}">
                     <li <core_rt:if test="${selectedTab == 'Vulnerabilities'}"> class="active" </core_rt:if>>
@@ -51,6 +52,9 @@
                 </div>
                 <div id="tab-ClearingStatus" >
                     <%@include file="/html/projects/includes/projects/clearingStatus.jspf" %>
+                </div>
+                <div id="tab-ECCStatus" >
+                    <%@include file="/html/projects/includes/projects/eccStatus.jspf" %>
                 </div>
                 <div id="tab-Attachments" >
                     <jsp:include page="/html/utils/includes/attachmentsDetail.jsp" />

@@ -37,7 +37,7 @@
         <core_rt:if test="${inProjectDetailsContext}">
             <div class="clear-float"></div>
             <span class="pull-right">
-                <input type="button" class="addButton" id="exportReleasesSpreadsheetButton" value="Export Spreadsheet" class="addButton" />
+                <input type="button" class="addButton" id="exportReleasesSpreadsheetClearingButton" value="Export Spreadsheet"/>
             </span>
         </core_rt:if>
     </div>
@@ -51,6 +51,7 @@
 <%@include file="/html/utils/includes/fossologyClearing.jspf"%>
 
 <script type="text/javascript">
+
     require(['jquery', 'utils/includes/fossologyClearing', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function ($, fossology) {
         var releaseClearingTable;
 
@@ -59,7 +60,7 @@
             createClearingTable();
             fossology.initialize();
 
-            $('#exportReleasesSpreadsheetButton').on('click', exportReleasesSpreadsheet);
+            $('#exportReleasesSpreadsheetClearingButton').on('click', exportReleasesSpreadsheet);
             $('#releasesTable').on('click', '.action.send-to-fossology', function(event) {
                 var data = $(event.currentTarget).data();
                 fossology.openSelectClearingDialog('releaseClearingState', data.releaseId);
@@ -116,12 +117,13 @@
             });
         }
 
-        function exportReleasesSpreadsheet() {
-            var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
-                .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_CLEARING_TO_EXCEL%>');
-            portletURL.setParameter('<%=PortalConstants.PROJECT_ID%>', '${project.id}');
-            window.location.href = portletURL.toString();
-        }
     });
+
+    function exportReleasesSpreadsheet() {
+        var portletURL = Liferay.PortletURL.createURL('<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RESOURCE_PHASE) %>')
+            .setParameter('<%=PortalConstants.ACTION%>', '<%=PortalConstants.EXPORT_CLEARING_TO_EXCEL%>');
+        portletURL.setParameter('<%=PortalConstants.PROJECT_ID%>', '${project.id}');
+        window.location.href = portletURL.toString();
+    }
 
 </script>
