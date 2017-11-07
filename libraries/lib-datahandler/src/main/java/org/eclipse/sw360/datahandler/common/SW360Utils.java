@@ -246,7 +246,7 @@ public class SW360Utils {
     }
 
     public static Collection<ProjectLink> getLinkedProjects(Project project, boolean deep, ThriftClients thriftClients, Logger log, User user) {
-        if (project != null && project.isSetId()) {
+        if (project != null) {
             try {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 List<ProjectLink> linkedProjects = client.getLinkedProjectsOfProject(project, deep, user);

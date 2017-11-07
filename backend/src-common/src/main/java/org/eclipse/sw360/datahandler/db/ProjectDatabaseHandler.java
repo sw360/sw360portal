@@ -58,6 +58,7 @@ public class ProjectDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(ProjectDatabaseHandler.class);
     private static final int DELETION_SANITY_CHECK_THRESHOLD = 5;
+    private static final String DUMMY_NEW_PROJECT_ID = "newproject";
 
     private final ProjectRepository repository;
     private final ProjectVulnerabilityRatingRepository pvrRepository;
@@ -267,25 +268,30 @@ public class ProjectDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     public List<ProjectLink> getLinkedProjects(Project project, boolean deep, User user) {
 
-        final Map<String, Project> projectMap;
+        final Map<String, Project> dbProjectMap;
         if (deep){
-            projectMap = ThriftUtils.getIdMap(repository.getAll());
+            dbProjectMap = ThriftUtils.getIdMap(repository.getAll());
         } else {
-            projectMap = preloadLinkedProjects(project, user);
+            dbProjectMap = preloadLinkedProjects(project, user);
         }
+        final Map<String, Project> projectMap;
+        projectMap = project.isSetId() ? dbProjectMap : ImmutableMap.<String, Project>builder().putAll(dbProjectMap).put(DUMMY_NEW_PROJECT_ID, project).build();
+
         final Map<String, Release> releaseMap = preloadLinkedReleases(projectMap);
 
         Deque<String> visitedIds = new ArrayDeque<>();
 
         Map<String, ProjectRelationship> fakeRelations = new HashMap<>();
-        fakeRelations.put(project.getId(), ProjectRelationship.UNKNOWN);
+        fakeRelations.put(project.isSetId() ? project.getId() : DUMMY_NEW_PROJECT_ID, ProjectRelationship.UNKNOWN);
         List<ProjectLink> out = iterateProjectRelationShips(fakeRelations, null, visitedIds, projectMap, releaseMap, deep ? -1 : 2);
         return out;
     }
 
     private Map<String, Project> preloadLinkedProjects(Project project, User user) {
         List<String> projectIdsToLoad = new ArrayList<>(nullToEmptyMap(project.getLinkedProjects()).keySet());
-        projectIdsToLoad.add(project.getId());
+        if (project.isSetId()) {
+            projectIdsToLoad.add(project.getId());
+        }
         return ThriftUtils.getIdMap(getProjectsById(projectIdsToLoad, user));
     }
 
