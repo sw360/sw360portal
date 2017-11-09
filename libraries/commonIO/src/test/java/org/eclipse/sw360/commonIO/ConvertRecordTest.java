@@ -70,7 +70,7 @@ public class ConvertRecordTest {
         String full = "headers\n 1,A,A1 \n 2,A,A2 \n 3,A,A3 \n 4,B,B1 \n 5,B,B2";
         fullRecord = readToRecord(full);
 
-        String fullTodo = "header \n '1','text1','true','true' \n '2','text2','false','false'";
+        String fullTodo = "header \n '1','text1','true','true' \n '2','text2','false','false', '{\"key\": \"value\"}'";
         fullTodoRecord = readToRecord(fullTodo);
 
         Map<String, String> todoCustomProperties1 = new HashMap<>();
@@ -215,7 +215,8 @@ public class ConvertRecordTest {
         assertThat(todos.get(1).getTodoId(), is(2));
         assertThat(todos.get(1).isDevelopment(), is(false));
         assertThat(todos.get(1).isDistribution(), is(false));
-
+        assertThat(todos.get(1).getExternalIds().size(), is(1));
+        assertThat(todos.get(1).getExternalIds().get("key"), is("value"));
     }
 
 

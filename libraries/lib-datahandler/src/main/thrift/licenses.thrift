@@ -47,6 +47,9 @@ struct Todo {
     // These two are a quick fix to receiving booleans in PHP not working at the moment
     15: optional string developmentString,
     16: optional string distributionString,
+
+    // information from external data sources
+    19: optional map<string, string> externalIds,
 }
 
 struct RiskCategory {
