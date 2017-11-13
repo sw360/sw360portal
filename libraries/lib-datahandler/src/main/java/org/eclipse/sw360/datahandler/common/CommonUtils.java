@@ -399,6 +399,14 @@ public class CommonUtils {
         return out;
     }
 
+    public static int getIntOrDefault(String in, int defaultValue) {
+        try {
+            return Integer.parseInt(in);
+        } catch (NumberFormatException ignored) {
+            return defaultValue;
+        }
+    }
+
     public static <T extends Enum<T>> String getEnumStringOrNull(T val) {
         if (val != null) return val.name();
         return null;

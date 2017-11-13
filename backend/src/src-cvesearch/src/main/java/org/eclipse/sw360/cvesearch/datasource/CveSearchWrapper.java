@@ -23,9 +23,9 @@ import org.apache.log4j.Logger;
 
 public class CveSearchWrapper {
 
-    Logger log = Logger.getLogger(CveSearchWrapper.class);
+    private static final Logger log = Logger.getLogger(CveSearchWrapper.class);
 
-    private Heuristic heuristic;
+    private final Heuristic heuristic;
 
     public CveSearchWrapper(CveSearchApi cveSearchApi) {
         SearchLevels searchLevels = new SearchLevels(cveSearchApi);

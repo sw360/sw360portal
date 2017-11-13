@@ -12,36 +12,45 @@
  */
 package org.eclipse.sw360.cvesearch.datasource.heuristics;
 
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.cvesearch.datasource.CveSearchApi;
 import org.eclipse.sw360.cvesearch.datasource.CveSearchGuesser;
 import org.eclipse.sw360.cvesearch.datasource.matcher.Match;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.singletonList;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
-import static java.util.Collections.*;
 
 public class SearchLevels {
 
-    private static final String CPE_PREFIX        = "cpe:2.3:";
-    private static final String OLD_CPE_PREFIX    = "cpe:/";
-    private static final String CPE_WILDCARD      = ".*";
+    private static final Logger log = Logger.getLogger(SearchLevels.class);
+
+    private static final String CPE_PREFIX = "cpe:2.3:";
+    private static final String OLD_CPE_PREFIX = "cpe:/";
+    private static final String CPE_WILDCARD = ".*";
     private static final String CPE_NEEDLE_PREFIX = CPE_PREFIX + ".:";
-    public static final int DEFAULT_VENDOR_THRESHOLD  = 1;
-    public static final int DEFAULT_PRODUCT_THRESHOLD = 0;
-    public static final int DEFAULT_CUTOFF            = 6;
 
-    private Logger log = Logger.getLogger(SearchLevels.class);
+    private static final String PROPERTIES_FILE_PATH = "/sw360.properties";
+    private static final String VENDOR_THRESHOLD_PROPERTY = "cvesearch.vendor.threshold";
+    private static final String PRODUCT_THRESHOLD_PROPERTY = "cvesearch.product.threshold";
+    private static final String CUTOFF_PROPERTY = "cvesearch.cutoff";
 
-    private List<SearchLevel> searchLevels;
+    private static final int DEFAULT_VENDOR_THRESHOLD = 1;
+    private static final int DEFAULT_PRODUCT_THRESHOLD = 0;
+    private static final int DEFAULT_CUTOFF = 6;
+
+    private final List<SearchLevel> searchLevels = new ArrayList<>();
 
     public class NeedleWithMeta {
         public String needle;
@@ -59,16 +68,22 @@ public class SearchLevels {
 
 
     public SearchLevels(CveSearchApi cveSearchApi) {
-        setup(cveSearchApi, DEFAULT_VENDOR_THRESHOLD, DEFAULT_PRODUCT_THRESHOLD, DEFAULT_CUTOFF);
-    }
+        log.info("Preparing Search Levels");
+        Properties props = CommonUtils.loadProperties(SearchLevels.class, PROPERTIES_FILE_PATH);
+        int vendorThreshold = getIntFromProperties(props, VENDOR_THRESHOLD_PROPERTY, DEFAULT_VENDOR_THRESHOLD);
+        int productThreshold = getIntFromProperties(props, PRODUCT_THRESHOLD_PROPERTY, DEFAULT_PRODUCT_THRESHOLD);
+        int cutoff = getIntFromProperties(props, CUTOFF_PROPERTY, DEFAULT_CUTOFF);
 
-    public SearchLevels(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
         setup(cveSearchApi, vendorThreshold, productThreshold, cutoff);
     }
 
-    private void setup(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
-        searchLevels = new ArrayList<>();
+    private static int getIntFromProperties(Properties properties, String key, int defaultValue) {
+        int value = CommonUtils.getIntOrDefault(properties.getProperty(key), defaultValue);
+        log.info("SearchLevels " + key + ": " + value);
+        return value;
+    }
 
+    private void setup(CveSearchApi cveSearchApi, int vendorThreshold, int productThreshold, int cutoff) {
         // Level 1. search by full cpe
         addCPESearchLevel();
         // Level 2. and 3.
@@ -112,13 +127,14 @@ public class SearchLevels {
         }
         return cpe.toLowerCase();
     }
+
     private void addCPESearchLevel() {
         Predicate<Release> isPossible = r -> r.isSetCpeid() && isCpe(r.getCpeid().toLowerCase());
         searchLevels.add(r -> {
             if(isPossible.test(r)){
                 return singletonList(new NeedleWithMeta(cleanupCPE(r.getCpeid()), "CPE"));
             }
-            return EMPTY_LIST;
+            return Collections.emptyList();
         });
     }
 
@@ -136,9 +152,9 @@ public class SearchLevels {
     }
 
 
-    protected List<NeedleWithMeta> guessForRelease(CveSearchGuesser cveSearchGuesser, Release release, boolean useVersionInformation) throws IOException {
-        if(useVersionInformation && !release.isSetVersion()){
-            return EMPTY_LIST;
+    private List<NeedleWithMeta> guessForRelease(CveSearchGuesser cveSearchGuesser, Release release, boolean useVersionInformation) throws IOException {
+        if (useVersionInformation && !release.isSetVersion()) {
+            return Collections.emptyList();
         }
 
         List<Match> vendorProductList;
