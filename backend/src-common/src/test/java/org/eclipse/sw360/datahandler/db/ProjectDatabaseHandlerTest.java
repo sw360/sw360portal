@@ -17,11 +17,11 @@ import org.eclipse.sw360.datahandler.TestUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.entitlement.ProjectModerator;
-import org.eclipse.sw360.datahandler.thrift.MainlineState;
-import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
-import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
-import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.*;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectLink;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectWithReleaseRelationTuple;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -58,6 +58,7 @@ public class ProjectDatabaseHandlerTest {
 
     ProjectModerator moderator = Mockito.mock(ProjectModerator.class);
     ProjectDatabaseHandler handler;
+    ComponentDatabaseHandler componentHandler;
     @Before
     public void setUp() throws Exception {
         assertTestString(dbName);
@@ -85,6 +86,23 @@ public class ProjectDatabaseHandlerTest {
         projects.add(p2);
         projects.get(1).addToContributors("user1");
         projects.add(new Project().setId("P3").setName("Project3").setBusinessUnit("AB CD EF").setCreatedBy("user3"));
+        Project p4 = new Project().setId("P4").setName("Project4").setBusinessUnit("AB CD EF").setCreatedBy("user1")
+                .setVisbility(Visibility.PRIVATE)
+                .setReleaseIdToUsage(ImmutableMap.<String, ProjectReleaseRelationship>builder()
+                        .put("r1", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .put("r2", new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.MAINLINE))
+                        .build())
+                .setLinkedProjects(ImmutableMap.<String, ProjectRelationship>builder().put("P5", ProjectRelationship.CONTAINED).build());
+        projects.add(p4);
+        projects.add(new Project().setId("P5").setName("Project5").setBusinessUnit("AB CD EF").setCreatedBy("user1"));
+
+        List<Release> releases = new ArrayList<>();
+        releases.add(new Release().setId("r1").setComponentId("c1"));
+        releases.add(new Release().setId("r2").setComponentId("c1"));
+        releases.add(new Release().setId("r3").setComponentId("c1"));
+        releases.add(new Release().setId("r4").setComponentId("c1"));
+        releases.add(new Release().setId("r5").setComponentId("c1"));
+        releases.add(new Release().setId("r6").setComponentId("c1"));
 
         // Create the database
         TestUtils.createDatabase(DatabaseSettings.getConfiguredHttpClient(), dbName);
@@ -94,7 +112,14 @@ public class ProjectDatabaseHandlerTest {
         for (Project project : projects) {
             databaseConnector.add(project);
         }
-        ComponentDatabaseHandler componentHandler = new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName);
+
+        for (Release r:releases) {
+            databaseConnector.add(r);
+        }
+
+        databaseConnector.add(new Component("comp1").setId("c1"));
+
+        componentHandler = new ComponentDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentsDbName);
         handler = new ProjectDatabaseHandler(DatabaseSettings.getConfiguredHttpClient(), dbName, attachmentDbName, moderator, componentHandler);
     }
 
@@ -127,17 +152,17 @@ public class ProjectDatabaseHandlerTest {
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
 
-        assertEquals(2, handler.getMyProjectsSummary(user1.getEmail()).size());
+        assertEquals(4, handler.getMyProjectsSummary(user1.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user2.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user3.getEmail()).size());
 
-        assertEquals(2, handler.getBUProjectsSummary(user1.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user1.getDepartment()).size());
         assertEquals(1, handler.getBUProjectsSummary(user2.getDepartment()).size());
-        assertEquals(2, handler.getBUProjectsSummary(user3.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user3.getDepartment()).size());
 
-        assertEquals(3, handler.getAccessibleProjectsSummary(user1).size());
+        assertEquals(5, handler.getAccessibleProjectsSummary(user1).size());
         assertEquals(1, handler.getAccessibleProjectsSummary(user2).size());
-        assertEquals(2, handler.getAccessibleProjectsSummary(user3).size());
+        assertEquals(3, handler.getAccessibleProjectsSummary(user3).size());
 
         boolean deleted = (handler.getProjectById("P1", user1) == null);
         assertEquals(false, deleted);
@@ -150,17 +175,17 @@ public class ProjectDatabaseHandlerTest {
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
 
-        assertEquals(2, handler.getMyProjectsSummary(user1.getEmail()).size());
+        assertEquals(4, handler.getMyProjectsSummary(user1.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user2.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user3.getEmail()).size());
 
-        assertEquals(2, handler.getBUProjectsSummary(user1.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user1.getDepartment()).size());
         assertEquals(1, handler.getBUProjectsSummary(user2.getDepartment()).size());
-        assertEquals(2, handler.getBUProjectsSummary(user3.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user3.getDepartment()).size());
 
-        assertEquals(3, handler.getAccessibleProjectsSummary(user1).size());
+        assertEquals(5, handler.getAccessibleProjectsSummary(user1).size());
         assertEquals(1, handler.getAccessibleProjectsSummary(user2).size());
-        assertEquals(2, handler.getAccessibleProjectsSummary(user3).size());
+        assertEquals(3, handler.getAccessibleProjectsSummary(user3).size());
 
         boolean deleted = (handler.getProjectById("P2", user2) == null);
         assertEquals(false, deleted);
@@ -174,17 +199,17 @@ public class ProjectDatabaseHandlerTest {
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
 
-        assertEquals(2, handler.getMyProjectsSummary(user1.getEmail()).size());
+        assertEquals(4, handler.getMyProjectsSummary(user1.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user2.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user3.getEmail()).size());
 
-        assertEquals(2, handler.getBUProjectsSummary(user1.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user1.getDepartment()).size());
         assertEquals(1, handler.getBUProjectsSummary(user2.getDepartment()).size());
-        assertEquals(2, handler.getBUProjectsSummary(user3.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user3.getDepartment()).size());
 
-        assertEquals(3, handler.getAccessibleProjectsSummary(user1).size());
+        assertEquals(5, handler.getAccessibleProjectsSummary(user1).size());
         assertEquals(1, handler.getAccessibleProjectsSummary(user2).size());
-        assertEquals(2, handler.getAccessibleProjectsSummary(user3).size());
+        assertEquals(3, handler.getAccessibleProjectsSummary(user3).size());
 
         boolean deleted = (handler.getProjectById("P2", user2) == null);
         assertEquals(false, deleted);
@@ -197,17 +222,17 @@ public class ProjectDatabaseHandlerTest {
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
 
-        assertEquals(2, handler.getMyProjectsSummary(user1.getEmail()).size());
+        assertEquals(4, handler.getMyProjectsSummary(user1.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user2.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user3.getEmail()).size());
 
-        assertEquals(2, handler.getBUProjectsSummary(user1.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user1.getDepartment()).size());
         assertEquals(1, handler.getBUProjectsSummary(user2.getDepartment()).size());
-        assertEquals(2, handler.getBUProjectsSummary(user3.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user3.getDepartment()).size());
 
-        assertEquals(3, handler.getAccessibleProjectsSummary(user1).size());
+        assertEquals(5, handler.getAccessibleProjectsSummary(user1).size());
         assertEquals(1, handler.getAccessibleProjectsSummary(user2).size());
-        assertEquals(2, handler.getAccessibleProjectsSummary(user3).size());
+        assertEquals(3, handler.getAccessibleProjectsSummary(user3).size());
 
         boolean deleted = (handler.getProjectById("P3", user3) == null);
         assertEquals(false, deleted);
@@ -220,17 +245,17 @@ public class ProjectDatabaseHandlerTest {
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
 
-        assertEquals(2, handler.getMyProjectsSummary(user1.getEmail()).size());
+        assertEquals(4, handler.getMyProjectsSummary(user1.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user2.getEmail()).size());
         assertEquals(1, handler.getMyProjectsSummary(user3.getEmail()).size());
 
-        assertEquals(2, handler.getBUProjectsSummary(user1.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user1.getDepartment()).size());
         assertEquals(1, handler.getBUProjectsSummary(user2.getDepartment()).size());
-        assertEquals(2, handler.getBUProjectsSummary(user3.getDepartment()).size());
+        assertEquals(4, handler.getBUProjectsSummary(user3.getDepartment()).size());
 
-        assertEquals(3, handler.getAccessibleProjectsSummary(user1).size());
+        assertEquals(5, handler.getAccessibleProjectsSummary(user1).size());
         assertEquals(1, handler.getAccessibleProjectsSummary(user2).size());
-        assertEquals(2, handler.getAccessibleProjectsSummary(user3).size());
+        assertEquals(3, handler.getAccessibleProjectsSummary(user3).size());
 
         boolean deleted = (handler.getProjectById("P3", user3) == null);
         assertEquals(false, deleted);
@@ -304,6 +329,29 @@ public class ProjectDatabaseHandlerTest {
         assertThat(releaseIdToProjects.get("r5"), containsInAnyOrder(createTuple(p1)));
         assertThat(releaseIdToProjects.get("r6"), containsInAnyOrder(createTuple(p1)));
 
+    }
+
+    @Test
+    public void testGetLinkedProjectsOfProject() throws Exception {
+        Project p = handler.getProjectById("P4", user1);
+
+        List<ProjectLink> projectLinks = handler.getLinkedProjects(p, false, user1);
+        assertThat(projectLinks.size(), is(1));
+        assertThat(projectLinks.get(0).getSubprojects().size(), is(1));
+        assertThat(projectLinks.get(0).getLinkedReleases().size(), is(2));
+    }
+
+    @Test
+    public void testGetLinkedProjectsOfProjectForClonedProject() throws Exception {
+        Project p = handler.getProjectById("P4", user1);
+        Project clone = p.deepCopy();
+        clone.unsetId();
+        clone.unsetRevision();
+
+        List<ProjectLink> projectLinks = handler.getLinkedProjects(clone, false, user1);
+        assertThat(projectLinks.size(), is(1));
+        assertThat(projectLinks.get(0).getSubprojects().size(), is(1));
+        assertThat(projectLinks.get(0).getLinkedReleases().size(), is(2));
     }
 
     private ProjectWithReleaseRelationTuple createTuple(Project p) {
