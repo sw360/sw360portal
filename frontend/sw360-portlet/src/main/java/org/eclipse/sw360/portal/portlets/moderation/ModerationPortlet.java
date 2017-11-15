@@ -295,7 +295,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
 
         request.setAttribute(MODERATION_REQUESTS, CommonUtils.nullToEmptyList(openModerationRequests));
         request.setAttribute(CLOSED_MODERATION_REQUESTS, CommonUtils.nullToEmptyList(closedModerationRequests));
-        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "Nope");
+        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "No");
         super.doView(request, response);
     }
 

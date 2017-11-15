@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -149,7 +149,7 @@ public class LicensesPortlet extends Sw360Portlet {
         log.debug("Enter license table view");
         List<License> licenses;
         User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "Nope");
+        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "No");
         try {
             LicenseService.Iface client = thriftClients.makeLicenseClient();
             licenses = client.getLicenseSummary();
@@ -164,7 +164,7 @@ public class LicensesPortlet extends Sw360Portlet {
     private void prepareDetailView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
         String id = request.getParameter(LICENSE_ID);
         User user = UserCacheHolder.getUserFromRequest(request);
-        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "Nope");
+        request.setAttribute(IS_USER_AT_LEAST_CLEARING_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.CLEARING_ADMIN, user) ? "Yes" : "No");
         if (id != null) {
             try {
                 LicenseService.Iface client = thriftClients.makeLicenseClient();
