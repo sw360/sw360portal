@@ -19,6 +19,8 @@
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %>
+<%@ page import="org.eclipse.sw360.portal.portlets.projectimport.ProjectImportConstants" %>
 
 <portlet:defineObjects/>
 <liferay-theme:defineObjects/>
@@ -78,13 +80,23 @@
                        style="min-width:162px; min-height:28px" />
                 </div>
             </div>
-            <input type="button" onclick="updateDataSource()" value="Connect" id="buttonConnect"/>
         </div>
     </div>
     <input type="button" onclick="disconnectDataSource()" value="Disconnect" class="hidden" id="buttonDisconnect"/>
+    <div class='form-group'>
+        <label class="control-label textlabel stackedLabel" for="input-project-name">Project Name (first letters):</label>
+        <div class='controls'>
+            <input class="form-control toplabelledInput" id="input-project-name"
+                   name="<portlet:namespace/><%=Project._Fields.NAME%>"
+                   style="min-width:162px; min-height:28px" />
+        </div>
+    </div>
+    <input type="button" onclick="updateDataSource()" value="Connect" id="buttonConnect"/>
+    <input type="button" onclick="updateDataSource()" value="Refresh" class="hidden" id="buttonRefresh"/>
 </div>
 
 <div id="importProject" class="content2">
+    <p>For performance reasons, only the first 50 results will be shown. Please enter the prefix of the project name to narrow the search.</p>
     <form>
         <table id="dataSourceTable" cellpadding="0" cellspacing="0" border="0" class="display">
             <tfoot>
@@ -129,7 +141,7 @@
 
         <core_rt:forEach items="${importables}" var="importable">
 
-        var checkedProjectId = '<%=PortalConstants.CHECKED_PROJECT%>${importable.externalIds.get(idName)}';
+        var checkedProjectId = '<%=ProjectImportConstants.CHECKED_PROJECT%>${importable.externalIds.get(idName)}';
         result.push({
             "DT_RowId": "${importable.externalIds.get(idName)}",
             "0": '<span id="' + checkedProjectId + '"><sw360:out value="${importable.externalIds.get(idName)}"/></span>',
@@ -199,20 +211,20 @@
                     data: {
                         "<portlet:namespace/>checked":
                             selectedProjects.map(function (o) { return o["id"]; }),
-                        "<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>":
-                            '<%=PortalConstants.IMPORT_USER_ACTION__IMPORTBDP%>'
+                        "<portlet:namespace/><%=ProjectImportConstants.USER_ACTION__IMPORT%>":
+                            '<%=ProjectImportConstants.USER_ACTION__IMPORT_DATA%>'
                     }
                 }).done(function (response) {
                     self.setTitle("Import result");
-                    switch(response.<%=PortalConstants.IMPORT_RESPONSE__STATUS%>) {
-                        case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_SUCCESS%>':
+                    switch(response.<%=ProjectImportConstants.RESPONSE__STATUS%>) {
+                        case '<%=ProjectImportConstants.RESPONSE__SUCCESS%>':
                             self.setContent('Projects imported successfully.');
                             break;
-                        case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_FAILURE%>':
-                            var failedIdsList = "<div>" + response.<%=PortalConstants.IMPORT_RESPONSE__FAILED_IDS%> + "</div>";
+                        case '<%=ProjectImportConstants.RESPONSE__FAILURE%>':
+                            var failedIdsList = "<div>" + response.<%=ProjectImportConstants.RESPONSE__FAILED_IDS%> + "</div>";
                             self.setContent('Some projects failed to import:' + failedIdsList);
                             break;
-                        case '<%=PortalConstants.IMPORT_RESPONSE__IMPORT_BDP_GENERAL_FAILURE%>':
+                        case '<%=ProjectImportConstants.RESPONSE__GENERAL_FAILURE%>':
                             flashErrorMessage('Could not import the projects.');
                             self.setContent('Import failed.');
                             break;
@@ -228,11 +240,11 @@
 
     function connectDBRequestSuccess(response, serverURL) {
 
-        var responseCode = response.<%=PortalConstants.IMPORT_RESPONSE__STATUS%>;
+        var responseCode = response.<%=ProjectImportConstants.RESPONSE__STATUS%>;
         cleanMessages();
 
         switch(responseCode) {
-            case '<%=PortalConstants.IMPORT_RESPONSE__DB_CHANGED%>':
+            case '<%=ProjectImportConstants.RESPONSE__DB_CHANGED%>':
                 showLogin(serverURL);
                 $.confirm({
                     title: "Fetch projects",
@@ -244,8 +256,10 @@
                             cache: false,
                             dataType: 'json',
                             data: {
-                                "<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>":
-                                    "<%=PortalConstants.IMPORT_USER_ACTION__UPDATEIMPORTABLES%>"
+                                "<portlet:namespace/><%=ProjectImportConstants.USER_ACTION__IMPORT%>":
+                                    "<%=ProjectImportConstants.USER_ACTION__UPDATE_IMPORTABLES%>",
+                                "<portlet:namespace/><%=ProjectImportConstants.PROJECT_NAME%>":
+                                    $("#input-project-name").val()
                             }
                         }).done(function (response) {
                             importUpdateProjectTable(response);
@@ -257,13 +271,13 @@
                     }
                 });
                 break;
-            case '<%=PortalConstants.IMPORT_RESPONSE__DB_CONNECT_ERROR%>':
+            case '<%=ProjectImportConstants.RESPONSE__DB_CONNECT_ERROR%>':
                 flashErrorMessage('Could not connect to DB.');
                 break;
-            case '<%=PortalConstants.IMPORT_RESPONSE__DB_URL_NOTSET%>':
+            case '<%=ProjectImportConstants.RESPONSE__DB_URL_NOT_SET%>':
                 flashErrorMessage('Please enter a server URL');
                 break;
-            case '<%=PortalConstants.IMPORT_RESPONSE__UNAUTHORIZED%>':
+            case '<%=ProjectImportConstants.RESPONSE__UNAUTHORIZED%>':
                 flashErrorMessage('Unable to authenticate with this username/password.');
                 break;
             default:
@@ -272,12 +286,12 @@
     }
 
     function importUpdateProjectTable(response) {
-        var importables = response.<%=PortalConstants.IMPORT_RESPONSE__NEW_IMPORTABLES%>;
+        var importables = response.<%=ProjectImportConstants.RESPONSE__NEW_IMPORTABLES%>;
         var projectList = [];
 
         importables.forEach(function(el) {
             el = JSON.parse(el);
-            var checkedProjectId = '<%=PortalConstants.CHECKED_PROJECT%>' + el.externalId;
+            var checkedProjectId = '<%=ProjectImportConstants.CHECKED_PROJECT%>' + el.externalId;
             projectList.push({
                 "DT_RowId": el.externalId,
                 "0": '<span id="' + checkedProjectId + '">' + el.externalId + '</span>',
@@ -305,10 +319,11 @@
         }
         var serverUrl = $("#input-dataserver-url").val(),
             data = new Object();
-        data["<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>"] = "<%=PortalConstants.IMPORT_USER_ACTION__NEWIMPORTSOURCE%>";
-        data["<portlet:namespace/><%=PortalConstants.SESSION_IMPORT_URL%>"] = serverUrl;
-        data["<portlet:namespace/><%=PortalConstants.SESSION_IMPORT_USER%>"] = $("#input-dataserver-user").val();
-        data["<portlet:namespace/><%=PortalConstants.SESSION_IMPORT_PASS%>"] = $("#input-dataserver-pw").val();
+        data["<portlet:namespace/><%=ProjectImportConstants.USER_ACTION__IMPORT%>"] = "<%=ProjectImportConstants.USER_ACTION__NEW_IMPORT_SOURCE%>";
+        data["<portlet:namespace/><%=ProjectImportConstants.SERVER_URL%>"] = serverUrl;
+        data["<portlet:namespace/><%=ProjectImportConstants.USERNAME%>"] = $("#input-dataserver-user").val();
+        data["<portlet:namespace/><%=ProjectImportConstants.PASSWORD%>"] = $("#input-dataserver-pw").val();
+        data["<portlet:namespace/><%=ProjectImportConstants.PROJECT_NAME%>"] = $("#input-project-name").val();
 
         $.confirm({
             title: "Authenticate",
@@ -333,7 +348,7 @@
 
     function disconnectDataSource() {
         var data = new Object();
-        data["<portlet:namespace/><%=PortalConstants.IMPORT_USER_ACTION%>"] = "<%=PortalConstants.IMPORT_USER_ACTION__DISCONNECT%>";
+        data["<portlet:namespace/><%=ProjectImportConstants.USER_ACTION__IMPORT%>"] = "<%=ProjectImportConstants.USER_ACTION__DISCONNECT%>";
         $.ajax({
             url: '<%=ajaxURL%>',
             type: 'POST',
@@ -375,12 +390,16 @@
         cleanMessages();
         if (loggedIn) {
             $('#remoteLoginFormHidingPart').addClass('hidden');
+            $('#buttonConnect').addClass('hidden');
             $('#input-dataserver-url').prop('disabled', true);
             $('#buttonDisconnect').removeClass('hidden');
+            $('#buttonRefresh').removeClass('hidden');
         } else {
             $('#remoteLoginFormHidingPart').removeClass('hidden');
+            $('#buttonConnect').removeClass('hidden');
             $('#input-dataserver-url').prop('disabled', false);
             $('#buttonDisconnect').addClass('hidden');
+            $('#buttonRefresh').addClass('hidden');
         }
     }
 
