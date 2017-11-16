@@ -55,7 +55,6 @@ import org.eclipse.sw360.portal.users.UserCacheHolder;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -63,14 +62,10 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyList;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Constants.CONTENT_TYPE_OPENXML_SPREADSHEET;
 import static org.eclipse.sw360.datahandler.common.SW360Utils.printName;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
-import static org.eclipse.sw360.portal.common.PortletUtils.addToMatchedByHistogram;
 import static org.eclipse.sw360.portal.common.PortletUtils.getVerificationState;
 
 /**
@@ -689,9 +684,8 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         } else {
             vuls = vulClient.getVulnerabilitiesByReleaseIdWithoutIncorrect(releaseId, user);
         }
-        request.setAttribute(VULNERABILITY_LIST,vuls);
 
-        putVulnerabilityMetadatasInRequest(request, vuls);
+        putVulnerabilitiesInRequest(request, vuls, user);
     }
 
     private void putVulnerabilitiesInRequestComponent(RenderRequest request, String componentId, User user) throws TException{
@@ -702,10 +696,14 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         } else {
             vuls = vulClient.getVulnerabilitiesByComponentIdWithoutIncorrect(componentId, user);
         }
-        request.setAttribute(VULNERABILITY_LIST, vuls);
 
+        putVulnerabilitiesInRequest(request, vuls, user);
+    }
+
+    private void putVulnerabilitiesInRequest(RenderRequest request, List<VulnerabilityDTO> vuls, User user) {
+        CommonVulnerabilityPortletUtils.putLatestVulnerabilitiesInRequest(request, vuls, user);
+        CommonVulnerabilityPortletUtils.putMatchedByHistogramInRequest(request, vuls);
         putVulnerabilityMetadatasInRequest(request, vuls);
-
     }
 
     private void addToVulnerabilityVerifications(Map<String, Map<String, VerificationState>> vulnerabilityVerifications,
@@ -713,32 +711,26 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                                                  VulnerabilityDTO vulnerability){
         String vulnerabilityId = vulnerability.getExternalId();
         String releaseId = vulnerability.getIntReleaseId();
-        if(! vulnerabilityVerifications.containsKey(vulnerabilityId)){
-            vulnerabilityVerifications.put(vulnerabilityId, new HashMap<>());
-        }
-        if(! vulnerabilityTooltips.containsKey(vulnerabilityId)){
-            vulnerabilityTooltips.put(vulnerabilityId, new HashMap<>());
-        }
+        Map<String, VerificationState> vulnerabilityVerification = vulnerabilityVerifications.computeIfAbsent(vulnerabilityId, k -> new HashMap<>());
+        Map<String, String> vulnerabilityTooltip = vulnerabilityTooltips.computeIfAbsent(vulnerabilityId, k -> new HashMap<>());
         ReleaseVulnerabilityRelation relation = vulnerability.getReleaseVulnerabilityRelation();
 
         if (! relation.isSetVerificationStateInfo()) {
-            vulnerabilityVerifications.get(vulnerabilityId).put(releaseId, VerificationState.NOT_CHECKED);
-            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, "Not checked yet.");
+            vulnerabilityVerification.put(releaseId, VerificationState.NOT_CHECKED);
+            vulnerabilityTooltip.put(releaseId, "Not checked yet.");
         } else {
             List<VerificationStateInfo> infoHistory = relation.getVerificationStateInfo();
             VerificationStateInfo info = infoHistory.get(infoHistory.size() - 1);
-            vulnerabilityVerifications.get(vulnerabilityId).put(releaseId, info.getVerificationState());
-            vulnerabilityTooltips.get(vulnerabilityId).put(releaseId, formatedMessageForVul(infoHistory));
+            vulnerabilityVerification.put(releaseId, info.getVerificationState());
+            vulnerabilityTooltip.put(releaseId, formatedMessageForVul(infoHistory));
         }
     }
 
     private void putVulnerabilityMetadatasInRequest(RenderRequest request, List<VulnerabilityDTO> vuls) {
         Map<String, Map<String, String>> vulnerabilityTooltips = new HashMap<>();
         Map<String, Map<String, VerificationState>> vulnerabilityVerifications = new HashMap<>();
-        Map<String, Integer> matchedByHistogram = new HashMap<>();
         for (VulnerabilityDTO vulnerability : vuls) {
             addToVulnerabilityVerifications(vulnerabilityVerifications, vulnerabilityTooltips, vulnerability);
-            addToMatchedByHistogram(matchedByHistogram, vulnerability);
         }
 
         long numberOfCorrectVuls = vuls.stream()
@@ -756,7 +748,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             request.setAttribute(NUMBER_OF_INCORRECT_VULNERABILITIES, numberOfIncorrectVuls);
         }
 
-        request.setAttribute(PortalConstants.VULNERABILITY_MATCHED_BY_HISTOGRAM, matchedByHistogram);
         request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATIONS,vulnerabilityVerifications);
         request.setAttribute(PortalConstants.VULNERABILITY_VERIFICATION_TOOLTIPS,vulnerabilityTooltips);
     }
@@ -834,7 +825,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         try {
             final User user = UserCacheHolder.getUserFromRequest(request);
-            int limit = loadAndStoreStickyViewSize(request, user);
+            int limit = CustomFieldHelper.loadAndStoreStickyViewSize(request, user, CUSTOM_FIELD_COMPONENTS_VIEW_SIZE);
             ComponentService.Iface componentClient = thriftClients.makeComponentClient();
             request.setAttribute(PortalConstants.TOTAL_ROWS, componentClient.getTotalComponentsCount(user));
 
@@ -848,19 +839,6 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             componentList = Collections.emptyList();
         }
         return componentList;
-    }
-
-    private int loadAndStoreStickyViewSize(PortletRequest request, User user) {
-        String view_size = request.getParameter(PortalConstants.VIEW_SIZE);
-        final int limit;
-        if (isNullEmptyOrWhitespace(view_size)){
-            limit = ComponentPortletUtils.loadStickyViewSize(request, user);
-        } else {
-            limit = Integer.parseInt(view_size);
-            ComponentPortletUtils.saveStickyViewSize(request, user, limit);
-        }
-        request.setAttribute(PortalConstants.VIEW_SIZE, limit);
-        return limit;
     }
 
     //! Actions

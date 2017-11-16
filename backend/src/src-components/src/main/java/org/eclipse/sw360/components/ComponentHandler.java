@@ -263,7 +263,7 @@ public class ComponentHandler implements ComponentService.Iface {
         assertId(release.getId());
         assertUser(user);
 
-        return handler.updateRelease(release, user, ThriftUtils.immutableOfRelease());
+        return handler.updateRelease(release, user, ThriftUtils.IMMUTABLE_OF_RELEASE);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class ComponentHandler implements ComponentService.Iface {
         assertId(release.getId());
         assertUser(user);
 
-        return handler.updateRelease(release, user, ThriftUtils.immutableOfReleaseForFossology());
+        return handler.updateRelease(release, user, ThriftUtils.IMMUTABLE_OF_RELEASE_FOR_FOSSOLOGY);
     }
 
     @Override

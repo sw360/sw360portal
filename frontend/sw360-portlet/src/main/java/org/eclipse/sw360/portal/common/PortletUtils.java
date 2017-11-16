@@ -317,25 +317,6 @@ public class PortletUtils {
         return responseData;
     }
 
-    private static Map<String, Integer> addToMatchedByHistogram(Map<String, Integer> matchedByHistogram, String matchedBy){
-        if (matchedByHistogram.containsKey(matchedBy)){
-            matchedByHistogram.put(matchedBy, matchedByHistogram.get(matchedBy) + 1);
-        }else{
-            matchedByHistogram.put(matchedBy, 1);
-        }
-        return matchedByHistogram;
-    }
-
-    public static Map<String, Integer> addToMatchedByHistogram(Map<String,Integer> matchedByHistogram, VulnerabilityDTO vul){
-        final String isMatchedByUnknown = "UNKNOWN";
-
-        if (vul.isSetMatchedBy()) {
-            return addToMatchedByHistogram(matchedByHistogram, vul.getMatchedBy());
-        } else {
-            return addToMatchedByHistogram(matchedByHistogram, isMatchedByUnknown);
-        }
-    }
-
     public static VerificationState getVerificationState(VulnerabilityDTO vul){
         if(vul.isSetReleaseVulnerabilityRelation()){
             if(vul.getReleaseVulnerabilityRelation().isSetVerificationStateInfo()){

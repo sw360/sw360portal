@@ -247,16 +247,16 @@ public class ComponentDatabaseHandlerTest {
     @Test
     public void testGetRecentComponents() throws Exception {
         List<Component> recentComponents = handler.getRecentComponentsSummary(5, user1);
-        Iterable<String> componentIds = getComponentIds(recentComponents);
-        assertThat(componentIds, contains("C3", "C2", "C1"));
+        Set<String> componentIds = getComponentIds(recentComponents);
+        assertThat(componentIds, containsInAnyOrder("C3", "C2", "C1"));
     }
 
     @Test
     public void testGetRecentComponents2() throws Exception {
         List<Component> recentComponents = handler.getRecentComponentsSummary(2, user1);
-        Iterable<String> componentIds = getComponentIds(recentComponents);
+        Set<String> componentIds = getComponentIds(recentComponents);
         assertEquals(2, recentComponents.size());
-        assertThat(componentIds, contains("C3", "C2"));
+        assertThat(componentIds, containsInAnyOrder("C3", "C2"));
     }
 
     @Test
@@ -343,21 +343,21 @@ public class ComponentDatabaseHandlerTest {
                                                        "R2A", ReleaseRelationship.REFERRED
             ));
 
-        handler.updateRelease(r1A, user1, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r1A, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         final Release r1B = handler.getRelease("R1B", user2);
         r1B.setReleaseIdToRelationship(ImmutableMap.of("R2A", ReleaseRelationship.REFERRED));
-        handler.updateRelease(r1B,user2, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r1B,user2, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         final Release r2A = handler.getRelease("R2A", user1);
         r2A.setReleaseIdToRelationship(ImmutableMap.of("R2B", ReleaseRelationship.CONTAINED));
-        handler.updateRelease(r2A, user1, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r2A, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         final Release r2B = handler.getRelease("R2B", user2);
         r2B.setReleaseIdToRelationship(ImmutableMap.of("R1B", ReleaseRelationship.CONTAINED,
                 "R1A", ReleaseRelationship.REFERRED));
 
-        handler.updateRelease(r2B, user2, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r2B, user2, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         // we wrap the potentially infinite loop in an executor
         final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -403,14 +403,14 @@ public class ComponentDatabaseHandlerTest {
                 "R2A", ReleaseRelationship.REFERRED
         ));
 
-        handler.updateRelease(r1A, user1, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r1A, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         final Release r1B = handler.getRelease("R1B", user2);
         r1B.setReleaseIdToRelationship(ImmutableMap.of("R2A", ReleaseRelationship.CONTAINED));
-        handler.updateRelease(r1B,user2, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r1B,user2, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         final Release r2A = handler.getRelease("R2A", user1);
-        handler.updateRelease(r2A, user1, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r2A, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         // we wrap the potentially infinite loop in an executor
         final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -813,7 +813,7 @@ public class ComponentDatabaseHandlerTest {
         Release expected = releases.get(1);
         expected.setName("UPDATED");
 
-        RequestStatus status = handler.updateRelease(expected, user2, ThriftUtils.immutableOfRelease());
+        RequestStatus status = handler.updateRelease(expected, user2, ThriftUtils.IMMUTABLE_OF_RELEASE);
         Release actual = handler.getRelease("R1B", user1);
 
         assertEquals(RequestStatus.SUCCESS, status);
@@ -836,7 +836,7 @@ public class ComponentDatabaseHandlerTest {
         release.setName("UPDATED");
 
         when(releaseModerator.updateRelease(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
-        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.immutableOfRelease());
+        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
         Release actual = handler.getRelease("R1B", user1);
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
@@ -851,7 +851,7 @@ public class ComponentDatabaseHandlerTest {
         release.getEccInformation().setAL("UPDATED");
 
         when(releaseModerator.updateReleaseEccInfo(release, user1)).thenReturn(RequestStatus.SENT_TO_MODERATOR);
-        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.immutableOfRelease());
+        RequestStatus status = handler.updateRelease(release, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
         Release actual = handler.getRelease("R1B", user1);
 
         assertEquals(RequestStatus.SENT_TO_MODERATOR, status);
@@ -882,7 +882,7 @@ public class ComponentDatabaseHandlerTest {
     public void testDontDeleteUsedComponent() throws Exception {
         final Release r1A = handler.getRelease("R1A", user1);
         r1A.setReleaseIdToRelationship(ImmutableMap.of("R2A", ReleaseRelationship.CONTAINED));
-        handler.updateRelease(r1A, user1, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r1A, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         RequestStatus status = handler.deleteComponent("C2", user1);
         assertEquals(RequestStatus.IN_USE, status);
@@ -912,7 +912,7 @@ public class ComponentDatabaseHandlerTest {
 
         final Release r1A = handler.getRelease("R1A", user1);
         r1A.setReleaseIdToRelationship(ImmutableMap.of("R2A", ReleaseRelationship.CONTAINED));
-        handler.updateRelease(r1A, user1, ThriftUtils.immutableOfRelease());
+        handler.updateRelease(r1A, user1, ThriftUtils.IMMUTABLE_OF_RELEASE);
 
         RequestStatus status = handler.deleteRelease("R2A", user1);
         assertEquals(RequestStatus.IN_USE, status);

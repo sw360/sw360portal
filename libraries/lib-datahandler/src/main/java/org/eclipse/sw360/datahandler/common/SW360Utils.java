@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.log4j.Logger;
@@ -45,10 +44,8 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.google.common.collect.Iterables.transform;
 import static org.apache.log4j.Logger.getLogger;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.thrift.ThriftUtils.extractId;
 
 /**
  * @author Cedric.Bodet@tngtech.com
@@ -157,19 +154,15 @@ public class SW360Utils {
     }
 
     public static Set<String> getReleaseIds(Collection<Release> in) {
-        return ImmutableSet.copyOf(getIdsIterable(in));
+        return in.stream().map(Release::getId).collect(Collectors.toSet());
     }
 
     public static Set<String> getComponentIds(Collection<Component> in) {
-        return ImmutableSet.copyOf(getIdsIterable(in));
+        return in.stream().map(Component::getId).collect(Collectors.toSet());
     }
 
     public static Set<String> getProjectIds(Collection<Project> in) {
-        return ImmutableSet.copyOf(getIdsIterable(in));
-    }
-
-    public static <T> Iterable<String> getIdsIterable(Iterable<T> projects) {
-        return transform(projects, extractId());
+        return in.stream().map(Project::getId).collect(Collectors.toSet());
     }
 
     public static String getVersionedName(String name, String version) {

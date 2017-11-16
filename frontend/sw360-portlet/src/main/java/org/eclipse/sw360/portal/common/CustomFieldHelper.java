@@ -35,11 +35,32 @@ import javax.portlet.PortletRequest;
 import java.io.Serializable;
 import java.util.Optional;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 import static org.eclipse.sw360.portal.common.PortalConstants.*;
 
 public class CustomFieldHelper {
 
     private static final Logger log = Logger.getLogger(CustomFieldHelper.class);
+
+    private static final int DEFAULT_VIEW_SIZE = 200;
+
+    public static int loadAndStoreStickyViewSize(PortletRequest request, User user, String fieldName) {
+        String view_size = request.getParameter(PortalConstants.VIEW_SIZE);
+        int limit;
+        if (isNullEmptyOrWhitespace(view_size)) {
+            limit = CustomFieldHelper
+                    .loadField(Integer.class, request, user, fieldName)
+                    .orElse(DEFAULT_VIEW_SIZE);
+        } else {
+            limit = Integer.parseInt(view_size);
+            CustomFieldHelper.saveField(request, user, fieldName, limit);
+        }
+        if (limit == 0) {
+            limit = DEFAULT_VIEW_SIZE;
+        }
+        request.setAttribute(PortalConstants.VIEW_SIZE, limit);
+        return limit;
+    }
 
     public static <T extends Serializable> void saveField(PortletRequest request, User user, String field, T value) {
         try {
