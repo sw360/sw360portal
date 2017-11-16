@@ -14,12 +14,19 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ECCStatus" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.EccInformation" %>
 
+<jsp:useBean id="isUserAtLeastECCAdmin" class="java.lang.String" scope="request"/>
+
 <table class="table info_table" id="ECCInformation">
     <thead>
     <tr>
         <th colspan="3" class="headlabel">ECC Information</th>
     </tr>
     </thead>
+    <core_rt:if test="${isUserAtLeastECCAdmin != 'Yes'}">
+        <tr>
+            <td colspan="3" style="color: red">You will create a moderation request if you update any ECC data</td>
+        </tr>
+    </core_rt:if>
     <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="eccStatus">ECC Status</label>

@@ -533,6 +533,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 addReleaseBreadcrumb(request, response, release);
             }
             request.setAttribute(COMPONENT, component);
+            request.setAttribute(IS_USER_AT_LEAST_ECC_ADMIN, PermissionUtils.isUserAtLeast(UserGroup.ECC_ADMIN, user) ? "Yes" : "No");
 
         } catch (TException e) {
             log.error("Error fetching release from backend!", e);

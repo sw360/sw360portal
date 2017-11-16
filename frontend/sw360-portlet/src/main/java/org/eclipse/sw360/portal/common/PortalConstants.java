@@ -60,10 +60,12 @@ public class PortalConstants {
     public static final String PAGENAME_ACTION = "action";
     public static final String PAGENAME_DUPLICATE = "duplicate";
     public static final String SELECTED_TAB = "selectedTab";
-    public static final String IS_USER_AT_LEAST_CLEARING_ADMIN = "isUserAtLeastClearingAdmin";
     public static final String DOCUMENT_TYPE = "documentType";
     public static final String VIEW_SIZE = "viewSize";
     public static final String TOTAL_ROWS = "totalRows";
+
+    public static final String IS_USER_AT_LEAST_CLEARING_ADMIN = "isUserAtLeastClearingAdmin";
+    public static final String IS_USER_AT_LEAST_ECC_ADMIN = "isUserAtLeastECCAdmin";
 
     //! Specialized keys for licenses
     public static final String KEY_LICENSE_DETAIL = "licenseDetail";
