@@ -55,7 +55,7 @@
             </ul>
             <div class="tab-content span10">
                 <div id="tab-Open" class="tab-pane">
-                    <table id="moderationsTable" cellpadding="0" cellspacing="0" border="0" class="display">
+                    <table id="moderationsTable" cellpadding="0" cellspacing="0" border="0" class="display" style="width:100%">
                         <colgroup>
                             <col style="width: 5%;" />
                             <col style="width: 10%;" />
@@ -73,7 +73,7 @@
                     </table>
                 </div>
                 <div id="tab-Closed">
-                    <table id="closedModerationsTable" cellpadding="0" cellspacing="0" border="0" class="display">
+                    <table id="closedModerationsTable" cellpadding="0" cellspacing="0" border="0" class="display" style="width:100%">
                         <colgroup>
                             <col style="width: 5%;" />
                             <col style="width: 10%;" />
