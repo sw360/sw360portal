@@ -9,23 +9,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.sw360.portal.portlets.projects;
+package org.eclipse.sw360.portal.portlets.projectimport;
 
 import com.liferay.portal.kernel.json.JSONObject;
-import org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
-import org.eclipse.sw360.portal.common.PortalConstants;
 import junit.framework.TestCase;
-import org.junit.Before;
+import org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.portlet.PortletSession;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,7 +47,7 @@ public class ProjectImportPortletTest extends TestCase {
                 session,
                 responseData,
                 loginState);
-        verify(responseData).put(PortalConstants.IMPORT_RESPONSE__STATUS, PortalConstants.IMPORT_RESPONSE__DB_URL_NOTSET);
+        verify(responseData).put(ProjectImportConstants.RESPONSE__STATUS, ProjectImportConstants.RESPONSE__DB_URL_NOT_SET);
     }
 
     @Test
@@ -69,8 +65,8 @@ public class ProjectImportPortletTest extends TestCase {
                 responseData,
                 loginState);
 
-        verify(responseData).put(PortalConstants.IMPORT_RESPONSE__STATUS, PortalConstants.IMPORT_RESPONSE__DB_CHANGED);
-        verify(responseData).put(PortalConstants.IMPORT_RESPONSE__DBURL, newURL);
+        verify(responseData).put(ProjectImportConstants.RESPONSE__STATUS, ProjectImportConstants.RESPONSE__DB_CHANGED);
+        verify(responseData).put(ProjectImportConstants.RESPONSE__DB_URL, newURL);
     }
 
     @Test
@@ -88,9 +84,9 @@ public class ProjectImportPortletTest extends TestCase {
                 responseData,
                 loginState);
 
-        verify(session).setAttribute(PortalConstants.SESSION_IMPORT_USER, name);
-        verify(session).setAttribute(PortalConstants.SESSION_IMPORT_PASS, password);
-        verify(session).setAttribute(PortalConstants.SESSION_IMPORT_URL, newURL);
+        verify(session).setAttribute(ProjectImportConstants.USERNAME, name);
+        verify(session).setAttribute(ProjectImportConstants.PASSWORD, password);
+        verify(session).setAttribute(ProjectImportConstants.SERVER_URL, newURL);
     }
 
 }

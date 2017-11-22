@@ -660,7 +660,7 @@
         <portlet-name>ProjectImportPortlet</portlet-name>
         <display-name>ProjectImport</display-name>
         <portlet-class>
-            org.eclipse.sw360.portal.portlets.projects.ProjectImportPortlet
+            org.eclipse.sw360.portal.portlets.projectimport.ProjectImportPortlet
         </portlet-class>
         <init-param>
             <name>view-template</name>

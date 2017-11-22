@@ -45,6 +45,12 @@ service BdpImportService {
    list<Project> loadImportables(1: RemoteCredentials reCred)
 
    /**
+    * returns a list of projects that can be imported from bdp with `reCred` credentials,
+    * where any word in the project name starts with the given string
+    **/
+   list<Project> suggestImportables(1: RemoteCredentials reCred, 2: string projectName)
+
+   /**
     *  imports projects from bdp specified by `bdpProjectIds` with credentials `reCred` and set user as creating
     *  user in SW360
     **/
