@@ -224,8 +224,9 @@ public class ProjectImportPortlet extends Sw360Portlet {
 
     private void importBdpProjects(User user, List<String> selectedIds, JSONObject responseData, RemoteCredentials remoteCredentials) throws PortletException, IOException {
         ImportStatus importStatus = importDatasources(selectedIds, user, remoteCredentials);
-        JSONArray jsonFailedIds = JSONFactoryUtil.createJSONArray();
+        JSONObject jsonFailedIds = JSONFactoryUtil.createJSONObject();
         JSONArray jsonSuccessfulIds = JSONFactoryUtil.createJSONArray();
+
         if (importStatus.isSetRequestStatus() && importStatus.getRequestStatus().equals(RequestStatus.SUCCESS)) {
             importStatus.getFailedIds().forEach(jsonFailedIds::put);
             importStatus.getSuccessfulIds().forEach(jsonSuccessfulIds::put);
