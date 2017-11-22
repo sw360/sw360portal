@@ -20,8 +20,8 @@ include "sw360.thrift"
 include "users.thrift"
 include "importstatus.thrift"
 
-namespace java org.eclipse.sw360.datahandler.thrift.bdpimport
-namespace php sw360.thrift.bdpimport
+namespace java org.eclipse.sw360.datahandler.thrift.projectimport
+namespace php sw360.thrift.projectimport
 
 typedef projects.Project Project
 typedef users.User User
@@ -33,28 +33,28 @@ struct RemoteCredentials {
 3:  string serverUrl,
 }
 
-service BdpImportService {
+service ProjectImportService {
    /**
-    * check credentials with bdp API
+    * check credentials with API
     **/
    bool validateCredentials(1: RemoteCredentials credentials)
 
    /**
-    * returns a list of projects that can be imported from bdp with `reCred` credentials
+    * returns a list of projects that can be imported with `reCred` credentials
     **/
    list<Project> loadImportables(1: RemoteCredentials reCred)
 
    /**
-    * returns a list of projects that can be imported from bdp with `reCred` credentials,
+    * returns a list of projects that can be imported with `reCred` credentials,
     * where any word in the project name starts with the given string
     **/
    list<Project> suggestImportables(1: RemoteCredentials reCred, 2: string projectName)
 
    /**
-    *  imports projects from bdp specified by `bdpProjectIds` with credentials `reCred` and set user as creating
+    *  imports projects from external source specified by `projectIds` with credentials `reCred` and set user as creating
     *  user in SW360
     **/
-   ImportStatus importDatasources(1: list<string> bdpProjectIds, 2: User user, 3: RemoteCredentials reCred);
+   ImportStatus importDatasources(1: list<string> projectIds, 2: User user, 3: RemoteCredentials reCred);
 
    string getIdName();
 }

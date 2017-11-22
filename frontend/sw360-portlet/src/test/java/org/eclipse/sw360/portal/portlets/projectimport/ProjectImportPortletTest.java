@@ -13,7 +13,7 @@ package org.eclipse.sw360.portal.portlets.projectimport;
 
 import com.liferay.portal.kernel.json.JSONObject;
 import junit.framework.TestCase;
-import org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
+import org.eclipse.sw360.datahandler.thrift.projectimport.RemoteCredentials;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
