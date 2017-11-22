@@ -20,12 +20,6 @@
             <artifactId>datahandler</artifactId>
             <version>3.1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.liferay.portal</groupId>
-            <artifactId>portal-service</artifactId>
-            <version>${liferay.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <parent>
