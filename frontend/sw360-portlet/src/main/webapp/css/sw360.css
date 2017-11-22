@@ -11,8 +11,10 @@
  *
  * Description: Styles for sw360 portlet Pages
  *
- * Authors: nunifar.ms@siemens.com, puspa.panda@siemens.com,
- * johannes.najjar.ext@siemens.com
+ * Authors: nunifar.ms@siemens.com
+ *          puspa.panda@siemens.com,
+ *          johannes.najjar.ext@siemens.com
+ *          thomas.maier@evosoft.com
  */
 
 div.content1 {
@@ -523,6 +525,10 @@ input[readonly].clickable {
 
 .dataTable input, .dataTable select {
     max-width: 100%;
+}
+
+.aui .tab-content {
+    overflow: hidden;
 }
 
 .aui .table.dataTable th {
