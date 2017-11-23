@@ -102,6 +102,10 @@
 
 <script>
 
+    Liferay.on('allPortletsReady', function() {
+        createSearchTable();
+    });
+
     function deselectAllTypes() {
         $('.typeFilter').prop("checked", false);
         return false;
@@ -135,10 +139,6 @@
 
         else return data;
     }
-
-    $(window).load(function () {
-        createSearchTable();
-    });
 
     function createSearchTable() {
 

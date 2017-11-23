@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -65,7 +65,7 @@
 
 <script>
 
-    require(['jquery', /* jquery-plugins: */ 'datatables', 'jquery-ui', 'jquery-confirm'], function($) {
+    require(['jquery', /* jquery-plugins */ 'datatables', 'jquery-ui', 'jquery-confirm'], function($) {
 
         $("#addLinkedReleasesToReleaseButton").on('click', showReleaseDialog);
         $('#releaseSearchButton').on('click', function() { ReleaseContentFromAjax('releaseSearchResultsTable', '<%=PortalConstants.RELEASE_SEARCH%>', $('#searchrelease').val(), true); });
@@ -76,6 +76,10 @@
 
 
         var firstRunForReleasesTable = true;
+
+        Liferay.on('allPortletsReady', function() {
+                bindkeyPressToClick('searchrelease', 'searchbuttonrelease');}
+        );
 
         function destroyReleaseDataTable() {
             $('#releaseSearchResultsTable').DataTable().destroy();
@@ -161,11 +165,7 @@
             });
         }
 
-        $(document).ready(function () {
-                bindkeyPressToClick('searchrelease', 'searchbuttonrelease');
-            }
-        );
-    } );
+    });
 </script>
 
 <%@include file="/html/utils/includes/linkedReleaseDelete.jspf" %>

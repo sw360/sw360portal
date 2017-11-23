@@ -55,8 +55,7 @@
     require(['jquery', 'utils/includes/fossologyClearing', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function ($, fossology) {
         var releaseClearingTable;
 
-        //This can not be document ready function as liferay definitions need to be loaded first
-        $(window).load(function () {
+        Liferay.on('allPortletsReady', function() {
             createClearingTable();
             fossology.initialize();
 

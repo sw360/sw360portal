@@ -206,7 +206,7 @@
         var PortletURL = Liferay.PortletURL;
         const clearingSummaryColumnIndex = 4;
 
-        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter, autocomplete, confirm) {
+        require(['jquery', 'utils/includes/quickfilter', 'modules/autocomplete', 'modules/confirm', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter, autocomplete, confirm) {
             var projectsTable;
 
              // initializing

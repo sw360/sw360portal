@@ -159,12 +159,15 @@
 
 <script type="text/javascript">
     require(['jquery', 'utils/includes/fossologyClearing'], function ($, fossology) {
-        $(window).load(function () {
+
+        Liferay.on('allPortletsReady', function() {
             fossology.initialize();
+
+            $('#ReleaseClearingOverview').on('click', '.action.send-to-fossology', function(event) {
+                var data = $(event.currentTarget).data();
+                fossology.openSelectClearingDialog('fossologySending', data.releaseId);
+            });
         });
-        $('#ReleaseClearingOverview').on('click', '.action.send-to-fossology', function(event) {
-            var data = $(event.currentTarget).data();
-            fossology.openSelectClearingDialog('fossologySending', data.releaseId);
-        });
+
     });
 </script>

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -61,7 +61,11 @@
 
 
 <script>
-    require(['jquery', /* jquery-plugins: */ 'datatables', 'jquery-ui', 'jquery-confirm'], function($) {
+    require(['jquery', /* jquery-plugins */ 'datatables', 'jquery-ui', 'jquery-confirm'], function($) {
+
+        Liferay.on('allPortletsReady', function() {
+            bindkeyPressToClick('searchproject', 'searchbuttonproject');
+        });
 
         $('#addLinkedProjectButton').on('click', showProjectDialog);
         $('#searchbuttonproject').on('click', function() { ProjectContentFromAjax('projectSearchResultstable', '<%=PortalConstants.PROJECT_SEARCH%>', $('#searchproject').val(), true); });
@@ -152,12 +156,7 @@
                 }
             });
         }
-
-        $(document).ready(function () {
-                bindkeyPressToClick('searchproject', 'searchbuttonproject');
-            }
-        );
-    } );
+    });
 
 </script>
 

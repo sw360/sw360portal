@@ -25,7 +25,7 @@
 <script>
     require(['jquery', 'utils/includes/searchAndSelectIds'], function ($, idSearch) {
 
-        $(document).ready( function() {
+        Liferay.on('allPortletsReady', function() {
             $('.licenseSearchDialogInteractive').on('click', function() {
                 showSetLicensesDialog( $(this).data('id') );
             })

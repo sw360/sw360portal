@@ -110,14 +110,16 @@
         var moderationsDataTable,
             closedModerationsDataTable;
 
-        // add event handler
-        $(window).load(function () {
+        Liferay.on('allPortletsReady', function() {
             moderationsDataTable = createModerationsTable("#moderationsTable", prepareModerationsData());
             closedModerationsDataTable = createModerationsTable("#closedModerationsTable", prepareClosedModerationsData());
 
             quickfilter.addTable(moderationsDataTable);
             quickfilter.addTable(closedModerationsDataTable);
+
+            $('.TogglerModeratorsList').on('click', toggleModeratorsList );
         });
+
         $('#closedModerationsTable').on('click', 'img.delete', function(event) {
             var data = $(event.currentTarget).data();
             deleteModerationRequest(data.moderationRequest, data.documentName);
@@ -131,9 +133,6 @@
             }
         });
 
-        $(window).load( function() {
-        $('.TogglerModeratorsList').on('click', toggleModeratorsList );
-    });
 
     function useSearch(searchFieldId) {
         var searchText = $('#'+searchFieldId).val();

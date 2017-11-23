@@ -93,31 +93,7 @@
                     });
                 </core_rt:forEach>
 
-                /* Define function for child row creation, which will contain additional data for a clicked table row */
-                function createChildRow(rowData) {
-                    var childHtmlString = '' +
-                            '<div>' +
-                                '<span class="dataTableChildRowCell" style="padding-right: 10px; width:  4%;"/>' +
-                                '<span class="dataTableChildRowCell" style="padding-right: 50px; width: 36%;">' + rowData.sha1 + '</span>' +
-                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.uploadedOn + ' ' + rowData.uploadedComment + '</span>';
-                    if (rowData.checkStatus === 'ACCEPTED') {
-                        childHtmlString += '' +
-                                '<span class="dataTableChildRowCell foregroundOK" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
-                    } else if (rowData.checkStatus === 'REJECTED') {
-                        childHtmlString += '' +
-                                '<span class="dataTableChildRowCell foregroundAlert" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
-                    } else {
-                        childHtmlString += '' +
-                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
-                    }
-                    childHtmlString += '' +
-                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 16%;"/>'+
-                            '</div>';
-                    return childHtmlString;
-                }
-
-                /* Generate the table itself as jQuery DataTable */
-                $(document).ready(function() {
+                Liferay.on('allPortletsReady', function() {
                     var table = $('#attachmentsDetail').DataTable( {
                         "data": attachmentJSON,
                         "columns": [
@@ -167,7 +143,31 @@
                             tr.addClass('shown');
                         }
                     } );
-                } );
+                });
+
+                /* Define function for child row creation, which will contain additional data for a clicked table row */
+                function createChildRow(rowData) {
+                    var childHtmlString = '' +
+                            '<div>' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 10px; width:  4%;"/>' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 50px; width: 36%;">' + rowData.sha1 + '</span>' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.uploadedOn + ' ' + rowData.uploadedComment + '</span>';
+                    if (rowData.checkStatus === 'ACCEPTED') {
+                        childHtmlString += '' +
+                                '<span class="dataTableChildRowCell foregroundOK" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                    } else if (rowData.checkStatus === 'REJECTED') {
+                        childHtmlString += '' +
+                                '<span class="dataTableChildRowCell foregroundAlert" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                    } else {
+                        childHtmlString += '' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 22%;">' + rowData.checkedOn + ' ' + rowData.checkedComment + '</span>';
+                    }
+                    childHtmlString += '' +
+                                '<span class="dataTableChildRowCell" style="padding-right: 30px; width: 16%;"/>'+
+                            '</div>';
+                    return childHtmlString;
+                }
+
             });
         </script>
     </core_rt:if>

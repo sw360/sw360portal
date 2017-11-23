@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2015. Part of the SW360 Portal User.
+  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal User.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -25,11 +25,12 @@
 <script>
     require(['jquery', 'utils/includes/searchAndSelectIds'], function($, idSearch) {
 
-        $(document).ready( function() {
-            $('.userSearchDialogInteractive').on('click', function() {
-                showUserDialog( $(this).data('multiUser'), $(this).data('id') );
-            })
-        });
+        Liferay.on('allPortletsReady', function() {
+                $('.userSearchDialogInteractive').on('click', function() {
+                    showUserDialog( $(this).data('multiUser'), $(this).data('id') );
+                })
+            }
+        );
 
         firstRun = true;
 

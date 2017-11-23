@@ -41,8 +41,7 @@
     require(['jquery', 'utils/includes/fossologyClearing', 'modules/confirm', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function ($, fossology, confirm) {
         var releaseTable;
 
-        // This can not be document ready function as liferay definitions need to be loaded first
-        $(window).load(function () {
+        Liferay.on('allPortletsReady', function() {
             createClearingTable();
             fossology.initialize();
 
@@ -51,8 +50,8 @@
                 fossology.openSelectClearingDialog('clearingState', data.releaseId);
             });
             $('#releasesTable').on('click', '.action.delete-release', function(event) {
-               var data = $(event.currentTarget).data();
-               deleteRelease(data.releaseId, data.releaseName, data.linkedReleases, data.attachments);
+                var data = $(event.currentTarget).data();
+                deleteRelease(data.releaseId, data.releaseName, data.linkedReleases, data.attachments);
             });
         });
 

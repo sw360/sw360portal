@@ -156,7 +156,7 @@ var Y = YUI().use(
 
 require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw360Validate, confirm) {
 
-    $(document).ready(function() {
+    Liferay.on('allPortletsReady', function() {
         var contextpath = '<%=request.getContextPath()%>',
             deletionMessage;
 
@@ -176,6 +176,7 @@ require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw3
                         showCommentField();
                     </core_rt:otherwise>
                 </core_rt:choose>
+
             }
         );
     });

@@ -97,8 +97,10 @@
 
 <script>
     require(['jquery'], function($) {
-        $(document).ready(function () {
+
+        Liferay.on('allPortletsReady', function() {
             $('#licenseInfoHeaderText').height($('#licenseInfoHeaderText').prop('scrollHeight'));
         });
+
     });
 </script>

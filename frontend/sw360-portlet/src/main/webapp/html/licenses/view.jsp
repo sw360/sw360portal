@@ -67,13 +67,12 @@
 <%--for javascript library loading --%>
 <%@ include file="/html/utils/includes/requirejs.jspf" %>
 <script>
-    require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins: */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter) {
-        //This can not be document ready function as liferay definitions need to be loaded first
+    require(['jquery', 'utils/includes/quickfilter', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function($, quickfilter) {
         var licenseTable;
 
-        $(window).load(function() {
-          licenseTable = createLicenseTable();
-          quickfilter.addTable(licenseTable);
+        Liferay.on('allPortletsReady', function() {
+            licenseTable = createLicenseTable();
+            quickfilter.addTable(licenseTable);
         });
 
         // catch ctrl+p and print dataTable
@@ -84,7 +83,7 @@
             }
         });
 
-        function createLicenseTable(datatables) {
+        function createLicenseTable() {
             var licenseTable,
                 result = [];
 
