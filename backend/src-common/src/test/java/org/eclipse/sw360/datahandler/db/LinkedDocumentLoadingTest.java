@@ -51,6 +51,24 @@ public class LinkedDocumentLoadingTest {
     }
 
     @Test
+    public void testReleaseResolvingForOneComponentWithoutRelease() {
+        Component component = new Component("Component 1").setId("c1");
+        componentRepository.add(component);
+
+        // check that releases are not resolved by default
+        component = componentRepository.get("c1");
+        Assert.assertNotNull(component);
+        Assert.assertNull(component.getReleaseIds());
+        Assert.assertNull(component.getReleases());
+
+        // check that releases are resolved with special method
+        component = componentRepository.getWithReleases("c1");
+        Assert.assertNotNull(component);
+        Assert.assertNull(component.getReleaseIds());
+        Assert.assertNull(component.getReleases());
+    }
+
+    @Test
     public void testReleaseResolvingForOneComponent() {
         Release release1 = new Release("r1", "1.0", "c1").setId("r1");
         releaseRepository.add(release1);
