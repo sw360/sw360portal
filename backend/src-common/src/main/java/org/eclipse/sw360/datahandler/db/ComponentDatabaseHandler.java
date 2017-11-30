@@ -12,6 +12,7 @@
 package org.eclipse.sw360.datahandler.db;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
@@ -32,6 +33,7 @@ import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
 import org.eclipse.sw360.datahandler.thrift.attachments.CheckStatus;
 import org.eclipse.sw360.datahandler.thrift.components.*;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationRequest;
+import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.RequestedAction;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -51,10 +53,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.getBestClearingReport;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyMap;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
+import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.fail;
@@ -393,29 +392,34 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         // Prepare component for database
         prepareComponent(component);
 
-        // Get actual document for members that should no change
+        // Get actual document for members that should not change
         Component actual = componentRepository.get(component.getId());
-        assertNotNull(actual, "Could not find component to doBulk!");
+        assertNotNull(actual, "Could not find component to update!");
 
         if (makePermission(actual, user).isActionAllowed(RequestedAction.WRITE)) {
-
             // Nested releases and attachments should not be updated by this method
-            if (actual.isSetReleaseIds())
+            if (actual.isSetReleaseIds()) {
                 component.setReleaseIds(actual.getReleaseIds());
-            component.unsetReleases();
+            }
 
             copyFields(actual, component, ThriftUtils.IMMUTABLE_OF_COMPONENT);
-            component.setAttachments( getAllAttachmentsToKeep(actual.getAttachments(), component.getAttachments()) );
-            // Update the database with the component
-            componentRepository.update(component);
+            component.setAttachments(getAllAttachmentsToKeep(actual.getAttachments(), component.getAttachments()));
+            updateComponentInternal(component, actual, user);
 
-            //clean up attachments in database
-            attachmentConnector.deleteAttachmentDifference(actual.getAttachments(),component.getAttachments());
-            sendMailNotificationsForComponentUpdate(component, user.getEmail());
         } else {
             return moderator.updateComponent(component, user);
         }
         return RequestStatus.SUCCESS;
+
+    }
+
+    private void updateComponentInternal(Component updated, Component current, User user) {
+        // Update the database with the component
+        componentRepository.update(updated);
+
+        //clean up attachments in database
+        attachmentConnector.deleteAttachmentDifference(current.getAttachments(), updated.getAttachments());
+        sendMailNotificationsForComponentUpdate(updated, user.getEmail());
     }
 
     private void prepareComponent(Component component) throws SW360Exception {
@@ -446,78 +450,76 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
     }
 
 
-    public Component mergeComponents(String mergeTargetId, String mergeSourceId, Component mergeSelection,
-            User sessionUser) throws SW360Exception {
-        Component mergeTarget = getComponent(mergeSelection.getId(), sessionUser);
+    public RequestStatus mergeComponents(String mergeTargetId, String mergeSourceId, Component mergeSelection,
+            User sessionUser) throws TException {
+        Component mergeTarget = getComponent(mergeTargetId, sessionUser);
         Component mergeSource = getComponent(mergeSourceId, sessionUser);
+        // load releases anew and overwrite them in the component, because getComponent() returns release summaries
+        // without revision, but we need the revision to update releases in mergeReleases(), or else couchdb reports
+        // revision conflict
+        Set<String> sourceReleaseIds = nullToEmptyList(mergeSource.getReleases()).stream().map(Release::getId).collect(Collectors.toSet());
+        mergeSource.setReleases(getReleasesForClearingStateSummary(sourceReleaseIds));
 
         if (!makePermission(mergeTarget, sessionUser).isActionAllowed(RequestedAction.WRITE)
                 || !makePermission(mergeSource, sessionUser).isActionAllowed(RequestedAction.WRITE)
                 || !makePermission(mergeSource, sessionUser).isActionAllowed(RequestedAction.DELETE)) {
-            return null;
+            return RequestStatus.FAILURE;
         }
 
-        // merge "standard" fields
-        mergeTarget.setName(mergeSelection.getName());
-        mergeTarget.setCreatedOn(mergeSelection.getCreatedOn());
-        mergeTarget.setCreatedBy(mergeSelection.getCreatedBy());
-        mergeTarget.setCategories(mergeSelection.getCategories());
-        mergeTarget.setComponentType(mergeSelection.getComponentType());
-        mergeTarget.setHomepage(mergeSelection.getHomepage());
-        mergeTarget.setBlog(mergeSelection.getBlog());
-        mergeTarget.setWiki(mergeSelection.getWiki());
-        mergeTarget.setMailinglist(mergeSelection.getMailinglist());
-        mergeTarget.setDescription(mergeSelection.getDescription());
+        if (isComponentUnderModeration(mergeTargetId) ||
+                isComponentUnderModeration(mergeSourceId)){
+            return RequestStatus.IN_USE;
+        }
 
-        // merge "aggregate" data, as selected by the user
-        mergeTarget.setVendorNames(mergeSelection.getVendorNames());
-        mergeTarget.setLanguages(mergeSelection.getLanguages());
-        mergeTarget.setSoftwarePlatforms(mergeSelection.getSoftwarePlatforms());
-        mergeTarget.setOperatingSystems(mergeSelection.getOperatingSystems());
-        mergeTarget.setMainLicenseIds(mergeSelection.getMainLicenseIds());
+        mergePlainFields(mergeSelection, mergeTarget);
+        mergeReleases(mergeSource, mergeTarget, mergeSelection, sessionUser);
+        mergeAttachments(mergeSelection, mergeTarget, mergeSource);
 
-        // merge "user" data
-        mergeTarget.setComponentOwner(mergeSelection.getComponentOwner());
-        mergeTarget.setOwnerAccountingUnit(mergeSelection.getOwnerAccountingUnit());
-        mergeTarget.setOwnerGroup(mergeSelection.getOwnerGroup());
-        mergeTarget.setModerators(mergeSelection.getModerators());
-        mergeTarget.setSubscribers(mergeSelection.getSubscribers());
-        mergeTarget.setRoles(mergeSelection.getRoles());
+        // first, update source before deletion so that attachments and releases and
+        // stuff that has been migrated will not be deleted by component deletion!
+        updateComponentCompletely(mergeSource, sessionUser);
+        updateComponentCompletely(mergeTarget, sessionUser);
+        deleteComponent(mergeSourceId, sessionUser);
 
+        return RequestStatus.SUCCESS;
+    }
+
+    private boolean isComponentUnderModeration(String componentSourceId) throws TException {
+        ModerationService.Iface moderationClient = new ThriftClients().makeModerationClient();
+        List<ModerationRequest> sourceModerationRequests = moderationClient.getModerationRequestByDocumentId(componentSourceId);
+        return sourceModerationRequests.stream().anyMatch(CommonUtils::isInProgressOrPending);
+    }
+
+    private void mergePlainFields(Component mergeSelection, Component mergeTarget) {
+        copyFields(mergeSelection, mergeTarget, ImmutableSet.<Component._Fields>builder()
+                .add(Component._Fields.NAME)
+                .add(Component._Fields.CREATED_ON)
+                .add(Component._Fields.CREATED_BY)
+                .add(Component._Fields.CATEGORIES)
+                .add(Component._Fields.COMPONENT_TYPE)
+                .add(Component._Fields.HOMEPAGE)
+                .add(Component._Fields.BLOG)
+                .add(Component._Fields.WIKI)
+                .add(Component._Fields.MAILINGLIST)
+                .add(Component._Fields.DESCRIPTION)
+                .add(Component._Fields.COMPONENT_OWNER)
+                .add(Component._Fields.OWNER_ACCOUNTING_UNIT)
+                .add(Component._Fields.OWNER_GROUP)
+                .add(Component._Fields.MODERATORS)
+                .add(Component._Fields.SUBSCRIBERS)
+                .add(Component._Fields.ROLES)
+                .build());
+    }
+
+    private void mergeAttachments(Component mergeSelection, Component mergeTarget, Component mergeSource) {
+        // --- handle attachments (a bit more complicated)
         // prepare for no NPE
-        if (mergeSource.getReleaseIds() == null) {
-            mergeSource.setReleaseIds(new HashSet<>());
-        }
-        if (mergeTarget.getReleaseIds() == null) {
-            mergeTarget.setReleaseIds(new HashSet<>());
-        }
         if (mergeSource.getAttachments() == null) {
             mergeSource.setAttachments(new HashSet<>());
         }
         if (mergeTarget.getAttachments() == null) {
             mergeTarget.setAttachments(new HashSet<>());
         }
-
-        // --- handle releases (a bit more complicated)
-
-        // Migrate all releases from source to target
-        // FIXME: also update the release name as it normally matches the component
-        // name?
-        Set<String> releaseIdsToMigrate = mergeSource.getReleaseIds();
-        List<Release> releasesToMigrate = getReleases(releaseIdsToMigrate);
-        releasesToMigrate.forEach(r -> r.setComponentId(mergeSelection.getId()));
-        updateReleases(releasesToMigrate, sessionUser);
-
-        // remove releaseids from source so that they don't get deleted on deletion of
-        // source component later on (releases are not part of the component in couchdb,
-        // only the ids)
-        mergeSource.getReleaseIds().removeAll(releaseIdsToMigrate);
-
-        // only release ids are persisted, the list of release objects are joined so
-        // there is no need to update that one
-        releaseIdsToMigrate.forEach(mergeTarget::addToReleaseIds);
-
-        // --- handle attachments (a bit more complicated)
 
         Set<String> attachmentIdsSelected = mergeSelection.getAttachments().stream()
                 .map(Attachment::getAttachmentContentId).collect(Collectors.toSet());
@@ -542,19 +544,38 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         });
         mergeTarget.getAttachments().removeAll(attachmentsToDelete);
 
-        // FIXME: also delete attachment contents of deleted attachments in target?
+    }
 
-        // FIXME: where else are componentids referenced?
+    private void mergeReleases(Component mergeSource, Component mergeTarget, Component mergeSelection, User sessionUser) throws SW360Exception {
+        // --- handle releases (a bit more complicated)
 
-        // FIXME: what is document state for?
+        Set<String> selectedReleaseIds = nullToEmptyList(mergeSelection.getReleases()).stream().map(Release::getId).collect(Collectors.toSet());
 
-        // first, update source before deletion so that attachments and releases and
-        // stuff that has been migrated will not be deleted by component deletion!
-        updateComponentCompletely(mergeSource, sessionUser);
-        updateComponentCompletely(mergeTarget, sessionUser);
-        deleteComponent(mergeSourceId, sessionUser);
+        // Migrate selected releases from source to target
+        List<Release> sourceReleases = nullToEmptyList(mergeSource.getReleases());
+        sourceReleases.stream()
+                .filter(r -> selectedReleaseIds.contains(r.getId()))
+                .forEach(r -> {
+                    r.setComponentId(mergeTarget.getId());
+                    // overwrite the release name with the name of the new target component, but only if it is equal
+                    // to the name of the source component. Example: if we're merging component 'android' into 'Android',
+                    // we don't want to override the release name 'Lollipop' with 'Android'. In contrast, when merging
+                    // e.g. Apache Commons into Commons, we do want to overwrite release name.
+                    if (Objects.equals(r.getName(), mergeSource.getName())) {
+                        r.setName(mergeSelection.getName());
+                    }
+                });
+        updateReleases(sourceReleases, sessionUser);
 
-        return getComponent(mergeTargetId, sessionUser);
+        // remove releaseids from source so that they don't get deleted on deletion of
+        // source component later on (releases are not part of the component in couchdb,
+        // only the ids)
+        mergeSource.setReleaseIds(new HashSet<>());
+
+        // only release ids are persisted, the list of release objects are joined so
+        // there is no need to update that one
+        mergeTarget.setReleaseIds(new HashSet<>());
+        selectedReleaseIds.forEach(mergeTarget::addToReleaseIds);
     }
 
     /**
@@ -563,19 +584,14 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
      * exactly the given component as a result, this method is really submitting the
      * given data to the persistence.
      */
-    private void updateComponentCompletely(Component component, User user) {
+    private void updateComponentCompletely(Component component, User user) throws SW360Exception {
         // Prepare component for database
-        try {
-            prepareComponent(component);
-        } catch (SW360Exception e) {
-            log.warn("Could not prepare component for complete deletion: " + component.getId(), e);
-            return;
-        }
+        prepareComponent(component);
 
-        // Update the database with the component
-        componentRepository.update(component);
+        Component actual = componentRepository.get(component.getId());
+        assertNotNull(actual, "Could not find component to update!");
 
-        sendMailNotificationsForComponentUpdate(component, user.getEmail());
+        updateComponentInternal(component, actual, user);
 
     }
 
@@ -1075,7 +1091,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
             if (component.isSetReleaseIds()) {
                 // Convert Ids to release summary
                 final Set<String> releaseIds = component.getReleaseIds();
-                final List<Release> releases = CommonUtils.nullToEmptyList(releaseRepository.get(releaseIds));
+                final List<Release> releases = nullToEmptyList(releaseRepository.get(releaseIds));
                 for (Release release : releases) {
                     vendorRepository.fillVendor(release);
                 }

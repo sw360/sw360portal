@@ -95,6 +95,11 @@
             });
         });
 
+        $('#merge').on('click', function(event) {
+            var data = $(event.currentTarget).data();
+            mergeComponent(data.componentId);
+        });
+
         function doAjax(url, successCallback, errorCallback) {
             $.ajax({
                 type: 'POST',
@@ -107,21 +112,6 @@
                 }
             });
         }
-    });
-</script>
-
-<%@ include file="/html/utils/includes/requirejs.jspf" %>
-<script>
-    require([ 'jquery' ], function($) {
-        /* see http://requirejs.org/docs/jquery.html#noconflictmap - but setting it globaly would cause other
-           trouble, so just locally when needed (and possible) */
-        $.noConflict(true);
-
-        // register event handlers
-        $('#merge').on('click', function(event) {
-            var data = $(event.currentTarget).data();
-            mergeComponent(data.componentId);
-        });
 
         function mergeComponent(componentId) {
             var baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',

@@ -258,7 +258,7 @@ public class ComponentHandler implements ComponentService.Iface {
     }
 
     @Override
-    public Component mergeComponents(String componentTargetId, String componentSourceId, Component componentSelection,
+    public RequestStatus mergeComponents(String componentTargetId, String componentSourceId, Component componentSelection,
             User user) throws TException {
         return handler.mergeComponents(componentTargetId, componentSourceId, componentSelection, user);
     }

@@ -26,7 +26,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
 
         // initialize the real wizard
         sw360Wizard(config);
-    }
+    };
 
     /* ******************** *********************
      * render merge methods
@@ -36,7 +36,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
 
     mergeWizard.createCategoryLine = function createCategoryLine(name) {
         return '<div class="category">' + name + '</div>';
-    }
+    };
 
     mergeWizard.createSingleMergeLine = function createSingleMergeLine(propName, target, source, detailFormatter) {
         var line;
@@ -50,7 +50,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
                            '</fieldset>');
 
         return $(line).append(createSingleMergeContent(target, source, 0, detailFormatter));
-    }
+    };
 
     mergeWizard.createMultiMergeLine = function createMultiMergeLine(propName, target, source, detailFormatter) {
         var result,
@@ -81,7 +81,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         });
 
         return result;
-    }
+    };
 
     mergeWizard.createMultiMapMergeLine = function createMultiMapMergeLine(propName, target, source, detailFormatter) {
         var result,
@@ -115,7 +115,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         result.data('mapKeys', keys);
 
         return result;
-    }
+    };
 
     // private
 
@@ -160,7 +160,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
                            '</fieldset>');
 
         return $(line).append(createSingleDisplayContent(value, detailFormatter));
-    }
+    };
 
     mergeWizard.createMultiDisplayLine = function createMultiDisplayLine(propName, values, detailFormatter) {
         var result;
@@ -177,7 +177,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         });
 
         return result;
-    }
+    };
 
     mergeWizard.createMultiMapDisplayLine = function createMultiMapDisplayLine(propName, values, detailFormatter) {
         var result;
@@ -194,7 +194,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         });
 
         return result;
-    }
+    };
 
     // private
 
@@ -214,7 +214,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         wizardRoot.find('fieldset div.mid input').each(function(index, element) {
             registerCopyClickHandler($(element));
         });
-    }
+    };
 
     // private
 
@@ -291,7 +291,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
             targetNode = $('.left[data-row-index="0"]', $fieldset);
 
         return getFinalValue(targetNode);
-    }
+    };
 
     mergeWizard.getFinalMultiValue = function getFinalMultiValue(propName) {
         var $fieldset = $('#' + propName.replace(/ /g, '')),
@@ -307,7 +307,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         });
 
         return result;
-    }
+    };
 
     mergeWizard.getFinalMultiMapValue = function getFinalMultiMapValue(propName) {
         var $fieldset = $('#' + propName.replace(/ /g, '')),
@@ -323,7 +323,7 @@ define('modules/mergeWizard', [ 'jquery', 'modules/sw360Wizard' ], function($, s
         });
 
         return result;
-    }
+    };
 
     // private
 

@@ -9,6 +9,8 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.users.User" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
+<%@ page import="org.eclipse.sw360.datahandler.common.ThriftEnumUtils" %>
 
 <%@include file="/html/init.jsp" %>
 <%-- the following is needed by liferay to display error messages--%>
@@ -53,7 +55,7 @@
 <script>
     require([ 'modules/mergeWizard', 'jquery', /* jquery-plugins */ 'datatables' ], function(wizard, $) {
         var mergeWizardStepUrl = '<%=componentMergeWizardStepUrl%>',
-            postParamsPrefix = '_components_WAR_sw360portlet_',
+            postParamsPrefix = '<portlet:namespace/>',
             $wizardRoot = $('#componentMergeWizard');
 
         wizard({
@@ -79,6 +81,9 @@
                 }
             ],
             finishCb: function(data) {
+                if (data.error) {
+                    alert("Could not merge components:\n" + data.error);
+                }
                 window.location.href = data.redirectUrl;
             }
         });
@@ -148,19 +153,12 @@
             $stepElement.append(wizard.createSingleMergeLine('Created on', data.componentTarget.createdOn, data.componentSource.createdOn));
             $stepElement.append(wizard.createSingleMergeLine('Created by', data.componentTarget.createdBy, data.componentSource.createdBy));
             $stepElement.append(wizard.createMultiMergeLine('Categories', data.componentTarget.categories, data.componentSource.categories));
-            $stepElement.append(wizard.createSingleMergeLine('Component Type', data.componentTarget.componentType, data.componentSource.componentType));
+            $stepElement.append(wizard.createSingleMergeLine('Component Type', data.componentTarget.componentType, data.componentSource.componentType, getComponentTypeDisplayString));
             $stepElement.append(wizard.createSingleMergeLine('Homepage', data.componentTarget.homepage, data.componentSource.homepage));
             $stepElement.append(wizard.createSingleMergeLine('Blog', data.componentTarget.blog, data.componentSource.blog));
             $stepElement.append(wizard.createSingleMergeLine('Wiki', data.componentTarget.wiki, data.componentSource.wiki));
             $stepElement.append(wizard.createSingleMergeLine('Mailing list', data.componentTarget.mailinglist, data.componentSource.mailinglist));
             $stepElement.append(wizard.createSingleMergeLine('Description', data.componentTarget.description, data.componentSource.description));
-
-            $stepElement.append(wizard.createCategoryLine('Release Aggregate Data'));
-            $stepElement.append(wizard.createMultiMergeLine('Vendors', data.componentTarget.vendorNames, data.componentSource.vendorNames));
-            $stepElement.append(wizard.createMultiMergeLine('Languages', data.componentTarget.languages, data.componentSource.languages));
-            $stepElement.append(wizard.createMultiMergeLine('Platforms', data.componentTarget.softwarePlatforms, data.componentSource.softwarePlatforms));
-            $stepElement.append(wizard.createMultiMergeLine('Operating systems', data.componentTarget.operatingSystems, data.componentSource.operatingSystems));
-            $stepElement.append(wizard.createMultiMergeLine('Main licenses', data.componentTarget.mainLicenseIds, data.componentSource.mainLicenseIds));
 
             $stepElement.append(wizard.createCategoryLine('Roles'));
             $stepElement.append(wizard.createSingleMergeLine('Component owner', data.componentTarget.componentOwner, data.componentSource.componentOwner));
@@ -207,12 +205,6 @@
             componentSelection.mailinglist = wizard.getFinalSingleValue('Mailing list');
             componentSelection.description = wizard.getFinalSingleValue('Description');
 
-            componentSelection.vendorNames = wizard.getFinalMultiValue('Vendors');
-            componentSelection.languages = wizard.getFinalMultiValue('Languages');
-            componentSelection.softwarePlatforms = wizard.getFinalMultiValue('Platforms');
-            componentSelection.operatingSystems = wizard.getFinalMultiValue('Operating systems');
-            componentSelection.mainLicenseIds = wizard.getFinalMultiValue('Main licenses');
-
             componentSelection.componentOwner = wizard.getFinalSingleValue('Component owner');
             componentSelection.ownerAccountingUnit = wizard.getFinalSingleValue('Owner accounting unit');
             componentSelection.ownerGroup = wizard.getFinalSingleValue('Owner billing group');
@@ -258,19 +250,12 @@
             $stepElement.append(wizard.createSingleDisplayLine('Created on', data.componentSelection.createdOn));
             $stepElement.append(wizard.createSingleDisplayLine('Created by', data.componentSelection.createdBy));
             $stepElement.append(wizard.createMultiDisplayLine('Categories', data.componentSelection.categories));
-            $stepElement.append(wizard.createSingleDisplayLine('Component Type', data.componentSelection.componentType));
+            $stepElement.append(wizard.createSingleDisplayLine('Component Type', data.componentSelection.componentType, getComponentTypeDisplayString));
             $stepElement.append(wizard.createSingleDisplayLine('Homepage', data.componentSelection.homepage));
             $stepElement.append(wizard.createSingleDisplayLine('Blog', data.componentSelection.blog));
             $stepElement.append(wizard.createSingleDisplayLine('Wiki', data.componentSelection.wiki));
             $stepElement.append(wizard.createSingleDisplayLine('Mailing list', data.componentSelection.mailinglist));
             $stepElement.append(wizard.createSingleDisplayLine('Description', data.componentSelection.description));
-
-            $stepElement.append(wizard.createCategoryLine('Release Aggregate Data'));
-            $stepElement.append(wizard.createMultiDisplayLine('Vendors', data.componentSelection.vendorNames));
-            $stepElement.append(wizard.createMultiDisplayLine('Languages', data.componentSelection.languages));
-            $stepElement.append(wizard.createMultiDisplayLine('Platforms', data.componentSelection.softwarePlatforms));
-            $stepElement.append(wizard.createMultiDisplayLine('Operating systems', data.componentSelection.operatingSystems));
-            $stepElement.append(wizard.createMultiDisplayLine('Main licenses', data.componentSelection.mainLicenseIds));
 
             $stepElement.append(wizard.createCategoryLine('Roles'));
             $stepElement.append(wizard.createSingleDisplayLine('Component owner', data.componentSelection.componentOwner));
@@ -307,6 +292,15 @@
 
         function submitErrorHook($stepElement, textStatus, error) {
             alert('An error happened while communicating with the server: ' + textStatus + error);
+        }
+
+        var componentTypeDisplayStrings = {};
+        <core_rt:forEach items="${ComponentType.values()}" var="ct">
+        componentTypeDisplayStrings[${ct.value}] = '${ThriftEnumUtils.enumToString(ct)}';
+        </core_rt:forEach>
+
+        function getComponentTypeDisplayString(componentType){
+          return componentTypeDisplayStrings[componentType];
         }
     });
 </script>

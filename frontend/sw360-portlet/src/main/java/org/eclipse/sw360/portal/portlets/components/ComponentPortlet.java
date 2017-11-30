@@ -302,7 +302,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         jsonGenerator.close();
     }
 
-    private LiferayPortletURL createDetailLinkTemplate(ResourceRequest request) {
+    private LiferayPortletURL createDetailLinkTemplate(PortletRequest request) {
         String portletId = (String) request.getAttribute(WebKeys.PORTLET_ID);
         ThemeDisplay tD = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
         long plid = tD.getPlid();
@@ -498,7 +498,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_RELEASE);
 
         if (isNullOrEmpty(id) && isNullOrEmpty(releaseId)) {
-            throw new PortletException("Component and Release ID not set!");
+            throw new PortletException("Component or Release ID not set!");
         }
 
         try {
@@ -629,13 +629,13 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
             jsonGenerator.close();
         } catch (Exception e) {
-            log.error("An error occurred while updating the user record", e);
+            log.error("An error occurred while generating a response to component merge wizard", e);
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE,
                     Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }
 
-    private void generateComponentMergeWizardStep0Response(ActionRequest request, JsonGenerator jsonGenerator) throws JsonGenerationException, IOException, TException {
+    private void generateComponentMergeWizardStep0Response(ActionRequest request, JsonGenerator jsonGenerator) throws IOException, TException {
         User sessionUser = UserCacheHolder.getUserFromRequest(request);
         ComponentService.Iface cClient = thriftClients.makeComponentClient();
         List<Component> componentSummary = cClient.getComponentSummary(sessionUser);
@@ -660,10 +660,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         jsonGenerator.writeEndObject();
     }
 
-    private void generateComponentMergeWizardStep1Response(ActionRequest request, JsonGenerator jsonGenerator) throws JsonGenerationException, IOException, TException {
+    private void generateComponentMergeWizardStep1Response(ActionRequest request, JsonGenerator jsonGenerator) throws IOException, TException {
         User sessionUser = UserCacheHolder.getUserFromRequest(request);
-        String componentTargetId = request.getParameter("componentTargetId");
-        String componentSourceId = request.getParameter("componentSourceId");
+        String componentTargetId = request.getParameter(COMPONENT_TARGET_ID);
+        String componentSourceId = request.getParameter(COMPONENT_SOURCE_ID);
 
         ComponentService.Iface cClient = thriftClients.makeComponentClient();
         Component componentTarget = cClient.getComponentById(componentTargetId, sessionUser);
@@ -681,17 +681,17 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void generateComponentMergeWizardStep2Response(ActionRequest request, JsonGenerator jsonGenerator)
             throws IOException, TException {
         ObjectMapper om = new ObjectMapper();
-        Component componentSelection = om.readValue((String) request.getParameter("componentSelection"),
+        Component componentSelection = om.readValue(request.getParameter(COMPONENT_SELECTION),
                 Component.class);
-        String componentSourceId = request.getParameter("componentSourceId");
+        String componentSourceId = request.getParameter(COMPONENT_SOURCE_ID);
 
         // FIXME: maybe validate the component
 
         jsonGenerator.writeStartObject();
 
         // adding common title
-        jsonGenerator.writeRaw("\"componentSelection\":" + JSON_THRIFT_SERIALIZER.toString(componentSelection) + ",");
-        jsonGenerator.writeStringField("componentSourceId", componentSourceId);
+        jsonGenerator.writeRaw("\""+ COMPONENT_SELECTION +"\":" + JSON_THRIFT_SERIALIZER.toString(componentSelection) + ",");
+        jsonGenerator.writeStringField(COMPONENT_SOURCE_ID, componentSourceId);
 
         jsonGenerator.writeEndObject();
     }
@@ -703,25 +703,26 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
         // extract request data
         User sessionUser = UserCacheHolder.getUserFromRequest(request);
-        Component componentSelection = om.readValue((String) request.getParameter("componentSelection"),
+        Component componentSelection = om.readValue(request.getParameter(COMPONENT_SELECTION),
                 Component.class);
-        String componentSourceId = request.getParameter("componentSourceId");
+        String componentSourceId = request.getParameter(COMPONENT_SOURCE_ID);
 
         // perform the real merge, update merge target and delete merge source
-        cClient.mergeComponents(componentSelection.getId(), componentSourceId, componentSelection, sessionUser);
+        RequestStatus status = cClient.mergeComponents(componentSelection.getId(), componentSourceId, componentSelection, sessionUser);
 
         // generate redirect url
-        String portletId = (String) request.getAttribute(WebKeys.PORTLET_ID);
-        ThemeDisplay tD = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        long plid = tD.getPlid();
-        LiferayPortletURL componentUrl = PortletURLFactoryUtil.create(request, portletId, plid,
-                PortletRequest.RENDER_PHASE);
+        LiferayPortletURL componentUrl = createDetailLinkTemplate(request);
         componentUrl.setParameter(PortalConstants.PAGENAME, PortalConstants.PAGENAME_DETAIL);
         componentUrl.setParameter(PortalConstants.COMPONENT_ID, componentSelection.getId());
 
         // write response JSON
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("redirectUrl", componentUrl.toString());
+        if (status == RequestStatus.IN_USE){
+            jsonGenerator.writeStringField("error", "Cannot merge when one of the components has an active moderation request.");
+        } else if (status == RequestStatus.FAILURE) {
+            jsonGenerator.writeStringField("error", "You do not have sufficient permissions.");
+        }
         jsonGenerator.writeEndObject();
     }
 
@@ -780,7 +781,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         final User user = UserCacheHolder.getUserFromRequest(request);
 
         if (isNullOrEmpty(id) && isNullOrEmpty(releaseId)) {
-            throw new PortletException("Component and Release ID not set!");
+            throw new PortletException("Component or Release ID not set!");
         }
 
         try {

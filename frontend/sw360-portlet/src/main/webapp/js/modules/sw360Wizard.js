@@ -237,7 +237,7 @@ define('modules/sw360Wizard', [ 'jquery' ], function($) {
         return {
                 // public API
         };
-    }
+    };
 
     return sw360Wizard;
 
