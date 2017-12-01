@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2016. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -86,6 +86,26 @@
 
         );
 
+        var contextpath;
+
+        Liferay.on('allPortletsReady', function() {
+            contextpath = '<%=request.getContextPath()%>';
+            $('#licenseEditForm').validate({
+                ignore: [],
+                invalidHandler: invalidHandlerShowErrorTab
+            });
+
+            $('#formSubmit').click(
+                function() {
+                    $('#licenseEditForm').submit();
+                }
+            );
+
+            $('#lic_shortname').autocomplete({
+                source: <%=PortalConstants.LICENSE_IDENTIFIERS%>
+            });
+        });
+
         function editLicense() {
             window.location ='<portlet:renderURL ><portlet:param name="<%=PortalConstants.LICENSE_ID%>" value="${licenseDetail.id}"/><portlet:param name="<%=PortalConstants.PAGENAME%>" value="<%=PortalConstants.PAGENAME_EDIT%>"/></portlet:renderURL>'
         }
@@ -108,24 +128,6 @@
             window.location = portletURL.toString();
         }
 
-        var contextpath;
-        $( document ).ready(function() {
-            contextpath = '<%=request.getContextPath()%>';
-            $('#licenseEditForm').validate({
-                ignore: [],
-                invalidHandler: invalidHandlerShowErrorTab
-            });
-
-            $('#formSubmit').click(
-                    function() {
-                        $('#licenseEditForm').submit();
-                    }
-            );
-
-            $('#lic_shortname').autocomplete({
-                source: <%=PortalConstants.LICENSE_IDENTIFIERS%>
-            });
-        });
     </script>
 </core_rt:if>
 

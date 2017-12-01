@@ -82,8 +82,7 @@
         var modal;
         var releaseVerificationChangeSelect;
 
-        /*This can not be document ready function as liferay definitions need to be loaded first*/
-        $(window).load(function () {
+        Liferay.on('allPortletsReady', function() {
             createVulnerabilityTable();
 
             $('#vulnerabilityTable').on('change', '.action.change-vulnerability', function(event) {

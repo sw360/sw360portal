@@ -9,10 +9,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-//This can not be document ready function as liferay definitions need to be loaded first
-$(window).load(function() {
+Liferay.on('allPortletsReady', function() {
     var data = parseList(allSearchResultsString);
-
     createSearchTable(data);
 });
 

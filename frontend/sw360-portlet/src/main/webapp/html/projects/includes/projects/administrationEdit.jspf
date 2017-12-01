@@ -118,7 +118,8 @@
 
 <script>
     require(['jquery', /* jquery-plugins */ 'jquery-ui'], function($) {
-       $(document).ready( function() {
+
+        Liferay.on('allPortletsReady', function() {
             <core_rt:if test="${addMode}" >
             setDefaultLicenseInfoHeaderText();
             </core_rt:if>
@@ -135,6 +136,7 @@
        function setDefaultLicenseInfoHeaderText() {
            $('#licenseInfoHeaderText').val($('#licenseInfoHeaderText').data("defaulttext"));
        }
+
     });
 </script>
 

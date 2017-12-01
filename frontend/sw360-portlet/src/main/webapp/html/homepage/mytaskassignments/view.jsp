@@ -37,8 +37,7 @@
 
 <script>
 
-    //This can not be document ready function as liferay definitions need to be loaded first
-    $(window).load(function () {
+    Liferay.on('allPortletsReady', function() {
         var result = [];
 
         <core_rt:forEach items="${moderationRequests}" var="moderation">

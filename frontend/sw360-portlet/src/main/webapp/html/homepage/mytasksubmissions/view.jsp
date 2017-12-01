@@ -38,12 +38,8 @@
 <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 <script>
     var moderationRequestsTable;
-    AUI().use('liferay-portlet-url', function (A) {
-        <portlet:namespace/>load();
-    });
 
-    //This can not be document ready function as liferay definitions need to be loaded first
-   function <portlet:namespace/>load() {
+    Liferay.on('allPortletsReady', function() {
         var result = [];
 
         <core_rt:forEach items="${moderationRequests}" var="moderation">
@@ -51,7 +47,7 @@
             "DT_RowId": "${moderation.id}",
             "0": "<sw360:DisplayModerationRequestLink moderationRequest="${moderation}"/>",
             "1": "<sw360:DisplayEnum value="${moderation.moderationState}"/>",
-            "2": "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
+            "2": "<img src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b><sw360:out value="${moderation.documentName}"/></b>')\"  alt='Delete' title='Delete'>"
         });
         </core_rt:forEach>
 
@@ -67,7 +63,8 @@
             ],
             autoWidth: false
         });
-    }
+    });
+
     function deleteModerationRequest(id, docName) {
 
         function deleteModerationRequestInternal() {
@@ -94,7 +91,6 @@
 
         deleteConfirmed("Do you really want to delete the moderation request for " + docName + " ?", deleteModerationRequestInternal);
     }
-
 
 </script>
 

@@ -9,7 +9,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-define('utils/includes/attachmentsUpload', ['jquery', 'resumable', /* jquery plugins */ 'jquery-ui' ], function(jquery, Resumable) {
+define('utils/includes/attachmentsUpload', ['jquery', 'resumable', /* jquery-plugins */ 'jquery-ui' ], function(jquery, Resumable) {
     var attachmentAddedCb,
         r = false,
         ra = false,

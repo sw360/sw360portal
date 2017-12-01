@@ -9,7 +9,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-define('components/includes/vendors/searchVendor', ['jquery', 'components/includes/vendors/addVendor', /* jquery plugins: */ 'jquery-ui'], function(jQuery, vendoradd) {
+define('components/includes/vendors/searchVendor', ['jquery', 'components/includes/vendors/addVendor', /* jquery-plugins: */ 'jquery-ui'], function(jQuery, vendoradd) {
     function showSetVendorDialog() {
         openDialog('search-vendor-form', 'searchvendor');
     }

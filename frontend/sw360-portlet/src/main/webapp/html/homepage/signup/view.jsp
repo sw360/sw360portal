@@ -122,22 +122,22 @@
     </form>
 </div>
 <script>
-$(document).ready(function () {
 
-    $('#signup_form').validate({
-        rules: {
-            "<portlet:namespace/><%=PortalConstants.PASSWORD%>": "required",
-            "<portlet:namespace/><%=PortalConstants.PASSWORD_REPEAT%>": {
-                equalTo: '#password'
+    Liferay.on('allPortletsReady', function() {
+        $('#signup_form').validate({
+            rules: {
+                "<portlet:namespace/><%=PortalConstants.PASSWORD%>": "required",
+                "<portlet:namespace/><%=PortalConstants.PASSWORD_REPEAT%>": {
+                    equalTo: '#password'
+                }
+            },
+            messages: {
+                "<portlet:namespace/><%=PortalConstants.PASSWORD_REPEAT%>": {
+                    equalTo: "Passwords must match."
+                }
             }
-        },
-        messages: {
-            "<portlet:namespace/><%=PortalConstants.PASSWORD_REPEAT%>": {
-                equalTo: "Passwords must match."
-            }
-        }
+        });
     });
 
-});
 </script>
 </core_rt:if>

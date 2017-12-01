@@ -69,7 +69,8 @@
 
 <script>
     require(['jquery', 'modules/ajax-treetable'], function($, ajaxTreeTable) {
-        $(window).load(function () {
+
+        Liferay.on('allPortletsReady', function() {
             var config = $('#LinkedProjectsInfo').data();
 
             ajaxTreeTable.setup('LinkedProjectsInfo', config.loadNodeUrl, function(table, node) {

@@ -43,11 +43,10 @@
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dataTable_Siemens.css">
 
 <script type="text/javascript">
-    require(['jquery', 'datatables', 'datatables_buttons', 'buttons.print'], function ($) {
+    require(['jquery', /* jquery-plugins */ 'datatables', 'datatables_buttons', 'buttons.print'], function ($) {
         var releaseECCTable;
 
-        //This can not be document ready function as liferay definitions need to be loaded first
-        $(window).load(function () {
+        Liferay.on('allPortletsReady', function() {
             createECCTable();
             $('#exportReleasesSpreadsheetECCButton').on('click', exportReleasesSpreadsheet);
         });

@@ -184,16 +184,17 @@
     );
 
     require(['jquery', 'components/includes/vendors/searchVendor', 'modules/confirm', 'modules/autocomplete', /* jquery-plugins */ 'jquery-ui' ], function($, vendorsearch, confirm, autocomplete) {
-    	$(document).ready(function () {
-	    	autocomplete.prepareForMultipleHits('programminglanguages', ${programmingLanguages});
-	    	autocomplete.prepareForMultipleHits('op_systems', ${operatingSystemsAutoC});
-	        $('#releaseEditForm').validate({
-	            ignore: [],
-	            invalidHandler: invalidHandlerShowErrorTab
-	         });
 
-	        $('#formSubmit').click(
-	            function() {
+        Liferay.on('allPortletsReady', function() {
+            autocomplete.prepareForMultipleHits('programminglanguages', ${programmingLanguages});
+            autocomplete.prepareForMultipleHits('op_systems', ${operatingSystemsAutoC});
+            $('#releaseEditForm').validate({
+                ignore: [],
+                invalidHandler: invalidHandlerShowErrorTab
+            });
+
+            $('#formSubmit').click(
+                function() {
                     var valid = true;
                     $.each($('#externalIdsTable tr.bodyRow'), function (i, row) {
                         var key = $('#'+row.id+' td input.keyClass').val();
@@ -208,17 +209,17 @@
                     if (!valid) {
                         return;
                     }
-	                <core_rt:choose>
-	                    <core_rt:when test="${addMode || release.permissions[WRITE]}">
-	                        $('#releaseEditForm').submit();
-	                    </core_rt:when>
-	                    <core_rt:otherwise>
-	                        showCommentField();
-	                    </core_rt:otherwise>
-	                </core_rt:choose>
-	            }
-	        );
-	    });
+                    <core_rt:choose>
+                    <core_rt:when test="${addMode || release.permissions[WRITE]}">
+                    $('#releaseEditForm').submit();
+                    </core_rt:when>
+                    <core_rt:otherwise>
+                    showCommentField();
+                    </core_rt:otherwise>
+                    </core_rt:choose>
+                }
+            );
+        });
 
     	$('#ComponentBasicInfo input.edit-vendor').on('click', function() {
             vendorsearch.openSearchDialog('<portlet:namespace/>what', '<portlet:namespace/>where',

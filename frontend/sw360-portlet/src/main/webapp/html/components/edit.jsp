@@ -140,19 +140,47 @@
 
 require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/confirm' ], function($, sw360Validate, autocomplete, confirm) {
 
+    Liferay.on('allPortletsReady', function() {
+        var contextpath = '<%=request.getContextPath()%>',
+            deletionMessage;
+
+        $('#moderationRequestCommentSendButton').on('click', submitModerationRequest);
+        $('#componentEditCancelButton').on('click', cancel);
+        $('#deleteComponentButton').on('click', openDeleteDialog);
+
+        autocomplete.prepareForMultipleHits('comp_platforms', ${softwarePlatformsAutoC});
+        autocomplete.prepareForMultipleHits('comp_categories', ${componentCategoriesAutocomplete});
+
+        sw360Validate.validateWithInvalidHandler('#componentEditForm');
+
+        $('#formSubmit').click(
+            function () {
+                <core_rt:choose>
+                <core_rt:when test="${componentDivAddMode || component.permissions[WRITE]}">
+                $('#componentEditForm').submit();
+                </core_rt:when>
+                <core_rt:otherwise>
+                showCommentField();
+                </core_rt:otherwise>
+                </core_rt:choose>
+            }
+        );
+    });
+
+
     function cancel() {
         deleteAttachmentsOnCancel();
 
         var portletURL = Liferay.PortletURL.createURL(baseUrl);
-<core_rt:choose>
-    <core_rt:when test="${not empty component.id}">
-        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
-                  .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
-    </core_rt:when>
-    <core_rt:otherwise>
-        portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>');
-    </core_rt:otherwise>
-</core_rt:choose>
+        <core_rt:choose>
+            <core_rt:when test="${not empty component.id}">
+                portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_DETAIL%>')
+                          .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
+            </core_rt:when>
+            <core_rt:otherwise>
+                portletURL.setParameter('<%=PortalConstants.PAGENAME%>', '<%=PortalConstants.PAGENAME_VIEW%>');
+            </core_rt:otherwise>
+        </core_rt:choose>
         window.location = portletURL.toString();
     }
 
@@ -198,33 +226,6 @@ require(['jquery', 'modules/sw360Validate', 'modules/autocomplete', 'modules/con
         $('#componentEditForm').submit();
     }
 
-
-    $(document).ready(function () {
-        var contextpath = '<%=request.getContextPath()%>',
-            deletionMessage;
-
-        $('#moderationRequestCommentSendButton').on('click', submitModerationRequest);
-        $('#componentEditCancelButton').on('click', cancel);
-        $('#deleteComponentButton').on('click', openDeleteDialog);
-
-        autocomplete.prepareForMultipleHits('comp_platforms', ${softwarePlatformsAutoC});
-        autocomplete.prepareForMultipleHits('comp_categories', ${componentCategoriesAutocomplete});
-
-        sw360Validate.validateWithInvalidHandler('#componentEditForm');
-
-        $('#formSubmit').click(
-                function () {
-                    <core_rt:choose>
-                        <core_rt:when test="${componentDivAddMode || component.permissions[WRITE]}">
-                            $('#componentEditForm').submit();
-                        </core_rt:when>
-                        <core_rt:otherwise>
-                            showCommentField();
-                        </core_rt:otherwise>
-                    </core_rt:choose>
-                }
-        );
-    });
 });
 </script>
 

@@ -28,11 +28,7 @@
         require(['jquery', /* jquery-plugins */ 'datatables'], function ($) {
             var usingProjectsTable;
 
-            $( window ).on( "load", function() {
-                createUsingProjectsTable();
-            });
-
-            function createUsingProjectsTable() {
+            Liferay.on('allPortletsReady', function() {
                 var result = [];
 
                 <core_rt:forEach items="${usingProjects}" var="project">
@@ -51,7 +47,8 @@
                     "lengthChange": false,
                     "autoWidth": false
                 });
-            }
+            });
+
         });
     </script>
 </core_rt:if>

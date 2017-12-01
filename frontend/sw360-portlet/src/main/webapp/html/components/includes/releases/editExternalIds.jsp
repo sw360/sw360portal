@@ -26,7 +26,7 @@
 <script>
     require(['jquery', 'modules/confirm'], function($, confirm) {
 
-        $(window).load(function () {
+        Liferay.on('allPortletsReady', function() {
             createExternalIdsTable();
 
             $('#add-external-id').on('click', function() {
