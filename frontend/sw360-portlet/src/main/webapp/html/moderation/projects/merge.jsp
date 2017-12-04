@@ -36,7 +36,7 @@
 <%@include file="/html/moderation/includes/moderationActions.jspf"%>
 
 <div id="header"></div>
-<p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change Project:  <sw360:ProjectName project="${project}"/></span>z
+<p class="pageHeader"><span class="pageHeaderBigSpan">Moderation Change Project:  <sw360:ProjectName project="${project}"/></span>
 </p>
 <%@include file="/html/moderation/includes/moderationActionButtons.jspf"%>
 <%@include file="/html/moderation/includes/moderationInfo.jspf"%>
