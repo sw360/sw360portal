@@ -810,8 +810,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 .stream()
                 .filter(filter)
                 .sorted(Comparator
-                        .comparing(Attachment::getCreatedTeam)
-                        .thenComparing(Comparator.comparing(Attachment::getCreatedOn).reversed()))
+                        .comparing((Attachment a) -> nullToEmpty(a.getCreatedTeam()))
+                        .thenComparing(Comparator.comparing((Attachment a) -> nullToEmpty(a.getCreatedOn())).reversed()))
                 .collect(Collectors.toList())));
     }
 
