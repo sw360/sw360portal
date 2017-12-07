@@ -22,8 +22,8 @@
     </parent>
 
     <artifactId>authorization-server</artifactId>
-
     <packaging>war</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -111,6 +111,12 @@
             <artifactId>lombok</artifactId>
             <version>${project-lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sw360</groupId>
+            <artifactId>datahandler</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

@@ -22,6 +22,7 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,7 +67,7 @@ public class VendorController implements ResourceProcessor<RepositoryLinksResour
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(VENDORS_URL + "/{id}")
+    @RequestMapping(value = VENDORS_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<Vendor>> getVendor(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         Vendor sw360Vendor = vendorService.getVendorById(id);
@@ -74,6 +75,7 @@ public class VendorController implements ResourceProcessor<RepositoryLinksResour
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('WRITE')")
     @RequestMapping(value = VENDORS_URL, method = RequestMethod.POST)
     public ResponseEntity createVendor(
             OAuth2Authentication oAuth2Authentication,

@@ -14,8 +14,10 @@ import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.project.Sw360ProjectService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 
 import static org.mockito.BDDMockito.given;
@@ -25,12 +27,19 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ApiSpec extends RestDocsSpecBase {
+
+    @Value("${sw360.test-user-id}")
+    private String testUserId;
+
+    @Value("${sw360.test-user-password}")
+    private String testUserPassword;
 
     @MockBean
     private Sw360UserService userServiceMock;
@@ -40,7 +49,7 @@ public class ApiSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_headers() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
 
         this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api")
                 .header("Authorization", "Bearer " + accessToken)
@@ -52,28 +61,93 @@ public class ApiSpec extends RestDocsSpecBase {
     }
 
     @Test
-    public void should_document_errors() throws Exception {
-        given(this.projectServiceMock.getProjectForUserById(anyString(), anyObject())).willThrow(new RuntimeException(new TException("Internal error processing getProjectById")));
+    public void should_document_error_bad_request() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
+        this.mockMvc.perform(
+                post("/api/projects")
+                        .contentType(MediaTypes.HAL_JSON)
+                        .content("{")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isBadRequest())
+                .andDo(this.documentationHandler.document(
+                        responseFields(
+                                fieldWithPath("timestamp").description("The timestamp when the error occurred"),
+                                fieldWithPath("status").description("The HTTP status code, e.g. 400"),
+                                fieldWithPath("error").description("The HTTP error code, e.g. Bad Request"),
+                                fieldWithPath("message").description("The error message, e.g. JSON parse error: Unexpected end-of-input: expected close marker for Object"))));
+    }
 
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+    @Test
+    public void should_document_error_unauthorized() throws Exception {
+        this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api")
+                .header("Authorization", "Bearer " + "123456789"))
+                .andExpect(status().isUnauthorized())
+                .andDo(this.documentationHandler.document(
+                        responseFields(
+                                fieldWithPath("error").description("The error code, e.g. invalid_token"),
+                                fieldWithPath("error_description").description("The description of invalid token"))));
+    }
+
+    @Test
+    public void should_document_error_not_found() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
+        this.mockMvc.perform(
+                post("/api/endpoint_not_found")
+                        .contentType(MediaTypes.HAL_JSON)
+                        .content("{}")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_document_error_method_not_allowed() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
+        this.mockMvc.perform(RestDocumentationRequestBuilders.delete("/api")
+                .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isMethodNotAllowed())
+                .andDo(this.documentationHandler.document(
+                        responseFields(
+                                fieldWithPath("timestamp").description("The timestamp when the error occurred"),
+                                fieldWithPath("status").description("The HTTP status code, e.g. 405"),
+                                fieldWithPath("error").description("The HTTP error code, e.g. Method Not Allowed"),
+                                fieldWithPath("message").description("The error message, e.g. Request method 'DELETE' not supported"))));
+    }
+
+    @Test
+    public void should_document_error_unsupported_media_type() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
+        this.mockMvc.perform(
+                post("/api/projects")
+                        .contentType(MediaType.APPLICATION_XML)
+                        .content("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isUnsupportedMediaType())
+                .andDo(this.documentationHandler.document(
+                        responseFields(
+                                fieldWithPath("timestamp").description("The timestamp when the error occurred"),
+                                fieldWithPath("status").description("The HTTP status code, e.g. 415"),
+                                fieldWithPath("error").description("The HTTP error code, e.g. Unsupported Media Typ"),
+                                fieldWithPath("message").description("The error message, e.g. Content type 'application/text;charset=UTF-8' not supported"))));
+    }
+
+    @Test
+    public void should_document_error_internal_error() throws Exception {
+        given(this.projectServiceMock.getProjectForUserById(anyString(), anyObject())).willThrow(new RuntimeException(new TException("Internal error processing getProjectById")));
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         this.mockMvc.perform(RestDocumentationRequestBuilders.get("/api/projects/12321")
                 .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isInternalServerError())
                 .andDo(this.documentationHandler.document(
                         responseFields(
-                                fieldWithPath("httpStatus").description("The HTTP status code, e.g. 500"),
-                                fieldWithPath("httpError").description("The HTTP error code, e.g. Internal Server Error"),
-                                fieldWithPath("message").description("The error message, e.g. an exception message"),
-                                fieldWithPath("timestamp").description("The timestamp when the error occurred")
-
-
-
-                                )));
+                                fieldWithPath("timestamp").description("The timestamp when the error occurred"),
+                                fieldWithPath("status").description("The HTTP status code, e.g. 500"),
+                                fieldWithPath("error").description("The HTTP error code, e.g. Internal Server Error"),
+                                fieldWithPath("message").description("The error message, e.g. Internal error processing getProjectById"))));
     }
 
     @Test
     public void should_document_index() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         this.mockMvc.perform(get("/api")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -93,5 +167,4 @@ public class ApiSpec extends RestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"))));
     }
-
 }

@@ -13,6 +13,7 @@ package org.eclipse.sw360.rest.authserver.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -27,11 +28,29 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
+import static org.eclipse.sw360.rest.authserver.Sw360AuthorizationServer.TOKEN_ACCESS_VALIDITY;
+import static org.eclipse.sw360.rest.authserver.security.Sw360GrantedAuthority.BASIC;
+
 @Configuration
 @EnableAuthorizationServer
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Sw360AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager authenticationManager;
+
+    @Value("${security.oauth2.client.client-id}")
+    private String clientId;
+
+    @Value("${security.oauth2.client.authorized-grant-types}")
+    private String[] authorizedGrantTypes;
+
+    @Value("${security.oauth2.client.resource-ids}")
+    private String resourceIds;
+
+    @Value("${security.oauth2.client.scope}")
+    private String[] scopes;
+
+    @Value("${security.oauth2.client.client-secret}")
+    private String clientSecret;
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
@@ -43,22 +62,21 @@ public class Sw360AuthorizationServerConfiguration extends AuthorizationServerCo
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-        oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_SW360_CLIENT')")
-                .checkTokenAccess("hasAuthority('ROLE_TRUSTED_SW360_CLIENT')");
+        String serverAuthority = BASIC.getAuthority();
+        oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('" + serverAuthority + "')")
+                .checkTokenAccess("hasAuthority('" + serverAuthority + "')");
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        // TODO Kai Tödter 2016-12-04
-        // Externalize those config parameters in the application.yml
         clients.inMemory()
-            .withClient("trusted-sw360-client")
-                .authorizedGrantTypes("client_credentials", "password")
-                .authorities("ROLE_TRUSTED_SW360_CLIENT")
-                .scopes("sw360.read", "sw360.write")
-                .resourceIds("sw360-REST-API")
-                .accessTokenValiditySeconds(3600)
-                .secret("sw360-secret");
+                .withClient(clientId)
+                .authorizedGrantTypes(authorizedGrantTypes)
+                .authorities(BASIC.getAuthority())
+                .scopes(scopes)
+                .resourceIds(resourceIds)
+                .accessTokenValiditySeconds(TOKEN_ACCESS_VALIDITY)
+                .secret(clientSecret);
     }
 
     @Bean

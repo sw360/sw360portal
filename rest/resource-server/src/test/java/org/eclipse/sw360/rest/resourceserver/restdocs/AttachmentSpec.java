@@ -21,6 +21,7 @@ import org.eclipse.sw360.rest.resourceserver.attachment.Sw360AttachmentService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 
@@ -40,6 +41,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class AttachmentSpec extends RestDocsSpecBase {
+
+    @Value("${sw360.test-user-id}")
+    private String testUserId;
+
+    @Value("${sw360.test-user-password}")
+    private String testUserPassword;
 
     @MockBean
     private Sw360UserService userServiceMock;
@@ -78,7 +85,7 @@ public class AttachmentSpec extends RestDocsSpecBase {
         release.setVersion("4.3.4");
         release.setCreatedOn("2016-12-18");
         release.setCreatedBy("admin@sw360.org");
-        release.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+        release.setModerators(new HashSet<>(Arrays.asList(testUserId, testUserPassword)));
         release.setComponentId("678dstzd8");
         release.setClearingState(ClearingState.APPROVED);
 
@@ -96,7 +103,7 @@ public class AttachmentSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_attachment() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/attachments/" + attachment.getAttachmentContentId())
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))

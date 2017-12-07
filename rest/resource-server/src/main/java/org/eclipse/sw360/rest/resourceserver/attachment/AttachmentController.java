@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -48,7 +49,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
-    @RequestMapping(value = ATTACHMENTS_URL, params = "sha1")
+    @RequestMapping(value = ATTACHMENTS_URL, params = "sha1", method = RequestMethod.GET)
     public ResponseEntity<Resource<Attachment>> getAttachmentForSha1(
             OAuth2Authentication oAuth2Authentication,
             @RequestParam String sha1) {
@@ -67,7 +68,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         return null;
     }
 
-    @RequestMapping(value = ATTACHMENTS_URL + "/{id}")
+    @RequestMapping(value = ATTACHMENTS_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<Attachment>> getAttachmentForId(
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication) {

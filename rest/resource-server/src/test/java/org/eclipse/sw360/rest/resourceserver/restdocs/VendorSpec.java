@@ -14,6 +14,7 @@ import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.vendor.Sw360VendorService;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 
@@ -30,6 +31,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class VendorSpec extends RestDocsSpecBase {
+
+    @Value("${sw360.test-user-id}")
+    private String testUserId;
+
+    @Value("${sw360.test-user-password}")
+    private String testUserPassword;
 
     @MockBean
     private Sw360VendorService vendorServiceMock;
@@ -60,7 +67,7 @@ public class VendorSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_vendors() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/vendors")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -77,7 +84,7 @@ public class VendorSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_vendor() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/vendors/" + vendor.getId())
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))

@@ -14,8 +14,15 @@ package org.eclipse.sw360.rest.resourceserver.core;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -24,25 +31,55 @@ import java.time.Instant;
 @ControllerAdvice
 public class RestExceptionHandler {
 
-	@ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> exceptionHandler(Exception e) {
-		return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorMessage> handleException(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-	@Data
-	@RequiredArgsConstructor
-	private static class ErrorMessage {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorMessage> handleAccessDeniedException(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.FORBIDDEN), HttpStatus.FORBIDDEN);
+    }
 
-		public ErrorMessage(Exception e, HttpStatus httpStatus) {
-			this.httpStatus = httpStatus.value();
-			this.httpError = httpStatus.getReasonPhrase();
-			this.message = e.getMessage();
-		}
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorMessage> handleResourceNotFound(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorMessage> handleMessageNotReadableException(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorMessage> handleRequestMethodNotSupported(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.METHOD_NOT_ALLOWED), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorMessage> handleMediaTypeNotSupportedException(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.UNSUPPORTED_MEDIA_TYPE), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler({OptimisticLockingFailureException.class, DataIntegrityViolationException.class})
+    public ResponseEntity<ErrorMessage> handleConflict(Exception e) {
+        return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+
+    @Data
+    @RequiredArgsConstructor
+    private static class ErrorMessage {
 
         @JsonSerialize(using = JsonInstantSerializer.class)
-		private Instant timestamp = Instant.now();
-		final private int httpStatus;
-		final private String httpError;
-		final private String message;
-	}
+        private Instant timestamp = Instant.now();
+        final private int status;
+        final private String error;
+        final private String message;
+
+        public ErrorMessage(Exception e, HttpStatus httpStatus) {
+            this.status = httpStatus.value();
+            this.error = httpStatus.getReasonPhrase();
+            this.message = e.getMessage();
+        }
+    }
 }

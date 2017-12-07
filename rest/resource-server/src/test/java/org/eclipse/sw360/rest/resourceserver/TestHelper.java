@@ -81,7 +81,7 @@ public class TestHelper {
                         .param("username", username)
                         .param("password", password)
                         .param("grant_type", "password")
-                        .param("scope", "sw360.read"))
+                        .param("scope", "all"))
                 .andReturn().getResponse();
 
         return new ObjectMapper()

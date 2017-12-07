@@ -31,6 +31,10 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 public class Sw360AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager authenticationManager;
 
+    // TODO Thomas Maier 15-12-2017
+    // Use Sw360GrantedAuthority from authorization server
+    private final String GRANTED_AUTHORITY_BASIC = "BASIC";
+
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
@@ -41,17 +45,19 @@ public class Sw360AuthorizationServerConfiguration extends AuthorizationServerCo
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-        oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_SW360_CLIENT')")
-                .checkTokenAccess("hasAuthority('ROLE_TRUSTED_SW360_CLIENT')");
+        oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('" + GRANTED_AUTHORITY_BASIC + "')")
+                .checkTokenAccess("hasAuthority('" + GRANTED_AUTHORITY_BASIC + "')");
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-         clients.inMemory()
-            .withClient("trusted-sw360-client")
+        clients.inMemory()
+                // TODO Thomas Maier 15-12-2017
+                // Externalize property values
+                .withClient("trusted-sw360-client")
                 .authorizedGrantTypes("client_credentials", "password")
-                .authorities("ROLE_TRUSTED_SW360_CLIENT")
-                .scopes("sw360.read", "sw360.write")
+                .authorities(GRANTED_AUTHORITY_BASIC)
+                .scopes("all")
                 .resourceIds("sw360-REST-API")
                 .accessTokenValiditySeconds(3600)
                 .secret("sw360-secret");

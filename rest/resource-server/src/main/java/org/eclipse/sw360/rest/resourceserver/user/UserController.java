@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     @NonNull
     private final Sw360UserService userService;
 
-    @RequestMapping(USERS_URL)
+    @RequestMapping(value = USERS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<User>>> getUsers() {
         List<User> sw360Users = userService.getAllUsers();
 
@@ -69,7 +70,7 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(USERS_URL + "/{id:.+}")
+    @RequestMapping(value = USERS_URL + "/{id:.+}", method = RequestMethod.GET)
     public ResponseEntity<Resource<User>> getUser(
             @PathVariable("id") String id) {
         byte[] base64decodedBytes = Base64.getDecoder().decode(id);

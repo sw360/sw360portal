@@ -18,6 +18,7 @@ import org.eclipse.sw360.rest.resourceserver.component.Sw360ComponentService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 
@@ -30,13 +31,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ComponentSpec extends RestDocsSpecBase {
+
+    @Value("${sw360.test-user-id}")
+    private String testUserId;
+
+    @Value("${sw360.test-user-password}")
+    private String testUserPassword;
 
     @MockBean
     private Sw360UserService userServiceMock;
@@ -121,7 +126,7 @@ public class ComponentSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_components() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/components")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -138,7 +143,7 @@ public class ComponentSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_component() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/components/17653524")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -170,7 +175,7 @@ public class ComponentSpec extends RestDocsSpecBase {
         component.put("createdBy", "jane@sw360.org");
         component.put("componentType", ComponentType.OSS.toString());
 
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         this.mockMvc.perform(
                 post("/api/components")
                         .contentType(MediaTypes.HAL_JSON)

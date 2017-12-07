@@ -26,6 +26,7 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +36,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -51,7 +55,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
-    @RequestMapping(value = RELEASES_URL)
+    @RequestMapping(value = RELEASES_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource>> getReleasesForUser(OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Release> releases = releaseService.getReleasesForUser(sw360User);
@@ -72,7 +76,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(RELEASES_URL + "/{id}")
+    @RequestMapping(value = RELEASES_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource> getRelease(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
@@ -81,6 +85,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(halRelease, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('WRITE')")
     @RequestMapping(value = RELEASES_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<Release>> createRelease(
             OAuth2Authentication oAuth2Authentication,
@@ -97,7 +102,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         String vendorId = path.substring(path.lastIndexOf('/') + 1);
         release.setVendorId(vendorId);
 
-        if(release.getMainLicenseIds() != null) {
+        if (release.getMainLicenseIds() != null) {
             Set<String> mainLicenseIds = new HashSet<>();
             Set<String> mainLicenseUris = release.getMainLicenseIds();
             for (String licenseURIString : mainLicenseUris.toArray(new String[mainLicenseUris.size()])) {
