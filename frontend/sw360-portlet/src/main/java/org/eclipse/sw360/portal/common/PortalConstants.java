@@ -60,6 +60,7 @@ public class PortalConstants {
     public static final String PAGENAME_ACTION = "action";
     public static final String PAGENAME_DUPLICATE = "duplicate";
     public static final String SELECTED_TAB = "selectedTab";
+    public static final String IS_USER_ALLOWED_TO_MERGE = "isUserAllowedToMerge";
     public static final String DOCUMENT_TYPE = "documentType";
     public static final String VIEW_SIZE = "viewSize";
     public static final String TOTAL_ROWS = "totalRows";
@@ -97,6 +98,10 @@ public class PortalConstants {
     public static final String COMPONENT_TYPE_LIST = "componentTypeList";
     public static final String COMPONENT_CATEGORIES;
     public static final String COMPONENT_ROLES;
+    public static final String PAGENAME_MERGE_COMPONENT = "mergeComponent";
+    public static final String COMPONENT_SELECTION = "componentSelection";
+    public static final String COMPONENT_SOURCE_ID = "componentSourceId";
+    public static final String COMPONENT_TARGET_ID = "componentTargetId";
 
     //! Specialized keys for releases
     public static final String RELEASE_ID = "releaseId";

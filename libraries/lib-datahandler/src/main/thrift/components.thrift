@@ -416,6 +416,14 @@ service ComponentService {
      **/
     RequestStatus updateComponentFromModerationRequest(1: Component additions, 2: Component deletions, 3: User user);
 
+    /**
+     * merge component identified by componentSourceId into component identified by componentTargetId.
+     * the componentSelection shows which data has to be set on the target. the source will be deleted afterwards.
+     * if user does not have permissions, RequestStatus.FAILURE is returned
+     * if any of the components has an active moderation request, it's a noop and RequestStatus.IN_USE is returned
+     **/
+    RequestStatus mergeComponents(1: string componentTargetId, 2: string componentSourceId, 3: Component componentSelection, 4: User user);
+
     // Release CRUD support
     /**
       * add release to database with user as creator,
