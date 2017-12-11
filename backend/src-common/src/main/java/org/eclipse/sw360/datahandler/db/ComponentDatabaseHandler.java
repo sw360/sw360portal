@@ -195,10 +195,9 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
     }
 
     public List<Component> getMyComponents(String user) {
-        //This call could be sped up, because we want the full documents
-        Set<String> myComponentIds = componentRepository.getMyComponentIds(user);
+        Collection<Component> myComponents = componentRepository.getMyComponents(user);
 
-        return componentRepository.makeSummary(SummaryType.HOME, myComponentIds);
+        return componentRepository.makeSummaryFromFullDocs(SummaryType.HOME, myComponents);
     }
 
     public List<Component> getSummaryForExport() {
@@ -335,7 +334,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
     }
 
     private boolean isDuplicate(Component component){
-        Set<String> duplicates = componentRepository.getMyComponentIdsByName(component.getName());
+        Set<String> duplicates = componentRepository.getComponentIdsByName(component.getName());
         return duplicates.size()>0;
     }
 
@@ -852,8 +851,12 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         return getLinkedReleases(relations, releaseMap, new ArrayDeque<>());
     }
 
+    public List<Release> getAllReleases() {
+        return releaseRepository.getAll();
+    }
+
     public Map<String, Release> getAllReleasesIdMap() {
-        final List<Release> releases = releaseRepository.getAll();
+        final List<Release> releases = getAllReleases();
         return ThriftUtils.getIdMap(releases);
     }
 
@@ -906,16 +909,10 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     @NotNull
     private ReleaseLink createReleaseLink(Release release) {
-        String vendorName = "";
-        if (release.isSetVendor()){
-            vendorName = release.getVendor().getShortname();
-        } else if (!isNullOrEmpty(release.getVendorId())) {
-            final Vendor vendor = vendorRepository.get(release.getVendorId());
-            vendorName = vendor != null ? vendor.getShortname() : "";
-            release.setVendor(vendor);
-        }
+        vendorRepository.fillVendor(release);
+        String vendorName = release.isSetVendor() ? release.getVendor().getShortname() : "";
         ReleaseLink releaseLink = new ReleaseLink(release.id, vendorName, release.name, release.version, SW360Utils.printFullname(release),
-                !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
+                 !nullToEmptyMap(release.getReleaseIdToRelationship()).isEmpty());
         releaseLink
                 .setClearingState(release.getClearingState())
                 .setComponentType(
@@ -1120,7 +1117,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
     public Map<String, List<String>> getDuplicateReleases() {
         ListMultimap<String, String> releaseIdentifierToReleaseId = ArrayListMultimap.create();
 
-        for (Release release : releaseRepository.getAll()) {
+        for (Release release : getAllReleases()) {
             releaseIdentifierToReleaseId.put(SW360Utils.printName(release), release.getId());
         }
 
@@ -1140,7 +1137,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
     public Map<String,List<String>> getDuplicateReleaseSources() {
         ListMultimap<String, String> releaseIdentifierToReleaseId = ArrayListMultimap.create();
 
-        for (Release release : releaseRepository.getAll()) {
+        for (Release release : getAllReleases()) {
 
             if(release.isSetAttachments()) {
                 for (Attachment attachment : release.getAttachments()) {

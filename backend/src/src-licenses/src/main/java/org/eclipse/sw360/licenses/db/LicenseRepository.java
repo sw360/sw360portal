@@ -15,8 +15,11 @@ import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
 import org.eclipse.sw360.datahandler.couchdb.SummaryAwareRepository;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
+import org.ektorp.support.Views;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,11 +27,12 @@ import java.util.List;
  *
  * @author cedric.bodet@tngtech.com
  */
-@View(name = "all", map = "function(doc) { if (doc.type == 'license') emit(null, doc._id) }")
+@Views({
+        @View(name = "all", map = "function(doc) { if (doc.type == 'license') emit(null, doc._id) }"),
+        @View(name = "byname", map = "function(doc) { if(doc.type == 'license') { emit(doc.fullname, doc) } }"),
+        @View(name = "byshortname", map = "function(doc) { if(doc.type == 'license') { emit(doc._id, doc) } }")
+})
 public class LicenseRepository extends SummaryAwareRepository<License> {
-
-    private static final String BY_NAME_VIEW = "function(doc) { if(doc.type == 'license') { emit(doc.fullname, doc) } }";
-    private static final String BY_SHORT_NAME_VIEW = "function(doc) { if(doc.type == 'license') { emit(doc._id, doc) } }";
 
     public LicenseRepository(DatabaseConnector db) {
         super(License.class, db, new LicenseSummary());
@@ -36,12 +40,10 @@ public class LicenseRepository extends SummaryAwareRepository<License> {
         initStandardDesignDocument();
     }
 
-    @View(name = "byname", map = BY_NAME_VIEW)
     public List<License> searchByName(String name) {
         return queryByPrefix("byname", name);
     }
 
-    @View(name = "byshortname", map = BY_SHORT_NAME_VIEW)
     public List<License> searchByShortName(String name) {
         return queryByPrefix("byshortname", name);
     }
