@@ -307,9 +307,9 @@ public class PortletUtils {
         JSONArray jsonNewIds = JSONFactoryUtil.createJSONArray();
         JSONArray jsonUpdatedIds = JSONFactoryUtil.createJSONArray();
 
-        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED).forEach(id -> jsonFailedIds.put(id));
-        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.NEW).forEach(id -> jsonNewIds.put(id));
-        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.UPDATED).forEach(id -> jsonUpdatedIds.put(id));
+        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.FAILED).forEach(jsonFailedIds::put);
+        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.NEW).forEach(jsonNewIds::put);
+        updateStatus.getStatusToVulnerabilityIds().get(UpdateType.UPDATED).forEach(jsonUpdatedIds::put);
 
         responseData.put(PortalConstants.UPDATE_VULNERABILITIES__FAILED_IDS, jsonFailedIds);
         responseData.put(PortalConstants.UPDATE_VULNERABILITIES__NEW_IDS, jsonNewIds);

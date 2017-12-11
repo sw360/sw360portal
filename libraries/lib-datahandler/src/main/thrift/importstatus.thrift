@@ -23,7 +23,9 @@ typedef sw360.RequestStatus RequestStatus
 
 
 struct ImportStatus {
+    // List of all Ids that where sucessfully imported.
     1: list<string> successfulIds;
-    2: list<string> failedIds;
+    // Map of failed Ids (key) with a message why it failed (value)
+    2: map<string, string> failedIds;
     3: RequestStatus requestStatus;
 }

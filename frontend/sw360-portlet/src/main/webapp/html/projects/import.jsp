@@ -18,7 +18,7 @@
 <%@ page import="com.liferay.portlet.PortletURLFactoryUtil" %>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <%@ page import="javax.portlet.PortletRequest" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials" %>
+<%@ page import="org.eclipse.sw360.datahandler.thrift.projectimport.RemoteCredentials" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.projects.Project" %>
 <%@ page import="org.eclipse.sw360.portal.portlets.projectimport.ProjectImportConstants" %>
 
@@ -221,8 +221,15 @@
                             self.setContent('Projects imported successfully.');
                             break;
                         case '<%=ProjectImportConstants.RESPONSE__FAILURE%>':
-                            var failedIdsList = "<div>" + response.<%=ProjectImportConstants.RESPONSE__FAILED_IDS%> + "</div>";
-                            self.setContent('Some projects failed to import:' + failedIdsList);
+                            var bodyContent = "<ol>";
+                            var failedIdsList = response.<%=ProjectImportConstants.RESPONSE__FAILED_IDS%>;
+
+                            $.each(failedIdsList, function (key, value) {
+                                bodyContent += "<li><b>" + key + "</b>: " + value + "</li>";
+                            });
+                            bodyContent += "</ol>";
+
+                            self.setContent('Some projects failed to import:' + bodyContent);
                             break;
                         case '<%=ProjectImportConstants.RESPONSE__GENERAL_FAILURE%>':
                             flashErrorMessage('Could not import the projects.');

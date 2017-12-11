@@ -19,9 +19,9 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
+import org.eclipse.sw360.datahandler.thrift.projectimport.ProjectImportService;
+import org.eclipse.sw360.datahandler.thrift.projectimport.RemoteCredentials;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.bdpimport.BdpImportService;
-import org.eclipse.sw360.datahandler.thrift.bdpimport.RemoteCredentials;
 import org.eclipse.sw360.datahandler.thrift.importstatus.ImportStatus;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.portlets.Sw360Portlet;
@@ -43,7 +43,7 @@ import static com.google.common.base.Strings.nullToEmpty;
  */
 public class ProjectImportPortlet extends Sw360Portlet {
     private static final Logger log = Logger.getLogger(ProjectImportPortlet.class);
-    private static BdpImportService.Iface bdpImportClient = new ThriftClients().makeBdpImportClient();
+    private static ProjectImportService.Iface projectImportClient = new ThriftClients().makeProjectImportClient();
 
     static class LoginState {
         private Boolean loggedIn;
@@ -132,7 +132,7 @@ public class ProjectImportPortlet extends Sw360Portlet {
     private ImportStatus importDatasources(List<String> toImport, User user, RemoteCredentials remoteCredentials) {
         ImportStatus importStatus = new ImportStatus();
         try {
-            importStatus = bdpImportClient.importDatasources(toImport, user, remoteCredentials);
+            importStatus = projectImportClient.importDatasources(toImport, user, remoteCredentials);
             if (!isImportSuccessful(importStatus)) {
                 if (importStatus.getRequestStatus().equals(RequestStatus.FAILURE)) {
                     log.error("Importing of data sources failed.");
@@ -149,7 +149,7 @@ public class ProjectImportPortlet extends Sw360Portlet {
     private List<Project> loadImportables(RemoteCredentials remoteCredentials, String projectName) {
         try {
             log.info("Looking for importables with prefix " + projectName);
-            return bdpImportClient.suggestImportables(remoteCredentials, Strings.nullToEmpty(projectName));
+            return projectImportClient.suggestImportables(remoteCredentials, Strings.nullToEmpty(projectName));
         } catch (TException e) {
             log.error("Thrift failed, (uncaught TException)", e);
             return ImmutableList.of();
@@ -158,7 +158,7 @@ public class ProjectImportPortlet extends Sw360Portlet {
 
     private String getIdName() {
         try {
-            return bdpImportClient.getIdName();
+            return projectImportClient.getIdName();
         } catch (TException e) {
             log.error("Thrift failed, (uncaught TException)", e);
             return "";
@@ -215,7 +215,7 @@ public class ProjectImportPortlet extends Sw360Portlet {
 
     private boolean validateCredentials(RemoteCredentials credentials) {
         try {
-            return bdpImportClient.validateCredentials(credentials);
+            return projectImportClient.validateCredentials(credentials);
         } catch (TException e) {
             log.error("Thrift failed, (uncaught TException)", e);
             return false;
@@ -224,8 +224,9 @@ public class ProjectImportPortlet extends Sw360Portlet {
 
     private void importBdpProjects(User user, List<String> selectedIds, JSONObject responseData, RemoteCredentials remoteCredentials) throws PortletException, IOException {
         ImportStatus importStatus = importDatasources(selectedIds, user, remoteCredentials);
-        JSONArray jsonFailedIds = JSONFactoryUtil.createJSONArray();
+        JSONObject jsonFailedIds = JSONFactoryUtil.createJSONObject();
         JSONArray jsonSuccessfulIds = JSONFactoryUtil.createJSONArray();
+
         if (importStatus.isSetRequestStatus() && importStatus.getRequestStatus().equals(RequestStatus.SUCCESS)) {
             importStatus.getFailedIds().forEach(jsonFailedIds::put);
             importStatus.getSuccessfulIds().forEach(jsonSuccessfulIds::put);

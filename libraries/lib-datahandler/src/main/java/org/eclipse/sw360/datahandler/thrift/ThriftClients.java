@@ -20,7 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoService;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
 import org.eclipse.sw360.datahandler.thrift.moderation.ModerationService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
-import org.eclipse.sw360.datahandler.thrift.bdpimport.BdpImportService;
+import org.eclipse.sw360.datahandler.thrift.projectimport.ProjectImportService;
 import org.eclipse.sw360.datahandler.thrift.schedule.ScheduleService;
 import org.eclipse.sw360.datahandler.thrift.search.SearchService;
 import org.eclipse.sw360.datahandler.thrift.users.UserService;
@@ -51,20 +51,20 @@ public class ThriftClients {
     public static final String BACKEND_URL;
 
     //! Service addresses
-    public static final String ATTACHMENT_SERVICE_URL = "/attachments/thrift";
-    public static final String COMPONENT_SERVICE_URL = "/components/thrift";
-    public static final String CVESEARCH_SERVICE_URL = "/cvesearch/thrift";
-    public static final String FOSSOLOGY_SERVICE_URL = "/fossology/thrift";
-    public static final String LICENSE_SERVICE_URL = "/licenses/thrift";
-    public static final String MODERATION_SERVICE_URL = "/moderation/thrift";
-    public static final String PROJECT_SERVICE_URL = "/projects/thrift";
-    public static final String LICENSEINFO_SERVICE_URL = "/licenseinfo/thrift";
-    public static final String SEARCH_SERVICE_URL = "/search/thrift";
-    public static final String USER_SERVICE_URL = "/users/thrift";
-    public static final String VENDOR_SERVICE_URL = "/vendors/thrift";
-    public static final String BDPIMPORT_SERVICE_URL = "/bdpimport/thrift";
-    public static final String VULNERABILITY_SERVICE_URL = "/vulnerabilities/thrift";
-    public static final String SCHEDULE_SERVICE_URL = "/schedule/thrift";
+    private static final String ATTACHMENT_SERVICE_URL = "/attachments/thrift";
+    private static final String COMPONENT_SERVICE_URL = "/components/thrift";
+    private static final String CVESEARCH_SERVICE_URL = "/cvesearch/thrift";
+    private static final String FOSSOLOGY_SERVICE_URL = "/fossology/thrift";
+    private static final String LICENSE_SERVICE_URL = "/licenses/thrift";
+    private static final String MODERATION_SERVICE_URL = "/moderation/thrift";
+    private static final String PROJECT_SERVICE_URL = "/projects/thrift";
+    private static final String LICENSEINFO_SERVICE_URL = "/licenseinfo/thrift";
+    private static final String SEARCH_SERVICE_URL = "/search/thrift";
+    private static final String USER_SERVICE_URL = "/users/thrift";
+    private static final String VENDOR_SERVICE_URL = "/vendors/thrift";
+    private static final String PROJECTIMPORT_SERVICE_URL = "/bdpimport/thrift";
+    private static final String VULNERABILITY_SERVICE_URL = "/vulnerabilities/thrift";
+    private static final String SCHEDULE_SERVICE_URL = "/schedule/thrift";
 
     // A service which has to be scheduled by the scheduler should be registered here!
     // names of services that can be scheduled by the schedule service, i.e. that have an "update" method
@@ -133,8 +133,8 @@ public class ThriftClients {
         return new VendorService.Client(makeProtocol(BACKEND_URL, VENDOR_SERVICE_URL));
     }
 
-    public BdpImportService.Iface makeBdpImportClient() {
-        return new BdpImportService.Client(makeProtocol(BACKEND_URL, BDPIMPORT_SERVICE_URL));
+    public ProjectImportService.Iface makeProjectImportClient() {
+        return new ProjectImportService.Client(makeProtocol(BACKEND_URL, PROJECTIMPORT_SERVICE_URL));
     }
 
     public VulnerabilityService.Iface makeVulnerabilityClient() {
