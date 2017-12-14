@@ -24,6 +24,7 @@
             "datatables":            [ "/sw360-portlet/webjars/datatables/1.10.15/js/jquery.dataTables.min" ],
             "datatables_buttons":    [ "/sw360-portlet/webjars/datatables.net-buttons/1.1.2/js/dataTables.buttons.min" ],
             "buttons.print":         [ "/sw360-portlet/webjars/datatables.net-buttons/1.1.2/js/buttons.print.min" ],
+            "datatables_select":     [ "/sw360-portlet/webjars/datatables.net-select/1.2.2/js/dataTables.select.min" ],
             "resumable":             [ "/sw360-portlet/webjars/resumable.js/1.0.3/resumable" ],
         },
         shim: {

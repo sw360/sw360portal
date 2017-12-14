@@ -1090,7 +1090,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
     private void updateVulnerabilityRating(ResourceRequest request, ResourceResponse response) throws IOException {
         String projectId = request.getParameter(PortalConstants.PROJECT_ID);
-        String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
         User user = UserCacheHolder.getUserFromRequest(request);
 
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
@@ -1106,7 +1105,6 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
         JSONObject responseData = JSONFactoryUtil.createJSONObject();
         responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
-        responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
         PrintWriter writer = response.getWriter();
         writer.write(responseData.toString());
     }

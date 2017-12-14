@@ -1195,26 +1195,40 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         }
     }
 
-    private void updateVulnerabilityVerification(ResourceRequest request, ResourceResponse response) throws IOException{
-        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
-        String vulnerabilityExternalId = request.getParameter(PortalConstants.VULNERABILITY_ID);
-        User user = UserCacheHolder.getUserFromRequest(request);
+    private void updateVulnerabilityVerification(ResourceRequest request, ResourceResponse response) throws IOException {
+        String[] releaseIds = request.getParameterValues(PortalConstants.RELEASE_IDS + "[]");
+        String[] vulnerabilityIds = request.getParameterValues(PortalConstants.VULNERABILITY_IDS + "[]");
 
+        User user = UserCacheHolder.getUserFromRequest(request);
         VulnerabilityService.Iface vulClient = thriftClients.makeVulnerabilityClient();
 
+        RequestStatus requestStatus = RequestStatus.SUCCESS;
         try {
-           Vulnerability dbVulnerability = vulClient.getVulnerabilityByExternalId(vulnerabilityExternalId, user);
-           ReleaseVulnerabilityRelation dbRelation = vulClient.getRelationByIds(releaseId, dbVulnerability.getId(), user);
-           ReleaseVulnerabilityRelation resultRelation = ComponentPortletUtils.updateReleaseVulnerabilityRelationFromRequest(dbRelation, request);
-           RequestStatus requestStatus = vulClient.updateReleaseVulnerabilityRelation(resultRelation, user);
+            if (vulnerabilityIds.length != releaseIds.length) {
+                throw new SW360Exception("Length of vulnerabilities (" + vulnerabilityIds.length + ") does not match the length of releases (" + releaseIds.length + ")!");
+            }
 
-            JSONObject responseData = JSONFactoryUtil.createJSONObject();
-            responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
-            responseData.put(PortalConstants.VULNERABILITY_ID, vulnerabilityExternalId);
-            PrintWriter writer = response.getWriter();
-            writer.write(responseData.toString());
+            for (int i = 0; i < vulnerabilityIds.length; i++) {
+                String vulnerabilityId = vulnerabilityIds[i];
+                String releaseId = releaseIds[i];
+
+                Vulnerability dbVulnerability = vulClient.getVulnerabilityByExternalId(vulnerabilityId, user);
+                ReleaseVulnerabilityRelation dbRelation = vulClient.getRelationByIds(releaseId, dbVulnerability.getId(), user);
+                ReleaseVulnerabilityRelation resultRelation = ComponentPortletUtils.updateReleaseVulnerabilityRelationFromRequest(dbRelation, request);
+                requestStatus = vulClient.updateReleaseVulnerabilityRelation(resultRelation, user);
+
+                if (requestStatus != RequestStatus.SUCCESS) {
+                    break;
+                }
+            }
         } catch (TException e) {
-            log.error("Error updating vulnerability verification for release "+ releaseId +" in backend.", e);
+            log.error("Error updating vulnerability verification in backend.", e);
+            requestStatus = RequestStatus.FAILURE;
         }
+
+        JSONObject responseData = JSONFactoryUtil.createJSONObject();
+        responseData.put(PortalConstants.REQUEST_STATUS, requestStatus.toString());
+        PrintWriter writer = response.getWriter();
+        writer.write(responseData.toString());
     }
 }
