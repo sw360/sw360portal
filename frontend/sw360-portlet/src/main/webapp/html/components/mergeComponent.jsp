@@ -164,6 +164,7 @@
             $stepElement.append(wizard.createSingleMergeLine('Component owner', data.componentTarget.componentOwner, data.componentSource.componentOwner));
             $stepElement.append(wizard.createSingleMergeLine('Owner accounting unit', data.componentTarget.ownerAccountingUnit, data.componentSource.ownerAccountingUnit));
             $stepElement.append(wizard.createSingleMergeLine('Owner billing group', data.componentTarget.ownerGroup, data.componentSource.ownerGroup));
+            $stepElement.append(wizard.createSingleMergeLine('Owner country', data.componentTarget.ownerCountry, data.componentSource.ownerCountry));
             $stepElement.append(wizard.createMultiMergeLine('Moderators', data.componentTarget.moderators, data.componentSource.moderators));
             $stepElement.append(wizard.createMultiMergeLine('Subscribers', data.componentTarget.subscribers, data.componentSource.subscribers));
             $stepElement.append(wizard.createMultiMapMergeLine('Additional Roles', data.componentTarget.roles, data.componentSource.roles));
@@ -208,6 +209,7 @@
             componentSelection.componentOwner = wizard.getFinalSingleValue('Component owner');
             componentSelection.ownerAccountingUnit = wizard.getFinalSingleValue('Owner accounting unit');
             componentSelection.ownerGroup = wizard.getFinalSingleValue('Owner billing group');
+            componentSelection.ownerCountry = wizard.getFinalSingleValue('Owner country');
             componentSelection.moderators = wizard.getFinalMultiValue('Moderators');
             componentSelection.subscribers = wizard.getFinalMultiValue('Subscribers');
             componentSelection.roles = wizard.getFinalMultiMapValue('Additional Roles');
@@ -261,6 +263,7 @@
             $stepElement.append(wizard.createSingleDisplayLine('Component owner', data.componentSelection.componentOwner));
             $stepElement.append(wizard.createSingleDisplayLine('Owner accounting unit', data.componentSelection.ownerAccountingUnit));
             $stepElement.append(wizard.createSingleDisplayLine('Owner billing group', data.componentSelection.ownerGroup));
+            $stepElement.append(wizard.createSingleDisplayLine('Owner country', data.componentSelection.ownerCountry));
             $stepElement.append(wizard.createMultiDisplayLine('Moderators', data.componentSelection.moderators));
             $stepElement.append(wizard.createMultiDisplayLine('Subscribers', data.componentSelection.subscribers));
             $stepElement.append(wizard.createMultiMapDisplayLine('Additional Roles', data.componentSelection.roles));

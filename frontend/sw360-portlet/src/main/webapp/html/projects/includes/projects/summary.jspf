@@ -85,6 +85,10 @@
         <td><sw360:out value="${project.ownerGroup}"/></td>
     </tr>
     <tr>
+        <td>Owner country:</td>
+        <td><sw360:out value="${project.ownerCountry}"/></td>
+    </tr>
+    <tr>
         <td>Lead architect:</td>
         <td><sw360:DisplayUserEmail email="${project.leadArchitect}"/></td>
     </tr>

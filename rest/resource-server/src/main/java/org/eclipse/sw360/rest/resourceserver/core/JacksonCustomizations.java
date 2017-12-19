@@ -125,6 +125,7 @@ class JacksonCustomizations {
                 "securityResponsiblesIterator",
                 "setSecurityResponsibles",
                 "setOwnerGroup",
+                "setOwnerCountry",
                 "rolesSize",
                 "setRoles",
                 "setOwnerAccountingUnit",
@@ -245,6 +246,7 @@ class JacksonCustomizations {
                 "setComponentOwner",
                 "setOwnerAccountingUnit",
                 "setOwnerGroup",
+                "setOwnerCountry",
                 "rolesSize",
                 "setRoles"
                 })

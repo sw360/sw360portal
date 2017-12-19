@@ -97,6 +97,7 @@ struct Project {
     130: optional string projectOwner,
     131: optional string ownerAccountingUnit,
     132: optional string ownerGroup,
+    133: optional string ownerCountry,
 
     // Linked objects
     30: optional map<string, ProjectRelationship> linkedProjects,
