@@ -253,6 +253,9 @@ struct Component {
     28: optional string ownerGroup,
     29: optional map<string,set<string>> roles, //customized roles with set of mail addresses
 
+    // information from external data sources
+    30: optional  map<string, string> externalIds,
+
     // Linked objects
     32: optional list<Release> releases,
     33: optional set<string> releaseIds,

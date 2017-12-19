@@ -95,6 +95,8 @@
                         <core_rt:set var="documentName"><sw360:ProjectName project="${project}"/></core_rt:set>
                         <%@include file="/html/utils/includes/usingProjectsTable.jspf" %>
                         <%@include file="/html/utils/includes/usingComponentsTable.jspf"%>
+                        <core_rt:set var="externalIdsSet" value="${project.externalIds.entrySet()}"/>
+                        <%@include file="/html/utils/includes/editExternalIds.jsp" %>
                     </div>
                     <div id="tab-Administration" >
                         <%@include file="/html/projects/includes/projects/administrationEdit.jspf" %>
@@ -176,7 +178,6 @@ require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw3
                         showCommentField();
                     </core_rt:otherwise>
                 </core_rt:choose>
-
             }
         );
     });
@@ -250,5 +251,3 @@ require(['jquery', 'modules/sw360Validate', 'modules/confirm' ], function($, sw3
     }
 });
 </script>
-
-

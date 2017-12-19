@@ -9,7 +9,6 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 <%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
-<%@ page import="org.eclipse.sw360.datahandler.thrift.components.Release" %>
 
 <table class="table info_table" id="externalIdsTable">
     <thead>
@@ -52,10 +51,10 @@
             var newRowAsString =
                 '<tr id="' + rowId + '" class="bodyRow">' +
                 '<td width="46%">' +
-                '<input class="keyClass" id="<%=PortalConstants.EXTERNAL_ID_KEY%>' + rowId + '" name="<portlet:namespace/><%=PortalConstants.EXTERNAL_ID_KEY%>' + rowId + '" class="toplabelledInput" placeholder="Input name" title="Input name" value="' + key + '"/>' +
+                '<input class="keyClass" id="<%=PortalConstants.EXTERNAL_ID_KEY%>' + rowId + '" name="<portlet:namespace/><%=PortalConstants.EXTERNAL_ID_KEY%>' + rowId + '" required="" minlength="1" class="toplabelledInput" placeholder="Enter external id key" title="Input name" value="' + key + '"/>' +
                 '</td>' +
                 '<td width="46%">' +
-                '<input class="valueClass" id="<%=PortalConstants.EXTERNAL_ID_VALUE%>' + rowId + '" name="<portlet:namespace/><%=PortalConstants.EXTERNAL_ID_VALUE%>' + rowId + '" class="toplabelledInput" placeholder="Input id" title="Input id" value="' + value + '"/>' +
+                '<input class="valueClass" id="<%=PortalConstants.EXTERNAL_ID_VALUE%>' + rowId + '" name="<portlet:namespace/><%=PortalConstants.EXTERNAL_ID_VALUE%>' + rowId + '" required="" minlength="1" class="toplabelledInput" placeholder="Enter external id value" title="Input id" value="' + value + '"/>' +
                 '</td>' +
                 '<td class="deletor" width="8%">' +
                 '<img src="<%=request.getContextPath()%>/images/Trash.png" onclick="deleteMapItem(\'' + rowId + '\')" alt="Delete">' +

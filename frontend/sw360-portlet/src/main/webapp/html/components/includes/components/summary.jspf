@@ -53,6 +53,10 @@
         <td>Mailing list:</td>
         <td><sw360:DisplayLink target="mailto:${component.mailinglist}" text="${component.mailinglist}"/></td>
     </tr>
+    <tr>
+        <td>External ids:</td>
+        <td><sw360:DisplayMap value="${component.externalIds}"/></td>
+    </tr>
 </table>
 <table class="table info_table" id="releaseAggregateTable">
     <thead>
