@@ -22,7 +22,7 @@
     </core_rt:forEach>
   </core_rt:if>
   <core_rt:if test="${empty licenseDetail.risks}">
-    <tr><td colspan="6">No license risks known</td> </tr>
+    <tr><td colspan="6">No license risks analysis available.</td> </tr>
   </core_rt:if>
   </tbody>
 </table>
