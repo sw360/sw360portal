@@ -51,6 +51,7 @@ import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJE
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class ProjectPortletUtils {
 
@@ -90,6 +91,8 @@ public class ProjectPortletUtils {
 
                 case ROLES:
                     project.setRoles(PortletUtils.getCustomMapFromRequest(request));
+                case EXTERNAL_IDS:
+                    project.setExternalIds(PortletUtils.getExternalIdMapFromRequest(request));
                 default:
                     setFieldValue(request, project, field);
             }

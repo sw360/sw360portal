@@ -159,6 +159,8 @@
             $stepElement.append(wizard.createSingleMergeLine('Wiki', data.componentTarget.wiki, data.componentSource.wiki));
             $stepElement.append(wizard.createSingleMergeLine('Mailing list', data.componentTarget.mailinglist, data.componentSource.mailinglist));
             $stepElement.append(wizard.createSingleMergeLine('Description', data.componentTarget.description, data.componentSource.description));
+            $stepElement.append(wizard.createSingleMergeLine('External ids', data.componentTarget.externalids, data.componentSource.externalids));
+
 
             $stepElement.append(wizard.createCategoryLine('Roles'));
             $stepElement.append(wizard.createSingleMergeLine('Component owner', data.componentTarget.componentOwner, data.componentSource.componentOwner));
@@ -204,6 +206,7 @@
             componentSelection.wiki = wizard.getFinalSingleValue('Wiki');
             componentSelection.mailinglist = wizard.getFinalSingleValue('Mailing list');
             componentSelection.description = wizard.getFinalSingleValue('Description');
+            componentSelection.externalids = wizard.getFinalSingleValue('External ids');
 
             componentSelection.componentOwner = wizard.getFinalSingleValue('Component owner');
             componentSelection.ownerAccountingUnit = wizard.getFinalSingleValue('Owner accounting unit');

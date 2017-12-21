@@ -234,6 +234,8 @@ class JacksonCustomizations {
                 "languagesIterator",
                 "softwarePlatformsSize",
                 "softwarePlatformsIterator",
+                "setExternalIds",
+                "externalIdsSize",
                 "setSoftwarePlatforms",
                 "operatingSystemsSize",
                 "operatingSystemsIterator",

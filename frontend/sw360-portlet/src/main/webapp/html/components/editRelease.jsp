@@ -114,7 +114,7 @@
                             <%@include file="/html/utils/includes/mapEdit.jspf" %>
 
                             <core_rt:set var="externalIdsSet" value="${release.externalIds.entrySet()}"/>
-                            <%@include file="/html/components/includes/releases/editExternalIds.jsp" %>
+                            <%@include file="/html/utils/includes/editExternalIds.jsp" %>
                             <%@include file="/html/components/includes/releases/editReleaseRepository.jspf" %>
                         </div>
                         <div id="tab-ReleaseLinks">
@@ -195,20 +195,6 @@
 
             $('#formSubmit').click(
                 function() {
-                    var valid = true;
-                    $.each($('#externalIdsTable tr.bodyRow'), function (i, row) {
-                        var key = $('#'+row.id+' td input.keyClass').val();
-                        var value = $('#'+row.id+' td input.valueClass').val();
-                        var isOneEmpty = ((key !== '') && (value === '')) || ((key === '') && (value !== ''));
-                        if (isOneEmpty) {
-                            $.alert('There is a blank field in one or more of your external ids. Please correct this before updating the release.');
-                            valid = false;
-                            return false;
-                        }
-                    });
-                    if (!valid) {
-                        return;
-                    }
                     <core_rt:choose>
                     <core_rt:when test="${addMode || release.permissions[WRITE]}">
                     $('#releaseEditForm').submit();
@@ -302,4 +288,3 @@
         }
     });
 </script>
-
