@@ -21,7 +21,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>
             <input id="comp_name" name="<portlet:namespace/><%=Component._Fields.NAME%>" type="text" placeholder="Enter Name" required="" class="followedByImg"
-                   value="${component.name}"/>
+                   value="<sw360:out value="${component.name}"/>"/>
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
                  title="Name of the component"/>
         </td>

@@ -53,21 +53,21 @@
                 <td>
                     <label class="textlabel mandatory" for="given_name">First Name</label>
                     <input type="text" name="<portlet:namespace/><%=User._Fields.GIVENNAME%>" required=""
-                           value="${newuser.givenname}" id="given_name">
+                           value="<sw360:out value="${newuser.givenname}"/>" id="given_name">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label class="textlabel mandatory" for="last_name">Last Name</label>
                     <input type="text" name="<portlet:namespace/><%=User._Fields.LASTNAME%>" required=""
-                           value="${newuser.lastname}" id="last_name">
+                           value="<sw360:out value="${newuser.lastname}"/>" id="last_name">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label class="textlabel mandatory" for="email">Email</label>
                     <input type="text" name="<portlet:namespace/><%=User._Fields.EMAIL%>" required=""
-                           value="${newuser.email}" id="email">
+                           value="<sw360:out value="${newuser.email}"/>" id="email">
                 </td>
             </tr>
             <tr>

@@ -100,7 +100,7 @@
                 <td>
                     <label for="project_name">Project Name</label>
                     <input type="text" class="searchbar" name="<portlet:namespace/><%=Project._Fields.NAME%>"
-                           value="${name}" id="project_name" class="filterInput">
+                           value="<sw360:out value="${name}"/>" id="project_name" class="filterInput">
                 </td>
             </tr>
             <tr>

@@ -55,7 +55,7 @@
 <core_rt:if test="${empty attributeNotFoundException}">
     <div id="header"></div>
     <p class="pageHeader"><span
-            class="pageHeaderBigSpan">License: ${licenseDetail.fullname} (${licenseDetail.shortname})</span>
+            class="pageHeaderBigSpan">License: <sw360:out value="${licenseDetail.fullname}"/> (<sw360:out value="${licenseDetail.shortname}"/>)</span>
         <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
          <span class="pull-right">
              <input type="button" onclick="editLicense()" id="edit" value="Edit License Details and Text"
