@@ -101,10 +101,13 @@
     </tr>
     <tr>
         <td width="33%">
-            <sw360:DisplayUserEdit emails="${component.moderators}" id="<%=Component._Fields.MODERATORS.toString()%>"
-                                   description="Moderators" multiUsers="true" readonly="false"/>
+            <label class="textlabel stackedLabel" for="ownerCountry">Owner Country</label>
+            <input class="toplabelledInput" id="ownerCountry" name="<portlet:namespace/><%=Component._Fields.OWNER_COUNTRY%>" type="text"
+                   placeholder="Enter Owner Country" value="<sw360:out value="${component.ownerCountry}"/>"/>
         </td>
         <td width="33%">
+            <sw360:DisplayUserEdit emails="${component.moderators}" id="<%=Component._Fields.MODERATORS.toString()%>"
+                                   description="Moderators" multiUsers="true" readonly="false"/>
         </td>
         <td width="33%">
         </td>

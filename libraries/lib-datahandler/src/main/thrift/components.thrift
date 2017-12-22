@@ -251,7 +251,8 @@ struct Component {
     26: optional string componentOwner,
     27: optional string ownerAccountingUnit,
     28: optional string ownerGroup,
-    29: optional map<string,set<string>> roles, //customized roles with set of mail addresses
+    29: optional string ownerCountry,
+    30: optional map<string,set<string>> roles, //customized roles with set of mail addresses
 
     // information from external data sources
     30: optional  map<string, string> externalIds,

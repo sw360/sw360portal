@@ -59,6 +59,7 @@ public class ProjectExporter extends ExcelExporter<Project, ProjectHelper> {
         nameToDisplayName.put(Project._Fields.PROJECT_OWNER.getFieldName(), "project owner");
         nameToDisplayName.put(Project._Fields.OWNER_ACCOUNTING_UNIT.getFieldName(), "owner accounting unit");
         nameToDisplayName.put(Project._Fields.OWNER_GROUP.getFieldName(), "owner group");
+        nameToDisplayName.put(Project._Fields.OWNER_COUNTRY.getFieldName(), "owner country");
     }
 
     private static final List<Project._Fields> PROJECT_IGNORED_FIELDS = ImmutableList.<Project._Fields>builder()

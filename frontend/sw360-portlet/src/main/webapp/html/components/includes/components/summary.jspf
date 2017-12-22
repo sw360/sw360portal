@@ -105,7 +105,10 @@
         <td>Owner billing group:</td>
         <td><sw360:out value="${component.ownerGroup}"/></td>
     </tr>
-
+    <tr>
+        <td>Owner country:</td>
+        <td><sw360:out value="${component.ownerCountry}"/></td>
+    </tr>
     <tr>
         <td>Moderators:</td>
         <td><sw360:DisplayUserEmailCollection value="${component.moderators}"/></td>
