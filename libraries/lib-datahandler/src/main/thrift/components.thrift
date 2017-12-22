@@ -255,7 +255,7 @@ struct Component {
     30: optional map<string,set<string>> roles, //customized roles with set of mail addresses
 
     // information from external data sources
-    30: optional  map<string, string> externalIds,
+    31: optional  map<string, string> externalIds,
 
     // Linked objects
     32: optional list<Release> releases,
