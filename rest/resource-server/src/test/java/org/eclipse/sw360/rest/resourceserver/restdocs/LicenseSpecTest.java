@@ -9,14 +9,17 @@
 
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
-import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.rest.resourceserver.TestHelper;
-import org.eclipse.sw360.rest.resourceserver.vendor.Sw360VendorService;
+import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +33,8 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class VendorSpec extends RestDocsSpecBase {
+@RunWith(SpringJUnit4ClassRunner.class)
+public class LicenseSpecTest extends TestRestDocsSpecBase {
 
     @Value("${sw360.test-user-id}")
     private String testUserId;
@@ -39,36 +43,36 @@ public class VendorSpec extends RestDocsSpecBase {
     private String testUserPassword;
 
     @MockBean
-    private Sw360VendorService vendorServiceMock;
+    private Sw360LicenseService licenseServiceMock;
 
-    private Vendor vendor;
+    private License license;
 
     @Before
     public void before() {
-        vendor = new Vendor();
-        vendor.setId("876876776");
-        vendor.setFullname("Google Inc.");
-        vendor.setShortname("Google");
-        vendor.setUrl("https://google.com");
+        license = new License();
+        license.setId("apache20");
+        license.setFullname("Apache License 2.0");
+        license.setShortname("Apache 2.0");
+        license.setText("placeholder for the Apache 2.0 license text");
 
-        Vendor vendor2 = new Vendor();
-        vendor2.setId("987567468");
-        vendor2.setFullname("Pivotal Software, Inc.");
-        vendor2.setShortname("Pivotal");
-        vendor2.setUrl("https://pivotal.io/");
+        License license2 = new License();
+        license2.setId("mit");
+        license2.setFullname("The MIT License (MIT)");
+        license2.setShortname("MIT");
+        license2.setText("placeholder for the MIT license text");
 
-        List<Vendor> vendorList = new ArrayList<>();
-        vendorList.add(vendor);
-        vendorList.add(vendor2);
+        List<License> licenseList = new ArrayList<>();
+        licenseList.add(license);
+        licenseList.add(license2);
 
-        given(this.vendorServiceMock.getVendors()).willReturn(vendorList);
-        given(this.vendorServiceMock.getVendorById(eq(vendor.getId()))).willReturn(vendor);
+        given(this.licenseServiceMock.getLicenses()).willReturn(licenseList);
+        given(this.licenseServiceMock.getLicenseById(eq(license.getId()))).willReturn(license);
     }
 
     @Test
-    public void should_document_get_vendors() throws Exception {
+    public void should_document_get_licenses() throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
-        mockMvc.perform(get("/api/vendors")
+        mockMvc.perform(get("/api/licenses")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
@@ -77,27 +81,27 @@ public class VendorSpec extends RestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
-                                fieldWithPath("_embedded.sw360:vendors").description("An array of <<resources-vendors, Vendors resources>>"),
+                                fieldWithPath("_embedded.sw360:licenses").description("An array of <<resources-licenses, Licenses resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
 
     @Test
-    public void should_document_get_vendor() throws Exception {
+    public void should_document_get_license() throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
-        mockMvc.perform(get("/api/vendors/" + vendor.getId())
+        mockMvc.perform(get("/api/licenses/" + license.getId())
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
                         links(
-                                linkWithRel("self").description("The <<resources-vendors,Vendors resource>>")
+                                linkWithRel("self").description("The <<resources-licenses,Licenses resource>>")
                         ),
                         responseFields(
-                                fieldWithPath("fullName").description("The full name of the vendor"),
-                                fieldWithPath("shortName").description("The short name of the vendor, optional"),
-                                fieldWithPath("url").description("The vendor's home page URL"),
-                                fieldWithPath("type").description("is always 'vendor'"),
+                                fieldWithPath("fullName").description("The full name of the license"),
+                                fieldWithPath("shortName").description("The short name of the license, optional"),
+                                fieldWithPath("text").description("The license's original text"),
+                                fieldWithPath("type").description("is always 'license'"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }
