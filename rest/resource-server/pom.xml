@@ -41,6 +41,14 @@
                     <artifactId>commons-logging</artifactId>
                     <groupId>commons-logging</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -123,12 +131,6 @@
                     <groupId>commons-logging</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.sw360</groupId>
-            <artifactId>datahandler</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -245,14 +247,10 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>
-                                ${project.build.outputDirectory}/static/docs
-                            </outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/static/docs</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>
-                                        ${project.build.directory}/generated-docs
-                                    </directory>
+                                    <directory>${project.build.directory}/generated-docs</directory>
                                 </resource>
                             </resources>
                         </configuration>

@@ -72,9 +72,9 @@ public class RestExceptionHandler {
 
         @JsonSerialize(using = JsonInstantSerializer.class)
         private Instant timestamp = Instant.now();
-        final private int status;
-        final private String error;
-        final private String message;
+        private final int status;
+        private final String error;
+        private final String message;
 
         public ErrorMessage(Exception e, HttpStatus httpStatus) {
             this.status = httpStatus.value();

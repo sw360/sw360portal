@@ -100,27 +100,35 @@ public class Sw360AuthenticationProvider implements AuthenticationProvider {
         String url = sw360PortalServerURL + String.format(liferayParameterURL, sw360LiferayCompanyId, email);
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         String encodedPassword;
+
         try {
             encodedPassword = URLDecoder.decode(password, "US-ASCII");
         } catch (UnsupportedEncodingException e) {
             return false;
         }
+
         RestTemplate restTemplate = restTemplateBuilder.basicAuthorization(email, encodedPassword).build();
         ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
-        return (parseInteger(response.getBody()) > 0);
+
+        try {
+            // The user exits in liferay if the body contains a number
+            Integer.parseInt(response.getBody());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
     }
 
     private User getUserByEmail(String email) {
         UserService.Iface client = new ThriftClients().makeUserClient();
-        User user = null;
         try {
             if (!Strings.isNullOrEmpty(email) && client != null) {
-                user = client.getByEmail(email);
+                return client.getByEmail(email);
             }
         } catch (TException e) {
-            user = null;
+            return null;
         }
-        return user;
+        return null;
     }
 
     private Authentication createAuthenticationToken(String name, String password, User user) {
@@ -133,23 +141,13 @@ public class Sw360AuthenticationProvider implements AuthenticationProvider {
     }
 
     private boolean isDevEnvironment() {
-        Boolean result = false;
         String[] activeProfiles = environment.getActiveProfiles();
         for (String profile : activeProfiles) {
             if (profile.equals(ENVIRONMENT_DEV_PROFILE)) {
-                result = true;
-                break;
+                return true;
             }
         }
-        return result;
-    }
-
-    private int parseInteger(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+        return false;
     }
 
     private boolean isValidString(String string) {
