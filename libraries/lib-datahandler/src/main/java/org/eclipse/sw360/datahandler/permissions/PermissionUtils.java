@@ -25,6 +25,7 @@ import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
  * @author cedric.bodet@tngtech.com
  * @author stefan.jaeger@evosoft.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class PermissionUtils {
 
@@ -33,7 +34,7 @@ public class PermissionUtils {
     }
 
     public static boolean isAdmin(User user) {
-        return isInGroup(user,UserGroup.SW360_ADMIN) || isInGroup(user, UserGroup.ADMIN);
+        return isInGroup(user, UserGroup.SW360_ADMIN) || isInGroup(user, UserGroup.ADMIN);
     }
 
     public static boolean isClearingAdmin(User user) {
@@ -55,13 +56,15 @@ public class PermissionUtils {
     public static boolean isUserAtLeast(UserGroup group, User user) {
         switch (group) {
             case USER:
-                return isNormalUser(user) || isClearingAdmin(user) || isEccAdmin(user) || isAdmin(user) || isSecurityAdmin(user);
+                return isNormalUser(user) || isAdmin(user) || isClearingAdmin(user) || isEccAdmin(user) || isSecurityAdmin(user);
             case CLEARING_ADMIN:
                 return isClearingAdmin(user) || isAdmin(user);
             case ECC_ADMIN:
                 return isEccAdmin(user) || isAdmin(user);
             case SECURITY_ADMIN:
-                return  isSecurityAdmin(user) || isAdmin(user);
+                return isSecurityAdmin(user) || isAdmin(user);
+            case SW360_ADMIN:
+                return isAdmin(user);
             case ADMIN:
                 return isAdmin(user);
             default:

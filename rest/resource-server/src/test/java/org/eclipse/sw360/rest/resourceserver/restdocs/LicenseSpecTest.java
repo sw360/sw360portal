@@ -14,8 +14,12 @@ import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +33,14 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class LicenseSpec extends RestDocsSpecBase {
+@RunWith(SpringJUnit4ClassRunner.class)
+public class LicenseSpecTest extends TestRestDocsSpecBase {
+
+    @Value("${sw360.test-user-id}")
+    private String testUserId;
+
+    @Value("${sw360.test-user-password}")
+    private String testUserPassword;
 
     @MockBean
     private Sw360LicenseService licenseServiceMock;
@@ -60,7 +71,7 @@ public class LicenseSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_licenses() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/licenses")
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))
@@ -77,7 +88,7 @@ public class LicenseSpec extends RestDocsSpecBase {
 
     @Test
     public void should_document_get_license() throws Exception {
-        String accessToken = TestHelper.getAccessToken(mockMvc, "admin@sw360.org", "sw360-password");
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/licenses/" + license.getId())
                 .header("Authorization", "Bearer " + accessToken)
                 .accept(MediaTypes.HAL_JSON))

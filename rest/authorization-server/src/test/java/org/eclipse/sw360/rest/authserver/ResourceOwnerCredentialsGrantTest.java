@@ -20,10 +20,12 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 
+import static org.eclipse.sw360.rest.authserver.security.Sw360GrantedAuthority.READ;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ResourceOwnerCredentialsGrantTest extends IntegrationTestBase {
+
     @Value("${local.server.port}")
     private int port;
 
@@ -37,14 +39,14 @@ public class ResourceOwnerCredentialsGrantTest extends IntegrationTestBase {
 
     @Before
     public void before() {
-        responseEntity = getTokenWithParameters("grant_type=password&username=" + testUserId + "&password=" + testUserPassword);
+        String parameters = "grant_type=password&username=%s&password=%s";
+        responseEntity = getTokenWithParameters(String.format(parameters, testUserId, testUserPassword));
     }
 
     @Test
     public void should_connect_to_authorization_server_with_resource_owner_credentials() {
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
     }
-
 
     @Test
     public void should_get_expected_response_headers() throws IOException {
@@ -53,8 +55,7 @@ public class ResourceOwnerCredentialsGrantTest extends IntegrationTestBase {
 
     @Test
     public void should_get_expected_jwt_attributes() throws IOException {
-        JsonNode jwtClaimsJsonNode = checkJwtClaims(responseEntity, "ROLE_SW360_USER");
+        JsonNode jwtClaimsJsonNode = checkJwtClaims(responseEntity, READ.getAuthority());
         assertThat(jwtClaimsJsonNode.get("user_name").asText(), is(testUserId));
     }
-
 }

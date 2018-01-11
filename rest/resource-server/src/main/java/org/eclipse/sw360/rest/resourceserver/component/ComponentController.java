@@ -30,6 +30,7 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,7 +65,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
-    @RequestMapping(value = COMPONENTS_URL)
+    @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<Component>>> getComponents(OAuth2Authentication oAuth2Authentication) {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Component> components = componentService.getComponentsForUser(user);
@@ -88,7 +89,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(COMPONENTS_URL + "/{id}")
+    @RequestMapping(value = COMPONENTS_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<Component>> getComponent(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
@@ -97,6 +98,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return new ResponseEntity<>(userHalResource, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('WRITE')")
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<Component>> createComponent(
             OAuth2Authentication oAuth2Authentication,
@@ -104,7 +106,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
 
-        if(component.getVendorNames() != null) {
+        if (component.getVendorNames() != null) {
             Set<String> vendors = new HashSet<>();
             for (String vendorUriString : component.getVendorNames()) {
                 URI vendorURI = new URI(vendorUriString);

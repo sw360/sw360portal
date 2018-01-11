@@ -33,17 +33,19 @@ import static org.junit.Assert.assertThat;
 @SpringBootTest(classes = Sw360AuthorizationServer.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"dev"})
 abstract public class IntegrationTestBase {
+
     @Value("${local.server.port}")
     protected int port;
 
+    @Value("${security.oauth2.client.client-id}")
+    private String clientId;
+
+    @Value("${security.oauth2.client.client-secret}")
+    private String clientSecret;
+
     protected ResponseEntity<String> getTokenWithParameters(String parameters) {
         String url = "http://localhost:" + port + "/oauth/token?" + parameters;
-        return new TestRestTemplate(
-                "trusted-sw360-client",
-                "sw360-secret")
-                .postForEntity(url,
-                        null,
-                        String.class);
+        return new TestRestTemplate(clientId, clientSecret).postForEntity(url, null, String.class);
     }
 
     protected void checkResponseBody(ResponseEntity<String> responseEntity) throws IOException {
@@ -54,7 +56,7 @@ abstract public class IntegrationTestBase {
         JsonNode responseBodyJsonNode = new ObjectMapper().readTree(responseBody);
 
         assertThat(responseBodyJsonNode.get("token_type").asText(), is("bearer"));
-        assertThat(responseBodyJsonNode.get("scope").asText(), is("sw360.read sw360.write"));
+        assertThat(responseBodyJsonNode.get("scope").asText(), is("all"));
         assertThat(responseBodyJsonNode.has("access_token"), is(true));
         assertThat(responseBodyJsonNode.has("expires_in"), is(true));
         assertThat(responseBodyJsonNode.has("jti"), is(true));
@@ -76,12 +78,11 @@ abstract public class IntegrationTestBase {
         assertThat(jwtClaimsJsonNode.get("client_id").asText(), is("trusted-sw360-client"));
 
         JsonNode scopeNode = jwtClaimsJsonNode.get("scope");
-        assertThat(scopeNode.get(0).asText(), is("sw360.read"));
-        assertThat(scopeNode.get(1).asText(), is("sw360.write"));
+        assertThat(scopeNode.get(0).asText(), is("all"));
+        assertThat(scopeNode.size(), is(1));
 
         JsonNode authoritiesJsonNode = jwtClaimsJsonNode.get("authorities");
         assertThat(authoritiesJsonNode.get(0).asText(), is(expectedAuthority));
-        assertThat(authoritiesJsonNode.size(), is(1));
 
         return jwtClaimsJsonNode;
     }

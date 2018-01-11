@@ -13,6 +13,7 @@ package org.eclipse.sw360.rest.resourceserver.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -27,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 @Configuration
 @EnableResourceServer
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
-public class ResourceServerConfiguration  extends WebSecurityConfigurerAdapter implements ResourceServerConfigurer {
+public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter implements ResourceServerConfigurer {
 
     @Value("${security.oauth2.resource.id:sw360-REST-API}")
     private String resourceId;
@@ -44,11 +45,17 @@ public class ResourceServerConfiguration  extends WebSecurityConfigurerAdapter i
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/api/**").authenticated();
-//        http.requestMatcher(new OAuthRequestedMatcher())
-//                .authorizeRequests()
-//                .antMatchers(HttpMethod.OPTIONS).permitAll()
-//                .anyRequest().authenticated();
+        // TODO Thomas Maier 15-12-2017
+        // Use Sw360GrantedAuthority from authorization server
+        http
+                .httpBasic().and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/api").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**").hasAuthority("READ")
+                .antMatchers(HttpMethod.POST, "/api/**").hasAuthority("WRITE")
+                .antMatchers(HttpMethod.PUT, "/api/**").hasAuthority("WRITE")
+                .antMatchers(HttpMethod.PATCH, "/api/**").hasAuthority("WRITE").and()
+                .csrf().disable();
     }
 
     private static class OAuthRequestedMatcher implements RequestMatcher {
@@ -57,5 +64,4 @@ public class ResourceServerConfiguration  extends WebSecurityConfigurerAdapter i
             return (authorizationHeaderValue != null) && authorizationHeaderValue.startsWith("Bearer");
         }
     }
-
 }

@@ -31,8 +31,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.Base64Utils;
 
@@ -81,7 +84,7 @@ public class TestHelper {
                         .param("username", username)
                         .param("password", password)
                         .param("grant_type", "password")
-                        .param("scope", "sw360.read"))
+                        .param("scope", "all"))
                 .andReturn().getResponse();
 
         return new ObjectMapper()

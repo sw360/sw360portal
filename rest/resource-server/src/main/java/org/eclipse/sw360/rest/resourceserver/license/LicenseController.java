@@ -26,6 +26,7 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +53,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
-    @RequestMapping(value = LICENSES_URL)
+    @RequestMapping(value = LICENSES_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<License>>> getLicenses(OAuth2Authentication oAuth2Authentication) {
         List<License> licenses = licenseService.getLicenses();
 
@@ -72,7 +73,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(LICENSES_URL + "/{id}")
+    @RequestMapping(value = LICENSES_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<License>> getLicense(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         License sw360License = licenseService.getLicenseById(id);
@@ -80,6 +81,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(licenseHalResource, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('WRITE')")
     @RequestMapping(value = LICENSES_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<License>> createLicense(
             OAuth2Authentication oAuth2Authentication,
