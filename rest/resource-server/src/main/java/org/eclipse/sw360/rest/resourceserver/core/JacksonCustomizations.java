@@ -138,6 +138,7 @@ class JacksonCustomizations {
                 "rolesSize",
                 "setRoles",
                 "setOwnerAccountingUnit",
+                "setLicenseInfoHeaderText",
                 "setProjectOwner",
                 "enableSvm",
                 "setEnableSvm"

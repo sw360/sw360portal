@@ -59,24 +59,32 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         Component angularComponent = new Component();
         angularComponent.setId("17653524");
         angularComponent.setName("Angular");
+        angularComponent.setComponentOwner("John");
         angularComponent.setDescription("Angular is a development platform for building mobile and desktop web applications.");
         angularComponent.setCreatedOn("2016-12-15");
         angularComponent.setCreatedBy("admin@sw360.org");
         angularComponent.setComponentType(ComponentType.OSS);
         angularComponent.setVendorNames(new HashSet<>(Collections.singletonList("Google")));
         angularComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "john@sw360.org")));
+        angularComponent.setOwnerAccountingUnit("4822");
+        angularComponent.setOwnerCountry("DE");
+        angularComponent.setOwnerGroup("AA BB 123 GHV2-DE");
 
         componentList.add(angularComponent);
 
         Component springComponent = new Component();
         springComponent.setId("678dstzd8");
         springComponent.setName("Spring Framework");
+        springComponent.setComponentOwner("Jane");
         springComponent.setDescription("The Spring Framework provides a comprehensive programming and configuration model for modern Java-based enterprise applications.");
         springComponent.setCreatedOn("2016-12-18");
         springComponent.setCreatedBy("jane@sw360.org");
         springComponent.setComponentType(ComponentType.OSS);
         springComponent.setVendorNames(new HashSet<>(Collections.singletonList("Pivotal")));
         springComponent.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+        springComponent.setOwnerAccountingUnit("5661");
+        springComponent.setOwnerCountry("FR");
+        springComponent.setOwnerGroup("SIM-KA12");
 
         componentList.add(springComponent);
 
@@ -158,10 +166,14 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                         ),
                         responseFields(
                                 fieldWithPath("name").description("The name of the component"),
+                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("componentOwner").description("The owner name of the component"),
                                 fieldWithPath("description").description("The component description"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
                                 fieldWithPath("type").description("is always 'component'"),
-                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
+                                fieldWithPath("ownerGroup").description("The owner group of the component"),
+                                fieldWithPath("ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this component"),
                                 fieldWithPath("_embedded.releases").description("An array of all component releases with version and link to their <<resources-releases,Releases resource>>"),
@@ -195,10 +207,14 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                         ),
                         responseFields(
                                 fieldWithPath("name").description("The name of the component"),
+                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("componentOwner").description("The owner name of the component"),
                                 fieldWithPath("description").description("The component description"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
                                 fieldWithPath("type").description("is always 'component'"),
-                                fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
+                                fieldWithPath("ownerGroup").description("The owner group of the component"),
+                                fieldWithPath("ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
