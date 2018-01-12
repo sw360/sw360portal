@@ -112,9 +112,11 @@
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/datatables.net-select-bs/1.2.2/css/select.bootstrap.min.css"/>
 <script src="<%=request.getContextPath()%>/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/datatables/1.10.15/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/webjars/datatables.net-select/1.2.2/js/dataTables.select.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/webjars/github-com-craftpip-jquery-confirm/3.0.1/jquery-confirm.min.js" type="text/javascript"></script>
 
 <script>
@@ -150,6 +152,9 @@
         </core_rt:forEach>
 
         dataSourceTable = $('#dataSourceTable').DataTable({
+            select: {
+                style: 'multi+shift'
+            },
             "pagingType": "full_numbers",
             "data": result,
             "columns": [
@@ -157,10 +162,6 @@
                 {"sTitle": "Project name"}
             ],
             "autoWidth": false
-        });
-
-        $('#dataSourceTable tbody').on( 'click', 'tr', function() {
-            $(this).toggleClass('selected');
         });
     }
 
@@ -308,6 +309,9 @@
 
         dataSourceTable = $('#dataSourceTable').DataTable({
             "destroy": true,
+            select: {
+                style: 'multi+shift'
+            },
             "pagingType": "full_numbers",
             "columns": [
                 {"sTitle": "Project id in selected data source"},

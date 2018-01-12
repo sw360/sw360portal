@@ -105,6 +105,7 @@ public class PortalConstants {
 
     //! Specialized keys for releases
     public static final String RELEASE_ID = "releaseId";
+    public static final String RELEASE_IDS = "releaseIds";
     public static final String CLEARING_TEAM = "clearingTeam";
     public static final String RELEASE = "release";
     public static final String ACTUAL_RELEASE = "actual_release";
@@ -175,6 +176,7 @@ public class PortalConstants {
     public static final String VULNERABILITY_RATINGS = "vulnerabilityRatings";
     public static final String VULNERABILITY_RATINGS_EDITABLE = "vulnerabilityRatingsEditable";
     public static final String VULNERABILITY_ID = "vulnerabilityId";
+    public static final String VULNERABILITY_IDS = "vulnerabilityIds";
     public static final String VULNERABILITY_RATING_VALUE = "vulnerabilityRatingValue";
     public static final String VULNERABILITY_RATING_COMMENT = "vulnerabilityRatingComment";
     public static final String NUMBER_OF_VULNERABILITIES = "numberOfVulnerabilities";

@@ -14,12 +14,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
-import org.eclipse.sw360.datahandler.thrift.MainlineState;
-import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
-import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
-import org.eclipse.sw360.datahandler.thrift.Source;
+import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentUsage;
 import org.eclipse.sw360.datahandler.thrift.attachments.LicenseInfoUsage;
 import org.eclipse.sw360.datahandler.thrift.attachments.UsageData;
@@ -36,7 +35,6 @@ import org.eclipse.sw360.portal.common.CustomFieldHelper;
 import org.eclipse.sw360.portal.common.PortalConstants;
 import org.eclipse.sw360.portal.common.PortletUtils;
 import org.eclipse.sw360.portal.users.UserCacheHolder;
-import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
@@ -54,6 +52,8 @@ import static org.eclipse.sw360.portal.common.PortalConstants.CUSTOM_FIELD_PROJE
  * @author thomas.maier@evosoft.com
  */
 public class ProjectPortletUtils {
+
+    private static final Logger log = Logger.getLogger(ProjectPortletUtils.class);
 
     private ProjectPortletUtils() {
         // Utility class with only static functions
@@ -127,30 +127,36 @@ public class ProjectPortletUtils {
         PortletUtils.setFieldValue(request, project, field, Project.metaDataMap.get(field), "");
     }
 
-    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request) {
+    public static ProjectVulnerabilityRating updateProjectVulnerabilityRatingFromRequest(Optional<ProjectVulnerabilityRating> projectVulnerabilityRatings, ResourceRequest request) throws SW360Exception {
         String projectId = request.getParameter(PortalConstants.PROJECT_ID);
         ProjectVulnerabilityRating projectVulnerabilityRating = projectVulnerabilityRatings.orElse(
                 new ProjectVulnerabilityRating()
                         .setProjectId(projectId)
                         .setVulnerabilityIdToReleaseIdToStatus(new HashMap<>()));
 
-        String vulnerabilityId = request.getParameter(PortalConstants.VULNERABILITY_ID);
-        String releaseId = request.getParameter(PortalConstants.RELEASE_ID);
         if (!projectVulnerabilityRating.isSetVulnerabilityIdToReleaseIdToStatus()) {
             projectVulnerabilityRating.setVulnerabilityIdToReleaseIdToStatus(new HashMap<>());
         }
-
         Map<String, Map<String, List<VulnerabilityCheckStatus>>> vulnerabilityIdToReleaseIdToStatus = projectVulnerabilityRating.getVulnerabilityIdToReleaseIdToStatus();
-        if (!vulnerabilityIdToReleaseIdToStatus.containsKey(vulnerabilityId)) {
-            vulnerabilityIdToReleaseIdToStatus.put(vulnerabilityId, new HashMap<>());
-        }
-        if (!vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).containsKey(releaseId)) {
-            vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).put(releaseId, new ArrayList<>());
+
+        String[] vulnerabilityIds = request.getParameterValues(PortalConstants.VULNERABILITY_IDS + "[]");
+        String[] releaseIds = request.getParameterValues(PortalConstants.RELEASE_IDS + "[]");
+
+        if (vulnerabilityIds.length != releaseIds.length) {
+            String message = "Length of vulnerabilities (" + vulnerabilityIds.length + ") does not match the length of releases (" + releaseIds.length + ")!";
+            log.error(message);
+            throw new SW360Exception(message);
         }
 
-        List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = vulnerabilityIdToReleaseIdToStatus.get(vulnerabilityId).get(releaseId);
-        VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
-        vulnerabilityCheckStatusHistory.add(vulnerabilityCheckStatus);
+        for (int i = 0; i < vulnerabilityIds.length; i++) {
+            String vulnerabilityId = vulnerabilityIds[i];
+            String releaseId = releaseIds[i];
+
+            Map<String, List<VulnerabilityCheckStatus>> releaseIdToStatus = vulnerabilityIdToReleaseIdToStatus.computeIfAbsent(vulnerabilityId, k -> new HashMap<>());
+            List<VulnerabilityCheckStatus> vulnerabilityCheckStatusHistory = releaseIdToStatus.computeIfAbsent(releaseId, k -> new ArrayList<>());
+            VulnerabilityCheckStatus vulnerabilityCheckStatus = newVulnerabilityCheckStatusFromRequest(request);
+            vulnerabilityCheckStatusHistory.add(vulnerabilityCheckStatus);
+        }
 
         return projectVulnerabilityRating;
     }
@@ -265,8 +271,9 @@ public class ProjectPortletUtils {
                 usage.setAttachmentContentId(attachmentContentId);
 
                 Set<String> licenseIds = CommonUtils.nullToEmptySet(excludedLicensesPerAttachmentId.get(attachmentContentId)).stream()
-                        .filter(licenseNameWithText -> licenseNameWithText.isSetLicenseName())
-                        .map(licenseNameWithText -> licenseNameWithText.getLicenseName()).collect(Collectors.toSet());
+                        .filter(LicenseNameWithText::isSetLicenseName)
+                        .map(LicenseNameWithText::getLicenseName)
+                        .collect(Collectors.toSet());
                 usage.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(licenseIds)));
 
                 attachmentUsages.add(usage);
