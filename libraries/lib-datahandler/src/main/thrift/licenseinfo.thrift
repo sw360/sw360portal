@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -27,12 +27,18 @@ enum LicenseInfoRequestStatus{
     FAILURE = 2,
 }
 
+enum OutputFormatVariant{
+    REPORT = 0,
+    DISCLOSURE = 1,
+}
+
 struct OutputFormatInfo {
     1: optional string fileExtension,
     2: optional string description,
     3: optional string generatorClassName,
     4: bool isOutputBinary,
     5: optional string mimeType,
+    6: optional OutputFormatVariant variant,
 }
 
 struct LicenseNameWithText {
@@ -40,6 +46,7 @@ struct LicenseNameWithText {
     2: optional string licenseText,
     /* 3: optional i32 id, removed since only used as counter in XhtmlGenerator */
     4: optional string acknowledgements,
+    5: optional string licenseSpdxId,
 }
 
 struct LicenseInfo {

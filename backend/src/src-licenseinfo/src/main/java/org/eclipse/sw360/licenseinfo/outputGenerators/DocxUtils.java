@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class DocxUtils {
 
-    public static final int FONT_SIZE = 12;
+    public static final int FONT_SIZE = 10;
     public static final String ALERT_COLOR = "e95850";
     public static final String FONT_FAMILY = "Calibri";
     public static final String STYLE_HEADING = "Heading2";

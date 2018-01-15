@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -51,7 +51,9 @@ public abstract class AbstractCLIParser extends LicenseInfoParser {
     private static final String LICENSE_ACKNOWLEDGEMENTS_ELEMENT_NAME = "Acknowledgements";
     protected static final String XML_FILE_EXTENSION = ".xml";
     private static final String LICENSENAME_ATTRIBUTE_NAME = "name";
+    private static final String SPDX_IDENTIFIER_ATTRIBUTE_NAME = "spdxidentifier";
     private static final String LICENSE_NAME_UNKNOWN = "License name unknown";
+    private static final String SPDX_IDENTIFIER_UNKNOWN = "SPDX identifier unknown";
     private static final Logger log = Logger.getLogger(CLIParser.class);
 
     public AbstractCLIParser(AttachmentConnector attachmentConnector, AttachmentContentProvider attachmentContentProvider) {
@@ -139,7 +141,10 @@ public abstract class AbstractCLIParser extends LicenseInfoParser {
                         .orElse(null))
                 .setLicenseName(findNamedAttribute(node, LICENSENAME_ATTRIBUTE_NAME)
                         .map(Node::getNodeValue)
-                        .orElse(LICENSE_NAME_UNKNOWN));
+                        .orElse(LICENSE_NAME_UNKNOWN))
+                .setLicenseSpdxId(findNamedAttribute(node, SPDX_IDENTIFIER_ATTRIBUTE_NAME)
+                        .map(Node::getNodeValue)
+                        .orElse(SPDX_IDENTIFIER_UNKNOWN));
     }
 
     protected class NodeListIterator implements Iterator<Node> {

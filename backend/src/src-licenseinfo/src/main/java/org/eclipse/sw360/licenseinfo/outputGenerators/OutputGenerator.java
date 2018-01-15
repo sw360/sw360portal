@@ -36,21 +36,23 @@ public abstract class OutputGenerator<T> {
     protected static final String LICENSE_REFERENCE_ID_MAP_CONTEXT_PROPERTY = "licenseNameWithTextToReferenceId";
     protected static final String ACKNOWLEDGEMENTS_CONTEXT_PROPERTY = "acknowledgements";
     protected static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
-    protected static final String LICENSES_CONTEXT_PROPERTY = "licenses";
     protected static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
     protected static final String LICENSE_INFO_ERROR_RESULTS_CONTEXT_PROPERTY = "licenseInfoErrorResults";
     protected static final String LICENSE_INFO_HEADER_TEXT = "licenseInfoHeader";
+    protected static final String LICENSE_INFO_PROJECT_TITLE = "projectTitle";
 
     private final String outputType;
     private final String outputDescription;
     private final boolean isOutputBinary;
     private final String outputMimeType;
+    private final OutputFormatVariant outputVariant;
 
-    OutputGenerator(String outputType, String outputDescription, boolean isOutputBinary, String mimeType){
+    OutputGenerator(String outputType, String outputDescription, boolean isOutputBinary, String mimeType, OutputFormatVariant variant) {
         this.outputType = outputType;
         this.outputDescription = outputDescription;
         this.isOutputBinary = isOutputBinary;
         this.outputMimeType = mimeType;
+        this.outputVariant = variant;
     }
 
     public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String projectVersion, String licenseInfoHeaderText) throws SW360Exception;
@@ -71,13 +73,18 @@ public abstract class OutputGenerator<T> {
         return outputMimeType;
     }
 
+    public OutputFormatVariant getOutputVariant() {
+        return outputVariant;
+    }
+
     public OutputFormatInfo getOutputFormatInfo() {
         return new OutputFormatInfo()
                 .setFileExtension(getOutputType())
                 .setDescription(getOutputDescription())
                 .setIsOutputBinary(isOutputBinary())
-                .setGeneratorClassName(this.getClass().getName())
-                .setMimeType(getOutputMimeType());
+                .setGeneratorClassName(this.getClass().getSimpleName())
+                .setMimeType(getOutputMimeType())
+                .setVariant(getOutputVariant());
     }
 
     public String getComponentLongName(LicenseInfoParsingResult li) {
@@ -182,9 +189,11 @@ public abstract class OutputGenerator<T> {
      *            name of template file
      * @return rendered template
      */
-    protected String renderTemplateWithDefaultValues(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String file, String licenseInfoHeaderText) {
+    protected String renderTemplateWithDefaultValues(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String file,
+                                                     String projectTitle, String licenseInfoHeaderText) {
         VelocityContext vc = getConfiguredVelocityContext();
         // set header
+        vc.put(LICENSE_INFO_PROJECT_TITLE, projectTitle);
         vc.put(LICENSE_INFO_HEADER_TEXT, licenseInfoHeaderText);
 
         // sorted lists of all license to be displayed at the end of the file at once
