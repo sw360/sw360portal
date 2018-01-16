@@ -13,6 +13,7 @@ package org.eclipse.sw360.licenseinfo.outputGenerators;
 
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -175,6 +176,7 @@ public class XhtmlGeneratorTest {
 
     private static LicenseInfoParsingResult generateLIPResult(LicenseInfo info, String releaseName, String version, String vendor){
         return new LicenseInfoParsingResult()
+                .setStatus(LicenseInfoRequestStatus.SUCCESS)
                 .setLicenseInfo(info)
                 .setName(releaseName)
                 .setVendor(vendor)

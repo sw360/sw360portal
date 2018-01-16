@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2016-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -16,7 +16,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.attachments.db.AttachmentDatabaseHandler;
@@ -36,13 +35,13 @@ import org.eclipse.sw360.licenseinfo.outputGenerators.XhtmlGenerator;
 import org.eclipse.sw360.licenseinfo.parsers.*;
 import org.eclipse.sw360.licenseinfo.util.LicenseNameWithTextUtils;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptySet;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.common.WrappedException.wrapTException;
 
@@ -136,7 +135,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     public List<LicenseInfoParsingResult> getLicenseInfoForAttachment(Release release, String attachmentContentId, User user)
             throws TException {
         if (release == null) {
-            return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
+            return Collections.singletonList(noSourceParsingResult("No release given"));
         }
 
         List<LicenseInfoParsingResult> cachedResults = licenseInfoCache.getIfPresent(attachmentContentId);
@@ -144,7 +143,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
             return cachedResults;
         }
 
-        Attachment attachment = CommonUtils.nullToEmptySet(release.getAttachments()).stream()
+        Attachment attachment = nullToEmptySet(release.getAttachments()).stream()
                 .filter(a -> a.getAttachmentContentId().equals(attachmentContentId)).findFirst().orElseThrow(() -> {
                     String message = String.format(
                             "Attachment selected for license info generation is not found in release's attachments. Release id: %s. Attachment content id: %s",
@@ -159,7 +158,10 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
 
             if (applicableParsers.size() == 0) {
                 LOGGER.warn("No applicable parser has been found for the attachment selected for license information");
-                return assignReleaseToLicenseInfoParsingResult(noSourceParsingResult(), release);
+                return assignReleaseToLicenseInfoParsingResult(
+                        assignFileNameToLicenseInfoParsingResult(
+                                noSourceParsingResult("No applicable parser has been found for the attachment"), attachment.getFilename()),
+                        release);
             } else if (applicableParsers.size() > 1) {
                 LOGGER.info("More than one parser claims to be able to parse attachment with contend id " + attachmentContentId);
             }
@@ -175,6 +177,14 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
         } catch (WrappedTException exception) {
             throw exception.getCause();
         }
+    }
+
+    private LicenseInfoParsingResult assignFileNameToLicenseInfoParsingResult(LicenseInfoParsingResult licenseInfoParsingResult, String filename) {
+        if (licenseInfoParsingResult.getLicenseInfo() == null) {
+            licenseInfoParsingResult.setLicenseInfo(new LicenseInfo());
+        }
+        licenseInfoParsingResult.getLicenseInfo().addToFilenames(filename);
+        return licenseInfoParsingResult;
     }
 
     @Override
@@ -225,23 +235,27 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     }
 
     protected LicenseInfoParsingResult filterLicenses(LicenseInfoParsingResult result, Set<LicenseNameWithText> licencesToExclude) {
-        Set<LicenseNameWithText> filteredLicenses = result.getLicenseInfo().getLicenseNamesWithTexts().stream().filter(license -> {
-            for (LicenseNameWithText excludeLicense : licencesToExclude) {
-                if (LicenseNameWithTextUtils.licenseNameWithTextEquals(license, excludeLicense)) {
-                    return false;
-                }
-            }
-            return true;
-        }).collect(Collectors.toSet());
-
         // make a deep copy to NOT change the original document that is cached
         LicenseInfoParsingResult newResult = result.deepCopy();
-        newResult.getLicenseInfo().setLicenseNamesWithTexts(filteredLicenses);
+
+        if (result.getLicenseInfo() != null) {
+            Set<LicenseNameWithText> filteredLicenses = nullToEmptySet(result.getLicenseInfo().getLicenseNamesWithTexts())
+                    .stream()
+                    .filter(license -> {
+                        for (LicenseNameWithText excludeLicense : licencesToExclude) {
+                            if (LicenseNameWithTextUtils.licenseNameWithTextEquals(license, excludeLicense)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }).collect(Collectors.toSet());
+            newResult.getLicenseInfo().setLicenseNamesWithTexts(filteredLicenses);
+        }
         return newResult;
     }
 
-    protected LicenseInfoParsingResult noSourceParsingResult() {
-        return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE);
+    protected LicenseInfoParsingResult noSourceParsingResult(String message) {
+        return new LicenseInfoParsingResult().setStatus(LicenseInfoRequestStatus.NO_APPLICABLE_SOURCE).setMessage(message);
     }
 
     protected List<LicenseInfoParsingResult> assignReleaseToLicenseInfoParsingResult(LicenseInfoParsingResult licenseInfoParsingResult,

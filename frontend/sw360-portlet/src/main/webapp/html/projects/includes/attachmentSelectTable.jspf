@@ -257,10 +257,10 @@
                     }).done(function(licenses) {
                         var $rows;
 
-                        if(licenses.length == 0) {
+                        if(licenses.length == 0 || licenses[0].error) {
                             $linkedProjectsInfoTable.find('tr[data-tt-id=' + data.ttId + '_loader] td').append($('<div/>', {
                                 'class': 'error foregroundAlert',
-                                text: 'No license found.'
+                                text: 'No license found.' + licenses[0].error ? ' Error: ' + licenses[0].error + ' Parsed file: ' + licenses[0].file : ''
                             }));
                             $linkedProjectsInfoTable.find('tr[data-tt-id=' + data.ttId + '_loader] td .spinner').hide();
                             loadedCallback();

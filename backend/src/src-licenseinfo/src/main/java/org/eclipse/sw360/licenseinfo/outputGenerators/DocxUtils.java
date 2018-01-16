@@ -1,5 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
+ * With modifications by Siemens AG, 2018.
  * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -15,6 +16,7 @@ package org.eclipse.sw360.licenseinfo.outputGenerators;
 import org.apache.poi.xwpf.usermodel.*;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
 
 import java.util.*;
@@ -25,6 +27,7 @@ import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString
 public class DocxUtils {
 
     private static final int FONT_SIZE = 12;
+    public static final String ALERT_COLOR = "e95850";
 
     private DocxUtils() {
         //only static members
@@ -73,29 +76,37 @@ public class DocxUtils {
     public static void fillReleasesTable(XWPFTable table, Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
 
         for (LicenseInfoParsingResult result : projectLicenseInfoResults) {
-            Set<String> copyrights = Collections.EMPTY_SET;
-            Set<LicenseNameWithText> licenseNamesWithTexts = Collections.EMPTY_SET;
-            Set<String> acknowledgements = Collections.EMPTY_SET;
-            if (result.isSetLicenseInfo()) {
-                LicenseInfo licenseInfo = result.getLicenseInfo();
-                if (licenseInfo.isSetCopyrights()) {
-                    copyrights = licenseInfo.getCopyrights();
-                }
-                if (licenseInfo.isSetLicenseNamesWithTexts()) {
-                    licenseNamesWithTexts = licenseInfo.getLicenseNamesWithTexts();
-                    acknowledgements = licenseNamesWithTexts.stream()
-                            .map(LicenseNameWithText::getAcknowledgements)
-                            .filter(Objects::nonNull).collect(Collectors.toSet());
-                }
-            }
             String releaseName = nullToEmptyString(result.getName());
             String version = nullToEmptyString(result.getVersion());
+            if (result.getStatus()== LicenseInfoRequestStatus.SUCCESS) {
+                Set<String> copyrights = Collections.emptySet();
+                Set<LicenseNameWithText> licenseNamesWithTexts = Collections.emptySet();
+                Set<String> acknowledgements = Collections.emptySet();
+                if (result.isSetLicenseInfo()) {
+                    LicenseInfo licenseInfo = result.getLicenseInfo();
+                    if (licenseInfo.isSetCopyrights()) {
+                        copyrights = licenseInfo.getCopyrights();
+                    }
+                    if (licenseInfo.isSetLicenseNamesWithTexts()) {
+                        licenseNamesWithTexts = licenseInfo.getLicenseNamesWithTexts();
+                        acknowledgements = licenseNamesWithTexts.stream()
+                                .map(LicenseNameWithText::getAcknowledgements)
+                                .filter(Objects::nonNull).collect(Collectors.toSet());
+                    }
+                }
 
-            addTableRow(table, releaseName, version, licenseNamesWithTexts, acknowledgements, copyrights);
+                addReleaseTableRow(table, releaseName, version, licenseNamesWithTexts, acknowledgements, copyrights);
+            } else {
+                String filename = Optional.ofNullable(result.getLicenseInfo())
+                        .map(LicenseInfo::getFilenames)
+                        .map(l -> l.stream().findFirst().orElse(null))
+                        .orElse("");
+                addReleaseTableErrorRow(table, releaseName, version, nullToEmptyString(result.getMessage()), filename);
+            }
         }
     }
 
-    private static void addTableRow(XWPFTable table, String releaseName, String version, Set<LicenseNameWithText> licenseNamesWithTexts, Set<String> acknowledgements, Set<String> copyrights) {
+    private static void addReleaseTableRow(XWPFTable table, String releaseName, String version, Set<LicenseNameWithText> licenseNamesWithTexts, Set<String> acknowledgements, Set<String> copyrights) {
         XWPFTableRow row = table.createRow();
 
         XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
@@ -133,6 +144,30 @@ public class DocxUtils {
             addFormattedText(currentRun, copyright, FONT_SIZE);
             addNewLines(currentRun, 1);
         }
+    }
+
+    private static void addReleaseTableErrorRow(XWPFTable table, String releaseName, String version, String error, String filename) {
+        XWPFTableRow row = table.createRow();
+
+        XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
+        styleTableHeaderParagraph(currentParagraph);
+        XWPFRun currentRun = currentParagraph.createRun();
+        addFormattedText(currentRun, releaseName, FONT_SIZE);
+
+        currentParagraph = row.getCell(1).getParagraphs().get(0);
+        styleTableHeaderParagraph(currentParagraph);
+        currentRun = currentParagraph.createRun();
+        addFormattedText(currentRun, version, FONT_SIZE);
+
+        currentParagraph = row.getCell(2).getParagraphs().get(0);
+        styleTableHeaderParagraph(currentParagraph);
+        currentRun = currentParagraph.createRun();
+        addFormattedText(currentRun, String.format("Error reading license information: %s", error), FONT_SIZE, false, ALERT_COLOR);
+
+        currentParagraph = row.getCell(4).getParagraphs().get(0);
+        styleTableHeaderParagraph(currentParagraph);
+        currentRun = currentParagraph.createRun();
+        addFormattedText(currentRun, String.format("Source file: %s", filename), FONT_SIZE, false, ALERT_COLOR);
     }
 
     private static void styleTableHeaderParagraph(XWPFParagraph paragraph) {
@@ -195,15 +230,22 @@ public class DocxUtils {
         }
     }
 
-    private static void addFormattedText(XWPFRun run, String text, String fontFamily, int fontSize, boolean bold) {
+    private static void addFormattedText(XWPFRun run, String text, String fontFamily, int fontSize, boolean bold, String rrggbbColor) {
         run.setFontSize(fontSize);
         run.setFontFamily(fontFamily);
         run.setBold(bold);
+        if (rrggbbColor != null) {
+            run.setColor(rrggbbColor);
+        }
         setText(run, text);
     }
 
+    private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold, String rrggbbColor) {
+        addFormattedText(run, text, "Calibri", fontSize, bold, rrggbbColor);
+    }
+
     private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold) {
-        addFormattedText(run, text, "Calibri", fontSize, bold);
+        addFormattedText(run, text, "Calibri", fontSize, bold, null);
     }
 
     private static void addFormattedText(XWPFRun run, String text, int fontSize) {

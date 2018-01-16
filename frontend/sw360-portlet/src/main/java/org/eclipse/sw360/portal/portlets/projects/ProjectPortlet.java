@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -13,10 +13,7 @@ package org.eclipse.sw360.portal.portlets.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -90,6 +87,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private static final String LICENSE_NAME_WITH_TEXT_KEY = "key";
     private static final String LICENSE_NAME_WITH_TEXT_NAME = "name";
     private static final String LICENSE_NAME_WITH_TEXT_TEXT = "text";
+    private static final String LICENSE_NAME_WITH_TEXT_ERROR = "error";
+    private static final String LICENSE_NAME_WITH_TEXT_FILE = "file";
 
     private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(
             Project._Fields.BUSINESS_UNIT,
@@ -540,30 +539,49 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             // In addition we remember the license information for exclusion later on
             Map<String, LicenseNameWithText> licenseStore = Maps.newHashMap();
             List<Map<String, String>> licenses = Lists.newArrayList();
-            licenseInfos.forEach(licenseInfo -> {
-                List<Map<String, String>> licenesAsObject = licenseInfo.licenseInfo.licenseNamesWithTexts.stream()
-                        .filter(licenseNameWithText -> {
-                            return !Strings.isNullOrEmpty(licenseNameWithText.getLicenseName())
-                                    || !Strings.isNullOrEmpty(licenseNameWithText.getLicenseText());
-                        }).map(licenseNameWithText -> {
-                            // Since the license has no good identifier, we create one and store the license
-                            // in the session. If the final report is generated, we use the identifier to
-                            // identify the licenses to be excluded
-                            // FIXME: this could be changed if we scan the attachments once after uploading
-                            // and store them as own entity
-                            String key = UUID.randomUUID().toString();
-                            licenseStore.put(key, licenseNameWithText);
+            licenseInfos.forEach(licenseInfoResult -> {
+                        switch (licenseInfoResult.getStatus()){
+                            case SUCCESS:
+                                Set<LicenseNameWithText> licenseNamesWithTexts = nullToEmptySet(licenseInfoResult.getLicenseInfo().getLicenseNamesWithTexts());
+                                List<Map<String, String>> licensesAsObject = licenseNamesWithTexts.stream()
+                                        .filter(licenseNameWithText -> {
+                                            return !Strings.isNullOrEmpty(licenseNameWithText.getLicenseName())
+                                                    || !Strings.isNullOrEmpty(licenseNameWithText.getLicenseText());
+                                        }).map(licenseNameWithText -> {
+                                            // Since the license has no good identifier, we create one and store the license
+                                            // in the session. If the final report is generated, we use the identifier to
+                                            // identify the licenses to be excluded
+                                            // FIXME: this could be changed if we scan the attachments once after uploading
+                                            // and store them as own entity
+                                            String key = UUID.randomUUID().toString();
+                                            licenseStore.put(key, licenseNameWithText);
 
-                            Map<String, String> data = Maps.newHashMap();
-                            data.put(LICENSE_NAME_WITH_TEXT_KEY, key);
-                            data.put(LICENSE_NAME_WITH_TEXT_NAME, Strings.isNullOrEmpty(licenseNameWithText.getLicenseName()) ? EMPTY
-                                    : licenseNameWithText.getLicenseName());
-                            data.put(LICENSE_NAME_WITH_TEXT_TEXT, licenseNameWithText.getLicenseText());
-                            return data;
-                        }).collect(Collectors.toList());
+                                            Map<String, String> data = Maps.newHashMap();
+                                            data.put(LICENSE_NAME_WITH_TEXT_KEY, key);
+                                            data.put(LICENSE_NAME_WITH_TEXT_NAME, Strings.isNullOrEmpty(licenseNameWithText.getLicenseName()) ? EMPTY
+                                                    : licenseNameWithText.getLicenseName());
+                                            data.put(LICENSE_NAME_WITH_TEXT_TEXT, licenseNameWithText.getLicenseText());
+                                            return data;
+                                        }).collect(Collectors.toList());
 
-                licenses.addAll(licenesAsObject);
-            });
+                                licenses.addAll(licensesAsObject);
+                                break;
+                            case FAILURE:
+                            case NO_APPLICABLE_SOURCE:
+                                LicenseInfo licenseInfo = licenseInfoResult.getLicenseInfo();
+                                String filename = Optional.ofNullable(licenseInfo)
+                                        .map(LicenseInfo::getFilenames)
+                                        .map(CommonUtils.COMMA_JOINER::join)
+                                        .orElse("<filename unknown>");
+                                String message = Optional.ofNullable(licenseInfoResult.getMessage())
+                                        .orElse("<no message>");
+                                licenses.add(ImmutableMap.of(LICENSE_NAME_WITH_TEXT_ERROR, message,
+                                        LICENSE_NAME_WITH_TEXT_FILE, filename));
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Unknown LicenseInfoRequestStatus: " + licenseInfoResult.getStatus());
+                        }
+                    });
             licenses.stream().sorted((l1, l2) -> {
                 return Strings.nullToEmpty(l1.get(LICENSE_NAME_WITH_TEXT_NAME)).compareTo(l2.get(LICENSE_NAME_WITH_TEXT_NAME));
             }).collect(Collectors.toList());
