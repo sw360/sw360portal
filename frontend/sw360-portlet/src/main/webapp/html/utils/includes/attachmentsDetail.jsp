@@ -73,7 +73,7 @@
                 /* Print all attachment table data as array into the html page */
                 <core_rt:forEach items="${attachments}" var="attachment">
                     attachmentJSON.push({
-                        "fileName": "${attachment.filename}",
+                        "fileName": "<sw360:out value="${attachment.filename}"/>",
                         "size": "n/a",
                         "type": "<sw360:DisplayEnumShort value="${attachment.attachmentType}"/>",
                         "uploadedTeam": "<sw360:DisplayEllipsisString value="${attachment.createdTeam}"/>",
@@ -83,13 +83,13 @@
                         "usage":  "n/a",
                         "actions":     "<sw360:DisplayDownloadAttachmentFile attachment="${attachment}" contextType="${documentType}" contextId="${documentID}"/>",
 
-                        "sha1": "${attachment.sha1}",
-                        "uploadedOn": "${attachment.createdOn}",
+                        "sha1": "<sw360:out value="${attachment.sha1}"/>",
+                        "uploadedOn": "<sw360:out value="${attachment.createdOn}"/>",
                         "uploadedComment": "<core_rt:if test="${not empty attachment.createdComment}">Comment: <sw360:DisplayEllipsisString value="${attachment.createdComment}"/></core_rt:if>",
-                        "checkedOn": "${attachment.checkedOn}",
+                        "checkedOn": "<sw360:out value="${attachment.checkedOn}"/>",
                         "checkedComment": "<core_rt:if test="${not empty attachment.checkedComment}">Comment: <sw360:DisplayEllipsisString value="${attachment.checkedComment}"/></core_rt:if>",
 
-                        "checkStatus": "${attachment.checkStatus}"
+                        "checkStatus": "<sw360:out value="${attachment.checkStatus}"/>"
                     });
                 </core_rt:forEach>
 

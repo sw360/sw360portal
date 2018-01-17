@@ -115,14 +115,14 @@
                 <td>
                     <label for="component_name">Component Name</label>
                     <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Component._Fields.NAME%>"
-                           value="${name}" id="component_name">
+                           value="<sw360:out value="${name}"/>" id="component_name">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="categories">Categories</label>
                     <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Component._Fields.CATEGORIES%>"
-                           value="${categories}" id="categories">
+                           value="<sw360:out value="${categories}"/>" id="categories">
                 </td>
             </tr>
             <tr>
@@ -139,7 +139,7 @@
                 <td>
                     <label for="languages">Languages</label>
                     <input type="text" class="searchbar filterInput" name="<portlet:namespace/><%=Component._Fields.LANGUAGES%>"
-                           value="${languages}" id="languages">
+                           value="<sw360:out value="${languages}"/>" id="languages">
                 </td>
             </tr>
             <tr>
@@ -147,7 +147,7 @@
                     <label for="software_platforms">Software Platforms</label>
                     <input type="text" class="searchbar filterInput"
                            name="<portlet:namespace/><%=Component._Fields.SOFTWARE_PLATFORMS%>"
-                           value="${softwarePlatforms}" id="software_platforms">
+                           value="<sw360:out value="${softwarePlatforms}"/>" id="software_platforms">
                 </td>
             </tr>
             <tr>
@@ -155,7 +155,7 @@
                     <label for="operating_systems">Operating Systems</label>
                     <input type="text" class="searchbar filterInput"
                            name="<portlet:namespace/><%=Component._Fields.OPERATING_SYSTEMS%>"
-                           value="${operatingSystems}" id="operating_systems">
+                           value="<sw360:out value="${operatingSystems}"/>" id="operating_systems">
                 </td>
             </tr>
             <tr>
@@ -163,7 +163,7 @@
                     <label for="vendor_names">Vendors</label>
                     <input type="text" class="searchbar filterInput"
                            name="<portlet:namespace/><%=Component._Fields.VENDOR_NAMES%>"
-                           value="${vendorNames}" id="vendor_names">
+                           value="<sw360:out value="${vendorNames}"/>" id="vendor_names">
                 </td>
             </tr>
             <tr>
@@ -171,7 +171,7 @@
                     <label for="main_licenses">Main Licenses</label>
                     <input type="text" class="searchbar filterInput"
                            name="<portlet:namespace/><%=Component._Fields.MAIN_LICENSE_IDS%>"
-                           value="${mainLicenseIds}" id="main_licenses">
+                           value="<sw360:out value="${mainLicenseIds}"/>" id="main_licenses">
                 </td>
             </tr>
             </tbody>

@@ -14,7 +14,7 @@
     <table class="table info_table"">
         <thead>
         <tr>
-            <th colspan="4">${documentName} is used by the following components</th>
+            <th colspan="4"><sw360:out value="${documentName}"/> is used by the following components</th>
         </tr>
         <tr>
             <th>Vendor</th>

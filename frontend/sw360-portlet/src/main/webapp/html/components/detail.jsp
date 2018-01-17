@@ -55,7 +55,7 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/webjars/jquery-ui/1.12.1/jquery-ui.css">
 
     <div id="header"></div>
-    <p class="pageHeader"><span class="pageHeaderBigSpan">Component: ${component.name}</span>
+    <p class="pageHeader"><span class="pageHeaderBigSpan">Component: <sw360:out value="${component.name}"/></span>
         <span class="pull-right">
         <core_rt:if test="${isUserAllowedToMerge}">
             <input type="button" data-component-id="${component.id}" id="merge" value="Merge" class="addButton">
