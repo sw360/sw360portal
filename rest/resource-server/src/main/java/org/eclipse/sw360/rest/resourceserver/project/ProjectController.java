@@ -23,6 +23,7 @@ import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
@@ -53,7 +54,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ProjectController implements ResourceProcessor<RepositoryLinksResource> {
-    static final String PROJECTS_URL = "/projects";
+    public static final String PROJECTS_URL = "/projects";
 
     @NonNull
     private final Sw360ProjectService projectService;
@@ -93,6 +94,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
                     p.setReleaseIdToUsage(null);
                     p.setExternalIds(null);
                     p.setBusinessUnit(null);
+                    p.setLinkedProjects(null);
+                    p.setClearingState(null);
                     projectResources.add(new Resource<>(p));
                 });
 
@@ -257,16 +260,13 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         HalResource<Project> halProject = new HalResource<>(sw360Project);
 
         restControllerHelper.addEmbeddedUser(halProject, sw360User, "createdBy");
-        Set<String> releaseIds = new HashSet<>();
-        if (sw360Project.getReleaseIdToUsage() != null) {
-            Map<String, ProjectReleaseRelationship> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
-            for (String releaseId : releaseIdToUsage.keySet()) {
-                if (releaseIdToUsage.get(releaseId).releaseRelation.equals(ReleaseRelationship.CONTAINED)) {
-                    releaseIds.add(releaseId);
-                }
-            }
-            restControllerHelper.addEmbeddedReleases(halProject, releaseIds, releaseService, sw360User, "containedReleases");
-            sw360Project.setReleaseIdToUsage(null);
+        Map<String, ProjectReleaseRelationship> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
+        if (releaseIdToUsage != null) {
+            restControllerHelper.addEmbeddedReleases(halProject, releaseIdToUsage.keySet(), releaseService, sw360User);
+        }
+        Map<String, ProjectRelationship> linkedProjects = sw360Project.getLinkedProjects();
+        if (linkedProjects != null) {
+            restControllerHelper.addEmbeddedProject(halProject, linkedProjects.keySet(), projectService, sw360User);
         }
         if (sw360Project.getModerators() != null) {
             Set<String> moderators = sw360Project.getModerators();

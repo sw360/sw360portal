@@ -92,7 +92,7 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
         Link releaseLink = linkTo(AttachmentController.class).slash("api/releases/" + sw360Release.getId()).withRel("release");
         halAttachment.add(releaseLink);
 
-        restControllerHelper.addEmbeddedRelease(halAttachment, sw360Release, "release");
+        restControllerHelper.addEmbeddedRelease(halAttachment, sw360Release);
         restControllerHelper.addEmbeddedUser(halAttachment, sw360User, "createdBy");
 
         return halAttachment;

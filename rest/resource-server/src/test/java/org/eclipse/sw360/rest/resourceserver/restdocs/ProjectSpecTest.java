@@ -143,7 +143,7 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("ownerCountry").description("The owner country of the project"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this project"),
-                                fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
+                                fieldWithPath("_embedded.sw360:moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
                         )));
     }
 }

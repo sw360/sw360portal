@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -10,10 +10,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.sw360.rest.resourceserver.core;
 
+import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ECCStatus;
@@ -21,11 +25,14 @@ import org.eclipse.sw360.datahandler.thrift.components.EccInformation;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
+import org.eclipse.sw360.rest.resourceserver.core.serializer.JsonProjectRelationSerializer;
+import org.eclipse.sw360.rest.resourceserver.core.serializer.JsonReleaseRelationSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,7 +44,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @Configuration
 class JacksonCustomizations {
-
     @Bean
     public Module sw360Module() {
         return new Sw360Module();
@@ -45,7 +51,6 @@ class JacksonCustomizations {
 
     @SuppressWarnings("serial")
     static class Sw360Module extends SimpleModule {
-
         public Sw360Module() {
             setMixInAnnotation(Project.class, Sw360Module.ProjectMixin.class);
             setMixInAnnotation(User.class, Sw360Module.UserMixin.class);
@@ -72,7 +77,6 @@ class JacksonCustomizations {
                 "moderators",
                 "contributors",
                 "visbility",
-                "linkedProjects",
                 "clearingTeam",
                 "preevaluationDeadline",
                 "systemTestStart",
@@ -142,12 +146,23 @@ class JacksonCustomizations {
                 "setProjectOwner",
                 "enableSvm",
                 "setEnableSvm"
-                })
+        })
         static abstract class ProjectMixin extends Project {
+
             @Override
             @JsonProperty("projectType")
             abstract public ProjectType getProjectType();
-            
+
+            @Override
+            @JsonSerialize(using = JsonProjectRelationSerializer.class)
+            @JsonProperty("linkedProjects")
+            abstract public Map<String, ProjectRelationship> getLinkedProjects();
+
+            @Override
+            @JsonSerialize(using = JsonReleaseRelationSerializer.class)
+            @JsonProperty("linkedReleases")
+            abstract public Map<String, ProjectReleaseRelationship> getReleaseIdToUsage();
+
             @Override
             @JsonProperty("id")
             abstract public String getId();
@@ -268,7 +283,7 @@ class JacksonCustomizations {
                 "setOwnerCountry",
                 "rolesSize",
                 "setRoles",
-                })
+        })
         static abstract class ComponentMixin extends Component {
             @Override
             @JsonProperty("vendors")
@@ -346,7 +361,7 @@ class JacksonCustomizations {
             @Override
             @JsonProperty("cpeId")
             abstract public String getCpeid();
-            
+
             @Override
             @JsonProperty("eccInformation")
             abstract public EccInformation getEccInformation();
@@ -448,7 +463,7 @@ class JacksonCustomizations {
                 "setRisks",
                 "setText",
                 "mainLicenseIdsIterator"
-                })
+        })
         static abstract class LicenseMixin extends License {
             @Override
             @JsonProperty("fullName")
@@ -507,21 +522,21 @@ class JacksonCustomizations {
                 "setTitle",
                 "referencesIterator",
                 "cveReferencesIterator"
-                })
+        })
         static abstract class VulnerabilityDTOMixin extends VulnerabilityDTO {
             @Override
             @JsonProperty("id")
             abstract public String getId();
-            
+
             @Override
             @JsonProperty("intReleaseId")
             abstract public String getIntReleaseId();
-            
+
             @Override
             @JsonProperty("intReleaseName")
             abstract public String getIntReleaseName();
         }
-        
+
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonIgnoreProperties({
                 "revision",
@@ -590,33 +605,33 @@ class JacksonCustomizations {
                 "setCvssTime",
                 "setAccess",
                 "accessSize",
-                })
+        })
         static abstract class VulnerabilityMixin extends Vulnerability {
             @Override
             @JsonProperty("id")
             abstract public String getId();
         }
-        
+
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         @JsonIgnoreProperties({
-            "AL",
-            "ECCN",
-            "assessorContactPerson",
-            "assessorDepartment",
-            "eccComment",
-            "materialIndexNumber",
-            "assessmentDate",
-            "al",
-            "eccn",
-            "setEccComment",
-            "setECCN",
-            "setEccStatus",
-            "setAL",
-            "setAssessorContactPerson",
-            "setAssessmentDate",
-            "setAssessorDepartment",
-            "setMaterialIndexNumber"
-                })
+                "AL",
+                "ECCN",
+                "assessorContactPerson",
+                "assessorDepartment",
+                "eccComment",
+                "materialIndexNumber",
+                "assessmentDate",
+                "al",
+                "eccn",
+                "setEccComment",
+                "setECCN",
+                "setEccStatus",
+                "setAL",
+                "setAssessorContactPerson",
+                "setAssessmentDate",
+                "setAssessorDepartment",
+                "setMaterialIndexNumber"
+        })
         static abstract class EccInformationMixin extends EccInformation {
             @Override
             @JsonProperty("eccStatus")
