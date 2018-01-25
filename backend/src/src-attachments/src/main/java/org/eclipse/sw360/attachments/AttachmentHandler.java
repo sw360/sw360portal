@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -13,6 +13,7 @@ package org.eclipse.sw360.attachments;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
@@ -35,10 +36,8 @@ import org.ektorp.BulkDeleteDocument;
 import org.ektorp.DocumentOperationResult;
 
 import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -203,13 +202,36 @@ public class AttachmentHandler implements AttachmentService.Iface {
     public void deleteAttachmentUsages(List<AttachmentUsage> attachmentUsages) throws TException {
         assertNotNull(attachmentUsages);
         assertNotEmpty(attachmentUsages);
-        assertIds(attachmentUsages, attachmentUsage -> attachmentUsage.isSetId());
+        assertIds(attachmentUsages, AttachmentUsage::isSetId);
 
         List<DocumentOperationResult> results = attachmentUsageRepository.executeBulk(
                 attachmentUsages.stream().map(attachmentUsage -> BulkDeleteDocument.of(attachmentUsage)).collect(Collectors.toList()));
         if (!results.isEmpty()) {
             throw new SW360Exception("Some of the usage documents could not be deleted: " + results);
         }
+    }
+
+    private void deleteAttachmentUsagesByUsageDataTypes(Source usedBy, Set<UsageData._Fields> typesToReplace, boolean deleteWithEmptyType) throws TException {
+        List<AttachmentUsage> existingUsages = attachmentUsageRepository.getUsedAttachments(usedBy.getFieldValue().toString());
+        List<AttachmentUsage> usagesToDelete = existingUsages.stream().filter(usage -> {
+            if (usage.isSetUsageData()) {
+                return typesToReplace.contains(usage.getUsageData().getSetField());
+            } else {
+                return deleteWithEmptyType;
+            }
+        }).collect(Collectors.toList());
+
+        if (!usagesToDelete.isEmpty()) {
+            deleteAttachmentUsages(usagesToDelete);
+        }
+    }
+
+    @Override
+    public void deleteAttachmentUsagesByUsageDataType(Source usedBy, UsageData usageData) throws TException {
+        assertNotNull(usedBy);
+        assertTrue(usedBy.isSet());
+        Set<UsageData._Fields> usageDataTypes = usageData == null ? Collections.emptySet() : ImmutableSet.of(usageData.getSetField());
+        deleteAttachmentUsagesByUsageDataTypes(usedBy, usageDataTypes, usageData == null);
     }
 
     @Override
@@ -244,28 +266,19 @@ public class AttachmentHandler implements AttachmentService.Iface {
         assertNotNull(usedBy);
         assertTrue(usedBy.isSet());
         assertNotNull(attachmentUsages);
-        assertNotEmpty(attachmentUsages);
 
-        Set<UsageData._Fields> typesToReplace = attachmentUsages.stream().filter(usage -> usage.isSetUsageData())
-                .map(usage -> usage.getUsageData().getSetField()).collect(Collectors.toSet());
-        boolean hasEmptyType = typesToReplace.size() != attachmentUsages.size();
+        List<AttachmentUsage> usagesWithNonEmptyType = attachmentUsages.stream()
+                .filter(AttachmentUsage::isSetUsageData)
+                .collect(Collectors.toList());
+        boolean hasEmptyUsageDataType = usagesWithNonEmptyType.size() != attachmentUsages.size();
+        Set<UsageData._Fields> typesToReplace = usagesWithNonEmptyType.stream()
+                .map(usage -> usage.getUsageData().getSetField())
+                .collect(Collectors.toSet());
 
-        // these ones will be deleted
-        List<AttachmentUsage> existingUsages = attachmentUsageRepository.getUsedAttachments(usedBy.getFieldValue().toString());
-        List<AttachmentUsage> usagesToDelete = existingUsages.stream().filter(usage -> {
-            if (usage.isSetUsageData()) {
-                return typesToReplace.contains(usage.getUsageData().getSetField());
-            } else {
-                return hasEmptyType;
-            }
-        }).collect(Collectors.toList());
-        // for some reason it is not possible to delete and update documents in the same
-        // request
-        if (!usagesToDelete.isEmpty()) {
-            deleteAttachmentUsages(usagesToDelete);
-        }
+        // delete all the existing usages of the types given
+        deleteAttachmentUsagesByUsageDataTypes(usedBy, typesToReplace, hasEmptyUsageDataType);
 
-        // these ones will be added/updated
+        // then save the new ones
         List<DocumentOperationResult> results = attachmentUsageRepository.executeBulk(attachmentUsages);
         if (!results.isEmpty()) {
             throw new SW360Exception("Some of the usage documents could not be updated: " + results);

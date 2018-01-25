@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -32,6 +32,7 @@ import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -227,7 +228,7 @@ public class AttachmentHandlerTest {
     }
 
     @Test
-    public void testReplacementOfUsageWithoutEmptyType() throws Exception {
+    public void testReplacementOfUsageWithoutEmptyUsageData() throws Exception {
         AttachmentUsage usage1 = createUsage("p1", "r1", "a11");
         usage1.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l1", "l2"))));
         AttachmentUsage usage2 = createUsage("p1", "r1", "a12");
@@ -248,7 +249,7 @@ public class AttachmentHandlerTest {
     }
 
     @Test
-    public void testReplacementOfUsageWithEmptyType() throws Exception {
+    public void testReplacementOfUsageWithEmptyUsageData() throws Exception {
         AttachmentUsage usage1 = createUsage("p1", "r1", "a11");
         usage1.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l1", "l2"))));
         AttachmentUsage usage2 = createUsage("p1", "r1", "a12");
@@ -261,11 +262,67 @@ public class AttachmentHandlerTest {
 
         AttachmentUsage usage6 = createUsage("p1", "r8", "a81");
         AttachmentUsage usage7 = createUsage("p1", "r9", "a91");
-        usage7.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l9"))));
 
         handler.replaceAttachmentUsages(Source.projectId("p1"), Lists.newArrayList(usage6, usage7));
 
-        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p1"), null), Matchers.containsInAnyOrder(usage6, usage7));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p1"), null), Matchers.containsInAnyOrder(usage1, usage2, usage6, usage7));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p2"), null), Matchers.containsInAnyOrder(usage4));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p3"), null), Matchers.containsInAnyOrder(usage5));
+    }
+
+    @Test
+    public void testReplacingWithEmptyUsagesListDoesNothing() throws Exception {
+        AttachmentUsage usage1 = createUsage("p1", "r1", "a11");
+        usage1.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l1", "l2"))));
+        AttachmentUsage usage2 = createUsage("p1", "r1", "a12");
+        usage2.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet())));
+        AttachmentUsage usage3 = createUsage("p1", "r2", "a21");
+        AttachmentUsage usage4 = createUsage("p2", "r1", "a11");
+        AttachmentUsage usage5 = createUsage("p3", "r1", "a11");
+        usage5.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l3"))));
+        handler.makeAttachmentUsages(Lists.newArrayList(usage1, usage2, usage3, usage4, usage5));
+
+        handler.replaceAttachmentUsages(Source.projectId("p1"), Lists.newArrayList());
+
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p1"), null), Matchers.containsInAnyOrder(usage1, usage2, usage3));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p2"), null), Matchers.containsInAnyOrder(usage4));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p3"), null), Matchers.containsInAnyOrder(usage5));
+    }
+
+    @Test
+    public void testDeleteAttachmentUsagesByUsageDataTypeWithNonEmptyType() throws Exception {
+        AttachmentUsage usage1 = createUsage("p1", "r1", "a11");
+        usage1.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l1", "l2"))));
+        AttachmentUsage usage2 = createUsage("p1", "r1", "a12");
+        usage2.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet())));
+        AttachmentUsage usage3 = createUsage("p1", "r2", "a21");
+        AttachmentUsage usage4 = createUsage("p2", "r1", "a11");
+        AttachmentUsage usage5 = createUsage("p3", "r1", "a11");
+        usage5.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l3"))));
+        handler.makeAttachmentUsages(Lists.newArrayList(usage1, usage2, usage3, usage4, usage5));
+
+        handler.deleteAttachmentUsagesByUsageDataType(Source.projectId("p1"), UsageData.licenseInfo(new LicenseInfoUsage(Collections.emptySet())));
+
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p1"), null), Matchers.containsInAnyOrder(usage3));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p2"), null), Matchers.containsInAnyOrder(usage4));
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p3"), null), Matchers.containsInAnyOrder(usage5));
+    }
+
+    @Test
+    public void testDeleteAttachmentUsagesByUsageDataTypeWithEmptyType() throws Exception {
+        AttachmentUsage usage1 = createUsage("p1", "r1", "a11");
+        usage1.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l1", "l2"))));
+        AttachmentUsage usage2 = createUsage("p1", "r1", "a12");
+        usage2.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet())));
+        AttachmentUsage usage3 = createUsage("p1", "r2", "a21");
+        AttachmentUsage usage4 = createUsage("p2", "r1", "a11");
+        AttachmentUsage usage5 = createUsage("p3", "r1", "a11");
+        usage5.setUsageData(UsageData.licenseInfo(new LicenseInfoUsage(Sets.newHashSet("l3"))));
+        handler.makeAttachmentUsages(Lists.newArrayList(usage1, usage2, usage3, usage4, usage5));
+
+        handler.deleteAttachmentUsagesByUsageDataType(Source.projectId("p1"), null);
+
+        Assert.assertThat(handler.getUsedAttachments(Source.projectId("p1"), null), Matchers.containsInAnyOrder(usage1, usage2));
         Assert.assertThat(handler.getUsedAttachments(Source.projectId("p2"), null), Matchers.containsInAnyOrder(usage4));
         Assert.assertThat(handler.getUsedAttachments(Source.projectId("p3"), null), Matchers.containsInAnyOrder(usage5));
     }

@@ -54,6 +54,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     private static final int CACHE_MAX_ITEMS = 100;
     private static final String DEFAULT_LICENSE_INFO_HEADER_FILE="/DefaultLicenseInfoHeader.txt";
     private static final String DEFAULT_LICENSE_INFO_TEXT = loadDefaultLicenseInfoHeaderText();
+    public static final String MSG_NO_RELEASE_GIVEN = "No release given";
 
     protected List<LicenseInfoParser> parsers;
     protected List<OutputGenerator<?>> outputGenerators;
@@ -135,7 +136,7 @@ public class LicenseInfoHandler implements LicenseInfoService.Iface {
     public List<LicenseInfoParsingResult> getLicenseInfoForAttachment(Release release, String attachmentContentId, User user)
             throws TException {
         if (release == null) {
-            return Collections.singletonList(noSourceParsingResult("No release given"));
+            return Collections.singletonList(noSourceParsingResult(MSG_NO_RELEASE_GIVEN));
         }
 
         List<LicenseInfoParsingResult> cachedResults = licenseInfoCache.getIfPresent(attachmentContentId);

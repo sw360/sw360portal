@@ -28,6 +28,7 @@ public class DocxUtils {
 
     private static final int FONT_SIZE = 12;
     public static final String ALERT_COLOR = "e95850";
+    public static final String FONT_FAMILY = "Calibri";
 
     private DocxUtils() {
         //only static members
@@ -99,7 +100,7 @@ public class DocxUtils {
             } else {
                 String filename = Optional.ofNullable(result.getLicenseInfo())
                         .map(LicenseInfo::getFilenames)
-                        .map(l -> l.stream().findFirst().orElse(null))
+                        .flatMap(l -> l.stream().findFirst())
                         .orElse("");
                 addReleaseTableErrorRow(table, releaseName, version, nullToEmptyString(result.getMessage()), filename);
             }
@@ -241,11 +242,11 @@ public class DocxUtils {
     }
 
     private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold, String rrggbbColor) {
-        addFormattedText(run, text, "Calibri", fontSize, bold, rrggbbColor);
+        addFormattedText(run, text, FONT_FAMILY, fontSize, bold, rrggbbColor);
     }
 
     private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold) {
-        addFormattedText(run, text, "Calibri", fontSize, bold, null);
+        addFormattedText(run, text, FONT_FAMILY, fontSize, bold, null);
     }
 
     private static void addFormattedText(XWPFRun run, String text, int fontSize) {
