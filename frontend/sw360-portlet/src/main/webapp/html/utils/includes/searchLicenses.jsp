@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal User.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal User.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -80,6 +80,7 @@
             var htmlElements = { 'addButton'       : $('#search-add-licenses-button'),
                                  'searchButton'    : $('#search-licenses-button'),
                                  'searchInput'     : $('#search-licenses-text'),
+                                 'resetButton'     : $('#reset-licenses-button'),
                                  'resultTableBody' : $('#search-licenses-result-table-body'),
                                  'resultTable'     : $('#search-licenses-result-table'),
                                  'searchDiv'       : 'search-licenses-div',

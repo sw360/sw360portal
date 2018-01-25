@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2017. Part of the SW360 Portal User.
+  ~ Copyright Siemens AG, 2017-2018. Part of the SW360 Portal User.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -18,6 +18,7 @@
     <div style="display: inline-block">
         <input type="text" name="search" id="search-text" placeholder="search" class="searchbar"/>&nbsp;
         <input type="button" value="Search" id="search-button" class="searchbutton"/>
+        <input type="button" value="Reset" id="reset-button" class="resetbutton"/>
     </div>
 
     <div class="usersearchresults">
@@ -33,7 +34,11 @@
             </thead>
             <tbody id="search-result-table-body">
             <tr class="trbodyClass">
-                <td></td><td></td><td></td><td></td><td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             </tbody>
         </table>
