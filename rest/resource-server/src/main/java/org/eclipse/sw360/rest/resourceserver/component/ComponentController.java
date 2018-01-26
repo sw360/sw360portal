@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -39,10 +39,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -66,36 +63,31 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<Component>>> getComponents(@RequestParam(value = "name", required = false) String name,
-    		OAuth2Authentication oAuth2Authentication) {
-        User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        List<Component> components = new ArrayList<>();
-        if ((name != null) && (!name.isEmpty())) {
-        	components.addAll(searchComponentByName(name));
+                                                                        @RequestParam(value = "type", required = false) String componentType,
+                                                                        OAuth2Authentication oAuth2Authentication) {
+
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        List<Component> sw360Components = new ArrayList<>();
+        if (name != null && !name.isEmpty()) {
+            sw360Components.addAll(componentService.searchComponentByName(name));
         } else {
-        	components.addAll(componentService.getComponentsForUser(user));
+            sw360Components.addAll(componentService.getComponentsForUser(sw360User));
         }
 
         List<Resource<Component>> componentResources = new ArrayList<>();
-        for (Component component : components) {
-            // TODO Kai Tödter 2017-01-04
-            // Find better way to decrease details in list resources,
-            // e.g. apply projections or Jackson Mixins
-            component.setDescription(null);
-            component.setType(null);
-            component.setCreatedOn(null);
-            component.setVendorNames(null);
-            component.setReleaseIds(null);
+        sw360Components.stream()
+                .filter(component -> componentType == null || componentType.equals(component.componentType.name()))
+                .forEach(c -> {
+                    c.setDescription(null);
+                    c.setType(null);
+                    c.setCreatedOn(null);
+                    c.setVendorNames(null);
+                    c.setReleaseIds(null);
+                    componentResources.add(new Resource<>(c));
+                });
 
-            Resource<Component> componentResource = new Resource<>(component);
-            componentResources.add(componentResource);
-        }
         Resources<Resource<Component>> resources = new Resources<>(componentResources);
-
         return new ResponseEntity<>(resources, HttpStatus.OK);
-    }
-
-    private List<Component> searchComponentByName(String name) {
-        return componentService.searchComponentByName(name);
     }
 
     @RequestMapping(value = COMPONENTS_URL + "/{id}", method = RequestMethod.GET)
