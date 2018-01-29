@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -8,25 +10,30 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.core;
+
+import java.util.Set;
+
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.components.Component;
+import org.eclipse.sw360.datahandler.thrift.components.ECCStatus;
+import org.eclipse.sw360.datahandler.thrift.components.EccInformation;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
+import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
-import org.eclipse.sw360.datahandler.thrift.components.Component;
-import org.eclipse.sw360.datahandler.thrift.components.Release;
-import org.eclipse.sw360.datahandler.thrift.licenses.License;
-import org.eclipse.sw360.datahandler.thrift.projects.Project;
-import org.eclipse.sw360.datahandler.thrift.users.User;
-import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.Set;
 
 @Configuration
 class JacksonCustomizations {
@@ -47,6 +54,9 @@ class JacksonCustomizations {
             setMixInAnnotation(Attachment.class, Sw360Module.AttachmentMixin.class);
             setMixInAnnotation(Vendor.class, Sw360Module.VendorMixin.class);
             setMixInAnnotation(License.class, Sw360Module.LicenseMixin.class);
+            setMixInAnnotation(Vulnerability.class, Sw360Module.VulnerabilityMixin.class);
+            setMixInAnnotation(VulnerabilityDTO.class, Sw360Module.VulnerabilityDTOMixin.class);
+            setMixInAnnotation(EccInformation.class, Sw360Module.EccInformationMixin.class);
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -133,7 +143,14 @@ class JacksonCustomizations {
                 "enableSvm",
                 "setEnableSvm"
                 })
-        static abstract class ProjectMixin {
+        static abstract class ProjectMixin extends Project {
+            @Override
+            @JsonProperty("projectType")
+            abstract public ProjectType getProjectType();
+            
+            @Override
+            @JsonProperty("id")
+            abstract public String getId();
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -250,7 +267,7 @@ class JacksonCustomizations {
                 "setOwnerGroup",
                 "setOwnerCountry",
                 "rolesSize",
-                "setRoles"
+                "setRoles",
                 })
         static abstract class ComponentMixin extends Component {
             @Override
@@ -313,7 +330,6 @@ class JacksonCustomizations {
                 "clearingTeamToFossologyStatusSize",
                 "setClearingTeamToFossologyStatus",
                 "setEccInformation",
-                "eccInformation",
                 "languages",
                 "operatingSystems",
                 "languagesIterator",
@@ -330,6 +346,10 @@ class JacksonCustomizations {
             @Override
             @JsonProperty("cpeId")
             abstract public String getCpeid();
+            
+            @Override
+            @JsonProperty("eccInformation")
+            abstract public EccInformation getEccInformation();
         }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -439,5 +459,168 @@ class JacksonCustomizations {
             abstract public String getShortname();
         }
 
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "revision",
+                "type",
+                "externalId",
+                "title",
+                "description",
+                "publishDate",
+                "lastExternalUpdate",
+                "priority",
+                "priorityToolTip",
+                "action",
+                "impact",
+                "legalNotice",
+                "cveReferences",
+                "references",
+                "intComponentId",
+                "intComponentName",
+                "releaseVulnerabilityRelation",
+                "matchedBy",
+                "usedNeedle",
+                "setType",
+                "setId",
+                "setRevision",
+                "setIntReleaseName",
+                "setLastExternalUpdate",
+                "setIntComponentId",
+                "setIntComponentName",
+                "referencesSize",
+                "setPriorityToolTip",
+                "setCveReferences",
+                "setIntReleaseId",
+                "cveReferencesSize",
+                "setDescription",
+                "setReleaseVulnerabilityRelation",
+                "setImpact",
+                "setMatchedBy",
+                "setLegalNotice",
+                "setUsedNeedle",
+                "setReferences",
+                "setPriority",
+                "setAction",
+                "impactSize",
+                "setExternalId",
+                "setPublishDate",
+                "setTitle",
+                "referencesIterator",
+                "cveReferencesIterator"
+                })
+        static abstract class VulnerabilityDTOMixin extends VulnerabilityDTO {
+            @Override
+            @JsonProperty("id")
+            abstract public String getId();
+            
+            @Override
+            @JsonProperty("intReleaseId")
+            abstract public String getIntReleaseId();
+            
+            @Override
+            @JsonProperty("intReleaseName")
+            abstract public String getIntReleaseName();
+        }
+        
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonIgnoreProperties({
+                "revision",
+                "type",
+                "publishDate",
+                "lastExternalUpdate",
+                "priority",
+                "priorityToolTip",
+                "action",
+                "impact",
+                "legalNotice",
+                "cveReferences",
+                "references",
+                "intComponentId",
+                "intComponentName",
+                "releaseVulnerabilityRelation",
+                "matchedBy",
+                "usedNeedle",
+                "setType",
+                "setId",
+                "setRevision",
+                "setIntReleaseName",
+                "setLastExternalUpdate",
+                "setIntComponentId",
+                "setIntComponentName",
+                "referencesSize",
+                "setPriorityToolTip",
+                "setCveReferences",
+                "setIntReleaseId",
+                "cveReferencesSize",
+                "setDescription",
+                "setReleaseVulnerabilityRelation",
+                "setImpact",
+                "setMatchedBy",
+                "setLegalNotice",
+                "setUsedNeedle",
+                "setReferences",
+                "setPriority",
+                "setAction",
+                "impactSize",
+                "setExternalId",
+                "setPublishDate",
+                "setTitle",
+                "cvss",
+                "isSetCvss",
+                "cvssTime",
+                "vulnerableConfiguration",
+                "access",
+                "cveFurtherMetaDataPerSource",
+                "setLastUpdateDate",
+                "setPriorityText",
+                "cveReferencesIterator",
+                "setCveFurtherMetaDataPerSource",
+                "setAssignedExtComponentIds",
+                "referencesIterator",
+                "setVulnerableConfiguration",
+                "setExtendedDescription",
+                "vulnerableConfigurationSize",
+                "assignedExtComponentIdsSize",
+                "vendorAdvisoriesSize",
+                "setVendorAdvisories",
+                "cveFurtherMetaDataPerSourceSize",
+                "setCvss",
+                "setCwe",
+                "setIsSetCvss",
+                "setCvssTime",
+                "setAccess",
+                "accessSize",
+                })
+        static abstract class VulnerabilityMixin extends Vulnerability {
+            @Override
+            @JsonProperty("id")
+            abstract public String getId();
+        }
+        
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        @JsonIgnoreProperties({
+            "AL",
+            "ECCN",
+            "assessorContactPerson",
+            "assessorDepartment",
+            "eccComment",
+            "materialIndexNumber",
+            "assessmentDate",
+            "al",
+            "eccn",
+            "setEccComment",
+            "setECCN",
+            "setEccStatus",
+            "setAL",
+            "setAssessorContactPerson",
+            "setAssessmentDate",
+            "setAssessorDepartment",
+            "setMaterialIndexNumber"
+                })
+        static abstract class EccInformationMixin extends EccInformation {
+            @Override
+            @JsonProperty("eccStatus")
+            abstract public ECCStatus getEccStatus();
+        }
     }
 }

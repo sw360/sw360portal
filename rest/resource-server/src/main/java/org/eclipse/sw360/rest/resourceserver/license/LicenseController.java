@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -8,7 +10,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.license;
 
 import lombok.NonNull;
@@ -73,7 +74,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(value = LICENSES_URL + "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = LICENSES_URL + "/{id:.+}", method = RequestMethod.GET)
     public ResponseEntity<Resource<License>> getLicense(
             @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         License sw360License = licenseService.getLicenseById(id);

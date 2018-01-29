@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -72,27 +74,27 @@ public class Sw360ProjectService {
         return null;
     }
 
-    public void updateProject(Project project, User sw360User) {
+    public RequestStatus updateProject(Project project, User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
             RequestStatus requestStatus = sw360ProjectClient.updateProject(project, sw360User);
-            if (requestStatus == RequestStatus.SUCCESS) {
-                return;
+            if (requestStatus != RequestStatus.SUCCESS) {
+                throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be updated.");
             }
-            throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be updated.");
+            return requestStatus;
         } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void deleteProject(Project project, User sw360User) {
+    public RequestStatus deleteProject(Project project, User sw360User) {
         try {
             ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
             RequestStatus requestStatus = sw360ProjectClient.deleteProject(project.getId(), sw360User);
-            if (requestStatus == RequestStatus.SUCCESS) {
-                return;
+            if (requestStatus != RequestStatus.SUCCESS) {
+                throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be deleted.");
             }
-            throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be deleted.");
+            return requestStatus;
         } catch (TException e) {
             throw new RuntimeException(e);
         }
@@ -106,6 +108,15 @@ public class Sw360ProjectService {
                 sw360ProjectClient.deleteProject(project.getId(), sw360User);
             }
         } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Project> searchProjectByName(String name, User sw360User) {
+        try {
+            final ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+            return sw360ProjectClient.searchByName(name, sw360User);
+        } catch (final TException e) {
             throw new RuntimeException(e);
         }
     }
