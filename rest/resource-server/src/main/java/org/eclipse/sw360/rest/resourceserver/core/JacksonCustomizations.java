@@ -77,7 +77,6 @@ class JacksonCustomizations {
                 "preevaluationDeadline",
                 "systemTestStart",
                 "systemTestEnd",
-                "deliveryStart",
                 "phaseOutSince",
                 "homepage",
                 "wiki",
