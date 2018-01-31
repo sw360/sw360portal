@@ -142,6 +142,7 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("version").description("The version of the release"),
                                 fieldWithPath("name").description("The name of the release, optional"),
+                                fieldWithPath("cpeId").description("CpeId of the release"),
                                 fieldWithPath("clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
                                 fieldWithPath("cpeId").description("The CPE id"),
                                 fieldWithPath("releaseDate").description("The date of this release"),

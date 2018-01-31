@@ -15,6 +15,10 @@ spring:
     rest:
       base-path: /api
 
+# logging:
+#   level:
+#     org.springframework.web: DEBUG
+
 security:
   oauth2:
     resource:

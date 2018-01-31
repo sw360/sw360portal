@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -32,10 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -66,9 +65,15 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<Component>>> getComponents(OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<Component>>> getComponents(@RequestParam(value = "name", required = false) String name,
+    		OAuth2Authentication oAuth2Authentication) {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        List<Component> components = componentService.getComponentsForUser(user);
+        List<Component> components = new ArrayList<>();
+        if ((name != null) && (!name.isEmpty())) {
+        	components.addAll(searchComponentByName(name));
+        } else {
+        	components.addAll(componentService.getComponentsForUser(user));
+        }
 
         List<Resource<Component>> componentResources = new ArrayList<>();
         for (Component component : components) {
@@ -87,6 +92,10 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         Resources<Resource<Component>> resources = new Resources<>(componentResources);
 
         return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
+
+    private List<Component> searchComponentByName(String name) {
+        return componentService.searchComponentByName(name);
     }
 
     @RequestMapping(value = COMPONENTS_URL + "/{id}", method = RequestMethod.GET)

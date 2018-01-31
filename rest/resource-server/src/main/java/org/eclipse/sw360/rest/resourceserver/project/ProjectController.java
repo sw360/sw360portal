@@ -1,5 +1,7 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017.
+ * Copyright Bosch Software Innovations GmbH, 2017.
+ * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -8,7 +10,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.project;
 
 import lombok.NonNull;
@@ -17,11 +18,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.components.Release;
+import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
+import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
+import org.eclipse.sw360.rest.resourceserver.vulnerability.Sw360VulnerabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -32,10 +38,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -57,26 +60,38 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     private final Sw360ReleaseService releaseService;
 
     @NonNull
+    private final Sw360LicenseService licenseService;
+
+    @NonNull
+    private final Sw360VulnerabilityService vulnerabilityService;
+
+    @NonNull
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<Project>>> getProjectsForUser(OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<Project>>> getProjectsForUser(@RequestParam(value = "name", required = false) String name,
+    		OAuth2Authentication oAuth2Authentication) {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        List<Project> projects = projectService.getProjectsForUser(sw360User);
+        List<Project> sw360Projects = new ArrayList<>();
+        if ((name != null) && (!name.isEmpty()))	{
+            sw360Projects.addAll(projectService.searchProjectByName(name, sw360User));
+        } else {
+        	sw360Projects.addAll(projectService.getProjectsForUser(sw360User));
+        }
 
         List<Resource<Project>> projectResources = new ArrayList<>();
-        for (Project project : projects) {
+        for (Project sw360Project : sw360Projects) {
             // TODO Kai Tödter 2017-01-04
             // Find better way to decrease details in list resources,
             // e.g. apply projections or Jackson Mixins
-            project.setDescription(null);
-            project.setType(null);
-            project.setCreatedOn(null);
-            project.setReleaseIdToUsage(null);
-            project.setExternalIds(null);
-            project.setBusinessUnit(null);
+            sw360Project.setDescription(null);
+            sw360Project.setType(null);
+            sw360Project.setCreatedOn(null);
+            sw360Project.setReleaseIdToUsage(null);
+            sw360Project.setExternalIds(null);
+            sw360Project.setBusinessUnit(null);
 
-            Resource<Project> projectResource = new Resource<>(project);
+            Resource<Project> projectResource = new Resource<>(sw360Project);
             projectResources.add(projectResource);
         }
         Resources<Resource<Project>> resources = new Resources<>(projectResources);
@@ -123,7 +138,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     }
 
     @PreAuthorize("hasAuthority('WRITE')")
-    @RequestMapping(value = PROJECTS_URL + "/{id}/Releases", method = RequestMethod.POST)
+    @RequestMapping(value = PROJECTS_URL + "/{id}/releases", method = RequestMethod.POST)
     public ResponseEntity createReleases(
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication,
@@ -142,6 +157,89 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         projectService.updateProject(project, sw360User);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{id}/releases", method = RequestMethod.GET)
+    public ResponseEntity<Resources<Resource<Release>>> getProjectReleases(
+            @PathVariable("id") String id,
+            OAuth2Authentication oAuth2Authentication) {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Project project = projectService.getProjectForUserById(id, sw360User);
+        final Set<String> releaseIds = project.getReleaseIdToUsage().keySet();
+
+        final List<Resource<Release>> releaseResources = new ArrayList<>();
+        for (final String releaseId : releaseIds) {
+            final Release release = new Release();
+            release.setId(releaseId);
+
+            final Resource<Release> releaseResource = new Resource<>(release);
+            releaseResources.add(releaseResource);
+        }
+
+        final Resources<Resource<Release>> resources = new Resources<>(releaseResources);
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{id}/vulnerabilities", method = RequestMethod.GET)
+    public ResponseEntity<Resources<Resource<VulnerabilityDTO>>> getVulnerbilitiesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+
+        final List<VulnerabilityDTO> allVulnerabilityDTOs = vulnerabilityService.getVulnerabilitiesByProjectId(id, sw360User);
+
+        final List<Resource<VulnerabilityDTO>> vulnerabilityResources = new ArrayList<>();
+        for (final VulnerabilityDTO vulnerabilityDTO : allVulnerabilityDTOs) {
+            final Resource<VulnerabilityDTO> vulnerabilityDTOResource = new Resource<>(vulnerabilityDTO);
+            vulnerabilityResources.add(vulnerabilityDTOResource);
+        }
+        final Resources<Resource<VulnerabilityDTO>> resources = new Resources<>(vulnerabilityResources);
+        return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{id}/licenses", method = RequestMethod.GET)
+    public ResponseEntity<Resources<Resource<License>>> getLicensesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Project project = projectService.getProjectForUserById(id, sw360User);
+        final List<Resource<License>> licenseResources = new ArrayList<>();
+        final Set<String> allLicenseIds = new HashSet<>();
+
+        final Set<String> releaseIdToUsage = project.getReleaseIdToUsage().keySet();
+        for (final String releaseId : releaseIdToUsage) {
+            final Release release = releaseService.getReleaseForUserById(releaseId, sw360User);
+            final Set<String> licenseIds = release.getMainLicenseIds();
+            allLicenseIds.addAll(licenseIds);
+        }
+        for (final String licenseId : allLicenseIds) {
+            final License license = licenseService.getLicenseById(licenseId);
+            license.setText(null);
+            license.setShortname(null);
+            final Resource<License> licenseResource = new Resource<>(license);
+            licenseResources.add(licenseResource);
+        }
+        final Resources<Resource<License>> resources = new Resources<>(licenseResources);
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{id}/releases/ecc", method = RequestMethod.GET)
+    public ResponseEntity<Resources<Resource<Release>>> getECCsOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Project project = projectService.getProjectForUserById(id, sw360User);
+
+        final List<Resource<Release>> releaseResources = new ArrayList<>();
+
+        final Map<String, ProjectReleaseRelationship> releaseIdToUsage = project.getReleaseIdToUsage();
+        for (final String releaseId : releaseIdToUsage.keySet()) {
+            final Release sw360Release = releaseService.getReleaseForUserById(releaseId, sw360User);
+            final Release minimalFilledRelease = new Release();
+            minimalFilledRelease.setId(sw360Release.getId());
+            minimalFilledRelease.setEccInformation(sw360Release.getEccInformation());
+
+            final Resource<Release> releaseResource = new Resource<>(minimalFilledRelease);
+            releaseResources.add(releaseResource);
+        }
+        final Resources<Resource<Release>> resources = new Resources<>(releaseResources);
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @Override
