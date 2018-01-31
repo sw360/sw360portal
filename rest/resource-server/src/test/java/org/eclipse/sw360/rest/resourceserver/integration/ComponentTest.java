@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,7 @@
 
 package org.eclipse.sw360.rest.resourceserver.integration;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.TestHelper;
@@ -21,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class ComponentTest extends TestIntegrationBase {
     private Sw360ComponentService componentServiceMock;
 
     @Before
-    public void before() {
+    public void before() throws TException {
         List<Component> componentList = new ArrayList<>();
         Component component = new Component();
         component.setName("Component name");

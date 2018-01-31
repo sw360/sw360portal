@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -10,11 +10,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.sw360.rest.resourceserver.release;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentInfo;
@@ -59,15 +61,14 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     @NonNull
     private final RestControllerHelper restControllerHelper;
 
-
     @RequestMapping(value = RELEASES_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource>> getReleasesForUser(@RequestParam(value = "sha1", required = false) String sha1, OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource>> getReleasesForUser(@RequestParam(value = "sha1", required = false) String sha1, OAuth2Authentication oAuth2Authentication) throws TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Release> releases = new ArrayList<>();
         if (sha1 != null && !sha1.isEmpty()) {
-        	releases.add(searchReleaseBySha1(sha1, sw360User));
+            releases.add(searchReleaseBySha1(sha1, sw360User));
         } else {
-        	releases.addAll(releaseService.getReleasesForUser(sw360User));
+            releases.addAll(releaseService.getReleasesForUser(sw360User));
         }
         List<Resource> releaseResources = new ArrayList<>();
 
@@ -86,7 +87,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    private Release searchReleaseBySha1(String sha1, User sw360User) {
+    private Release searchReleaseBySha1(String sha1, User sw360User) throws TException {
         AttachmentInfo sw360AttachmentInfo = this.attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
         Release sw360Release = sw360AttachmentInfo.getRelease();
         return sw360Release;
@@ -94,7 +95,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
 
     @RequestMapping(value = RELEASES_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource> getRelease(
-            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) throws TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Release sw360Release = releaseService.getReleaseForUserById(id, sw360User);
         HalResource halRelease = restControllerHelper.createHalReleaseResource(sw360Release, true);
@@ -105,7 +106,7 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = RELEASES_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<Release>> createRelease(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody Release release) throws URISyntaxException {
+            @RequestBody Release release) throws URISyntaxException, TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
 
         if (release.isSetComponentId()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,7 @@
 
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.rest.resourceserver.TestHelper;
 import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
@@ -48,7 +49,7 @@ public class LicenseSpecTest extends TestRestDocsSpecBase {
     private License license;
 
     @Before
-    public void before() {
+    public void before() throws TException {
         license = new License();
         license.setId("apache20");
         license.setFullname("Apache License 2.0");

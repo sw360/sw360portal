@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -36,42 +36,34 @@ public class Sw360AttachmentService {
     @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
-    public AttachmentInfo getAttachmentBySha1ForUser(String sha1, User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
-            for (Release release : releases) {
-                final Set<Attachment> attachments = release.getAttachments();
-                if (attachments != null && attachments.size() > 0) {
-                    for (Attachment attachment : attachments) {
-                        if (sha1.equals(attachment.getSha1())) {
-                            return new AttachmentInfo(attachment, release);
-                        }
+    public AttachmentInfo getAttachmentBySha1ForUser(String sha1, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
+        for (Release release : releases) {
+            final Set<Attachment> attachments = release.getAttachments();
+            if (attachments != null && attachments.size() > 0) {
+                for (Attachment attachment : attachments) {
+                    if (sha1.equals(attachment.getSha1())) {
+                        return new AttachmentInfo(attachment, release);
                     }
                 }
             }
-        } catch (TException e) {
-            log.error("Cannot get attachment from sw360 with sha1: " + sha1);
         }
         return null;
     }
 
-    public AttachmentInfo getAttachmentByIdForUser(String id, User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
-            for (Release release : releases) {
-                final Set<Attachment> attachments = release.getAttachments();
-                if (attachments != null && attachments.size() > 0) {
-                    for (Attachment attachment : attachments) {
-                        if (id.equals(attachment.getAttachmentContentId())) {
-                            return new AttachmentInfo(attachment, release);
-                        }
+    public AttachmentInfo getAttachmentByIdForUser(String id, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        List<Release> releases = sw360ComponentClient.getReleaseSummary(sw360User);
+        for (Release release : releases) {
+            final Set<Attachment> attachments = release.getAttachments();
+            if (attachments != null && attachments.size() > 0) {
+                for (Attachment attachment : attachments) {
+                    if (id.equals(attachment.getAttachmentContentId())) {
+                        return new AttachmentInfo(attachment, release);
                     }
                 }
             }
-        } catch (TException e) {
-            log.error("Cannot get attachment from sw360 with id: " + id);
         }
         return null;
     }

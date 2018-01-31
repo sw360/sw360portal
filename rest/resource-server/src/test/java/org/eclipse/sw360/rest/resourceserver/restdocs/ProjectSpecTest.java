@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,7 @@
 
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectType;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -54,7 +55,7 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
     private Project project;
 
     @Before
-    public void before() {
+    public void before() throws TException {
         List<Project> projectList = new ArrayList<>();
         project = new Project();
         project.setId("376576");

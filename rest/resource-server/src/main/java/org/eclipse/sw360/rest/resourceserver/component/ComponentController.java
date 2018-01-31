@@ -16,6 +16,7 @@ package org.eclipse.sw360.rest.resourceserver.component;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -64,7 +65,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<Component>>> getComponents(@RequestParam(value = "name", required = false) String name,
                                                                         @RequestParam(value = "type", required = false) String componentType,
-                                                                        OAuth2Authentication oAuth2Authentication) {
+                                                                        OAuth2Authentication oAuth2Authentication) throws TException {
 
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Component> sw360Components = new ArrayList<>();
@@ -92,7 +93,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
     @RequestMapping(value = COMPONENTS_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<Component>> getComponent(
-            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) throws TException {
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Component sw360Component = componentService.getComponentForUserById(id, user);
         HalResource<Component> userHalResource = createHalComponent(sw360Component, user);
@@ -103,7 +104,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
     @RequestMapping(value = COMPONENTS_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<Component>> createComponent(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody Component component) throws URISyntaxException {
+            @RequestBody Component component) throws URISyntaxException, TException {
 
         User user = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
 
@@ -136,7 +137,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         return resource;
     }
 
-    private HalResource<Component> createHalComponent(Component sw360Component, User user) {
+    private HalResource<Component> createHalComponent(Component sw360Component, User user) throws TException {
         HalResource<Component> halComponent = new HalResource<>(sw360Component);
 
         if (sw360Component.getReleaseIds() != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -10,11 +10,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.sw360.rest.resourceserver.license;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
@@ -55,7 +57,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = LICENSES_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<License>>> getLicenses(OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<License>>> getLicenses(OAuth2Authentication oAuth2Authentication) throws TException {
         List<License> licenses = licenseService.getLicenses();
 
         List<Resource<License>> licenseResources = new ArrayList<>();
@@ -76,7 +78,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
 
     @RequestMapping(value = LICENSES_URL + "/{id:.+}", method = RequestMethod.GET)
     public ResponseEntity<Resource<License>> getLicense(
-            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) throws TException {
         License sw360License = licenseService.getLicenseById(id);
         HalResource<License> licenseHalResource = createHalLicense(sw360License);
         return new ResponseEntity<>(licenseHalResource, HttpStatus.OK);
@@ -86,7 +88,7 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = LICENSES_URL, method = RequestMethod.POST)
     public ResponseEntity<Resource<License>> createLicense(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody License license) throws URISyntaxException {
+            @RequestBody License license) throws URISyntaxException, TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         license = licenseService.createLicense(license, sw360User);
         HalResource<License> halResource = createHalLicense(license);
