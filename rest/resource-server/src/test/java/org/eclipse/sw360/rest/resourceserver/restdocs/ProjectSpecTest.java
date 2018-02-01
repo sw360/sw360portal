@@ -68,6 +68,9 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         project.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         project.setBusinessUnit("sw360 AR");
         project.setExternalIds(Collections.singletonMap("mainline-id-project", "515432"));
+        project.setOwnerAccountingUnit("4822");
+        project.setOwnerCountry("DE");
+        project.setOwnerGroup("AA BB 123 GHV2-DE");
         projectList.add(project);
 
         Project project2 = new Project();
@@ -80,6 +83,9 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         project2.setCreatedOn("2016-12-17");
         project2.setCreatedBy("john@sw360.org");
         project2.setBusinessUnit("sw360 EX DF");
+        project2.setOwnerAccountingUnit("5661");
+        project2.setOwnerCountry("FR");
+        project2.setOwnerGroup("SIM-KA12");
         project2.setExternalIds(Collections.singletonMap("mainline-id-project", "7657"));
         projectList.add(project2);
 
@@ -124,14 +130,16 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                         ),
                         responseFields(
                                 fieldWithPath("name").description("The name of the project"),
-                                fieldWithPath("description").description("The project description"),
                                 fieldWithPath("version").description("The project version"),
-                                fieldWithPath("setLicenseInfoHeaderText").description("The license information header text value"),
                                 fieldWithPath("createdOn").description("The date the project was created"),
+                                fieldWithPath("description").description("The project description"),
                                 fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
                                 fieldWithPath("businessUnit").description("The business unit this project belongs to"),
                                 fieldWithPath("externalIds").description("When projects are imported from other tools, the external ids can be stored here"),
+                                fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the project"),
+                                fieldWithPath("ownerGroup").description("The owner group of the project"),
+                                fieldWithPath("ownerCountry").description("The owner country of the project"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this project"),
                                 fieldWithPath("_embedded.moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
