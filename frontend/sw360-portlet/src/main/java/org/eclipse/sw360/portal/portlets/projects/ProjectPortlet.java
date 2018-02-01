@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -13,10 +13,7 @@ package org.eclipse.sw360.portal.portlets.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -62,6 +59,7 @@ import java.io.PrintWriter;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -90,6 +88,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private static final String LICENSE_NAME_WITH_TEXT_KEY = "key";
     private static final String LICENSE_NAME_WITH_TEXT_NAME = "name";
     private static final String LICENSE_NAME_WITH_TEXT_TEXT = "text";
+    private static final String LICENSE_NAME_WITH_TEXT_ERROR = "error";
+    private static final String LICENSE_NAME_WITH_TEXT_FILE = "file";
 
     private static final ImmutableList<Project._Fields> projectFilteredFields = ImmutableList.of(
             Project._Fields.BUSINESS_UNIT,
@@ -179,14 +179,11 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             Project project = projectClient.getProjectById(projectId, user);
             LicenseInfoFile licenseInfoFile = licenseInfoClient.getLicenseInfoFile(project, user, generatorClassName,
                     selectedReleaseAndAttachmentIds, excludedLicensesPerAttachmentId);
-
-            if (PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE)) {
-                List<AttachmentUsage> attachmentUsages = ProjectPortletUtils.makeAttachmentUsages(project, selectedReleaseAndAttachmentIds,
-                        excludedLicensesPerAttachmentId);
-                AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
-                attachmentClient.replaceAttachmentUsages(Source.projectId(project.getId()), attachmentUsages);
-            } else {
-                log.info("LicenseInfo usage is not stored since the user has no write permissions for this project.");
+            try {
+                replaceAttachmentUsages(user, selectedReleaseAndAttachmentIds, excludedLicensesPerAttachmentId, project);
+            } catch (TException e) {
+                // there's no need to abort the user's desired action just because the ancillary action of storing selection failed
+                log.warn("LicenseInfo usage is not stored due to exception: ", e);
             }
 
             OutputFormatInfo outputFormatInfo = licenseInfoFile.getOutputFormatInfo();
@@ -201,6 +198,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         } catch (TException e) {
             log.error("Error getting LicenseInfo file for project with id " + projectId + " and generator " + generatorClassName, e);
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void replaceAttachmentUsages(User user, Map<String, Set<String>> selectedReleaseAndAttachmentIds, Map<String, Set<LicenseNameWithText>> excludedLicensesPerAttachmentId, Project project) throws TException {
+        List<AttachmentUsage> attachmentUsages = ProjectPortletUtils.makeAttachmentUsages(project, selectedReleaseAndAttachmentIds,
+                excludedLicensesPerAttachmentId);
+        if (PermissionUtils.makePermission(project, user).isActionAllowed(RequestedAction.WRITE)) {
+            AttachmentService.Iface attachmentClient = thriftClients.makeAttachmentClient();
+            if (attachmentUsages.isEmpty()) {
+                attachmentClient.deleteAttachmentUsagesByUsageDataType(Source.projectId(project.getId()),
+                        UsageData.licenseInfo(new LicenseInfoUsage(Collections.emptySet())));
+            } else {
+                attachmentClient.replaceAttachmentUsages(Source.projectId(project.getId()), attachmentUsages);
+            }
+        } else {
+            log.info("LicenseInfo usage is not stored since the user has no write permissions for this project.");
         }
     }
 
@@ -540,19 +553,36 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             // In addition we remember the license information for exclusion later on
             Map<String, LicenseNameWithText> licenseStore = Maps.newHashMap();
             List<Map<String, String>> licenses = Lists.newArrayList();
-            licenseInfos.forEach(licenseInfo -> {
-                List<Map<String, String>> licenesAsObject = licenseInfo.licenseInfo.licenseNamesWithTexts.stream()
-                        .filter(licenseNameWithText -> {
-                            return !Strings.isNullOrEmpty(licenseNameWithText.getLicenseName())
-                                    || !Strings.isNullOrEmpty(licenseNameWithText.getLicenseText());
-                        }).map(licenseNameWithText -> {
+            licenseInfos.forEach(licenseInfoResult ->
+                    addLicenseInfoResultToJsonSerializableLicensesList(licenseInfoResult, licenses, licenseStore::put));
+            licenses.sort((l1, l2) ->
+                    Strings.nullToEmpty(l1.get(LICENSE_NAME_WITH_TEXT_NAME))
+                            .compareTo(l2.get(LICENSE_NAME_WITH_TEXT_NAME)));
+
+            request.getPortletSession().setAttribute(LICENSE_STORE_KEY_PREFIX + attachmentContentId, licenseStore);
+            writeJSON(request, response, OBJECT_MAPPER.writeValueAsString(licenses));
+        } catch (TException exception) {
+            log.error("Cannot retrieve license information for attachment id " + attachmentContentId + ".", exception);
+            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+        }
+    }
+
+    private void addLicenseInfoResultToJsonSerializableLicensesList(LicenseInfoParsingResult licenseInfoResult,
+                                                                    List<Map<String, String>> licenses,
+                                                                    BiConsumer<String, LicenseNameWithText> storeLicense) {
+        switch (licenseInfoResult.getStatus()){
+            case SUCCESS:
+                Set<LicenseNameWithText> licenseNamesWithTexts = nullToEmptySet(licenseInfoResult.getLicenseInfo().getLicenseNamesWithTexts());
+                List<Map<String, String>> licensesAsObject = licenseNamesWithTexts.stream()
+                        .filter(licenseNameWithText -> !Strings.isNullOrEmpty(licenseNameWithText.getLicenseName())
+                                || !Strings.isNullOrEmpty(licenseNameWithText.getLicenseText())).map(licenseNameWithText -> {
                             // Since the license has no good identifier, we create one and store the license
                             // in the session. If the final report is generated, we use the identifier to
                             // identify the licenses to be excluded
                             // FIXME: this could be changed if we scan the attachments once after uploading
                             // and store them as own entity
                             String key = UUID.randomUUID().toString();
-                            licenseStore.put(key, licenseNameWithText);
+                            storeLicense.accept(key, licenseNameWithText);
 
                             Map<String, String> data = Maps.newHashMap();
                             data.put(LICENSE_NAME_WITH_TEXT_KEY, key);
@@ -562,17 +592,22 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                             return data;
                         }).collect(Collectors.toList());
 
-                licenses.addAll(licenesAsObject);
-            });
-            licenses.stream().sorted((l1, l2) -> {
-                return Strings.nullToEmpty(l1.get(LICENSE_NAME_WITH_TEXT_NAME)).compareTo(l2.get(LICENSE_NAME_WITH_TEXT_NAME));
-            }).collect(Collectors.toList());
-
-            request.getPortletSession().setAttribute(LICENSE_STORE_KEY_PREFIX + attachmentContentId, licenseStore);
-            writeJSON(request, response, OBJECT_MAPPER.writeValueAsString(licenses));
-        } catch (TException exception) {
-            log.error("Cannot retrieve license information for attachment id " + attachmentContentId + ".", exception);
-            response.setProperty(ResourceResponse.HTTP_STATUS_CODE, "500");
+                licenses.addAll(licensesAsObject);
+                break;
+            case FAILURE:
+            case NO_APPLICABLE_SOURCE:
+                LicenseInfo licenseInfo = licenseInfoResult.getLicenseInfo();
+                String filename = Optional.ofNullable(licenseInfo)
+                        .map(LicenseInfo::getFilenames)
+                        .map(CommonUtils.COMMA_JOINER::join)
+                        .orElse("<filename unknown>");
+                String message = Optional.ofNullable(licenseInfoResult.getMessage())
+                        .orElse("<no message>");
+                licenses.add(ImmutableMap.of(LICENSE_NAME_WITH_TEXT_ERROR, message,
+                        LICENSE_NAME_WITH_TEXT_FILE, filename));
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown LicenseInfoRequestStatus: " + licenseInfoResult.getStatus());
         }
     }
 

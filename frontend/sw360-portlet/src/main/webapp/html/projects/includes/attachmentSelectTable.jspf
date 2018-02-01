@@ -10,6 +10,7 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
+<%@ page import="org.eclipse.sw360.portal.common.PortalConstants" %>
 <portlet:resourceURL var="downloadLicenseInfoURL">
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.GET_LICENCES_FROM_ATTACHMENT%>'/>
 </portlet:resourceURL>
@@ -18,7 +19,11 @@
     <portlet:param name="<%=PortalConstants.ACTION%>" value='<%=PortalConstants.LOAD_LICENSE_INFO_ATTACHMENT_USAGE%>'/>
 </portlet:resourceURL>
 
-<core_rt:if test="${projectLinkTableMode == PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO}">
+<%--These variables are used as a trick to allow referencing constant values in EL expressions below--%>
+<c:set var="tableModeLicenseInfo" value="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO%>"/>
+<c:set var="tableModeSourceBundle" value="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_SOURCE_BUNDLE%>"/>
+
+<core_rt:if test="${projectLinkTableMode == tableModeLicenseInfo}">
     <div id="infobar" class="infobar backgroundGrey">
         <div class="spinner">Loading selected licenses and exclusions...</div>
     </div>
@@ -26,8 +31,8 @@
 
 <table class="table info_table" id="LinkedProjectsInfo"
     data-table-mode="${projectLinkTableMode}"
-    data-table-mode-license-info="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO%>"
-    data-table-mode-source-bundle="<%=PortalConstants.PROJECT_LINK_TABLE_MODE_SOURCE_BUNDLE%>"
+    data-table-mode-license-info="${tableModeLicenseInfo}"
+    data-table-mode-source-bundle="${tableModeSourceBundle}"
     data-portlet-namespace="<portlet:namespace/>"
     data-license-info-base-url="<%=downloadLicenseInfoURL%>"
     data-license-info-state-url="<%=downloadLicenseInfoStateURL%>"
@@ -137,7 +142,7 @@
                         <sw360:out value="${attachment.filename}"/>
                     </td>
                     <td colspan="2">
-                        <core_rt:if test="${projectLinkTableMode == PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO}">
+                        <core_rt:if test="${projectLinkTableMode == tableModeLicenseInfo}">
                             <c:set var="mapKey">${releaseLink.id.concat("_").concat(attachment.attachmentContentId)}</c:set>
                             <core_rt:choose>
                                 <core_rt:when test="${attachmenUsageCountMap[mapKey] != null}">
@@ -156,7 +161,7 @@
                         <sw360:out value="${attachment.createdTeam}"/>
                     </td>
                 </tr>
-                <core_rt:if test="${PortalConstants.PROJECT_LINK_TABLE_MODE_LICENSE_INFO == projectLinkTableMode}">
+                <core_rt:if test="${projectLinkTableMode == tableModeLicenseInfo}">
                     <tr data-tt-id="${releaseLink.nodeId}_${attachment.attachmentContentId}_loader" data-tt-parent-id="${releaseLink.nodeId}_${attachment.attachmentContentId}">
                         <td colspan="7">
                             <div class="spinner">Loading license information. Please wait...</div>
@@ -257,10 +262,11 @@
                     }).done(function(licenses) {
                         var $rows;
 
-                        if(licenses.length == 0) {
+                        if(licenses.length == 0 || licenses[0].error) {
+                            var errorText = licenses.length > 0 ? ' Error: ' + licenses[0].error + ' Parsed file: ' + licenses[0].file : '';
                             $linkedProjectsInfoTable.find('tr[data-tt-id=' + data.ttId + '_loader] td').append($('<div/>', {
                                 'class': 'error foregroundAlert',
-                                text: 'No license found.'
+                                text: 'No license found.' + errorText
                             }));
                             $linkedProjectsInfoTable.find('tr[data-tt-id=' + data.ttId + '_loader] td .spinner').hide();
                             loadedCallback();

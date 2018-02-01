@@ -1,6 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
- * With modifications by Siemens AG, 2017.
+ * With modifications by Siemens AG, 2017-2018.
  * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -22,10 +22,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.tools.ToolManager;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
 import org.eclipse.sw360.licenseinfo.util.LicenseNameWithTextUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +38,7 @@ public abstract class OutputGenerator<T> {
     protected static final String ALL_LICENSE_NAMES_WITH_TEXTS = "allLicenseNamesWithTexts";
     protected static final String LICENSES_CONTEXT_PROPERTY = "licenses";
     protected static final String LICENSE_INFO_RESULTS_CONTEXT_PROPERTY = "licenseInfoResults";
+    protected static final String LICENSE_INFO_ERROR_RESULTS_CONTEXT_PROPERTY = "licenseInfoErrorResults";
     protected static final String LICENSE_INFO_HEADER_TEXT = "licenseInfoHeader";
 
     private final String outputType;
@@ -99,8 +97,21 @@ public abstract class OutputGenerator<T> {
     @NotNull
     protected SortedMap<String, LicenseInfoParsingResult> getSortedLicenseInfos(Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
         Map<String, LicenseInfoParsingResult> licenseInfos = projectLicenseInfoResults.stream()
-                .collect(Collectors.toMap(this::getComponentLongName, li -> li, (li1, li2) -> li1));
+                .collect(Collectors.toMap(this::getComponentLongName, li -> li, this::mergeLicenseInfoParsingResults));
         return sortStringKeyedMap(licenseInfos);
+    }
+
+    @NotNull
+    protected LicenseInfoParsingResult mergeLicenseInfoParsingResults(LicenseInfoParsingResult r1, LicenseInfoParsingResult r2){
+        if (r1.getStatus() != LicenseInfoRequestStatus.SUCCESS || r2.getStatus() != LicenseInfoRequestStatus.SUCCESS ||
+                !getComponentLongName(r1).equals(getComponentLongName(r2))){
+            throw new IllegalArgumentException("Only successful parsing results for the same release can be merged");
+        }
+        LicenseInfoParsingResult r = new LicenseInfoParsingResult(r1);
+        r.getLicenseInfo().getLicenseNamesWithTexts().addAll(r2.getLicenseInfo().getLicenseNamesWithTexts());
+        r.getLicenseInfo().getCopyrights().addAll(r2.getLicenseInfo().getCopyrights());
+        r.getLicenseInfo().getFilenames().addAll(r2.getLicenseInfo().getFilenames());
+        return r;
     }
 
     @NotNull
@@ -155,7 +166,10 @@ public abstract class OutputGenerator<T> {
      * id inside the file. May be used to reference a license.</li>
      * <li>licenseInfoResults: map of {@link LicenseInfoParsingResult} objects,
      * where the key is the name of the release. The licenses within the objects are
-     * sorted by name.</li>
+     * sorted by name. Contains only the results with status {@link LicenseInfoRequestStatus#SUCCESS}</li>
+     * <li>licenseInfoErrorResults: map {@link List}of {@link LicenseInfoParsingResult} objects,
+     * where the key is the name of the release. Contains only the results with status other than
+     * {@link LicenseInfoRequestStatus#SUCCESS}. These results are not merged, that's why the map values are lists.</li>
      * <li>acknowledgments: map of acknowledgments for a release where the key is
      * the release and the value is a set of strings (acknowledgments)</li>
      * </ul>
@@ -175,7 +189,7 @@ public abstract class OutputGenerator<T> {
 
         // sorted lists of all license to be displayed at the end of the file at once
         List<LicenseNameWithText> licenseNamesWithTexts = getSortedLicenseNameWithTexts(projectLicenseInfoResults);
-        vc.put(OutputGenerator.ALL_LICENSE_NAMES_WITH_TEXTS, licenseNamesWithTexts);
+        vc.put(ALL_LICENSE_NAMES_WITH_TEXTS, licenseNamesWithTexts);
 
         // assign a reference id to each license in order to only display references for
         // each release. The references will point to
@@ -187,17 +201,23 @@ public abstract class OutputGenerator<T> {
         }
         vc.put(LICENSE_REFERENCE_ID_MAP_CONTEXT_PROPERTY, licenseToReferenceId);
 
+        Map<Boolean, List<LicenseInfoParsingResult>> partitionedResults =
+                projectLicenseInfoResults.stream().collect(Collectors.partitioningBy(r -> r.getStatus() == LicenseInfoRequestStatus.SUCCESS));
+        List<LicenseInfoParsingResult> goodResults = partitionedResults.get(true);
+        Map<String, List<LicenseInfoParsingResult>> badResultsPerRelease =
+                partitionedResults.get(false).stream().collect(Collectors.groupingBy(this::getComponentLongName));
+        vc.put(LICENSE_INFO_ERROR_RESULTS_CONTEXT_PROPERTY, badResultsPerRelease);
+
         // be sure that the licenses inside a release are sorted by id. This looks nicer
-        SortedMap<String, LicenseInfoParsingResult> sortedLicenseInfos = getSortedLicenseInfos(projectLicenseInfoResults);
+        SortedMap<String, LicenseInfoParsingResult> sortedLicenseInfos = getSortedLicenseInfos(goodResults);
         // this will effectively change the objects in the collection and therefore the
         // objects in the sorted map above
-        sortLicenseNamesWithinEachLicenseInfoById(projectLicenseInfoResults, licenseToReferenceId);
-        vc.put(OutputGenerator.LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, sortedLicenseInfos);
+        sortLicenseNamesWithinEachLicenseInfoById(sortedLicenseInfos.values(), licenseToReferenceId);
+        vc.put(LICENSE_INFO_RESULTS_CONTEXT_PROPERTY, sortedLicenseInfos);
 
         // also display acknowledgments
         SortedMap<String, Set<String>> acknowledgements = getSortedAcknowledgements(sortedLicenseInfos);
-        vc.put(OutputGenerator.ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, acknowledgements);
-
+        vc.put(ACKNOWLEDGEMENTS_CONTEXT_PROPERTY, acknowledgements);
 
         StringWriter sw = new StringWriter();
         Velocity.mergeTemplate(file, "utf-8", vc, sw);

@@ -61,6 +61,10 @@
             visibility: hidden;
         }
 
+        .error {
+            background: #e95850;
+        }
+
     </style>
     <title>
         Open Source Software
@@ -84,6 +88,9 @@
         <ul id="releases" style="list-style-type:none">
             #foreach($releaseName in $licenseInfoResults.keySet())
                 <li id="$esc.xml($releaseName).replace(" ","_").replace(",","-")" class="release" title="$esc.xml($releaseName)">
+                    #foreach($errorResult in $licenseInfoErrorResults.get($releaseName))
+                        <div class="inset error">ERROR when reading license information from file $esc.xml($errorResult.licenseInfo.filenames[0]): $esc.xml($errorResult.message)</div>
+                    #end
                     <div class="inset">
                         <h3 id="h3$esc.xml($releaseName).replace(" ","_").replace(",","-")">$esc.xml($releaseName)
                             <a class="top" href="#releaseHeader">&#8679;</a>

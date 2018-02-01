@@ -8,8 +8,9 @@ $licenseInfoHeader
 
 Open Source Software Contained in this Product/Device:
 ======================================================
-#foreach($releaseName in $licenseInfoResults.keySet())
-* $releaseName
+#foreach($releaseName in $licenseInfoResults.keySet()) #set($errorResults=[])
+* $releaseName #foreach($errorResult in $licenseInfoErrorResults.get($releaseName))
+(ERROR when reading license information from file $errorResult.licenseInfo.filenames[0]: $errorResult.message) #end
 #end
 
 

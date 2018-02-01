@@ -200,8 +200,13 @@ service AttachmentService {
 
     /**
      * Replaces all attachment usages for a source with the given list of attachment usages. Only usages of the same type are
-     * replaces. The type is determined by the type of usage data. Replacement means that all exisitng usages with the same type
-     * are deleted and all given usages are added.
+     * replaced. The type is determined by the type of usage data. Replacement means that all existing usages with the same type
+     * are deleted and all given usages are added. Note that this does not allow replacing attachment usages of any given type
+     * with an empty list, because the given list of usages must contain at least one element to determine what type of
+     * usages is to be replaced. Passing an empty list of usages to this method has no effect.
+     *
+     * @see deleteAttachmentUsagesByUsageDataType()
+     *
      */
     void replaceAttachmentUsages(1: Source usedBy, 2: list<AttachmentUsage> attachmentUsages);
 
@@ -214,6 +219,12 @@ service AttachmentService {
      * Deletes the given list of attachment usage objects. The given usage objects must exist in the database.
      */
     void deleteAttachmentUsages(1: list<AttachmentUsage> attachmentUsages);
+    /**
+     * Deletes the all attachment usage objects with the usedBy source `usedBy` and of the same type as `usageData`.
+     * The content of `usageData` is unimportant. Only its type is consedered.
+     * If `usageData` is null, the attachment usages with no `usageData` are deleted.
+     */
+    void deleteAttachmentUsagesByUsageDataType(1: Source usedBy, 2: UsageData usageData);
 
     /**
      * Returns the list of usage objects describing the usage of the attachment that can be identified

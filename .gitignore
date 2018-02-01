@@ -11,9 +11,6 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-backend/*/target/
-frontend/*/target/
-libraries/*/target/
 target/
 
 # Ignore private and public keys
@@ -37,18 +34,4 @@ target/
 #ignore any log files
 *.log
 
-/libraries/target/
-/libraries/lib-datahandler/target/
-/libraries/commonIO/target/
-/libraries/importers/component-importer/target/
-/libraries/exporters/target/
-/backend/src-common/target/
-/backend/src/src-vendors/target/
-/backend/src/src-components/target/
-/backend/src/src-attachments/target/
-/frontend/sw360-portlets/target/
-/frontend/target/
-/libraries/importers/license-importer/target/
-/backend/src/src-projects/target/
-/backend/svc/svc-licenses/target/
 /backend/src-common/src/main/resources/sw360.properties
