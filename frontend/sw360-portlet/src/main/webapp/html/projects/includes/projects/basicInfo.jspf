@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -102,6 +102,7 @@
                        name="<portlet:namespace/><%=Project._Fields.ENABLE_SVM%>"
                        value="<sw360:out value="${project.enableSvm}"/>"
                         <core_rt:if test="${project.enableSvm}"> checked="checked" </core_rt:if>
+                        <core_rt:if test="${empty project.securityResponsibles}"> disabled="disabled" </core_rt:if>
                 />
                 Enable Security Vulnerability Monitoring</label>
         </td>
@@ -190,4 +191,18 @@
 <core_rt:set var="customMap" value="${project.roles}"/>
 <%@include file="/html/utils/includes/mapEdit.jspf" %>
 
+<script>
+    require(['jquery'], function ($) {
 
+        $('#<%=Project._Fields.SECURITY_RESPONSIBLES.toString()%>Display').on('change', function () {
+            var checkboxEnableSvm = $('#enable_svm');
+            if ($(this).val() == null || $(this).val() == '') {
+                checkboxEnableSvm.attr("disabled", true);
+                checkboxEnableSvm.prop('checked', false);
+            } else {
+                checkboxEnableSvm.removeAttr("disabled");
+            }
+        });
+
+    });
+</script>
