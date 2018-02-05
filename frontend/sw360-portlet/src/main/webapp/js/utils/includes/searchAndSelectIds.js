@@ -16,17 +16,18 @@ define('utils/includes/searchAndSelectIds', ['jquery', /* jquery-plugins: */ 'da
     var SearchAndSelectIds = function (options) {
 
         var opts = {
-            $addButton   : options.$addButton,
+            $addButton: options.$addButton,
             $searchButton: options.$searchButton,
-            $searchInput : options.$searchInput,
-            $tableBody   : options.$tableBody,
-            $table       : options.$table,
-            $searchDiv   : options.$searchDiv,
-            emptyRow     : options.emptyRow,
-            ajaxSearch   : options.ajaxSearch,
-            prepareData  : options.prepareData,
-            extractIds   : options.extractIds,
-            renderInput  : options.renderInput
+            $resetButton: options.$resetButton,
+            $searchInput: options.$searchInput,
+            $tableBody: options.$tableBody,
+            $table: options.$table,
+            $searchDiv: options.$searchDiv,
+            emptyRow: options.emptyRow,
+            ajaxSearch: options.ajaxSearch,
+            prepareData: options.prepareData,
+            extractIds: options.extractIds,
+            renderInput: options.renderInput
         };
 
         var currentState = {
@@ -126,6 +127,12 @@ define('utils/includes/searchAndSelectIds', ['jquery', /* jquery-plugins: */ 'da
             doAdd: function () {
                 pr.setOutput();
                 closeOpenDialogs();
+            },
+
+            doReset: function () {
+                opts.$searchInput.val("");
+                currentState.resultFullData = [];
+                pr.doSearch();
             }
         };
 
@@ -155,6 +162,8 @@ define('utils/includes/searchAndSelectIds', ['jquery', /* jquery-plugins: */ 'da
                 opts.$addButton.on('click', pr.doAdd);
                 opts.$searchButton.off('click');
                 opts.$searchButton.on('click', pr.doSearch);
+                opts.$resetButton.off('click');
+                opts.$resetButton.on('click', pr.doReset);
 
                 openDialog(opts.$searchDiv, opts.$searchInput);
                 if(!firstRun) {
@@ -174,23 +183,22 @@ define('utils/includes/searchAndSelectIds', ['jquery', /* jquery-plugins: */ 'da
     };
 
     return {
-            openSearchDialog: function(multi, resultInputId, htmlElements, functions, firstRun) {
-                var searchIds = SearchAndSelectIds({
-                    $addButton   : htmlElements['addButton'],
-                    $searchButton: htmlElements['searchButton'],
-                    $searchInput : htmlElements['searchInput'],
-                    $tableBody   : htmlElements['resultTableBody'],
-                    $table       : htmlElements['resultTable'],
-                    $searchDiv   : htmlElements['searchDiv'],
-                    emptyRow     : htmlElements['emptyRow'],
-                    ajaxSearch   : functions['ajaxSearch'],
-                    prepareData  : functions['prepareData'],
-                    extractIds   : functions['extractIds'],
-                    renderInput  : functions['renderInput']
-                });
-                searchIds.open(multi, resultInputId, firstRun)
-            }
+        openSearchDialog: function (multi, resultInputId, htmlElements, functions, firstRun) {
+            var searchIds = SearchAndSelectIds({
+                $addButton: htmlElements['addButton'],
+                $searchButton: htmlElements['searchButton'],
+                $resetButton: htmlElements['resetButton'],
+                $searchInput: htmlElements['searchInput'],
+                $tableBody: htmlElements['resultTableBody'],
+                $table: htmlElements['resultTable'],
+                $searchDiv: htmlElements['searchDiv'],
+                emptyRow: htmlElements['emptyRow'],
+                ajaxSearch: functions['ajaxSearch'],
+                prepareData: functions['prepareData'],
+                extractIds: functions['extractIds'],
+                renderInput: functions['renderInput']
+            });
+            searchIds.open(multi, resultInputId, firstRun)
+        }
     }
-
-
 });

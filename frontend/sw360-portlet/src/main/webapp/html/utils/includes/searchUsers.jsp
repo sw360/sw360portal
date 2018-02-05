@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal User.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal User.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -70,6 +70,7 @@
 
         const indexMail = 2;
         const indexFullname = 4;
+
         function getIdsFromSelectedUsersData(currentState) {
             var ids = [];
             var displayIds = [];
@@ -84,18 +85,21 @@
 
 
         function showUserDialog(multiUser, resultInputId) {
-            var htmlElements = { 'addButton'       : $('#search-add-button'),
-                                 'searchButton'    : $('#search-button'),
-                                 'searchInput'     : $('#search-text'),
-                                 'resultTableBody' : $('#search-result-table-body'),
-                                 'resultTable'     : $('#search-result-table'),
-                                 'searchDiv'       : 'search-users-div',
-                                 'emptyRow'        : "<tr class=\"trbodyClass\"><td></td><td></td><td></td><td></td><td></td></tr>"
+            var htmlElements = {
+                'addButton': $('#search-add-button'),
+                'searchButton': $('#search-button'),
+                'resetButton': $('#reset-button'),
+                'searchInput': $('#search-text'),
+                'resultTableBody': $('#search-result-table-body'),
+                'resultTable': $('#search-result-table'),
+                'searchDiv': 'search-users-div',
+                'emptyRow': "<tr class=\"trbodyClass\"><td></td><td></td><td></td><td></td><td></td></tr>"
             };
-            var functions =    { 'ajaxSearch'  : searchUserAjax,
-                                 'prepareData' : addAlreadySelectedUsersToTable,
-                                 'extractIds'  : getIdsFromSelectedUsersData,
-                                 'renderInput' : renderUserInputToFullData,
+            var functions = {
+                'ajaxSearch': searchUserAjax,
+                'prepareData': addAlreadySelectedUsersToTable,
+                'extractIds': getIdsFromSelectedUsersData,
+                'renderInput': renderUserInputToFullData,
             };
 
             idSearch.openSearchDialog(multiUser, resultInputId, htmlElements, functions, firstRun);
@@ -103,4 +107,3 @@
         }
     });
 </script>
-
