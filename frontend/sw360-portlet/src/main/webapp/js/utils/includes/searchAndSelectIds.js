@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -99,7 +99,9 @@ define('utils/includes/searchAndSelectIds', ['jquery', /* jquery-plugins: */ 'da
                 var displayIds = allIds['displayIds'];
 
                 currentState.$resultInput.val(ids.join(", "));
+
                 currentState.$resultInputDisplay.val(displayIds.join(", "));
+                currentState.$resultInputDisplay.trigger('change');
             },
 
             addUniquely: function(input) {
