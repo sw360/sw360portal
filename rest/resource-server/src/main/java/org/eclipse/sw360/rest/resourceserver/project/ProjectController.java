@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -10,6 +10,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.sw360.rest.resourceserver.project;
 
 import lombok.NonNull;
@@ -70,32 +71,31 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<Project>>> getProjectsForUser(@RequestParam(value = "name", required = false) String name,
-    		OAuth2Authentication oAuth2Authentication) {
+                                                                           @RequestParam(value = "type", required = false) String projectType,
+                                                                           OAuth2Authentication oAuth2Authentication) {
+
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Project> sw360Projects = new ArrayList<>();
-        if ((name != null) && (!name.isEmpty()))	{
+        if (name != null && !name.isEmpty()) {
             sw360Projects.addAll(projectService.searchProjectByName(name, sw360User));
         } else {
-        	sw360Projects.addAll(projectService.getProjectsForUser(sw360User));
+            sw360Projects.addAll(projectService.getProjectsForUser(sw360User));
         }
 
         List<Resource<Project>> projectResources = new ArrayList<>();
-        for (Project sw360Project : sw360Projects) {
-            // TODO Kai Tödter 2017-01-04
-            // Find better way to decrease details in list resources,
-            // e.g. apply projections or Jackson Mixins
-            sw360Project.setDescription(null);
-            sw360Project.setType(null);
-            sw360Project.setCreatedOn(null);
-            sw360Project.setReleaseIdToUsage(null);
-            sw360Project.setExternalIds(null);
-            sw360Project.setBusinessUnit(null);
+        sw360Projects.stream()
+                .filter(project -> projectType == null || projectType.equals(project.projectType.name()))
+                .forEach(p -> {
+                    p.setDescription(null);
+                    p.setType(null);
+                    p.setCreatedOn(null);
+                    p.setReleaseIdToUsage(null);
+                    p.setExternalIds(null);
+                    p.setBusinessUnit(null);
+                    projectResources.add(new Resource<>(p));
+                });
 
-            Resource<Project> projectResource = new Resource<>(sw360Project);
-            projectResources.add(projectResource);
-        }
         Resources<Resource<Project>> resources = new Resources<>(projectResources);
-
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
