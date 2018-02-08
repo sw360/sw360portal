@@ -53,7 +53,7 @@ public abstract class OutputGenerator<T> {
         this.outputMimeType = mimeType;
     }
 
-    public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception;
+    public abstract T generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String projectVersion, String licenseInfoHeaderText) throws SW360Exception;
 
     public String getOutputType() {
         return outputType;

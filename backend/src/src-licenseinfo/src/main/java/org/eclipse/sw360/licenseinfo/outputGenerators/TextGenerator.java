@@ -1,6 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
- * With modifications by Siemens AG, 2017.
+ * With modifications by Siemens AG, 2017-2018.
  * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -28,13 +28,12 @@ public class TextGenerator extends OutputGenerator<String> {
     }
 
     @Override
-    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception {
+    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String projectVersion, String licenseInfoHeaderText) throws SW360Exception {
         try {
             return renderTemplateWithDefaultValues(projectLicenseInfoResults, LICENSE_INFO_TEMPLATE_FILE, licenseInfoHeaderText);
         } catch (Exception e) {
-            LOGGER.error("Could not generate text licenseinfo file", e);
+            LOGGER.error("Could not generate text licenseinfo file for project " + projectName, e);
             return "License information could not be generated.\nAn exception occurred: " + e.toString();
         }
     }
 }
-
