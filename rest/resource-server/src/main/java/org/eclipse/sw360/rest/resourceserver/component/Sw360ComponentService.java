@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -37,47 +37,31 @@ public class Sw360ComponentService {
     @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
-    public List<Component> getComponentsForUser(User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            return sw360ComponentClient.getComponentSummary(sw360User);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Component> getComponentsForUser(User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        return sw360ComponentClient.getComponentSummary(sw360User);
     }
 
-    public Component getComponentForUserById(String componentId, User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            return sw360ComponentClient.getComponentById(componentId, sw360User);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public Component getComponentForUserById(String componentId, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        return sw360ComponentClient.getComponentById(componentId, sw360User);
     }
 
-    public Component createComponent(Component component, User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            AddDocumentRequestSummary documentRequestSummary = sw360ComponentClient.addComponent(component, sw360User);
-            if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
-                component.setId(documentRequestSummary.getId());
-                return component;
-            } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
-                throw new DataIntegrityViolationException("sw360 component with name '" + component.getName() + "' already exists.");
-            }
-        } catch (TException e) {
-            throw new RuntimeException(e);
+    public Component createComponent(Component component, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        AddDocumentRequestSummary documentRequestSummary = sw360ComponentClient.addComponent(component, sw360User);
+        if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
+            component.setId(documentRequestSummary.getId());
+            return component;
+        } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
+            throw new DataIntegrityViolationException("sw360 component with name '" + component.getName() + "' already exists.");
         }
         return null;
     }
 
-    public List<Component> searchComponentByName(String name) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            return sw360ComponentClient.searchComponentForExport(name);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Component> searchComponentByName(String name) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        return sw360ComponentClient.searchComponentForExport(name);
     }
 
     private ComponentService.Iface getThriftComponentClient() throws TTransportException {

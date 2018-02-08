@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -14,6 +14,7 @@ package org.eclipse.sw360.rest.resourceserver.core;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
@@ -75,8 +76,12 @@ public class RestControllerHelper {
             User user,
             String linkRelation) {
         for (String releaseId : releases) {
-            final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, user);
-            addEmbeddedRelease(halResource, release, linkRelation);
+            try {
+                final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, user);
+                addEmbeddedRelease(halResource, release, linkRelation);
+            } catch (TException e) {
+                log.error("cannot create embedded releases");
+            }
         }
     }
 
@@ -110,7 +115,6 @@ public class RestControllerHelper {
             HalResource<Vendor> vendorHalResource = addEmbeddedVendor(vendorFullName);
             halComponent.addEmbeddedResource("vendors", vendorHalResource);
         }
-
     }
 
     private HalResource<Vendor> addEmbeddedVendor(String vendorFullName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -14,6 +14,7 @@ package org.eclipse.sw360.rest.resourceserver.attachment;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -52,40 +53,32 @@ public class AttachmentController implements ResourceProcessor<RepositoryLinksRe
     @RequestMapping(value = ATTACHMENTS_URL, params = "sha1", method = RequestMethod.GET)
     public ResponseEntity<Resource<Attachment>> getAttachmentForSha1(
             OAuth2Authentication oAuth2Authentication,
-            @RequestParam String sha1) {
-        try {
-            User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-            AttachmentInfo attachmentInfo = attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
-            HalResource<Attachment> attachmentResource =
-                    createHalAttachment(
-                            attachmentInfo.getAttachment(),
-                            attachmentInfo.getRelease(),
-                            sw360User);
-            return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return null;
+            @RequestParam String sha1) throws TException {
+
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        AttachmentInfo attachmentInfo = attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
+        HalResource<Attachment> attachmentResource =
+                createHalAttachment(
+                        attachmentInfo.getAttachment(),
+                        attachmentInfo.getRelease(),
+                        sw360User);
+        return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
     }
 
     @RequestMapping(value = ATTACHMENTS_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<Attachment>> getAttachmentForId(
             @PathVariable("id") String id,
-            OAuth2Authentication oAuth2Authentication) {
-        try {
-            User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-            AttachmentInfo attachmentInfo =
-                    attachmentService.getAttachmentByIdForUser(id, sw360User);
+            OAuth2Authentication oAuth2Authentication) throws TException {
 
-            HalResource<Attachment> attachmentResource =
-                    createHalAttachment(attachmentInfo.getAttachment(),
-                            attachmentInfo.getRelease(),
-                            sw360User);
-            return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return null;
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        AttachmentInfo attachmentInfo =
+                attachmentService.getAttachmentByIdForUser(id, sw360User);
+
+        HalResource<Attachment> attachmentResource =
+                createHalAttachment(attachmentInfo.getAttachment(),
+                        attachmentInfo.getRelease(),
+                        sw360User);
+        return new ResponseEntity<>(attachmentResource, HttpStatus.OK);
     }
 
     private HalResource<Attachment> createHalAttachment(

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -23,6 +23,7 @@ import org.apache.thrift.transport.TTransportException;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
+import org.eclipse.sw360.datahandler.thrift.components.ReleaseClearingStatusData;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -32,6 +33,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -40,84 +43,67 @@ public class Sw360ProjectService {
     @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
-    public List<Project> getProjectsForUser(User sw360User) {
-        try {
-            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            return sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Project> getProjectsForUser(User sw360User) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        return sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
     }
 
-    public Project getProjectForUserById(String projectId, User sw360User) {
-        try {
-            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            return sw360ProjectClient.getProjectById(projectId, sw360User);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public Project getProjectForUserById(String projectId, User sw360User) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        return sw360ProjectClient.getProjectById(projectId, sw360User);
     }
 
-    public Project createProject(Project project, User sw360User) {
-        try {
-            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            AddDocumentRequestSummary documentRequestSummary = sw360ProjectClient.addProject(project, sw360User);
-            if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
-                project.setId(documentRequestSummary.getId());
-                return project;
-            } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
-                throw new DataIntegrityViolationException("sw360 project with name '" + project.getName() + "' already exists.");
-            }
-        } catch (TException e) {
-            throw new RuntimeException(e);
+    public Project createProject(Project project, User sw360User) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        AddDocumentRequestSummary documentRequestSummary = sw360ProjectClient.addProject(project, sw360User);
+        if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
+            project.setId(documentRequestSummary.getId());
+            return project;
+        } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
+            throw new DataIntegrityViolationException("sw360 project with name '" + project.getName() + "' already exists.");
         }
         return null;
     }
 
-    public RequestStatus updateProject(Project project, User sw360User) {
-        try {
-            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            RequestStatus requestStatus = sw360ProjectClient.updateProject(project, sw360User);
-            if (requestStatus != RequestStatus.SUCCESS) {
-                throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be updated.");
-            }
-            return requestStatus;
-        } catch (TException e) {
-            throw new RuntimeException(e);
+    public RequestStatus updateProject(Project project, User sw360User) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        RequestStatus requestStatus = sw360ProjectClient.updateProject(project, sw360User);
+        if (requestStatus != RequestStatus.SUCCESS) {
+            throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be updated.");
+        }
+        return requestStatus;
+    }
+
+    public RequestStatus deleteProject(Project project, User sw360User) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        RequestStatus requestStatus = sw360ProjectClient.deleteProject(project.getId(), sw360User);
+        if (requestStatus != RequestStatus.SUCCESS) {
+            throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be deleted.");
+        }
+        return requestStatus;
+    }
+
+    public void deleteAllProjects(User sw360User) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
+        for (Project project : projects) {
+            sw360ProjectClient.deleteProject(project.getId(), sw360User);
         }
     }
 
-    public RequestStatus deleteProject(Project project, User sw360User) {
-        try {
-            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            RequestStatus requestStatus = sw360ProjectClient.deleteProject(project.getId(), sw360User);
-            if (requestStatus != RequestStatus.SUCCESS) {
-                throw new RuntimeException("sw360 project with name '" + project.getName() + " cannot be deleted.");
-            }
-            return requestStatus;
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Project> searchProjectByName(String name, User sw360User) throws TException {
+        final ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        return sw360ProjectClient.searchByName(name, sw360User);
     }
 
-    public void deleteAllProjects(User sw360User) {
-        try {
-            ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            List<Project> projects = sw360ProjectClient.getAccessibleProjectsSummary(sw360User);
-            for(Project project: projects) {
-                sw360ProjectClient.deleteProject(project.getId(), sw360User);
-            }
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<Project> searchProjectByName(String name, User sw360User) {
-        try {
-            final ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
-            return sw360ProjectClient.searchByName(name, sw360User);
-        } catch (final TException e) {
-            throw new RuntimeException(e);
+    public Set<String> getReleaseIds(String projectId, User sw360User, String transitive) throws TException {
+        ProjectService.Iface sw360ProjectClient = getThriftProjectClient();
+        if (Boolean.parseBoolean(transitive)) {
+            List<ReleaseClearingStatusData> releaseClearingStatusData = sw360ProjectClient.getReleaseClearingStatuses(projectId, sw360User);
+            return releaseClearingStatusData.stream().map(r -> r.release.getId()).collect(Collectors.toSet());
+        } else {
+            final Project project = getProjectForUserById(projectId, sw360User);
+            return project.getReleaseIdToUsage().keySet();
         }
     }
 

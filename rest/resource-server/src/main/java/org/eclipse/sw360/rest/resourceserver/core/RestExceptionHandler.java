@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -14,6 +14,7 @@ package org.eclipse.sw360.rest.resourceserver.core;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.apache.thrift.TException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -31,33 +32,33 @@ import java.time.Instant;
 @ControllerAdvice
 public class RestExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class, TException.class})
     public ResponseEntity<ErrorMessage> handleException(Exception e) {
         return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorMessage> handleAccessDeniedException(Exception e) {
+    public ResponseEntity<ErrorMessage> handleAccessDeniedException(AccessDeniedException e) {
         return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.FORBIDDEN), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorMessage> handleResourceNotFound(Exception e) {
+    public ResponseEntity<ErrorMessage> handleResourceNotFound(ResourceNotFoundException e) {
         return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorMessage> handleMessageNotReadableException(Exception e) {
+    public ResponseEntity<ErrorMessage> handleMessageNotReadableException(HttpMessageNotReadableException e) {
         return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorMessage> handleRequestMethodNotSupported(Exception e) {
+    public ResponseEntity<ErrorMessage> handleRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.METHOD_NOT_ALLOWED), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ErrorMessage> handleMediaTypeNotSupportedException(Exception e) {
+    public ResponseEntity<ErrorMessage> handleMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
         return new ResponseEntity<>(new ErrorMessage(e, HttpStatus.UNSUPPORTED_MEDIA_TYPE), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 

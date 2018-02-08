@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -33,38 +33,26 @@ public class Sw360LicenseService {
     @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
-    public List<License> getLicenses() {
-        try {
-            LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
-            return sw360LicenseClient.getLicenseSummary();
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public List<License> getLicenses() throws TException {
+        LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
+        return sw360LicenseClient.getLicenseSummary();
     }
 
-    public License getLicenseById(String licenseId) {
-        try {
-            LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
-            // TODO Kai Tödter 2017-01-26
-            // What is the semantics of the second parameter (organization)?
-            return sw360LicenseClient.getByID(licenseId, "?");
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public License getLicenseById(String licenseId) throws TException {
+        LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
+        // TODO Kai Tödter 2017-01-26
+        // What is the semantics of the second parameter (organization)?
+        return sw360LicenseClient.getByID(licenseId, "?");
     }
 
-    public License createLicense(License license, User sw360User) {
-        try {
-            LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
-            license.setId(license.getShortname());
-            List<License> licenses = sw360LicenseClient.addLicenses(Collections.singletonList(license), sw360User);
-            for(License newlicense: licenses) {
-                if(license.getFullname().equals(newlicense.getFullname())) {
-                    return  newlicense;
-                }
+    public License createLicense(License license, User sw360User) throws TException {
+        LicenseService.Iface sw360LicenseClient = getThriftLicenseClient();
+        license.setId(license.getShortname());
+        List<License> licenses = sw360LicenseClient.addLicenses(Collections.singletonList(license), sw360User);
+        for (License newLicense : licenses) {
+            if (license.getFullname().equals(newLicense.getFullname())) {
+                return newLicense;
             }
-        } catch (TException e) {
-            throw new RuntimeException(e);
         }
         return null;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017.
+ * Copyright Siemens AG, 2017-2018.
  * Copyright Bosch Software Innovations GmbH, 2017.
  * Part of the SW360 Portal Project.
  *
@@ -10,6 +10,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.sw360.rest.resourceserver.release;
 
 import lombok.RequiredArgsConstructor;
@@ -39,36 +40,24 @@ public class Sw360ReleaseService {
     @Value("${sw360.thrift-server-url:http://localhost:8080}")
     private String thriftServerUrl;
 
-    public List<Release> getReleasesForUser(User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            return sw360ComponentClient.getReleaseSummary(sw360User);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public List<Release> getReleasesForUser(User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        return sw360ComponentClient.getReleaseSummary(sw360User);
     }
 
-    public Release getReleaseForUserById(String releaseId, User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            return sw360ComponentClient.getReleaseById(releaseId, sw360User);
-        } catch (TException e) {
-            throw new RuntimeException(e);
-        }
+    public Release getReleaseForUserById(String releaseId, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        return sw360ComponentClient.getReleaseById(releaseId, sw360User);
     }
 
-    public Release createRelease(Release release, User sw360User) {
-        try {
-            ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
-            AddDocumentRequestSummary documentRequestSummary = sw360ComponentClient.addRelease(release, sw360User);
-            if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
-                release.setId(documentRequestSummary.getId());
-                return release;
-            } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
-                throw new DataIntegrityViolationException("sw360 release with name '" + release.getName() + "' already exists.");
-            }
-        } catch (TException e) {
-            throw new RuntimeException(e);
+    public Release createRelease(Release release, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        AddDocumentRequestSummary documentRequestSummary = sw360ComponentClient.addRelease(release, sw360User);
+        if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.SUCCESS) {
+            release.setId(documentRequestSummary.getId());
+            return release;
+        } else if (documentRequestSummary.getRequestStatus() == AddDocumentRequestStatus.DUPLICATE) {
+            throw new DataIntegrityViolationException("sw360 release with name '" + release.getName() + "' already exists.");
         }
         return null;
     }

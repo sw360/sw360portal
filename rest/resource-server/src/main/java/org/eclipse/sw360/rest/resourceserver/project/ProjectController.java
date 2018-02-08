@@ -16,6 +16,7 @@ package org.eclipse.sw360.rest.resourceserver.project;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
@@ -70,10 +71,10 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<Project>>> getProjectsForUser(@RequestParam(value = "name", required = false) String name,
-                                                                           @RequestParam(value = "type", required = false) String projectType,
-                                                                           OAuth2Authentication oAuth2Authentication) {
-
+    public ResponseEntity<Resources<Resource<Project>>> getProjectsForUser(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "type", required = false) String projectType,
+            OAuth2Authentication oAuth2Authentication) throws TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         List<Project> sw360Projects = new ArrayList<>();
         if (name != null && !name.isEmpty()) {
@@ -101,7 +102,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
     @RequestMapping(value = PROJECTS_URL + "/{id}", method = RequestMethod.GET)
     public ResponseEntity<Resource<Project>> getProject(
-            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+            @PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) throws TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project sw360Project = projectService.getProjectForUserById(id, sw360User);
         HalResource<Project> userHalResource = createHalProject(sw360Project, sw360User);
@@ -112,7 +113,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = PROJECTS_URL, method = RequestMethod.POST)
     public ResponseEntity createProject(
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody Project project) throws URISyntaxException {
+            @RequestBody Project project) throws URISyntaxException, TException {
         if (project.getReleaseIdToUsage() != null) {
 
             Map<String, ProjectReleaseRelationship> releaseIdToUsage = new HashMap<>();
@@ -142,7 +143,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     public ResponseEntity createReleases(
             @PathVariable("id") String id,
             OAuth2Authentication oAuth2Authentication,
-            @RequestBody List<String> releaseURIs) throws URISyntaxException {
+            @RequestBody List<String> releaseURIs) throws URISyntaxException, TException {
         User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         Project project = projectService.getProjectForUserById(id, sw360User);
         Map<String, ProjectReleaseRelationship> releaseIdToUsage = new HashMap<>();
@@ -162,10 +163,11 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = PROJECTS_URL + "/{id}/releases", method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<Release>>> getProjectReleases(
             @PathVariable("id") String id,
-            OAuth2Authentication oAuth2Authentication) {
+            @RequestParam(value = "transitive", required = false) String transitive,
+            OAuth2Authentication oAuth2Authentication) throws TException {
+
         final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        final Project project = projectService.getProjectForUserById(id, sw360User);
-        final Set<String> releaseIds = project.getReleaseIdToUsage().keySet();
+        final Set<String> releaseIds = projectService.getReleaseIds(id, sw360User, transitive);
 
         final List<Resource<Release>> releaseResources = new ArrayList<>();
         for (final String releaseId : releaseIds) {
@@ -177,12 +179,35 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         }
 
         final Resources<Resource<Release>> resources = new Resources<>(releaseResources);
+        return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
 
+    @RequestMapping(value = PROJECTS_URL + "/{id}/releases/ecc", method = RequestMethod.GET)
+    public ResponseEntity<Resources<Resource<Release>>> getECCsOfReleases(
+            @PathVariable("id") String id,
+            @RequestParam(value = "transitive", required = false) String transitive,
+            OAuth2Authentication oAuth2Authentication) throws TException {
+
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Set<String> releaseIds = projectService.getReleaseIds(id, sw360User, transitive);
+
+        final List<Resource<Release>> releaseResources = new ArrayList<>();
+        for (final String releaseId : releaseIds) {
+            final Release sw360Release = releaseService.getReleaseForUserById(releaseId, sw360User);
+            final Release minimalFilledRelease = new Release();
+            minimalFilledRelease.setId(sw360Release.getId());
+            minimalFilledRelease.setEccInformation(sw360Release.getEccInformation());
+
+            final Resource<Release> releaseResource = new Resource<>(minimalFilledRelease);
+            releaseResources.add(releaseResource);
+        }
+
+        final Resources<Resource<Release>> resources = new Resources<>(releaseResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     @RequestMapping(value = PROJECTS_URL + "/{id}/vulnerabilities", method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<VulnerabilityDTO>>> getVulnerbilitiesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<VulnerabilityDTO>>> getVulnerabilitiesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
 
         final List<VulnerabilityDTO> allVulnerabilityDTOs = vulnerabilityService.getVulnerabilitiesByProjectId(id, sw360User);
@@ -197,7 +222,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     }
 
     @RequestMapping(value = PROJECTS_URL + "/{id}/licenses", method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<License>>> getLicensesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
+    public ResponseEntity<Resources<Resource<License>>> getLicensesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) throws TException {
         final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
         final Project project = projectService.getProjectForUserById(id, sw360User);
         final List<Resource<License>> licenseResources = new ArrayList<>();
@@ -221,34 +246,13 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @RequestMapping(value = PROJECTS_URL + "/{id}/releases/ecc", method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource<Release>>> getECCsOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
-        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        final Project project = projectService.getProjectForUserById(id, sw360User);
-
-        final List<Resource<Release>> releaseResources = new ArrayList<>();
-
-        final Map<String, ProjectReleaseRelationship> releaseIdToUsage = project.getReleaseIdToUsage();
-        for (final String releaseId : releaseIdToUsage.keySet()) {
-            final Release sw360Release = releaseService.getReleaseForUserById(releaseId, sw360User);
-            final Release minimalFilledRelease = new Release();
-            minimalFilledRelease.setId(sw360Release.getId());
-            minimalFilledRelease.setEccInformation(sw360Release.getEccInformation());
-
-            final Resource<Release> releaseResource = new Resource<>(minimalFilledRelease);
-            releaseResources.add(releaseResource);
-        }
-        final Resources<Resource<Release>> resources = new Resources<>(releaseResources);
-        return new ResponseEntity<>(resources, HttpStatus.OK);
-    }
-
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
         resource.add(linkTo(ProjectController.class).slash("api" + PROJECTS_URL).withRel("projects"));
         return resource;
     }
 
-    private HalResource<Project> createHalProject(Project sw360Project, User sw360User) {
+    private HalResource<Project> createHalProject(Project sw360Project, User sw360User) throws TException {
 
         HalResource<Project> halProject = new HalResource<>(sw360Project);
 
