@@ -14,6 +14,7 @@ package org.eclipse.sw360.rest.resourceserver.core;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.sw360.rest.resourceserver.core.serializer.JsonInstantSerializer;
 import org.apache.thrift.TException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;

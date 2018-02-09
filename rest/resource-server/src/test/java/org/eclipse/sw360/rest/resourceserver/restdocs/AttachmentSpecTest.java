@@ -131,7 +131,7 @@ public class AttachmentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("checkedOn").description("The date the attachment was checked"),
                                 fieldWithPath("checkStatus").description("The checking status. possible values are " + Arrays.asList(CheckStatus.values())),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this attachment"),
-                                fieldWithPath("_embedded.release").description("The release this attachment belongs to"),
+                                fieldWithPath("_embedded.sw360:releases").description("The release this attachment belongs to"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }

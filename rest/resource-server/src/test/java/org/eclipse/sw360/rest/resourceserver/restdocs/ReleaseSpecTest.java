@@ -150,7 +150,7 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("createdOn").description("The creation date of the internal sw360 release"),
                                 fieldWithPath("type").description("is always 'release'"),
                                 fieldWithPath("externalIds").description("When releases are imported from other tools, the external ids can be stored here"),
-                                fieldWithPath("_embedded.moderators").description("An array of all release moderators with email and link to their <<resources-user-get,User resource>>"),
+                                fieldWithPath("_embedded.sw360:moderators").description("An array of all release moderators with email and link to their <<resources-user-get,User resource>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }

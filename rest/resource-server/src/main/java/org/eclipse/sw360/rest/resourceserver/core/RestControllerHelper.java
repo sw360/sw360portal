@@ -19,12 +19,15 @@ import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentController;
 import org.eclipse.sw360.rest.resourceserver.component.ComponentController;
 import org.eclipse.sw360.rest.resourceserver.license.LicenseController;
 import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
+import org.eclipse.sw360.rest.resourceserver.project.ProjectController;
+import org.eclipse.sw360.rest.resourceserver.project.Sw360ProjectService;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.user.Sw360UserService;
@@ -65,7 +68,7 @@ public class RestControllerHelper {
         for (String moderatorEmail : moderators) {
             User user = new User();
             user.setEmail(moderatorEmail);
-            addEmbeddedUser(halResource, user, "moderators");
+            addEmbeddedUser(halResource, user, "sw360:moderators");
         }
     }
 
@@ -73,15 +76,10 @@ public class RestControllerHelper {
             HalResource halResource,
             Set<String> releases,
             Sw360ReleaseService sw360ReleaseService,
-            User user,
-            String linkRelation) {
+            User user) throws TException {
         for (String releaseId : releases) {
-            try {
-                final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, user);
-                addEmbeddedRelease(halResource, release, linkRelation);
-            } catch (TException e) {
-                log.error("cannot create embedded releases");
-            }
+            final Release release = sw360ReleaseService.getReleaseForUserById(releaseId, user);
+            addEmbeddedRelease(halResource, release);
         }
     }
 
@@ -89,7 +87,7 @@ public class RestControllerHelper {
             HalResource halResource,
             List<Release> releases) {
         for (Release release : releases) {
-            addEmbeddedRelease(halResource, release, "releases");
+            addEmbeddedRelease(halResource, release);
         }
     }
 
@@ -113,7 +111,7 @@ public class RestControllerHelper {
     public void addEmbeddedVendors(HalResource<Component> halComponent, Set<String> vendors) {
         for (String vendorFullName : vendors) {
             HalResource<Vendor> vendorHalResource = addEmbeddedVendor(vendorFullName);
-            halComponent.addEmbeddedResource("vendors", vendorHalResource);
+            halComponent.addEmbeddedResource("sw360:vendors", vendorHalResource);
         }
     }
 
@@ -137,7 +135,7 @@ public class RestControllerHelper {
     public void addEmbeddedLicenses(HalResource<Release> halComponent, Set<String> licenseIds) {
         for (String licenseId : licenseIds) {
             HalResource<License> licenseHalResource = addEmbeddedLicense(licenseId);
-            halComponent.addEmbeddedResource("licenses", licenseHalResource);
+            halComponent.addEmbeddedResource("sw360:licenses", licenseHalResource);
         }
     }
 
@@ -181,7 +179,7 @@ public class RestControllerHelper {
             if (release.getVendor() != null) {
                 Vendor vendor = release.getVendor();
                 HalResource<Vendor> vendorHalResource = this.addEmbeddedVendor(vendor.getFullname());
-                halRelease.addEmbeddedResource("vendor", vendorHalResource);
+                halRelease.addEmbeddedResource("sw360:vendors", vendorHalResource);
                 release.setVendor(null);
             }
             if (release.getMainLicenseIds() != null) {
@@ -192,7 +190,7 @@ public class RestControllerHelper {
         return halRelease;
     }
 
-    public void addEmbeddedRelease(HalResource halResource, Release release, String linkRelation) {
+    public void addEmbeddedRelease(HalResource halResource, Release release) {
         release.setType(null);
         release.setComponentId(null);
         release.setCreatedOn(null);
@@ -202,6 +200,7 @@ public class RestControllerHelper {
         release.setCpeid(null);
         release.setExternalIds(null);
         release.setClearingInformation(null);
+        release.setClearingState(null);
         release.setDownloadurl(null);
         release.setAttachments(null);
         release.setVendor(null);
@@ -211,14 +210,10 @@ public class RestControllerHelper {
         release.setOperatingSystems(null);
         release.setLanguages(null);
         HalResource<Release> halRelease = new HalResource<>(release);
-        try {
-            Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
-            halRelease.add(releaseLink);
-        } catch (Exception e) {
-            log.error("cannot create embedded release with id: " + release.getId());
-        }
 
-        halResource.addEmbeddedResource(linkRelation, halRelease);
+        Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
+        halRelease.add(releaseLink);
+        halResource.addEmbeddedResource("sw360:releases", halRelease);
     }
 
     private void addEmbeddedAttachments(
@@ -235,15 +230,29 @@ public class RestControllerHelper {
             attachment.setCheckStatus(null);
 
             HalResource<Attachment> halAttachmentResource = new HalResource<>(attachment);
-            try {
-                Link attachmentLink = linkTo(AttachmentController.class)
-                        .slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
-                halAttachmentResource.add(attachmentLink);
-            } catch (Exception e) {
-                log.error("cannot create embedded attachment with content id: " + attachment.getAttachmentContentId());
-            }
-
-            halResource.addEmbeddedResource("attachments", halAttachmentResource);
+            Link attachmentLink = linkTo(AttachmentController.class)
+                    .slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
+            halAttachmentResource.add(attachmentLink);
+            halResource.addEmbeddedResource("sw360:attachments", halAttachmentResource);
         }
+    }
+
+    public void addEmbeddedProject(HalResource<Project> halProject, Set<String> projectIds, Sw360ProjectService sw360ProjectService, User user) throws TException {
+        for (String projectId : projectIds) {
+            final Project project = sw360ProjectService.getProjectForUserById(projectId, user);
+            addEmbeddedProject(halProject, project);
+        }
+    }
+
+    private void addEmbeddedProject(HalResource halResource, Project project) {
+        Project minimalFilledProject = new Project(project.getName());
+        minimalFilledProject.setType(null);
+        minimalFilledProject.setProjectType(null);
+        HalResource<Project> halProject = new HalResource<>(minimalFilledProject);
+
+        Link projectLink = linkTo(ProjectController.class).slash("api" + ProjectController.PROJECTS_URL + "/" + project.getId()).withSelfRel();
+        halProject.add(projectLink);
+
+        halResource.addEmbeddedResource("sw360:projects", halProject);
     }
 }

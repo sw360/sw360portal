@@ -177,9 +177,9 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this component"),
-                                fieldWithPath("_embedded.releases").description("An array of all component releases with version and link to their <<resources-releases,Releases resource>>"),
-                                fieldWithPath("_embedded.moderators").description("An array of all component moderators with email and link to their <<resources-user-get,User resource>>"),
-                                fieldWithPath("_embedded.vendors").description("An array of all component vendors with ful name and link to their <<resources-vendor-get,Vendor resource>>")
+                                fieldWithPath("_embedded.sw360:releases").description("An array of all component releases with version and link to their <<resources-releases,Releases resource>>"),
+                                fieldWithPath("_embedded.sw360:moderators").description("An array of all component moderators with email and link to their <<resources-user-get,User resource>>"),
+                                fieldWithPath("_embedded.sw360:vendors").description("An array of all component vendors with ful name and link to their <<resources-vendor-get,Vendor resource>>")
                         )));
     }
 

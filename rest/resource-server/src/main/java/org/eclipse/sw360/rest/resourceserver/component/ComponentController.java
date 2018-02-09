@@ -142,7 +142,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
         if (sw360Component.getReleaseIds() != null) {
             Set<String> releases = sw360Component.getReleaseIds();
-            restControllerHelper.addEmbeddedReleases(halComponent, releases, releaseService, user, "releases");
+            restControllerHelper.addEmbeddedReleases(halComponent, releases, releaseService, user);
         }
 
         if (sw360Component.getReleases() != null) {
