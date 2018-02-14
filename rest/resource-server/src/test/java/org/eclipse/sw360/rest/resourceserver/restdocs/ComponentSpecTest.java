@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
@@ -54,10 +53,13 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
     @MockBean
     private Sw360ComponentService componentServiceMock;
 
+    private Component angularComponent;
+
     @Before
     public void before() throws TException {
         List<Component> componentList = new ArrayList<>();
-        Component angularComponent = new Component();
+
+        angularComponent = new Component();
         angularComponent.setId("17653524");
         angularComponent.setName("Angular");
         angularComponent.setComponentOwner("John");
@@ -70,7 +72,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         angularComponent.setOwnerAccountingUnit("4822");
         angularComponent.setOwnerCountry("DE");
         angularComponent.setOwnerGroup("AA BB 123 GHV2-DE");
-
         componentList.add(angularComponent);
 
         Component springComponent = new Component();
@@ -86,7 +87,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         springComponent.setOwnerAccountingUnit("5661");
         springComponent.setOwnerCountry("FR");
         springComponent.setOwnerGroup("SIM-KA12");
-
         componentList.add(springComponent);
 
         when(this.componentServiceMock.createComponent(anyObject(), anyObject())).then(invocation -> {
@@ -99,11 +99,13 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
 
         given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
         given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(angularComponent);
+        given(this.componentServiceMock.searchComponentByName(eq(angularComponent.getName()))).willReturn(componentList);
 
         User user = new User();
         user.setId("admin@sw360.org");
         user.setEmail("admin@sw360.org");
         user.setFullname("John Doe");
+        user.setDepartment("sw360");
 
         given(this.userServiceMock.getUserByEmail("admin@sw360.org")).willReturn(user);
 
@@ -149,6 +151,11 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.sw360:components[]name").description("The name of the component"),
+                                fieldWithPath("_embedded.sw360:components[]componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("_embedded.sw360:components[]ownerAccountingUnit").description("The owner accounting unit of the component"),
+                                fieldWithPath("_embedded.sw360:components[]ownerGroup").description("The owner group of the component"),
+                                fieldWithPath("_embedded.sw360:components[]ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -168,10 +175,10 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("name").description("The name of the component"),
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("componentOwner").description("The owner name of the component"),
                                 fieldWithPath("description").description("The component description"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
                                 fieldWithPath("type").description("is always 'component'"),
+                                fieldWithPath("componentOwner").description("The owner name of the component"),
                                 fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
                                 fieldWithPath("ownerGroup").description("The owner group of the component"),
                                 fieldWithPath("ownerCountry").description("The owner country of the component"),
@@ -217,6 +224,50 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("ownerGroup").description("The owner group of the component"),
                                 fieldWithPath("ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this component"),
+                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
+                        )));
+    }
+
+    @Test
+    public void should_document_get_components_by_type() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
+        mockMvc.perform(get("/api/components?type=" + angularComponent.getComponentType())
+                .header("Authorization", "Bearer " + accessToken)
+                .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andDo(this.documentationHandler.document(
+                        links(
+                                linkWithRel("curies").description("Curies are used for online documentation")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.sw360:components[]name").description("The name of the component"),
+                                fieldWithPath("_embedded.sw360:components[]componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("_embedded.sw360:components[]ownerAccountingUnit").description("The owner accounting unit of the component"),
+                                fieldWithPath("_embedded.sw360:components[]ownerGroup").description("The owner group of the component"),
+                                fieldWithPath("_embedded.sw360:components[]ownerCountry").description("The owner country of the component"),
+                                fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
+                                fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
+                        )));
+    }
+
+    @Test
+    public void should_document_get_components_by_name() throws Exception {
+        String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
+        mockMvc.perform(get("/api/components?name=" + angularComponent.getName())
+                .header("Authorization", "Bearer " + accessToken)
+                .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andDo(this.documentationHandler.document(
+                        links(
+                                linkWithRel("curies").description("Curies are used for online documentation")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.sw360:components[]name").description("The name of the component"),
+                                fieldWithPath("_embedded.sw360:components[]componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
+                                fieldWithPath("_embedded.sw360:components[]ownerAccountingUnit").description("The owner accounting unit of the component"),
+                                fieldWithPath("_embedded.sw360:components[]ownerGroup").description("The owner group of the component"),
+                                fieldWithPath("_embedded.sw360:components[]ownerCountry").description("The owner country of the component"),
+                                fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }

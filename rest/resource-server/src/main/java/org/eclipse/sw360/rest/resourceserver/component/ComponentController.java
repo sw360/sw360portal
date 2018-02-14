@@ -84,6 +84,7 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
                     c.setCreatedOn(null);
                     c.setVendorNames(null);
                     c.setReleaseIds(null);
+                    c.setComponentOwner(null);
                     componentResources.add(new Resource<>(c));
                 });
 

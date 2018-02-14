@@ -80,6 +80,7 @@ public class VendorSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.sw360:vendors[]fullName").description("The full name of the vendor"),
                                 fieldWithPath("_embedded.sw360:vendors").description("An array of <<resources-vendors, Vendors resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));

@@ -1,5 +1,5 @@
 //
-// Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+// Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
 //
 // All rights reserved. This configuration file is provided to you under the
 // terms and conditions of the Eclipse Distribution License v1.0 which
@@ -181,7 +181,7 @@ Token response elements
 |===
 
 [[token-jwt]]
-=== JSON Web Tokens (JWT.IO)
+=== JSON Web Tokens
 
 http://jwt.io[JWT.IO] allows you to decode and verify your sw360 authorization token.
 
@@ -265,4 +265,4 @@ include::releases.adoc[]
 include::attachments.adoc[]
 include::vendors.adoc[]
 include::licenses.adoc[]
-include::vulnerabilites.adoc[]
+include::vulnerabilities.adoc[]
