@@ -59,7 +59,7 @@
     <script type="text/javascript" src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
 
     <div id="header"></div>
-    <p class="pageHeader"><label id="releaseHeaderLabel"> <span class="pageHeaderBigSpan"> Component: <sw360:out value="${component.name}"/>}</span>
+    <p class="pageHeader"><label id="releaseHeaderLabel"><span class="pageHeaderBigSpan">Component: <sw360:out value="${component.name}"/></span>
         <select id="releaseSelect" onchange="this.options[this.selectedIndex].value
         && (window.location = createDetailURLfromReleaseId (this.options[this.selectedIndex].value) );">
             <core_rt:forEach var="releaseItr" items="${component.releases}">
