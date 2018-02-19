@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -79,6 +79,7 @@
             <label class="textlabel stackedLabel" for="releaseDate">Release Date</label>
             <input id="releaseDate" class="datepicker" name="<portlet:namespace/><%=Release._Fields.RELEASE_DATE%>" type="text"
                    placeholder="Enter Release Date"
+                   pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${release.releaseDate}"/>"/>
         </td>
 
