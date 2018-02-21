@@ -58,26 +58,56 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <script type="text/javascript" src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
 
-    <div id="header"></div>
-    <p class="pageHeader"><label id="releaseHeaderLabel"> <span class="pageHeaderBigSpan"> Component: <sw360:out value="${component.name}"/>}</span>
-        <select id="releaseSelect" onchange="this.options[this.selectedIndex].value
-        && (window.location = createDetailURLfromReleaseId (this.options[this.selectedIndex].value) );">
+    <div id="header">
+    <p class="pageHeader"> <span class="pageHeaderBigSpan"> Component: ${component.name}</span>
+
+        <span class="dropdown">
             <core_rt:forEach var="releaseItr" items="${component.releases}">
-                <option <core_rt:if test="${releaseItr.id == releaseId}"> selected </core_rt:if>
-                        value="${releaseItr.id}"><sw360:ReleaseName release="${releaseItr}" />
-                </option>
+                <core_rt:if test="${releaseItr.id == releaseId}"> <button onclick="clickOnDropdown()" class="dropbtn"> ${releaseItr.name} ${releaseItr.version} <span class="arrow-down"/>  </button> </core_rt:if>
             </core_rt:forEach>
-        </select>
+            <span id="releaseDropdown" class="dropdown-content">
+            <c:forEach var="releaseItr" items="${component.releases}">
+                <c:if test="${releaseItr.clearingState.value == 4}"> <a href="/group/guest/components/-/component/release/detailRelease/${releaseItr.id}">${releaseItr.name} ${releaseItr.version} <span class="sw360CircleOK "></span> </a></c:if>
+                <c:if test="${releaseItr.clearingState.value == 0}"> <a href="/group/guest/components/-/component/release/detailRelease/${releaseItr.id}">${releaseItr.name} ${releaseItr.version} <span class="sw360CircleAlert "></span> </a></c:if>
+                <c:if test="${releaseItr.clearingState.value == 1}"> <a href="/group/guest/components/-/component/release/detailRelease/${releaseItr.id}">${releaseItr.name} ${releaseItr.version} <span class="sw360CircleAlert "></span> </a></c:if>
+                <c:if test="${releaseItr.clearingState.value == 2}"> <a href="/group/guest/components/-/component/release/detailRelease/${releaseItr.id}">${releaseItr.name} ${releaseItr.version} <span class="sw360CircleWarning "></span> </a></c:if>
+                <c:if test="${releaseItr.clearingState.value == 3}"> <a href="/group/guest/components/-/component/release/detailRelease/${releaseItr.id}">${releaseItr.name} ${releaseItr.version} <span class="sw360CircleWarning "></span> </a></c:if>
+            </c:forEach>
+            </span>
+        </span>
+
+
+
         <span class="pull-right">
-        <input type="button" id="edit" data-release-id="${releaseId}" value="Edit" class="addButton">
-        <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}" id="SubscribeButton" />
-    </span>
-    </label>
+            <input type="button" id="edit" data-release-id="${releaseId}" value="Edit" class="addButton">
+            <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}" id="SubscribeButton" />
+        </span>
     </p>
+    </div>
+
+
     <core_rt:set var="inReleaseDetailsContext" value="true" scope="request"/>
     <%@include file="/html/components/includes/releases/detailOverview.jspf"%>
 </core_rt:if>
 <script>
+    function clickOnDropdown() {
+       document.getElementById("releaseDropdown").classList.toggle("show");
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
     require(['jquery', 'modules/tabview'], function($, tabview) {
         tabview.create('myTab');
 
@@ -124,5 +154,3 @@
         }
     });
 </script>
-
-
