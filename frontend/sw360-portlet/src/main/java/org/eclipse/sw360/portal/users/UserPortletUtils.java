@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -7,42 +7,58 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- */package org.eclipse.sw360.portal.users;
+ */
+package org.eclipse.sw360.portal.users;
 
 import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.kernel.servlet.SessionMessages;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.*;
 import com.liferay.portal.service.persistence.RoleUtil;
-import com.liferay.portal.theme.ThemeDisplay;
 import org.eclipse.sw360.portal.common.ErrorMessages;
 import org.apache.log4j.Logger;
 
 import javax.portlet.PortletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * @author alex.borodin@evosoft.com
  */
 public class UserPortletUtils {
     private static final Logger log = Logger.getLogger(UserPortletUtils.class);
+
     private UserPortletUtils() {
         // Utility class with only static functions
     }
 
-    private static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, long organizationId, long roleId, boolean isMale, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) {
-        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        String screenName = firstName + lastName;
-        long companyId = themeDisplay.getCompanyId();
+    public static User addLiferayUser(HttpServletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
+        HttpServletRequestAdapter requestAdapter = new HttpServletRequestAdapter(request);
+        return addLiferayUser(requestAdapter, firstName, lastName, emailAddress, organizationName, roleName, male, externalId, password, passwordEncrypted, activateImmediately);
+    }
+
+    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
+        PortletRequestAdapter requestAdapter = new PortletRequestAdapter(request);
+        return addLiferayUser(requestAdapter, firstName, lastName, emailAddress, organizationName, roleName, male, externalId, password, passwordEncrypted, activateImmediately);
+    }
+
+    private static User addLiferayUser(RequestAdapter requestAdapter, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
+        long companyId = requestAdapter.getCompanyId();
+
+        long organizationId = OrganizationLocalServiceUtil.getOrganizationId(companyId, organizationName);
+        final Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
+        long roleId = role.getRoleId();
 
         try {
-            if (userAlreadyExists(request, emailAddress, externalId, screenName, companyId)){
+            if (userAlreadyExists(requestAdapter.getErrorMessagesConsumer(), emailAddress, externalId, externalId, companyId)){
                 return null;
             }
         } catch (PortalException | SystemException e) {
@@ -52,29 +68,35 @@ public class UserPortletUtils {
         }
 
         try {
-            ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
             long[] roleIds = roleId == 0 ? new long[]{} : new long[]{roleId};
             long[] organizationIds = organizationId == 0 ? new long[]{} : new long[]{organizationId};
             long[] userGroupIds = null;
-            long currentUserId = themeDisplay.getUserId();
+            Optional<ServiceContext> serviceContextOpt = requestAdapter.getServiceContext();
+            final ServiceContext serviceContext;
+            if (!serviceContextOpt.isPresent()){
+                return null;
+            } else {
+                serviceContext = serviceContextOpt.get();
+            }
+            User defaultUser = UserLocalServiceUtil.loadGetDefaultUser(companyId);
             User user = UserLocalServiceUtil.addUser(
-                    currentUserId/*creator*/,
+                    defaultUser.getUserId()/*creator*/,
                     companyId,
                     false,/*autoPassword*/
                     password,
                     password,
                     false,/*autoScreenName*/
-                    screenName,
+                    externalId,
                     emailAddress,
                     0/*facebookId*/,
                     externalId/*openId*/,
-                    themeDisplay.getLocale(),
+                    defaultUser.getLocale(),
                     firstName,
                     ""/*middleName*/,
                     lastName,
                     0/*prefixId*/,
                     0/*suffixId*/,
-                    isMale,
+                    male,
                     4/*birthdayMonth*/,
                     12/*birthdayDay*/,
                     1959/*birthdayYear*/,
@@ -92,12 +114,11 @@ public class UserPortletUtils {
                 user.setPasswordEncrypted(true);
             }
 
-            Role role = RoleLocalServiceUtil.getRole(roleId);
             RoleUtil.addUser(role.getRoleId(), user.getUserId());
             UserLocalServiceUtil.updateUser(user);
             RoleLocalServiceUtil.updateRole(role);
 
-            UserLocalServiceUtil.updateStatus(user.getUserId(), activateImmediately ? WorkflowConstants.STATUS_APPROVED : WorkflowConstants.STATUS_INACTIVE);
+            UserLocalServiceUtil.updateStatus(user.getUserId(), activateImmediately ? WorkflowConstants.STATUS_APPROVED : WorkflowConstants.STATUS_INACTIVE, serviceContext);
             Indexer indexer = IndexerRegistryUtil.getIndexer(User.class);
             indexer.reindex(user);
             return user;
@@ -107,7 +128,7 @@ public class UserPortletUtils {
         }
     }
 
-    private static boolean userAlreadyExists(PortletRequest request, String emailAddress, String externalId, String screenName, long companyId) throws PortalException, SystemException {
+    private static boolean userAlreadyExists(Consumer<String> errorMessageConsumer, String emailAddress, String externalId, String screenName, long companyId) throws PortalException, SystemException {
         boolean sameEmailExists = userByFieldExists(emailAddress, UserLocalServiceUtil::getUserByEmailAddress, companyId);
         boolean sameScreenNameExists = userByFieldExists(screenName, UserLocalServiceUtil::getUserByScreenName, companyId);
         boolean sameExternalIdExists = userByFieldExists(externalId, UserLocalServiceUtil::getUserByOpenId, companyId);
@@ -123,7 +144,7 @@ public class UserPortletUtils {
                 errorMessage = ErrorMessages.EXTERNAL_ID_ALREADY_EXISTS;
             }
             log.info(errorMessage);
-            SessionMessages.add(request, "request_processed", errorMessage);
+            errorMessageConsumer.accept(errorMessage);
         }
         return alreadyExists;
     }
@@ -135,17 +156,6 @@ public class UserPortletUtils {
             return false;
         }
         return true;
-    }
-
-    public static User addLiferayUser(PortletRequest request, String firstName, String lastName, String emailAddress, String organizationName, String roleName, boolean male, String externalId, String password, boolean passwordEncrypted, boolean activateImmediately) throws SystemException, PortalException {
-        ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
-        long companyId = themeDisplay.getCompanyId();
-
-        long organizationId = OrganizationLocalServiceUtil.getOrganizationId(companyId, organizationName);
-        final Role role = RoleLocalServiceUtil.getRole(companyId, roleName);
-        long roleId = role.getRoleId();
-
-        return addLiferayUser(request, firstName, lastName, emailAddress, organizationId, roleId, male, externalId, password, passwordEncrypted, activateImmediately);
     }
 
     @FunctionalInterface
