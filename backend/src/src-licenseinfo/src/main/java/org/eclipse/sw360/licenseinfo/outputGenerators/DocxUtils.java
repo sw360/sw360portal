@@ -1,5 +1,5 @@
 /*
- * Copyright Bosch Software Innovations GmbH, 2016.
+ * Copyright Bosch Software Innovations GmbH, 2016-2018.
  * With modifications by Siemens AG, 2018.
  * Part of the SW360 Portal Project.
  *
@@ -14,215 +14,57 @@
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
 import org.apache.poi.xwpf.usermodel.*;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.apache.xmlbeans.XmlException;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.eclipse.sw360.datahandler.common.CommonUtils.nullToEmptyString;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.UUID;
 
 public class DocxUtils {
 
-    private static final int FONT_SIZE = 12;
+    public static final int FONT_SIZE = 12;
     public static final String ALERT_COLOR = "e95850";
     public static final String FONT_FAMILY = "Calibri";
+    public static final String STYLE_HEADING = "Heading2";
+    private static final int BUFFER_SIZE = 16;
+    private static final int ANCHOR_MAX_SIZE = 40;
+    private static final String BOOKMARK_PREFIX = "bookmark_";
+
+    private static String cTAbstractNumBulletXML =
+            "<w:abstractNum xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" w:abstractNumId=\"0\">"
+                    + "<w:multiLevelType w:val=\"hybridMultilevel\"/>"
+                    + "<w:lvl w:ilvl=\"0\"><w:start w:val=\"1\"/><w:numFmt w:val=\"bullet\"/><w:lvlText w:val=\"\"/><w:lvlJc w:val=\"left\"/><w:pPr><w:ind w:left=\"720\" w:hanging=\"360\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Wingdings\" w:hAnsi=\"Wingdings\" w:hint=\"default\"/></w:rPr></w:lvl>"
+                    + "<w:lvl w:ilvl=\"1\" w:tentative=\"1\"><w:start w:val=\"1\"/><w:numFmt w:val=\"bullet\"/><w:lvlText w:val=\"-\"/><w:lvlJc w:val=\"left\"/><w:pPr><w:ind w:left=\"1440\" w:hanging=\"360\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Courier New\" w:hAnsi=\"Courier New\" w:cs=\"Courier New\" w:hint=\"default\"/></w:rPr></w:lvl>"
+                    + "<w:lvl w:ilvl=\"2\" w:tentative=\"1\"><w:start w:val=\"1\"/><w:numFmt w:val=\"bullet\"/><w:lvlText w:val=\"\"/><w:lvlJc w:val=\"left\"/><w:pPr><w:ind w:left=\"2160\" w:hanging=\"360\"/></w:pPr><w:rPr><w:rFonts w:ascii=\"Symbol\" w:hAnsi=\"Symbol\" w:hint=\"default\"/></w:rPr></w:lvl>"
+                    + "</w:abstractNum>";
 
     private DocxUtils() {
         //only static members
     }
 
-    public static void cleanUpTemplate(XWPFDocument document) {
-        replaceText(document, "$Heading1", "");
-        replaceText(document, "$Heading2", "");
-    }
-
-    public static void setProjectNameInDocument(XWPFDocument document, String projectName) {
-        replaceText(document, "$projectname", projectName);
-    }
-
-    public static void setHeaderTextInDocument(XWPFDocument document, String headerText) {
-        replaceText(document, "$licenseInfoHeader", headerText);
-    }
-
-    public static XWPFTable createTableAndAddReleasesTableHeaders(XWPFDocument document, String[] headers) {
-        if (headers.length < 5) {
-            throw new IllegalArgumentException("Too few table headers found. Need 4 table headers.");
-        }
-        XWPFTable table = document.createTable(1, 5);
-        styleTable(table);
-        XWPFTableRow headerRow = table.getRow(0);
-
-        for (int headerCount = 0; headerCount < headers.length; headerCount++) {
-            XWPFParagraph paragraph = headerRow.getCell(headerCount).getParagraphs().get(0);
-            styleTableHeaderParagraph(paragraph);
-
-            XWPFRun run = paragraph.createRun();
-            addFormattedText(run, headers[headerCount], FONT_SIZE, true);
-
-            paragraph.setWordWrap(true);
-        }
-        return table;
-    }
-
-    private static void styleTable(XWPFTable table) {
-        table.setRowBandSize(1);
-        table.setWidth(1);
-        table.setColBandSize(1);
-        table.setCellMargins(1, 1, 100, 30);
-    }
-
-    public static void fillReleasesTable(XWPFTable table, Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
-
-        for (LicenseInfoParsingResult result : projectLicenseInfoResults) {
-            String releaseName = nullToEmptyString(result.getName());
-            String version = nullToEmptyString(result.getVersion());
-            if (result.getStatus()== LicenseInfoRequestStatus.SUCCESS) {
-                Set<String> copyrights = Collections.emptySet();
-                Set<LicenseNameWithText> licenseNamesWithTexts = Collections.emptySet();
-                Set<String> acknowledgements = Collections.emptySet();
-                if (result.isSetLicenseInfo()) {
-                    LicenseInfo licenseInfo = result.getLicenseInfo();
-                    if (licenseInfo.isSetCopyrights()) {
-                        copyrights = licenseInfo.getCopyrights();
-                    }
-                    if (licenseInfo.isSetLicenseNamesWithTexts()) {
-                        licenseNamesWithTexts = licenseInfo.getLicenseNamesWithTexts();
-                        acknowledgements = licenseNamesWithTexts.stream()
-                                .map(LicenseNameWithText::getAcknowledgements)
-                                .filter(Objects::nonNull).collect(Collectors.toSet());
-                    }
-                }
-
-                addReleaseTableRow(table, releaseName, version, licenseNamesWithTexts, acknowledgements, copyrights);
-            } else {
-                String filename = Optional.ofNullable(result.getLicenseInfo())
-                        .map(LicenseInfo::getFilenames)
-                        .flatMap(l -> l.stream().findFirst())
-                        .orElse("");
-                addReleaseTableErrorRow(table, releaseName, version, nullToEmptyString(result.getMessage()), filename);
-            }
-        }
-    }
-
-    private static void addReleaseTableRow(XWPFTable table, String releaseName, String version, Set<LicenseNameWithText> licenseNamesWithTexts, Set<String> acknowledgements, Set<String> copyrights) {
-        XWPFTableRow row = table.createRow();
-
-        XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        XWPFRun currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, releaseName, FONT_SIZE);
-
-        currentParagraph = row.getCell(1).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, version, FONT_SIZE);
-
-        currentParagraph = row.getCell(2).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        for (LicenseNameWithText licenseNameWithText : licenseNamesWithTexts) {
-            String licenseName = licenseNameWithText.isSetLicenseName()
-                    ? licenseNameWithText.getLicenseName()
-                    : "Unknown license name";
-            addFormattedText(currentRun, licenseName, FONT_SIZE);
-            addNewLines(currentRun, 1);
-        }
-
-        currentParagraph = row.getCell(3).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        for (String ack : acknowledgements) {
-            addFormattedText(currentRun, ack, FONT_SIZE);
-            addNewLines(currentRun, 1);
-        }
-        currentParagraph = row.getCell(4).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        for (String copyright : copyrights) {
-            addFormattedText(currentRun, copyright, FONT_SIZE);
-            addNewLines(currentRun, 1);
-        }
-    }
-
-    private static void addReleaseTableErrorRow(XWPFTable table, String releaseName, String version, String error, String filename) {
-        XWPFTableRow row = table.createRow();
-
-        XWPFParagraph currentParagraph = row.getCell(0).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        XWPFRun currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, releaseName, FONT_SIZE);
-
-        currentParagraph = row.getCell(1).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, version, FONT_SIZE);
-
-        currentParagraph = row.getCell(2).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, String.format("Error reading license information: %s", error), FONT_SIZE, false, ALERT_COLOR);
-
-        currentParagraph = row.getCell(4).getParagraphs().get(0);
-        styleTableHeaderParagraph(currentParagraph);
-        currentRun = currentParagraph.createRun();
-        addFormattedText(currentRun, String.format("Source file: %s", filename), FONT_SIZE, false, ALERT_COLOR);
-    }
-
-    private static void styleTableHeaderParagraph(XWPFParagraph paragraph) {
-        paragraph.setIndentationLeft(0);
-        paragraph.setWordWrap(true);
-        paragraph.setAlignment(ParagraphAlignment.LEFT);
-    }
-
-    public static void addLicenseTextsHeader(XWPFDocument document, String header) {
+    public static void addNewLines(XWPFDocument document, int numberOfNewlines) {
         XWPFParagraph paragraph = document.createParagraph();
         XWPFRun run = paragraph.createRun();
-        addPageBreak(run);
-        XWPFParagraph textParagraph = document.createParagraph();
-        XWPFRun textRun = textParagraph.createRun();
-        textParagraph.setStyle("Heading1");
-        textRun.setText(header);
-
-        addNewLines(textRun, 1);
+        addNewLines(run, numberOfNewlines);
     }
 
-    public static void addLicenseTexts(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults) {
-        List<LicenseNameWithText> lts = OutputGenerator.getSortedLicenseNameWithTexts(projectLicenseInfoResults);
-
-        lts.forEach(lt -> {
-            XWPFParagraph licenseParagraph = document.createParagraph();
-            licenseParagraph.setStyle("Heading2");
-            XWPFRun licenseRun = licenseParagraph.createRun();
-            String licenseName = lt.isSetLicenseName() ? lt.getLicenseName() : "Unknown license name";
-            licenseRun.setText(licenseName);
-            addNewLines(licenseRun, 1);
-
-            XWPFParagraph licenseTextParagraph = document.createParagraph();
-            XWPFRun licenseTextRun = licenseTextParagraph.createRun();
-            addFormattedText(licenseTextRun, nullToEmptyString(lt.getLicenseText()), FONT_SIZE);
-            addNewLines(licenseTextRun, 1);
-        });
-    }
-
-    private static void addNewLines(XWPFRun run, int numberOfNewlines) {
+    public static void addNewLines(XWPFRun run, int numberOfNewlines) {
         for (int count = 0; count < numberOfNewlines; count++) {
             run.addCarriageReturn();
             run.addBreak(BreakType.TEXT_WRAPPING);
         }
     }
 
-    private static void addPageBreak(XWPFRun run) {
+    public static void addPageBreak(XWPFDocument document) {
+        XWPFParagraph paragraph = document.createParagraph();
+        XWPFRun run = paragraph.createRun();
         run.addBreak(BreakType.TEXT_WRAPPING);
         run.addBreak(BreakType.PAGE);
     }
 
-    /**
-     * Adds the given text in a run object, properly formatting \n as line break
-     */
-    private static void setText(XWPFRun run, String text) {
+    public static void setText(XWPFRun run, String text) {
         String[] split = text.split("\n");
         run.setText(split[0]);
         for (int i = 1; i < split.length; i++) {
@@ -231,7 +73,7 @@ public class DocxUtils {
         }
     }
 
-    private static void addFormattedText(XWPFRun run, String text, String fontFamily, int fontSize, boolean bold, String rrggbbColor) {
+    public static void addFormattedText(XWPFRun run, String text, String fontFamily, int fontSize, boolean bold, String rrggbbColor) {
         run.setFontSize(fontSize);
         run.setFontFamily(fontFamily);
         run.setBold(bold);
@@ -241,19 +83,15 @@ public class DocxUtils {
         setText(run, text);
     }
 
-    private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold, String rrggbbColor) {
+    public static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold, String rrggbbColor) {
         addFormattedText(run, text, FONT_FAMILY, fontSize, bold, rrggbbColor);
     }
 
-    private static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold) {
+    public static void addFormattedText(XWPFRun run, String text, int fontSize, boolean bold) {
         addFormattedText(run, text, FONT_FAMILY, fontSize, bold, null);
     }
 
-    private static void addFormattedText(XWPFRun run, String text, int fontSize) {
-        addFormattedText(run, text, fontSize, false);
-    }
-
-    private static void replaceText(XWPFDocument document, String placeHolder, String replaceText) {
+    public static void replaceText(XWPFDocument document, String placeHolder, String replaceText) {
         for (XWPFHeader header : document.getHeaderList())
             replaceAllBodyElements(header.getBodyElements(), placeHolder, replaceText);
         replaceAllBodyElements(document.getBodyElements(), placeHolder, replaceText);
@@ -267,13 +105,87 @@ public class DocxUtils {
     }
 
     private static void replaceParagraph(XWPFParagraph paragraph, String placeHolder, String replaceText) {
-        for (XWPFRun r : paragraph.getRuns()) {
-            String text = r.getText(r.getTextPosition());
+        for (XWPFRun run : paragraph.getRuns()) {
+            String text = run.getText(run.getTextPosition());
             if (text != null && text.contains(placeHolder)) {
                 text = text.replace(placeHolder, replaceText);
-                r.setText(text, 0);
+                String[] split = text.split("\n");
+                run.setText(split[0], 0);
+                for (int i = 1; i < split.length; i++) {
+                    run.addBreak();
+                    run.setText(split[i]);
+                }
             }
         }
     }
-}
 
+    public static void addBulletList(XWPFDocument document, List<String> bulletListItems, boolean bulletListItemsAsLink) throws XmlException {
+        CTNumbering cTNumbering = CTNumbering.Factory.parse(cTAbstractNumBulletXML);
+        CTAbstractNum cTAbstractNum = cTNumbering.getAbstractNumArray(0);
+        XWPFAbstractNum abstractNum = new XWPFAbstractNum(cTAbstractNum);
+        XWPFNumbering numbering = document.createNumbering();
+        BigInteger abstractNumID = numbering.addAbstractNum(abstractNum);
+        BigInteger numID = numbering.addNum(abstractNumID);
+
+        for (int i = 0; i < bulletListItems.size(); i++) {
+            String bulletItem = bulletListItems.get(i);
+            XWPFParagraph paragraph = document.createParagraph();
+            paragraph.setNumID(numID);
+            if (bulletListItemsAsLink) {
+                addBookmarkHyperLink(paragraph, bulletItem, bulletItem);
+            } else {
+                setText(paragraph.createRun(), bulletItem);
+            }
+            if (i < bulletListItems.size() - 1) {
+                paragraph.setSpacingAfter(0);
+            }
+        }
+    }
+
+    public static void addBookmarkHyperLink(XWPFParagraph paragraph, String hyperlinkAnchor, String hyperlinkText) {
+        String bookmarkHyperLink = generateValidBookmarkName(hyperlinkAnchor);
+        addHyperLink(paragraph, bookmarkHyperLink, hyperlinkText);
+    }
+
+    public static void addHyperLink(XWPFParagraph paragraph, String hyperlinkAnchor, String hyperlinkText) {
+        CTHyperlink cLink = paragraph.getCTP().addNewHyperlink();
+        cLink.setAnchor(hyperlinkAnchor);
+        CTText ctText = CTText.Factory.newInstance();
+        ctText.setStringValue(hyperlinkText);
+        CTR ctr = CTR.Factory.newInstance();
+        ctr.setTArray(new CTText[]{ctText});
+
+        // format the hyperlink (underline + color)
+        CTRPr rpr = ctr.addNewRPr();
+        CTColor colour = CTColor.Factory.newInstance();
+        colour.setVal("0000FF");
+        rpr.setColor(colour);
+        CTRPr rpr1 = ctr.addNewRPr();
+        rpr1.addNewU().setVal(STUnderline.SINGLE);
+
+        cLink.setRArray(new CTR[]{ctr});
+    }
+
+    public static void addBookmark(XWPFParagraph paragraph, String bookmarkAnchor, String bookmarkText) {
+        CTBookmark bookmark = paragraph.getCTP().addNewBookmarkStart();
+        String bookmarkName = generateValidBookmarkName(bookmarkAnchor);
+        bookmark.setName(bookmarkName);
+        final BigInteger bookmarkId = generateRandomId();
+        bookmark.setId(bookmarkId);
+        addFormattedText(paragraph.createRun(), bookmarkText, FONT_SIZE + 2, true);
+        paragraph.getCTP().addNewBookmarkEnd().setId(bookmarkId);
+    }
+
+    public static String generateValidBookmarkName(String text) {
+        String anchor = BOOKMARK_PREFIX + text.replaceAll("\\s+", "");
+        return anchor.substring(0, Math.min(ANCHOR_MAX_SIZE, anchor.length()));
+    }
+
+    private static BigInteger generateRandomId() {
+        final UUID uuid = UUID.randomUUID();
+        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[BUFFER_SIZE]);
+        byteBuffer.putLong(uuid.getMostSignificantBits());
+        byteBuffer.putLong(uuid.getLeastSignificantBits());
+        return new BigInteger(byteBuffer.array()).abs();
+    }
+}

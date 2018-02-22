@@ -1,5 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
+ * With modifications by Siemens AG, 2018.
  * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -126,10 +127,10 @@ public class XhtmlGeneratorTest {
 
         xhtmlGenerator = new XhtmlGenerator();
 
-        xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject", "Lorem Ipsum");
-        xmlString2 = xhtmlGenerator.generateOutputFile(lipresults2, "myproject", "Lorem Ipsum");
-        xmlString3 = xhtmlGenerator.generateOutputFile(lipresults3, "myproject", "Lorem Ipsum");
-        xmlStringEmpty = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject", "Lorem Ipsum");
+        xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject", "1.0", "Lorem Ipsum");
+        xmlString2 = xhtmlGenerator.generateOutputFile(lipresults2, "myproject", "1.0", "Lorem Ipsum");
+        xmlString3 = xhtmlGenerator.generateOutputFile(lipresults3, "myproject", "1.0", "Lorem Ipsum");
+        xmlStringEmpty = xhtmlGenerator.generateOutputFile(lipresultsEmpty, "myproject", "1.0", "Lorem Ipsum");
 
         generateDocumentsFromXml();
     }
@@ -272,4 +273,3 @@ public class XhtmlGeneratorTest {
         return result.toString();
     }
 }
-

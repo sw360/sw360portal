@@ -1,6 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
- * With modifications by Siemens AG, 2017.
+ * With modifications by Siemens AG, 2017-2018.
  * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -29,11 +29,11 @@ public class XhtmlGenerator extends OutputGenerator<String> {
     }
 
     @Override
-    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String licenseInfoHeaderText) throws SW360Exception {
+    public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String projectVersion, String licenseInfoHeaderText) throws SW360Exception {
         try {
             return renderTemplateWithDefaultValues(projectLicenseInfoResults, XHTML_TEMPLATE_FILE, convertHeaderTextToHTML(licenseInfoHeaderText));
         } catch (Exception e) {
-            LOGGER.error("Could not generate xhtml license info file", e);
+            LOGGER.error("Could not generate xhtml license info file for project " + projectName, e);
             return "License information could not be generated.\nAn exception occured: " + e.toString();
         }
     }
@@ -42,6 +42,5 @@ public class XhtmlGenerator extends OutputGenerator<String> {
         String html = StringEscapeUtils.escapeHtml(headerText);
         html = html.replace("\n", "<br>");
         return html;
-        }
+    }
 }
-
