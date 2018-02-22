@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -50,7 +50,7 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_deadline">Deadline for pre-evaluation</label>
             <input class="toplabelledInput datepicker" id="proj_deadline"
-                   name="<portlet:namespace/><%=Project._Fields.PREEVALUATION_DEADLINE%>" type="text"
+                   name="<portlet:namespace/><%=Project._Fields.PREEVALUATION_DEADLINE%>" type="text" pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${project.preevaluationDeadline}"/>" placeholder="Pre-evaluation date YYYY-MM-DD"/>
         </td>
     </tr>
@@ -74,13 +74,13 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_systemTestStart">System test begin</label>
             <input class="toplabelledInput datepicker" id="proj_systemTestStart"
-                   name="<portlet:namespace/><%=Project._Fields.SYSTEM_TEST_START%>" type="text"
+                   name="<portlet:namespace/><%=Project._Fields.SYSTEM_TEST_START%>" type="text" pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${project.systemTestStart}"/>" placeholder="System test begin date YYYY-MM-DD"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_systemTestEnd">System test end</label>
             <input class="toplabelledInput datepicker" id="proj_systemTestEnd"
-                   name="<portlet:namespace/><%=Project._Fields.SYSTEM_TEST_END%>" type="text"
+                   name="<portlet:namespace/><%=Project._Fields.SYSTEM_TEST_END%>" type="text" pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${project.systemTestEnd}"/>" placeholder="System test end date YYYY-MM-DD"/>
         </td>
     </tr>
@@ -88,13 +88,13 @@
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_delivery">Delivery start date</label>
             <input class="toplabelledInput datepicker" id="proj_delivery"
-                   name="<portlet:namespace/><%=Project._Fields.DELIVERY_START%>" type="text"
+                   name="<portlet:namespace/><%=Project._Fields.DELIVERY_START%>" type="text" pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${project.deliveryStart}"/>" placeholder="Delivery start date YYYY-MM-DD"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_phaseout">Phase-out date</label>
             <input class="toplabelledInput datepicker" id="proj_phaseout"
-                   name="<portlet:namespace/><%=Project._Fields.PHASE_OUT_SINCE%>" type="text"
+                   name="<portlet:namespace/><%=Project._Fields.PHASE_OUT_SINCE%>" type="text" pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${project.phaseOutSince}"/>" placeholder="Phase out since YYYY-MM-DD"/>
         </td>
         <td width="33%">

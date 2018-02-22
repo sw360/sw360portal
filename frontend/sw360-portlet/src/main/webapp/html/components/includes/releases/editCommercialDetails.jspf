@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2015-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2015-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -39,6 +39,7 @@
                    name="<portlet:namespace/><%=Release._Fields.COTS_DETAILS%><%=COTSDetails._Fields.CLEARING_DEADLINE%>"
                    type="text"
                    placeholder="Clearing Deadline YYYY-MM-DD"
+                   pattern="\d{4}-\d{2}-\d{2}"
                    value="<sw360:out value="${release.cotsDetails.clearingDeadline}"/>"/>
         </td>
     </tr>

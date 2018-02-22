@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -183,15 +183,13 @@
             }
     );
 
-    require(['jquery', 'components/includes/vendors/searchVendor', 'modules/confirm', 'modules/autocomplete', /* jquery-plugins */ 'jquery-ui' ], function($, vendorsearch, confirm, autocomplete) {
+    require(['jquery', 'modules/sw360Validate', 'components/includes/vendors/searchVendor', 'modules/confirm', 'modules/autocomplete', /* jquery-plugins */ 'jquery-ui' ], function($, sw360Validate, vendorsearch, confirm, autocomplete) {
 
         Liferay.on('allPortletsReady', function() {
             autocomplete.prepareForMultipleHits('programminglanguages', ${programmingLanguages});
             autocomplete.prepareForMultipleHits('op_systems', ${operatingSystemsAutoC});
-            $('#releaseEditForm').validate({
-                ignore: [],
-                invalidHandler: invalidHandlerShowErrorTab
-            });
+
+            sw360Validate.validateWithInvalidHandlerNoIgnore('#releaseEditForm');
 
             $('#formSubmit').click(
                 function() {
