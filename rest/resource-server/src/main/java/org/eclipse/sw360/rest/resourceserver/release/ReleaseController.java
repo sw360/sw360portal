@@ -79,6 +79,9 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
             release.setReleaseDate(null);
             release.setVendor(null);
             release.setMainLicenseIds(null);
+            release.setExternalIds(null);
+            release.setCreatedOn(null);
+            release.setCpeid(null);
             Resource<Release> releaseResource = new Resource<>(release);
             releaseResources.add(releaseResource);
         }

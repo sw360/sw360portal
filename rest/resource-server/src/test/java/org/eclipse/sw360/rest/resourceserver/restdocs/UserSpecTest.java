@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -94,6 +94,8 @@ public class UserSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.sw360:users[]email").description("The user's email"),
+                                fieldWithPath("_embedded.sw360:users[]userGroup").description("The user group, possible values are: " + Arrays.asList(UserGroup.values())),
                                 fieldWithPath("_embedded.sw360:users").description("An array of <<resources-users, User resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));

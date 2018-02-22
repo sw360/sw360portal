@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
@@ -122,6 +121,9 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("curies").description("Curies are used for online documentation")
                         ),
                         responseFields(
+                                fieldWithPath("_embedded.sw360:releases[]name").description("The name of the release, optional"),
+                                fieldWithPath("_embedded.sw360:releases[]version").description("The version of the release"),
+                                fieldWithPath("_embedded.sw360:releases[]clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
                                 fieldWithPath("_embedded.sw360:releases").description("An array of <<resources-releases, Releases resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -141,8 +143,8 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("curies").description("The curies for documentation")
                         ),
                         responseFields(
-                                fieldWithPath("version").description("The version of the release"),
                                 fieldWithPath("name").description("The name of the release, optional"),
+                                fieldWithPath("version").description("The version of the release"),
                                 fieldWithPath("cpeId").description("CpeId of the release"),
                                 fieldWithPath("clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
                                 fieldWithPath("cpeId").description("The CPE id"),
