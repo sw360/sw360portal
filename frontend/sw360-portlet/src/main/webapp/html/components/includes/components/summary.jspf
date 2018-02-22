@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -107,7 +107,7 @@
     </tr>
     <tr>
         <td>Owner country:</td>
-        <td><sw360:out value="${component.ownerCountry}"/></td>
+        <td><sw360:DisplayCountryCodeName value="${component.ownerCountry}"/></td>
     </tr>
     <tr>
         <td>Moderators:</td>

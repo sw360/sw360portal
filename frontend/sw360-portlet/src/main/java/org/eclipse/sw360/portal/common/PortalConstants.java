@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -34,6 +34,7 @@ public class PortalConstants {
     public static final String OPERATING_SYSTEMS;
     public static final Set<String> SET_CLEARING_TEAMS_STRING;
     public static final String LICENSE_IDENTIFIERS;
+    public static final String PREFERRED_COUNTRY_CODES;
 
     //! Role names
     public static final String ROLENAME_ADMIN = "Administrator";
@@ -374,6 +375,7 @@ public class PortalConstants {
         RELEASE_ROLES = props.getProperty("custommap.release.roles", "Committer,Contributor,Expert");
         RELEASE_EXTERNAL_IDS = props.getProperty("custommap.release.externalIds", "[]");
         PROJECTIMPORT_HOSTS = props.getProperty("projectimport.hosts", "");
+        PREFERRED_COUNTRY_CODES = props.getProperty("preferred.country.codes", "DE,AT,CH,US");
     }
 
     private PortalConstants() {
