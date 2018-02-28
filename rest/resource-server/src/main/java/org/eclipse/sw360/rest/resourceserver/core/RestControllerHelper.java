@@ -8,12 +8,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.core;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
@@ -59,6 +59,8 @@ public class RestControllerHelper {
     @NonNull
     private final Sw360LicenseService licenseService;
 
+    private static final Logger LOGGER = Logger.getLogger(RestControllerHelper.class);
+
     public User getSw360UserFromAuthentication(OAuth2Authentication oAuth2Authentication) {
         String userId = oAuth2Authentication.getName();
         return userService.getUserByEmail(userId);
@@ -92,21 +94,18 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedUser(HalResource halResource, User user, String relation) {
-        User embeddedUser = new User();
+        User embeddedUser = convertToEmbeddedUser(user);
         Resource<User> embeddedUserResource = new Resource<>(embeddedUser);
         try {
-            embeddedUser.setEmail(user.getEmail());
-            embeddedUser.setType(null);
             String userUUID = Base64.getEncoder().encodeToString(user.getEmail().getBytes("utf-8"));
             Link userLink = linkTo(UserController.class).slash("api/users/" + userUUID).withSelfRel();
             embeddedUserResource.add(userLink);
         } catch (Exception e) {
-            log.error("cannot create embedded user with email: " + user.getEmail());
+            LOGGER.error("cannot create embedded user with email: " + user.getEmail());
         }
 
         halResource.addEmbeddedResource(relation, embeddedUserResource);
     }
-
 
     public void addEmbeddedVendors(HalResource<Component> halComponent, Set<String> vendors) {
         for (String vendorFullName : vendors) {
@@ -116,10 +115,8 @@ public class RestControllerHelper {
     }
 
     private HalResource<Vendor> addEmbeddedVendor(String vendorFullName) {
-        Vendor vendor = new Vendor();
-        HalResource<Vendor> halVendor = new HalResource<>(vendor);
-        vendor.setFullname(vendorFullName);
-        vendor.setType(null);
+        Vendor embeddedVendor = convertToEmbeddedVendor(vendorFullName);
+        HalResource<Vendor> halVendor = new HalResource<>(embeddedVendor);
         try {
             Vendor vendorByFullName = vendorService.getVendorByFullName(vendorFullName);
             Link vendorSelfLink = linkTo(UserController.class)
@@ -127,7 +124,7 @@ public class RestControllerHelper {
             halVendor.add(vendorSelfLink);
             return halVendor;
         } catch (Exception e) {
-            log.error("cannot create self link for vendor with full name: " + vendorFullName);
+            LOGGER.error("cannot create self link for vendor with full name: " + vendorFullName);
         }
         return null;
     }
@@ -140,26 +137,24 @@ public class RestControllerHelper {
     }
 
     private HalResource<License> addEmbeddedLicense(String licenseId) {
-        License license = new License();
-        HalResource<License> halLicense = new HalResource<>(license);
-        license.setId(licenseId);
-        license.setType(null);
+        License embeddedLicense = convertToEmbeddedLicense(licenseId);
+        HalResource<License> halLicense = new HalResource<>(embeddedLicense);
+
         try {
             License licenseById = licenseService.getLicenseById(licenseId);
-            license.setFullname(licenseById.getFullname());
+            embeddedLicense.setFullname(licenseById.getFullname());
             Link licenseSelfLink = linkTo(UserController.class)
                     .slash("api" + LicenseController.LICENSES_URL + "/" + licenseById.getId()).withSelfRel();
             halLicense.add(licenseSelfLink);
             return halLicense;
         } catch (Exception e) {
-            log.error("cannot create self link for license with id: " + licenseId);
+            LOGGER.error("cannot create self link for license with id: " + licenseId);
         }
         return null;
     }
 
     public HalResource<Release> createHalReleaseResource(Release release, boolean verbose) {
         HalResource<Release> halRelease = new HalResource<>(release);
-
         Link componentLink = linkTo(ReleaseController.class)
                 .slash("api" + ComponentController.COMPONENTS_URL + "/" + release.getComponentId()).withRel("component");
         halRelease.add(componentLink);
@@ -191,27 +186,10 @@ public class RestControllerHelper {
     }
 
     public void addEmbeddedRelease(HalResource halResource, Release release) {
-        release.setType(null);
-        release.setComponentId(null);
-        release.setCreatedOn(null);
-        release.setAttachments(null);
-        release.setReleaseDate(null);
-        release.setMainlineState(null);
-        release.setCpeid(null);
-        release.setExternalIds(null);
-        release.setClearingInformation(null);
-        release.setClearingState(null);
-        release.setDownloadurl(null);
-        release.setAttachments(null);
-        release.setVendor(null);
-        release.setEccInformation(null);
-        release.setOperatingSystems(null);
-        release.setMainLicenseIds(null);
-        release.setOperatingSystems(null);
-        release.setLanguages(null);
-        HalResource<Release> halRelease = new HalResource<>(release);
-
-        Link releaseLink = linkTo(ReleaseController.class).slash("api/releases/" + release.getId()).withSelfRel();
+        Release embeddedRelease = convertToEmbeddedRelease(release);
+        HalResource<Release> halRelease = new HalResource<>(embeddedRelease);
+        Link releaseLink = linkTo(ReleaseController.class).
+                slash("api/releases/" + release.getId()).withSelfRel();
         halRelease.add(releaseLink);
         halResource.addEmbeddedResource("sw360:releases", halRelease);
     }
@@ -220,16 +198,8 @@ public class RestControllerHelper {
             HalResource halResource,
             Set<Attachment> attachments) {
         for (Attachment attachment : attachments) {
-            attachment.setCreatedTeam(null);
-            attachment.setCreatedComment(null);
-            attachment.setCreatedOn(null);
-            attachment.setCheckedBy(null);
-            attachment.setCheckedOn(null);
-            attachment.setCheckedTeam(null);
-            attachment.setCheckedComment(null);
-            attachment.setCheckStatus(null);
-
-            HalResource<Attachment> halAttachmentResource = new HalResource<>(attachment);
+            Attachment embeddedAttachment = convertToEmbeddedAttachment(attachment);
+            HalResource<Attachment> halAttachmentResource = new HalResource<>(embeddedAttachment);
             Link attachmentLink = linkTo(AttachmentController.class)
                     .slash("api/attachments/" + attachment.getAttachmentContentId()).withSelfRel();
             halAttachmentResource.add(attachmentLink);
@@ -245,14 +215,81 @@ public class RestControllerHelper {
     }
 
     private void addEmbeddedProject(HalResource halResource, Project project) {
-        Project minimalFilledProject = new Project(project.getName());
-        minimalFilledProject.setType(null);
-        minimalFilledProject.setProjectType(null);
-        HalResource<Project> halProject = new HalResource<>(minimalFilledProject);
-
-        Link projectLink = linkTo(ProjectController.class).slash("api" + ProjectController.PROJECTS_URL + "/" + project.getId()).withSelfRel();
+        Project embeddedProject = convertToEmbeddedProject(project);
+        HalResource<Project> halProject = new HalResource<>(embeddedProject);
+        Link projectLink = linkTo(ProjectController.class)
+                .slash("api" + ProjectController.PROJECTS_URL + "/" + project.getId()).withSelfRel();
         halProject.add(projectLink);
-
         halResource.addEmbeddedResource("sw360:projects", halProject);
+    }
+
+    public Project convertToEmbeddedProject(Project project) {
+        Project embeddedProject = new Project(project.getName());
+        embeddedProject.setId(project.getId());
+        embeddedProject.setProjectType(project.getProjectType());
+        embeddedProject.setVersion(project.getVersion());
+        embeddedProject.setType(null);
+        return embeddedProject;
+    }
+
+    public Component convertToEmbeddedComponent(Component component) {
+        Component embeddedComponent = new Component();
+        embeddedComponent.setId(component.getId());
+        embeddedComponent.setName(component.getName());
+        embeddedComponent.setComponentType(component.getComponentType());
+        embeddedComponent.setType(null);
+        return embeddedComponent;
+    }
+
+    public Release convertToEmbeddedRelease(Release release) {
+        Release embeddedRelease = new Release();
+        embeddedRelease.setId(release.getId());
+        embeddedRelease.setName(release.getName());
+        embeddedRelease.setVersion(release.getVersion());
+        embeddedRelease.setType(null);
+        return embeddedRelease;
+    }
+
+    public License convertToEmbeddedLicense(License license) {
+        License embeddedLicense = new License();
+        embeddedLicense.setId(license.getId());
+        embeddedLicense.setFullname(license.getFullname());
+        embeddedLicense.setType(null);
+        return embeddedLicense;
+    }
+
+    public License convertToEmbeddedLicense(String licenseId) {
+        License embeddedLicense = new License();
+        embeddedLicense.setId(licenseId);
+        embeddedLicense.setType(null);
+        return embeddedLicense;
+    }
+
+    public User convertToEmbeddedUser(User user) {
+        User embeddedUser = new User();
+        embeddedUser.setId(user.getId());
+        embeddedUser.setEmail(user.getEmail());
+        embeddedUser.setType(null);
+        return embeddedUser;
+    }
+
+    public Vendor convertToEmbeddedVendor(String fullName) {
+        Vendor embeddedVendor = new Vendor();
+        embeddedVendor.setFullname(fullName);
+        embeddedVendor.setType(null);
+        return embeddedVendor;
+    }
+
+    public Attachment convertToEmbeddedAttachment(Attachment attachment) {
+        attachment.setCreatedTeam(null);
+        attachment.setCreatedComment(null);
+        attachment.setCreatedOn(null);
+        attachment.setCreatedBy(null);
+        attachment.setCheckedBy(null);
+        attachment.setCheckedOn(null);
+        attachment.setCheckedTeam(null);
+        attachment.setCheckedComment(null);
+        attachment.setCheckStatus(null);
+        return attachment;
     }
 }

@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.apache.thrift.TException;
@@ -26,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
@@ -85,7 +83,6 @@ public class AttachmentSpecTest extends TestRestDocsSpecBase {
         release.setId("874687");
         release.setName("Spring Core 4.3.4");
         release.setCpeid("cpe:/a:pivotal:spring-core:4.3.4:");
-        release.setType("release");
         release.setReleaseDate("2016-12-07");
         release.setVersion("4.3.4");
         release.setCreatedOn("2016-12-18");
@@ -126,6 +123,7 @@ public class AttachmentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("createdTeam").description("The team who created this attachment"),
                                 fieldWithPath("createdComment").description("Comment of the creating team"),
                                 fieldWithPath("createdOn").description("The date the attachment was created"),
+                                fieldWithPath("createdBy").description("The creator of the attachment"),
                                 fieldWithPath("checkedTeam").description("The team who checked this attachment"),
                                 fieldWithPath("checkedComment").description("Comment of the checking team"),
                                 fieldWithPath("checkedOn").description("The date the attachment was checked"),

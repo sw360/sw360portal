@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -56,7 +55,6 @@ public class UserSpecTest extends TestRestDocsSpecBase {
         user = new User();
         user.setEmail("admin@sw360.org");
         user.setId(Base64.getEncoder().encodeToString(user.getEmail().getBytes("utf-8")));
-        user.setType("user");
         user.setUserGroup(UserGroup.ADMIN);
         user.setFullname("John Doe");
         user.setGivenname("John");
@@ -70,7 +68,6 @@ public class UserSpecTest extends TestRestDocsSpecBase {
         User user2 = new User();
         user2.setEmail("jane@sw360.org");
         user2.setId(Base64.getEncoder().encodeToString(user.getEmail().getBytes("utf-8")));
-        user2.setType("user");
         user2.setUserGroup(UserGroup.USER);
         user2.setFullname("Jane Doe");
         user2.setGivenname("Jane");
@@ -95,7 +92,6 @@ public class UserSpecTest extends TestRestDocsSpecBase {
                         ),
                         responseFields(
                                 fieldWithPath("_embedded.sw360:users[]email").description("The user's email"),
-                                fieldWithPath("_embedded.sw360:users[]userGroup").description("The user group, possible values are: " + Arrays.asList(UserGroup.values())),
                                 fieldWithPath("_embedded.sw360:users").description("An array of <<resources-users, User resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -113,7 +109,6 @@ public class UserSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("self").description("The <<resources-users,User resource>>")
                         ),
                         responseFields(
-                                fieldWithPath("type").description("always 'user'"),
                                 fieldWithPath("email").description("The user's email"),
                                 fieldWithPath("userGroup").description("The user group, possible values are: " + Arrays.asList(UserGroup.values())),
                                 fieldWithPath("fullName").description("The users's full name"),

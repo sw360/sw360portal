@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -8,13 +8,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.user;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.rest.resourceserver.core.HalResource;
+import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
@@ -47,26 +48,21 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
     @NonNull
     private final Sw360UserService userService;
 
+    @NonNull
+    private final RestControllerHelper restControllerHelper;
+
     @RequestMapping(value = USERS_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<User>>> getUsers() {
         List<User> sw360Users = userService.getAllUsers();
 
         List<Resource<User>> userResources = new ArrayList<>();
         for (User sw360User : sw360Users) {
-            // TODO Kai Tödter 2017-01-04
-            // Find better way to decrease details in list resources,
-            // e.g. apply projections or Jackson Mixins
-            sw360User.setType(null);
-            sw360User.setFullname(null);
-            sw360User.setGivenname(null);
-            sw360User.setLastname(null);
-            sw360User.setDepartment(null);
-
-            Resource<User> userResource = new Resource<>(sw360User);
+            User embeddedUser = restControllerHelper.convertToEmbeddedUser(sw360User);
+            Resource<User> userResource = new Resource<>(embeddedUser);
             userResources.add(userResource);
         }
-        Resources<Resource<User>> resources = new Resources<>(userResources);
 
+        Resources<Resource<User>> resources = new Resources<>(userResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
@@ -82,13 +78,18 @@ public class UserController implements ResourceProcessor<RepositoryLinksResource
         }
 
         User sw360User = userService.getUserByEmail(decodedId);
-        Resource<User> userResource = new Resource<>(sw360User);
-        return new ResponseEntity<>(userResource, HttpStatus.OK);
+        HalResource<User> halResource = createHalUser(sw360User);
+        return new ResponseEntity<>(halResource, HttpStatus.OK);
     }
 
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
         resource.add(linkTo(UserController.class).slash("api/users").withRel("users"));
         return resource;
+    }
+
+    private HalResource<User> createHalUser(User sw360User) {
+        HalResource<User> halResource = new HalResource<>(sw360User);
+        return halResource;
     }
 }

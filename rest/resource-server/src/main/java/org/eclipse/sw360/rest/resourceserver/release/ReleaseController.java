@@ -10,7 +10,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.release;
 
 import lombok.NonNull;
@@ -62,38 +61,32 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
     private final RestControllerHelper restControllerHelper;
 
     @RequestMapping(value = RELEASES_URL, method = RequestMethod.GET)
-    public ResponseEntity<Resources<Resource>> getReleasesForUser(@RequestParam(value = "sha1", required = false) String sha1, OAuth2Authentication oAuth2Authentication) throws TException {
-        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-        List<Release> releases = new ArrayList<>();
-        if (sha1 != null && !sha1.isEmpty()) {
-            releases.add(searchReleaseBySha1(sha1, sw360User));
-        } else {
-            releases.addAll(releaseService.getReleasesForUser(sw360User));
-        }
-        List<Resource> releaseResources = new ArrayList<>();
+    public ResponseEntity<Resources<Resource>> getReleasesForUser(
+            @RequestParam(value = "sha1", required = false) String sha1,
+            OAuth2Authentication oAuth2Authentication) throws TException {
 
-        for (Release release : releases) {
-            release.setComponentId(null);
-            release.setType(null);
-            release.setAttachments(null);
-            release.setReleaseDate(null);
-            release.setVendor(null);
-            release.setMainLicenseIds(null);
-            release.setExternalIds(null);
-            release.setCreatedOn(null);
-            release.setCpeid(null);
-            Resource<Release> releaseResource = new Resource<>(release);
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        List<Release> sw360Releases = new ArrayList<>();
+
+        if (sha1 != null && !sha1.isEmpty()) {
+            sw360Releases.add(searchReleaseBySha1(sha1, sw360User));
+        } else {
+            sw360Releases.addAll(releaseService.getReleasesForUser(sw360User));
+        }
+
+        List<Resource> releaseResources = new ArrayList<>();
+        for (Release sw360Release : sw360Releases) {
+            Release embeddedRelease = restControllerHelper.convertToEmbeddedRelease(sw360Release);
+            Resource<Release> releaseResource = new Resource<>(embeddedRelease);
             releaseResources.add(releaseResource);
         }
         Resources<Resource> resources = new Resources<>(releaseResources);
-
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     private Release searchReleaseBySha1(String sha1, User sw360User) throws TException {
         AttachmentInfo sw360AttachmentInfo = this.attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
-        Release sw360Release = sw360AttachmentInfo.getRelease();
-        return sw360Release;
+        return sw360AttachmentInfo.getRelease();
     }
 
     @RequestMapping(value = RELEASES_URL + "/{id}", method = RequestMethod.GET)

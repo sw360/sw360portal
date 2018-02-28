@@ -10,7 +10,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.license;
 
 import lombok.NonNull;
@@ -58,21 +57,16 @@ public class LicenseController implements ResourceProcessor<RepositoryLinksResou
 
     @RequestMapping(value = LICENSES_URL, method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<License>>> getLicenses(OAuth2Authentication oAuth2Authentication) throws TException {
-        List<License> licenses = licenseService.getLicenses();
+        List<License> sw360Licenses = licenseService.getLicenses();
 
         List<Resource<License>> licenseResources = new ArrayList<>();
-        for (License license : licenses) {
-            // TODO Kai Tödter 2017-01-04
-            // Find better way to decrease details in list resources,
-            // e.g. apply projections or Jackson Mixins
-            license.setText(null);
-            license.setType(null);
-            license.setShortname(null);
-            Resource<License> licenseResource = new Resource<>(license);
+        for (License sw360License : sw360Licenses) {
+            License embeddedLicense = restControllerHelper.convertToEmbeddedLicense(sw360License);
+            Resource<License> licenseResource = new Resource<>(embeddedLicense);
             licenseResources.add(licenseResource);
         }
-        Resources<Resource<License>> resources = new Resources<>(licenseResources);
 
+        Resources<Resource<License>> resources = new Resources<>(licenseResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 

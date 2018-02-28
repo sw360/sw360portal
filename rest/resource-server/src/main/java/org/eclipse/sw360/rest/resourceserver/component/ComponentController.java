@@ -10,7 +10,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.component;
 
 import lombok.NonNull;
@@ -79,13 +78,8 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
         sw360Components.stream()
                 .filter(component -> componentType == null || componentType.equals(component.componentType.name()))
                 .forEach(c -> {
-                    c.setDescription(null);
-                    c.setType(null);
-                    c.setCreatedOn(null);
-                    c.setVendorNames(null);
-                    c.setReleaseIds(null);
-                    c.setComponentOwner(null);
-                    componentResources.add(new Resource<>(c));
+                    Component embeddedComponent = restControllerHelper.convertToEmbeddedComponent(c);
+                    componentResources.add(new Resource<>(embeddedComponent));
                 });
 
         Resources<Resource<Component>> resources = new Resources<>(componentResources);
