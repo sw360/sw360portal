@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -11,6 +11,8 @@
 
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Component" %>
+<core_rt:set var="preferredCountryCodes" value='<%=PortalConstants.PREFERRED_COUNTRY_CODES%>'/>
+
 <table class="table info_table" id="ComponentGeneralInfo">
     <thead>
     <tr>
@@ -102,8 +104,10 @@
     <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="ownerCountry">Owner Country</label>
-            <input class="toplabelledInput" id="ownerCountry" name="<portlet:namespace/><%=Component._Fields.OWNER_COUNTRY%>" type="text"
-                   placeholder="Enter Owner Country" value="<sw360:out value="${component.ownerCountry}"/>"/>
+            <select class="toplabelledInput, formatSelect" id="ownerCountry"
+                    name="<portlet:namespace/><%=Component._Fields.OWNER_COUNTRY%>">
+                    <sw360:DisplayCountryCodeSelection selected='${component.ownerCountry}' preferredCountryCodes='${preferredCountryCodes}'/>
+            </select>
         </td>
         <td width="33%">
             <sw360:DisplayUserEdit emails="${component.moderators}" id="<%=Component._Fields.MODERATORS.toString()%>"

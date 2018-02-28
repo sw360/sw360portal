@@ -17,6 +17,7 @@
 <%@ page import="static org.eclipse.sw360.datahandler.thrift.projects.projectsConstants.CLEARING_TEAM_UNKNOWN" %>
 
 <core_rt:set var="clearingTeamsStringSet" value='<%=PortalConstants.SET_CLEARING_TEAMS_STRING%>'/>
+<core_rt:set var="preferredCountryCodes" value='<%=PortalConstants.PREFERRED_COUNTRY_CODES%>'/>
 
 <table class="table info_table" id="ProjectBasicInfo">
     <thead>
@@ -151,9 +152,10 @@
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel" for="proj_owner_country">Owner country</label>
-            <input class="toplabelledInput" id="proj_owner_country" name="<portlet:namespace/><%=Project._Fields.OWNER_COUNTRY%>"
-                   type="text"
-                   value="<sw360:out value="${project.ownerCountry}"/>" placeholder="Enter owner's country"/>
+            <select class="toplabelledInput, formatSelect" id="proj_owner_country"
+                    name="<portlet:namespace/><%=Project._Fields.OWNER_COUNTRY%>">
+                <sw360:DisplayCountryCodeSelection selected='${project.ownerCountry}' preferredCountryCodes='${preferredCountryCodes}'/>
+            </select>
         </td>
     </tr>
     <tr>
