@@ -21,6 +21,7 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -57,6 +58,15 @@ public class Sw360ComponentService {
             throw new DataIntegrityViolationException("sw360 component with name '" + component.getName() + "' already exists.");
         }
         return null;
+    }
+
+    public RequestStatus updateComponent(Component component, User sw360User) throws TException {
+        ComponentService.Iface sw360ComponentClient = getThriftComponentClient();
+        RequestStatus requestStatus = sw360ComponentClient.updateComponent(component, sw360User);
+        if (requestStatus != RequestStatus.SUCCESS) {
+            throw new RuntimeException("sw360 component with name '" + component.getName() + " cannot be updated.");
+        }
+        return requestStatus;
     }
 
     public List<Component> searchComponentByName(String name) throws TException {

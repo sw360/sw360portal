@@ -16,15 +16,13 @@ import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.util.PortalUtil;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.commonIO.AttachmentFrontendUtils;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.common.Duration;
 import org.eclipse.sw360.datahandler.couchdb.AttachmentStreamConnector;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
-import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
-import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentService;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.users.User;
@@ -37,9 +35,7 @@ import javax.portlet.ResourceResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -54,54 +50,21 @@ import static java.net.URLConnection.guessContentTypeFromStream;
  * @author daniele.fognini@tngtech.com
  * @author birgit.heydenreich@tngtech.com
  */
-public class AttachmentPortletUtils {
+public class AttachmentPortletUtils extends AttachmentFrontendUtils {
     public static final String DEFAULT_ATTACHMENT_BUNDLE_NAME = "AttachmentBundle.zip";
 
     private static final Logger log = Logger.getLogger(AttachmentPortletUtils.class);
-    private final ThriftClients thriftClients;
-    private final AttachmentService.Iface client;
     private final ProjectService.Iface projectClient;
     private final ComponentService.Iface componentClient;
-
-    private AttachmentStreamConnector connector;
-    // TODO add Config class and DI
-    private final Duration downloadTimeout = Duration.durationOf(30, TimeUnit.SECONDS);
 
     public AttachmentPortletUtils() {
         this(new ThriftClients());
     }
 
     public AttachmentPortletUtils(ThriftClients thriftClients) {
-        this.thriftClients = thriftClients;
-        client = thriftClients.makeAttachmentClient();
+        super(thriftClients);
         projectClient = thriftClients.makeProjectClient();
         componentClient = thriftClients.makeComponentClient();
-    }
-
-    private synchronized void makeConnector() throws TException {
-        if (connector == null) {
-            try {
-                connector = new AttachmentStreamConnector(downloadTimeout);
-            } catch (MalformedURLException e) {
-                log.error("Invalid database address received...", e);
-                throw new TException(e);
-            }
-        }
-    }
-
-    private AttachmentStreamConnector getConnector() throws TException {
-        if (connector == null) makeConnector();
-        return connector;
-    }
-
-    protected InputStream getStreamToServeAFile(List<AttachmentContent> attachments, User user, Object context) throws TException, IOException {
-        if(attachments == null || attachments.size() == 0){
-            throw new SW360Exception("Tried to download empty set of Attachments");
-        }else if(attachments.size() == 1){
-            return getConnector().getAttachmentStream(attachments.get(0), user, context);
-        } else {
-            return getConnector().getAttachmentBundleStream(new HashSet<>(attachments), user, context);
-        }
     }
 
     public void serveFile(ResourceRequest request, ResourceResponse response) {
@@ -160,7 +123,7 @@ public class AttachmentPortletUtils {
         serveAttachmentBundle(attachments, request, response, Optional.empty());
     }
 
-    public void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
+    private void serveAttachmentBundle(List<AttachmentContent> attachments, ResourceRequest request, ResourceResponse response, Optional<String> downloadFileName){
         String filename;
         String contentType;
         if(attachments.size() == 1){
@@ -201,7 +164,7 @@ public class AttachmentPortletUtils {
         }
     }
 
-    public boolean uploadAttachmentPartFromRequest(PortletRequest request, String fileUploadName) throws IOException, TException {
+    private boolean uploadAttachmentPartFromRequest(PortletRequest request, String fileUploadName) throws IOException, TException {
         final UploadPortletRequest uploadPortletRequest = PortalUtil.getUploadPortletRequest(request);
         final InputStream stream = uploadPortletRequest.getFileAsStream(fileUploadName);
 
@@ -264,22 +227,10 @@ public class AttachmentPortletUtils {
         AttachmentContent attachment = null;
         if (resumableUpload.hasAttachmentId()) {
             try {
-                AttachmentService.Iface client = thriftClients.makeAttachmentClient();
                 attachment = client.getAttachmentContent(resumableUpload.getAttachmentId());
             } catch (TException e) {
                 log.error("Error retrieving attachment", e);
             }
-        }
-        return attachment;
-    }
-
-    private AttachmentContent updateAttachmentContent(AttachmentContent attachment) throws TException {
-        try {
-            AttachmentService.Iface client = thriftClients.makeAttachmentClient();
-            client.updateAttachmentContent(attachment);
-        } catch (SW360Exception e) {
-            log.error("Error updating attachment", e);
-            return null;
         }
         return attachment;
     }
@@ -291,7 +242,6 @@ public class AttachmentPortletUtils {
                 .setFilename(filename);
 
         try {
-            AttachmentService.Iface client = thriftClients.makeAttachmentClient();
             attachmentContent = client.makeAttachmentContent(attachmentContent);
         } catch (TException e) {
             log.error("Error creating attachment", e);
@@ -313,7 +263,6 @@ public class AttachmentPortletUtils {
     public RequestStatus cancelUpload(ResourceRequest request) {
         String attachmentId = request.getParameter(PortalConstants.ATTACHMENT_ID);
         try {
-            AttachmentService.Iface client = thriftClients.makeAttachmentClient();
             return client.deleteAttachmentContent(attachmentId);
         } catch (TException e) {
             log.error("Error deleting attachment from backend", e);
@@ -350,26 +299,6 @@ public class AttachmentPortletUtils {
             return false;
         } catch (IOException | DocumentNotFoundException ignored) {
             return false;
-        }
-    }
-
-    public Attachment getAttachmentForDisplay(User user, String attachmentContentId) {
-        try {
-            String filename = client.getAttachmentContent(attachmentContentId).getFilename();
-            return CommonUtils.getNewAttachment(user, attachmentContentId, filename);
-        } catch (TException e) {
-            log.error("Could not get attachment content", e);
-        }
-        return null;
-    }
-
-    public void deleteAttachments(Set<String> attachmentContentIds){
-        try {
-            for(String id: attachmentContentIds) {
-                client.deleteAttachmentContent(id);
-            }
-        } catch (TException e){
-            log.error("Could not delete attachments from database.",e);
         }
     }
 }

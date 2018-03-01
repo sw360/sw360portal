@@ -16,10 +16,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.rest.resourceserver.attachment.Sw360AttachmentService;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
@@ -31,12 +33,16 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -57,6 +63,9 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
 
     @NonNull
     private final Sw360VendorService vendorService;
+
+    @NonNull
+    private final Sw360AttachmentService attachmentService;
 
     @NonNull
     private final RestControllerHelper restControllerHelper;
@@ -124,6 +133,40 @@ public class ComponentController implements ResourceProcessor<RepositoryLinksRes
                 .buildAndExpand(sw360Component.getId()).toUri();
 
         return ResponseEntity.created(location).body(halResource);
+    }
+
+    @RequestMapping(value = COMPONENTS_URL + "/{componentId}/attachments", method = RequestMethod.POST, consumes = {"multipart/mixed", "multipart/form-data"})
+    public ResponseEntity<HalResource> addAttachmentToComponent(@PathVariable("componentId") String componentId, OAuth2Authentication oAuth2Authentication,
+                                                                @RequestPart("file") MultipartFile file,
+                                                                @RequestPart("attachment") Attachment newAttachment) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+
+        Attachment attachment;
+        try {
+            attachment = attachmentService.uploadAttachment(file, newAttachment, sw360User);
+        } catch (IOException e) {
+            log.error("failed to upload attachment", e);
+            throw new RuntimeException("failed to upload attachment", e);
+        }
+
+        final Component component = componentService.getComponentForUserById(componentId, sw360User);
+        component.addToAttachments(attachment);
+        componentService.updateComponent(component, sw360User);
+
+        final HalResource halRelease = createHalComponent(component, sw360User);
+
+        return new ResponseEntity<>(halRelease, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = COMPONENTS_URL + "/{componentId}/attachments/{attachmentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadAttachmentFromComponent(
+            @PathVariable("componentId") String componentId,
+            @PathVariable("attachmentId") String attachmentId,
+            HttpServletResponse response,
+            OAuth2Authentication oAuth2Authentication) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Component component = componentService.getComponentForUserById(componentId, sw360User);
+        attachmentService.downloadAttachmentWithContext(component, attachmentId, response, oAuth2Authentication);
     }
 
     @Override

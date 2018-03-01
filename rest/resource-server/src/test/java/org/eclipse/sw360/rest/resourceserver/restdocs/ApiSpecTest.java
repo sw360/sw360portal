@@ -165,6 +165,7 @@ public class ApiSpecTest extends TestRestDocsSpecBase {
                                 linkWithRel("sw360:attachments").description("The <<resources-attachments,Attachments resource>>"),
                                 linkWithRel("sw360:vendors").description("The <<resources-vendors,Vendors resource>>"),
                                 linkWithRel("sw360:licenses").description("The <<resources-licenses,Licenses resource>>"),
+                                linkWithRel("sw360:licenseinfo").description("The <<resources-licenseinfo,Licenseinfo resource>>"),
                                 linkWithRel("sw360:vulnerabilities").description("The <<resources-vulnerabilities,Vulnerabilities resource>>"),
                                 linkWithRel("curies").description("The Curies for documentation"),
                                 linkWithRel("profile").description("The profiles of the REST resources")
