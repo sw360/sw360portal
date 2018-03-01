@@ -1,5 +1,5 @@
 /**
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -572,3 +572,83 @@ input[readonly].clickable {
     resize: vertical;
     background-color: white !important;
 }
+.dropbtn {
+      background-color: #f1f1f1;
+        color: black;
+        min-width: 100px;
+        min-height: 20px;
+        border: 1px solid;
+        cursor: pointer;
+        position: relative;
+
+}
+
+.dropbtn:hover, .dropbtn:focus {
+    background-color: white;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    left: 20px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    width: 130%;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    position: relative;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown a:hover {background-color: #ddd}
+
+.show {display:block;}
+
+.sw360CircleOK {
+   width: 12px;
+   height: 12px;
+   border-radius: 8px;
+   background-color: #9de997;
+   float: right;
+ }
+
+ .sw360CircleWarning {
+    width: 12px;
+    height: 12px;
+    border-radius: 8px;
+    background-color:  #e9e17e;
+    float: right;
+  }
+
+  .sw360CircleAlert {
+     width: 12px;
+     height: 12px;
+     border-radius: 8px;
+     background-color: #e95850;
+     float: right;
+   }
+
+ .releasePageHeader {
+ 	border-bottom: 1px solid #cccccc;
+ }
+ .arrow-down {
+   width: 0;
+   height: 0;
+   margin: 6px 0px 0px 10px;
+   border-left: 5px solid transparent;
+   border-right: 5px solid transparent;
+   border-top: 8px solid black;
+   position: relative;
+   float:right;
+ }
+
