@@ -1,5 +1,6 @@
 /*
  * Copyright Bosch Software Innovations GmbH, 2016.
+ * With modifications by Siemens AG, 2018.
  * Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -36,18 +37,19 @@ public class DisplayOutputFormats extends SimpleTagSupport {
     }
 
     public void doTag() throws JspException, IOException {
-            writeOptions(options);
+        writeOptions(options);
     }
 
     private void writeOptions(Collection<OutputFormatInfo> options) throws IOException {
         JspWriter jspWriter = getJspContext().getOut();
-        for (OutputFormatInfo outputOption : options) {
-            String formattedOutputOption = outputOption.getDescription();
+        for (OutputFormatInfo option : options) {
+            String optionDescription = option.getDescription();
+            String optionValue = option.getGeneratorClassName() + "::" + option.getVariant();
             jspWriter.write(String.format(
                     "<option value=\"%s\" class=\"textlabel stackedLabel\" \" +\n" +
                             "                            (selected ? \"selected=\\\"selected\\\" \" : \"\") +\n" +
                             "                            \">%s</option>",
-                    outputOption.getGeneratorClassName(), formattedOutputOption));
+                    optionValue, optionDescription));
         }
     }
 }

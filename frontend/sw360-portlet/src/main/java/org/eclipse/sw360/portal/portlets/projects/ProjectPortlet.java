@@ -164,7 +164,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
     private void downloadLicenseInfo(ResourceRequest request, ResourceResponse response) throws IOException {
         final User user = UserCacheHolder.getUserFromRequest(request);
         final String projectId = request.getParameter(PROJECT_ID);
-        final String generatorClassName = request.getParameter(PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT);
+        final String outputGenerator = request.getParameter(PortalConstants.LICENSE_INFO_SELECTED_OUTPUT_FORMAT);
         final Map<String, Set<String>> selectedReleaseAndAttachmentIds = ProjectPortletUtils
                 .getSelectedReleaseAndAttachmentIdsFromRequest(request);
         final Set<String> attachmentIds = selectedReleaseAndAttachmentIds.values().stream().flatMap(Collection::stream)
@@ -177,7 +177,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             final ProjectService.Iface projectClient = thriftClients.makeProjectClient();
 
             Project project = projectClient.getProjectById(projectId, user);
-            LicenseInfoFile licenseInfoFile = licenseInfoClient.getLicenseInfoFile(project, user, generatorClassName,
+            LicenseInfoFile licenseInfoFile = licenseInfoClient.getLicenseInfoFile(project, user, outputGenerator,
                     selectedReleaseAndAttachmentIds, excludedLicensesPerAttachmentId);
             try {
                 replaceAttachmentUsages(user, selectedReleaseAndAttachmentIds, excludedLicensesPerAttachmentId, project);
@@ -196,7 +196,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
 
             PortletResponseUtil.sendFile(request, response, filename, licenseInfoFile.getGeneratedOutput(), mimetype);
         } catch (TException e) {
-            log.error("Error getting LicenseInfo file for project with id " + projectId + " and generator " + generatorClassName, e);
+            log.error("Error getting LicenseInfo file for project with id " + projectId + " and generator " + outputGenerator, e);
             response.setProperty(ResourceResponse.HTTP_STATUS_CODE, Integer.toString(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
         }
     }

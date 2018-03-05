@@ -71,7 +71,8 @@
     </title>
 </head>
 <body>
-    <h1>Open Source Software</h1>
+    <h1>$projectTitle</h1>
+    <h2>Open Source Software</h2>
     $licenseInfoHeader
 
     <h2 id="releaseHeader">Releases</h2>

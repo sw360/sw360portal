@@ -12,10 +12,7 @@
  */
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfo;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoRequestStatus;
-import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Text;
@@ -125,7 +122,7 @@ public class XhtmlGeneratorTest {
         LicenseInfoParsingResult lipresultEmpty = generateLIPResult(liEmpty, releaseName, version1, vendorName);
         lipresultsEmpty = Collections.singletonList(lipresultEmpty);
 
-        xhtmlGenerator = new XhtmlGenerator();
+        xhtmlGenerator = new XhtmlGenerator(OutputFormatVariant.DISCLOSURE, "License Disclosure as XHTML");
 
         xmlString = xhtmlGenerator.generateOutputFile(lipresults, "myproject", "1.0", "Lorem Ipsum");
         xmlString2 = xhtmlGenerator.generateOutputFile(lipresults2, "myproject", "1.0", "Lorem Ipsum");

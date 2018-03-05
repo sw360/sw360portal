@@ -16,23 +16,36 @@ package org.eclipse.sw360.licenseinfo.outputGenerators;
 import org.apache.log4j.Logger;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoParsingResult;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatVariant;
 
 import java.util.Collection;
 
 public class TextGenerator extends OutputGenerator<String> {
     private static final Logger LOGGER = Logger.getLogger(TextGenerator.class);
-    private static final String LICENSE_INFO_TEMPLATE_FILE = "textLicenseInfoFile.vm";
 
-    public TextGenerator() {
-        super("txt", "License information as TEXT", false, "text/plain");
+    private static final String TXT_TEMPLATE_FILE = "textLicenseInfoFile.vm";
+    private static final String TXT_MIME_TYPE = "text/plain";
+    private static final String TXT_OUTPUT_TYPE = "txt";
+
+    public TextGenerator(OutputFormatVariant outputFormatVariant, String outputDescription) {
+        super(TXT_OUTPUT_TYPE, outputDescription, false, TXT_MIME_TYPE, outputFormatVariant);
     }
 
     @Override
     public String generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String projectVersion, String licenseInfoHeaderText) throws SW360Exception {
+        switch (getOutputVariant()) {
+            case DISCLOSURE:
+                return generateDisclosure(projectLicenseInfoResults, projectName + " " + projectVersion, licenseInfoHeaderText);
+            default:
+                throw new IllegalArgumentException("Unknown generator variant type: " + getOutputVariant());
+        }
+    }
+
+    private String generateDisclosure(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectTitle, String licenseInfoHeaderText) {
         try {
-            return renderTemplateWithDefaultValues(projectLicenseInfoResults, LICENSE_INFO_TEMPLATE_FILE, licenseInfoHeaderText);
+            return renderTemplateWithDefaultValues(projectLicenseInfoResults, TXT_TEMPLATE_FILE, projectTitle, licenseInfoHeaderText);
         } catch (Exception e) {
-            LOGGER.error("Could not generate text licenseinfo file for project " + projectName, e);
+            LOGGER.error("Could not generate text licenseinfo file for project " + projectTitle, e);
             return "License information could not be generated.\nAn exception occurred: " + e.toString();
         }
     }
