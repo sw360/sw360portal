@@ -37,7 +37,8 @@ include::{snippets}/should_document_get_projects/links.adoc[]
 [[resources-projects-list-by-name]]
 ==== Listing by name
 
-A `GET` request will list all of the service's projects by project name.
+A `GET` request will list all of the service's projects by project name. +
+Please set the request parameter `&name=<NAME>`.
 
 ===== Response structure
 
@@ -103,7 +104,7 @@ include::{snippets}/should_document_get_project/links.adoc[]
 ==== Listing releases
 
 A `GET` request will get releases of a single project. +
-Only linked releases without any releases of sub-projects (&transitive=false).
+Only linked releases without any releases of sub-projects `&transitive=false`.
 
 ===== Response structure
 
@@ -125,7 +126,7 @@ include::{snippets}/should_document_get_project_releases/links.adoc[]
 ==== Listing releases (transitive)
 
 A `GET` request will get all releases of a single project (transitive). +
-Please set the request parameter (&transitive=true).
+Please set the request parameter `&transitive=true`.
 
 ===== Response structure
 

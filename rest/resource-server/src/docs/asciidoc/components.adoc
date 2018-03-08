@@ -37,7 +37,8 @@ include::{snippets}/should_document_get_components/links.adoc[]
 [[resources-components-list-by-name]]
 ==== Listing by name
 
-A `GET` request will list all of the service's components by component name.
+A `GET` request will list all of the service's components by component name. +
+Please set the request parameter `&name=<NAME>`.
 
 ===== Response structure
 

@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.apache.thrift.TException;
@@ -73,10 +72,10 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         ProjectReleaseRelationship projectReleaseRelationship = new ProjectReleaseRelationship(CONTAINED, MAINLINE);
 
         List<Project> projectList = new ArrayList<>();
+        List<Project> projectListByName = new ArrayList<>();
         project = new Project();
         project.setId("376576");
         project.setName("Emerald Web");
-        project.setType("project");
         project.setProjectType(ProjectType.PRODUCT);
         project.setVersion("1.0.2");
         project.setDescription("Emerald Web provides a suite of components for Critical Infrastructures.");
@@ -93,12 +92,12 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         linkedProjects.put("376576", ProjectRelationship.CONTAINED);
         project.setLinkedProjects(linkedProjects);
         projectList.add(project);
+        projectListByName.add(project);
 
         Project project2 = new Project();
         project2.setId("376570");
         project2.setName("Orange Web");
         project2.setVersion("2.0.1");
-        project2.setType("project");
         project2.setProjectType(ProjectType.PRODUCT);
         project2.setDescription("Orange Web provides a suite of components for documentation.");
         project2.setCreatedOn("2016-12-17");
@@ -118,7 +117,7 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
 
         given(this.projectServiceMock.getProjectsForUser(anyObject())).willReturn(projectList);
         given(this.projectServiceMock.getProjectForUserById(eq(project.getId()), anyObject())).willReturn(project);
-        given(this.projectServiceMock.searchProjectByName(eq(project.getName()), anyObject())).willReturn(projectList);
+        given(this.projectServiceMock.searchProjectByName(eq(project.getName()), anyObject())).willReturn(projectListByName);
         given(this.projectServiceMock.getReleaseIds(eq(project.getId()), anyObject(), eq("false"))).willReturn(releaseIds);
         given(this.projectServiceMock.getReleaseIds(eq(project.getId()), anyObject(), eq("true"))).willReturn(releaseIdsTransitive);
 
@@ -126,7 +125,6 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         release.setId("3765276512");
         release.setName("Angular 2.3.0");
         release.setCpeid("cpe:/a:Google:Angular:2.3.0:");
-        release.setType("release");
         release.setReleaseDate("2016-12-07");
         release.setVersion("2.3.0");
         release.setCreatedOn("2016-12-18");
@@ -139,7 +137,23 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         release.setClearingState(ClearingState.APPROVED);
         release.setExternalIds(Collections.singletonMap("mainline-id-component", "1432"));
 
+        Release release2 = new Release();
+        release2.setId("5578999");
+        release2.setName("Spring 1.4.0");
+        release2.setCpeid("cpe:/a:Spring:1.4.0:");
+        release2.setReleaseDate("2017-05-06");
+        release2.setVersion("1.4.0");
+        release2.setCreatedOn("2017-11-19");
+        eccInformation.setEccStatus(ECCStatus.APPROVED);
+        release2.setEccInformation(eccInformation);
+        release2.setCreatedBy("admin@sw360.org");
+        release2.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
+        release2.setComponentId("12356115");
+        release2.setClearingState(ClearingState.APPROVED);
+        release2.setExternalIds(Collections.singletonMap("mainline-id-component", "1771"));
+
         given(this.releaseServiceMock.getReleaseForUserById(eq(release.getId()), anyObject())).willReturn(release);
+        given(this.releaseServiceMock.getReleaseForUserById(eq(release2.getId()), anyObject())).willReturn(release2);
 
         User user = new User();
         user.setId("admin@sw360.org");
@@ -165,9 +179,6 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("_embedded.sw360:projects[]name").description("The name of the project"),
                                 fieldWithPath("_embedded.sw360:projects[]version").description("The project version"),
                                 fieldWithPath("_embedded.sw360:projects[]projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
-                                fieldWithPath("_embedded.sw360:projects[]ownerAccountingUnit").description("The owner accounting unit of the project"),
-                                fieldWithPath("_embedded.sw360:projects[]ownerGroup").description("The owner group of the project"),
-                                fieldWithPath("_embedded.sw360:projects[]ownerCountry").description("The owner country of the project"),
                                 fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-projects, Projects resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -189,7 +200,6 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("version").description("The project version"),
                                 fieldWithPath("createdOn").description("The date the project was created"),
                                 fieldWithPath("description").description("The project description"),
-                                fieldWithPath("type").description("is always 'project'"),
                                 fieldWithPath("projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
                                 fieldWithPath("businessUnit").description("The business unit this project belongs to"),
                                 fieldWithPath("externalIds").description("When projects are imported from other tools, the external ids can be stored here"),
@@ -199,9 +209,9 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("linkedProjects").description("The relationship between linked projects of the project"),
                                 fieldWithPath("linkedReleases").description("The relationship between linked releases of the project"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
+                                fieldWithPath("_embedded.createdBy").description("The user who created this project"),
                                 fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-projects, Projects resources>>"),
                                 fieldWithPath("_embedded.sw360:releases").description("An array of <<resources-releases, Releases resources>>"),
-                                fieldWithPath("_embedded.createdBy").description("The user who created this project"),
                                 fieldWithPath("_embedded.sw360:moderators").description("An array of all project moderators with email and link to their <<resources-user-get,User resource>>")
                         )));
     }
@@ -221,9 +231,6 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("_embedded.sw360:projects[]name").description("The name of the project"),
                                 fieldWithPath("_embedded.sw360:projects[]version").description("The project version"),
                                 fieldWithPath("_embedded.sw360:projects[]projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
-                                fieldWithPath("_embedded.sw360:projects[]ownerAccountingUnit").description("The owner accounting unit of the project"),
-                                fieldWithPath("_embedded.sw360:projects[]ownerGroup").description("The owner group of the project"),
-                                fieldWithPath("_embedded.sw360:projects[]ownerCountry").description("The owner country of the project"),
                                 fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-projects, Projects resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -244,9 +251,6 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("_embedded.sw360:projects[]name").description("The name of the project"),
                                 fieldWithPath("_embedded.sw360:projects[]version").description("The project version"),
                                 fieldWithPath("_embedded.sw360:projects[]projectType").description("The project type, possible values are: " + Arrays.asList(ProjectType.values())),
-                                fieldWithPath("_embedded.sw360:projects[]ownerAccountingUnit").description("The owner accounting unit of the project"),
-                                fieldWithPath("_embedded.sw360:projects[]ownerGroup").description("The owner group of the project"),
-                                fieldWithPath("_embedded.sw360:projects[]ownerCountry").description("The owner country of the project"),
                                 fieldWithPath("_embedded.sw360:projects").description("An array of <<resources-projects, Projects resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));

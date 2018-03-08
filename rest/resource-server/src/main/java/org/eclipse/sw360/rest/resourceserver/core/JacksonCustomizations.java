@@ -298,8 +298,6 @@ class JacksonCustomizations {
                 "createdBy",
                 "moderators",
                 "clearingInformation",
-                "mainlineState",
-                "downloadurl",
                 "setAttachments",
                 "setCreatedOn",
                 "setRepository",
@@ -370,7 +368,6 @@ class JacksonCustomizations {
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonIgnoreProperties({
                 "attachmentContentId",
-                "createdBy",
                 "setAttachmentContentId",
                 "setAttachmentType",
                 "setCreatedComment",
@@ -614,15 +611,11 @@ class JacksonCustomizations {
 
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         @JsonIgnoreProperties({
-                "AL",
-                "ECCN",
                 "assessorContactPerson",
                 "assessorDepartment",
                 "eccComment",
                 "materialIndexNumber",
                 "assessmentDate",
-                "al",
-                "eccn",
                 "setEccComment",
                 "setECCN",
                 "setEccStatus",

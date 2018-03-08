@@ -6,10 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.components.ClearingState;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
@@ -70,31 +70,33 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
         List<Release> releaseList = new ArrayList<>();
         release = new Release();
         release.setId("3765276512");
-        release.setName("Angular 2.3.0");
+        release.setName("Angular");
         release.setCpeid("cpe:/a:Google:Angular:2.3.0:");
-        release.setType("release");
         release.setReleaseDate("2016-12-07");
         release.setVersion("2.3.0");
         release.setCreatedOn("2016-12-18");
         release.setCreatedBy("admin@sw360.org");
+        release.setDownloadurl("http://www.google.com");
         release.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         release.setComponentId(component.getId());
         release.setClearingState(ClearingState.APPROVED);
+        release.setMainlineState(MainlineState.OPEN);
         release.setExternalIds(Collections.singletonMap("mainline-id-component", "1432"));
         releaseList.add(release);
 
         Release release2 = new Release();
         release2.setId("3765276512");
-        release2.setName("Angular 2.3.1");
+        release2.setName("Angular");
         release2.setCpeid("cpe:/a:Google:Angular:2.3.1:");
-        release2.setType("release");
         release2.setReleaseDate("2016-12-15");
         release2.setVersion("2.3.1");
         release2.setCreatedOn("2016-12-18");
         release2.setCreatedBy("admin@sw360.org");
+        release2.setDownloadurl("http://www.google.com");
         release2.setModerators(new HashSet<>(Arrays.asList("admin@sw360.org", "jane@sw360.org")));
         release2.setComponentId(component.getId());
         release2.setClearingState(ClearingState.APPROVED);
+        release2.setMainlineState(MainlineState.MAINLINE);
         release2.setExternalIds(Collections.singletonMap("mainline-id-component", "4876"));
         releaseList.add(release2);
 
@@ -110,7 +112,7 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
     }
 
     @Test
-    public void should_document_get_releases()  throws Exception {
+    public void should_document_get_releases() throws Exception {
         String accessToken = TestHelper.getAccessToken(mockMvc, testUserId, testUserPassword);
         mockMvc.perform(get("/api/releases")
                 .header("Authorization", "Bearer " + accessToken)
@@ -123,7 +125,6 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("_embedded.sw360:releases[]name").description("The name of the release, optional"),
                                 fieldWithPath("_embedded.sw360:releases[]version").description("The version of the release"),
-                                fieldWithPath("_embedded.sw360:releases[]clearingState").description("The clearing of the release, possible values are " + Arrays.asList(ClearingState.values())),
                                 fieldWithPath("_embedded.sw360:releases").description("An array of <<resources-releases, Releases resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -150,7 +151,8 @@ public class ReleaseSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("cpeId").description("The CPE id"),
                                 fieldWithPath("releaseDate").description("The date of this release"),
                                 fieldWithPath("createdOn").description("The creation date of the internal sw360 release"),
-                                fieldWithPath("type").description("is always 'release'"),
+                                fieldWithPath("mainlineState").description("the mainline state of the release, possible values are: " + Arrays.asList(MainlineState.values())),
+                                fieldWithPath("downloadurl").description("the download url of the release"),
                                 fieldWithPath("externalIds").description("When releases are imported from other tools, the external ids can be stored here"),
                                 fieldWithPath("_embedded.sw360:moderators").description("An array of all release moderators with email and link to their <<resources-user-get,User resource>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")

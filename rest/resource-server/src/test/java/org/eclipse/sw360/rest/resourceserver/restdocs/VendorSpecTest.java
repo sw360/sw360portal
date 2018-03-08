@@ -1,12 +1,11 @@
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2017-2018. Part of the SW360 Portal Project.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
@@ -101,7 +100,6 @@ public class VendorSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("fullName").description("The full name of the vendor"),
                                 fieldWithPath("shortName").description("The short name of the vendor, optional"),
                                 fieldWithPath("url").description("The vendor's home page URL"),
-                                fieldWithPath("type").description("is always 'vendor'"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
     }

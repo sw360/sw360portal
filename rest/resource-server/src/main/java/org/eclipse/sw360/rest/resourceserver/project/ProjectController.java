@@ -10,7 +10,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.project;
 
 import lombok.NonNull;
@@ -88,15 +87,8 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         sw360Projects.stream()
                 .filter(project -> projectType == null || projectType.equals(project.projectType.name()))
                 .forEach(p -> {
-                    p.setDescription(null);
-                    p.setType(null);
-                    p.setCreatedOn(null);
-                    p.setReleaseIdToUsage(null);
-                    p.setExternalIds(null);
-                    p.setBusinessUnit(null);
-                    p.setLinkedProjects(null);
-                    p.setClearingState(null);
-                    projectResources.add(new Resource<>(p));
+                    Project embeddedProject = restControllerHelper.convertToEmbeddedProject(p);
+                    projectResources.add(new Resource<>(embeddedProject));
                 });
 
         Resources<Resource<Project>> resources = new Resources<>(projectResources);
@@ -174,10 +166,9 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
         final List<Resource<Release>> releaseResources = new ArrayList<>();
         for (final String releaseId : releaseIds) {
-            final Release release = new Release();
-            release.setId(releaseId);
-
-            final Resource<Release> releaseResource = new Resource<>(release);
+            final Release sw360Release = releaseService.getReleaseForUserById(releaseId, sw360User);
+            final Release embeddedRelease = restControllerHelper.convertToEmbeddedRelease(sw360Release);
+            final Resource<Release> releaseResource = new Resource<>(embeddedRelease);
             releaseResources.add(releaseResource);
         }
 
@@ -197,11 +188,9 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
         final List<Resource<Release>> releaseResources = new ArrayList<>();
         for (final String releaseId : releaseIds) {
             final Release sw360Release = releaseService.getReleaseForUserById(releaseId, sw360User);
-            final Release minimalFilledRelease = new Release();
-            minimalFilledRelease.setId(sw360Release.getId());
-            minimalFilledRelease.setEccInformation(sw360Release.getEccInformation());
-
-            final Resource<Release> releaseResource = new Resource<>(minimalFilledRelease);
+            Release embeddedRelease = restControllerHelper.convertToEmbeddedRelease(sw360Release);
+            embeddedRelease.setEccInformation(sw360Release.getEccInformation());
+            final Resource<Release> releaseResource = new Resource<>(embeddedRelease);
             releaseResources.add(releaseResource);
         }
 
@@ -212,7 +201,6 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     @RequestMapping(value = PROJECTS_URL + "/{id}/vulnerabilities", method = RequestMethod.GET)
     public ResponseEntity<Resources<Resource<VulnerabilityDTO>>> getVulnerabilitiesOfReleases(@PathVariable("id") String id, OAuth2Authentication oAuth2Authentication) {
         final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
-
         final List<VulnerabilityDTO> allVulnerabilityDTOs = vulnerabilityService.getVulnerabilitiesByProjectId(id, sw360User);
 
         final List<Resource<VulnerabilityDTO>> vulnerabilityResources = new ArrayList<>();
@@ -220,6 +208,7 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
             final Resource<VulnerabilityDTO> vulnerabilityDTOResource = new Resource<>(vulnerabilityDTO);
             vulnerabilityResources.add(vulnerabilityDTOResource);
         }
+
         final Resources<Resource<VulnerabilityDTO>> resources = new Resources<>(vulnerabilityResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
@@ -233,19 +222,20 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
         final Set<String> releaseIdToUsage = project.getReleaseIdToUsage().keySet();
         for (final String releaseId : releaseIdToUsage) {
-            final Release release = releaseService.getReleaseForUserById(releaseId, sw360User);
-            final Set<String> licenseIds = release.getMainLicenseIds();
-            allLicenseIds.addAll(licenseIds);
+            final Release sw360Release = releaseService.getReleaseForUserById(releaseId, sw360User);
+            final Set<String> licenseIds = sw360Release.getMainLicenseIds();
+            if (licenseIds != null && !licenseIds.isEmpty()) {
+                allLicenseIds.addAll(licenseIds);
+            }
         }
         for (final String licenseId : allLicenseIds) {
-            final License license = licenseService.getLicenseById(licenseId);
-            license.setText(null);
-            license.setShortname(null);
-            final Resource<License> licenseResource = new Resource<>(license);
+            final License sw360License = licenseService.getLicenseById(licenseId);
+            final License embeddedLicense = restControllerHelper.convertToEmbeddedLicense(sw360License);
+            final Resource<License> licenseResource = new Resource<>(embeddedLicense);
             licenseResources.add(licenseResource);
         }
-        final Resources<Resource<License>> resources = new Resources<>(licenseResources);
 
+        final Resources<Resource<License>> resources = new Resources<>(licenseResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
@@ -256,18 +246,19 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
     }
 
     private HalResource<Project> createHalProject(Project sw360Project, User sw360User) throws TException {
-
         HalResource<Project> halProject = new HalResource<>(sw360Project);
-
         restControllerHelper.addEmbeddedUser(halProject, sw360User, "createdBy");
+
         Map<String, ProjectReleaseRelationship> releaseIdToUsage = sw360Project.getReleaseIdToUsage();
         if (releaseIdToUsage != null) {
             restControllerHelper.addEmbeddedReleases(halProject, releaseIdToUsage.keySet(), releaseService, sw360User);
         }
+
         Map<String, ProjectRelationship> linkedProjects = sw360Project.getLinkedProjects();
         if (linkedProjects != null) {
             restControllerHelper.addEmbeddedProject(halProject, linkedProjects.keySet(), projectService, sw360User);
         }
+
         if (sw360Project.getModerators() != null) {
             Set<String> moderators = sw360Project.getModerators();
             restControllerHelper.addEmbeddedModerators(halProject, moderators);

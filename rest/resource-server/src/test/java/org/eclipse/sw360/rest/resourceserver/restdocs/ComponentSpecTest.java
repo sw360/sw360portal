@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
 import org.apache.thrift.TException;
@@ -58,6 +57,7 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
     @Before
     public void before() throws TException {
         List<Component> componentList = new ArrayList<>();
+        List<Component> componentListByName = new ArrayList<>();
 
         angularComponent = new Component();
         angularComponent.setId("17653524");
@@ -73,6 +73,7 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         angularComponent.setOwnerCountry("DE");
         angularComponent.setOwnerGroup("AA BB 123 GHV2-DE");
         componentList.add(angularComponent);
+        componentListByName.add(angularComponent);
 
         Component springComponent = new Component();
         springComponent.setId("678dstzd8");
@@ -99,7 +100,7 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
 
         given(this.componentServiceMock.getComponentsForUser(anyObject())).willReturn(componentList);
         given(this.componentServiceMock.getComponentForUserById(eq("17653524"), anyObject())).willReturn(angularComponent);
-        given(this.componentServiceMock.searchComponentByName(eq(angularComponent.getName()))).willReturn(componentList);
+        given(this.componentServiceMock.searchComponentByName(eq(angularComponent.getName()))).willReturn(componentListByName);
 
         User user = new User();
         user.setId("admin@sw360.org");
@@ -114,7 +115,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         release.setId("3765276512");
         release.setName("Angular 2.3.0");
         release.setCpeid("cpe:/a:Google:Angular:2.3.0:");
-        release.setType("release");
         release.setReleaseDate("2016-12-07");
         release.setVersion("2.3.0");
         release.setCreatedOn("2016-12-18");
@@ -127,7 +127,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         release2.setId("3765276512");
         release2.setName("Angular 2.3.1");
         release2.setCpeid("cpe:/a:Google:Angular:2.3.1:");
-        release2.setType("release");
         release2.setReleaseDate("2016-12-15");
         release2.setVersion("2.3.1");
         release2.setCreatedOn("2016-12-18");
@@ -153,9 +152,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("_embedded.sw360:components[]name").description("The name of the component"),
                                 fieldWithPath("_embedded.sw360:components[]componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("_embedded.sw360:components[]ownerAccountingUnit").description("The owner accounting unit of the component"),
-                                fieldWithPath("_embedded.sw360:components[]ownerGroup").description("The owner group of the component"),
-                                fieldWithPath("_embedded.sw360:components[]ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -177,7 +173,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
                                 fieldWithPath("description").description("The component description"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
-                                fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("componentOwner").description("The owner name of the component"),
                                 fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
                                 fieldWithPath("ownerGroup").description("The owner group of the component"),
@@ -219,7 +214,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("componentOwner").description("The owner name of the component"),
                                 fieldWithPath("description").description("The component description"),
                                 fieldWithPath("createdOn").description("The date the component was created"),
-                                fieldWithPath("type").description("is always 'component'"),
                                 fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
                                 fieldWithPath("ownerGroup").description("The owner group of the component"),
                                 fieldWithPath("ownerCountry").description("The owner country of the component"),
@@ -242,9 +236,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("_embedded.sw360:components[]name").description("The name of the component"),
                                 fieldWithPath("_embedded.sw360:components[]componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("_embedded.sw360:components[]ownerAccountingUnit").description("The owner accounting unit of the component"),
-                                fieldWithPath("_embedded.sw360:components[]ownerGroup").description("The owner group of the component"),
-                                fieldWithPath("_embedded.sw360:components[]ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
@@ -264,9 +255,6 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 fieldWithPath("_embedded.sw360:components[]name").description("The name of the component"),
                                 fieldWithPath("_embedded.sw360:components[]componentType").description("The component type, possible values are: " + Arrays.asList(ComponentType.values())),
-                                fieldWithPath("_embedded.sw360:components[]ownerAccountingUnit").description("The owner accounting unit of the component"),
-                                fieldWithPath("_embedded.sw360:components[]ownerGroup").description("The owner group of the component"),
-                                fieldWithPath("_embedded.sw360:components[]ownerCountry").description("The owner country of the component"),
                                 fieldWithPath("_embedded.sw360:components").description("An array of <<resources-components, Components resources>>"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
