@@ -28,6 +28,9 @@ To migrate it is recommended to do this in the following order:
 - `007_add_submitters_usergroup_to_moderation_request.py`
 - `008_add_component_type_to_moderation_requests.py`
 
+## Optional usage
+- `009_overwrite_release_name_with_component_name.py`
+
 ## Run the scripts for a database not running on localhost
 tbd.
 

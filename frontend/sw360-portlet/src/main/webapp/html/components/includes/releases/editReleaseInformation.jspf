@@ -27,18 +27,10 @@
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_name">Name</label>
-            <input id="comp_name" name="<portlet:namespace/><%=Release._Fields.NAME%>" type="text"
-                   placeholder="Enter Name" required="" class="followedByImg"
-                    <core_rt:if test="${ not empty release.name}">
-                        value="<sw360:out value="${release.name}"/>"
-                    </core_rt:if>
-                    <core_rt:if test="${ empty release.name}">
-                        value="<sw360:out value="${component.name}"/>"
-                    </core_rt:if>
-
-                    />
+            <input id="comp_name" name="<portlet:namespace/><%=Release._Fields.NAME%>" type="text" readonly="true"
+                   placeholder="Enter Name" required="" class="followedByImg" value="<sw360:out value="${component.name}"/>"/>
             <img class="infopic" src="<%=request.getContextPath()%>/images/ic_info.png"
-                 title="Name of the release"/>
+                 title="Name of the component"/>
         </td>
         <td width="33%">
             <label class="textlabel stackedLabel mandatory" for="comp_version">Version</label>
@@ -47,7 +39,6 @@
                    value="<sw360:out value="${release.version}"/>"/>
         </td>
     </tr>
-
     <tr>
         <td width="33%">
             <label class="textlabel stackedLabel" for="programminglanguages">Programming Languages</label>
