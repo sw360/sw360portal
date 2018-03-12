@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -37,6 +37,7 @@
     <portlet:param name="<%=PortalConstants.RELEASE_ID%>" value="${release.id}"/>
 </portlet:resourceURL>
 
+
 <c:catch var="attributeNotFoundException">
     <jsp:useBean id="component" class="org.eclipse.sw360.datahandler.thrift.components.Component" scope="request"/>
     <jsp:useBean id="releaseId" class="java.lang.String" scope="request"/>
@@ -58,28 +59,60 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/sw360.css">
     <script type="text/javascript" src="<%=request.getContextPath()%>/js/releaseTools.js"></script>
 
-    <div id="header"></div>
-    <p class="pageHeader"><label id="releaseHeaderLabel"><span class="pageHeaderBigSpan">Component: <sw360:out value="${component.name}"/></span>
-        <select id="releaseSelect" onchange="this.options[this.selectedIndex].value
-        && (window.location = createDetailURLfromReleaseId (this.options[this.selectedIndex].value) );">
-            <core_rt:forEach var="releaseItr" items="${component.releases}">
-                <option <core_rt:if test="${releaseItr.id == releaseId}"> selected </core_rt:if>
-                        value="${releaseItr.id}"><sw360:ReleaseName release="${releaseItr}" />
-                </option>
-            </core_rt:forEach>
-        </select>
-        <span class="pull-right">
-        <input type="button" id="edit" data-release-id="${releaseId}" value="Edit" class="addButton">
-        <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}" id="SubscribeButton" />
-    </span>
-    </label>
-    </p>
+      <div id="header">
+        <p class="pageHeader"> <span class="pageHeaderBigSpan"> Component: ${component.name}</span>
+
+            <span class="dropdown">
+                <core_rt:forEach var="releaseItr" items="${component.releases}">
+                    <core_rt:if test="${releaseItr.id == releaseId}"> <button id="dropbtn" class="dropbtn"> ${releaseItr.name} ${releaseItr.version} <span class="arrow-down"/>  </button> </core_rt:if>
+                </core_rt:forEach>
+                <span id="releaseDropdown" class="dropdown-content">
+                <core_rt:forEach var="releaseItr" items="${component.releases}">
+                    <a href="#" onclick="window.location=createDetailURLfromReleaseId( '${releaseItr.id}')">${releaseItr.name} ${releaseItr.version}
+                        <core_rt:if test="${releaseItr.clearingState.value == 4}">  <span class="sw360CircleOK"> </span> </core_rt:if>
+                        <core_rt:if test="${releaseItr.clearingState.value == 0}"> <span class="sw360CircleAlert"> </span> </core_rt:if>
+                        <core_rt:if test="${releaseItr.clearingState.value == 1}">  <span class="sw360CircleAlert"> </span> </core_rt:if>
+                        <core_rt:if test="${releaseItr.clearingState.value == 2}">  <span class="sw360CircleWarning"> </span> </core_rt:if>
+                        <core_rt:if test="${releaseItr.clearingState.value == 3}">  <span class="sw360CircleWarning"> </span> </core_rt:if>
+                    </a>
+                </core_rt:forEach>
+                </span>
+            </span>
+            <span class="pull-right">
+                <input type="button" id="edit" data-release-id="${releaseId}" value="Edit" class="addButton">
+                <sw360:DisplaySubscribeButton email="<%=themeDisplay.getUser().getEmailAddress()%>" object="${release}" id="SubscribeButton" />
+            </span>
+        </p>
+        </div>
+
     <core_rt:set var="inReleaseDetailsContext" value="true" scope="request"/>
     <%@include file="/html/components/includes/releases/detailOverview.jspf"%>
 </core_rt:if>
 <script>
+    /* variables used in releaseTools.js ... */
+    var releaseIdInURL = '<%=PortalConstants.RELEASE_ID%>',
+        compIdInURL = '<%=PortalConstants.COMPONENT_ID%>',
+        componentId = '${component.id}',
+        pageName = '<%=PortalConstants.PAGENAME%>',
+        pageDetail = '<%=PortalConstants.PAGENAME_RELEASE_DETAIL%>',
+        /* baseUrl also used in method in require block */
+        baseUrl = '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>';
+
+
+
     require(['jquery', 'modules/tabview'], function($, tabview) {
+
         tabview.create('myTab');
+
+        $('#dropbtn').on('click', function(event) {
+            $("#releaseDropdown").toggleClass("show");
+        });
+
+        $(window).click(function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                $("#releaseDropdown").removeClass("show");
+            }
+        });
 
         $('#edit').on('click', function(event) {
             editRelease($(event.currentTarget).data().releaseId);
@@ -122,6 +155,8 @@
                     .setParameter('<%=PortalConstants.COMPONENT_ID%>', '${component.id}');
             window.location = portletURL.toString();
         }
+
+
     });
 </script>
 
