@@ -16,6 +16,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.attachment.AttachmentInfo;
@@ -29,16 +30,16 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -81,11 +82,12 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
             releaseResources.add(releaseResource);
         }
         Resources<Resource> resources = new Resources<>(releaseResources);
+
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
     private Release searchReleaseBySha1(String sha1, User sw360User) throws TException {
-        AttachmentInfo sw360AttachmentInfo = this.attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
+        AttachmentInfo sw360AttachmentInfo = attachmentService.getAttachmentBySha1ForUser(sha1, sw360User);
         return sw360AttachmentInfo.getRelease();
     }
 
@@ -138,6 +140,40 @@ public class ReleaseController implements ResourceProcessor<RepositoryLinksResou
                 .buildAndExpand(sw360Release.getId()).toUri();
 
         return ResponseEntity.created(location).body(halResource);
+    }
+
+    @RequestMapping(value = RELEASES_URL + "/{releaseId}/attachments", method = RequestMethod.POST, consumes = {"multipart/mixed", "multipart/form-data"})
+    public ResponseEntity<HalResource> addAttachmentToRelease(@PathVariable("releaseId") String releaseId, OAuth2Authentication oAuth2Authentication,
+                                                              @RequestPart("file") MultipartFile file,
+                                                              @RequestPart("attachment") Attachment newAttachment) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+
+        Attachment attachment;
+        try {
+            attachment = attachmentService.uploadAttachment(file, newAttachment, sw360User);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        final Release release = releaseService.getReleaseForUserById(releaseId, sw360User);
+        release.addToAttachments(attachment);
+        releaseService.updateRelease(release, sw360User);
+
+        final HalResource halRelease = restControllerHelper.createHalReleaseResource(release, true);
+
+        return new ResponseEntity<>(halRelease, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = RELEASES_URL + "/{releaseId}/attachments/{attachmentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadAttachmentFromRelease(
+            @PathVariable("releaseId") String releaseId,
+            @PathVariable("attachmentId") String attachmentId,
+            HttpServletResponse response,
+            OAuth2Authentication oAuth2Authentication) throws TException {
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        Release release = releaseService.getReleaseForUserById(releaseId, sw360User);
+        attachmentService.downloadAttachmentWithContext(release, attachmentId, response, oAuth2Authentication);
     }
 
     @Override

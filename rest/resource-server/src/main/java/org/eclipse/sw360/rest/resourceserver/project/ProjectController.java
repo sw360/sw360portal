@@ -16,18 +16,27 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.MainlineState;
 import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.ReleaseRelationship;
 import org.eclipse.sw360.datahandler.thrift.components.Release;
 import org.eclipse.sw360.datahandler.thrift.licenses.License;
+import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentContent;
+import org.eclipse.sw360.datahandler.thrift.attachments.AttachmentType;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseInfoFile;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.LicenseNameWithText;
+import org.eclipse.sw360.datahandler.thrift.licenseinfo.OutputFormatInfo;
 import org.eclipse.sw360.datahandler.thrift.projects.Project;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectRelationship;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityDTO;
+import org.eclipse.sw360.rest.resourceserver.attachment.Sw360AttachmentService;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.eclipse.sw360.rest.resourceserver.license.Sw360LicenseService;
+import org.eclipse.sw360.rest.resourceserver.licenseinfo.Sw360LicenseInfoService;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
 import org.eclipse.sw360.rest.resourceserver.vulnerability.Sw360VulnerabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +46,22 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -66,6 +82,12 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
     @NonNull
     private final Sw360VulnerabilityService vulnerabilityService;
+
+    @NonNull
+    private final Sw360AttachmentService attachmentService;
+
+    @NonNull
+    private final Sw360LicenseInfoService licenseInfoService;
 
     @NonNull
     private final RestControllerHelper restControllerHelper;
@@ -237,6 +259,103 @@ public class ProjectController implements ResourceProcessor<RepositoryLinksResou
 
         final Resources<Resource<License>> resources = new Resources<>(licenseResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{id}/licenseinfo", method = RequestMethod.GET)
+    public void downloadLicenseInfo(@PathVariable("id") String id,
+                                    OAuth2Authentication oAuth2Authentication,
+                                    @RequestParam("generatorClassName") String generatorClassName,
+                                    HttpServletResponse response) throws TException, IOException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Project sw360Project = projectService.getProjectForUserById(id, sw360User);
+
+        final Map<String, Set<String>> selectedReleaseAndAttachmentIds = new HashMap<>();
+        for (final String releaseId : sw360Project.getReleaseIdToUsage().keySet()) {
+            final Release release = releaseService.getReleaseForUserById(releaseId, sw360User);
+            if (release.isSetAttachments()) {
+                if (!selectedReleaseAndAttachmentIds.containsKey(releaseId)) {
+                    selectedReleaseAndAttachmentIds.put(releaseId, new HashSet<>());
+                }
+                final Set<Attachment> attachments = release.getAttachments();
+                for (final Attachment attachment : attachments) {
+                    selectedReleaseAndAttachmentIds.get(releaseId)
+                            .add(attachment.getAttachmentContentId());
+                }
+            }
+        }
+
+        final Map<String, Set<LicenseNameWithText>> excludedLicenses = new HashMap<>(); // TODO: implement method to determine excluded licenses
+
+        final String projectName = sw360Project.getName();
+        final String timestamp = SW360Utils.getCreatedOn();
+        final OutputFormatInfo outputFormatInfo = licenseInfoService.getOutputFormatInfoForGeneratorClass(generatorClassName);
+        final String filename = String.format("LicenseInfo-%s-%s.%s", projectName, timestamp, outputFormatInfo.getFileExtension());
+
+        final LicenseInfoFile licenseInfoFile = licenseInfoService.getLicenseInfoFile(sw360Project, sw360User, generatorClassName, selectedReleaseAndAttachmentIds, excludedLicenses);
+        byte[] byteContent = licenseInfoFile.bufferForGeneratedOutput().array();
+        response.setContentType(outputFormatInfo.getMimeType());
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+        FileCopyUtils.copy(byteContent, response.getOutputStream());
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{projectId}/attachments/{attachmentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadAttachmentFromProject(
+            @PathVariable("projectId") String projectId,
+            @PathVariable("attachmentId") String attachmentId,
+            HttpServletResponse response,
+            OAuth2Authentication oAuth2Authentication) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Project project = projectService.getProjectForUserById(projectId, sw360User);
+        this.attachmentService.downloadAttachmentWithContext(project, attachmentId, response, oAuth2Authentication);
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{projectId}/attachments/clearingReports", method = RequestMethod.GET, produces = "application/zip")
+    public void downloadClearingReports(
+            @PathVariable("projectId") String projectId,
+            HttpServletResponse response,
+            OAuth2Authentication oAuth2Authentication) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+        final Project project = projectService.getProjectForUserById(projectId, sw360User);
+        final String filename = "Clearing-Reports-" + project.getName() + ".zip";
+
+
+        final Set<Attachment> attachments = project.getAttachments();
+        final Set<AttachmentContent> clearingAttachments = new HashSet<>();
+        for (final Attachment attachment : attachments) {
+            if (attachment.getAttachmentType().equals(AttachmentType.CLEARING_REPORT)) {
+                clearingAttachments.add(attachmentService.getAttachmentContent(attachment.getAttachmentContentId()));
+            }
+        }
+
+        try (InputStream attachmentStream = attachmentService.getStreamToAttachments(clearingAttachments, sw360User, project)) {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+            FileCopyUtils.copy(attachmentStream, response.getOutputStream());
+        } catch (final TException | IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = PROJECTS_URL + "/{projectId}/attachments", method = RequestMethod.POST, consumes = {"multipart/mixed", "multipart/form-data"})
+    public ResponseEntity<HalResource> addAttachmentToProject(@PathVariable("projectId") String projectId, OAuth2Authentication oAuth2Authentication,
+                                                              @RequestPart("file") MultipartFile file,
+                                                              @RequestPart("attachment") Attachment newAttachment) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication(oAuth2Authentication);
+
+        Attachment attachment;
+        try {
+            attachment = attachmentService.uploadAttachment(file, newAttachment, sw360User);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        final Project project = projectService.getProjectForUserById(projectId, sw360User);
+        project.addToAttachments(attachment);
+        projectService.updateProject(project, sw360User);
+
+        final HalResource<Project> halResource = createHalProject(project, sw360User);
+        return new ResponseEntity<>(halResource, HttpStatus.OK);
     }
 
     @Override
