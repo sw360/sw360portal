@@ -131,8 +131,8 @@
 
         function submitChosenComponent($stepElement) {
             var checkedList = $stepElement.find('input:checked');
-            if (checkedList.size() !== 1) {
-                $stepElement.find('.stepFeedback').html('<div class="alert">Please choose exactly one component!</div>');
+            if (checkedList.size() !== 1 || $(checkedList.get(0)).val() ===  $wizardRoot.data('componentTargetId')) {
+                $stepElement.find('.stepFeedback').html('<div class="alert">Please choose exactly one component, which is not the component itself!</div>');
                 $('html, body').stop().animate({ scrollTop: 0 }, 300, 'swing');
                 setTimeout(function() {
                     $stepElement.find('.stepFeedback').html('');
