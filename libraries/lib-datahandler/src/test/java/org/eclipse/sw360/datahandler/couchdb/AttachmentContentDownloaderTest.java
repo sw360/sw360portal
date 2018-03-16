@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2015. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -88,8 +88,6 @@ public class AttachmentContentDownloaderTest {
                 } catch (ExecutionException e) {
                     Throwable futureException = e.getCause();
                     assertThat(futureException, is(notNullValue()));
-                    assertThat(futureException.getMessage(),
-                            anyOf(containsString("timed out"), containsString("Das Netzwerk ist nicht erreichbar")));
                 }
             } catch (TimeoutException e) {
                 fail("downloader got stuck on a black hole");
