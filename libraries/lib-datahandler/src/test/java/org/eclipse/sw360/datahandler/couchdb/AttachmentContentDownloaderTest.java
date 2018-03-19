@@ -21,6 +21,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.*;
 
 import static org.eclipse.sw360.datahandler.TestUtils.*;
@@ -28,6 +30,7 @@ import static org.eclipse.sw360.datahandler.common.Duration.durationOf;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.mock;
@@ -63,16 +66,13 @@ public class AttachmentContentDownloaderTest {
     public void testABlackHoleUrl() throws Exception {
         assumeThat(getAvailableNetworkInterface(), isAvailable());
 
-        Callable<String> downloadAttempt = new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                AttachmentContent attachmentContent = mock(AttachmentContent.class);
-                when(attachmentContent.getRemoteUrl()).thenReturn("http://" + BLACK_HOLE_ADDRESS + "/filename");
+        Callable<String> downloadAttempt = () -> {
+            AttachmentContent attachmentContent = mock(AttachmentContent.class);
+            when(attachmentContent.getRemoteUrl()).thenReturn("http://" + BLACK_HOLE_ADDRESS + "/filename");
 
-                try (InputStream download = attachmentContentDownloader
-                        .download(attachmentContent, downloadTimeout)) {
-                    return CharStreams.toString(new InputStreamReader(download));
-                }
+            try (InputStream download = attachmentContentDownloader
+                    .download(attachmentContent, downloadTimeout)) {
+                return CharStreams.toString(new InputStreamReader(download));
             }
         };
 
@@ -88,6 +88,7 @@ public class AttachmentContentDownloaderTest {
                 } catch (ExecutionException e) {
                     Throwable futureException = e.getCause();
                     assertThat(futureException, is(notNullValue()));
+                    assertTrue(futureException instanceof SocketException || futureException instanceof SocketTimeoutException);
                 }
             } catch (TimeoutException e) {
                 fail("downloader got stuck on a black hole");
