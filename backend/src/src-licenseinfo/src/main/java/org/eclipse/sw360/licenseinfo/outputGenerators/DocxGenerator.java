@@ -17,6 +17,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.thrift.TException;
 import org.apache.xmlbeans.XmlException;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.ThriftClients;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
@@ -24,6 +25,7 @@ import org.eclipse.sw360.datahandler.thrift.licenses.License;
 import org.eclipse.sw360.datahandler.thrift.licenses.LicenseService;
 import org.eclipse.sw360.datahandler.thrift.licenses.Todo;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
@@ -48,28 +50,33 @@ public class DocxGenerator extends OutputGenerator<byte[]> {
     @Override
     public byte[] generateOutputFile(Collection<LicenseInfoParsingResult> projectLicenseInfoResults, String projectName, String projectVersion, String licenseInfoHeaderText) throws SW360Exception {
         ByteArrayOutputStream docxOutputStream = new ByteArrayOutputStream();
-        try {
-            XWPFDocument xwpfDocument = new XWPFDocument(this.getClass().getResourceAsStream(DOCX_TEMPLATE_FILE));
-            switch (getOutputVariant()) {
-                case DISCLOSURE:
-                    fillDocument(xwpfDocument, projectLicenseInfoResults, projectName, projectVersion, licenseInfoHeaderText, false);
-                    break;
-                case REPORT:
-                    fillDocument(xwpfDocument, projectLicenseInfoResults, projectName, projectVersion, licenseInfoHeaderText, true);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown generator variant type: " + getOutputVariant());
+        Optional<byte[]> docxTemplateFile = CommonUtils.loadResource(DocxGenerator.class, DOCX_TEMPLATE_FILE);
+        if (docxTemplateFile.isPresent()) {
+            try {
+                XWPFDocument xwpfDocument = new XWPFDocument(new ByteArrayInputStream(docxTemplateFile.get()));
+                switch (getOutputVariant()) {
+                    case DISCLOSURE:
+                        fillDocument(xwpfDocument, projectLicenseInfoResults, projectName, projectVersion, licenseInfoHeaderText, false);
+                        break;
+                    case REPORT:
+                        fillDocument(xwpfDocument, projectLicenseInfoResults, projectName, projectVersion, licenseInfoHeaderText, true);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown generator variant type: " + getOutputVariant());
+                }
+                xwpfDocument.write(docxOutputStream);
+                docxOutputStream.close();
+            } catch (XmlException e) {
+                throw new SW360Exception("Got XmlException while generating docx document: " + e.getMessage());
+            } catch (IOException e) {
+                throw new SW360Exception("Got IOException when generating docx document: " + e.getMessage());
+            } catch (TException e) {
+                throw new SW360Exception("Error reading sw360 licenses: " + e.getMessage());
             }
-            xwpfDocument.write(docxOutputStream);
-            docxOutputStream.close();
-        } catch (XmlException e) {
-            throw new SW360Exception("Got XmlException while generating docx document: " + e.getMessage());
-        } catch (IOException e) {
-            throw new SW360Exception("Got IOException when generating docx document: " + e.getMessage());
-        } catch (TException e) {
-            throw new SW360Exception("Error reading sw360 licenses: " + e.getMessage());
+            return docxOutputStream.toByteArray();
+        } else {
+            throw new SW360Exception("Could not load the template for xwpf document: " + DOCX_TEMPLATE_FILE);
         }
-        return docxOutputStream.toByteArray();
     }
 
     private void fillDocument(XWPFDocument document, Collection<LicenseInfoParsingResult> projectLicenseInfoResults,

@@ -13,13 +13,16 @@
 
 package org.eclipse.sw360.licenseinfo.outputGenerators;
 
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 import org.apache.velocity.tools.ToolManager;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenseinfo.*;
@@ -93,8 +96,10 @@ public abstract class OutputGenerator<T> {
 
     public VelocityContext getConfiguredVelocityContext() {
         Properties p = new Properties();
-        p.setProperty("resource.loader", "class");
-        p.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        p.setProperty(RuntimeConstants.RESOURCE_LOADER, "file, class");
+        p.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, CommonUtils.SYSTEM_CONFIGURATION_PATH);
+        p.setProperty("file.resource.loader.class", FileResourceLoader.class.getName());
+        p.setProperty("class.resource.loader.class", ClasspathResourceLoader.class.getName());
         Velocity.init(p);
         ToolManager velocityToolManager = new ToolManager();
         velocityToolManager.configure(VELOCITY_TOOLS_FILE);

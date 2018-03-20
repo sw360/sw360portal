@@ -55,7 +55,7 @@ import static org.apache.log4j.LogManager.getLogger;
  */
 public class CommonUtils {
 
-    private static String SYSTEM_CONFIGURATION_PATH = "/etc/sw360";
+    public static final String SYSTEM_CONFIGURATION_PATH = "/etc/sw360";
 
     private CommonUtils() {
         // Utility class with only static functions
