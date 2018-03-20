@@ -242,14 +242,18 @@ function deleteConfirmed(confirmMessage, confirmCallback) {
     return $.confirm({
         title: 'Warning',
         content: confirmMessage,
-        confirmButtonClass: 'btn-info',
-        cancelButtonClass: 'btn-danger',
         buttons: {
-            confirm: function() {
-                confirmCallback();
+            confirm: {
+                btnClass: 'btn-green',
+                action: function() {
+                    confirmCallback();
+                }
             },
-            cancel: function () {
+            cancel: { 
+                btnClass: 'btn-red',
+                action: function () {
                 //close
+                }
             }
        }
     });
