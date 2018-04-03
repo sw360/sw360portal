@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -80,6 +80,7 @@ import static org.eclipse.sw360.portal.common.PortletUtils.getVerificationState;
  * @author Johannes.Najjar@tngtech.com
  * @author stefan.jaeger@evosoft.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class ComponentPortlet extends FossologyAwarePortlet {
 
@@ -760,19 +761,22 @@ public class ComponentPortlet extends FossologyAwarePortlet {
     private void setUsingDocs(RenderRequest request, User user, ComponentService.Iface client, Set<String> releaseIds) {
         Set<Project> usingProjects = null;
         Set<Component> usingComponentsForComponent = null;
+        int allUsingProjectsCount = 0;
+
         if (releaseIds != null && releaseIds.size() > 0) {
             try {
                 ProjectService.Iface projectClient = thriftClients.makeProjectClient();
                 usingProjects = projectClient.searchByReleaseIds(releaseIds, user);
+                allUsingProjectsCount = projectClient.getCountByReleaseIds(releaseIds);
                 usingComponentsForComponent = client.getUsingComponentsForComponent(releaseIds);
             } catch (TException e) {
                 log.error("Problem filling using docs", e);
             }
-
         }
 
         request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
         request.setAttribute(USING_COMPONENTS, nullToEmptySet(usingComponentsForComponent));
+        request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectsCount);
     }
 
     private void prepareReleaseDetailView(RenderRequest request, RenderResponse response) throws PortletException {
@@ -914,12 +918,14 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             ProjectService.Iface projectClient = thriftClients.makeProjectClient();
             Set<Project> usingProjects = projectClient.searchByReleaseId(releaseId, user);
             request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
-
+            int allUsingProjectsCount = projectClient.getCountByReleaseIds(Collections.singleton(releaseId));
+            request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectsCount);
             final Set<Component> usingComponentsForRelease = client.getUsingComponentsForRelease(releaseId);
             request.setAttribute(USING_COMPONENTS, nullToEmptySet(usingComponentsForRelease));
         } else {
             request.setAttribute(USING_PROJECTS, Collections.emptySet());
             request.setAttribute(USING_COMPONENTS, Collections.emptySet());
+            request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
         }
     }
 
@@ -1050,6 +1056,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         setAttachmentsInRequest(request, component.getAttachments());
         request.setAttribute(USING_PROJECTS, Collections.emptySet());
         request.setAttribute(USING_COMPONENTS, Collections.emptySet());
+        request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
     }
 
     @UsedAsLiferayAction
@@ -1117,6 +1124,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
         putDirectlyLinkedReleaseRelationsInRequest(request, release);
         request.setAttribute(USING_PROJECTS, Collections.emptySet());
         request.setAttribute(USING_COMPONENTS, Collections.emptySet());
+        request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
     }
 
     private void fillVendor(Release release) throws TException {

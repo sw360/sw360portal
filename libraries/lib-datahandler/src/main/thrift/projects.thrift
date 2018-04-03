@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -294,4 +294,14 @@ service ProjectService {
      * get clearing status data for all releases linked by the given project and its subprojects
      */
     list<ReleaseClearingStatusData> getReleaseClearingStatuses(1: string projectId, 2: User user);
+
+    /**
+     * get the count value of projects which have `id` in releaseIdToUsage
+     */
+    i32 getCountByReleaseIds(1: set<string> ids);
+
+    /**
+     * get the count value of projects which have `id` in linkedProjects
+     */
+    i32 getCountByProjectId(1: string id);
 }

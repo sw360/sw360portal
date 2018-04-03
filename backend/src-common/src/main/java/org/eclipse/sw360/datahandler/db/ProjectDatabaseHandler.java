@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -53,6 +53,7 @@ import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePerm
  * @author cedric.bodet@tngtech.com
  * @author daniele.fognini@tngtech.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class ProjectDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
@@ -428,6 +429,14 @@ public class ProjectDatabaseHandler extends AttachmentAwareDatabaseHandler {
         }
 
         return output;
+    }
+
+    public int getCountByReleaseIds(Set<String> ids) {
+        return repository.getCountByReleaseIds(ids);
+    }
+
+    public int getCountByProjectId(String id) {
+        return repository.getCountByProjectId(id);
     }
 
     public Set<Project> getAccessibleProjects(User user) {

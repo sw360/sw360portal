@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -39,6 +39,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class ProjectHandler implements ProjectService.Iface {
 
@@ -137,6 +138,18 @@ public class ProjectHandler implements ProjectService.Iface {
         assertNotNull(project);
 
         return project;
+    }
+
+    @Override
+    public int getCountByReleaseIds(Set<String> ids) throws TException {
+        assertNotEmpty(ids);
+        return handler.getCountByReleaseIds(ids);
+    }
+
+    @Override
+    public int getCountByProjectId(String id) throws TException {
+        assertNotEmpty(id);
+        return handler.getCountByProjectId(id);
     }
 
     ////////////////////////////

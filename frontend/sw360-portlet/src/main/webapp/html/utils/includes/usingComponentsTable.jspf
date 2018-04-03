@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -11,7 +11,7 @@
 --%>
 
 <core_rt:if test="${usingComponents != null  && usingComponents.size()>0}">
-    <table class="table info_table"">
+    <table class="table info_table">
         <thead>
         <tr>
             <th colspan="4"><sw360:out value="${documentName}"/> is used by the following components</th>

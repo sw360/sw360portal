@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~ With contributions by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -10,12 +10,13 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 --%>
 
-<core_rt:if test="${usingProjects != null  && usingProjects.size()>0}">
+<core_rt:if test="${usingProjects != null && allUsingProjectsCount > 0}">
     <div id="usingProjectsTableDiv">
         <table id="usingProjectsTable" class="table info_table">
                 <thead>
                 <tr>
-                    <th colspan="3"><sw360:out value="${documentName}"/> is used by the following projects</th>
+                    <th colspan="3"><sw360:out value="${documentName}"/> is used by a total of ${allUsingProjectsCount}
+                        (${usingProjects.size()} visible / ${allUsingProjectsCount - usingProjects.size()} restricted) projects</th>
                 </tr>
                 <tr>
                     <th>Project Name</th><th>Group</th><th>Responsible</th>

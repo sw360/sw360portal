@@ -45,6 +45,7 @@
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>"
                  scope="request"/>
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="allUsingProjectsCount" type="java.lang.Integer" scope="request"/>
     <core_rt:set var="cotsMode" value="<%=component.componentType == ComponentType.COTS%>"/>
     <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>
     <core_rt:if test="${vulnerabilityVerificationEditable}">
