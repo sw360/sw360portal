@@ -8,6 +8,7 @@
  */
 package org.eclipse.sw360.rest.resourceserver.restdocs;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.thrift.TException;
 import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.components.ComponentType;
@@ -72,6 +73,9 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         angularComponent.setOwnerAccountingUnit("4822");
         angularComponent.setOwnerCountry("DE");
         angularComponent.setOwnerGroup("AA BB 123 GHV2-DE");
+        angularComponent.setCategories(ImmutableSet.of("java", "javascript", "sql"));
+        angularComponent.setLanguages(ImmutableSet.of("EN", "DE"));
+        angularComponent.setOperatingSystems(ImmutableSet.of("Windows", "Linux"));
         componentList.add(angularComponent);
         componentListByName.add(angularComponent);
 
@@ -88,6 +92,9 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
         springComponent.setOwnerAccountingUnit("5661");
         springComponent.setOwnerCountry("FR");
         springComponent.setOwnerGroup("SIM-KA12");
+        springComponent.setCategories(ImmutableSet.of("jdbc", "java"));
+        springComponent.setLanguages(ImmutableSet.of("EN", "DE"));
+        springComponent.setOperatingSystems(ImmutableSet.of("Windows", "Linux"));
         componentList.add(springComponent);
 
         when(this.componentServiceMock.createComponent(anyObject(), anyObject())).then(invocation -> {
@@ -177,6 +184,9 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
                                 fieldWithPath("ownerGroup").description("The owner group of the component"),
                                 fieldWithPath("ownerCountry").description("The owner country of the component"),
+                                fieldWithPath("categories").description("The component categories"),
+                                fieldWithPath("languages").description("The language of the component"),
+                                fieldWithPath("operatingSystems").description("The OS on which the component operates"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this component"),
                                 fieldWithPath("_embedded.sw360:releases").description("An array of all component releases with version and link to their <<resources-releases,Releases resource>>"),
@@ -217,6 +227,9 @@ public class ComponentSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the component"),
                                 fieldWithPath("ownerGroup").description("The owner group of the component"),
                                 fieldWithPath("ownerCountry").description("The owner country of the component"),
+                                fieldWithPath("categories").description("The component categories"),
+                                fieldWithPath("languages").description("The language of the component"),
+                                fieldWithPath("operatingSystems").description("The OS on which the component operates"),
                                 fieldWithPath("_embedded.createdBy").description("The user who created this component"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources")
                         )));
