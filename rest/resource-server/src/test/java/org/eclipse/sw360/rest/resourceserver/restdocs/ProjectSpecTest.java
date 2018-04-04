@@ -87,6 +87,10 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         project.setOwnerAccountingUnit("4822");
         project.setOwnerCountry("DE");
         project.setOwnerGroup("AA BB 123 GHV2-DE");
+        project.setTag("project test tag 1");
+        project.setPreevaluationDeadline("2018-07-17");
+        project.setSystemTestStart("2017-01-01");
+        project.setSystemTestEnd("2018-03-01");
         linkedReleases.put("3765276512", projectReleaseRelationship);
         project.setReleaseIdToUsage(linkedReleases);
         linkedProjects.put("376576", ProjectRelationship.CONTAINED);
@@ -106,6 +110,10 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         project2.setOwnerAccountingUnit("5661");
         project2.setOwnerCountry("FR");
         project2.setOwnerGroup("SIM-KA12");
+        project2.setTag("project test tag 2");
+        project2.setPreevaluationDeadline("2018-07-17");
+        project2.setSystemTestStart("2017-01-01");
+        project2.setSystemTestEnd("2018-03-01");
         project2.setExternalIds(Collections.singletonMap("mainline-id-project", "7657"));
         linkedReleases = new HashMap<>();
         linkedReleases.put("5578999", projectReleaseRelationship);
@@ -206,6 +214,10 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
                                 fieldWithPath("ownerAccountingUnit").description("The owner accounting unit of the project"),
                                 fieldWithPath("ownerGroup").description("The owner group of the project"),
                                 fieldWithPath("ownerCountry").description("The owner country of the project"),
+                                fieldWithPath("tag").description("The project tag"),
+                                fieldWithPath("preevaluationDeadline").description("The project preevaluation deadline"),
+                                fieldWithPath("systemTestStart").description("Date of the project system begin phase"),
+                                fieldWithPath("systemTestEnd").description("Date of the project system end phase"),
                                 fieldWithPath("linkedProjects").description("The relationship between linked projects of the project"),
                                 fieldWithPath("linkedReleases").description("The relationship between linked releases of the project"),
                                 fieldWithPath("_links").description("<<resources-index-links,Links>> to other resources"),
