@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -13,18 +13,17 @@ package org.eclipse.sw360.licenses;
 import org.eclipse.sw360.datahandler.TestUtils;
 import org.eclipse.sw360.datahandler.common.DatabaseSettings;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
+import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.licenses.*;
 import org.eclipse.sw360.datahandler.thrift.users.User;
+import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -35,7 +34,6 @@ import static org.junit.Assert.*;
  */
 public class LicenseHandlerTest {
 
-    private static final String url = DatabaseSettings.COUCH_DB_URL;
     private static final String dbName = DatabaseSettings.COUCH_DB_DATABASE;
 
     private LicenseHandler handler;
@@ -67,7 +65,7 @@ public class LicenseHandlerTest {
         handler = new LicenseHandler();
 
         // Create the user
-        user = new User().setEmail("test@siemens.com").setDepartment("CT BE OP SWI OSS");
+        user = new User().setEmail("test@siemens.com").setDepartment("CT BE OP SWI OSS").setUserGroup(UserGroup.ADMIN);
     }
 
     @After
@@ -95,7 +93,7 @@ public class LicenseHandlerTest {
 
     @Test
     public void testGetLicense() throws Exception {
-        License expLicense = licenses.get("Apache 1.1");
+        License expLicense = licenses.get("Apache-1.1");
         License actLicense = handler.getByID(expLicense.getId(), user.getDepartment());
 
         assertEquals(expLicense.getId(), actLicense.getId());
@@ -135,6 +133,47 @@ public class LicenseHandlerTest {
         assertEquals(obligations.size(), actualObligations.size());
     }
 
+    @Test
+    public void testAddLicense() throws Exception {
+        License license = new License();
+        license.setShortname("GPL+3.0");
+        license.setFullname("The GPL Software License, Version 3.0");
+
+        RequestStatus status = handler.updateLicense(license, user, user);
+        assertEquals(RequestStatus.SUCCESS, status);
+
+        License licenseActual = handler.getByID(license.getShortname(), user.getDepartment());
+        assertEquals("GPL+3.0", licenseActual.getId());
+        assertEquals("GPL+3.0", licenseActual.getShortname());
+        assertEquals("The GPL Software License, Version 3.0", licenseActual.getFullname());
+    }
+
+    @Test
+    public void testUpdateLicense() throws Exception {
+        License license = licenses.get("Apache-1.1");
+        license.setFullname("Fullname of license changed");
+        RequestStatus status = handler.updateLicense(license, user, user);
+        assertEquals(RequestStatus.SUCCESS, status);
+
+        License licenseActual = handler.getByID(license.getShortname(), user.getDepartment());
+        assertEquals("Fullname of license changed", licenseActual.getFullname());
+    }
+
+    @Test(expected = SW360Exception.class)
+    public void testAddLicenseNotValid() throws Exception {
+        License invalidLicense = new License();
+        invalidLicense.setShortname("Invalid ! License Id ???");
+        invalidLicense.setFullname("This is a invalid license");
+        handler.updateLicense(invalidLicense, user, user);
+    }
+
+    @Test(expected = SW360Exception.class)
+    public void testUpdateLicenseIdNotMatch() throws Exception {
+        License invalidLicense = licenses.get("Apache-1.1");
+        invalidLicense.setShortname("Apache-2.0");
+        handler.updateLicense(invalidLicense, user, user);
+    }
+
     public void createTestEntries() throws MalformedURLException {
         // List of test objects
         licenses = new HashMap<>();
@@ -142,7 +181,8 @@ public class LicenseHandlerTest {
         obligations = new HashMap<>();
 
         License license1 = new License();
-        license1.setId("Apache 1.1");
+        license1.setShortname("Apache-1.1");
+        license1.setId("Apache-1.1");
         license1.setFullname("The Apache Software License, Version 1.1");
         license1.setLicenseType(new LicenseType().setLicenseTypeId(3).setType("Red - copyleft effect"));
         license1.addToRisks(new Risk().setRiskId(123123).setText("If Siemens uses this contractor pattern a long text follows here for reading and display... this might be long.").setCategory(new RiskCategory().setRiskCategoryId(32).setText("Beige")));
@@ -154,7 +194,8 @@ public class LicenseHandlerTest {
         licenses.put(license1.id, license1);
 
         License license2 = new License();
-        license2.setId("Apache 2.0");
+        license2.setShortname("Apache-2.0");
+        license2.setId("Apache-2.0");
         license2.setFullname("The Apache Software License, Version 2.0");
         license2.setReviewdate("12.12.2012");
         license2.addToTodoDatabaseIds("T3");
@@ -202,5 +243,4 @@ public class LicenseHandlerTest {
         }
 
     }
-
 }
