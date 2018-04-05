@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With modifications by Bosch Software Innovations GmbH, 2016.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -69,10 +69,13 @@ import static org.eclipse.sw360.datahandler.thrift.ThriftValidate.prepareRelease
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
  * @author alex.borodin@evosoft.com
+ * @author thomas.maier@evosoft.com
  */
 public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     private static final Logger log = Logger.getLogger(ComponentDatabaseHandler.class);
+    private static final String ASSESSOR_DEFAULT_GROUP = "no group";
+    private static final String ECC_AUTOSET_VALUE = "N";
 
     /**
      * Connection to the couchDB database
@@ -303,6 +306,9 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         // Save creating user
         release.setCreatedBy(user);
         release.setCreatedOn(SW360Utils.getCreatedOn());
+
+        // Add default ECC options if download url is set
+        autosetEccFieldsForReleaseWithDownloadUrl(release, user);
 
         // Add release to database
         releaseRepository.add(release);
@@ -607,13 +613,18 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
         }
         DocumentPermissions<Release> permissions = makePermission(actual, user);
         boolean hasChangesInEccFields = hasChangesInEccFields(release, actual);
+
+        if (!hasChangesInEccFields && hasEmptyEccFields(release)) {
+            autosetEccFieldsForReleaseWithDownloadUrl(release, user.getEmail());
+        }
+
         if ((hasChangesInEccFields && permissions.isActionAllowed(RequestedAction.WRITE_ECC)) ||
                 (!hasChangesInEccFields && permissions.isActionAllowed(RequestedAction.WRITE))) {
             copyFields(actual, release, immutableFields);
 
             autosetReleaseClearingState(release, actual);
             if (hasChangesInEccFields) {
-                autosetEccUpdaterInfo(release, user);
+                autosetEccUpdaterInfo(release, user.getEmail(), user.getDepartment());
             }
             release.setAttachments( getAllAttachmentsToKeep(actual.getAttachments(), release.getAttachments()) );
             releaseRepository.update(release);
@@ -649,11 +660,34 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
                 .reduce(false, Boolean::logicalOr);
     }
 
-    private void autosetEccUpdaterInfo(Release release, User user) {
+    public boolean hasEmptyEccFields(Release release) {
+        EccInformation eccInformation = release.getEccInformation();
+        return isNullEmptyOrWhitespace(eccInformation.getAL()) &&
+                isNullEmptyOrWhitespace(eccInformation.getECCN()) &&
+                (eccInformation.getEccStatus() == null || eccInformation.getEccStatus() == ECCStatus.OPEN);
+    }
+
+    private void autosetEccUpdaterInfo(Release release, String contactPerson, String department) {
         ensureEccInformationIsSet(release);
         release.getEccInformation().setAssessmentDate(SW360Utils.getCreatedOn());
-        release.getEccInformation().setAssessorContactPerson(user.getEmail());
-        release.getEccInformation().setAssessorDepartment(user.getDepartment());
+        release.getEccInformation().setAssessorContactPerson(contactPerson);
+        release.getEccInformation().setAssessorDepartment(department);
+    }
+
+    private void autosetEccFieldsForReleaseWithDownloadUrl(Release release, String contactPerson) {
+        // For unmodified OSS, ECC classification can be done automatically: sw360/sw360portal#773
+        String url = release.getDownloadurl();
+        if (!isNullOrEmpty(url)) {
+            if (CommonUtils.isValidUrl(url)) {
+                autosetEccUpdaterInfo(release, contactPerson, ASSESSOR_DEFAULT_GROUP);
+                EccInformation eccInfo = release.getEccInformation();
+                eccInfo.setAL(ECC_AUTOSET_VALUE);
+                eccInfo.setECCN(ECC_AUTOSET_VALUE);
+                eccInfo.setEccStatus(ECCStatus.APPROVED);
+            } else {
+                log.warn("Could not set ECC options for unmodified OSS because download url is not valid: " + url);
+            }
+        }
     }
 
     private void prepareRelease(Release release) throws SW360Exception {
@@ -1126,7 +1160,7 @@ public class ComponentDatabaseHandler extends AttachmentAwareDatabaseHandler {
 
     public Set<Attachment> getSourceAttachments(String releaseId) throws SW360Exception {
         Release release = assertNotNull(releaseRepository.get(releaseId));
-        
+
         return nullToEmptySet(release.getAttachments())
                 .stream()
                 .filter(Objects::nonNull)

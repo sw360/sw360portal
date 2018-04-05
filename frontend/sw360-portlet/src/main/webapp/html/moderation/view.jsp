@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -171,7 +171,7 @@
                 "5": '<sw360:DisplayUserEmailCollection value="${moderation.moderators}" bare="true"/>',
                 "6": "<sw360:DisplayEnum value="${moderation.moderationState}"/>",
                 <core_rt:if test="${isUserAtLeastClearingAdmin == 'Yes'}">
-                "7": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('${moderation.id}','<b>${moderation.documentName}</b>')\"  alt='Delete' title='Delete'>"
+                "7": "<img class='delete' src='<%=request.getContextPath()%>/images/Trash.png' onclick=\"deleteModerationRequest('<sw360:out value="${moderation.id}"/>','<b><sw360:out value="${moderation.documentName}"/></b>')\"  alt='Delete' title='Delete'>"
                 </core_rt:if>
                 <core_rt:if test="${isUserAtLeastClearingAdmin != 'Yes'}">
                 "7": "READY"
