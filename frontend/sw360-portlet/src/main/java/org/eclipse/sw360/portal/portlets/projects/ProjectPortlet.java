@@ -756,6 +756,8 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 putDirectlyLinkedReleasesInRequest(request, project);
                 Set<Project> usingProjects = client.searchLinkingProjects(id, user);
                 request.setAttribute(USING_PROJECTS, usingProjects);
+                int allUsingProjectCount = client.getCountByProjectId(id);
+                request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectCount);
                 putReleasesAndProjectIntoRequest(request, id, user);
                 putVulnerabilitiesInRequest(request, id, user);
                 request.setAttribute(
@@ -955,6 +957,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
         Project project;
         Set<Project> usingProjects;
+        int allUsingProjectCount = 0;
         request.setAttribute(DEFAULT_LICENSE_INFO_HEADER_TEXT, getProjectDefaultLicenseInfoHeaderText());
 
         if (id != null) {
@@ -963,6 +966,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 ProjectService.Iface client = thriftClients.makeProjectClient();
                 project = client.getProjectByIdForEdit(id, user);
                 usingProjects = client.searchLinkingProjects(id, user);
+                allUsingProjectCount = client.getCountByProjectId(id);
             } catch (TException e) {
                 log.error("Something went wrong with fetching the project", e);
                 setSW360SessionError(request, ErrorMessages.ERROR_GETTING_PROJECT);
@@ -982,6 +986,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
             }
 
             request.setAttribute(USING_PROJECTS, usingProjects);
+            request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectCount);
             Map<RequestedAction, Boolean> permissions = project.getPermissions();
             DocumentState documentState = project.getDocumentState();
 
@@ -999,6 +1004,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                     log.error("Could not put empty linked projects or linked releases in projects view.", e);
                 }
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
+                request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
 
                 SessionMessages.add(request, "request_processed", "New Project");
             }
@@ -1023,6 +1029,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 putDirectlyLinkedProjectsInRequest(request, newProject, user);
                 putDirectlyLinkedReleasesInRequest(request, newProject);
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
+                request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
             } else {
                 Project project = new Project();
                 project.setBusinessUnit(user.getDepartment());
@@ -1033,6 +1040,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
                 putDirectlyLinkedReleasesInRequest(request, project);
 
                 request.setAttribute(USING_PROJECTS, Collections.emptySet());
+                request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
             }
         } catch (TException e) {
             log.error("Error fetching project from backend!", e);
@@ -1099,6 +1107,7 @@ public class ProjectPortlet extends FossologyAwarePortlet {
         request.setAttribute(PROJECT, project);
         setAttachmentsInRequest(request, project.getAttachments());
         request.setAttribute(USING_PROJECTS, Collections.emptySet());
+        request.setAttribute(ALL_USING_PROJECTS_COUNT, 0);
         putDirectlyLinkedProjectsInRequest(request, project, user);
         putDirectlyLinkedReleasesInRequest(request, project);
     }

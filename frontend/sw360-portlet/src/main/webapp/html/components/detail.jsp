@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
   ~ With modifications by Bosch Software Innovations GmbH, 2016.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
@@ -40,6 +40,7 @@
     <jsp:useBean id="selectedTab" class="java.lang.String" scope="request"/>
     <jsp:useBean id="usingProjects" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.projects.Project>" scope="request"/>
     <jsp:useBean id="usingComponents" type="java.util.Set<org.eclipse.sw360.datahandler.thrift.components.Component>" scope="request"/>
+    <jsp:useBean id="allUsingProjectsCount" type="java.lang.Integer" scope="request"/>
     <jsp:useBean id="documentType" class="java.lang.String" scope="request"/>
     <jsp:useBean id="isUserAllowedToMerge" type="java.lang.Boolean" scope="request"/>
     <jsp:useBean id="vulnerabilityVerificationEditable" type="java.lang.Boolean" scope="request"/>

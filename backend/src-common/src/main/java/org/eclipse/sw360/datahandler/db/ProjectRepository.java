@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2016. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -10,7 +10,6 @@
  */
 package org.eclipse.sw360.datahandler.db;
 
-import com.google.common.collect.Sets;
 import org.eclipse.sw360.components.summary.ProjectSummary;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
@@ -21,9 +20,7 @@ import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.ektorp.support.View;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -34,6 +31,7 @@ import static org.eclipse.sw360.datahandler.common.SW360Utils.getBUFromOrganisat
  *
  * @author cedric.bodet@tngtech.com
  * @author Johannes.Najjar@tngtech.com
+ * @author thomas.maier@evosoft.com
  */
 @View(name = "all", map = "function(doc) { if (doc.type == 'project') emit(null, doc._id) }")
 public class ProjectRepository extends SummaryAwareRepository<Project> {
@@ -153,17 +151,19 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
         return makeSummaryFromFullDocs(SummaryType.SHORT, projectsMatchingNameAndVersion);
     }
 
-
     @View(name = "byreleaseid", map = BY_RELEASE_ID_VIEW)
     public Set<Project> searchByReleaseId(String id, User user) {
-        Set<String> searchIds = queryForIdsAsValue("byreleaseid", id);
-
-        return new HashSet<>((makeSummaryFromFullDocs(SummaryType.SHORT, filterAccessibleProjectsByIds(user, searchIds))));
+        return searchByReleaseId(Collections.singleton(id), user);
     }
 
     public Set<Project> searchByReleaseId(Set<String> ids, User user) {
         Set<String> searchIds = queryForIdsAsValue("byreleaseid", ids);
-        return linkedProjectSummaryAccordingToAccessibility(searchIds, user);
+        return getAccessibleProjectSummary(user, searchIds);
+    }
+
+    public int getCountByReleaseIds(Set<String> ids) {
+        Set<String> searchIds = queryForIdsAsValue("byreleaseid", ids);
+        return searchIds.size();
     }
 
     @View(name = "fullbyreleaseid", map = FULL_BY_RELEASE_ID_VIEW)
@@ -175,21 +175,16 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
         return new HashSet<>(queryByIds("fullbyreleaseid", ids));
     }
 
-
     @View(name = "bylinkingprojectid", map = BY_LINKING_PROJECT_ID_VIEW)
     public Set<Project> searchByLinkingProjectId(String id, User user) {
         Set<String> searchIds = queryForIdsByPrefix("bylinkingprojectid", id);
-        return linkedProjectSummaryAccordingToAccessibility(searchIds, user);
+        return getAccessibleProjectSummary(user, searchIds);
     }
 
-    private Set<Project> linkedProjectSummaryAccordingToAccessibility(Set<String> ids, User user){
-        Set<Project> accessibleLinkedProjects = filterAccessibleProjectsByIds(user, ids);
-        Set<String>  accessibleLinkedProjectIds = accessibleLinkedProjects.stream().map(Project::getId).collect(Collectors.toSet());
-        Set<String> unaccessibleLinkedProjectIds = Sets.difference(ids, accessibleLinkedProjectIds);
-        List<Project> unaccessibleLinkedProjects = get(unaccessibleLinkedProjectIds);
-        Set<Project> projectSummary = new HashSet<>((makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_ACCESSIBLE, accessibleLinkedProjects )));
-        projectSummary.addAll(makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_NOT_ACCESSIBLE, unaccessibleLinkedProjects ));
-        return projectSummary;
+    @View(name = "bylinkingprojectid", map = BY_LINKING_PROJECT_ID_VIEW)
+    public int getCountByProjectId(String id) {
+        Set<String> searchIds = queryForIdsByPrefix("bylinkingprojectid", id);
+        return searchIds.size();
     }
 
     @View(name = "fullbylinkingprojectid", map = FULL_BY_LINKING_PROJECT_ID_VIEW)
@@ -263,5 +258,10 @@ public class ProjectRepository extends SummaryAwareRepository<Project> {
         }
 
         return output;
+    }
+
+    private Set<Project> getAccessibleProjectSummary(User user, Set<String> searchIds) {
+        Set<Project> accessibleProjects = filterAccessibleProjectsByIds(user, searchIds);
+        return new HashSet<>(makeSummaryFromFullDocs(SummaryType.LINKED_PROJECT_ACCESSIBLE, accessibleProjects));
     }
 }

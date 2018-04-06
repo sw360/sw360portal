@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -30,9 +30,6 @@ public class ProjectSummary extends DocumentSummary<Project> {
         switch (type) {
             case LINKED_PROJECT_ACCESSIBLE:
                 setFieldsForAccessibleLinkedProject(document,copy);
-                break;
-            case LINKED_PROJECT_NOT_ACCESSIBLE:
-                setFieldsForUnAccessibleLinkedProject(document,copy);
                 break;
             case SUMMARY:
                 setSummaryFields(document, copy);
@@ -67,15 +64,5 @@ public class ProjectSummary extends DocumentSummary<Project> {
         copyField(document, copy, _Fields.CLEARING_TEAM);
         copyField(document, copy, _Fields.BUSINESS_UNIT);
         copyField(document, copy, _Fields.PROJECT_RESPONSIBLE);
-    }
-
-    protected static void setFieldsForUnAccessibleLinkedProject(Project document, Project copy) {
-        copyField(document, copy, _Fields.ID);
-        copyField(document, copy, _Fields.NAME);
-        copyField(document, copy, _Fields.VERSION);
-        copy.setDescription("");
-        copy.setClearingTeam("");
-        copy.setBusinessUnit("");
-        copy.setProjectResponsible("");
     }
 }
