@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -399,11 +399,13 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         Set<String> releaseIds = SW360Utils.getReleaseIds(releases);
 
         Set<Project> usingProjects = null;
+        int allUsingProjectsCount = 0;
 
         if (releaseIds != null && releaseIds.size() > 0) {
             try {
                 ProjectService.Iface projectClient = thriftClients.makeProjectClient();
                 usingProjects = projectClient.searchByReleaseIds(releaseIds, user);
+                allUsingProjectsCount = projectClient.getCountByReleaseIds(releaseIds);
             } catch (TException e) {
                 log.error("Could not retrieve using projects", e);
             }
@@ -411,6 +413,7 @@ public class ModerationPortlet extends FossologyAwarePortlet {
         request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_COMPONENT);
         setAttachmentsInRequest(request, actualComponent.getAttachments());
         request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
+        request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectsCount);
     }
 
     public void renderReleaseModeration(RenderRequest request, RenderResponse response, ModerationRequest moderationRequest, User user) throws IOException, PortletException, TException {
@@ -464,6 +467,8 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             ProjectService.Iface projectClient = thriftClients.makeProjectClient();
             Set<Project> usingProjects = projectClient.searchByReleaseId(actualReleaseId, user);
             request.setAttribute(USING_PROJECTS, nullToEmptySet(usingProjects));
+            int allUsingProjectsCount = projectClient.getCountByReleaseIds(Collections.singleton(actualReleaseId));
+            request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectsCount);
             putDirectlyLinkedReleaseRelationsInRequest(request, actualRelease);
         } catch (TException e) {
             log.error("Could not retrieve using projects", e);
@@ -517,6 +522,8 @@ public class ModerationPortlet extends FossologyAwarePortlet {
             putDirectlyLinkedReleasesInRequest(request, actual_project);
             Set<Project> usingProjects = client.searchLinkingProjects(actual_project.getId(), user);
             request.setAttribute(USING_PROJECTS, usingProjects);
+            int allUsingProjectsCount = client.getCountByProjectId(actual_project.getId());
+            request.setAttribute(ALL_USING_PROJECTS_COUNT, allUsingProjectsCount);
             putReleasesAndProjectIntoRequest(request, actual_project.getId(), user);
             request.setAttribute(DOCUMENT_TYPE, SW360Constants.TYPE_PROJECT);
             setAttachmentsInRequest(request, actual_project.getAttachments());
