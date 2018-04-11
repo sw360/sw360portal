@@ -10,15 +10,17 @@
  */
 package org.eclipse.sw360.portal.users;
 
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-
+import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.Organization;
+import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.AutoLogin;
 import com.liferay.portal.security.auth.AutoLoginException;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
+import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.UUID;
+
+import static org.eclipse.sw360.datahandler.common.CommonUtils.isNullEmptyOrWhitespace;
 
 /**
  * Basic single-sign-on implementation, just parses email and external id from 
@@ -41,17 +46,28 @@ public class SSOAutoLogin implements AutoLogin {
     private Properties props;
     
     public static final String AUTH_EMAIL_KEY = "key.auth.email";
-    public static String AUTH_EMAIL_VALUE = "EMAIL";
+    public static String authEmailHeader = "EMAIL";
     public static final String AUTH_EXTID_KEY = "key.auth.extid";
-    public static String AUTH_EXTID_VALUE = "EXTID";
+    public static String authExtidHeader = "EXTID";
+    public static final String AUTH_GIVEN_NAME_KEY = "key.auth.givenname";
+    public static String authGivenNameHeader = "GIVENNAME";
+    public static final String AUTH_SURNAME_KEY = "key.auth.surname";
+    public static String authSurnameHeader = "SURNAME";
+    public static final String AUTH_DEPARTMENT_KEY = "key.auth.department";
+    public static String authDepartmentHeader = "DEPARTMENT";
+
+    private static final OrganizationHelper orgHelper = new OrganizationHelper();
 
     public SSOAutoLogin() {
     	super();
         Properties props = CommonUtils.loadProperties(SSOAutoLogin.class, PROPERTIES_FILE_PATH);
-        AUTH_EMAIL_VALUE = props.getProperty(AUTH_EMAIL_KEY, AUTH_EMAIL_VALUE);
-        AUTH_EXTID_VALUE = props.getProperty(AUTH_EXTID_KEY, AUTH_EXTID_VALUE);
-        log.info("Expecting the following header values for auto login email: '" 
-          + AUTH_EMAIL_VALUE + "' and external ID: '" + AUTH_EXTID_VALUE + "'");
+        authEmailHeader = props.getProperty(AUTH_EMAIL_KEY, authEmailHeader);
+        authExtidHeader = props.getProperty(AUTH_EXTID_KEY, authExtidHeader);
+        authGivenNameHeader = props.getProperty(AUTH_GIVEN_NAME_KEY, authGivenNameHeader);
+        authSurnameHeader = props.getProperty(AUTH_SURNAME_KEY, authSurnameHeader);
+        authDepartmentHeader = props.getProperty(AUTH_DEPARTMENT_KEY, authDepartmentHeader);
+        log.info(String.format("Expecting the following header values for auto login email: '%s', external ID: '%s', given name: '%s', surname: '%s', group: %s",
+                authEmailHeader, authExtidHeader, authGivenNameHeader, authSurnameHeader, authDepartmentHeader));
     }
 
     @Override
@@ -62,42 +78,63 @@ public class SSOAutoLogin implements AutoLogin {
 
     @Override
     public String[] login(HttpServletRequest request, HttpServletResponse response) throws AutoLoginException {
-        String emailId = request.getHeader(AUTH_EMAIL_VALUE);
-        String extid = request.getHeader(AUTH_EXTID_VALUE);
+        String emailId = request.getHeader(authEmailHeader);
+        String extid = request.getHeader(authExtidHeader);
+        String givenName = request.getHeader(authGivenNameHeader);
+        String surname = request.getHeader(authSurnameHeader);
+        String department = request.getHeader(authDepartmentHeader);
 
-        log.info("Attempting auto login for email: '" + emailId + "' and external id: '" + extid + "'");
+        log.info(String.format("Attempting auto login for email: '%s', external ID: '%s', given name: '%s', surname: '%s', group: %s",
+                emailId, extid, givenName, surname, department));
 
-        Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = request.getHeader(key);
-            log.debug(key + ":" + value);
-        }
+        dumpHeadersToLog(request);
 
-        if (emailId == null || emailId.isEmpty() || extid == null || extid.isEmpty()) {
+        if (isNullEmptyOrWhitespace(emailId)) {
             log.error("Empty credentials, auto login impossible.");
             return new String[]{};
         }
         long companyId = PortalUtil.getCompanyId(request);
 
-        User user = null;
         try {
-            user = UserLocalServiceUtil.getUserByEmailAddress(companyId, emailId);
-        } catch (SystemException | PortalException e) {
-            log.error("Exception during get user by email: '" + emailId + "' and company id: '" + companyId + "'", e);
-        }
 
-        // If user was found by liferay
-        if (user != null) {
+            String organizationName = orgHelper.mapOrganizationName(department);
+            Organization organization = orgHelper.addOrGetOrganization(organizationName, companyId);
+            log.info(String.format("Mapped orgcode %s to %s", department, organizationName));
+            User user;
+            try {
+                user = UserLocalServiceUtil.getUserByEmailAddress(companyId, emailId);
+            } catch (NoSuchUserException e) {
+                log.error("Could not find user with email: '" + emailId + "'. Will create one with a random password.");
+                String password = UUID.randomUUID().toString();
+
+                user = UserPortletUtils.addLiferayUser(request, givenName, surname, emailId,
+                        organizationName, RoleConstants.USER, false, extid, password, false, true);
+                if (user == null) {
+                    throw new AutoLoginException("Couldn't create user for '" + emailId + "' and company id: '" + companyId + "'");
+                }
+                log.info("Created user " + user);
+            }
+
+            orgHelper.reassignUserToOrganizationIfNecessary(user, organization);
+
             // Create a return credentials object
             return new String[]{
                     String.valueOf(user.getUserId()),
                     user.getPassword(), // Encrypted Liferay password
                     Boolean.TRUE.toString() // True: password is encrypted
             };
-        } else {
-            log.error("Could not get user with email: '" + emailId + "'.");
-            return new String[]{};
+        } catch (SystemException | PortalException e) {
+            log.error("Exception during login of user: '" + emailId + "' and company id: '" + companyId + "'", e);
+            throw new AutoLoginException(e);
+        }
+    }
+
+    private void dumpHeadersToLog(HttpServletRequest request) {
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            log.debug(key + ":" + value);
         }
     }
 }

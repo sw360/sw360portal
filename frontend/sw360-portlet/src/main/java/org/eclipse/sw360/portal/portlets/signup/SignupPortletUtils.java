@@ -10,13 +10,10 @@
  */
 package org.eclipse.sw360.portal.portlets.signup;
 
-import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
-import org.eclipse.sw360.datahandler.thrift.components.Component;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.portal.common.PortletUtils;
 
 import javax.portlet.PortletRequest;
-import java.util.HashSet;
 
 /**
  * Signup portlet utils
