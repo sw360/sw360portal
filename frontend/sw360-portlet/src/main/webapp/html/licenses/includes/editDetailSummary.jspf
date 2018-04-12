@@ -2,7 +2,7 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.licenses.License" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.Ternary" %>
 <%--
-  ~ Copyright Siemens AG, 2016-2017. Part of the SW360 Portal Project.
+  ~ Copyright Siemens AG, 2016-2018. Part of the SW360 Portal Project.
   ~
   ~ SPDX-License-Identifier: EPL-1.0
   ~
@@ -31,7 +31,9 @@
       <label class="textlabel stackedLabel mandatory" for="lic_shortname">Shortname</label>
       <input id="lic_shortname" name="<portlet:namespace/><%=License._Fields.SHORTNAME%>" type="text"
              placeholder="Enter Shortname" required="" value="<sw360:out value="${licenseDetail.shortname}"/>"
-             <core_rt:if test="${not empty licenseDetail.id}">readonly</core_rt:if> />
+             <core_rt:if test="${not empty licenseDetail.id}">readonly</core_rt:if>
+             <core_rt:if test="${empty licenseDetail.id}">pattern=[A-Za-z0-9\-.+]*</core_rt:if>
+             title="1*(ALPHA / DIGIT / &quot;-&quot; / &quot;.&quot; / &quot;+&quot; )" />
     </td>
 
     <td width="33%">

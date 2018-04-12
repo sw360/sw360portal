@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2014-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2014-2018. Part of the SW360 Portal Project.
  *
  * SPDX-License-Identifier: EPL-1.0
  *
@@ -25,6 +25,7 @@ import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Predicates.notNull;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.*;
@@ -38,6 +39,8 @@ import static org.eclipse.sw360.datahandler.common.SW360Utils.newDefaultEccInfor
  * @author cedric.bodet@tngtech.com
  */
 public class ThriftValidate {
+
+    private static final Pattern LICENSE_ID_PATTERN = Pattern.compile("[A-Za-z0-9\\-.+]*");
 
     private ThriftValidate() {
         // Utility class with only static functions
@@ -244,6 +247,22 @@ public class ThriftValidate {
         attachment.setType(TYPE_ATTACHMENT);
     }
 
+    public static void validateNewLicense(License license) throws SW360Exception {
+        assertId(license.getShortname());
+        assertTrue(LICENSE_ID_PATTERN.matcher(license.getShortname()).matches());
+        if (license.isSetId()) {
+            validateLicenseIdMatch(license);
+        }
+    }
+
+    public static void validateExistingLicense(License license) throws SW360Exception {
+        validateLicenseIdMatch(license);
+    }
+
+    private static void validateLicenseIdMatch(License license) throws SW360Exception {
+        String message = "license short name must be equal to license id";
+        assertEquals(license.getId(), license.getShortname(), message);
+    }
 
     public static void prepareProject(Project project) throws SW360Exception {
         assertNotEmpty(project.getName());
@@ -253,5 +272,4 @@ public class ThriftValidate {
         project.unsetPermissions();
         project.unsetReleaseClearingStateSummary();
     }
-
 }

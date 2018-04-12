@@ -1,5 +1,5 @@
 /*
- * Copyright Siemens AG, 2013-2017. Part of the SW360 Portal Project.
+ * Copyright Siemens AG, 2013-2018. Part of the SW360 Portal Project.
  * With contributions by Bosch Software Innovations GmbH, 2016-2017.
  *
  * SPDX-License-Identifier: EPL-1.0
@@ -11,13 +11,13 @@
  */
 package org.eclipse.sw360.licenses.db;
 
-
+import org.apache.log4j.Logger;
 import org.eclipse.sw360.components.summary.SummaryType;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseConnector;
-import org.eclipse.sw360.datahandler.db.CustomPropertiesRepository;
 import org.eclipse.sw360.datahandler.couchdb.DatabaseRepository;
+import org.eclipse.sw360.datahandler.db.CustomPropertiesRepository;
 import org.eclipse.sw360.datahandler.db.ReleaseRepository;
 import org.eclipse.sw360.datahandler.db.VendorRepository;
 import org.eclipse.sw360.datahandler.entitlement.LicenseModerator;
@@ -33,16 +33,12 @@ import org.eclipse.sw360.licenses.tools.SpdxConnector;
 import org.ektorp.DocumentOperationResult;
 import org.ektorp.http.HttpClient;
 import org.jetbrains.annotations.NotNull;
-import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isInProgressOrPending;
-import static org.eclipse.sw360.datahandler.common.CommonUtils.isTemporaryTodo;
 import static org.eclipse.sw360.datahandler.common.CommonUtils.*;
 import static org.eclipse.sw360.datahandler.common.SW360Assert.assertNotNull;
 import static org.eclipse.sw360.datahandler.permissions.PermissionUtils.makePermission;
@@ -382,8 +378,9 @@ public class LicenseDatabaseHandler {
                 .collect(Collectors.toList());
     }
 
-    public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) {
+    public RequestStatus updateLicense(License inputLicense, User user, User requestingUser) throws SW360Exception {
         if (makePermission(inputLicense, user).isActionAllowed(RequestedAction.WRITE)) {
+
             String businessUnit = SW360Utils.getBUFromOrganisation(requestingUser.getDepartment());
 
             License dbLicense = null;
@@ -395,8 +392,10 @@ public class LicenseDatabaseHandler {
             if(dbLicense == null){
                 dbLicense = new License();
                 isNewLicense = true;
+                validateNewLicense(inputLicense);
             } else {
                 isNewLicense = false;
+                validateExistingLicense(inputLicense);
             }
 
             dbLicense = updateLicenseFromInputLicense(dbLicense, inputLicense, businessUnit, user);
@@ -566,6 +565,7 @@ public class LicenseDatabaseHandler {
             return null;
         }
         for (License license : licenses) {
+            validateNewLicense(license);
             prepareLicense(license);
         }
 
