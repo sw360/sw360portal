@@ -16,7 +16,7 @@ RUN set -x \
      wget g++ make apache-ant libtool automake autoconf bison flex \
  && rm -rf /var/cache/apk/* \
  && cd /tmp \
- && wget -q 'https://git-wip-us.apache.org/repos/asf?p=thrift.git;a=snapshot;h=refs/heads/0.9.3;sf=tgz' -O thrift.tar.gz \
+ && wget -q 'https://github.com/apache/thrift/archive/0.9.3.tar.gz' -O thrift.tar.gz \
  && tar xzf thrift.tar.gz && rm thrift.tar.gz && cd thrift* \
  && ./bootstrap.sh \
  && ./configure --prefix=/usr \
