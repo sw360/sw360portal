@@ -205,13 +205,11 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             String vendorId = client.addVendor(vendor);
             JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
             jsonObject.put("id", vendorId);
-            try {
-                writeJSON(request, response, jsonObject);
-            } catch (IOException e) {
-                log.error("Problem rendering VendorId", e);
-            }
+            writeJSON(request, response, jsonObject);
         } catch (TException e) {
             log.error("Error adding vendor", e);
+        } catch (IOException e) {
+            log.error("Problem rendering VendorId", e);
         }
     }
 
