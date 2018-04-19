@@ -1,0 +1,17 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+    - "8080:8080"
+    links:
+    - couchdb
+    - postgres
+  couchdb:
+    image: couchdb
+    ports:
+      - 5984:5984
+  postgres:
+    build: postgre
+    ports:
+      - 5432:5432
