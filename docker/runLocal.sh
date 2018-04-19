@@ -9,10 +9,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 #!/usr/bin/env bash
 
-sw360=`pwd`
+docker=`pwd`
 killall java
 
 if [ "$1" == "reinstall" ]; then
@@ -27,11 +26,12 @@ rm liferay-portal-tomcat-6.2-ce-ga5.zip
 fi
 
 echo ">>> Install sw360portal"
-cd ${sw360}
-cp -rf portal-ext.properties ${LIFERAY_PATH}/tomcat-7.0.62/webapps/ROOT/WEB-INF/classes/portal-ext.properties
+cd ${docker}
+sed -i '' "s|LIFERAY_PATH|$LIFERAY_PATH|g" portal-ext-local.properties
+cp -rf portal-ext-local.properties ${LIFERAY_PATH}/tomcat-7.0.62/webapps/ROOT/WEB-INF/classes/portal-ext.properties
+cd ..
 mvn clean install -DskipTests -Pdeploy -Ddeploy.dir=${LIFERAY_PATH}/deploy -Dwebapps.dir=${LIFERAY_PATH}/tomcat-7.0.62/webapps
 
 echo ">>> Starting Tomcat of Liferay"
-#set CATALINA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
-#set in setenv.sh
+#set CATALINA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" in setenv.sh for debug
 ${LIFERAY_PATH}/tomcat-7.0.62/bin/catalina.sh run
