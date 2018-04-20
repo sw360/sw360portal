@@ -46,9 +46,7 @@ ENV LIFERAY_PATH /liferay-portal-6.2-ce-ga5
 ENV CATALINA_OPTS -Xms512m -Xmx12g
 
 # Build SW306
-RUN git clone https://github.com/sw360/sw360portal.git \
-  && cd sw360portal \
-  && git checkout tags/sw360-3.1.0
+RUN git clone https://github.com/codescoopltd/sw360portal.git
 COPY portal-ext.properties $LIFERAY_PATH/tomcat-7.0.62/webapps/ROOT/WEB-INF/classes/
 COPY couchdb.properties /sw360portal/build-configuration/resources/
 RUN cd sw360portal \
@@ -58,6 +56,3 @@ RUN cd sw360portal \
 EXPOSE 8080
 COPY docker-entrypoint.sh .
 ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
-
-#curl -s -X PUT http://couchdb:5984/_node/nonode@nohost/_config/admins/admin -d '"admin"'
-#curl -H "Content-Type: application/json" -X POST -d '{"action":"enable_single_node","password":"admin","port":"5984","singlenode":"true","username":"admin"}' http://couchdb:5984/_cluster_setup
