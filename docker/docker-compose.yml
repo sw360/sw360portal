@@ -9,6 +9,13 @@ services:
     - postgres
   couchdb:
     image: couchdb
+    volumes: 
+      - "./couchdb-setup.sh:/couchdb-setup.sh"
+    entrypoint: 
+      - "tini"
+      - "--"
+      - "/couchdb-setup.sh"
+      - "/opt/couchdb/bin/couchdb"
     ports:
       - 5984:5984
   postgres:
