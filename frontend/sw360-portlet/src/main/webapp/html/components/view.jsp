@@ -218,8 +218,8 @@
         var cdUrl = "<%=PortalConstants.CODESCOOP_URL%>";
         var cdToken = "<%=PortalConstants.CODESCOOP_TOKEN%>";
         document.addEventListener("DOMContentLoaded", function() {
-            require(['modules/CodeScoop' ], function(CodeScoop) {
-                var api = new CodeScoop(cdUrl, cdToken);
+            require(['modules/codeScoop' ], function(codeScoop) {
+                var api = new codeScoop(cdUrl, cdToken);
                 api.activateIndexes("componentsTable");
                 renderCallback = api.updateIndexes;
             });

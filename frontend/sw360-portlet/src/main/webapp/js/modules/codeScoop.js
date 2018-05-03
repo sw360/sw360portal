@@ -9,8 +9,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-define("modules/CodeScoop", [], function() {
-    function CodeScoop(apiUrl, apiToken) {
+define("modules/codeScoop", [], function() {
+    function codeScoop(apiUrl, apiToken) {
 
         var _this = this;
 
@@ -225,25 +225,53 @@ define("modules/CodeScoop", [], function() {
                 var trs = _this.indexTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
                 for (var i = 0; i < trs.length; i++) {
                     var tr = trs[i];
-                    var composite = _this.indexData[tr.getAttribute("id")].compositeIndex;
+                    var elementData = _this.indexData[tr.getAttribute("id")];
+                    var composite = elementData.compositeIndex;
                     if (composite) {
                         var box = document.createElement("div");
-                        box.style.float = "right";
-                        box.style.width = "85px";
+                        box.style.cursor = "pointer";
+                        box.style.display = "flex";
+                        box.style.width = "auto";
+                        box.style.flexDirection = "row";
+
+                        var img = document.createElement("img");
+                        img.style.display = "flex";
+                        img.style.width = "35px";
+                        img.style.height = "35px";
+                        img.style.borderRadius = "3px";
+                        img.style.margin = "5px";
+                        img.setAttribute("src", elementData.logo);
+                        box.appendChild(img);
+
+                        var pR = document.createElement("div");
+                        img.style.margin = "5px";
+                        pR.style.display = "flex";
+                        pR.style.flexDirection = "column";
+                        pR.innerHTML = "<div>rate</div><div>" + elementData.rate + "</div>";
+                        box.appendChild(pR);
 
                         var pI = document.createElement("div");
+                        img.style.margin = "5px";
                         pI.style.color = "rgb(1, 219, 187)";
-                        pI.innerText = "interest: " + composite.interestPercent + "%";
+                        pI.style.display = "flex";
+                        pI.style.flexDirection = "column";
+                        pI.innerHTML = "<div>interest</div><div>" + composite.interestPercent + "</div>";
                         box.appendChild(pI);
 
                         var pA = document.createElement("div");
+                        img.style.margin = "5px";
                         pA.style.color = "rgb(237, 81, 56)";
-                        pA.innerText = "activity: " + composite.activityPercent + "%";
+                        pA.style.display = "flex";
+                        pA.style.flexDirection = "column";
+                        pA.innerHTML = "<div>activity</div><div>" + composite.activityPercent + "</div>";
                         box.appendChild(pA);
 
                         var pH = document.createElement("div");
+                        img.style.margin = "5px";
                         pH.style.color = "rgb(7, 180, 0)";
-                        pH.innerText = "health: " + composite.healthPercent + "%";
+                        pH.style.display = "flex";
+                        pH.style.flexDirection = "column";
+                        pH.innerHTML = "<div>health</div><div>" + composite.healthPercent + "</div>";
                         box.appendChild(pH);
 
                         tr.getElementsByTagName("td")[1].appendChild(box);
@@ -259,5 +287,5 @@ define("modules/CodeScoop", [], function() {
         }
     }
 
-    return CodeScoop;
+    return codeScoop;
 });
