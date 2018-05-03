@@ -21,6 +21,6 @@ define('modules/sw360Validate', ['jquery', /* jquery-plugins: */ 'jquery.validat
 			    ignore: [],
 	            invalidHandler: invalidHandlerShowErrorTab
 			});
-		},
+		}
 	};
 });
