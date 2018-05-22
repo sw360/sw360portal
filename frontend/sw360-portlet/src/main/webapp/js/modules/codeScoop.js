@@ -30,10 +30,9 @@ function Modal() {
         modalBox.style.border = "1px solid #c5c5c5";
         modalBox.style.backgroundColor = "#ffffff";
         modalBox.style.color = "#333333";
-        modalBox.style.padding = "2em 0.2em 0.2em 0.2em";
-        modalBox.style.minWidth = "40%";
+        modalBox.style.padding = "3em 0.2em 2em 0.2em";
         modalBox.style.width = "40%";
-        modalBox.style.height = "60%";
+        modalBox.style.height = "40%";
         _this.modalBox = modalBox;
 
         var modalClose = document.createElement("button");
@@ -84,8 +83,9 @@ function Modal() {
         _this.modalContent.innerHTML = "";
         var loader = document.createElement("img");
         loader.style.display = "flex";
-        loader.style.width = "50px";
-        loader.style.height = "50px";
+        loader.style.width = "3em";
+        loader.style.height = "3em";
+        loader.style.margin = "4em 0";
         loader.setAttribute("src", "/sw360-portlet/images/loader.gif");
         _this.modalContent.appendChild(loader);
     };
@@ -135,7 +135,34 @@ define("modules/codeScoop", [], function() {
         this.interval = 500;
         this.modal = new Modal();
 
-        this.installFormElement = function () {
+        this._api = function (method, path, request, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, _this.apiUrl + path, true);
+            xhr.setRequestHeader("X-Api-Key", _this.apiToken);
+            xhr.setRequestHeader("X-User-Login", "test");
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var dto = JSON.parse(this.responseText);
+                    callback(dto);
+                }
+            };
+            xhr.send(request);
+        };
+
+        this._fetch_repo = function (owner, name, callback) {
+            _this._api("GET", "repository/" + owner + "/" + name + "/", null, callback);
+        };
+
+        this._fetch_composite = function (requestData, callback) {
+            _this._api("POST", "integration/siemens/composite", JSON.stringify(requestData), callback);
+        };
+
+        this._fetch_releases = function (id, callback) {
+            _this._api("GET", "integration/siemens/releases?gitHubRepoId=" + id, null, callback);
+        };
+
+        this._install_form_element = function () {
             _this.formElements.form = document.getElementsByTagName("form")[0];
             var inputs = _this.formElements.form.getElementsByTagName("input");
             for (var i = 0; i < inputs.length; i++) {
@@ -168,7 +195,7 @@ define("modules/codeScoop", [], function() {
                 }
             }
         };
-        
+
         this._build_autocomplete_box = function (element) {
             var list = document.createElement("div");
             list.id = "codescoop-autocomplete";
@@ -195,39 +222,11 @@ define("modules/codeScoop", [], function() {
             return list;
         };
 
-        this.installAutocompleteBox = function () {
+        this._install_autocomplete_box = function () {
             _this.formElements.componentList = _this._build_autocomplete_box(_this.formElements.name);
             document.body.appendChild(_this.formElements.componentList);
             _this.formElements.componentListUrl = _this._build_autocomplete_box(_this.formElements.homepage);
             document.body.appendChild(_this.formElements.componentListUrl);
-        };
-
-        this._fetch_repo = function (owner, name, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", _this.apiUrl + "repository/" + owner + "/" + name + "/", true);
-            xhr.setRequestHeader("X-Api-Key", _this.apiToken);
-            xhr.setRequestHeader("X-User-Login", "test");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var repoDTO = JSON.parse(this.responseText);
-                    callback(repoDTO);
-                }
-            };
-            xhr.send(null);
-        };
-
-        this._fetch_releases = function (id, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", _this.apiUrl + "integration/siemens/releases?gitHubRepoId=" + id, true);
-            xhr.setRequestHeader("X-Api-Key", _this.apiToken);
-            xhr.setRequestHeader("X-User-Login", "test");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var releasesDTO = JSON.parse(this.responseText);
-                    callback(releasesDTO);
-                }
-            };
-            xhr.send(null);
         };
 
         this._autocomplete_repo = function (searchType, searchValue, limit, callback) {
@@ -244,7 +243,7 @@ define("modules/codeScoop", [], function() {
             xhr.send(null);
         };
 
-        this.listenAutocomplete = function () {
+        this._listen_autocomplete = function () {
 
             var autoFillForm = function(id) {
                 var ownerName = id.split("/");
@@ -345,130 +344,7 @@ define("modules/codeScoop", [], function() {
             _this.formElements.homepage.onpaste = homepageChanged;
         };
 
-        this.activateAutoFill = function() {
-            _this.installFormElement();
-            _this.installAutocompleteBox();
-            _this.listenAutocomplete();
-        };
-
-        this.activateIndexes = function(tableID) {
-            var requestData = [];
-            _this.indexTable = document.getElementById(tableID);
-
-            for (var i = 0; i < dataTable.length; i ++) {
-                var swComponent = dataTable[i];
-                requestData.push({
-                    id: swComponent.DT_RowId,
-                    vendor: swComponent.vndrs,
-                    name: swComponent.name
-                });
-            }
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", this.apiUrl + "integration/siemens/composite" , true);
-            xhr.setRequestHeader("X-Api-Key", this.apiToken);
-            xhr.setRequestHeader("X-User-Login", "test");
-            xhr.setRequestHeader("Content-type", "application/json");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var responseData = JSON.parse(this.responseText);
-                    for (var i = 0; i < responseData.length; i ++) {
-                        var data = responseData[i];
-                        _this.indexData[data.id] = data;
-                    }
-                }
-            };
-            xhr.send(JSON.stringify(requestData));
-        };
-
-        this.updateIndexes = function () {
-            if (_this.indexDone) {
-                return;
-            }
-
-            var updateAction = function () {
-                if (Object.keys(_this.indexData).length === 0) {
-                    if (_this.timeout) {
-                        clearTimeout(_this.timeout);
-                    }
-                    _this.timeout = setTimeout(updateAction,  _this.interval);
-                }
-                var trs = _this.indexTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-                for (var i = 0; i < trs.length; i++) {
-                    var tr = trs[i];
-                    var elementData = _this.indexData[tr.getAttribute("id")];
-                    var composite = elementData.compositeIndex;
-                    if (composite) {
-                        var box = document.createElement("div");
-                        box.style.cursor = "pointer";
-                        box.style.display = "flex";
-                        box.style.width = "auto";
-                        box.style.flexDirection = "row";
-
-                        var img = document.createElement("img");
-                        img.style.display = "flex";
-                        img.style.width = "35px";
-                        img.style.height = "35px";
-                        img.style.borderRadius = "3px";
-                        img.style.margin = "10px 10px 10px 0";
-                        img.setAttribute("src", elementData.logo);
-                        box.appendChild(img);
-
-                        var pR = document.createElement("div");
-                        pR.style.margin = "5px 10px 10px 0";
-                        pR.style.display = "flex";
-                        pR.style.flexDirection = "column";
-                        pR.innerHTML = "<div>rate</div><div>" + elementData.rate + "</div>";
-                        box.appendChild(pR);
-
-                        var pI = document.createElement("div");
-                        pI.style.margin = "5px 10px 10px 0";
-                        pI.style.color = "rgb(1, 219, 187)";
-                        pI.style.display = "flex";
-                        pI.style.flexDirection = "column";
-                        pI.innerHTML = "<div>interest</div><div>" + composite.interestPercent + "</div>";
-                        box.appendChild(pI);
-
-                        var pA = document.createElement("div");
-                        pA.style.margin = "5px 10px 10px 0";
-                        pA.style.color = "rgb(237, 81, 56)";
-                        pA.style.display = "flex";
-                        pA.style.flexDirection = "column";
-                        pA.innerHTML = "<div>activity</div><div>" + composite.activityPercent + "</div>";
-                        box.appendChild(pA);
-
-                        var pH = document.createElement("div");
-                        pH.style.margin = "5px 10px 10px 0";
-                        pH.style.color = "rgb(7, 180, 0)";
-                        pH.style.display = "flex";
-                        pH.style.flexDirection = "column";
-                        pH.innerHTML = "<div>health</div><div>" + composite.healthPercent + "</div>";
-                        box.appendChild(pH);
-
-                        var info = document.createElement("img");
-                        info.style.margin = "10px 10px 10px 0";
-                        info.style.width = "15px";
-                        info.style.height = "15px";
-                        info.setAttribute("src", "/sw360-portlet/images/ic_info.png");
-                        box.appendChild(info);
-
-                        tr.getElementsByTagName("td")[1].appendChild(box);
-                    }
-                }
-                _this.indexDone = true;
-            };
-
-            if (_this.timeout) {
-                clearTimeout(_this.timeout);
-            }
-            _this.timeout = setTimeout(updateAction, _this.interval);
-        };
-
-        this.activateRelease = function() {
-            _this.initReleaseButton();
-        };
-
-        this.initReleaseButton = function () {
+        this._init_release_button = function () {
             var releaseButton = document.createElement("button");
             releaseButton.innerHTML = "Populate release";
             releaseButton.setAttribute("class","addButton");
@@ -521,7 +397,7 @@ define("modules/codeScoop", [], function() {
                             var row = document.createElement("div");
                             row.style.margin = "5px 0";
                             row.style.borderBottom = "1px solid rgb(197, 197, 197)";
-                            row.innerHTML = componentReleasesKey[i];
+                            row.innerHTML = "<strong>" + componentReleasesKey[i] + "</strong>";
                             table.appendChild(row);
 
                             var releases = dto.releases[componentReleasesKey[i]];
@@ -635,6 +511,139 @@ define("modules/codeScoop", [], function() {
                     });
                 }
             };
+        };
+
+        this.activateAutoFill = function() {
+            _this._install_form_element();
+            _this._install_autocomplete_box();
+            _this._listen_autocomplete();
+        };
+
+        this.activateIndexes = function(tableID) {
+            var requestData = [];
+            _this.indexTable = document.getElementById(tableID);
+
+            for (var i = 0; i < dataTable.length; i ++) {
+                var swComponent = dataTable[i];
+                requestData.push({
+                    id: swComponent.DT_RowId,
+                    vendor: swComponent.vndrs,
+                    name: swComponent.name
+                });
+            }
+
+            _this._fetch_composite(requestData, function (responseData) {
+                for (var i = 0; i < responseData.length; i ++) {
+                    var data = responseData[i];
+                    _this.indexData[data.id] = data;
+                }
+            });
+        };
+
+        this.updateIndexes = function () {
+            if (_this.indexDone) {
+                return;
+            }
+
+            var updateAction = function () {
+                if (Object.keys(_this.indexData).length === 0) {
+                    if (_this.timeout) {
+                        clearTimeout(_this.timeout);
+                    }
+                    _this.timeout = setTimeout(updateAction,  _this.interval);
+                    return;
+                }
+                var trs = _this.indexTable.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+                for (var i = 0; i < trs.length; i++) {
+                    var tr = trs[i];
+                    var elementData = _this.indexData[tr.getAttribute("id")];
+                    var composite = elementData.compositeIndex;
+                    if (composite) {
+                        var box = document.createElement("div");
+                        box.style.display = "flex";
+                        box.style.width = "auto";
+                        box.style.flexDirection = "row";
+
+                        var img = document.createElement("img");
+                        img.style.display = "flex";
+                        img.style.width = "35px";
+                        img.style.height = "35px";
+                        img.style.borderRadius = "3px";
+                        img.style.margin = "10px 10px 10px 0";
+                        img.setAttribute("src", elementData.logo);
+                        box.appendChild(img);
+
+                        var pR = document.createElement("div");
+                        pR.style.margin = "5px 10px 10px 0";
+                        pR.style.display = "flex";
+                        pR.style.flexDirection = "column";
+                        pR.innerHTML = "<div>rate</div><div>" + elementData.rate + "</div>";
+                        box.appendChild(pR);
+
+                        var pI = document.createElement("div");
+                        pI.style.margin = "5px 10px 10px 0";
+                        pI.style.color = "rgb(1, 219, 187)";
+                        pI.style.display = "flex";
+                        pI.style.flexDirection = "column";
+                        pI.innerHTML = "<div>interest</div><div>" + composite.interestPercent + "</div>";
+                        box.appendChild(pI);
+
+                        var pA = document.createElement("div");
+                        pA.style.margin = "5px 10px 10px 0";
+                        pA.style.color = "rgb(237, 81, 56)";
+                        pA.style.display = "flex";
+                        pA.style.flexDirection = "column";
+                        pA.innerHTML = "<div>activity</div><div>" + composite.activityPercent + "</div>";
+                        box.appendChild(pA);
+
+                        var pH = document.createElement("div");
+                        pH.style.margin = "5px 10px 10px 0";
+                        pH.style.color = "rgb(7, 180, 0)";
+                        pH.style.display = "flex";
+                        pH.style.flexDirection = "column";
+                        pH.innerHTML = "<div>health</div><div>" + composite.healthPercent + "</div>";
+                        box.appendChild(pH);
+
+                        var info = document.createElement("img");
+                        info.className = "codeScoopInfo";
+                        box.style.cursor = "pointer";
+                        info.style.margin = "10px 10px 10px 0";
+                        info.style.width = "15px";
+                        info.style.height = "15px";
+                        info.setAttribute("src", "/sw360-portlet/images/ic_info.png");
+                        box.appendChild(info);
+
+                        tr.getElementsByTagName("td")[1].appendChild(box);
+                    }
+                }
+                _this.indexDone = true;
+
+                var indexInfoMessage =
+                    "<p><strong>Codescoop data calculation</strong></p>" +
+                    "<p><strong>Interest:</strong> Admiration and re-use by users, measured as weighted view of Stars, Forks and Repo's age.</p>" +
+                    "<p><strong>Activity:</strong> Contributor efforts and frequency, measured as weighted view of code development (PRs, releases)</p>" +
+                    "<p><strong>Health:</strong> Project maintenance consistency, weighted view of issues handling and commits</p>" +
+                    "<p><strong>Rate:</strong> based on result of all indexes and evaluated as a percentage from all components data that we have</p>";
+
+                var tableBody = _this.indexTable.getElementsByTagName("tbody")[0];
+                tableBody.addEventListener("click", function (e) {
+                    if (e.target.className === "codeScoopInfo") {
+                        var content = document.createElement("div");
+                        content.style.width = "80%";
+                        content.innerHTML = indexInfoMessage;
+                        _this.modal.open(content);
+                    }
+                });
+            };
+
+            if (_this.timeout) {
+                clearTimeout(_this.timeout);
+            }
+            _this.timeout = setTimeout(updateAction, _this.interval);
+        };
+
+        this.activateRelease = function() {
+            _this._init_release_button();
         };
     }
 
