@@ -12,6 +12,8 @@
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.ComponentType" %>
 <%@ page import="org.eclipse.sw360.datahandler.thrift.components.Component" %>
 <core_rt:set var="preferredCountryCodes" value='<%=PortalConstants.PREFERRED_COUNTRY_CODES%>'/>
+<core_rt:set var="autocompleteUrl" value="<%=PortalConstants.CODESCOOP_URL%>"/>
+<core_rt:set var="autocompleteToken" value="<%=PortalConstants.CODESCOOP_TOKEN%>"/>
 
 <table class="table info_table" id="ComponentGeneralInfo">
     <thead>
@@ -136,6 +138,8 @@
             checkComponentNameParamKey = '<portlet:namespace/><%=PortalConstants.COMPONENT_NAME%>',
             openOnBlurOfElementId = '#comp_name';
 
+        <core_rt:if test="${empty autocompleteUrl && empty autocompleteToken}">
         linkListDialog.registerLinkListDialog(openOnBlurOfElementId, checkComponentNameUrl, checkComponentNameParamKey);
+        </core_rt:if>
     });
 </script>

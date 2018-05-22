@@ -27,6 +27,7 @@ echo ">>> Install sw360portal"
 cd ${docker}
 sed -i '' "s|LIFERAY_PATH|$LIFERAY_PATH|g" portal-ext-local.properties
 cp -rf portal-ext-local.properties ${LIFERAY_PATH}/tomcat-7.0.62/webapps/ROOT/WEB-INF/classes/portal-ext.properties
+git checkout -- portal-ext-local.properties
 cd ..
 mvn clean install -DskipTests -Pdeploy -Ddeploy.dir=${LIFERAY_PATH}/deploy -Dwebapps.dir=${LIFERAY_PATH}/tomcat-7.0.62/webapps
 
