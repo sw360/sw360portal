@@ -1,0 +1,30 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+    - "8080:8080"
+    links:
+    - couchdb
+    - postgres
+  couchdb:
+    image: couchdb
+    volumes: 
+      - "./couchdb-setup.sh:/couchdb-setup.sh"
+      - "./local.ini:/opt/couchdb/etc/local.ini"
+    entrypoint: 
+      - "tini"
+      - "--"
+      - "/couchdb-setup.sh"
+      - "/opt/couchdb/bin/couchdb"
+    ports:
+      - 5984:5984
+  postgres:
+    build: postgre
+    ports:
+      - 5432:5432
+  couchdb-lucene:
+    image: klaemo/couchdb-lucene
+    ports:
+      - 5985:5985
+
