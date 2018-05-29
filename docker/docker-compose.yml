@@ -11,6 +11,7 @@ services:
     image: couchdb
     volumes: 
       - "./couchdb-setup.sh:/couchdb-setup.sh"
+      - "./local.ini:/opt/couchdb/etc/local.ini"
     entrypoint: 
       - "tini"
       - "--"
@@ -22,3 +23,8 @@ services:
     build: postgre
     ports:
       - 5432:5432
+  couchdb-lucene:
+    image: klaemo/couchdb-lucene
+    ports:
+      - 5985:5985
+
