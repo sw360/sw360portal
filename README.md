@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/sw360/sw360portal.svg?branch=master)](https://travis-ci.org/sw360/sw360portal)
 
+*Important Notice!* This repository is archived! We have continued at https://github.com/eclipse/sw360
+
 ### sw360portal
 
 A software component catalogue application - designed to work with FOSSology.
